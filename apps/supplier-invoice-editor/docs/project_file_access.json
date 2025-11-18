@@ -1,0 +1,490 @@
+{
+  "project_name": "supplier-invoice-editor",
+  "description": "Invoice Editor - ISDOC approval and NEX Genesis integration",
+  "repository": "https://github.com/rauschiccsk/supplier-invoice-editor",
+  "generated_at": "2025-11-12T22:42:13.517469",
+  "commit_sha": "4c0dcc2b243b31e2a2645052ace4fb3b5da6f062",
+  "cache_buster": "4c0dcc2b243b31e2a2645052ace4fb3b5da6f062",
+  "cache_version": "4c0dcc2b243b",
+  "base_url": "https://raw.githubusercontent.com/rauschiccsk/supplier-invoice-editor/4c0dcc2b243b31e2a2645052ace4fb3b5da6f062",
+  "quick_access": {
+    "init_files": [
+      {
+        "name": "INIT_PROMPT_NEW_CHAT.md",
+        "description": "Init prompt for new session - load this first",
+        "url": "https://raw.githubusercontent.com/rauschiccsk/supplier-invoice-editor/4c0dcc2b243b31e2a2645052ace4fb3b5da6f062/INIT_PROMPT_NEW_CHAT.md?v=4c0dcc2b243b"
+      },
+      {
+        "name": "SESSION_NOTES.md",
+        "description": "Current session progress and status",
+        "url": "https://raw.githubusercontent.com/rauschiccsk/supplier-invoice-editor/4c0dcc2b243b31e2a2645052ace4fb3b5da6f062/SESSION_NOTES.md?v=4c0dcc2b243b"
+      }
+    ],
+    "core_modules": [
+      {
+        "name": "src/btrieve/btrieve_client.py",
+        "description": "Btrieve database client (from nex-genesis-server)",
+        "url": "https://raw.githubusercontent.com/rauschiccsk/supplier-invoice-editor/4c0dcc2b243b31e2a2645052ace4fb3b5da6f062/src/btrieve/btrieve_client.py?v=4c0dcc2b243b"
+      },
+      {
+        "name": "src/database/postgres_client.py",
+        "description": "PostgreSQL staging database client",
+        "url": "https://raw.githubusercontent.com/rauschiccsk/supplier-invoice-editor/4c0dcc2b243b31e2a2645052ace4fb3b5da6f062/src/database/postgres_client.py?v=4c0dcc2b243b"
+      },
+      {
+        "name": "main.py",
+        "description": "Application entry point",
+        "url": "https://raw.githubusercontent.com/rauschiccsk/supplier-invoice-editor/4c0dcc2b243b31e2a2645052ace4fb3b5da6f062/main.py?v=4c0dcc2b243b"
+      }
+    ],
+    "database": [
+      {
+        "name": "database/schemas/001_initial_schema.sql",
+        "description": "PostgreSQL staging database schema",
+        "url": "https://raw.githubusercontent.com/rauschiccsk/supplier-invoice-editor/4c0dcc2b243b31e2a2645052ace4fb3b5da6f062/database/schemas/001_initial_schema.sql?v=4c0dcc2b243b"
+      }
+    ]
+  },
+  "categories": [
+    "root_modules",
+    "documentation",
+    "python_sources",
+    "ui_resources",
+    "configuration",
+    "database_schemas",
+    "tests"
+  ],
+  "category_descriptions": {
+    "root_modules": "Root-level Python modules",
+    "documentation": "Project documentation and guides",
+    "python_sources": "Python source code modules",
+    "ui_resources": "Qt5 UI files and resources",
+    "configuration": "Configuration files and templates",
+    "database_schemas": "PostgreSQL schemas and migrations",
+    "tests": "Test suite and fixtures"
+  },
+  "statistics": {
+    "total_files": 50,
+    "by_category": {
+      "root_modules": 1,
+      "documentation": 5,
+      "python_sources": 36,
+      "ui_resources": 0,
+      "configuration": 2,
+      "database_schemas": 3,
+      "tests": 3
+    },
+    "generated_by": "generate_project_access.py"
+  },
+  "files": [
+    {
+      "path": "config/config.yaml",
+      "raw_url": "https://raw.githubusercontent.com/rauschiccsk/supplier-invoice-editor/4c0dcc2b243b31e2a2645052ace4fb3b5da6f062/config/config.yaml?v=4c0dcc2b243b",
+      "size": 672,
+      "extension": ".yaml",
+      "name": "config.yaml",
+      "category": "configuration"
+    },
+    {
+      "path": "database/schemas/001_initial_schema.sql",
+      "raw_url": "https://raw.githubusercontent.com/rauschiccsk/supplier-invoice-editor/4c0dcc2b243b31e2a2645052ace4fb3b5da6f062/database/schemas/001_initial_schema.sql?v=4c0dcc2b243b",
+      "size": 20569,
+      "extension": ".sql",
+      "name": "001_initial_schema.sql",
+      "category": "database_schemas"
+    },
+    {
+      "path": "database/schemas/002_add_nex_columns.sql",
+      "raw_url": "https://raw.githubusercontent.com/rauschiccsk/supplier-invoice-editor/4c0dcc2b243b31e2a2645052ace4fb3b5da6f062/database/schemas/002_add_nex_columns.sql?v=4c0dcc2b243b",
+      "size": 985,
+      "extension": ".sql",
+      "name": "002_add_nex_columns.sql",
+      "category": "database_schemas"
+    },
+    {
+      "path": "database/schemas/test_schema.sql",
+      "raw_url": "https://raw.githubusercontent.com/rauschiccsk/supplier-invoice-editor/4c0dcc2b243b31e2a2645052ace4fb3b5da6f062/database/schemas/test_schema.sql?v=4c0dcc2b243b",
+      "size": 11573,
+      "extension": ".sql",
+      "name": "test_schema.sql",
+      "category": "database_schemas"
+    },
+    {
+      "path": "docs/INIT_PROMPT_NEW_CHAT.md",
+      "raw_url": "https://raw.githubusercontent.com/rauschiccsk/supplier-invoice-editor/4c0dcc2b243b31e2a2645052ace4fb3b5da6f062/docs/INIT_PROMPT_NEW_CHAT.md?v=4c0dcc2b243b",
+      "size": 19690,
+      "extension": ".md",
+      "name": "INIT_PROMPT_NEW_CHAT.md",
+      "category": "documentation"
+    },
+    {
+      "path": "docs/POSTGRESQL_SETUP.md",
+      "raw_url": "https://raw.githubusercontent.com/rauschiccsk/supplier-invoice-editor/4c0dcc2b243b31e2a2645052ace4fb3b5da6f062/docs/POSTGRESQL_SETUP.md?v=4c0dcc2b243b",
+      "size": 8734,
+      "extension": ".md",
+      "name": "POSTGRESQL_SETUP.md",
+      "category": "documentation"
+    },
+    {
+      "path": "docs/README.md",
+      "raw_url": "https://raw.githubusercontent.com/rauschiccsk/supplier-invoice-editor/4c0dcc2b243b31e2a2645052ace4fb3b5da6f062/docs/README.md?v=4c0dcc2b243b",
+      "size": 44,
+      "extension": ".md",
+      "name": "README.md",
+      "category": "documentation"
+    },
+    {
+      "path": "docs/SESSION_NOTES.md",
+      "raw_url": "https://raw.githubusercontent.com/rauschiccsk/supplier-invoice-editor/4c0dcc2b243b31e2a2645052ace4fb3b5da6f062/docs/SESSION_NOTES.md?v=4c0dcc2b243b",
+      "size": 19690,
+      "extension": ".md",
+      "name": "SESSION_NOTES.md",
+      "category": "documentation"
+    },
+    {
+      "path": "docs/database/TYPE_MAPPINGS.md",
+      "raw_url": "https://raw.githubusercontent.com/rauschiccsk/supplier-invoice-editor/4c0dcc2b243b31e2a2645052ace4fb3b5da6f062/docs/database/TYPE_MAPPINGS.md?v=4c0dcc2b243b",
+      "size": 6336,
+      "extension": ".md",
+      "name": "TYPE_MAPPINGS.md",
+      "category": "documentation"
+    },
+    {
+      "path": "main.py",
+      "raw_url": "https://raw.githubusercontent.com/rauschiccsk/supplier-invoice-editor/4c0dcc2b243b31e2a2645052ace4fb3b5da6f062/main.py?v=4c0dcc2b243b",
+      "size": 2408,
+      "extension": ".py",
+      "name": "main.py",
+      "category": "root_modules"
+    },
+    {
+      "path": "requirements.txt",
+      "raw_url": "https://raw.githubusercontent.com/rauschiccsk/supplier-invoice-editor/4c0dcc2b243b31e2a2645052ace4fb3b5da6f062/requirements.txt?v=4c0dcc2b243b",
+      "size": 1443,
+      "extension": ".txt",
+      "name": "requirements.txt",
+      "category": "configuration"
+    },
+    {
+      "path": "scripts/apply_xml_import_changes.py",
+      "raw_url": "https://raw.githubusercontent.com/rauschiccsk/supplier-invoice-editor/4c0dcc2b243b31e2a2645052ace4fb3b5da6f062/scripts/apply_xml_import_changes.py?v=4c0dcc2b243b",
+      "size": 19429,
+      "extension": ".py",
+      "name": "apply_xml_import_changes.py",
+      "category": "python_sources"
+    },
+    {
+      "path": "scripts/check_database_tables.py",
+      "raw_url": "https://raw.githubusercontent.com/rauschiccsk/supplier-invoice-editor/4c0dcc2b243b31e2a2645052ace4fb3b5da6f062/scripts/check_database_tables.py?v=4c0dcc2b243b",
+      "size": 1296,
+      "extension": ".py",
+      "name": "check_database_tables.py",
+      "category": "python_sources"
+    },
+    {
+      "path": "scripts/debug_gscat_barcode.py",
+      "raw_url": "https://raw.githubusercontent.com/rauschiccsk/supplier-invoice-editor/4c0dcc2b243b31e2a2645052ace4fb3b5da6f062/scripts/debug_gscat_barcode.py?v=4c0dcc2b243b",
+      "size": 5733,
+      "extension": ".py",
+      "name": "debug_gscat_barcode.py",
+      "category": "python_sources"
+    },
+    {
+      "path": "scripts/debug_import_config.py",
+      "raw_url": "https://raw.githubusercontent.com/rauschiccsk/supplier-invoice-editor/4c0dcc2b243b31e2a2645052ace4fb3b5da6f062/scripts/debug_import_config.py?v=4c0dcc2b243b",
+      "size": 2128,
+      "extension": ".py",
+      "name": "debug_import_config.py",
+      "category": "python_sources"
+    },
+    {
+      "path": "scripts/generate_project_access.py",
+      "raw_url": "https://raw.githubusercontent.com/rauschiccsk/supplier-invoice-editor/4c0dcc2b243b31e2a2645052ace4fb3b5da6f062/scripts/generate_project_access.py?v=4c0dcc2b243b",
+      "size": 12208,
+      "extension": ".py",
+      "name": "generate_project_access.py",
+      "category": "python_sources"
+    },
+    {
+      "path": "scripts/import_xml_to_staging.py",
+      "raw_url": "https://raw.githubusercontent.com/rauschiccsk/supplier-invoice-editor/4c0dcc2b243b31e2a2645052ace4fb3b5da6f062/scripts/import_xml_to_staging.py?v=4c0dcc2b243b",
+      "size": 9089,
+      "extension": ".py",
+      "name": "import_xml_to_staging.py",
+      "category": "python_sources"
+    },
+    {
+      "path": "scripts/insert_test_data.py",
+      "raw_url": "https://raw.githubusercontent.com/rauschiccsk/supplier-invoice-editor/4c0dcc2b243b31e2a2645052ace4fb3b5da6f062/scripts/insert_test_data.py?v=4c0dcc2b243b",
+      "size": 7574,
+      "extension": ".py",
+      "name": "insert_test_data.py",
+      "category": "python_sources"
+    },
+    {
+      "path": "scripts/load_invoice_xml.py",
+      "raw_url": "https://raw.githubusercontent.com/rauschiccsk/supplier-invoice-editor/4c0dcc2b243b31e2a2645052ace4fb3b5da6f062/scripts/load_invoice_xml.py?v=4c0dcc2b243b",
+      "size": 9345,
+      "extension": ".py",
+      "name": "load_invoice_xml.py",
+      "category": "python_sources"
+    },
+    {
+      "path": "scripts/patch_postgres_client.py",
+      "raw_url": "https://raw.githubusercontent.com/rauschiccsk/supplier-invoice-editor/4c0dcc2b243b31e2a2645052ace4fb3b5da6f062/scripts/patch_postgres_client.py?v=4c0dcc2b243b",
+      "size": 2946,
+      "extension": ".py",
+      "name": "patch_postgres_client.py",
+      "category": "python_sources"
+    },
+    {
+      "path": "scripts/replace_import_xml.py",
+      "raw_url": "https://raw.githubusercontent.com/rauschiccsk/supplier-invoice-editor/4c0dcc2b243b31e2a2645052ace4fb3b5da6f062/scripts/replace_import_xml.py?v=4c0dcc2b243b",
+      "size": 8412,
+      "extension": ".py",
+      "name": "replace_import_xml.py",
+      "category": "python_sources"
+    },
+    {
+      "path": "scripts/show_table_structure.py",
+      "raw_url": "https://raw.githubusercontent.com/rauschiccsk/supplier-invoice-editor/4c0dcc2b243b31e2a2645052ace4fb3b5da6f062/scripts/show_table_structure.py?v=4c0dcc2b243b",
+      "size": 1566,
+      "extension": ".py",
+      "name": "show_table_structure.py",
+      "category": "python_sources"
+    },
+    {
+      "path": "scripts/test_barcode_lookup.py",
+      "raw_url": "https://raw.githubusercontent.com/rauschiccsk/supplier-invoice-editor/4c0dcc2b243b31e2a2645052ace4fb3b5da6f062/scripts/test_barcode_lookup.py?v=4c0dcc2b243b",
+      "size": 15019,
+      "extension": ".py",
+      "name": "test_barcode_lookup.py",
+      "category": "python_sources"
+    },
+    {
+      "path": "scripts/test_pg8000_direct.py",
+      "raw_url": "https://raw.githubusercontent.com/rauschiccsk/supplier-invoice-editor/4c0dcc2b243b31e2a2645052ace4fb3b5da6f062/scripts/test_pg8000_direct.py?v=4c0dcc2b243b",
+      "size": 1540,
+      "extension": ".py",
+      "name": "test_pg8000_direct.py",
+      "category": "python_sources"
+    },
+    {
+      "path": "scripts/verify_database.py",
+      "raw_url": "https://raw.githubusercontent.com/rauschiccsk/supplier-invoice-editor/4c0dcc2b243b31e2a2645052ace4fb3b5da6f062/scripts/verify_database.py?v=4c0dcc2b243b",
+      "size": 4261,
+      "extension": ".py",
+      "name": "verify_database.py",
+      "category": "python_sources"
+    },
+    {
+      "path": "src/__init__.py",
+      "raw_url": "https://raw.githubusercontent.com/rauschiccsk/supplier-invoice-editor/4c0dcc2b243b31e2a2645052ace4fb3b5da6f062/src/__init__.py?v=4c0dcc2b243b",
+      "size": 513,
+      "extension": ".py",
+      "name": "__init__.py",
+      "category": "python_sources"
+    },
+    {
+      "path": "src/btrieve/__init__.py",
+      "raw_url": "https://raw.githubusercontent.com/rauschiccsk/supplier-invoice-editor/4c0dcc2b243b31e2a2645052ace4fb3b5da6f062/src/btrieve/__init__.py?v=4c0dcc2b243b",
+      "size": 262,
+      "extension": ".py",
+      "name": "__init__.py",
+      "category": "python_sources"
+    },
+    {
+      "path": "src/btrieve/btrieve_client.py",
+      "raw_url": "https://raw.githubusercontent.com/rauschiccsk/supplier-invoice-editor/4c0dcc2b243b31e2a2645052ace4fb3b5da6f062/src/btrieve/btrieve_client.py?v=4c0dcc2b243b",
+      "size": 7292,
+      "extension": ".py",
+      "name": "btrieve_client.py",
+      "category": "python_sources"
+    },
+    {
+      "path": "src/business/__init__.py",
+      "raw_url": "https://raw.githubusercontent.com/rauschiccsk/supplier-invoice-editor/4c0dcc2b243b31e2a2645052ace4fb3b5da6f062/src/business/__init__.py?v=4c0dcc2b243b",
+      "size": 148,
+      "extension": ".py",
+      "name": "__init__.py",
+      "category": "python_sources"
+    },
+    {
+      "path": "src/business/invoice_service.py",
+      "raw_url": "https://raw.githubusercontent.com/rauschiccsk/supplier-invoice-editor/4c0dcc2b243b31e2a2645052ace4fb3b5da6f062/src/business/invoice_service.py?v=4c0dcc2b243b",
+      "size": 12428,
+      "extension": ".py",
+      "name": "invoice_service.py",
+      "category": "python_sources"
+    },
+    {
+      "path": "src/business/nex_lookup_service.py",
+      "raw_url": "https://raw.githubusercontent.com/rauschiccsk/supplier-invoice-editor/4c0dcc2b243b31e2a2645052ace4fb3b5da6f062/src/business/nex_lookup_service.py?v=4c0dcc2b243b",
+      "size": 6253,
+      "extension": ".py",
+      "name": "nex_lookup_service.py",
+      "category": "python_sources"
+    },
+    {
+      "path": "src/database/__init__.py",
+      "raw_url": "https://raw.githubusercontent.com/rauschiccsk/supplier-invoice-editor/4c0dcc2b243b31e2a2645052ace4fb3b5da6f062/src/database/__init__.py?v=4c0dcc2b243b",
+      "size": 142,
+      "extension": ".py",
+      "name": "__init__.py",
+      "category": "python_sources"
+    },
+    {
+      "path": "src/database/postgres_client.py",
+      "raw_url": "https://raw.githubusercontent.com/rauschiccsk/supplier-invoice-editor/4c0dcc2b243b31e2a2645052ace4fb3b5da6f062/src/database/postgres_client.py?v=4c0dcc2b243b",
+      "size": 6536,
+      "extension": ".py",
+      "name": "postgres_client.py",
+      "category": "python_sources"
+    },
+    {
+      "path": "src/database/postgres_client_pg8000.py",
+      "raw_url": "https://raw.githubusercontent.com/rauschiccsk/supplier-invoice-editor/4c0dcc2b243b31e2a2645052ace4fb3b5da6f062/src/database/postgres_client_pg8000.py?v=4c0dcc2b243b",
+      "size": 5998,
+      "extension": ".py",
+      "name": "postgres_client_pg8000.py",
+      "category": "python_sources"
+    },
+    {
+      "path": "src/models/__init__.py",
+      "raw_url": "https://raw.githubusercontent.com/rauschiccsk/supplier-invoice-editor/4c0dcc2b243b31e2a2645052ace4fb3b5da6f062/src/models/__init__.py?v=4c0dcc2b243b",
+      "size": 364,
+      "extension": ".py",
+      "name": "__init__.py",
+      "category": "python_sources"
+    },
+    {
+      "path": "src/models/barcode.py",
+      "raw_url": "https://raw.githubusercontent.com/rauschiccsk/supplier-invoice-editor/4c0dcc2b243b31e2a2645052ace4fb3b5da6f062/src/models/barcode.py?v=4c0dcc2b243b",
+      "size": 7180,
+      "extension": ".py",
+      "name": "barcode.py",
+      "category": "python_sources"
+    },
+    {
+      "path": "src/models/gscat.py",
+      "raw_url": "https://raw.githubusercontent.com/rauschiccsk/supplier-invoice-editor/4c0dcc2b243b31e2a2645052ace4fb3b5da6f062/src/models/gscat.py?v=4c0dcc2b243b",
+      "size": 11665,
+      "extension": ".py",
+      "name": "gscat.py",
+      "category": "python_sources"
+    },
+    {
+      "path": "src/models/mglst.py",
+      "raw_url": "https://raw.githubusercontent.com/rauschiccsk/supplier-invoice-editor/4c0dcc2b243b31e2a2645052ace4fb3b5da6f062/src/models/mglst.py?v=4c0dcc2b243b",
+      "size": 8291,
+      "extension": ".py",
+      "name": "mglst.py",
+      "category": "python_sources"
+    },
+    {
+      "path": "src/models/pab.py",
+      "raw_url": "https://raw.githubusercontent.com/rauschiccsk/supplier-invoice-editor/4c0dcc2b243b31e2a2645052ace4fb3b5da6f062/src/models/pab.py?v=4c0dcc2b243b",
+      "size": 9589,
+      "extension": ".py",
+      "name": "pab.py",
+      "category": "python_sources"
+    },
+    {
+      "path": "src/ui/__init__.py",
+      "raw_url": "https://raw.githubusercontent.com/rauschiccsk/supplier-invoice-editor/4c0dcc2b243b31e2a2645052ace4fb3b5da6f062/src/ui/__init__.py?v=4c0dcc2b243b",
+      "size": 121,
+      "extension": ".py",
+      "name": "__init__.py",
+      "category": "python_sources"
+    },
+    {
+      "path": "src/ui/invoice_detail_window.py",
+      "raw_url": "https://raw.githubusercontent.com/rauschiccsk/supplier-invoice-editor/4c0dcc2b243b31e2a2645052ace4fb3b5da6f062/src/ui/invoice_detail_window.py?v=4c0dcc2b243b",
+      "size": 7526,
+      "extension": ".py",
+      "name": "invoice_detail_window.py",
+      "category": "python_sources"
+    },
+    {
+      "path": "src/ui/main_window.py",
+      "raw_url": "https://raw.githubusercontent.com/rauschiccsk/supplier-invoice-editor/4c0dcc2b243b31e2a2645052ace4fb3b5da6f062/src/ui/main_window.py?v=4c0dcc2b243b",
+      "size": 7971,
+      "extension": ".py",
+      "name": "main_window.py",
+      "category": "python_sources"
+    },
+    {
+      "path": "src/ui/widgets/__init__.py",
+      "raw_url": "https://raw.githubusercontent.com/rauschiccsk/supplier-invoice-editor/4c0dcc2b243b31e2a2645052ace4fb3b5da6f062/src/ui/widgets/__init__.py?v=4c0dcc2b243b",
+      "size": 142,
+      "extension": ".py",
+      "name": "__init__.py",
+      "category": "python_sources"
+    },
+    {
+      "path": "src/ui/widgets/invoice_items_grid.py",
+      "raw_url": "https://raw.githubusercontent.com/rauschiccsk/supplier-invoice-editor/4c0dcc2b243b31e2a2645052ace4fb3b5da6f062/src/ui/widgets/invoice_items_grid.py?v=4c0dcc2b243b",
+      "size": 9486,
+      "extension": ".py",
+      "name": "invoice_items_grid.py",
+      "category": "python_sources"
+    },
+    {
+      "path": "src/ui/widgets/invoice_list_widget.py",
+      "raw_url": "https://raw.githubusercontent.com/rauschiccsk/supplier-invoice-editor/4c0dcc2b243b31e2a2645052ace4fb3b5da6f062/src/ui/widgets/invoice_list_widget.py?v=4c0dcc2b243b",
+      "size": 6440,
+      "extension": ".py",
+      "name": "invoice_list_widget.py",
+      "category": "python_sources"
+    },
+    {
+      "path": "src/utils/__init__.py",
+      "raw_url": "https://raw.githubusercontent.com/rauschiccsk/supplier-invoice-editor/4c0dcc2b243b31e2a2645052ace4fb3b5da6f062/src/utils/__init__.py?v=4c0dcc2b243b",
+      "size": 186,
+      "extension": ".py",
+      "name": "__init__.py",
+      "category": "python_sources"
+    },
+    {
+      "path": "src/utils/config.py",
+      "raw_url": "https://raw.githubusercontent.com/rauschiccsk/supplier-invoice-editor/4c0dcc2b243b31e2a2645052ace4fb3b5da6f062/src/utils/config.py?v=4c0dcc2b243b",
+      "size": 2991,
+      "extension": ".py",
+      "name": "config.py",
+      "category": "python_sources"
+    },
+    {
+      "path": "tests/__init__.py",
+      "raw_url": "https://raw.githubusercontent.com/rauschiccsk/supplier-invoice-editor/4c0dcc2b243b31e2a2645052ace4fb3b5da6f062/tests/__init__.py?v=4c0dcc2b243b",
+      "size": 30,
+      "extension": ".py",
+      "name": "__init__.py",
+      "category": "tests"
+    },
+    {
+      "path": "tests/integration/__init__.py",
+      "raw_url": "https://raw.githubusercontent.com/rauschiccsk/supplier-invoice-editor/4c0dcc2b243b31e2a2645052ace4fb3b5da6f062/tests/integration/__init__.py?v=4c0dcc2b243b",
+      "size": 30,
+      "extension": ".py",
+      "name": "__init__.py",
+      "category": "tests"
+    },
+    {
+      "path": "tests/unit/__init__.py",
+      "raw_url": "https://raw.githubusercontent.com/rauschiccsk/supplier-invoice-editor/4c0dcc2b243b31e2a2645052ace4fb3b5da6f062/tests/unit/__init__.py?v=4c0dcc2b243b",
+      "size": 30,
+      "extension": ".py",
+      "name": "__init__.py",
+      "category": "tests"
+    }
+  ],
+  "usage_instructions": {
+    "step_1": "Load INIT_PROMPT_NEW_CHAT.md for session start",
+    "step_2": "Load SESSION_NOTES.md for current progress",
+    "step_3": "Load this manifest for access to all project files",
+    "step_4": "Access individual files using raw_url with cache version",
+    "cache_strategy": "URLs use commit SHA for cache-proof access",
+    "note_cache": "Commit SHA URLs are immutable - GitHub never returns stale cache",
+    "note": "Always regenerate manifest after pushing changes to get fresh cache version"
+  }
+}

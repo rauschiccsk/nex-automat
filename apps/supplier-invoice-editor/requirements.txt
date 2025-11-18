@@ -1,0 +1,31 @@
+# Invoice Editor - Requirements
+# ============================================================================
+# Python 3.11+ (32-bit required for Btrieve!)
+# ============================================================================
+
+# Core Dependencies (Required)
+# ----------------------------------------------------------------------------
+PyYAML>=6.0                # YAML config file parsing
+PyQt5>=5.15.0              # Qt5 GUI framework
+python-dateutil>=2.8.0     # Date utilities
+
+# Testing
+# ----------------------------------------------------------------------------
+pytest>=7.0.0              # Testing framework
+pytest-qt>=4.0.0           # Qt testing support
+
+# Build & Distribution
+# ----------------------------------------------------------------------------
+PyInstaller>=5.0.0         # Create standalone executable
+
+# Database (Optional - Install separately if needed)
+# ----------------------------------------------------------------------------
+# psycopg2-binary>=2.9.0   # PostgreSQL - requires C++ build tools
+#                          # Install: pip install psycopg2-binary==2.9.9
+#                          # Or use alternative: pip install psycopg2
+
+# Development (Optional)
+# ----------------------------------------------------------------------------
+# pytest-cov>=4.0.0        # Code coverage
+# black>=23.0.0            # Code formatter
+# flake8>=6.0.0            # Code linter

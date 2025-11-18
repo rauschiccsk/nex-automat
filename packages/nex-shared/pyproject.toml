@@ -1,0 +1,14 @@
+[project]
+name = "nex-shared"
+version = "0.1.0"
+description = "Shared utilities for NEX Genesis automation projects"
+requires-python = ">=3.11"
+
+dependencies = [
+    "pydantic>=2.0.0",
+    "pydantic-settings>=2.0.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

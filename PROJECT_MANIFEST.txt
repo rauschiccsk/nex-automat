@@ -1,0 +1,339 @@
+================================================================================
+NEX AUTOMAT - PROJECT MANIFEST
+================================================================================
+Generated: 2025-11-18 21:48:00
+Location: C:\Development\nex-automat
+
+1. PROJECT STRUCTURE
+--------------------------------------------------------------------------------
+nex-automat/
+├── apps/
+│   ├── supplier-invoice-editor/
+│   │   ├── config/
+│   │   │   └── config.yaml (681 bytes)
+│   │   ├── database/
+│   │   │   ├── migrations/
+│   │   │   ├── schemas/
+│   │   │   │   ├── 001_initial_schema.sql (20.1 KB)
+│   │   │   │   ├── 002_add_nex_columns.sql (985 bytes)
+│   │   │   │   └── test_schema.sql (11.3 KB)
+│   │   │   └── README.md (47 bytes)
+│   │   ├── docs/
+│   │   │   ├── architecture/
+│   │   │   ├── database/
+│   │   │   │   └── TYPE_MAPPINGS.md (6.2 KB)
+│   │   │   ├── screenshots/
+│   │   │   ├── sessions/
+│   │   │   ├── INIT_PROMPT_NEW_CHAT.md (19.2 KB)
+│   │   │   ├── POSTGRESQL_SETUP.md (8.5 KB)
+│   │   │   ├── README.md (44 bytes)
+│   │   │   ├── SESSION_NOTES.md (19.2 KB)
+│   │   │   └── project_file_access.json (21.1 KB)
+│   │   ├── logs/
+│   │   │   ├── invoice_editor_20251112.log (33.5 KB)
+│   │   │   └── invoice_editor_20251118.log (2.4 KB)
+│   │   ├── resources/
+│   │   │   ├── icons/
+│   │   │   ├── images/
+│   │   │   ├── ui/
+│   │   │   └── README.md (64 bytes)
+│   │   ├── scripts/
+│   │   │   ├── apply_xml_import_changes.py (19.0 KB)
+│   │   │   ├── check_database_tables.py (1.3 KB)
+│   │   │   ├── debug_gscat_barcode.py (5.6 KB)
+│   │   │   ├── debug_import_config.py (2.1 KB)
+│   │   │   ├── generate_project_access.py (11.9 KB)
+│   │   │   ├── import_xml_to_staging.py (8.9 KB)
+│   │   │   ├── insert_test_data.py (7.4 KB)
+│   │   │   ├── load_invoice_xml.py (9.1 KB)
+│   │   │   ├── patch_postgres_client.py (2.9 KB)
+│   │   │   ├── replace_import_xml.py (8.2 KB)
+│   │   │   ├── show_table_structure.py (1.5 KB)
+│   │   │   ├── test_barcode_lookup.py (14.7 KB)
+│   │   │   ├── test_pg8000_direct.py (1.5 KB)
+│   │   │   └── verify_database.py (4.2 KB)
+│   │   ├── src/
+│   │   │   ├── btrieve/
+│   │   │   │   ├── __init__.py (262 bytes)
+│   │   │   │   └── btrieve_client.py (7.1 KB)
+│   │   │   ├── business/
+│   │   │   │   ├── __init__.py (148 bytes)
+│   │   │   │   ├── invoice_service.py (12.1 KB)
+│   │   │   │   ├── invoice_service.py.schema_adapt_backup (14.0 KB)
+│   │   │   │   ├── invoice_service.py.session4b_backup (10.0 KB)
+│   │   │   │   └── nex_lookup_service.py (6.1 KB)
+│   │   │   ├── database/
+│   │   │   │   ├── __init__.py (142 bytes)
+│   │   │   │   ├── postgres_client.py (6.4 KB)
+│   │   │   │   └── postgres_client_pg8000.py (5.9 KB)
+│   │   │   ├── models/
+│   │   │   │   ├── __init__.py (364 bytes)
+│   │   │   │   ├── barcode.py (7.0 KB)
+│   │   │   │   ├── gscat.py (11.4 KB)
+│   │   │   │   ├── mglst.py (8.1 KB)
+│   │   │   │   └── pab.py (9.4 KB)
+│   │   │   ├── ui/
+│   │   │   │   ├── dialogs/
+│   │   │   │   │   └── __init__.py (97 bytes)
+│   │   │   │   ├── widgets/
+│   │   │   │   │   ├── __init__.py (142 bytes)
+│   │   │   │   │   ├── invoice_items_grid.py (9.3 KB)
+│   │   │   │   │   └── invoice_list_widget.py (6.3 KB)
+│   │   │   │   ├── __init__.py (121 bytes)
+│   │   │   │   ├── invoice_detail_window.py (7.3 KB)
+│   │   │   │   └── main_window.py (7.8 KB)
+│   │   │   ├── utils/
+│   │   │   │   ├── __init__.py (186 bytes)
+│   │   │   │   └── config.py (2.9 KB)
+│   │   │   ├── README.md (30 bytes)
+│   │   │   └── __init__.py (513 bytes)
+│   │   ├── tests/
+│   │   │   ├── fixtures/
+│   │   │   ├── integration/
+│   │   │   │   └── __init__.py (30 bytes)
+│   │   │   ├── unit/
+│   │   │   │   └── __init__.py (30 bytes)
+│   │   │   ├── README.md (23 bytes)
+│   │   │   └── __init__.py (30 bytes)
+│   │   ├── README.md (930 bytes)
+│   │   ├── cleanup_backups.py (1.6 KB)
+│   │   ├── cleanup_project.py (3.9 KB)
+│   │   ├── main.py (2.4 KB)
+│   │   ├── pyproject.toml (893 bytes)
+│   │   └── requirements.txt (1.4 KB)
+│   └── supplier-invoice-loader/
+│       ├── config/
+│       │   ├── config.template.yaml (579 bytes)
+│       │   ├── config_customer.py (2.6 KB)
+│       │   ├── config_template.py (14.7 KB)
+│       │   └── invoices.db (44.0 KB)
+│       ├── database/
+│       │   └── schemas/
+│       │       └── README.md (473 bytes)
+│       ├── deploy/
+│       │   ├── README.md (57 bytes)
+│       │   ├── build_package.py (18.3 KB)
+│       │   ├── deploy.bat (6.0 KB)
+│       │   ├── deploy.sh (15.3 KB)
+│       │   ├── run_smoke_tests.bat (6.4 KB)
+│       │   ├── service_uninstaller.bat (2.2 KB)
+│       │   ├── test-deployment.ps1 (10.5 KB)
+│       │   └── upgrade_dependencies.bat (2.0 KB)
+│       ├── docs/
+│       │   ├── architecture/
+│       │   │   └── README.md (398 bytes)
+│       │   ├── database/
+│       │   │   └── TYPE_MAPPINGS.md (3.0 KB)
+│       │   ├── decisions/
+│       │   │   └── README.md (97 bytes)
+│       │   ├── deployment/
+│       │   │   ├── DEPLOYMENT_CHECKLIST.md (12.2 KB)
+│       │   │   ├── INSTALL_CUSTOMER.md (2.0 KB)
+│       │   │   ├── RELEASE_NOTES_v2.0.0.md (9.3 KB)
+│       │   │   └── WINDOWS_SERVICE_GUIDE.md (8.9 KB)
+│       │   ├── guides/
+│       │   │   ├── CUSTOMER_TESTING_CHECKLIST.md (10.6 KB)
+│       │   │   ├── DEVELOPMENT.md (13.3 KB)
+│       │   │   ├── N8N_WORKFLOW_SETUP.md (16.9 KB)
+│       │   │   ├── PYTHON_SETUP.md (15.7 KB)
+│       │   │   ├── SECURITY.md (14.1 KB)
+│       │   │   └── TESTING.md (12.3 KB)
+│       │   ├── operations/
+│       │   │   ├── EMAIL_ALERTING.md (12.9 KB)
+│       │   │   ├── MONITORING.md (16.5 KB)
+│       │   │   ├── TROUBLESHOOTING.md (26.3 KB)
+│       │   │   └── USER_GUIDE.md (6.4 KB)
+│       │   ├── sessions/
+│       │   │   └── README.md (53 bytes)
+│       │   ├── stories/
+│       │   │   └── README.md (67 bytes)
+│       │   ├── troubleshooting/
+│       │   │   └── README.md (57 bytes)
+│       │   ├── INIT_PROMPT_NEW_CHAT.md (15.3 KB)
+│       │   ├── SESSION_NOTES.md (15.2 KB)
+│       │   └── project_file_access.json (46.9 KB)
+│       ├── n8n-workflows/
+│       │   ├── README.md (67 bytes)
+│       │   ├── n8n-SupplierInvoiceEmailLoader.json (7.4 KB)
+│       │   └── template.json (7.4 KB)
+│       ├── scripts/
+│       │   ├── clear_test_data.py (2.3 KB)
+│       │   ├── generate_project_access.py (8.5 KB)
+│       │   ├── manual_test_batch_extraction.py (2.8 KB)
+│       │   ├── manual_test_extraction.py (2.1 KB)
+│       │   ├── manual_test_isdoc.py (1.4 KB)
+│       │   ├── service_installer.py (24.5 KB)
+│       │   ├── test_invoice_integration.py (11.0 KB)
+│       │   └── verify_installation.py (6.4 KB)
+│       ├── src/
+│       │   ├── api/
+│       │   │   ├── __init__.py (25 bytes)
+│       │   │   └── models.py (1.5 KB)
+│       │   ├── business/
+│       │   │   ├── __init__.py (27 bytes)
+│       │   │   └── isdoc_service.py (15.0 KB)
+│       │   ├── database/
+│       │   │   ├── __init__.py (23 bytes)
+│       │   │   └── database.py (14.1 KB)
+│       │   ├── extractors/
+│       │   │   ├── __init__.py (26 bytes)
+│       │   │   ├── base_extractor.py (1.2 KB)
+│       │   │   ├── generic_extractor.py (1.4 KB)
+│       │   │   └── ls_extractor.py (12.3 KB)
+│       │   ├── supplier_invoice_loader.egg-info/
+│       │   │   ├── PKG-INFO (9.8 KB)
+│       │   │   ├── SOURCES.txt (681 bytes)
+│       │   │   ├── dependency_links.txt (1 bytes)
+│       │   │   ├── requires.txt (391 bytes)
+│       │   │   └── top_level.txt (48 bytes)
+│       │   ├── utils/
+│       │   │   ├── __init__.py (21 bytes)
+│       │   │   ├── config.py (262 bytes)
+│       │   │   ├── env_loader.py (2.6 KB)
+│       │   │   ├── monitoring.py (2.8 KB)
+│       │   │   └── notifications.py (20.8 KB)
+│       │   └── __init__.py (18 bytes)
+│       ├── supplier_invoice_loader.egg-info/
+│       │   ├── PKG-INFO (9.8 KB)
+│       │   ├── SOURCES.txt (693 bytes)
+│       │   ├── dependency_links.txt (1 bytes)
+│       │   ├── requires.txt (418 bytes)
+│       │   └── top_level.txt (4 bytes)
+│       ├── tests/
+│       │   ├── integration/
+│       │   │   └── __init__.py (18 bytes)
+│       │   ├── samples/
+│       │   │   └── README.md (3.7 KB)
+│       │   ├── unit/
+│       │   │   ├── __init__.py (18 bytes)
+│       │   │   ├── test_api.py (6.9 KB)
+│       │   │   ├── test_config.py (6.7 KB)
+│       │   │   ├── test_import.py (523 bytes)
+│       │   │   ├── test_monitoring.py (9.2 KB)
+│       │   │   └── test_notifications.py (8.9 KB)
+│       │   ├── README.md (241 bytes)
+│       │   ├── __init__.py (18 bytes)
+│       │   └── conftest.py (5.6 KB)
+│       ├── README.md (1.1 KB)
+│       ├── coverage.xml (35.4 KB)
+│       ├── main.py (16.8 KB)
+│       ├── pyproject.toml (1.1 KB)
+│       ├── requirements-dev.txt (1.6 KB)
+│       └── requirements.txt (4.3 KB)
+├── docs/
+│   ├── architecture/
+│   ├── deployment/
+│   ├── development/
+│   ├── INIT_PROMPT_NEW_CHAT.md (7.9 KB)
+│   ├── MIGRATION_SUMMARY.md (2.1 KB)
+│   └── SESSION_NOTES.md (8.5 KB)
+├── packages/
+│   ├── invoice-shared/
+│   │   ├── invoice_shared/
+│   │   │   ├── database/
+│   │   │   │   ├── __init__.py (155 bytes)
+│   │   │   │   └── postgres_staging.py (9.4 KB)
+│   │   │   ├── models/
+│   │   │   │   └── __init__.py (89 bytes)
+│   │   │   ├── schemas/
+│   │   │   │   └── __init__.py (80 bytes)
+│   │   │   ├── utils/
+│   │   │   │   ├── __init__.py (115 bytes)
+│   │   │   │   └── text_utils.py (1.1 KB)
+│   │   │   └── __init__.py (344 bytes)
+│   │   ├── README.md (1.4 KB)
+│   │   └── pyproject.toml (561 bytes)
+│   └── nex-shared/
+│       ├── nex_shared/
+│       │   ├── auth/
+│       │   │   └── __init__.py (30 bytes)
+│       │   ├── database/
+│       │   │   └── __init__.py (30 bytes)
+│       │   ├── monitoring/
+│       │   │   └── __init__.py (30 bytes)
+│       │   ├── utils/
+│       │   │   └── __init__.py (30 bytes)
+│       │   └── __init__.py (30 bytes)
+│       └── pyproject.toml (308 bytes)
+├── tools/
+│   └── scripts/
+├── README.md (1.9 KB)
+├── generate_project_manifest.py (10.6 KB)
+├── install_dependencies_pip.py (2.7 KB)
+├── pyproject.toml (482 bytes)
+└── uv.lock (169.5 KB)
+
+2. PROJECT STATISTICS
+--------------------------------------------------------------------------------
+Total Directories:      78
+Total Files:           177
+Python Files:           94
+Test Files:             14
+Total Lines (Py):   14,328
+
+3. APPLICATIONS
+--------------------------------------------------------------------------------
+
+📦 supplier-invoice-editor
+   Python files: 43
+   Test files:   3
+   Dependencies: 4
+
+📦 supplier-invoice-loader
+   Python files: 37
+   Test files:   9
+   Dependencies: 10
+
+4. SHARED PACKAGES
+--------------------------------------------------------------------------------
+
+📚 invoice-shared
+   Modules: 7
+   Dependencies: 2
+      - asyncpg>=0.29.0
+      - pydantic>=2.0.0
+
+📚 nex-shared
+   Modules: 5
+   Dependencies: 2
+      - pydantic>=2.0.0
+      - pydantic-settings>=2.0.0
+
+5. DEPENDENCIES SUMMARY
+--------------------------------------------------------------------------------
+Unique dependencies: 10
+   - asyncpg
+   - fastapi
+   - httpx
+   - invoice-shared
+   - pillow
+   - pydantic
+   - pydantic-settings
+   - pypdf
+   - python-multipart
+   - uvicorn
+
+6. TEST COVERAGE STATUS
+--------------------------------------------------------------------------------
+supplier-invoice-loader:
+   ✅ 46/71 tests passing (65%)
+   ⏭️  11 tests skipped
+   ❌ 14 tests failing (monitoring API)
+
+supplier-invoice-editor:
+   ℹ️  Not yet tested in monorepo
+
+7. MIGRATION STATUS
+--------------------------------------------------------------------------------
+✅ Phase 1: Structure creation - COMPLETE
+✅ Phase 2: Project migration - COMPLETE
+✅ Phase 3: Shared packages - COMPLETE
+✅ Phase 4: Import updates - COMPLETE
+✅ Phase 5: Testing setup - COMPLETE
+⏳ Phase 6: Test fixes - IN PROGRESS (95%)
+📋 Phase 7: Documentation - TODO
+📋 Phase 8: Git repository - TODO
+
+================================================================================
+END OF MANIFEST
+================================================================================

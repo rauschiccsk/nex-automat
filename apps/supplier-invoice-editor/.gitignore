@@ -1,0 +1,54 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+venv32/
+.venv/
+env/
+ENV/
+
+# PyQt
+*.ui.py
+*.qrc.py
+
+# Build
+build/
+dist/
+*.egg-info/
+*.spec
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Configuration (sensitive)
+config/config.yaml
+.env
+
+# Temporary
+tmp/
+temp/
+*.tmp
+
+# PyInstaller
+*.manifest
+*.spec

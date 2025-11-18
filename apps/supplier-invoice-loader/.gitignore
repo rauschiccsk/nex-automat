@@ -1,0 +1,83 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual Environment
+venv/
+.venv/
+ENV/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.pycharm/
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+coverage.xml
+*.cover
+.hypothesis/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Logs
+*.log
+logs/
+
+# Environment
+.env
+.env.local
+config/config.yaml
+config_customer.py
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Deployment
+deployment_package/
+backup_*/
+
+# Project specific
+data/
+pdfs/
+xmls/
+
+# Temporary helper scripts (generated on-demand)
+fix_*.py
+install_dependencies.bat
+fix_remaining_issues.bat
+
+# Package build artifacts
+*.whl
+pip-wheel-metadata/
