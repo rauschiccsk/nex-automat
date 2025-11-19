@@ -19,9 +19,13 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+.mypy_cache/
+.ruff_cache/
+.tox/
 
 # UV
 .venv/
+venv32/
 uv.lock
 
 # Testing
@@ -29,16 +33,19 @@ uv.lock
 .coverage
 htmlcov/
 *.cover
+.hypothesis/
 
 # IDEs
 .vscode/
 .idea/
 *.swp
 *.swo
+*~
 
 # Environment
 .env
 .env.local
+.env.*.local
 
 # OS
 .DS_Store
@@ -56,3 +63,19 @@ logs/
 # NEX specific
 /NEX/
 C:/NEX/
+
+# Storage directories
+storage/
+pdf_files/
+xml_files/
+temp/
+tmp/
+
+# Backup files
+*.backup
+*.backup[0-9]
+*.bak
+
+# Migration outputs
+migration_*.log
+migration_report_*.txt
