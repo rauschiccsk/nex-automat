@@ -8,7 +8,7 @@ Remove backup files, temporary files, and old migration scripts
 from pathlib import Path
 import os
 
-MONOREPO_ROOT = Path("C:/Development/nex-automat")
+MONOREPO_ROOT = Path("/")
 
 # Patterns to remove
 BACKUP_PATTERNS = [
