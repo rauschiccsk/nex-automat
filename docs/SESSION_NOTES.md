@@ -68,17 +68,26 @@
 
 ## 📊 Test Results Summary
 
-**Latest Run:** 2025-11-19
+**Test Status:**
 ```
-61 passed, 11 skipped, 0 failed ✅
-Duration: 5.14s
+supplier-invoice-loader:  61 passed, 11 skipped, 0 failed ✅
+supplier-invoice-editor:  10 passed,  4 skipped, 0 failed ✅
+Total:                    71 passed, 15 skipped, 0 failed ✅
 ```
 
 **Test Coverage by Suite:**
+
+**supplier-invoice-loader:**
 - ✅ test_config.py: 14/14 (100%)
 - ✅ test_notifications.py: 13/14 (92%, 1 skipped)
 - ✅ test_monitoring.py: 14/23 (61%, 9 skipped for removed features)
 - ✅ test_api.py: 20/21 (95%, 1 skipped)
+
+**supplier-invoice-editor:**
+- ✅ test_imports.py: 4/4 (100%)
+- ✅ test_config.py: 2/3 (67%, 1 skipped)
+- ✅ test_database.py: 2/3 (67%, 1 skipped)
+- ✅ test_main.py: 2/4 (50%, 2 skipped)
 
 **Skipped Tests (Expected):**
 - Monitoring features removed from simplified API
@@ -366,7 +375,7 @@ All scripts in `C:/Development/nex-automat/`:
 
 **Test Coverage:**
 - supplier-invoice-loader: 85% (61/72 tests)
-- supplier-invoice-editor: Not tested yet
+- supplier-invoice-editor: 71% (10/14 tests)
 
 ---
 
@@ -397,5 +406,15 @@ All scripts in `C:/Development/nex-automat/`:
 - [x] PyCharm interpreter nastavený
 - [x] Btrieve kompatibilita overená
 
-**Last Updated:** 2025-11-19 (Monorepo Migration Complete + venv32 Setup)  
-**Next Session:** Continue in this chat - Git push and next development tasks
+**Supplier Invoice Editor Testing** ✅ DOKONČENÉ
+- [x] Vytvorené základné testy (10 testov)
+  - test_imports.py: PyQt5, invoice-shared imports
+  - test_config.py: Config module tests
+  - test_database.py: Database module tests
+  - test_main.py: Main application tests
+- [x] Nainštalované dependencies (PyQt5, PyYAML, pytest-qt)
+- [x] 10/14 testov prechádza, 4 skipped (očakávané)
+- [x] Aktualizovaný pyproject.toml s dependencies
+
+**Last Updated:** 2025-11-19 (Monorepo Migration Complete + venv32 Setup + Editor Tests)  
+**Next Session:** Continue in this chat - CI/CD setup or other priorities

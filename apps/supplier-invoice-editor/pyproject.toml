@@ -1,44 +1,44 @@
 [project]
 name = "supplier-invoice-editor"
 version = "1.0.0"
-description = "GUI approval workflow for supplier invoices before NEX import"
-requires-python = ">=3.11"
-authors = [
-    {name = "Zoltán Rausch", email = "rausch@icc.sk"}
-]
-
+description = "Qt5 desktop application for ISDOC invoice approval"
+requires-python = ">=3.13"
 dependencies = [
+    "PyQt5>=5.15.11",
+    "PyYAML>=6.0.3",
     "invoice-shared",
     "asyncpg>=0.29.0",
-    "pydantic>=2.0.0",
-    "pydantic-settings>=2.0.0",
+    "openpyxl>=3.1.0",
 ]
 
 [project.optional-dependencies]
 dev = [
     "pytest>=7.4.0",
+    "pytest-qt>=4.5.0",
     "pytest-asyncio>=0.21.0",
+    "pytest-cov>=4.1.0",
+    "black>=23.0.0",
+    "ruff>=0.1.0",
 ]
-
-[tool.uv.sources]
-invoice-shared = { workspace = true }
-
-[tool.hatch.build.targets.wheel]
-packages = ["src"]
 
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.pytest.ini_options]
+minversion = "7.0"
 testpaths = ["tests"]
-python_files = ["test_*.py"]
-asyncio_mode = "auto"
+python_files = "test_*.py"
+python_classes = "Test*"
+python_functions = "test_*"
+addopts = "-v --tb=short"
 
 [tool.black]
 line-length = 100
-target-version = ["py311"]
+target-version = ['py313']
+include = '\.pyi?$'
 
 [tool.ruff]
 line-length = 100
-target-version = "py311"
+target-version = "py313"
+select = ["E", "F", "W", "I"]
