@@ -4,7 +4,7 @@
   "version": "2.0.0",
   "description": "Multi-customer SaaS for automated invoice processing",
   "location": "C:\\Development\\nex-automat",
-  "generated": "2025-11-19T13:38:43.132236",
+  "generated": "2025-11-19T14:02:53.226194",
   "structure": {
     "apps": 2,
     "packages": 2,
@@ -12,21 +12,21 @@
     "tools": true
   },
   "statistics": {
-    "total_files": 2202,
-    "total_dirs": 338,
-    "python_files": 1646,
-    "test_files": 33,
-    "total_lines": 585736,
-    "total_size": 57334488
+    "total_files": 4580,
+    "total_dirs": 503,
+    "python_files": 1718,
+    "test_files": 39,
+    "total_lines": 600275,
+    "total_size": 83902520
   },
   "applications": [
     {
       "name": "supplier-invoice-editor",
       "location": "apps/supplier-invoice-editor",
       "manifest": "docs/apps/supplier-invoice-editor.json",
-      "python_files": 43,
-      "test_files": 0,
-      "dependencies_count": 4
+      "python_files": 48,
+      "test_files": 4,
+      "dependencies_count": 5
     },
     {
       "name": "supplier-invoice-loader",
@@ -54,12 +54,15 @@
     }
   ],
   "dependencies": {
-    "unique_count": 10,
+    "unique_count": 13,
     "list": [
+      "PyQt5",
+      "PyYAML",
       "asyncpg",
       "fastapi",
       "httpx",
       "invoice-shared",
+      "openpyxl",
       "pillow",
       "pydantic",
       "pydantic-settings",

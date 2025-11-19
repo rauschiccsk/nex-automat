@@ -58,9 +58,22 @@ FastAPI service pre automatické spracovanie dodávateľských faktúr.
 - Pydantic v2
 
 #### 🔹 Supplier Invoice Editor
-Web aplikácia pre manuálnu editáciu a kontrolu faktúr.
+Qt5 desktop aplikácia pre manuálnu editáciu a kontrolu faktúr.
 
-**Status:** In development
+**Features:**
+- PostgreSQL staging browser
+- ISDOC invoice approval workflow
+- Manual data correction
+- Excel export
+- Multi-user support
+
+**Tech Stack:**
+- PyQt5 (Qt5 framework)
+- asyncpg (PostgreSQL client)
+- PyYAML (configuration)
+- openpyxl (Excel export)
+
+**Status:** ✅ Tested (10/14 passing, 71%)
 
 ### Packages
 
@@ -87,6 +100,7 @@ Utility pre prácu s NEX Genesis ERP (Btrieve).
 - **Python 3.13.7 32-bit** (Btrieve compatibility)
 - **Git**
 - **PostgreSQL** (optional, for staging)
+- **Qt5** (for supplier-invoice-editor)
 
 ### Installation
 
@@ -110,10 +124,10 @@ pip install pytest pytest-asyncio pytest-cov black ruff
 ### Verify Installation
 
 ```bash
-# Run tests
-pytest --tb=no -q
+# Run all tests
+pytest
 
-# Expected: 61+ passed, 0 failed
+# Expected: 71 passed, 15 skipped, 0 failed
 ```
 
 ---
@@ -132,6 +146,19 @@ python main.py
 
 # API documentation
 # http://localhost:8000/docs
+```
+
+### Running Supplier Invoice Editor
+
+```bash
+# Activate venv
+.\venv32\Scripts\Activate.ps1
+
+# Run desktop application
+cd apps/supplier-invoice-editor
+python main.py
+
+# Requires PostgreSQL with staging data
 ```
 
 ### Configuration
@@ -210,12 +237,19 @@ pytest --tb=no -q
 - ⏭️ 11 tests skipped
 - ❌ 0 tests failing
 
+**supplier-invoice-editor:**
+- ✅ 10/14 tests passing (71% coverage)
+- ⏭️ 4 tests skipped
+- ❌ 0 tests failing
+
+**Total:** 71 passed, 15 skipped, 0 failed ✅
+
 ---
 
 ## 📚 Documentation
 
-- **[MONOREPO_GUIDE.md](docs/giudes/MONOREPO_GUIDE.md)** - Development guide
-- **[CONTRIBUTING.md](docs/giudes/CONTRIBUTING.md)** - Contribution guidelines
+- **[MONOREPO_GUIDE.md](docs/MONOREPO_GUIDE.md)** - Development guide
+- **[CONTRIBUTING.md](CONTRIBUTING.md)** - Contribution guidelines
 - **[SESSION_NOTES.md](docs/SESSION_NOTES.md)** - Current status & history
 
 ### Manifests
@@ -277,12 +311,14 @@ Email → n8n → FastAPI → PDF Extraction → SQLite
 **Backend:**
 - Python 3.13.7 32-bit
 - FastAPI, Uvicorn
+- PyQt5 (desktop UI)
 - SQLite, PostgreSQL
 - asyncpg, aiosqlite
 
 **Processing:**
 - PyPDF (PDF parsing)
 - Pillow (image processing)
+- PyYAML (configuration)
 - Custom extractors
 
 **Data Formats:**
@@ -370,13 +406,13 @@ pip install -e apps/supplier-invoice-loader
 pytest
 ```
 
-See [MONOREPO_GUIDE.md](docs/giudes/MONOREPO_GUIDE.md) for more troubleshooting.
+See [MONOREPO_GUIDE.md](docs/MONOREPO_GUIDE.md) for more troubleshooting.
 
 ---
 
 ## 🤝 Contributing
 
-We welcome contributions! Please see [CONTRIBUTING.md](docs/giudes/CONTRIBUTING.md) for guidelines.
+We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
 ### Development Workflow
 
@@ -423,7 +459,9 @@ This project is proprietary software.
 **Migration Status:**
 - ✅ Monorepo structure
 - ✅ Shared packages
-- ✅ Testing infrastructure (61/72 passing)
+- ✅ Testing infrastructure
+  - supplier-invoice-loader: 61/72 passing (85%)
+  - supplier-invoice-editor: 10/14 passing (71%)
 - ✅ Documentation complete
 - ✅ Python environment setup
 - 📋 CI/CD pipeline (todo)

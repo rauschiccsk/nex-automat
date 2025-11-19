@@ -2,14 +2,14 @@
   "name": "supplier-invoice-editor",
   "type": "application",
   "location": "apps/supplier-invoice-editor",
-  "generated": "2025-11-19T13:38:42.615839",
+  "generated": "2025-11-19T14:02:52.572079",
   "statistics": {
-    "total_files": 64,
+    "total_files": 70,
     "total_dirs": 28,
-    "python_files": 43,
-    "test_files": 3,
-    "total_lines": 6506,
-    "total_size": 395108
+    "python_files": 48,
+    "test_files": 8,
+    "total_lines": 6699,
+    "total_size": 400454
   },
   "structure": {
     "has_src": true,
@@ -19,14 +19,19 @@
   },
   "dependencies": {
     "main": [
+      "PyQt5>=5.15.11",
+      "PyYAML>=6.0.3",
       "invoice-shared",
       "asyncpg>=0.29.0",
-      "pydantic>=2.0.0",
-      "pydantic-settings>=2.0.0"
+      "openpyxl>=3.1.0"
     ],
     "dev": [
       "pytest>=7.4.0",
-      "pytest-asyncio>=0.21.0"
+      "pytest-qt>=4.5.0",
+      "pytest-asyncio>=0.21.0",
+      "pytest-cov>=4.1.0",
+      "black>=23.0.0",
+      "ruff>=0.1.0"
     ],
     "optional": {
       "optional-dependencies": []
@@ -34,7 +39,7 @@
   },
   "tests": {
     "has_tests": true,
-    "test_files": 0,
+    "test_files": 4,
     "test_directories": 3
   },
   "files": [
@@ -139,6 +144,12 @@
       "extension": ".log"
     },
     {
+      "path": "apps/supplier-invoice-editor/logs/supplier_invoice_editor_20251119.log",
+      "name": "supplier_invoice_editor_20251119.log",
+      "size": 0,
+      "extension": ".log"
+    },
+    {
       "path": "apps/supplier-invoice-editor/main.py",
       "name": "main.py",
       "size": 2417,
@@ -149,7 +160,7 @@
     {
       "path": "apps/supplier-invoice-editor/pyproject.toml",
       "name": "pyproject.toml",
-      "size": 893,
+      "size": 924,
       "extension": ".toml"
     },
     {
@@ -493,12 +504,52 @@
       "type": "source"
     },
     {
+      "path": "apps/supplier-invoice-editor/tests/conftest.py",
+      "name": "conftest.py",
+      "size": 567,
+      "extension": ".py",
+      "lines": 28,
+      "type": "test"
+    },
+    {
       "path": "apps/supplier-invoice-editor/tests/integration/__init__.py",
       "name": "__init__.py",
       "size": 30,
       "extension": ".py",
       "lines": 1,
       "type": "source"
+    },
+    {
+      "path": "apps/supplier-invoice-editor/tests/test_config.py",
+      "name": "test_config.py",
+      "size": 962,
+      "extension": ".py",
+      "lines": 34,
+      "type": "test"
+    },
+    {
+      "path": "apps/supplier-invoice-editor/tests/test_database.py",
+      "name": "test_database.py",
+      "size": 1081,
+      "extension": ".py",
+      "lines": 35,
+      "type": "test"
+    },
+    {
+      "path": "apps/supplier-invoice-editor/tests/test_imports.py",
+      "name": "test_imports.py",
+      "size": 1359,
+      "extension": ".py",
+      "lines": 47,
+      "type": "test"
+    },
+    {
+      "path": "apps/supplier-invoice-editor/tests/test_main.py",
+      "name": "test_main.py",
+      "size": 1346,
+      "extension": ".py",
+      "lines": 49,
+      "type": "test"
     },
     {
       "path": "apps/supplier-invoice-editor/tests/unit/__init__.py",

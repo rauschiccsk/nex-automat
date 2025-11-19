@@ -2,14 +2,14 @@
   "name": "supplier-invoice-loader",
   "type": "application",
   "location": "apps/supplier-invoice-loader",
-  "generated": "2025-11-19T13:38:42.722522",
+  "generated": "2025-11-19T14:02:52.704142",
   "statistics": {
-    "total_files": 92,
+    "total_files": 90,
     "total_dirs": 28,
     "python_files": 37,
     "test_files": 11,
     "total_lines": 7097,
-    "total_size": 681977
+    "total_size": 669671
   },
   "structure": {
     "has_src": true,
@@ -538,12 +538,6 @@
       "type": "source"
     },
     {
-      "path": "apps/supplier-invoice-loader/src/utils/monitoring.py.backup2",
-      "name": "monitoring.py.backup2",
-      "size": 2917,
-      "extension": ".backup2"
-    },
-    {
       "path": "apps/supplier-invoice-loader/src/utils/notifications.py",
       "name": "notifications.py",
       "size": 21284,
@@ -656,12 +650,6 @@
       "extension": ".py",
       "lines": 369,
       "type": "test"
-    },
-    {
-      "path": "apps/supplier-invoice-loader/tests/unit/test_monitoring.py.backup",
-      "name": "test_monitoring.py.backup",
-      "size": 9389,
-      "extension": ".backup"
     },
     {
       "path": "apps/supplier-invoice-loader/tests/unit/test_notifications.py",
