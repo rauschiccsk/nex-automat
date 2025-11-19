@@ -256,6 +256,40 @@ def generate_package_manifest(package_dir: Path) -> dict:
     return manifest
 
 
+
+def get_documentation_files() -> dict:
+    """Get key documentation files from docs/"""
+    docs = {}
+
+    # Session notes - najdôležitejší súbor
+    session_notes = DOCS_DIR / "SESSION_NOTES.md"
+    if session_notes.exists():
+        docs["session_notes"] = {
+            "path": "docs/SESSION_NOTES.md",
+            "exists": True,
+            "size": session_notes.stat().st_size,
+            "github_raw": "https://raw.githubusercontent.com/[username]/nex-automat/main/docs/SESSION_NOTES.md"
+        }
+
+    # Ostatné kľúčové dokumenty
+    key_docs = {
+        "guides/MONOREPO_GUIDE.md": "Monorepo development guide",
+        "guides/CONTRIBUTING.md": "Contribution guidelines",
+        "guides/TESTING_GUIDE.md": "Testing guide"
+    }
+
+    for doc_path, description in key_docs.items():
+        full_path = DOCS_DIR / doc_path
+        if full_path.exists():
+            docs[doc_path.replace('/', '_').replace('.md', '')] = {
+                "path": f"docs/{doc_path}",
+                "description": description,
+                "exists": True,
+                "github_raw": f"https://raw.githubusercontent.com/[username]/nex-automat/main/docs/{doc_path}"
+            }
+
+    return docs
+
 def generate_root_manifest() -> dict:
     """Generate root manifest with overview"""
     print("🔨 Generating root manifest...")
@@ -305,6 +339,9 @@ def generate_root_manifest() -> dict:
         for dep in deps.get('main', []):
             all_deps.add(dep.split('>=')[0].split('==')[0].split('[')[0])
 
+    # Get documentation files
+    docs_files = get_documentation_files()
+
     # Root manifest
     manifest = {
         "project": "nex-automat",
@@ -336,7 +373,8 @@ def generate_root_manifest() -> dict:
             "phase_7_documentation": "in_progress",
             "phase_8_git": "todo"
         },
-        "test_status": {
+        "documentation": docs_files,
+                "test_status": {
             "supplier_invoice_loader": {
                 "total": 72,
                 "passed": 61,
