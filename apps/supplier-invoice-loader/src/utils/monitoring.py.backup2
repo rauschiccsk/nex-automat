@@ -4,7 +4,6 @@ Supplier Invoice Loader - Monitoring & Metrics
 Tracks application health, uptime, and processing statistics
 """
 import time
-from pathlib import Path
 
 # Optional psutil dependency
 try:
@@ -24,9 +23,6 @@ class Metrics:
         self.requests_failed = 0
         self.invoices_processed = 0
         self.invoices_failed = 0
-
-        # Backward compatibility alias
-        self.api_requests = 0
 
     def get_uptime(self) -> float:
         """Get application uptime in seconds"""
@@ -54,7 +50,6 @@ class Metrics:
     def increment_request(self, success: bool = True):
         """Increment request counter"""
         self.requests_total += 1
-        self.api_requests += 1  # Backward compatibility
         if success:
             self.requests_success += 1
         else:
@@ -91,7 +86,6 @@ class Metrics:
         self.requests_failed = 0
         self.invoices_processed = 0
         self.invoices_failed = 0
-        self.api_requests = 0  # Backward compatibility
 
 
 # Global metrics instance
@@ -106,42 +100,3 @@ def get_metrics() -> Metrics:
 def reset_metrics():
     """Reset global metrics (for testing)"""
     _metrics.reset()
-
-
-def check_storage_health() -> dict:
-    """
-    Check storage directories health
-
-    Returns:
-        dict with storage health status
-    """
-    try:
-        from src.utils import config
-
-        pdf_dir_exists = config.PDF_DIR.exists()
-        xml_dir_exists = config.XML_DIR.exists()
-
-        # Create directories if they don't exist
-        if not pdf_dir_exists:
-            config.PDF_DIR.mkdir(parents=True, exist_ok=True)
-            pdf_dir_exists = True
-
-        if not xml_dir_exists:
-            config.XML_DIR.mkdir(parents=True, exist_ok=True)
-            xml_dir_exists = True
-
-        storage_healthy = pdf_dir_exists and xml_dir_exists
-
-        return {
-            'pdf_dir_exists': pdf_dir_exists,
-            'xml_dir_exists': xml_dir_exists,
-            'storage_healthy': storage_healthy
-        }
-
-    except Exception as e:
-        return {
-            'pdf_dir_exists': False,
-            'xml_dir_exists': False,
-            'storage_healthy': False,
-            'error': str(e)
-        }

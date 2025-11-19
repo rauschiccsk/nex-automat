@@ -1,0 +1,93 @@
+{
+  "project": "nex-automat",
+  "type": "monorepo",
+  "version": "2.0.0",
+  "description": "Multi-customer SaaS for automated invoice processing",
+  "location": "C:\\Development\\nex-automat",
+  "generated": "2025-11-19T11:09:38.285854",
+  "structure": {
+    "apps": 2,
+    "packages": 2,
+    "docs": true,
+    "tools": true
+  },
+  "statistics": {
+    "total_files": 186,
+    "total_dirs": 81,
+    "python_files": 95,
+    "test_files": 14,
+    "total_lines": 14866,
+    "total_size": 1369909
+  },
+  "applications": [
+    {
+      "name": "supplier-invoice-editor",
+      "location": "apps/supplier-invoice-editor",
+      "manifest": "docs/apps/supplier-invoice-editor.json",
+      "python_files": 43,
+      "test_files": 0,
+      "dependencies_count": 4
+    },
+    {
+      "name": "supplier-invoice-loader",
+      "location": "apps/supplier-invoice-loader",
+      "manifest": "docs/apps/supplier-invoice-loader.json",
+      "python_files": 37,
+      "test_files": 5,
+      "dependencies_count": 10
+    }
+  ],
+  "packages": [
+    {
+      "name": "invoice-shared",
+      "location": "packages/invoice-shared",
+      "manifest": "docs/packages/invoice-shared.json",
+      "python_files": 7,
+      "dependencies_count": 2
+    },
+    {
+      "name": "nex-shared",
+      "location": "packages/nex-shared",
+      "manifest": "docs/packages/nex-shared.json",
+      "python_files": 5,
+      "dependencies_count": 2
+    }
+  ],
+  "dependencies": {
+    "unique_count": 10,
+    "list": [
+      "asyncpg",
+      "fastapi",
+      "httpx",
+      "invoice-shared",
+      "pillow",
+      "pydantic",
+      "pydantic-settings",
+      "pypdf",
+      "python-multipart",
+      "uvicorn"
+    ]
+  },
+  "migration_status": {
+    "phase_1_structure": "complete",
+    "phase_2_migration": "complete",
+    "phase_3_shared_packages": "complete",
+    "phase_4_imports": "complete",
+    "phase_5_testing": "complete",
+    "phase_6_test_fixes": "complete",
+    "phase_7_documentation": "in_progress",
+    "phase_8_git": "todo"
+  },
+  "test_status": {
+    "supplier_invoice_loader": {
+      "total": 72,
+      "passed": 61,
+      "failed": 0,
+      "skipped": 11,
+      "coverage": "85%"
+    },
+    "supplier_invoice_editor": {
+      "status": "not_tested_yet"
+    }
+  }
+}

@@ -1,0 +1,104 @@
+{
+  "name": "invoice-shared",
+  "type": "package",
+  "location": "packages/invoice-shared",
+  "generated": "2025-11-19T11:09:38.029920",
+  "statistics": {
+    "total_files": 9,
+    "total_dirs": 5,
+    "python_files": 7,
+    "test_files": 0,
+    "total_lines": 374,
+    "total_size": 13529
+  },
+  "dependencies": {
+    "main": [
+      "asyncpg>=0.29.0",
+      "pydantic>=2.0.0"
+    ],
+    "dev": [],
+    "optional": {}
+  },
+  "files": [
+    {
+      "path": "packages/invoice-shared/README.md",
+      "name": "README.md",
+      "size": 1439,
+      "extension": ".md"
+    },
+    {
+      "path": "packages/invoice-shared/invoice_shared/__init__.py",
+      "name": "__init__.py",
+      "size": 344,
+      "extension": ".py",
+      "lines": 15,
+      "type": "source"
+    },
+    {
+      "path": "packages/invoice-shared/invoice_shared/database/__init__.py",
+      "name": "__init__.py",
+      "size": 155,
+      "extension": ".py",
+      "lines": 5,
+      "type": "source"
+    },
+    {
+      "path": "packages/invoice-shared/invoice_shared/database/postgres_staging.py",
+      "name": "postgres_staging.py",
+      "size": 9583,
+      "extension": ".py",
+      "lines": 295,
+      "type": "source"
+    },
+    {
+      "path": "packages/invoice-shared/invoice_shared/models/__init__.py",
+      "name": "__init__.py",
+      "size": 89,
+      "extension": ".py",
+      "lines": 5,
+      "type": "source"
+    },
+    {
+      "path": "packages/invoice-shared/invoice_shared/schemas/__init__.py",
+      "name": "__init__.py",
+      "size": 80,
+      "extension": ".py",
+      "lines": 5,
+      "type": "source"
+    },
+    {
+      "path": "packages/invoice-shared/invoice_shared/utils/__init__.py",
+      "name": "__init__.py",
+      "size": 115,
+      "extension": ".py",
+      "lines": 5,
+      "type": "source"
+    },
+    {
+      "path": "packages/invoice-shared/invoice_shared/utils/text_utils.py",
+      "name": "text_utils.py",
+      "size": 1163,
+      "extension": ".py",
+      "lines": 44,
+      "type": "source"
+    },
+    {
+      "path": "packages/invoice-shared/pyproject.toml",
+      "name": "pyproject.toml",
+      "size": 561,
+      "extension": ".toml"
+    }
+  ],
+  "modules": [
+    {
+      "name": "postgres_staging",
+      "path": "database/postgres_staging.py",
+      "lines": 295
+    },
+    {
+      "name": "text_utils",
+      "path": "utils/text_utils.py",
+      "lines": 44
+    }
+  ]
+}

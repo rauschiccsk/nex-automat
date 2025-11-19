@@ -7,7 +7,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-MONOREPO_ROOT = Path("C:/Development/nex-automat")
+MONOREPO_ROOT = Path("/")
 
 
 def run_command(cmd: list, cwd: Path = None):

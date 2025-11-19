@@ -16,15 +16,15 @@ def test_monitoring_module_imports():
         pytest.fail(f"Failed to from src.utils import monitoring: {e}")
 
 
-def test_metrics_class_exists():
-    """Test that Metrics class exists"""
+def test_application_metrics_class_exists():
+    """Test that ApplicationMetrics class exists"""
     from src.utils.monitoring import Metrics
 
-    assert Metrics is not None
+    assert ApplicationMetrics is not None
 
 
-def test_create_metrics():
-    """Test creating Metrics instance"""
+def test_create_application_metrics():
+    """Test creating ApplicationMetrics instance"""
     from src.utils.monitoring import Metrics
 
     metrics = Metrics()
@@ -32,59 +32,45 @@ def test_create_metrics():
     assert metrics.start_time > 0
     assert metrics.invoices_processed == 0
     assert metrics.invoices_failed == 0
-    assert metrics.requests_total == 0
+    assert metrics.invoices_duplicates == 0
 
 
-def test_increment_invoice_success():
-    """Test incrementing successful invoice counter"""
+def test_increment_processed():
+    """Test incrementing processed counter"""
     from src.utils.monitoring import Metrics
 
     metrics = Metrics()
 
     initial = metrics.invoices_processed
-    metrics.increment_invoice(success=True)
+    metrics.increment_processed()
 
     assert metrics.invoices_processed == initial + 1
-    assert metrics.invoices_failed == 0
+    assert metrics.last_invoice_time is not None
 
 
-def test_increment_invoice_failed():
-    """Test incrementing failed invoice counter"""
+def test_increment_failed():
+    """Test incrementing failed counter"""
     from src.utils.monitoring import Metrics
 
     metrics = Metrics()
 
     initial = metrics.invoices_failed
-    metrics.increment_invoice(success=False)
+    metrics.increment_failed()
 
     assert metrics.invoices_failed == initial + 1
-    assert metrics.invoices_processed == 0
+    assert metrics.last_error_time is not None
 
 
-def test_increment_request_success():
-    """Test incrementing successful request counter"""
+def test_increment_duplicate():
+    """Test incrementing duplicate counter"""
     from src.utils.monitoring import Metrics
 
     metrics = Metrics()
 
-    initial = metrics.requests_success
-    metrics.increment_request(success=True)
+    initial = metrics.invoices_duplicates
+    metrics.increment_duplicate()
 
-    assert metrics.requests_success == initial + 1
-    assert metrics.requests_total == 1
-
-
-def test_increment_request_failed():
-    """Test incrementing failed request counter"""
-    from src.utils.monitoring import Metrics
-
-    metrics = Metrics()
-
-    initial = metrics.requests_failed
-    metrics.increment_request(success=False)
-
-    assert metrics.requests_failed == initial + 1
-    assert metrics.requests_total == 1
+    assert metrics.invoices_duplicates == initial + 1
 
 
 def test_uptime_calculation():
@@ -96,81 +82,45 @@ def test_uptime_calculation():
     # Wait a tiny bit
     time.sleep(0.1)
 
-    uptime = metrics.get_uptime()
+    uptime = metrics.get_uptime_seconds()
     assert uptime > 0
     assert uptime >= 0.1
 
 
-def test_reset_metrics():
+def test_uptime_formatted():
+    """Test formatted uptime string"""
+    from src.utils.monitoring import Metrics
+
+    metrics = Metrics()
+
+    uptime_str = metrics.get_uptime_formatted()
+
+    assert isinstance(uptime_str, str)
+    assert ':' in uptime_str  # Should contain time separator
+
+
+def test_reset_counters():
     """Test resetting metrics counters"""
     from src.utils.monitoring import Metrics
 
     metrics = Metrics()
 
     # Increment some counters
-    metrics.increment_invoice(success=True)
-    metrics.increment_invoice(success=False)
-    metrics.increment_request(success=True)
+    metrics.increment_processed()
+    metrics.increment_failed()
+    metrics.increment_duplicate()
 
     # Verify they're not zero
     assert metrics.invoices_processed > 0
     assert metrics.invoices_failed > 0
-    assert metrics.requests_total > 0
 
     # Reset
-    metrics.reset()
+    metrics.reset_counters()
 
     # Should be zero again
     assert metrics.invoices_processed == 0
     assert metrics.invoices_failed == 0
-    assert metrics.requests_total == 0
-    assert metrics.requests_success == 0
-    assert metrics.requests_failed == 0
-
-
-def test_get_stats():
-    """Test get_stats() returns complete statistics dict"""
-    from src.utils.monitoring import Metrics
-
-    metrics = Metrics()
-
-    # Add some activity
-    metrics.increment_invoice(success=True)
-    metrics.increment_invoice(success=True)
-    metrics.increment_invoice(success=False)
-    metrics.increment_request(success=True)
-
-    stats = metrics.get_stats()
-
-    assert isinstance(stats, dict)
-    assert 'uptime_seconds' in stats
-    assert 'requests' in stats
-    assert 'invoices' in stats
-    assert 'system' in stats
-    assert 'psutil_available' in stats
-
-    # Check nested structure
-    assert stats['requests']['total'] == 1
-    assert stats['requests']['success'] == 1
-    assert stats['invoices']['processed'] == 2
-    assert stats['invoices']['failed'] == 1
-
-
-def test_get_system_metrics():
-    """Test system metrics collection"""
-    from src.utils.monitoring import Metrics
-
-    metrics = Metrics()
-    system = metrics.get_system_metrics()
-
-    assert isinstance(system, dict)
-    assert 'cpu_percent' in system
-    assert 'memory_percent' in system
-    assert 'disk_percent' in system
-
-    # Values might be None if psutil not available
-    if system['cpu_percent'] is not None:
-        assert isinstance(system['cpu_percent'], (int, float))
+    assert metrics.invoices_duplicates == 0
 
 
 @pytest.mark.skip(reason="Function removed from monitoring.py")
@@ -269,6 +219,22 @@ def test_get_detailed_status():
     assert 'smtp' in result['components']
 
 
+def test_get_metrics():
+    """Test metrics endpoint data"""
+    from src.utils import monitoring
+
+    result = monitoring.get_metrics()
+
+    assert isinstance(result, dict)
+    assert 'timestamp' in result
+    assert 'uptime_seconds' in result
+    assert 'app_invoices_processed_total' in result
+    assert 'app_invoices_failed_total' in result
+
+    # All counters should be integers
+    assert isinstance(result['uptime_seconds'], int)
+
+
 @pytest.mark.skip(reason="Function removed from monitoring.py")
 def test_get_metrics_prometheus():
     """Test Prometheus format metrics"""
@@ -288,28 +254,27 @@ def test_global_metrics_instance():
     """Test that global metrics instance exists"""
     from src.utils import monitoring
 
-    # Should have get_metrics() function
-    metrics = monitoring.get_metrics()
-    assert metrics is not None
-    assert isinstance(metrics, monitoring.Metrics)
+    # Should have global metrics instance
+    assert hasattr(monitoring, 'metrics')
+    assert monitoring.get_metrics() is not None
 
 
 def test_metrics_persistence():
     """Test that metrics persist across function calls"""
     from src.utils import monitoring
 
-    # Reset first
-    monitoring.reset_metrics()
+    # Get current value
+    initial = monitoring.get_metrics().invoices_processed
 
     # Increment
-    monitoring.get_metrics().increment_invoice(success=True)
+    monitoring.get_metrics().increment_processed()
 
     # Should persist
-    assert monitoring.get_metrics().invoices_processed == 1
+    assert monitoring.get_metrics().invoices_processed == initial + 1
 
-    # Get stats - should still have same value
-    stats = monitoring.get_metrics().get_stats()
-    assert stats['invoices']['processed'] == 1
+    # Call metrics function - should still have same value
+    result = monitoring.get_metrics()
+    assert result['app_invoices_processed_total'] == initial + 1
 
 
 @pytest.mark.skip(reason="Function removed from monitoring.py")
@@ -350,20 +315,14 @@ def test_end_to_end_monitoring():
     """Integration test for full monitoring workflow"""
     from src.utils import monitoring
 
-    # Reset first
-    monitoring.reset_metrics()
-
     # Simulate some activity
-    monitoring.get_metrics().increment_invoice(success=True)
-    monitoring.get_metrics().increment_invoice(success=True)
-    monitoring.get_metrics().increment_invoice(success=False)
-    monitoring.get_metrics().increment_request(success=True)
+    monitoring.get_metrics().increment_processed()
+    monitoring.get_metrics().increment_processed()
+    monitoring.get_metrics().increment_failed()
 
-    # Get stats
-    stats = monitoring.get_metrics().get_stats()
+    # Get metrics
+    metrics = monitoring.get_metrics()
 
     # Should reflect our activity
-    assert stats['invoices']['processed'] == 2
-    assert stats['invoices']['failed'] == 1
-    assert stats['requests']['total'] == 1
-    assert stats['requests']['success'] == 1
+    assert metrics['app_invoices_processed_total'] >= 2
+    assert metrics['app_invoices_failed_total'] >= 1

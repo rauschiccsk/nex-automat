@@ -1,0 +1,71 @@
+{
+  "name": "nex-shared",
+  "type": "package",
+  "location": "packages/nex-shared",
+  "generated": "2025-11-19T11:09:38.054769",
+  "statistics": {
+    "total_files": 6,
+    "total_dirs": 5,
+    "python_files": 5,
+    "test_files": 0,
+    "total_lines": 5,
+    "total_size": 458
+  },
+  "dependencies": {
+    "main": [
+      "pydantic>=2.0.0",
+      "pydantic-settings>=2.0.0"
+    ],
+    "dev": [],
+    "optional": {}
+  },
+  "files": [
+    {
+      "path": "packages/nex-shared/nex_shared/__init__.py",
+      "name": "__init__.py",
+      "size": 30,
+      "extension": ".py",
+      "lines": 1,
+      "type": "source"
+    },
+    {
+      "path": "packages/nex-shared/nex_shared/auth/__init__.py",
+      "name": "__init__.py",
+      "size": 30,
+      "extension": ".py",
+      "lines": 1,
+      "type": "source"
+    },
+    {
+      "path": "packages/nex-shared/nex_shared/database/__init__.py",
+      "name": "__init__.py",
+      "size": 30,
+      "extension": ".py",
+      "lines": 1,
+      "type": "source"
+    },
+    {
+      "path": "packages/nex-shared/nex_shared/monitoring/__init__.py",
+      "name": "__init__.py",
+      "size": 30,
+      "extension": ".py",
+      "lines": 1,
+      "type": "source"
+    },
+    {
+      "path": "packages/nex-shared/nex_shared/utils/__init__.py",
+      "name": "__init__.py",
+      "size": 30,
+      "extension": ".py",
+      "lines": 1,
+      "type": "source"
+    },
+    {
+      "path": "packages/nex-shared/pyproject.toml",
+      "name": "pyproject.toml",
+      "size": 308,
+      "extension": ".toml"
+    }
+  ],
+  "modules": []
+}
