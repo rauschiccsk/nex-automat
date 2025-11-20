@@ -72,7 +72,8 @@ def scan_files(root: Path, relative_to: Path = None) -> list[dict]:
                 "path": str(rel_path).replace('\\', '/'),
                 "name": item.name,
                 "size": item.stat().st_size,
-                "extension": item.suffix
+                "extension": item.suffix,
+                "github_raw": f"https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/{str(rel_path).replace(chr(92), '/')}"
             }
 
             # Python-specific info

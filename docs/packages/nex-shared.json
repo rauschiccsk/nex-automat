@@ -2,7 +2,7 @@
   "name": "nex-shared",
   "type": "package",
   "location": "packages/nex-shared",
-  "generated": "2025-11-19T15:38:09.923692",
+  "generated": "2025-11-20T11:07:01.874854",
   "statistics": {
     "total_files": 6,
     "total_dirs": 5,
@@ -25,6 +25,7 @@
       "name": "__init__.py",
       "size": 30,
       "extension": ".py",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/packages/nex-shared/nex_shared/__init__.py",
       "lines": 1,
       "type": "source"
     },
@@ -33,6 +34,7 @@
       "name": "__init__.py",
       "size": 30,
       "extension": ".py",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/packages/nex-shared/nex_shared/auth/__init__.py",
       "lines": 1,
       "type": "source"
     },
@@ -41,6 +43,7 @@
       "name": "__init__.py",
       "size": 30,
       "extension": ".py",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/packages/nex-shared/nex_shared/database/__init__.py",
       "lines": 1,
       "type": "source"
     },
@@ -49,6 +52,7 @@
       "name": "__init__.py",
       "size": 30,
       "extension": ".py",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/packages/nex-shared/nex_shared/monitoring/__init__.py",
       "lines": 1,
       "type": "source"
     },
@@ -57,6 +61,7 @@
       "name": "__init__.py",
       "size": 30,
       "extension": ".py",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/packages/nex-shared/nex_shared/utils/__init__.py",
       "lines": 1,
       "type": "source"
     },
@@ -64,7 +69,8 @@
       "path": "packages/nex-shared/pyproject.toml",
       "name": "pyproject.toml",
       "size": 308,
-      "extension": ".toml"
+      "extension": ".toml",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/packages/nex-shared/pyproject.toml"
     }
   ],
   "modules": []

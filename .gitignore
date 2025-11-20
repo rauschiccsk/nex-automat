@@ -76,6 +76,8 @@ tmp/
 *.backup[0-9]
 *.bak
 
+*.pdf
+
 # Migration outputs
 migration_*.log
 migration_report_*.txt
