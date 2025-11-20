@@ -22,7 +22,7 @@ class InvoiceService:
     def _init_database(self):
         """Initialize database connection"""
         try:
-            from database.postgres_client import PostgresClient
+            from src.database.postgres_client import PostgresClient
             self.db_client = PostgresClient(self.config)
 
             # Test connection
