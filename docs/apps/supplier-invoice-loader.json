@@ -2,14 +2,14 @@
   "name": "supplier-invoice-loader",
   "type": "application",
   "location": "apps/supplier-invoice-loader",
-  "generated": "2025-11-20T11:37:36.342793",
+  "generated": "2025-11-20T14:11:06.529403",
   "statistics": {
-    "total_files": 108,
-    "total_dirs": 28,
-    "python_files": 37,
-    "test_files": 11,
-    "total_lines": 7097,
-    "total_size": 9041080
+    "total_files": 115,
+    "total_dirs": 29,
+    "python_files": 44,
+    "test_files": 14,
+    "total_lines": 8784,
+    "total_size": 9094125
   },
   "structure": {
     "has_src": true,
@@ -41,7 +41,7 @@
   },
   "tests": {
     "has_tests": true,
-    "test_files": 5,
+    "test_files": 8,
     "test_directories": 3
   },
   "files": [
@@ -540,6 +540,42 @@
       "type": "source"
     },
     {
+      "path": "apps/supplier-invoice-loader/src/monitoring/__init__.py",
+      "name": "__init__.py",
+      "size": 470,
+      "extension": ".py",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/apps/supplier-invoice-loader/src/monitoring/__init__.py",
+      "lines": 11,
+      "type": "source"
+    },
+    {
+      "path": "apps/supplier-invoice-loader/src/monitoring/alert_manager.py",
+      "name": "alert_manager.py",
+      "size": 17638,
+      "extension": ".py",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/apps/supplier-invoice-loader/src/monitoring/alert_manager.py",
+      "lines": 565,
+      "type": "source"
+    },
+    {
+      "path": "apps/supplier-invoice-loader/src/monitoring/health_monitor.py",
+      "name": "health_monitor.py",
+      "size": 11273,
+      "extension": ".py",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/apps/supplier-invoice-loader/src/monitoring/health_monitor.py",
+      "lines": 318,
+      "type": "source"
+    },
+    {
+      "path": "apps/supplier-invoice-loader/src/monitoring/log_manager.py",
+      "name": "log_manager.py",
+      "size": 10590,
+      "extension": ".py",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/apps/supplier-invoice-loader/src/monitoring/log_manager.py",
+      "lines": 344,
+      "type": "source"
+    },
+    {
       "path": "apps/supplier-invoice-loader/src/supplier_invoice_loader.egg-info/PKG-INFO",
       "name": "PKG-INFO",
       "size": 10028,
@@ -831,6 +867,15 @@
       "type": "source"
     },
     {
+      "path": "apps/supplier-invoice-loader/tests/unit/test_alert_manager.py",
+      "name": "test_alert_manager.py",
+      "size": 5107,
+      "extension": ".py",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/apps/supplier-invoice-loader/tests/unit/test_alert_manager.py",
+      "lines": 167,
+      "type": "test"
+    },
+    {
       "path": "apps/supplier-invoice-loader/tests/unit/test_api.py",
       "name": "test_api.py",
       "size": 7060,
@@ -849,12 +894,30 @@
       "type": "test"
     },
     {
+      "path": "apps/supplier-invoice-loader/tests/unit/test_health_monitor.py",
+      "name": "test_health_monitor.py",
+      "size": 2695,
+      "extension": ".py",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/apps/supplier-invoice-loader/tests/unit/test_health_monitor.py",
+      "lines": 88,
+      "type": "test"
+    },
+    {
       "path": "apps/supplier-invoice-loader/tests/unit/test_import.py",
       "name": "test_import.py",
       "size": 523,
       "extension": ".py",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/apps/supplier-invoice-loader/tests/unit/test_import.py",
       "lines": 20,
+      "type": "test"
+    },
+    {
+      "path": "apps/supplier-invoice-loader/tests/unit/test_log_manager.py",
+      "name": "test_log_manager.py",
+      "size": 5272,
+      "extension": ".py",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/apps/supplier-invoice-loader/tests/unit/test_log_manager.py",
+      "lines": 194,
       "type": "test"
     },
     {

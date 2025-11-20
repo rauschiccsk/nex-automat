@@ -4,7 +4,7 @@
   "version": "2.0.0",
   "description": "Multi-customer SaaS for automated invoice processing",
   "location": "C:\\Development\\nex-automat",
-  "generated": "2025-11-20T11:37:36.867430",
+  "generated": "2025-11-20T14:11:07.068672",
   "structure": {
     "apps": 2,
     "packages": 2,
@@ -12,12 +12,12 @@
     "tools": true
   },
   "statistics": {
-    "total_files": 4686,
-    "total_dirs": 517,
-    "python_files": 1774,
-    "test_files": 40,
-    "total_lines": 631499,
-    "total_size": 93577380
+    "total_files": 4729,
+    "total_dirs": 521,
+    "python_files": 1810,
+    "test_files": 61,
+    "total_lines": 656383,
+    "total_size": 94494358
   },
   "applications": [
     {
@@ -32,8 +32,8 @@
       "name": "supplier-invoice-loader",
       "location": "apps/supplier-invoice-loader",
       "manifest": "docs/apps/supplier-invoice-loader.json",
-      "python_files": 37,
-      "test_files": 5,
+      "python_files": 44,
+      "test_files": 8,
       "dependencies_count": 10
     }
   ],
@@ -85,7 +85,7 @@
     "session_notes": {
       "path": "docs/SESSION_NOTES.md",
       "exists": true,
-      "size": 7863,
+      "size": 9302,
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/docs/SESSION_NOTES.md"
     }
   },

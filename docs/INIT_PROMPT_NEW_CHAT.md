@@ -3,7 +3,8 @@
 **Project:** nex-automat  
 **Location:** C:/Development/nex-automat  
 **GitHub:** https://github.com/rauschiccsk/nex-automat  
-**Last Session:** 2025-11-20
+**Session:** DAY 2 - Backup & Recovery System  
+**Date:** 2025-11-21
 
 ---
 
@@ -21,39 +22,75 @@ web_fetch('https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/docs/P
 web_fetch('https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/docs/SESSION_NOTES.md')
 ```
 
-### Ak pracujem na konkrétnom app:
+### Supplier Invoice Loader (pracujeme na tomto)
 ```
-# Supplier Invoice Loader
 web_fetch('https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/docs/apps/supplier-invoice-loader.json')
-
-# Supplier Invoice Editor
-web_fetch('https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/docs/apps/supplier-invoice-editor.json')
 ```
 
 ---
 
 ## 🎯 Current Project Status
 
-### ✅ COMPLETE (Ready to use)
-- Monorepo structure with 2 apps, 2 packages
-- Python 3.13.7 32-bit venv32
-- Testing: 71/86 passing (83% coverage)
-- **End-to-End workflow TESTED and WORKING** ✅
-- Documentation complete with GitHub URLs
-- Git repository public and up-to-date
+### ✅ COMPLETE - DAY 1 (2025-11-20)
+**Monitoring & Health Checks System:**
+- ✅ Health Monitor (7 tests passing)
+  - System metrics (CPU, RAM, Disk)
+  - Database status checking
+  - Invoice statistics tracking
+  - Uptime monitoring
+  - File: `src/monitoring/health_monitor.py`
 
-### 🔄 RECENT UPDATES (2025-11-20)
-- ✅ E2E testing workflow implemented
-- ✅ Manifest system enhanced with GitHub URLs
-- ✅ Editor database connection fixed
-- ✅ pg8000 dependency added
-- ✅ Full workflow verified (Email → n8n → FastAPI → DB → GUI)
+- ✅ Alert Manager (9 tests passing)
+  - Critical/Warning/Info alerts
+  - Email notifications (HTML)
+  - Daily summaries
+  - Weekly reports
+  - Multiple recipients
+  - File: `src/monitoring/alert_manager.py`
 
-### 📋 TODO (Next priorities)
-1. Production deployment monitoring
-2. Error handling improvements
-3. Additional test coverage
-4. Performance optimization
+- ✅ Log Manager (12 tests passing)
+  - Automatic rotation (10 MB)
+  - Retention (30 days)
+  - JSON structured logging
+  - Log analysis utilities
+  - File: `src/monitoring/log_manager.py`
+
+**Test Status:** 28/28 monitoring tests passing (100%) ✅  
+**Dependencies:** psutil>=5.9.0 installed
+
+---
+
+## 🚀 TODAY'S PRIORITY - DAY 2
+
+### Backup & Recovery System (3 hours)
+
+**Tasks:**
+1. **Database Backup Script** (1.5h)
+   - PostgreSQL automated backup
+   - Incremental backups
+   - Backup rotation (7 daily, 4 weekly)
+   - Compression (gzip)
+   - Backup verification
+   - Cloud storage support (optional)
+
+2. **Configuration Backup** (0.5h)
+   - Config files backup
+   - Environment variables backup
+   - Encryption for sensitive data
+
+3. **Recovery Documentation** (1h)
+   - Step-by-step recovery guide
+   - RTO/RPO definitions
+   - Disaster recovery scenarios
+   - Recovery testing checklist
+
+**Deliverables:**
+- `scripts/backup_database.py`
+- `scripts/restore_database.py`
+- `scripts/backup_config.py`
+- `docs/deployment/RECOVERY_GUIDE.md`
+- Windows Task Scheduler config
+- Tests for backup scripts
 
 ---
 
@@ -62,34 +99,37 @@ web_fetch('https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/docs/a
 ```
 nex-automat/
 ├── apps/
-│   ├── supplier-invoice-loader/    # FastAPI service (85% tested)
+│   ├── supplier-invoice-loader/
 │   │   ├── src/
+│   │   │   ├── monitoring/              ✅ NEW (DAY 1)
+│   │   │   │   ├── health_monitor.py
+│   │   │   │   ├── alert_manager.py
+│   │   │   │   └── log_manager.py
+│   │   │   ├── api/
+│   │   │   ├── business/
+│   │   │   ├── database/
+│   │   │   ├── extractors/
+│   │   │   └── utils/
 │   │   ├── tests/
-│   │   │   └── samples/           # 18 test PDF invoices
+│   │   │   └── unit/
+│   │   │       ├── test_health_monitor.py    ✅ 7 passing
+│   │   │       ├── test_alert_manager.py     ✅ 9 passing
+│   │   │       └── test_log_manager.py       ✅ 12 passing
+│   │   ├── scripts/                     ⏳ TODAY: backup scripts
+│   │   ├── docs/
+│   │   │   └── deployment/              ⏳ TODAY: RECOVERY_GUIDE.md
+│   │   ├── main.py
+│   │   ├── requirements.txt             ✅ UPDATED (psutil)
 │   │   └── pyproject.toml
-│   └── supplier-invoice-editor/    # PyQt5 desktop app (71% tested)
-│       ├── src/
-│       │   ├── business/          # invoice_service.py
-│       │   ├── database/          # postgres_client.py
-│       │   └── ui/                # PyQt5 widgets
-│       ├── tests/
-│       ├── config/
-│       │   └── config.yaml        # DB config
-│       └── pyproject.toml
+│   └── supplier-invoice-editor/
 ├── packages/
-│   ├── invoice-shared/            # Shared utilities
-│   └── nex-shared/                # NEX Genesis utilities
+│   ├── invoice-shared/
+│   └── nex-shared/
 ├── docs/
-│   ├── guides/
-│   ├── SESSION_NOTES.md
-│   ├── PROJECT_MANIFEST.json      # ✅ With GitHub URLs
-│   ├── apps/                      # ✅ Per-app manifests
-│   └── packages/                  # ✅ Per-package manifests
-├── scripts/
-│   └── generate_projects_access.py # ✅ Updated with github_raw
-├── e2e_test_workflow.py           # ✅ NEW - E2E testing
-├── diagnose_editor_db.py          # ✅ NEW - DB diagnostics
-└── venv32/                        # Python 3.13.7 32-bit + pg8000
+│   ├── SESSION_NOTES.md                 ✅ UPDATED
+│   ├── INIT_PROMPT_NEW_CHAT.md          ✅ THIS FILE
+│   └── PROJECT_MANIFEST.json
+└── venv32/                              ✅ Python 3.13.7 32-bit
 ```
 
 ---
@@ -105,176 +145,161 @@ nex-automat/
 - FastAPI, Uvicorn (loader)
 - PyQt5, PyYAML (editor)
 - asyncpg, pg8000 (PostgreSQL)
+- psutil>=5.9.0 (system metrics)
 - invoice-shared (workspace package)
 
-**NEW Dependencies (2025-11-20):**
-- pg8000==1.31.5 (pure Python PostgreSQL driver)
-
 ---
 
-## 🧪 Testing
+## 🧪 Testing Status
 
 ```bash
-# Run all tests
-pytest
+# Current test status
+pytest apps/supplier-invoice-loader/tests/unit/ -v
 
-# Expected: 71 passed, 15 skipped, 0 failed
-```
-
-**Coverage:**
-- supplier-invoice-loader: 61/72 (85%)
-- supplier-invoice-editor: 10/14 (71%)
-
-**E2E Testing:**
-```bash
-# Full workflow test (Email → n8n → FastAPI → DB → GUI)
-python e2e_test_workflow.py
-
-# Database diagnostics
-python diagnose_editor_db.py
+# Expected results:
+# - test_health_monitor.py: 7 passed
+# - test_alert_manager.py: 9 passed
+# - test_log_manager.py: 12 passed
+# Total: 28 passed
 ```
 
 ---
 
-## 📊 E2E Workflow
+## 📊 Deployment Timeline
 
-**Email:** magerstavinvoice@gmail.com  
-**n8n:** Active workflow on localhost  
-**FastAPI:** https://magerstav-invoices.icc.sk  
-**Database:** invoice_staging (PostgreSQL)  
-**Table:** invoices_pending (2 pending invoices)
+```
+✅ DAY 1 (2025-11-20): Monitoring & Health Checks - COMPLETE
+⏳ DAY 2 (2025-11-21): Backup & Recovery - TODAY
+⏳ DAY 3 (2025-11-22): Error Handling & Retry Logic
+⏳ DAY 4 (2025-11-23): Configuration & Security
+⏳ DAY 5 (2025-11-24): Production Testing & Performance
+⏳ DAY 6 (2025-11-25): Documentation & Runbooks
+⏳ DAY 7 (2025-11-27): Final Deployment & Handover
+```
 
-**Test Flow:**
-1. Send email with PDF attachment
-2. n8n IMAP trigger (30s delay)
-3. n8n → FastAPI /invoice endpoint
-4. FastAPI → PostgreSQL
-5. GUI Editor displays invoices
-
-**Status:** ✅ Fully tested and working
+**Target Deployment:** 2025-11-27  
+**Customer:** Mágerstav s.r.o.  
+**Approach:** Comprehensive production-ready deployment
 
 ---
 
-## 🔑 Important Notes
+## 🎯 Success Criteria
+
+**Technical:**
+- ✅ 99.9% uptime target
+- ✅ <2s API response time (p95)
+- ✅ <5min invoice processing time
+- ✅ Automated daily backups (TODAY)
+- ✅ Real-time alerting functional (DONE)
+- ✅ All tests passing (target: 100+)
+- ✅ Zero critical security issues
+- ✅ Complete documentation
+
+**Business:**
+- ✅ Customer can process invoices independently
+- ✅ Support team can troubleshoot issues
+- ✅ Recovery procedures tested (TODAY)
+- ✅ SLA commitments met
+- ✅ Customer satisfaction achieved
+
+---
+
+## 💡 Key Reminders
 
 ### Critical Rules:
-1. **32-bit Python only** (Btrieve requirement)
-2. **Install order matters:** packages first, then apps
-3. **Always run tests** before committing
-4. **Regenerate manifests** after structural changes
-5. **pg8000 required** for editor DB connection
+1. **Provide single solution only** - no alternatives unless requested
+2. **One step at a time** - wait for confirmation
+3. **Generate everything into artifacts** - code, configs, docs
+4. **All fixes via .py scripts** - never .ps1 alternatives
+5. **Quality over speed** - systematic approach
+6. **No emoji in scripts** - Windows encoding issues
 
-### Known Working Configuration:
-- Gmail: App Password authentication
-- PostgreSQL: invoice_staging database
-- Editor: Real DB connection (no stub data)
-- n8n: IMAP trigger with 30s polling
+### Technical:
+- **32-bit Python only** (Btrieve requirement)
+- **Install order matters:** packages first, then apps
+- **Always run tests** before committing
+- **psutil installation:** use `--only-binary :all:`
 
-### Recent Fixes:
-- ✅ invoice_service.py import path fixed
-- ✅ invoices_pending table name corrected
-- ✅ GitHub URLs added to all manifest files
-- ✅ pg8000 dependency installed
+### Git Operations:
+- User handles commits and pushes himself
+- User generates manifests himself
+- Claude provides commit messages in plain text
 
 ---
 
-## 🚀 Quick Commands Reference
+## 📋 Today's Work Plan (DAY 2)
 
-```bash
-# Setup (if needed)
-.\venv32\Scripts\Activate.ps1
+### Step 1: Database Backup Script (1.5h)
+Create `scripts/backup_database.py`:
+- PostgreSQL pg_dump wrapper
+- Incremental backup support
+- Backup rotation logic (7 daily, 4 weekly)
+- Compression (gzip)
+- Backup verification
+- Email notifications on failure
+- Tests
 
-# Install packages
-pip install -e packages/invoice-shared -e packages/nex-shared
-pip install -e apps/supplier-invoice-loader -e apps/supplier-invoice-editor
+### Step 2: Configuration Backup (0.5h)
+Create `scripts/backup_config.py`:
+- Backup config.yaml, .env files
+- Encrypt sensitive data
+- Store in secure location
+- Tests
 
-# Test
-pytest
-python e2e_test_workflow.py
-python diagnose_editor_db.py
+### Step 3: Restore Script (0.5h)
+Create `scripts/restore_database.py`:
+- PostgreSQL restore from backup
+- Verify data integrity
+- Tests
 
-# Run services
-cd apps/supplier-invoice-loader
-python main.py  # → http://localhost:8000/docs
+### Step 4: Recovery Documentation (1h)
+Create `docs/deployment/RECOVERY_GUIDE.md`:
+- Step-by-step procedures
+- RTO/RPO definitions
+- Disaster scenarios
+- Testing checklist
+- Contact information
 
-cd apps/supplier-invoice-editor
-python main.py  # → GUI Editor
+### Step 5: Windows Task Scheduler (0.5h)
+- Daily backup schedule configuration
+- PowerShell script for Task Scheduler
+- Logging configuration
 
-# Regenerate manifests
-python scripts/generate_projects_access.py
+---
+
+## 🔒 Database Configuration
+
+**Database:** invoice_staging (PostgreSQL)  
+**Main Table:** invoices_pending  
+**Connection:** pg8000 driver (pure Python)
+
+**Connection Details:**
+```yaml
+database:
+  postgres:
+    host: localhost
+    port: 5432
+    database: invoice_staging
+    user: postgres
+    password: ${ENV:POSTGRES_PASSWORD}
 ```
 
 ---
 
-## 📁 Database Schema
+## 🚨 Important Notes
 
-**Database:** invoice_staging  
-**Main Table:** invoices_pending
+### Backup Strategy:
+- **Daily backups:** Keep 7 days
+- **Weekly backups:** Keep 4 weeks
+- **Compression:** gzip level 6
+- **Verification:** SHA256 checksums
+- **Storage:** Local + optional cloud
+- **Encryption:** AES-256 for configs
 
-**Columns:**
-- id, invoice_number, invoice_date, due_date
-- supplier_name, supplier_ico, supplier_dic
-- total_amount, total_vat, total_without_vat, currency
-- status (pending/approved/rejected)
-- nex_pab_code, nex_doc_number, nex_book, nex_book_type
-- created_at, approved_at, imported_at, rejected_at
-- error_message, rejection_reason, isdoc_xml
-
----
-
-## 🎯 Common Tasks
-
-### Run E2E Test
-```bash
-python e2e_test_workflow.py
-# Sends email → n8n → FastAPI → DB → GUI
-```
-
-### Diagnose DB Connection
-```bash
-python diagnose_editor_db.py
-# Checks: pg8000, config, connection, data
-```
-
-### Add New Invoice (via email)
-1. Send email with PDF to magerstavinvoice@gmail.com
-2. Wait 30 seconds for n8n processing
-3. Check database: `SELECT * FROM invoices_pending ORDER BY created_at DESC LIMIT 5`
-4. Open GUI Editor to view
-
-### Fix Editor DB Connection
-If editor shows stub data:
-1. Check pg8000: `pip list | grep pg8000`
-2. Run diagnostics: `python diagnose_editor_db.py`
-3. Verify config: `type apps\supplier-invoice-editor\config\config.yaml`
-4. Check import paths in invoice_service.py
-
----
-
-## 📚 Key Documentation Files
-
-- **README.md** - Project overview
-- **docs/guides/MONOREPO_GUIDE.md** - Development guide
-- **docs/guides/CONTRIBUTING.md** - Contribution guidelines
-- **docs/SESSION_NOTES.md** - Current status and history
-- **apps/supplier-invoice-editor/docs/POSTGRESQL_SETUP.md** - DB setup
-
----
-
-## 🔗 GitHub Repository
-
-**URL:** https://github.com/rauschiccsk/nex-automat  
-**Status:** Public, up-to-date  
-**Manifests:** All files have github_raw URLs  
-
-**Access Pattern:**
-```python
-# Load manifest
-manifest = web_fetch('https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/docs/apps/supplier-invoice-editor.json')
-
-# Access any file
-config = web_fetch(manifest['files'][X]['github_raw'])
-```
+### Recovery Objectives:
+- **RTO (Recovery Time Objective):** <1 hour
+- **RPO (Recovery Point Objective):** <24 hours
+- **Data Loss Tolerance:** Max 1 day
 
 ---
 
@@ -283,13 +308,20 @@ config = web_fetch(manifest['files'][X]['github_raw'])
 Before starting work:
 - [ ] Load PROJECT_MANIFEST.json
 - [ ] Read SESSION_NOTES.md for current status
-- [ ] Activate venv: `.\venv32\Scripts\Activate.ps1`
-- [ ] Verify environment: `python diagnose_editor_db.py`
+- [ ] Verify venv32 is activated
+- [ ] Confirm monitoring modules working
+- [ ] Review DAY 2 requirements
 
 ---
 
+## 📞 Support Information
+
 **Developer:** Zoltán Rausch (rausch@icc.sk)  
 **Organization:** ICC Komárno - Innovation & Consulting Center  
+**Customer:** Mágerstav s.r.o.  
 **Project Version:** 2.0.0  
-**Status:** Production Ready ✅  
-**Last E2E Test:** 2025-11-20 ✅ Success
+**Status:** DAY 1 Complete ✅, DAY 2 In Progress ⏳
+
+---
+
+**Ready to start DAY 2 - Backup & Recovery System!**
