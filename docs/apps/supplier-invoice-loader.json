@@ -2,14 +2,14 @@
   "name": "supplier-invoice-loader",
   "type": "application",
   "location": "apps/supplier-invoice-loader",
-  "generated": "2025-11-21T20:11:44.527068",
+  "generated": "2025-11-21T22:12:18.079726",
   "statistics": {
     "total_files": 128,
     "total_dirs": 36,
     "python_files": 53,
     "test_files": 15,
     "total_lines": 10273,
-    "total_size": 9152075
+    "total_size": 9153165
   },
   "structure": {
     "has_src": true,
@@ -69,7 +69,7 @@
     {
       "path": "apps/supplier-invoice-loader/config/config.yaml",
       "name": "config.yaml",
-      "size": 579,
+      "size": 1669,
       "extension": ".yaml",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/apps/supplier-invoice-loader/config/config.yaml"
     },

@@ -1,0 +1,171 @@
+# NEX Automat - Production Configuration Template
+# Copy this file to config.yaml and fill in your production values
+# WARNING: Never commit config.yaml to Git!
+
+# Database Configuration
+database:
+  postgres:
+    host: "localhost"           # PostgreSQL server hostname or IP
+    port: 5432                  # PostgreSQL port (default: 5432)
+    database: "invoice_prod"    # Database name
+    user: "postgres"            # Database user
+    password: "CHANGE_ME"       # Database password (use strong password!)
+
+  # Connection pool settings
+  pool:
+    min_size: 2
+    max_size: 10
+    timeout: 30
+
+# NEX Genesis Integration
+nex_genesis:
+  api_url: "http://localhost:8080/api"  # NEX Genesis API endpoint
+  api_key: "CHANGE_ME"                   # API authentication key
+  timeout: 30                             # Request timeout in seconds
+  retry_attempts: 3                       # Number of retry attempts
+  retry_delay: 5                          # Delay between retries (seconds)
+
+# Email Configuration
+email:
+  # Operator email (receives notifications)
+  operator: "operator@magerstav.sk"
+
+  # Alert email (receives critical alerts)
+  alert: "alert@icc.sk"
+
+  # SMTP Configuration
+  smtp:
+    host: "smtp.example.com"    # SMTP server hostname
+    port: 587                   # SMTP port (587 for TLS, 465 for SSL)
+    user: "CHANGE_ME"           # SMTP username
+    password: "CHANGE_ME"       # SMTP password
+    use_tls: true               # Use TLS (recommended)
+    use_ssl: false              # Use SSL (alternative to TLS)
+    from_address: "nex-automat@magerstav.sk"
+
+  # Email notification settings
+  notifications:
+    send_on_success: false      # Send email on successful processing
+    send_on_error: true         # Send email on errors
+    send_on_warning: true       # Send email on warnings
+    send_daily_summary: true    # Send daily processing summary
+
+# Storage Paths
+paths:
+  # PDF storage directory
+  pdf_storage: "C:/NEX-Automat/storage/pdf"
+
+  # XML storage directory
+  xml_storage: "C:/NEX-Automat/storage/xml"
+
+  # Temporary processing directory
+  temp_processing: "C:/NEX-Automat/storage/temp"
+
+  # Archive directory (processed files)
+  archive: "C:/NEX-Automat/storage/archive"
+
+  # Error directory (failed processing)
+  error: "C:/NEX-Automat/storage/error"
+
+# Backup Configuration
+backup:
+  # Backup storage directory
+  backup_dir: "C:/NEX-Automat/backups"
+
+  # Retention policy (days)
+  retention:
+    daily: 7        # Keep daily backups for 7 days
+    weekly: 30      # Keep weekly backups for 30 days
+    monthly: 365    # Keep monthly backups for 1 year
+
+  # Compression
+  compress: true
+
+  # Encryption (XOR encryption for config files)
+  encrypt_config: true
+
+# Logging Configuration
+logging:
+  level: "INFO"                 # DEBUG, INFO, WARNING, ERROR, CRITICAL
+  log_dir: "C:/NEX-Automat/logs"
+
+  # Log rotation
+  rotation:
+    max_bytes: 10485760         # 10 MB
+    backup_count: 10            # Keep 10 old log files
+
+  # Log format
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  date_format: "%Y-%m-%d %H:%M:%S"
+
+# Processing Configuration
+processing:
+  # Batch size for processing
+  batch_size: 10
+
+  # Processing interval (seconds)
+  interval: 60
+
+  # Maximum processing time per invoice (seconds)
+  max_processing_time: 300
+
+  # Maximum retries for failed invoices
+  max_retries: 3
+
+  # Concurrent processing
+  concurrent_workers: 2
+
+# Monitoring Configuration
+monitoring:
+  # Enable monitoring
+  enabled: true
+
+  # Metrics collection interval (seconds)
+  metrics_interval: 60
+
+  # Health check endpoint
+  health_check_enabled: true
+  health_check_port: 8000
+
+  # Alert thresholds
+  alerts:
+    error_rate_threshold: 0.1   # Alert if error rate > 10%
+    queue_size_threshold: 100   # Alert if queue size > 100
+    processing_time_threshold: 300  # Alert if avg processing time > 5 min
+
+# Customer Configuration
+customer:
+  id: "MAGERSTAV"
+  name: "Mágerstav s.r.o."
+
+  # Customer-specific settings
+  settings:
+    auto_approve_threshold: 1000    # Auto-approve invoices below this amount
+    require_double_approval: true   # Require double approval for large amounts
+    double_approval_threshold: 10000  # Threshold for double approval
+
+# Application Settings
+application:
+  name: "NEX-Automat-Loader"
+  version: "2.0.0"
+  environment: "production"     # development, staging, production
+
+  # Service settings
+  service:
+    startup_delay: 10           # Delay before starting processing (seconds)
+    shutdown_timeout: 30        # Timeout for graceful shutdown (seconds)
+    restart_on_error: true      # Restart service on critical error
+
+# Security Settings
+security:
+  # API authentication
+  api_key_required: true
+
+  # Allowed IP addresses (empty = allow all)
+  allowed_ips: []
+
+  # SSL/TLS settings
+  ssl_verify: true
+
+  # Password encryption key (generate with: python -c "import secrets; print(secrets.token_hex(32))")
+  encryption_key: "CHANGE_ME_GENERATE_NEW_KEY"

@@ -3,29 +3,43 @@
 **Date:** 2025-11-22 (estimated)  
 **Project:** nex-automat  
 **Customer:** Mágerstav s.r.o.  
-**Session:** DAY 3 - Production Setup (Steps 2-5)  
-**Progress:** 50% complete (2.5/5 days)  
+**Session:** DAY 3 - Steps 4-5 (Service Installation & Validation)  
+**Progress:** 60% complete (3/5 days)  
 **Target Deployment:** 2025-11-27
 
 ---
 
-## ✅ Previous Session Summary (DAY 3 Step 1)
+## ✅ Previous Session Summary (DAY 3 Steps 1-3)
 
 **Completed:**
-- ✅ Fixed 12x PermissionError in test_log_manager.py
-- ✅ Rewrote temp_log_dir fixture with proper cleanup
-- ✅ Test suite now 108/119 passing (0 errors)
-- ✅ 100% test stability achieved
+- ✅ Fixed test stability: 108/119 tests passing (0 errors)
+- ✅ Created production configuration system
+- ✅ Validated database connection (PostgreSQL 15.14)
+- ✅ Deployed to production: C:\Deployment\nex-automat
+- ✅ Created Windows Service installation scripts
+- ✅ Installed all dependencies in production venv32
 
 **Key Achievement:**
 ```
-Before: 96 passed, 11 skipped, 12 errors
-After:  108 passed, 11 skipped, 0 errors ✅
+Production Deployment: ✅ COMPLETE
+- 223 app files copied
+- Virtual environment created
+- All packages installed
+- Configuration validated
+- Database tested and working
 ```
 
 ---
 
 ## 📊 Current Project Status
+
+### Deployment Structure
+```
+C:\Development\nex-automat\  - Development (Git repo) ✅
+C:\Deployment\nex-automat\   - Production (deployed) ✅
+C:\NEX\YEARACT\              - NEX Genesis data ✅
+C:\NEX\IMPORT\               - Invoice storage ✅
+```
 
 ### Test Results
 - **Total:** 119 tests
@@ -34,348 +48,351 @@ After:  108 passed, 11 skipped, 0 errors ✅
 - **Errors:** 0 ✅
 - **Stability:** 100%
 
-### Completed Features
-1. **Monorepo Migration** ✅
-   - Shared packages
-   - Import paths fixed
-   - 71/86 tests passing
-
-2. **Backup & Recovery System** ✅
-   - Database backup (pg_dump, gzip, SHA256)
-   - Configuration backup (XOR encryption)
-   - Database restore (list, verify, restore)
-   - Recovery documentation (RTO <1h, RPO <24h)
-   - Windows Task Scheduler (daily 02:00, weekly Sunday)
-   - 19/19 backup tests passing
-
-3. **Test Stability** ✅
-   - Fixed Windows file locking issues
-   - All unit tests passing
-   - Zero errors
-
 ### Infrastructure Ready
-- ✅ Automated daily/weekly backups
-- ✅ Recovery procedures documented
-- ✅ Scheduled tasks configured
-- ✅ Logging system working
-- ✅ Test suite stable
+- ✅ PostgreSQL 15.14 (invoice_staging, 8 tables)
+- ✅ NEX Genesis Server (localhost:8080)
+- ✅ Production config validated
+- ✅ Environment variables set (POSTGRES_PASSWORD)
+- ✅ Storage directories created
+- ✅ Backup/logging directories ready
+- ⏳ Windows Service (ready to install)
 
 ---
 
-## 🎯 Current Session Goals (DAY 3 Steps 2-5)
+## 🎯 Current Session Goals (DAY 3 Steps 4-5)
 
-### Step 2: Production Database Setup (1h) ⏳
+### Step 4: Windows Service Installation (30 min) ⏳
+**Priority: CRITICAL**
+
+**Location:** `C:\Deployment\nex-automat`
+
+**Tasks:**
+1. **Install NSSM (Non-Sucking Service Manager)**
+   ```bash
+   cd C:\Deployment\nex-automat
+   venv32\Scripts\activate
+   python scripts/install_nssm.py
+   ```
+   
+   **Expected Output:**
+   - Downloads NSSM 2.24 from https://nssm.cc
+   - Extracts to tools/nssm/
+   - Verifies installation
+   
+2. **Create Windows Service (AS ADMINISTRATOR)**
+   ```bash
+   # Open PowerShell AS ADMINISTRATOR
+   cd C:\Deployment\nex-automat
+   venv32\Scripts\activate
+   python scripts/create_windows_service.py
+   ```
+   
+   **Service Configuration:**
+   ```
+   Name: NEX-Automat-Loader
+   Display: NEX Automat - Supplier Invoice Loader
+   Executable: C:\Deployment\nex-automat\venv32\Scripts\python.exe
+   Script: apps/supplier-invoice-loader/src/main.py
+   Startup: Automatic (Delayed Start)
+   Recovery: Restart after 5 minutes (3 attempts)
+   ```
+
+3. **Test Service Operations**
+   ```bash
+   # Check status
+   python scripts/manage_service.py status
+   
+   # Start service (AS ADMINISTRATOR)
+   python scripts/manage_service.py start
+   
+   # View logs
+   python scripts/manage_service.py logs
+   ```
+
+**Deliverables:**
+- [ ] NSSM installed in tools/nssm/
+- [ ] Windows Service created
+- [ ] Service starts successfully
+- [ ] Logs appear in logs/service-*.log
+- [ ] Service auto-restart working
+
+---
+
+### Step 5: Production Validation (30 min) ⏳
 **Priority: HIGH**
 
 **Tasks:**
-- [ ] Create production config.yaml from template
-- [ ] Configure PostgreSQL connection
-- [ ] Test database connectivity
-- [ ] Initialize production schema
-- [ ] Verify data integrity
+1. **Pre-Deployment Checklist**
+   - [ ] All 108 tests passing
+   - [ ] Database connection verified
+   - [ ] Service running
+   - [ ] Logs operational
+   - [ ] Auto-restart tested
+   - [ ] Backup system ready
 
-**Required Information:**
+2. **Create Documentation**
+   - [ ] DEPLOYMENT_GUIDE.md
+   - [ ] SERVICE_MANAGEMENT.md
+   - [ ] TROUBLESHOOTING.md
+   - [ ] PRE_DEPLOYMENT_CHECKLIST.md
+
+3. **Test Recovery Procedures**
+   - [ ] Service crash → auto-restart
+   - [ ] Database disconnect → recovery
+   - [ ] Log rotation working
+   - [ ] Backup schedule verified
+
+**Deliverables:**
+- [ ] Complete deployment documentation
+- [ ] Validated recovery procedures
+- [ ] Service stability confirmed
+- [ ] Ready for DAY 4 integration testing
+
+---
+
+## 📋 Available Scripts
+
+### In C:\Deployment\nex-automat\scripts\
+
+**Service Management:**
+```bash
+install_nssm.py                    # Download & install NSSM
+create_windows_service.py          # Create Windows Service (ADMIN)
+manage_service.py [start|stop|restart|status|logs]
+```
+
+**Configuration:**
+```bash
+validate_config.py                 # Validate production config
+test_database_connection.py        # Test PostgreSQL connection
+```
+
+**Deployment:**
+```bash
+deploy_to_production.py            # Deploy from Dev to Prod (already done)
+```
+
+---
+
+## 🔧 Critical Information
+
+### Service Configuration
 ```yaml
-database:
-  postgres:
-    host: ?           # localhost or remote IP
-    port: ?           # default 5432
-    database: ?       # invoice_staging or production name
-    user: ?           # postgres user
-    password: ?       # secure password
-
-nex_genesis:
-  api_url: ?          # NEX Genesis API endpoint
-  api_key: ?          # API authentication key
-
-email:
-  operator: ?         # operator@magerstav.sk
-  alert: alert@icc.sk
-  smtp_host: ?        # SMTP server
-  smtp_port: ?        # 587 or 465
-  smtp_user: ?        # SMTP username
-  smtp_password: ?    # SMTP password
-
-paths:
-  pdf_storage: ?      # C:/Path/to/PDF/storage
-  xml_storage: ?      # C:/Path/to/XML/storage
+Service: NEX-Automat-Loader
+Python: C:\Deployment\nex-automat\venv32\Scripts\python.exe
+Script: C:\Deployment\nex-automat\apps\supplier-invoice-loader\src\main.py
+Working Dir: C:\Deployment\nex-automat\apps\supplier-invoice-loader\
+Logs: C:\Deployment\nex-automat\logs\service-stdout.log
+      C:\Deployment\nex-automat\logs\service-stderr.log
 ```
 
-**Deliverables:**
-- Production config.yaml (not in Git)
-- Database connection test script
-- Schema initialization script
-- Configuration validation script
-
----
-
-### Step 3: Service Installation (1.5h) ⏳
-**Priority: HIGH**
-
-**Tasks:**
-- [ ] Download/Install NSSM (Non-Sucking Service Manager)
-- [ ] Create Windows Service: NEX-Automat-Loader
-- [ ] Configure service auto-restart
-- [ ] Set service dependencies (PostgreSQL)
-- [ ] Configure service logging
-- [ ] Test service start/stop/restart
-- [ ] Create service management scripts
-
-**Service Configuration:**
-```
-Service Name: NEX-Automat-Loader
-Display Name: NEX Automat - Supplier Invoice Loader
-Description: Automated invoice processing for Mágerstav s.r.o.
-Startup Type: Automatic (Delayed Start)
-Recovery: Restart service after 5 minutes (3 attempts)
-Log Path: C:/Development/nex-automat/apps/supplier-invoice-loader/logs/
+### Database Connection
+```yaml
+Host: localhost
+Port: 5432
+Database: invoice_staging
+User: postgres
+Password: ${ENV:POSTGRES_PASSWORD}
+Status: ✅ Tested and working
 ```
 
-**Deliverables:**
-- NSSM service configuration
-- Service installation script
-- Service management documentation
-- Startup/shutdown procedures
+### NEX Genesis Integration
+```yaml
+API: http://localhost:8080/api
+API Key: (empty for local testing)
+Data Path: C:\NEX\YEARACT\
+Status: ✅ Ready
+```
+
+### Storage Paths
+```yaml
+PDF: C:/NEX/IMPORT/pdf/
+XML: C:/NEX/IMPORT/xml/
+Temp: C:/NEX/IMPORT/temp/
+Archive: C:/NEX/IMPORT/archive/
+Error: C:/NEX/IMPORT/error/
+Status: ✅ All created
+```
 
 ---
 
-### Step 4: Production Configuration (1h) ⏳
-**Priority: MEDIUM**
+## ⚠️ Important Notes
 
-**Tasks:**
-- [ ] Review all configuration parameters
-- [ ] Configure email notifications (SMTP)
-- [ ] Set up storage paths and permissions
-- [ ] Configure NEX Genesis API integration
-- [ ] Validate all settings
-- [ ] Create environment-specific configs
-- [ ] Test configuration loading
+### Before Starting:
+1. **Check location:** Session works in `C:\Deployment\nex-automat`
+2. **Administrator rights:** Required for service creation/management
+3. **Virtual environment:** Activate venv32 before running scripts
+4. **Backup config:** Config is already validated and working
 
-**Configuration Files:**
-- `config/config.yaml` - Main configuration
-- `config/.env` - Environment variables (secrets)
-- `config/logging.yaml` - Logging configuration
-- `config/monitoring.yaml` - Monitoring settings
+### During Session:
+1. **One step at a time:** Install NSSM → Create Service → Test
+2. **Verify each step:** Check output, test functionality
+3. **Document issues:** Note any errors for troubleshooting
+4. **Test thoroughly:** Service must be stable before proceeding
 
-**Deliverables:**
-- Production configuration files
-- Configuration validation script
-- Settings documentation
-- Security audit checklist
-
----
-
-### Step 5: Deployment Validation (0.5h) ⏳
-**Priority: HIGH**
-
-**Tasks:**
-- [ ] Create pre-deployment checklist
-- [ ] Run all pre-deployment tests
-- [ ] Document deployment steps
-- [ ] Create rollback procedure
-- [ ] Write DEPLOYMENT_GUIDE.md
-- [ ] Prepare deployment timeline
-
-**Pre-Deployment Checklist:**
-- [ ] All tests passing (108/119)
-- [ ] Database connection tested
-- [ ] Backup system verified
-- [ ] Service installed and tested
-- [ ] Configuration validated
-- [ ] Logging working
-- [ ] Monitoring active
-- [ ] Email notifications tested
-- [ ] Recovery procedures tested
-- [ ] Documentation complete
-
-**Deliverables:**
-- DEPLOYMENT_GUIDE.md
-- Pre-deployment checklist
-- Rollback procedure
-- Deployment timeline
-- Go/No-Go criteria
-
----
-
-## 📋 Recommended Session Flow
-
-### Option A: Production Setup (Recommended)
-**Duration:** 4 hours
-
-1. **Production Database Setup** (1h)
-   - Gather required credentials
-   - Create production config
-   - Test connectivity
-   - Initialize schema
-
-2. **Service Installation** (1.5h)
-   - Install NSSM
-   - Create service
-   - Test operations
-   - Document procedures
-
-3. **Configuration Review** (1h)
-   - Validate all settings
-   - Configure notifications
-   - Test integrations
-
-4. **Deployment Validation** (0.5h)
-   - Create checklist
-   - Run tests
-   - Document procedures
-
----
-
-### Option B: Skip to Integration Testing
-If production credentials not available:
-1. Create mock production config
-2. Run integration tests with test data
-3. Document production requirements
-4. Prepare for actual deployment
-
----
-
-## 🔍 Critical Information Needed
-
-Before starting Step 2, need these details:
-
-### 1. Database Credentials
-- [ ] PostgreSQL host/IP
-- [ ] Port (default 5432)
-- [ ] Database name
-- [ ] Username
-- [ ] Password
-
-### 2. NEX Genesis Integration
-- [ ] API endpoint URL
-- [ ] API key/token
-- [ ] Authentication method
-
-### 3. Email Configuration
-- [ ] Operator email address
-- [ ] SMTP server address
-- [ ] SMTP port (587/465)
-- [ ] SMTP credentials
-- [ ] TLS/SSL settings
-
-### 4. Storage Locations
-- [ ] PDF storage path
-- [ ] XML storage path
-- [ ] Permissions verified
-- [ ] Network access tested
-
-### 5. Deployment Environment
-- [ ] Server name/IP
-- [ ] Windows version
-- [ ] Python version
-- [ ] PostgreSQL version
-- [ ] Network topology
-
----
-
-## 💡 Alternative Approaches
-
-### If Production Info Not Available:
-
-**Plan B: Create Production Config Generator**
-- Interactive script to gather requirements
-- Validation of each setting
-- Generation of config files
-- Documentation of requirements
-
-**Plan C: Mock Production Setup**
-- Create test environment
-- Mock external services
-- Run integration tests
-- Document for actual production
-
-**Plan D: Focus on Documentation**
-- Complete DEPLOYMENT_GUIDE.md
-- Document all requirements
-- Create setup checklists
-- Prepare troubleshooting guide
-
----
-
-## 📝 Files to Create (This Session)
-
-### Configuration Files
-- `config/config.yaml` (production)
-- `config/.env` (secrets)
-- `scripts/create_production_config.py`
-- `scripts/validate_config.py`
-- `scripts/test_database_connection.py`
-
-### Service Files
-- `scripts/install_service.ps1`
-- `scripts/manage_service.ps1`
-- `docs/deployment/SERVICE_MANAGEMENT.md`
-
-### Deployment Files
-- `docs/deployment/DEPLOYMENT_GUIDE.md`
-- `docs/deployment/PRE_DEPLOYMENT_CHECKLIST.md`
-- `docs/deployment/ROLLBACK_PROCEDURE.md`
-- `scripts/deploy_production.py`
+### Critical Reminders:
+- ⚠️ Run service commands AS ADMINISTRATOR
+- ⚠️ Service depends on PostgreSQL being started
+- ⚠️ Check logs after starting service
+- ⚠️ Test auto-restart before marking complete
+- ⚠️ Document any configuration changes
 
 ---
 
 ## 🎯 Success Criteria
 
 ### By End of This Session:
-- [ ] Production config created and validated
-- [ ] Database connection tested
-- [ ] Windows Service installed and working
-- [ ] All configurations reviewed
-- [ ] DEPLOYMENT_GUIDE.md complete
+- [ ] NSSM 2.24 installed and verified
+- [ ] Windows Service created
+- [ ] Service starting automatically
+- [ ] Service auto-restart working
+- [ ] Logs being written correctly
+- [ ] All documentation complete
 - [ ] Ready for DAY 4 integration testing
 
 ### Quality Gates:
-- [ ] 108/119 tests still passing
-- [ ] Service starts/stops cleanly
-- [ ] Database accessible
-- [ ] Email notifications working
-- [ ] Backups running on schedule
+- [ ] Service status shows "RUNNING"
+- [ ] No errors in service logs
+- [ ] Service survives manual stop/start
+- [ ] Auto-restart triggers on crash
 - [ ] Logging operational
+- [ ] Documentation complete
 
 ---
 
 ## 📊 Project Timeline
 
 **Target Deployment:** 2025-11-27 (5 days remaining)  
-**Progress:** 50% (2.5/5 days)
+**Progress:** 60% (3/5 days)
 
 **Completed:**
 - ✅ DAY 1: Monorepo Migration
 - ✅ DAY 2: Backup & Recovery
-- ✅ DAY 3 Step 1: Test Stability
+- ✅ DAY 3 Steps 1-3: Config, DB, Deployment
+
+**Current:**
+- ⏳ DAY 3 Steps 4-5: Service Installation & Validation
 
 **Remaining:**
-- ⏳ DAY 3 Steps 2-5: Production Setup (THIS SESSION)
 - ⏳ DAY 4: Integration & E2E Testing
 - ⏳ DAY 5: Final Validation & Go-Live
 
 ---
 
-## 🚨 Important Notes
+## 🚨 Troubleshooting Guide
 
-### Before Starting:
-1. **Gather production credentials** - cannot proceed without them
-2. **Backup current state** - git commit before major changes
-3. **Test in isolation** - don't modify production directly
-4. **Document everything** - critical for maintenance
+### If NSSM Download Fails:
+1. Check internet connection
+2. Try manual download from https://nssm.cc/release/nssm-2.24.zip
+3. Extract to C:\Deployment\nex-automat\tools\nssm\
 
-### During Session:
-1. **One step at a time** - wait for confirmation
-2. **Test each change** - verify before proceeding
-3. **Create rollback points** - git commits after each step
-4. **Log all decisions** - document why, not just what
+### If Service Creation Fails:
+1. Verify running as Administrator
+2. Check Python executable exists: venv32\Scripts\python.exe
+3. Check main script exists: apps\supplier-invoice-loader\src\main.py
+4. Review NSSM error output
 
-### Critical Reminders:
-- ⚠️ Never commit secrets to Git
-- ⚠️ Test database connection before schema changes
-- ⚠️ Backup production database before any changes
-- ⚠️ Verify service dependencies before installation
-- ⚠️ Always have rollback procedure ready
+### If Service Won't Start:
+1. Check database is running (PostgreSQL)
+2. Verify POSTGRES_PASSWORD environment variable
+3. Check config.yaml is valid
+4. Review service logs in logs\service-stderr.log
+
+### If Service Crashes:
+1. Check logs\service-stdout.log for application errors
+2. Verify all dependencies installed
+3. Test script manually: `python apps\supplier-invoice-loader\src\main.py`
+4. Check database connectivity
+
+---
+
+## 📂 Expected File Structure
+
+```
+C:\Deployment\nex-automat\
+├── apps\
+│   └── supplier-invoice-loader\
+│       ├── src\
+│       │   └── main.py           ✅ Entry point
+│       ├── config\
+│       │   └── config.yaml       ✅ Production config
+│       └── tests\
+├── packages\
+│   ├── invoice-shared\           ✅ Installed
+│   └── nex-shared\               ✅ Installed
+├── scripts\
+│   ├── install_nssm.py           ✅ Ready
+│   ├── create_windows_service.py ✅ Ready
+│   └── manage_service.py         ✅ Ready
+├── tools\
+│   └── nssm\                     ⏳ Will be created
+├── logs\                         ✅ Created
+├── backups\                      ✅ Created
+└── venv32\                       ✅ Created
+```
+
+---
+
+## 🔗 Commands Reference
+
+### Session Start
+```bash
+# Navigate to production
+cd C:\Deployment\nex-automat
+
+# Activate virtual environment
+venv32\Scripts\activate
+
+# Verify deployment
+python -c "import sys; print(sys.executable)"
+# Should show: C:\Deployment\nex-automat\venv32\Scripts\python.exe
+```
+
+### NSSM Installation
+```bash
+# Install NSSM
+python scripts\install_nssm.py
+
+# Verify NSSM
+tools\nssm\win32\nssm.exe version
+```
+
+### Service Management (AS ADMINISTRATOR)
+```bash
+# Create service
+python scripts\create_windows_service.py
+
+# Check status
+python scripts\manage_service.py status
+
+# Start service
+python scripts\manage_service.py start
+
+# View logs
+python scripts\manage_service.py logs
+type logs\service-stdout.log
+```
+
+---
+
+## 💡 Alternative Approaches
+
+### If Service Installation Has Issues:
+
+**Plan B: Manual NSSM Setup**
+1. Download NSSM manually
+2. Run NSSM GUI: `nssm.exe install NEX-Automat-Loader`
+3. Configure paths manually through GUI
+
+**Plan C: Task Scheduler Alternative**
+1. Use Windows Task Scheduler instead of Service
+2. Configure to run at startup
+3. Set restart on failure
+
+**Plan D: Focus on Testing First**
+1. Test application manually without service
+2. Verify all functionality works
+3. Install service as final step
 
 ---
 
@@ -385,34 +402,42 @@ Before starting Step 2, need these details:
 **Company:** ICC Komárno  
 **Email:** zoltan.rausch@icc.sk  
 **Customer:** Mágerstav s.r.o.  
-**Emergency:** See RECOVERY_GUIDE.md
 
 ---
 
-## 🔧 Commands for Session Start
+## 🎯 Session Workflow
 
-```bash
-# Navigate to project
-cd C:\Development\nex-automat
+### Recommended Order:
 
-# Check Git status
-git status
+1. **Verify Deployment (5 min)**
+   - Check all files present
+   - Verify venv32 working
+   - Test database connection
 
-# Check current branch
-git branch
+2. **Install NSSM (10 min)**
+   - Run install_nssm.py
+   - Verify installation
+   - Test NSSM command
 
-# Verify test status
-cd apps\supplier-invoice-loader
-pytest tests/unit/ -q
+3. **Create Service (10 min)**
+   - Run create_windows_service.py AS ADMIN
+   - Verify service created
+   - Configure if needed
 
-# Expected: 108 passed, 11 skipped in ~12s ✅
+4. **Test Service (10 min)**
+   - Start service
+   - Check logs
+   - Test auto-restart
+   - Verify stability
 
-# Activate venv if needed
-C:\Development\nex-automat\venv32\Scripts\activate
-```
+5. **Documentation (25 min)**
+   - Create deployment guide
+   - Document troubleshooting
+   - Create checklists
+   - Test procedures
 
 ---
 
-**Last Updated:** 2025-11-21 20:00  
-**Status:** Ready for Production Setup  
-**Next Action:** Gather production credentials or choose alternative plan
+**Last Updated:** 2025-11-21 22:00  
+**Status:** ✅ Ready for Service Installation  
+**Next Action:** Install NSSM in C:\Deployment\nex-automat

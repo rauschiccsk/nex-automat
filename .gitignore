@@ -81,3 +81,68 @@ tmp/
 # Migration outputs
 migration_*.log
 migration_report_*.txt
+
+# Production Configuration (NEVER commit these files!)
+config/config.yaml
+config/.env
+config/*.key
+config/*.secret
+
+# Backup files
+backups/
+*.backup
+*.bak
+
+# Log files
+logs/
+*.log
+
+# Temporary files
+temp/
+*.tmp
+
+# Storage directories (contain sensitive data)
+storage/
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+
+# Virtual environments
+venv/
+venv32/
+env/
+ENV/
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Certificates and keys
+*.pem
+*.key
+*.crt
+*.cer
+*.p12
+*.pfx
