@@ -1,0 +1,36 @@
+# Auto detect text files and perform LF normalization
+* text=auto
+
+# Python files always use LF
+*.py text eol=lf
+
+# Shell scripts always use LF
+*.sh text eol=lf
+
+# YAML files always use LF
+*.yaml text eol=lf
+*.yml text eol=lf
+
+# Markdown files always use LF
+*.md text eol=lf
+
+# Config files always use LF
+.gitignore text eol=lf
+.gitattributes text eol=lf
+
+# Windows batch files use CRLF
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+
+# Binary files
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.zip binary
+*.gz binary
+*.db binary
+*.sqlite binary
