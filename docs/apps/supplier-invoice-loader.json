@@ -2,14 +2,14 @@
   "name": "supplier-invoice-loader",
   "type": "application",
   "location": "apps/supplier-invoice-loader",
-  "generated": "2025-11-20T15:38:52.358044",
+  "generated": "2025-11-21T19:16:36.838721",
   "statistics": {
-    "total_files": 121,
-    "total_dirs": 33,
-    "python_files": 50,
+    "total_files": 128,
+    "total_dirs": 36,
+    "python_files": 53,
     "test_files": 15,
-    "total_lines": 9577,
-    "total_size": 9121409
+    "total_lines": 10245,
+    "total_size": 9151422
   },
   "structure": {
     "has_src": true,
@@ -53,11 +53,25 @@
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/apps/supplier-invoice-loader/README.md"
     },
     {
+      "path": "apps/supplier-invoice-loader/backups/backup.log",
+      "name": "backup.log",
+      "size": 640,
+      "extension": ".log",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/apps/supplier-invoice-loader/backups/backup.log"
+    },
+    {
       "path": "apps/supplier-invoice-loader/config/config.template.yaml",
       "name": "config.template.yaml",
       "size": 579,
       "extension": ".yaml",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/apps/supplier-invoice-loader/config/config.template.yaml"
+    },
+    {
+      "path": "apps/supplier-invoice-loader/config/config.yaml",
+      "name": "config.yaml",
+      "size": 579,
+      "extension": ".yaml",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/apps/supplier-invoice-loader/config/config.yaml"
     },
     {
       "path": "apps/supplier-invoice-loader/config/config_customer.py",
@@ -369,6 +383,13 @@
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/apps/supplier-invoice-loader/requirements.txt"
     },
     {
+      "path": "apps/supplier-invoice-loader/scripts/SCHEDULER_README.md",
+      "name": "SCHEDULER_README.md",
+      "size": 2788,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/apps/supplier-invoice-loader/scripts/SCHEDULER_README.md"
+    },
+    {
       "path": "apps/supplier-invoice-loader/scripts/backup_config.py",
       "name": "backup_config.py",
       "size": 728,
@@ -384,6 +405,15 @@
       "extension": ".py",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/apps/supplier-invoice-loader/scripts/backup_database.py",
       "lines": 79,
+      "type": "source"
+    },
+    {
+      "path": "apps/supplier-invoice-loader/scripts/backup_wrapper.py",
+      "name": "backup_wrapper.py",
+      "size": 4798,
+      "extension": ".py",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/apps/supplier-invoice-loader/scripts/backup_wrapper.py",
+      "lines": 168,
       "type": "source"
     },
     {
@@ -432,6 +462,15 @@
       "type": "test"
     },
     {
+      "path": "apps/supplier-invoice-loader/scripts/restore_database.py",
+      "name": "restore_database.py",
+      "size": 4609,
+      "extension": ".py",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/apps/supplier-invoice-loader/scripts/restore_database.py",
+      "lines": 146,
+      "type": "source"
+    },
+    {
       "path": "apps/supplier-invoice-loader/scripts/service_installer.py",
       "name": "service_installer.py",
       "size": 25132,
@@ -439,6 +478,13 @@
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/apps/supplier-invoice-loader/scripts/service_installer.py",
       "lines": 688,
       "type": "source"
+    },
+    {
+      "path": "apps/supplier-invoice-loader/scripts/setup_task_scheduler.ps1",
+      "name": "setup_task_scheduler.ps1",
+      "size": 4856,
+      "extension": ".ps1",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/apps/supplier-invoice-loader/scripts/setup_task_scheduler.ps1"
     },
     {
       "path": "apps/supplier-invoice-loader/scripts/test_invoice_integration.py",
@@ -510,6 +556,15 @@
       "extension": ".py",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/apps/supplier-invoice-loader/src/backup/database_backup.py",
       "lines": 295,
+      "type": "source"
+    },
+    {
+      "path": "apps/supplier-invoice-loader/src/backup/database_restore.py",
+      "name": "database_restore.py",
+      "size": 11743,
+      "extension": ".py",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/apps/supplier-invoice-loader/src/backup/database_restore.py",
+      "lines": 354,
       "type": "source"
     },
     {
