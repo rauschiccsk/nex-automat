@@ -2,14 +2,14 @@
   "name": "supplier-invoice-loader",
   "type": "application",
   "location": "apps/supplier-invoice-loader",
-  "generated": "2025-11-21T19:16:36.838721",
+  "generated": "2025-11-21T20:11:44.527068",
   "statistics": {
     "total_files": 128,
     "total_dirs": 36,
     "python_files": 53,
     "test_files": 15,
-    "total_lines": 10245,
-    "total_size": 9151422
+    "total_lines": 10273,
+    "total_size": 9152075
   },
   "structure": {
     "has_src": true,
@@ -1023,10 +1023,10 @@
     {
       "path": "apps/supplier-invoice-loader/tests/unit/test_log_manager.py",
       "name": "test_log_manager.py",
-      "size": 5272,
+      "size": 5925,
       "extension": ".py",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/apps/supplier-invoice-loader/tests/unit/test_log_manager.py",
-      "lines": 194,
+      "lines": 222,
       "type": "test"
     },
     {
