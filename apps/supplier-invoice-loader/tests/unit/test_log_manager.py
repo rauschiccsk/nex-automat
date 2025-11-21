@@ -5,18 +5,46 @@ import logging
 from pathlib import Path
 from datetime import datetime, timedelta
 import tempfile
+import gc
+import time
+import warnings
 import shutil
 from src.monitoring import LogManager, LogConfig, setup_logging
 
 
 @pytest.fixture
 def temp_log_dir():
-    """Create temporary log directory"""
-    temp_dir = Path(tempfile.mkdtemp())
-    yield temp_dir
-    # Cleanup
-    if temp_dir.exists():
-        shutil.rmtree(temp_dir)
+    """Create temporary log directory."""
+    import tempfile
+    import shutil
+    import logging
+    import gc
+    import time
+    import warnings
+
+    temp_dir = tempfile.mkdtemp()
+    yield Path(temp_dir)
+
+    # Close all logging handlers before cleanup
+    for handler in logging.root.handlers[:]:
+        handler.close()
+        logging.root.removeHandler(handler)
+
+    # Force garbage collection
+    gc.collect()
+    time.sleep(0.1)
+
+    # Retry cleanup
+    for attempt in range(3):
+        try:
+            shutil.rmtree(temp_dir)
+            break
+        except PermissionError:
+            if attempt < 2:
+                time.sleep(0.2)
+                gc.collect()
+            else:
+                warnings.warn(f"Could not delete: {temp_dir}")
 
 
 @pytest.fixture
