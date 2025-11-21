@@ -1,0 +1,1240 @@
+\# Deployment Guide - NEX Automat v2.0
+
+
+
+Complete guide for deploying NEX Automat to production.
+
+
+
+\*\*Customer:\*\* Mágerstav s.r.o.  
+
+\*\*Target Date:\*\* 2025-11-27  
+
+\*\*Version:\*\* 2.0.0
+
+
+
+---
+
+
+
+\## Table of Contents
+
+
+
+1\. \[Prerequisites](#prerequisites)
+
+2\. \[Infrastructure Setup](#infrastructure-setup)
+
+3\. \[Application Deployment](#application-deployment)
+
+4\. \[Service Installation](#service-installation)
+
+5\. \[Verification \& Testing](#verification--testing)
+
+6\. \[Go-Live Checklist](#go-live-checklist)
+
+7\. \[Rollback Procedures](#rollback-procedures)
+
+
+
+---
+
+
+
+\## Prerequisites
+
+
+
+\### System Requirements
+
+
+
+\- \*\*OS:\*\* Windows Server 2019/2022 or Windows 10/11 Pro
+
+\- \*\*CPU:\*\* 2+ cores
+
+\- \*\*RAM:\*\* 4+ GB
+
+\- \*\*Disk:\*\* 50+ GB free space
+
+\- \*\*Network:\*\* Local network access to NEX Genesis Server
+
+
+
+\### Software Requirements
+
+
+
+\- \*\*Python:\*\* 3.13.0 32-bit
+
+\- \*\*PostgreSQL:\*\* 15.14 or later
+
+\- \*\*NEX Genesis:\*\* Latest version
+
+\- \*\*NSSM:\*\* 2.24 (included in deployment)
+
+
+
+\### Access Requirements
+
+
+
+\- \*\*Administrator privileges\*\* for:
+
+&nbsp; - Service installation
+
+&nbsp; - PostgreSQL configuration
+
+&nbsp; - File system permissions
+
+\- \*\*PostgreSQL admin\*\* access for:
+
+&nbsp; - Database creation
+
+&nbsp; - User management
+
+\- \*\*NEX Genesis\*\* access for:
+
+&nbsp; - API integration
+
+&nbsp; - Data directory access
+
+
+
+---
+
+
+
+\## Infrastructure Setup
+
+
+
+\### Step 1: PostgreSQL Installation
+
+
+
+\*\*If not already installed:\*\*
+
+
+
+1\. Download PostgreSQL 15.14 from https://www.postgresql.org/download/windows/
+
+2\. Run installer:
+
+&nbsp;  ```
+
+&nbsp;  postgresql-15.14-windows-x64.exe
+
+&nbsp;  ```
+
+3\. Configuration:
+
+&nbsp;  - Port: \*\*5432\*\* (default)
+
+&nbsp;  - Superuser: \*\*postgres\*\*
+
+&nbsp;  - Password: \*\*\[secure password]\*\*
+
+&nbsp;  - Locale: \*\*Slovak\*\* or \*\*English\*\*
+
+
+
+\*\*Verify installation:\*\*
+
+```powershell
+
+Get-Service postgresql\*
+
+\# Should show: Running
+
+```
+
+
+
+\### Step 2: Database Setup
+
+
+
+```powershell
+
+\# 1. Create database
+
+psql -U postgres -c "CREATE DATABASE invoice\_staging;"
+
+
+
+\# 2. Create tables (run from deployment package)
+
+cd C:\\Deployment\\nex-automat\\apps\\supplier-invoice-loader
+
+..\\..\\venv32\\Scripts\\python.exe -m database.migrations
+
+```
+
+
+
+\*\*Verify:\*\*
+
+```sql
+
+psql -U postgres -d invoice\_staging
+
+
+
+-- List tables
+
+\\dt
+
+
+
+-- Should see 8 tables:
+
+-- invoices, invoice\_lines, suppliers, etc.
+
+```
+
+
+
+\### Step 3: Create Storage Directories
+
+
+
+```powershell
+
+\# Create all required directories
+
+$dirs = @(
+
+&nbsp;   "C:\\NEX\\IMPORT\\pdf",
+
+&nbsp;   "C:\\NEX\\IMPORT\\xml",
+
+&nbsp;   "C:\\NEX\\IMPORT\\temp",
+
+&nbsp;   "C:\\NEX\\IMPORT\\archive",
+
+&nbsp;   "C:\\NEX\\IMPORT\\error",
+
+&nbsp;   "C:\\Deployment\\nex-automat\\logs",
+
+&nbsp;   "C:\\Deployment\\nex-automat\\backups"
+
+)
+
+
+
+foreach ($dir in $dirs) {
+
+&nbsp;   New-Item -ItemType Directory -Path $dir -Force
+
+&nbsp;   Write-Host "Created: $dir"
+
+}
+
+```
+
+
+
+\### Step 4: Environment Variables
+
+
+
+```powershell
+
+\# Set PostgreSQL password
+
+setx POSTGRES\_PASSWORD "your\_secure\_password"
+
+
+
+\# Verify
+
+$env:POSTGRES\_PASSWORD
+
+\# Should display your password
+
+
+
+\# NOTE: May need to restart PowerShell for changes to take effect
+
+```
+
+
+
+---
+
+
+
+\## Application Deployment
+
+
+
+\### Step 1: Prepare Deployment Package
+
+
+
+\*\*From Development:\*\*
+
+
+
+```powershell
+
+\# Navigate to development repo
+
+cd C:\\Development\\nex-automat
+
+
+
+\# Run deployment script
+
+python scripts\\deploy\_to\_production.py
+
+
+
+\# This creates:
+
+\# - C:\\Deployment\\nex-automat\\
+
+\# - Copies all application files
+
+\# - Creates virtual environment
+
+\# - Installs dependencies
+
+```
+
+
+
+\*\*Manual Deployment (if script unavailable):\*\*
+
+
+
+```powershell
+
+\# 1. Create deployment directory
+
+New-Item -ItemType Directory -Path "C:\\Deployment\\nex-automat" -Force
+
+
+
+\# 2. Copy files
+
+Copy-Item -Recurse "C:\\Development\\nex-automat\\apps" "C:\\Deployment\\nex-automat\\"
+
+Copy-Item -Recurse "C:\\Development\\nex-automat\\packages" "C:\\Deployment\\nex-automat\\"
+
+Copy-Item -Recurse "C:\\Development\\nex-automat\\scripts" "C:\\Deployment\\nex-automat\\"
+
+
+
+\# 3. Create virtual environment
+
+cd C:\\Deployment\\nex-automat
+
+python -m venv venv32
+
+
+
+\# 4. Activate and install dependencies
+
+venv32\\Scripts\\activate
+
+pip install -r apps\\supplier-invoice-loader\\requirements.txt
+
+
+
+\# 5. Install shared packages
+
+pip install -e packages\\invoice-shared
+
+pip install -e packages\\nex-shared
+
+```
+
+
+
+\### Step 2: Configure Application
+
+
+
+```powershell
+
+cd C:\\Deployment\\nex-automat
+
+
+
+\# Edit production config
+
+notepad apps\\supplier-invoice-loader\\config\\config.yaml
+
+```
+
+
+
+\*\*Key settings:\*\*
+
+
+
+```yaml
+
+customer: MAGERSTAV
+
+
+
+storage:
+
+&nbsp; pdf\_path: C:/NEX/IMPORT/pdf
+
+&nbsp; xml\_path: C:/NEX/IMPORT/xml
+
+&nbsp; temp\_path: C:/NEX/IMPORT/temp
+
+&nbsp; archive\_path: C:/NEX/IMPORT/archive
+
+&nbsp; error\_path: C:/NEX/IMPORT/error
+
+
+
+database:
+
+&nbsp; use\_postgresql\_staging: true
+
+&nbsp; postgres:
+
+&nbsp;   host: localhost
+
+&nbsp;   port: 5432
+
+&nbsp;   database: invoice\_staging
+
+&nbsp;   user: postgres
+
+&nbsp;   # Password from environment variable POSTGRES\_PASSWORD
+
+
+
+nex\_api:
+
+&nbsp; base\_url: http://localhost:8080/api
+
+&nbsp; # api\_key: ""  # Leave empty for local
+
+
+
+logging:
+
+&nbsp; level: INFO
+
+&nbsp; format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+
+```
+
+
+
+\### Step 3: Validate Configuration
+
+
+
+```powershell
+
+\# Validate config file
+
+python scripts\\validate\_config.py
+
+
+
+\# Expected output:
+
+\# ✅ Configuration valid
+
+\# ✅ All required settings present
+
+\# ✅ Paths exist
+
+\# ✅ Database connection successful
+
+```
+
+
+
+\### Step 4: Fix Unicode Issues
+
+
+
+\*\*CRITICAL:\*\* Windows Services don't support Unicode emoji in console output.
+
+
+
+```powershell
+
+\# Fix all Unicode issues in main.py
+
+python scripts\\fix\_all\_print\_statements.py
+
+
+
+\# Verify
+
+Get-Content apps\\supplier-invoice-loader\\main.py | Select-String -Pattern "\\\\U\[0-9a-fA-F]{8}"
+
+\# Should return nothing
+
+```
+
+
+
+---
+
+
+
+\## Service Installation
+
+
+
+\### Step 1: Install NSSM
+
+
+
+```powershell
+
+cd C:\\Deployment\\nex-automat
+
+venv32\\Scripts\\activate
+
+
+
+\# Download and install NSSM
+
+python scripts\\install\_nssm.py
+
+
+
+\# Verify
+
+tools\\nssm\\win32\\nssm.exe version
+
+\# Should show: NSSM 2.24
+
+```
+
+
+
+\### Step 2: Create Windows Service
+
+
+
+\*\*⚠️ MUST RUN AS ADMINISTRATOR\*\*
+
+
+
+```powershell
+
+\# Open PowerShell AS ADMINISTRATOR
+
+\# Navigate to deployment
+
+cd C:\\Deployment\\nex-automat
+
+venv32\\Scripts\\activate
+
+
+
+\# Create service
+
+python scripts\\create\_windows\_service.py
+
+
+
+\# Expected output:
+
+\# ✅ Service created successfully
+
+\# Service Name: NEX-Automat-Loader
+
+\# Display Name: NEX Automat - Supplier Invoice Loader
+
+```
+
+
+
+\### Step 3: Configure Service Auto-Restart
+
+
+
+```powershell
+
+\# Set immediate restart on failure (AS ADMINISTRATOR)
+
+C:\\Deployment\\nex-automat\\tools\\nssm\\win32\\nssm.exe set NEX-Automat-Loader AppRestartDelay 0
+
+
+
+\# Verify
+
+C:\\Deployment\\nex-automat\\tools\\nssm\\win32\\nssm.exe get NEX-Automat-Loader AppRestartDelay
+
+\# Should show: 0
+
+```
+
+
+
+\### Step 4: Start Service
+
+
+
+```powershell
+
+\# Start service (AS ADMINISTRATOR)
+
+python scripts\\manage\_service.py start
+
+
+
+\# or direct NSSM
+
+C:\\Deployment\\nex-automat\\tools\\nssm\\win32\\nssm.exe start NEX-Automat-Loader
+
+
+
+\# Check status
+
+python scripts\\manage\_service.py status
+
+\# Should show: SERVICE\_RUNNING
+
+```
+
+
+
+---
+
+
+
+\## Verification \& Testing
+
+
+
+\### 1. Service Status
+
+
+
+```powershell
+
+\# Check service is running
+
+python scripts\\manage\_service.py status
+
+
+
+\# Expected: 🟢 SERVICE\_RUNNING
+
+```
+
+
+
+\### 2. API Health Check
+
+
+
+```powershell
+
+\# Test API
+
+Invoke-WebRequest -Uri http://localhost:8000/health
+
+
+
+\# Expected response:
+
+\# StatusCode: 200
+
+\# Content: {"status":"healthy","timestamp":"..."}
+
+```
+
+
+
+\### 3. Check Logs
+
+
+
+```powershell
+
+\# View recent logs
+
+python scripts\\manage\_service.py logs
+
+
+
+\# Should see:
+
+\# >> Starting Supplier Invoice Loader v2.0
+
+\# Customer: MAGERSTAV
+
+\# PostgreSQL: localhost:5432/invoice\_staging
+
+\# INFO: Uvicorn running on http://0.0.0.0:8000
+
+
+
+\# No Unicode errors!
+
+```
+
+
+
+\### 4. Database Connection
+
+
+
+```powershell
+
+\# Test database
+
+python scripts\\test\_database\_connection.py
+
+
+
+\# Expected:
+
+\# ✅ PostgreSQL connection successful
+
+\# ✅ Database 'invoice\_staging' accessible
+
+\# ✅ 8 tables found
+
+```
+
+
+
+\### 5. API Endpoints
+
+
+
+```powershell
+
+\# API Documentation
+
+Start-Process http://localhost:8000/docs
+
+
+
+\# Test endpoints:
+
+Invoke-WebRequest -Uri http://localhost:8000/api/invoices
+
+Invoke-WebRequest -Uri http://localhost:8000/api/staging/invoices
+
+```
+
+
+
+\### 6. Auto-Restart Test
+
+
+
+```powershell
+
+\# Get current PID
+
+$pid = (netstat -ano | findstr :8000 | Select-Object -First 1) -replace '\\s+', ' ' | ForEach-Object { ($\_ -split ' ')\[-1] }
+
+
+
+\# Kill process
+
+taskkill /F /PID $pid
+
+
+
+\# Wait 5 seconds
+
+Start-Sleep -Seconds 5
+
+
+
+\# Verify restarted
+
+python scripts\\manage\_service.py status
+
+Invoke-WebRequest -Uri http://localhost:8000/health
+
+
+
+\# Expected: Both should work (service auto-restarted)
+
+```
+
+
+
+\### 7. File Processing Test
+
+
+
+```powershell
+
+\# Create test invoice file
+
+Copy-Item "test-data\\sample-invoice.xml" "C:\\NEX\\IMPORT\\xml\\"
+
+
+
+\# Monitor logs for processing
+
+python scripts\\manage\_service.py tail
+
+
+
+\# Should see file processed and moved to archive
+
+```
+
+
+
+---
+
+
+
+\## Go-Live Checklist
+
+
+
+\### Pre-Go-Live (1 day before)
+
+
+
+\- \[ ] Complete all infrastructure setup
+
+\- \[ ] All tests passing
+
+\- \[ ] Service running for 24+ hours without issues
+
+\- \[ ] Logs clean (no errors)
+
+\- \[ ] Backups configured and tested
+
+\- \[ ] Documentation complete
+
+\- \[ ] Team trained on service management
+
+\- \[ ] Rollback plan ready
+
+\- \[ ] Customer notification sent
+
+
+
+\### Go-Live Day
+
+
+
+\*\*Morning (8:00 AM):\*\*
+
+\- \[ ] Verify all systems operational
+
+\- \[ ] Check service status
+
+\- \[ ] Verify database connectivity
+
+\- \[ ] Test API endpoints
+
+\- \[ ] Review logs for any overnight issues
+
+
+
+\*\*Go-Live (10:00 AM):\*\*
+
+\- \[ ] Final status check
+
+\- \[ ] Enable production workflows (n8n/email)
+
+\- \[ ] Monitor for first invoices
+
+\- \[ ] Verify processing pipeline
+
+\- \[ ] Check NEX Genesis integration
+
+
+
+\*\*Afternoon (2:00 PM):\*\*
+
+\- \[ ] Review processed invoices
+
+\- \[ ] Verify data in NEX Genesis
+
+\- \[ ] Check error rates
+
+\- \[ ] Monitor system performance
+
+\- \[ ] Customer feedback
+
+
+
+\*\*End of Day (6:00 PM):\*\*
+
+\- \[ ] Final status report
+
+\- \[ ] Document any issues
+
+\- \[ ] Plan any needed adjustments
+
+\- \[ ] Schedule follow-up
+
+
+
+\### Post-Go-Live (Week 1)
+
+
+
+\*\*Daily:\*\*
+
+\- \[ ] Check service status
+
+\- \[ ] Review error logs
+
+\- \[ ] Monitor performance
+
+\- \[ ] Customer check-in
+
+
+
+\*\*Weekly:\*\*
+
+\- \[ ] Performance report
+
+\- \[ ] Error analysis
+
+\- \[ ] Optimization recommendations
+
+\- \[ ] Customer satisfaction review
+
+
+
+---
+
+
+
+\## Rollback Procedures
+
+
+
+\### Quick Rollback (< 5 minutes)
+
+
+
+\*\*If critical issue in first hour:\*\*
+
+
+
+```powershell
+
+\# 1. Stop new service
+
+python scripts\\manage\_service.py stop
+
+
+
+\# 2. Restore old version
+
+Copy-Item -Recurse "backups\\loader-20251120" "apps\\supplier-invoice-loader" -Force
+
+
+
+\# 3. Start service
+
+python scripts\\manage\_service.py start
+
+
+
+\# 4. Verify
+
+python scripts\\manage\_service.py status
+
+Invoke-WebRequest -Uri http://localhost:8000/health
+
+```
+
+
+
+\### Full Rollback (< 30 minutes)
+
+
+
+\*\*If issues persist:\*\*
+
+
+
+```powershell
+
+\# 1. Stop and remove service
+
+C:\\Deployment\\nex-automat\\tools\\nssm\\win32\\nssm.exe stop NEX-Automat-Loader
+
+C:\\Deployment\\nex-automat\\tools\\nssm\\win32\\nssm.exe remove NEX-Automat-Loader confirm
+
+
+
+\# 2. Restore database
+
+psql -U postgres -d invoice\_staging -f "backups\\database-20251120.sql"
+
+
+
+\# 3. Restore application
+
+Remove-Item -Recurse "C:\\Deployment\\nex-automat" -Force
+
+Copy-Item -Recurse "backups\\full-backup-20251120" "C:\\Deployment\\nex-automat"
+
+
+
+\# 4. Recreate service
+
+cd C:\\Deployment\\nex-automat
+
+venv32\\Scripts\\activate
+
+python scripts\\create\_windows\_service.py
+
+
+
+\# 5. Start and verify
+
+python scripts\\manage\_service.py start
+
+python scripts\\manage\_service.py logs
+
+```
+
+
+
+\### Database Only Rollback
+
+
+
+```powershell
+
+\# 1. Stop service
+
+python scripts\\manage\_service.py stop
+
+
+
+\# 2. Restore database
+
+psql -U postgres -d invoice\_staging -c "DROP SCHEMA public CASCADE;"
+
+psql -U postgres -d invoice\_staging -c "CREATE SCHEMA public;"
+
+psql -U postgres -d invoice\_staging -f "backups\\database-backup.sql"
+
+
+
+\# 3. Start service
+
+python scripts\\manage\_service.py start
+
+```
+
+
+
+---
+
+
+
+\## Backup Procedures
+
+
+
+\### Before Deployment
+
+
+
+```powershell
+
+\# 1. Backup database
+
+pg\_dump -U postgres -d invoice\_staging -F c -f "backups\\database-$(Get-Date -Format 'yyyyMMdd').backup"
+
+
+
+\# 2. Backup application
+
+Copy-Item -Recurse "apps\\supplier-invoice-loader" "backups\\loader-$(Get-Date -Format 'yyyyMMdd')"
+
+
+
+\# 3. Backup configuration
+
+Copy-Item "apps\\supplier-invoice-loader\\config\\config.yaml" "backups\\config-$(Get-Date -Format 'yyyyMMdd').yaml"
+
+
+
+\# 4. Create full backup
+
+Compress-Archive -Path "C:\\Deployment\\nex-automat\\\*" -DestinationPath "backups\\full-backup-$(Get-Date -Format 'yyyyMMdd').zip"
+
+```
+
+
+
+\### Regular Backups
+
+
+
+\*\*Daily (automated):\*\*
+
+```powershell
+
+\# Add to Task Scheduler - run daily at 2 AM
+
+pg\_dump -U postgres -d invoice\_staging -F c -f "backups\\daily\\database-$(Get-Date -Format 'yyyyMMdd').backup"
+
+```
+
+
+
+\*\*Weekly (automated):\*\*
+
+```powershell
+
+\# Add to Task Scheduler - run weekly Sunday at 3 AM
+
+Compress-Archive -Path "C:\\Deployment\\nex-automat\\\*" -DestinationPath "backups\\weekly\\full-backup-$(Get-Date -Format 'yyyyMMdd').zip"
+
+```
+
+
+
+---
+
+
+
+\## Post-Deployment Tasks
+
+
+
+\### Immediate (Day 1)
+
+
+
+1\. Monitor service continuously for first 8 hours
+
+2\. Review all logs every hour
+
+3\. Test all major workflows
+
+4\. Verify data accuracy in NEX Genesis
+
+5\. Be ready for quick rollback
+
+
+
+\### Short-term (Week 1)
+
+
+
+1\. Daily status reports
+
+2\. Performance monitoring
+
+3\. Error rate tracking
+
+4\. Customer feedback collection
+
+5\. Minor tuning/optimization
+
+
+
+\### Long-term (Month 1)
+
+
+
+1\. Weekly performance reviews
+
+2\. Optimization opportunities
+
+3\. Feature requests
+
+4\. Integration improvements
+
+5\. Documentation updates
+
+
+
+---
+
+
+
+\## Support \& Escalation
+
+
+
+\### Level 1: Self-Service
+
+\- Check logs: `python scripts\\manage\_service.py logs`
+
+\- Review TROUBLESHOOTING.md
+
+\- Restart service: `python scripts\\manage\_service.py restart`
+
+
+
+\### Level 2: Remote Support
+
+\- Collect diagnostic report
+
+\- Email to: zoltan.rausch@icc.sk
+
+\- Include: logs, config, error messages
+
+
+
+\### Level 3: On-Site Support
+
+\- Critical issues only
+
+\- Schedule via email/phone
+
+\- Preparation: full system access
+
+
+
+---
+
+
+
+\## Contacts
+
+
+
+\*\*Developer:\*\* Zoltán Rausch  
+
+\*\*Company:\*\* ICC Komárno  
+
+\*\*Email:\*\* zoltan.rausch@icc.sk  
+
+\*\*Phone:\*\* \[phone number]
+
+
+
+\*\*Customer:\*\* Mágerstav s.r.o.  
+
+\*\*Contact:\*\* \[customer contact]  
+
+\*\*Email:\*\* \[customer email]
+
+
+
+---
+
+
+
+\*\*Document Version:\*\* 1.0  
+
+\*\*Last Updated:\*\* 2025-11-21  
+
+\*\*Next Review:\*\* 2025-12-21
+
