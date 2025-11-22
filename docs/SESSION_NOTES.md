@@ -1,271 +1,295 @@
-# Session Notes - DAY 4: Integration & E2E Testing
+# NEX Automat - Session Notes
 
-**Date:** 2025-11-22  
-**Duration:** ~3 hours  
-**Progress:** 80% → 90%  
-**Status:** ✅ COMPLETE
-
----
-
-## Session Overview
-
-DAY 4 focused on integration testing, E2E workflow validation, and performance benchmarking. Encountered and resolved 4 critical deployment blockers that would have prevented customer deployment.
+**Project:** nex-automat  
+**Location:** C:/Development/nex-automat  
+**Current Phase:** DAY 5 Preparation - Pre-Flight Check System
 
 ---
 
-## Major Accomplishments
+## 🎯 Current Status
 
-### 1. E2E Workflow Testing ✅
-- Complete end-to-end test suite created
-- Tests: PostgreSQL, API, Invoice Processing, Database Write, Cleanup
-- **Result:** 100% success rate (8/8 tests passed)
-- Processing time: ~5 seconds per invoice (acceptable)
+### DAY 5 - Pre-Flight Check System (2025-11-22) ✅ COMPLETE
 
-### 2. Critical Issues Discovered & Resolved ✅
+**Goal:** Pripravit validačný systém pre DAY 5 testing (Error Handling & Recovery)
 
-#### Issue 1: Missing pdfplumber
-- **Symptom:** `ModuleNotFoundError: No module named 'pdfplumber'`
-- **Impact:** Invoice processing failed completely
-- **Solution:** Added to requirements.txt, installed
-- **Status:** ✅ FIXED
+**Úlohy:**
+- [x] Vytvorený day5_preflight_check.py s all fixes
+- [x] Nainštalovaný pillow do Development venv32
+- [x] Pridaný pillow do requirements.txt
+- [x] Opravený PostgreSQL password handling (environment variable)
+- [x] Opravený SQLite path detection (config.yaml + multiple locations)
+- [x] Vytvorený deployment helper script
+- [x] Opravené všetky escape sequence warnings
+- [x] Pridané nové workflow pravidlo: Development → Git → Deployment
 
-#### Issue 2: Missing pg8000
-- **Symptom:** `PostgreSQL staging error: pg8000 package not installed`
-- **Impact:** PostgreSQL staging broken
-- **Solution:** Added to requirements.txt, installed
-- **Status:** ✅ FIXED
+**Vytvorené scripty:**
+1. `scripts/day5_preflight_check.py` - Validačný script pre DAY 5
+2. `scripts/create_day5_preflight_check.py` - Utility na vytvorenie preflight
+3. `scripts/fix_day5_preflight_issues.py` - Auto-fix pre common issues
+4. `scripts/deploy_to_deployment.py` - Deployment helper
+5. `scripts/fix_escape_sequence_warning.py` - Warning fixer
 
-#### Issue 3: Missing LS_API_KEY
-- **Symptom:** `422 - Missing X-API-Key header`
-- **Impact:** All API requests failed
-- **Solution:** Documented in deployment guide, added to checklist
-- **Status:** ✅ DOCUMENTED
+**Fixes aplikované:**
+- ✅ PostgreSQL password z `POSTGRES_PASSWORD` environment variable
+- ✅ SQLite path detection z config.yaml + fallback locations
+- ✅ Pillow dependency nainštalovaný a pridaný do requirements.txt
+- ✅ Žiadne escape sequence warnings
+- ✅ Správny Development → Git → Deployment workflow
 
-#### Issue 4: POSTGRES_PASSWORD not set
-- **Symptom:** `password authentication failed`
-- **Impact:** Database connection failed
-- **Solution:** Documented in deployment guide, added to validation
-- **Status:** ✅ DOCUMENTED
+**Critical Learning:**
+- **NEVER fix directly in Deployment** - vždy Development → Git → Deployment
+- Zabezpečuje konzistenciu medzi prostredimi
+- Umožňuje čistý redeploy bez straty fixes
+- Predchádza "deployment drift" problémom
 
-### 3. Performance Testing ✅
-- Health endpoint: 6ms average (excellent)
-- Invoice processing: 3.5-7 seconds (acceptable)
-- SQLite concurrent limitation identified (architectural)
-- Baseline metrics established for monitoring
-
-### 4. Documentation Updates ✅
-- Created KNOWN_ISSUES.md (all DAY 4 findings)
-- Updated requirements.txt (+4 dependencies)
-- Created prepare_deployment.py (validation script)
-- Created install_day4_dependencies.py
-- Created cleanup_environments.py
+**Next Steps:**
+1. Git commit + push
+2. Deploy to Deployment: `python scripts/deploy_to_deployment.py`
+3. Install pillow in Deployment: `pip install pillow`
+4. Run preflight check: `python scripts/day5_preflight_check.py`
+5. Start DAY 5 testing (Error Handling & Recovery)
 
 ---
 
-## Files Created/Modified
+## 📋 Previous Sessions
 
-### New Scripts (11 total)
-1. `scripts/test_e2e_workflow.py` - E2E test suite
-2. `scripts/test_performance.py` - Performance benchmarks
-3. `scripts/check_api_endpoints.py` - API discovery
-4. `scripts/check_openapi_schema.py` - OpenAPI viewer
-5. `scripts/check_config.py` - Config viewer
-6. `scripts/check_service_logs.py` - Log viewer
-7. `scripts/find_test_pdfs.py` - Test data locator
-8. `scripts/show_table_structure.py` - DB schema viewer
-9. `scripts/reset_sqlite_db.py` - DB reset utility
-10. `scripts/cleanup_test_invoices.py` - Test data cleanup
-11. `scripts/find_api_key.py` - API key finder
+### DAY 1-4: NEX Automat v2.0 Deployment (2025-11-19 - 2025-11-21)
 
-### New Documentation (3 files)
-1. `scripts/update_deployment_docs.py` - Doc generator
-2. `scripts/prepare_deployment.py` - Pre-deployment validation
-3. `scripts/install_day4_dependencies.py` - Dependency installer
-4. `scripts/cleanup_environments.py` - Environment cleanup
-5. `docs/deployment/KNOWN_ISSUES.md` - DAY 4 lessons learned
+**Completed Phases:**
+- DAY 1: ✅ Monorepo Migration (Complete)
+- DAY 2: ✅ Backup & Recovery Systems (Complete)
+- DAY 3: ✅ Service Installation & Validation (Complete)
+- DAY 4: ✅ Integration & E2E Testing (Complete)
 
-### Modified Files (1)
-1. `apps/supplier-invoice-loader/requirements.txt` - Added 2 missing deps
+**Major Achievements:**
+- Complete monorepo migration (2 apps, 2 packages)
+- Windows Service installation (NSSM)
+- PostgreSQL integration
+- E2E testing: 100% success (8/8 tests passed)
+- Performance baseline: 6ms health, 5s/invoice
+- 4 critical deployment bugs fixed
 
----
+**Known Issues from DAY 4:**
+1. ✅ Missing pdfplumber - RESOLVED
+2. ✅ Missing pg8000 - RESOLVED
+3. ✅ Missing LS_API_KEY - DOCUMENTED
+4. ✅ Missing POSTGRES_PASSWORD - DOCUMENTED
 
-## Technical Metrics
-
-### Testing Results
-- E2E Success Rate: 100% (8/8)
-- Performance Tests: 3/3 completed
-- API Availability: 100% (100/100 health checks)
-- Processing Success: 60% (affected by test data reuse)
-
-### Performance Baseline
-- Health endpoint: 6ms avg, 3ms p95, 292ms max
-- Invoice processing: 5000ms avg, 3643ms min, 7013ms max
-- Concurrent limitation: SQLite (1 writer only)
-- Sequential throughput: ~12 invoices/minute
-
-### Quality Improvements
-- Dependencies: 10 → 14 packages
-- Test coverage: Maintained at 85%+
-- Documentation: +3 critical guides
-- Validation: Automated pre-deployment checks
+**Target:** Go-Live 2025-11-27 (5 days remaining)
 
 ---
 
-## Key Learnings
+## 🗂️ Monorepo Structure
 
-### Critical for Customer Deployment
-1. **Always validate dependencies** - Missing packages block functionality
-2. **Environment variables are critical** - Document and validate
-3. **Test with real data** - Mock data misses real issues
-4. **API discovery first** - Don't assume endpoint structure
-5. **SQLite limitations** - Not suitable for concurrent writes
-
-### Best Practices Established
-1. Pre-deployment validation script mandatory
-2. All dependencies must be in requirements.txt
-3. Environment variables documented in multiple places
-4. Test data included in deployment package
-5. Known issues document for troubleshooting
-
----
-
-## Risks Mitigated
-
-### Before DAY 4 (Would Have Blocked Deployment)
-- ❌ Missing pdfplumber → Invoice processing fails
-- ❌ Missing pg8000 → PostgreSQL staging fails
-- ❌ No LS_API_KEY → All API calls fail
-- ❌ No POSTGRES_PASSWORD → Database connection fails
-
-### After DAY 4 (Prevented at Deployment)
-- ✅ All dependencies documented and validated
-- ✅ Environment variables documented and checked
-- ✅ Pre-deployment validation automated
-- ✅ Known issues documented with solutions
-
-**Impact:** Prevented 4+ hours of customer site debugging
-
----
-
-## Deployment Readiness
-
-### Completed ✅
-- [x] E2E workflow tested and passing
-- [x] Performance baseline established
-- [x] All critical dependencies installed
-- [x] PostgreSQL staging working
-- [x] API authentication verified
-- [x] Test data infrastructure ready
-- [x] Monitoring tools created
-- [x] Issues documented and resolved
-- [x] Deployment documentation updated
-
-### Remaining for DAY 5
-- [ ] Error handling testing
-- [ ] Recovery testing
-- [ ] 24-hour stability test
-- [ ] Production readiness review
-- [ ] Go-live preparation
+```
+C:/Development/nex-automat/
+├── apps/
+│   ├── supplier-invoice-loader/        ✅ 61/72 tests passing (85%)
+│   │   ├── src/
+│   │   ├── tests/
+│   │   ├── scripts/
+│   │   └── pyproject.toml
+│   └── supplier-invoice-editor/        ✅ 10/14 tests passing (71%)
+│       ├── src/
+│       ├── tests/
+│       └── pyproject.toml
+│
+├── packages/
+│   ├── invoice-shared/                 ✅ Shared utilities
+│   │   └── invoice_shared/
+│   │       ├── database/
+│   │       ├── utils/
+│   │       ├── models/
+│   │       └── schemas/
+│   └── nex-shared/                     ✅ Placeholder
+│
+├── docs/
+│   ├── guides/
+│   ├── deployment/
+│   │   ├── DEPLOYMENT_GUIDE.md
+│   │   ├── KNOWN_ISSUES.md
+│   │   └── TROUBLESHOOTING.md
+│   ├── SESSION_NOTES.md               (this file)
+│   └── PROJECT_MANIFEST.json
+│
+├── scripts/
+│   ├── day5_preflight_check.py        ✅ NEW (DAY 5)
+│   ├── create_day5_preflight_check.py ✅ NEW (DAY 5)
+│   ├── fix_day5_preflight_issues.py   ✅ NEW (DAY 5)
+│   ├── deploy_to_deployment.py        ✅ NEW (DAY 5)
+│   ├── manage_service.py
+│   ├── test_e2e_workflow.py
+│   └── test_performance.py
+│
+├── venv32/                            (Python 3.13.7 32-bit)
+├── pyproject.toml                     (UV workspace config)
+├── README.md
+└── .gitignore
+```
 
 ---
 
-## Next Session Priorities
+## 🔧 Technical Details
 
-### DAY 5: Final Validation & Go-Live (Target: 2025-11-23)
+### Python Environment
+- **Version:** Python 3.13.7 32-bit
+- **Virtual Environment:** venv32
+- **Reason:** Btrieve requires 32-bit (NEX Genesis ERP)
+- **Package Manager:** pip
 
-**Critical Tasks:**
-1. Error Handling Tests (2 hours)
-   - Invalid PDF formats
-   - Network failures
-   - Database connection loss
+### Key Dependencies
+**supplier-invoice-loader:**
+- fastapi, uvicorn, pypdf, pdfplumber ✅
+- pillow>=10.0.0 ✅ (added DAY 5)
+- pg8000, httpx, pydantic ✅
 
-2. Recovery Tests (2 hours)
-   - Service crash recovery
-   - Data integrity validation
-   - Backup/restore procedures
+**Development:**
+- pytest, pytest-asyncio, black, ruff ✅
 
-3. 24-Hour Stability Test (overnight)
-   - Memory leak detection
-   - Long-term stability
-   - Log rotation validation
+### Configuration Management
+- `config/config.yaml` - Main configuration
+- `POSTGRES_PASSWORD` - Environment variable (required)
+- `LS_API_KEY` - Environment variable (required)
 
-4. Go-Live Preparation (1 hour)
-   - Final checklist review
-   - Deployment package creation
-   - Customer communication
-
----
-
-## Statistics
-
-### Session Metrics
-- Duration: ~3 hours active work
-- Issues Found: 11 (4 critical, 2 medium, 5 informational)
-- Issues Resolved: 11 (100%)
-- Scripts Created: 15
-- Documentation Pages: 3
-- Code Quality: No regressions
-
-### Project Progress
-- Overall: 90% complete
-- DAY 1: ✅ 100% (Monorepo Migration)
-- DAY 2: ✅ 100% (Backup & Recovery)
-- DAY 3: ✅ 100% (Service Installation)
-- DAY 4: ✅ 100% (Integration Testing)
-- DAY 5: ⏳ 0% (Final Validation)
-
-### Timeline Status
-- Target Go-Live: 2025-11-27
-- Days Remaining: 5
-- Status: 🟢 ON TRACK
+### Database Setup
+- **PostgreSQL:** localhost:5432/invoice_staging
+- **SQLite:** Configurable path via config.yaml
 
 ---
 
-## Important Notes for Next Session
+## 📊 Test Coverage
 
-1. **Environment Setup:**
-   - Run `python scripts/prepare_deployment.py` before starting
-   - Verify all DAY 4 dependencies installed
-   - Check environment variables set
+**Overall:** 71/86 tests passing (83%)
 
-2. **Testing Focus:**
-   - Use real customer sample invoices if available
-   - Test failure scenarios thoroughly
-   - Monitor memory usage during long runs
+**supplier-invoice-loader:**
+- Unit tests: 61/72 (85%)
+- E2E tests: 8/8 (100%)
+- Performance: Baseline established
 
-3. **Documentation:**
-   - Review KNOWN_ISSUES.md before customer deployment
-   - Update PRE_DEPLOYMENT_CHECKLIST.md with final items
-   - Create deployment package with all fixes
-
-4. **Quality Gates:**
-   - All tests must pass (no skips for critical tests)
-   - No memory leaks detected
-   - Service stable for 24+ hours
-   - Documentation complete and reviewed
+**supplier-invoice-editor:**
+- Unit tests: 10/14 (71%)
 
 ---
 
-## Session End Status
+## 🚀 Deployment Workflow
 
-**System State:**
-- Service: Running stable
-- Database: Clean and operational
-- API: All endpoints working
-- Tests: All passing
-- Documentation: Up to date
+### Development → Git → Deployment
 
-**Ready For:**
-- Final validation testing (DAY 5)
-- Customer deployment preparation
-- Go-live on 2025-11-27
+**1. Development (C:\Development\nex-automat)**
+- All code changes here
+- Install dependencies in venv32
+- Run tests
+- Fix issues
 
-**Not Ready For:**
-- Production deployment (needs DAY 5 validation)
+**2. Git Operations**
+- `git add .`
+- `git commit -m "..."`
+- `git push`
+
+**3. Deployment (C:\Deployment\nex-automat)**
+- `python scripts/deploy_to_deployment.py`
+- Install missing dependencies
+- Run preflight check
+- Start/restart service
+
+**CRITICAL:** Never fix directly in Deployment!
 
 ---
 
-**Session Completed:** 2025-11-22 14:00  
-**Next Session:** DAY 5 - Final Validation  
-**Estimated Duration:** 4-6 hours  
-**Target Completion:** 2025-11-23
+## 💡 Lessons Learned
+
+### Session History
+
+**DAY 1-4 (Monorepo + Deployment):**
+1. 32-bit Python required for Btrieve compatibility
+2. NSSM excellent for Windows Service management
+3. PostgreSQL requires proper password handling
+4. E2E testing catches deployment issues early
+5. Performance baseline essential for validation
+
+**DAY 5 (Pre-Flight System):**
+1. **Development → Git → Deployment workflow is MANDATORY**
+2. Never apply fixes only to Deployment (causes inconsistency)
+3. Preflight checks catch environment issues before testing
+4. Environment variables better than hardcoded passwords
+5. Config.yaml should be source of truth for paths
+6. Escape sequences in docstrings cause warnings
+
+---
+
+## 📝 Work Rules & Guidelines
+
+### Critical Rules (from memory_user_edits)
+1. Single solution only, no alternatives unless requested
+2. One step at a time, wait for confirmation
+3. Token usage stats at end of each response
+4. Slovak language, English for technical terms
+5. All code/configs in artifacts
+6. Step-by-step approach, never multiple steps at once
+7. Quality over speed
+8. All changes via scripts
+9. User does Git operations himself
+10. **Development → Git → Deployment workflow (MANDATORY)**
+
+### Script Naming Convention
+- `fix_*.py` - Fixes issues
+- `create_*.py` - Creates new files
+- `test_*.py` - Testing scripts
+- `deploy_*.py` - Deployment helpers
+- `manage_*.py` - Management utilities
+
+---
+
+## 📋 Next Session Priorities
+
+### DAY 5: Error Handling & Recovery Testing
+
+**Phase 1: Error Handling (2 hours)**
+- Invalid PDF formats
+- Network failures
+- Database connection loss
+- Disk full scenarios
+- NEX Genesis unavailable
+
+**Phase 2: Recovery Testing (2 hours)**
+- Service crash recovery
+- Database restore procedures
+- Configuration rollback
+- Backup validation
+
+**Phase 3: Stability Test (overnight)**
+- 24-hour continuous operation
+- Memory leak detection
+- Log rotation validation
+- Performance consistency
+
+**Phase 4: Go-Live Preparation (2 hours)**
+- Final checklist review
+- Deployment package creation
+- Customer documentation
+- Rollback plan finalization
+
+**Target:** 2025-11-27 Go-Live (5 days)
+
+---
+
+## 🔗 Resources
+
+**GitHub Repository:**
+- https://github.com/rauschiccsk/nex-automat
+
+**Key Documentation:**
+- `docs/deployment/DEPLOYMENT_GUIDE.md`
+- `docs/deployment/KNOWN_ISSUES.md`
+- `docs/deployment/TROUBLESHOOTING.md`
+- `docs/SESSION_NOTES.md` (this file)
+
+**Customer:** Mágerstav s.r.o.  
+**Developer:** Zoltán Rausch (rausch@icc.sk)  
+**Company:** ICC Komárno - Innovation & Consulting Center
+
+---
+
+**Last Updated:** 2025-11-22  
+**Status:** 🟢 DAY 5 PREPARATION COMPLETE  
+**Progress:** 90/100 (ON TRACK for 2025-11-27)
