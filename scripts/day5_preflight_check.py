@@ -37,14 +37,30 @@ def check_service_status() -> bool:
         result = subprocess.run(
             ["python", "scripts/manage_service.py", "status"],
             capture_output=True,
-            text=True,
+            text=False,  # Get bytes to handle UTF-16
             timeout=10
         )
+        
+        # NSSM returns mixed encoding - just decode as UTF-8 and strip null bytes
+        try:
+            stdout = result.stdout.decode("utf-8", errors="ignore")
+        except:
+            stdout = str(result.stdout)
 
-        print(result.stdout)
+        # Strip all null bytes (NSSM returns UTF-16LE fragments with \x00)
+        stdout = stdout.replace("\x00", "")
+        
+        # Print decoded output
+        print(stdout)
+
 
         # Check if service is running
-        if "running" in result.stdout.lower():
+        stdout_lower = stdout.lower()
+        has_running = "running" in stdout_lower
+        has_service_running = "service_running" in stdout_lower
+
+        # Check if service is running - check for both patterns
+        if has_running or has_service_running or "SERVICE_RUNNING" in stdout:
             print("✅ Service is RUNNING")
             return True
         else:

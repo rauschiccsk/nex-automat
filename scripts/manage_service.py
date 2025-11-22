@@ -23,6 +23,39 @@ import subprocess
 import time
 from pathlib import Path
 
+def decode_nssm_output(result):
+    """Decode NSSM output which may be UTF-16LE with null bytes"""
+    try:
+        if isinstance(result.stdout, bytes):
+            stdout = result.stdout.decode('utf-16le').rstrip('\x00')
+        else:
+            # Already string, just remove null bytes
+            stdout = result.stdout.replace('\x00', '')
+
+        if isinstance(result.stderr, bytes):
+            stderr = result.stderr.decode('utf-16le').rstrip('\x00')
+        else:
+            stderr = result.stderr.replace('\x00', '')
+
+        class DecodedResult:
+            def __init__(self, returncode, stdout, stderr):
+                self.returncode = returncode
+                self.stdout = stdout
+                self.stderr = stderr
+
+        return DecodedResult(result.returncode, stdout, stderr)
+    except:
+        # Fallback - just strip null bytes
+        class DecodedResult:
+            def __init__(self, returncode, stdout, stderr):
+                self.returncode = returncode
+                self.stdout = str(stdout).replace('\x00', '')
+                self.stderr = str(stderr).replace('\x00', '')
+
+        return DecodedResult(result.returncode, result.stdout, result.stderr)
+
+
+
 # Service configuration
 SERVICE_NAME = "NEX-Automat-Loader"
 NSSM_PATH = Path(__file__).parent.parent / "tools" / "nssm" / "win32" / "nssm.exe"

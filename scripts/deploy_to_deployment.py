@@ -57,6 +57,7 @@ def deploy():
         # Core preflight scripts
                 # Service management
         "scripts/manage_service.py",
+        "scripts/create_baseline.py",
         
 "scripts/day5_preflight_check.py",
         "scripts/fix_day5_preflight_issues.py",
