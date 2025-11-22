@@ -1,10 +1,10 @@
-# Init Prompt for New Chat - DAY 5
+# Init Prompt for New Chat - Service Recovery & DAY 5 Completion
 
 **Project:** NEX Automat v2.0 - Supplier Invoice Loader  
 **Customer:** Mágerstav s.r.o.  
-**Current Progress:** 90%  
-**Last Session:** DAY 4 - Integration & E2E Testing (2025-11-22)  
-**Next Phase:** DAY 5 - Final Validation & Go-Live Preparation
+**Current Progress:** 90% (Service Recovery Phase)  
+**Last Session:** DAY 5 Preparation - Pre-Flight System & Critical Recovery (2025-11-22)  
+**Next Phase:** Service Recovery → DAY 5 Final Validation
 
 ---
 
@@ -16,102 +16,144 @@ Pokračujeme v projekte NEX Automat v2.0 - automatizované spracovanie dodávate
 - DAY 1: ✅ Monorepo Migration (Complete)
 - DAY 2: ✅ Backup & Recovery Systems (Complete)
 - DAY 3: ✅ Service Installation & Validation (Complete)
-- DAY 4: ✅ Integration & E2E Testing (Complete) - **PRÁVE SKONČENÉ**
-- DAY 5: ⏳ Final Validation & Go-Live (Next)
+- DAY 4: ✅ Integration & E2E Testing (Complete)
+- DAY 5: ⚠️ Pre-Flight System Created, Service Recovery Needed
 
-**Target Go-Live:** 2025-11-27 (5 dní zostáva)
+**Target Go-Live:** 2025-11-27 (4 dni zostáva)
 
 ---
 
-## DAY 4 Summary (Just Completed)
+## Critical Situation
+
+### Problem Discovered
+
+**manage_service.py corrupt:**
+- Súbor má len 453 bytes (should be ~10KB)
+- V Git už corrupt (commit 50cdf14)
+- Žiadne backupy v Deployment
+- Service management nefunguje
+
+### Solution Prepared
+
+**Rekonštrukcia z predchádzajúcich chatov:**
+- ✅ Vytvorený `scripts/recreate_manage_service.py`
+- ✅ Rekonštruuje manage_service.py od základov
+- ✅ Bez emoji (pure ASCII)
+- ✅ Všetky funkcie: start, stop, restart, status, logs, tail
+
+**Čo treba dokončiť:**
+1. Spustiť recreate_manage_service.py v Development
+2. Overiť veľkosť súboru (~10KB)
+3. Deploy do Deployment
+4. Test service commands
+5. Dosiahnuť 6/6 preflight checks
+
+---
+
+## Last Session Summary (2025-11-22)
 
 ### Major Achievements
-1. **E2E Testing:** 100% success (8/8 tests passed)
-2. **Performance Baseline:** Health 6ms, Processing 5s/invoice
-3. **Critical Bugs Fixed:** 4 deployment blockers resolved
-4. **Documentation:** KNOWN_ISSUES.md, deployment validation scripts
+1. **Pre-Flight System:** 100% functional (4/4 tests v Development)
+2. **Config Fixes:** PostgreSQL env variable, SQLite optional
+3. **Dependency Fixes:** PyYAML, Pillow (PIL import)
+4. **New Critical Rule:** Development → Git → Deployment workflow
+5. **Service Recovery:** Rekonštrukcia manage_service.py prepared
 
-### Critical Issues Resolved
-1. ✅ Missing pdfplumber → Added to requirements.txt
-2. ✅ Missing pg8000 → Added to requirements.txt
-3. ✅ Missing LS_API_KEY → Documented in deployment guide
-4. ✅ Missing POSTGRES_PASSWORD → Documented and validated
+### Issues Resolved
+1. ✅ Config path → `apps/supplier-invoice-loader/config/config.yaml`
+2. ✅ PostgreSQL password → `POSTGRES_PASSWORD` environment variable
+3. ✅ SQLite detection → Optional, config-based
+4. ✅ Pillow import → `"pillow"` → `"PIL"`
+5. ✅ PyYAML → Added to requirements.txt
 
-### New Scripts Created (15 total)
-- `scripts/test_e2e_workflow.py` - E2E validation
-- `scripts/test_performance.py` - Performance benchmarks
-- `scripts/prepare_deployment.py` - Pre-deployment checks
-- `scripts/install_day4_dependencies.py` - Dependency installer
-- `scripts/cleanup_environments.py` - Environment cleanup
-- +10 utility scripts for testing and diagnostics
+### Critical Discovery
+- manage_service.py bol v Git už corrupt (453 bytes)
+- Úspešná rekonštrukcia z conversation_search
+- Demonštruje dôležitosť backups + Git verification
 
 ---
 
 ## Current System State
 
-### Service Status
+### Development Environment
 ```
-Service: NEX-Automat-Loader
-Status: 🟢 RUNNING
-API: http://localhost:8000
-Health: ✅ Healthy (6ms avg)
-Processing: ✅ Working (5s/invoice)
-Auto-restart: ✅ Configured (0s delay)
-```
-
-### Database Status
-```
-PostgreSQL: ✅ Running (localhost:5432)
-Database: invoice_staging (6 tables)
-SQLite: ✅ Clean (test data removed)
-Staging: ✅ Working (pg8000 installed)
+Location: C:\Development\nex-automat
+Status: ✅ Pre-flight check: 4/4 passing
+Dependencies: ✅ All installed (pillow, PyYAML, etc.)
+Config: ✅ Correct path (apps/supplier-invoice-loader/config/config.yaml)
+manage_service.py: ⚠️ Corrupt (453 bytes)
+recreate script: ✅ Ready
 ```
 
-### Dependencies Status
+### Deployment Environment
 ```
-Python: 3.13.0 32-bit
-Virtual Env: venv32
-Total Packages: 14
-Critical Deps: ✅ All installed (pdfplumber, pg8000, etc.)
+Location: C:\Deployment\nex-automat
+Status: ⚠️ Pre-flight check: 4/6 passing
+Service: ❌ Cannot check (manage_service.py corrupt)
+Database: ✅ PostgreSQL working
+Dependencies: ✅ All installed
+Performance: ⚠️ Baseline missing (not critical)
 ```
 
-### Test Coverage
+### Pre-Flight Check Results (Development)
 ```
-E2E Tests: ✅ 100% (8/8 passed)
-Performance: ✅ Baseline established
-Unit Tests: ✅ 91% (108/119 passed, 11 skipped)
+✅ Config Loading: PASS
+✅ Database Connectivity: PASS (PostgreSQL + SQLite detection)
+✅ Dependencies: PASS (9/9 including PIL, yaml)
+✅ Preflight Script Syntax: PASS
+```
+
+### Pre-Flight Check Results (Deployment)
+```
+❌ Service Status: FAIL (manage_service.py corrupt)
+✅ Database Connectivity: PASS
+✅ Dependencies: PASS
+✅ Known Issues: PASS
+✅ Test Data: PASS (18 PDFs)
+⚠️ Performance Baseline: MISSING (not critical)
 ```
 
 ---
 
-## DAY 5 Plan: Final Validation & Go-Live
+## Immediate Next Steps
 
-### Goals (4-6 hours)
+### PRIORITY 1: Service Recovery (CRITICAL)
 
-**1. Error Handling Testing (2 hours)**
-- Invalid PDF formats
-- Network failures
-- Database connection loss
-- Disk full scenarios
-- NEX Genesis unavailable
+**Step 1: Recreate manage_service.py**
+```bash
+cd C:\Development\nex-automat
+python scripts\recreate_manage_service.py
+```
 
-**2. Recovery Testing (2 hours)**
-- Service crash recovery
-- Database restore procedures
-- Configuration rollback
-- Backup validation
+**Expected:**
+- ✅ Creates scripts/manage_service.py
+- ✅ Size: ~10KB (not 453 bytes!)
+- ✅ Pure ASCII (no emoji)
+- ✅ All functions working
 
-**3. 24-Hour Stability Test (overnight)**
-- Memory leak detection
-- Long-term stability
-- Log rotation validation
-- Performance consistency
+**Step 2: Verify Script**
+```bash
+dir scripts\manage_service.py
+# Should show ~10KB, not 453 bytes
+```
 
-**4. Go-Live Preparation (2 hours)**
-- Final checklist review
-- Deployment package creation
-- Customer documentation
-- Rollback plan finalization
+**Step 3: Deploy to Deployment**
+```bash
+python scripts\deploy_to_deployment.py
+```
+
+**Step 4: Test in Deployment**
+```bash
+cd C:\Deployment\nex-automat
+python scripts\manage_service.py status
+# Should show: Service: NEX-Automat-Loader, Status: SERVICE_RUNNING
+```
+
+**Step 5: Run Preflight Check**
+```bash
+python scripts\day5_preflight_check.py
+# Target: 6/6 passing (or 5/6 if performance baseline missing)
+```
 
 ---
 
@@ -122,27 +164,28 @@ Unit Tests: ✅ 91% (108/119 passed, 11 skipped)
 Location: C:\Development\nex-automat
 Config: apps/supplier-invoice-loader/config/config.yaml
 Tests: apps/supplier-invoice-loader/tests/
-Scripts: scripts/
+Scripts: scripts/ (16 utility scripts)
 Docs: docs/deployment/
 ```
 
 ### Deployment Environment
 ```
 Location: C:\Deployment\nex-automat
-Service: NEX-Automat-Loader
+Service: NEX-Automat-Loader (Windows Service via NSSM)
 Logs: logs/service-*.log
-Backups: backups/
-Database: C:\...\config\invoices.db (SQLite)
-          localhost:5432/invoice_staging (PostgreSQL)
+Config: apps/supplier-invoice-loader/config/config.yaml
+Database: localhost:5432/invoice_staging (PostgreSQL)
 ```
 
-### Key Documentation
+### Key Scripts Created This Session
 ```
-docs/deployment/DEPLOYMENT_GUIDE.md
-docs/deployment/PRE_DEPLOYMENT_CHECKLIST.md
-docs/deployment/SERVICE_MANAGEMENT.md
-docs/deployment/TROUBLESHOOTING.md
-docs/deployment/KNOWN_ISSUES.md (NEW - DAY 4)
+scripts/day5_preflight_check.py          - Pre-flight validation
+scripts/recreate_manage_service.py       - Service recovery ⭐ NEW
+scripts/deploy_to_deployment.py          - Deployment helper (updated)
+scripts/diagnose_service_status_check.py - Service diagnostics
+scripts/fix_pillow_import_name.py        - Pillow fix
+scripts/fix_preflight_config_path.py     - Config fix
+... (10 more diagnostic/fix scripts)
 ```
 
 ---
@@ -151,14 +194,15 @@ docs/deployment/KNOWN_ISSUES.md (NEW - DAY 4)
 
 ### Before Starting Work
 1. Load session notes: `docs/SESSION_NOTES.md`
-2. Check service status: `python scripts/manage_service.py status`
-3. Verify dependencies: `python scripts/prepare_deployment.py`
-4. Review KNOWN_ISSUES.md for DAY 4 lessons
+2. Run recreate_manage_service.py v Development
+3. Verify file size (must be ~10KB!)
+4. Deploy to Deployment
+5. Test service commands
 
 ### Environment Variables (CRITICAL)
 ```
-POSTGRES_PASSWORD - PostgreSQL authentication
-LS_API_KEY - API authentication (DAY 4 discovery)
+POSTGRES_PASSWORD - PostgreSQL authentication (SET!)
+LS_API_KEY - API authentication
 ```
 
 ### Test Data
@@ -167,111 +211,119 @@ Sample PDFs: apps/supplier-invoice-loader/tests/samples/
 Test invoices: 18 real customer PDFs available
 ```
 
-### Performance Metrics (Baseline)
+### Deployment Workflow (MANDATORY)
 ```
-Health endpoint: 6ms avg, 3ms p95
-Invoice processing: 5s avg (3.6s min, 7s max)
-Sequential throughput: ~12 invoices/minute
-SQLite limitation: 1 concurrent writer only
+Development → Git commit → Git push → Deploy to Deployment
+NEVER fix directly in Deployment!
 ```
+
+---
+
+## Success Criteria for Next Session
+
+### Immediate Goals (1-2 hours)
+- [ ] Recreate manage_service.py v Development
+- [ ] Verify script size (~10KB)
+- [ ] Deploy to Deployment
+- [ ] Service commands working
+- [ ] Preflight check: 5/6 or 6/6 passing
+- [ ] Git commit all changes
+
+### Optional (if time permits)
+- [ ] Create performance baseline
+- [ ] Test service auto-restart
+- [ ] Update KNOWN_ISSUES.md
+- [ ] Start DAY 5 error handling tests
 
 ---
 
 ## Known Limitations
 
-1. **SQLite Concurrent Writes**
-   - Only 1 writer at a time
-   - Concurrent requests cause "database locked"
-   - Solution: Sequential processing (acceptable for current volume)
-   - Future: Migrate to PostgreSQL primary
+1. **manage_service.py Corruption**
+   - Was 453 bytes (should be ~10KB)
+   - In Git already corrupt
+   - No backups available
+   - Solution: Reconstruction from chat history
 
-2. **Processing Time Variance**
-   - Range: 3.5-7 seconds per invoice
-   - Depends on: PDF complexity, OCR, line items
-   - Acceptable: Target <10 seconds
+2. **Performance Baseline Missing**
+   - Not critical for preflight
+   - Can be created later
+   - test_performance.py script exists
 
-3. **Duplicate Detection**
-   - UNIQUE constraint on file_hash
-   - Same PDF = same hash = rejection
-   - Working as designed (prevents duplicates)
-
----
-
-## Success Criteria for DAY 5
-
-- [ ] All error scenarios tested and handled
-- [ ] Recovery procedures validated
-- [ ] 24-hour stability test passed
-- [ ] No memory leaks detected
-- [ ] All documentation reviewed and complete
-- [ ] Deployment package created and validated
-- [ ] Customer communication prepared
-- [ ] Rollback plan documented and tested
+3. **SQLite Not Used**
+   - System uses PostgreSQL primary
+   - SQLite check is optional
+   - Working as designed
 
 ---
 
 ## Commands Quick Reference
 
+### Service Recovery
+```bash
+# Development
+cd C:\Development\nex-automat
+python scripts\recreate_manage_service.py
+dir scripts\manage_service.py
+
+# Deploy
+python scripts\deploy_to_deployment.py
+
+# Deployment test
+cd C:\Deployment\nex-automat
+python scripts\manage_service.py status
+python scripts\manage_service.py start
+```
+
+### Pre-Flight Check
+```bash
+# Development
+cd C:\Development\nex-automat
+python scripts\test_preflight_in_development.py
+
+# Deployment
+cd C:\Deployment\nex-automat
+python scripts\day5_preflight_check.py
+```
+
 ### Service Management
 ```bash
-# Status
-python scripts/manage_service.py status
-
-# Start/Stop/Restart
-python scripts/manage_service.py restart
-
-# View logs
-python scripts/manage_service.py logs
-python scripts/manage_service.py tail
-```
-
-### Testing
-```bash
-# E2E test
-python scripts/test_e2e_workflow.py
-
-# Performance test
-python scripts/test_performance.py
-
-# Deployment validation
-python scripts/prepare_deployment.py
-```
-
-### Cleanup
-```bash
-# Development cleanup
-cd C:\Development\nex-automat
-python scripts/cleanup_environments.py
-
-# Deployment cleanup
 cd C:\Deployment\nex-automat
-python scripts/cleanup_environments.py
+
+# Status
+python scripts\manage_service.py status
+
+# Start/Stop/Restart (requires Admin)
+python scripts\manage_service.py start
+python scripts\manage_service.py stop
+python scripts\manage_service.py restart
+
+# Logs
+python scripts\manage_service.py logs
+python scripts\manage_service.py tail
 ```
 
 ---
 
-## Next Steps
+## Next Steps Summary
 
-1. **Start DAY 5 with:**
-   - Review SESSION_NOTES.md
-   - Check KNOWN_ISSUES.md
-   - Run prepare_deployment.py
-   - Verify service status
+**IMMEDIATE (HIGH PRIORITY):**
+1. Run recreate_manage_service.py
+2. Verify script (~10KB)
+3. Deploy + test
+4. Achieve 6/6 preflight
+5. Git commit
 
-2. **Focus on:**
-   - Error handling robustness
-   - Recovery procedure validation
-   - Long-term stability
-   - Production readiness
-
-3. **Deliverables:**
-   - Complete test suite results
-   - Stability test report
-   - Deployment package
-   - Go-live checklist
+**THEN:**
+1. Performance baseline (optional)
+2. Start DAY 5 testing
+3. Error handling validation
+4. Recovery procedures
+5. Go-live preparation
 
 ---
 
 **Last Updated:** 2025-11-22  
 **Progress:** 90/100  
-**Status:** 🟢 ON TRACK for 2025-11-27 deployment
+**Status:** ⚠️ SERVICE RECOVERY READY  
+**Target:** Complete recovery + 6/6 preflight checks, then proceed to DAY 5

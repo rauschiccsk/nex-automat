@@ -1,4 +1,26 @@
 """
+Update Deploy Script
+====================
+Aktualizuje deploy_to_deployment.py o všetky nové scripty.
+
+Usage:
+    cd C:\\Development\\nex-automat
+    python scripts\\update_deploy_to_deployment.py
+"""
+
+from pathlib import Path
+
+
+def update_deploy_script():
+    """Update deploy_to_deployment.py with all new scripts."""
+
+    deploy_script = Path("scripts/deploy_to_deployment.py")
+
+    if not deploy_script.exists():
+        print(f"❌ Deploy script not found: {deploy_script}")
+        return False
+
+    new_content = '''"""
 Deploy to Deployment Environment
 ================================
 Copies updated files from Development to Deployment after Git commit.
@@ -8,8 +30,8 @@ Prerequisites:
 - All changes tested locally
 
 Usage:
-    cd C:\\Development\\nex-automat
-    python scripts\\deploy_to_deployment.py
+    cd C:\\\\Development\\\\nex-automat
+    python scripts\\\\deploy_to_deployment.py
 """
 
 import shutil
@@ -18,7 +40,7 @@ from datetime import datetime
 
 def print_section(title: str):
     """Print formatted section header."""
-    print(f"\n{'='*70}")
+    print(f"\\n{'='*70}")
     print(f"  {title}")
     print(f"{'='*70}")
 
@@ -55,10 +77,7 @@ def deploy():
     # Files to deploy (všetky DAY 5 scripty)
     files_to_deploy = [
         # Core preflight scripts
-                # Service management
-        "scripts/manage_service.py",
-        
-"scripts/day5_preflight_check.py",
+        "scripts/day5_preflight_check.py",
         "scripts/fix_day5_preflight_issues.py",
 
         # Diagnostic scripts
@@ -121,14 +140,14 @@ def deploy():
     # Summary
     print_section("DEPLOYMENT SUMMARY")
 
-    print(f"\n✅ Copied: {len(copied)} files")
+    print(f"\\n✅ Copied: {len(copied)} files")
     if skipped:
         print(f"⚠️  Skipped: {len(skipped)} files")
     if failed:
         print(f"❌ Failed: {len(failed)} files")
 
     if failed:
-        print("\nFailed files:")
+        print("\\nFailed files:")
         for f in failed:
             print(f"  - {f}")
         return False
@@ -136,21 +155,21 @@ def deploy():
     # Next steps
     print_section("NEXT STEPS")
 
-    print("\n1. Switch to Deployment:")
-    print("   cd C:\\Deployment\\nex-automat")
+    print("\\n1. Switch to Deployment:")
+    print("   cd C:\\\\Deployment\\\\nex-automat")
 
-    print("\n2. Install/update dependencies:")
-    print("   pip install -r scripts\\requirements.txt")
-    print("   pip install -r apps\\supplier-invoice-loader\\requirements.txt")
+    print("\\n2. Install/update dependencies:")
+    print("   pip install -r scripts\\\\requirements.txt")
+    print("   pip install -r apps\\\\supplier-invoice-loader\\\\requirements.txt")
 
-    print("\n3. Run preflight check:")
-    print("   python scripts\\day5_preflight_check.py")
+    print("\\n3. Run preflight check:")
+    print("   python scripts\\\\day5_preflight_check.py")
 
-    print("\n4. If service not running:")
-    print("   python scripts\\manage_service.py start")
+    print("\\n4. If service not running:")
+    print("   python scripts\\\\manage_service.py start")
 
-    print("\n5. Verify all systems:")
-    print("   python scripts\\day5_preflight_check.py")
+    print("\\n5. Verify all systems:")
+    print("   python scripts\\\\day5_preflight_check.py")
 
     print("="*70)
 
@@ -159,3 +178,22 @@ def deploy():
 if __name__ == "__main__":
     success = deploy()
     exit(0 if success else 1)
+'''
+
+    try:
+        deploy_script.write_text(new_content, encoding='utf-8')
+        print("=" * 70)
+        print("  DEPLOY SCRIPT UPDATED")
+        print("=" * 70)
+        print(f"\\n✅ Updated: {deploy_script}")
+        print(f"   Files to deploy: 14 scripts + 2 requirements.txt")
+        print("\\nReady to deploy:")
+        print("  python scripts\\\\deploy_to_deployment.py")
+        return True
+    except Exception as e:
+        print(f"❌ Error: {e}")
+        return False
+
+
+if __name__ == "__main__":
+    update_deploy_script()

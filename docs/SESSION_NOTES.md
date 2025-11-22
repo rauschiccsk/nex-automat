@@ -2,51 +2,81 @@
 
 **Project:** nex-automat  
 **Location:** C:/Development/nex-automat  
-**Current Phase:** DAY 5 Preparation - Pre-Flight Check System
+**Current Phase:** DAY 5 Preparation - Pre-Flight Check System (90% Complete)
 
 ---
 
 ## 🎯 Current Status
 
-### DAY 5 - Pre-Flight Check System (2025-11-22) ✅ COMPLETE
+### DAY 5 - Pre-Flight Check System & Critical Recovery (2025-11-22) ⚠️ IN PROGRESS
 
-**Goal:** Pripravit validačný systém pre DAY 5 testing (Error Handling & Recovery)
+**Goal:** Pripraviť validačný systém pre DAY 5 testing a vyriešiť kritické deployment issues
 
-**Úlohy:**
+**Completed:**
 - [x] Vytvorený day5_preflight_check.py s all fixes
 - [x] Nainštalovaný pillow do Development venv32
-- [x] Pridaný pillow do requirements.txt
+- [x] Pridaný pillow + PyYAML do requirements.txt
 - [x] Opravený PostgreSQL password handling (environment variable)
 - [x] Opravený SQLite path detection (config.yaml + multiple locations)
-- [x] Vytvorený deployment helper script
-- [x] Opravené všetky escape sequence warnings
-- [x] Pridané nové workflow pravidlo: Development → Git → Deployment
+- [x] Opravený Pillow import name ("pillow" → "PIL")
+- [x] Testing v Development: 4/4 tests passing ✅
+- [x] Deployment testing: 4/6 checks passing (service issue, baseline missing)
+- [x] Pridané KRITICKÉ pravidlo: Development → Git → Deployment workflow
+- [x] Identifikovaný corrupt manage_service.py (453 bytes)
+- [x] Rekonštruovaný manage_service.py z predchádzajúcich chatov
 
-**Vytvorené scripty:**
+**In Progress:**
+- [ ] Finálny redeploy s obnoveným manage_service.py
+- [ ] Service status validation
+- [ ] Performance baseline creation
+- [ ] Kompletný preflight check (6/6 passing)
+
+**Critical Discovery:**
+- **manage_service.py bol v Git už corrupt** (453 bytes v commite 50cdf14)
+- Neexistujú backupy v Deployment
+- Úspešná rekonštrukcia z conversation_search artifacts
+- Demonštruje dôležitosť systematic backups
+
+**Vytvorené scripty (16 total):**
 1. `scripts/day5_preflight_check.py` - Validačný script pre DAY 5
 2. `scripts/create_day5_preflight_check.py` - Utility na vytvorenie preflight
 3. `scripts/fix_day5_preflight_issues.py` - Auto-fix pre common issues
-4. `scripts/deploy_to_deployment.py` - Deployment helper
+4. `scripts/deploy_to_deployment.py` - Deployment helper (updated)
 5. `scripts/fix_escape_sequence_warning.py` - Warning fixer
+6. `scripts/diagnose_pillow_import.py` - Pillow diagnostika
+7. `scripts/fix_preflight_config_path.py` - Config path fixer
+8. `scripts/fix_sqlite_check_final.py` - SQLite check update
+9. `scripts/fix_pillow_import_name.py` - Pillow import fixer
+10. `scripts/test_preflight_in_development.py` - Testing script
+11. `scripts/diagnose_deployment_issues.py` - Deployment diagnostika
+12. `scripts/analyze_config_location.py` - Config analysis
+13. `scripts/diagnose_service_status_check.py` - Service status diagnostika
+14. `scripts/fix_manage_service_emoji.py` - Emoji removal (unused)
+15. `scripts/fix_manage_service_complete.py` - Service script update
+16. `scripts/recreate_manage_service.py` - Service reconstruction ⭐ NEW
 
 **Fixes aplikované:**
+- ✅ Config path: `apps/supplier-invoice-loader/config/config.yaml`
 - ✅ PostgreSQL password z `POSTGRES_PASSWORD` environment variable
-- ✅ SQLite path detection z config.yaml + fallback locations
-- ✅ Pillow dependency nainštalovaný a pridaný do requirements.txt
+- ✅ SQLite check: Optional (len ak je v config)
+- ✅ Pillow dependency: Pridaný do requirements.txt
+- ✅ Pillow import: `"pillow"` → `"PIL"` (correct import name)
+- ✅ PyYAML: Pridaný do requirements.txt (loader + scripts)
 - ✅ Žiadne escape sequence warnings
-- ✅ Správny Development → Git → Deployment workflow
+- ✅ manage_service.py: Rekonštruovaný bez emoji (pure ASCII)
 
 **Critical Learning:**
-- **NEVER fix directly in Deployment** - vždy Development → Git → Deployment
-- Zabezpečuje konzistenciu medzi prostredimi
-- Umožňuje čistý redeploy bez straty fixes
-- Predchádza "deployment drift" problémom
+1. **NEVER fix directly in Deployment** - vždy Development → Git → Deployment
+2. Git môže obsahovať už corrupt súbory - backupy sú kritické
+3. Conversation search v Claude je powerful tool na recovery
+4. Package name ≠ Import name (pillow vs PIL)
+5. Config.yaml môže byť v subdirectories (apps/), nie len v root
 
 **Next Steps:**
-1. Git commit + push
-2. Deploy to Deployment: `python scripts/deploy_to_deployment.py`
-3. Install pillow in Deployment: `pip install pillow`
-4. Run preflight check: `python scripts/day5_preflight_check.py`
+1. Redeploy s recreate_manage_service.py
+2. Test service status v Deployment
+3. Vytvorit performance baseline
+4. Dosiahnuť 6/6 preflight checks
 5. Start DAY 5 testing (Error Handling & Recovery)
 
 ---
@@ -70,12 +100,12 @@
 - 4 critical deployment bugs fixed
 
 **Known Issues from DAY 4:**
-1. ✅ Missing pdfplumber - RESOLVED
-2. ✅ Missing pg8000 - RESOLVED
+1. ✅ Missing pdfplumber - RESOLVED (added to requirements.txt)
+2. ✅ Missing pg8000 - RESOLVED (added to requirements.txt)
 3. ✅ Missing LS_API_KEY - DOCUMENTED
-4. ✅ Missing POSTGRES_PASSWORD - DOCUMENTED
+4. ✅ Missing POSTGRES_PASSWORD - DOCUMENTED + environment variable solution
 
-**Target:** Go-Live 2025-11-27 (5 days remaining)
+**Target:** Go-Live 2025-11-27 (4 days remaining)
 
 ---
 
@@ -84,24 +114,19 @@
 ```
 C:/Development/nex-automat/
 ├── apps/
-│   ├── supplier-invoice-loader/        ✅ 61/72 tests passing (85%)
+│   ├── supplier-invoice-loader/        ✅ Main application
 │   │   ├── src/
 │   │   ├── tests/
+│   │   ├── config/
+│   │   │   └── config.yaml            ⭐ Config location!
 │   │   ├── scripts/
-│   │   └── pyproject.toml
-│   └── supplier-invoice-editor/        ✅ 10/14 tests passing (71%)
-│       ├── src/
-│       ├── tests/
-│       └── pyproject.toml
+│   │   └── requirements.txt           ✅ Updated (pillow, PyYAML)
+│   └── supplier-invoice-editor/
+│       └── config/config.yaml
 │
 ├── packages/
 │   ├── invoice-shared/                 ✅ Shared utilities
-│   │   └── invoice_shared/
-│   │       ├── database/
-│   │       ├── utils/
-│   │       ├── models/
-│   │       └── schemas/
-│   └── nex-shared/                     ✅ Placeholder
+│   └── nex-shared/
 │
 ├── docs/
 │   ├── guides/
@@ -112,17 +137,19 @@ C:/Development/nex-automat/
 │   ├── SESSION_NOTES.md               (this file)
 │   └── PROJECT_MANIFEST.json
 │
-├── scripts/
-│   ├── day5_preflight_check.py        ✅ NEW (DAY 5)
-│   ├── create_day5_preflight_check.py ✅ NEW (DAY 5)
-│   ├── fix_day5_preflight_issues.py   ✅ NEW (DAY 5)
-│   ├── deploy_to_deployment.py        ✅ NEW (DAY 5)
-│   ├── manage_service.py
+├── scripts/                            ⭐ 16 utility scripts
+│   ├── day5_preflight_check.py
+│   ├── recreate_manage_service.py     ✅ NEW - Service recovery
+│   ├── deploy_to_deployment.py
+│   ├── manage_service.py              ⚠️ TO BE RECREATED
 │   ├── test_e2e_workflow.py
-│   └── test_performance.py
+│   └── ... (11 more)
+│
+├── tools/
+│   └── nssm/                          ✅ Windows Service Manager
 │
 ├── venv32/                            (Python 3.13.7 32-bit)
-├── pyproject.toml                     (UV workspace config)
+├── pyproject.toml
 ├── README.md
 └── .gitignore
 ```
@@ -140,20 +167,22 @@ C:/Development/nex-automat/
 ### Key Dependencies
 **supplier-invoice-loader:**
 - fastapi, uvicorn, pypdf, pdfplumber ✅
-- pillow>=10.0.0 ✅ (added DAY 5)
+- pillow>=10.0.0 ✅ (ADDED DAY 5)
+- PyYAML>=6.0.0 ✅ (ADDED DAY 5)
 - pg8000, httpx, pydantic ✅
 
 **Development:**
 - pytest, pytest-asyncio, black, ruff ✅
 
 ### Configuration Management
-- `config/config.yaml` - Main configuration
-- `POSTGRES_PASSWORD` - Environment variable (required)
-- `LS_API_KEY` - Environment variable (required)
+- **Main config:** `apps/supplier-invoice-loader/config/config.yaml`
+- **Environment variables (CRITICAL):**
+  - `POSTGRES_PASSWORD` - PostgreSQL authentication
+  - `LS_API_KEY` - API authentication
 
 ### Database Setup
-- **PostgreSQL:** localhost:5432/invoice_staging
-- **SQLite:** Configurable path via config.yaml
+- **PostgreSQL:** localhost:5432/invoice_staging (PRIMARY)
+- **SQLite:** Optional (not used by default)
 
 ---
 
@@ -166,14 +195,25 @@ C:/Development/nex-automat/
 - E2E tests: 8/8 (100%)
 - Performance: Baseline established
 
-**supplier-invoice-editor:**
-- Unit tests: 10/14 (71%)
+**DAY 5 Preflight Tests (Development):**
+- Config Loading: ✅ PASS
+- Database Connectivity: ✅ PASS (PostgreSQL + SQLite detection)
+- Dependencies: ✅ PASS (all 9 including PIL, yaml)
+- Preflight Script Syntax: ✅ PASS
+
+**DAY 5 Preflight Tests (Deployment):**
+- Service Status: ❌ FAIL (manage_service.py corrupt)
+- Database Connectivity: ✅ PASS
+- Dependencies: ✅ PASS
+- Known Issues: ✅ PASS
+- Test Data: ✅ PASS
+- Performance Baseline: ⚠️ MISSING (not critical)
 
 ---
 
 ## 🚀 Deployment Workflow
 
-### Development → Git → Deployment
+### Development → Git → Deployment (MANDATORY)
 
 **1. Development (C:\Development\nex-automat)**
 - All code changes here
@@ -207,13 +247,17 @@ C:/Development/nex-automat/
 4. E2E testing catches deployment issues early
 5. Performance baseline essential for validation
 
-**DAY 5 (Pre-Flight System):**
+**DAY 5 (Pre-Flight System + Recovery):**
 1. **Development → Git → Deployment workflow is MANDATORY**
 2. Never apply fixes only to Deployment (causes inconsistency)
-3. Preflight checks catch environment issues before testing
-4. Environment variables better than hardcoded passwords
-5. Config.yaml should be source of truth for paths
-6. Escape sequences in docstrings cause warnings
+3. Git can contain corrupt files - verify before restore
+4. Conversation search powerful for code recovery
+5. Config.yaml location: app-specific, not root
+6. Package name ≠ Import name (pillow package → import PIL)
+7. Environment variables better than hardcoded passwords
+8. SQLite can be optional if PostgreSQL is primary
+9. Preflight checks essential before production testing
+10. Backups critical - even in Development
 
 ---
 
@@ -237,39 +281,35 @@ C:/Development/nex-automat/
 - `test_*.py` - Testing scripts
 - `deploy_*.py` - Deployment helpers
 - `manage_*.py` - Management utilities
+- `diagnose_*.py` - Diagnostic tools
+- `recreate_*.py` - Recovery/reconstruction
 
 ---
 
 ## 📋 Next Session Priorities
 
-### DAY 5: Error Handling & Recovery Testing
+### IMMEDIATE: Complete DAY 5 Preparation
 
-**Phase 1: Error Handling (2 hours)**
-- Invalid PDF formats
-- Network failures
-- Database connection loss
-- Disk full scenarios
-- NEX Genesis unavailable
+**Phase 1: Service Recovery (HIGH PRIORITY)**
+1. Run recreate_manage_service.py v Development
+2. Verify script size (~10KB, not 453 bytes)
+3. Deploy to Deployment
+4. Test service status command
+5. Achieve 6/6 preflight checks
 
-**Phase 2: Recovery Testing (2 hours)**
-- Service crash recovery
-- Database restore procedures
-- Configuration rollback
-- Backup validation
+**Phase 2: Performance Baseline (MEDIUM)**
+- Create test_performance.py if missing
+- Run performance tests
+- Generate baseline.json
+- Document metrics
 
-**Phase 3: Stability Test (overnight)**
-- 24-hour continuous operation
-- Memory leak detection
-- Log rotation validation
-- Performance consistency
+**Phase 3: Start DAY 5 Testing**
+- Error handling tests (invalid PDFs, network failures)
+- Recovery tests (service crash, DB restore)
+- 24-hour stability test (overnight)
+- Go-live preparation
 
-**Phase 4: Go-Live Preparation (2 hours)**
-- Final checklist review
-- Deployment package creation
-- Customer documentation
-- Rollback plan finalization
-
-**Target:** 2025-11-27 Go-Live (5 days)
+**Target:** 2025-11-27 Go-Live (4 days remaining)
 
 ---
 
@@ -291,5 +331,5 @@ C:/Development/nex-automat/
 ---
 
 **Last Updated:** 2025-11-22  
-**Status:** 🟢 DAY 5 PREPARATION COMPLETE  
-**Progress:** 90/100 (ON TRACK for 2025-11-27)
+**Status:** ⚠️ SERVICE RECOVERY IN PROGRESS  
+**Progress:** 90/100 (ON TRACK for 2025-11-27 with recovery complete)

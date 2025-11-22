@@ -1,4 +1,20 @@
 """
+Recreate manage_service.py from Scratch
+========================================
+Vytvára manage_service.py na základe funkcionalit z DAY 3.
+
+Usage:
+    cd C:\\Development\\nex-automat
+    python scripts\\recreate_manage_service.py
+"""
+
+from pathlib import Path
+
+
+def create_manage_service():
+    """Create complete manage_service.py"""
+
+    content = '''"""
 Service Management Script for NEX-Automat-Loader
 =================================================
 Manage Windows Service operations: start, stop, restart, status, logs
@@ -14,7 +30,7 @@ Commands:
     logs     - Show recent logs (last 50 lines)
     tail     - Monitor logs in real-time (Ctrl+C to exit)
 
-Location: C:\\Deployment\\nex-automat\\scripts\\manage_service.py
+Location: C:\\\\Deployment\\\\nex-automat\\\\scripts\\\\manage_service.py
 """
 
 import os
@@ -284,3 +300,23 @@ def main():
 
 if __name__ == "__main__":
     sys.exit(main())
+'''
+
+    output_path = Path("scripts/manage_service.py")
+    output_path.write_text(content, encoding='utf-8')
+
+    print("=" * 70)
+    print("  MANAGE_SERVICE.PY RECREATED")
+    print("=" * 70)
+    print(f"\\n✅ Created: {output_path}")
+    print(f"   Size: {len(content)} bytes")
+    print("\\n✅ Features:")
+    print("   - Start/stop/restart service")
+    print("   - Status check")
+    print("   - Logs viewing (last 50 lines)")
+    print("   - Real-time log monitoring (tail)")
+    print("\\n✅ No emoji - pure ASCII only")
+
+
+if __name__ == "__main__":
+    create_manage_service()

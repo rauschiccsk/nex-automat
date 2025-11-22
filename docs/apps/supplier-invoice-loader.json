@@ -2,14 +2,14 @@
   "name": "supplier-invoice-loader",
   "type": "application",
   "location": "apps/supplier-invoice-loader",
-  "generated": "2025-11-22T17:26:16.174127",
+  "generated": "2025-11-22T18:40:28.403634",
   "statistics": {
     "total_files": 116,
     "total_dirs": 34,
     "python_files": 53,
     "test_files": 15,
     "total_lines": 10273,
-    "total_size": 9050311
+    "total_size": 9050326
   },
   "structure": {
     "has_src": true,
@@ -364,7 +364,7 @@
     {
       "path": "apps/supplier-invoice-loader/requirements.txt",
       "name": "requirements.txt",
-      "size": 4543,
+      "size": 4558,
       "extension": ".txt",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/apps/supplier-invoice-loader/requirements.txt"
     },

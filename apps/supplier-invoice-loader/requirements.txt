@@ -1,124 +1,125 @@
-# Supplier Invoice Loader - Dependencies
-# Version 2.0 - Multi-Customer Support
-# Updated for Python 3.13 compatibility
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #
-# Python Version Required: 3.10 or later (tested with 3.10, 3.11, 3.12, 3.13)
-# Install: pip install -r requirements.txt
 #
-# Production Installation:
-#   python -m venv venv
-#   source venv/bin/activate  # Linux/Mac
-#   .\venv\Scripts\activate   # Windows
-#   pip install --upgrade pip
-#   pip install -r requirements.txt
-
-# ============================================================================
-# WEB FRAMEWORK
-# ============================================================================
-# FastAPI - Modern web framework with automatic API documentation
-fastapi==0.115.0
-
-# Uvicorn - ASGI server for running FastAPI
-# [standard] includes extra dependencies for production
-uvicorn[standard]==0.32.0
-
-# Pydantic - Data validation using Python type annotations
-pydantic==2.9.0
-
-# Python multipart - For file uploads
-python-multipart==0.0.12
-
-# ============================================================================
-# PDF PROCESSING
-# ============================================================================
-# pdfplumber - PDF text extraction (works better than PyPDF2 for tables)
-pdfplumber==0.11.4
-
-# PyPDF2 - Fallback PDF library
-PyPDF2==3.0.1
-
-# Pillow - Image processing (required by pdfplumber)
-Pillow>=10.4.0
-
-# ============================================================================
-# XML GENERATION (ISDOC)
-# ============================================================================
-# lxml - Fast XML processing library
-lxml>=5.0.0
-
-# ============================================================================
-# ENVIRONMENT & CONFIGURATION
-# ============================================================================
-# python-dotenv - Load environment variables from .env file
-python-dotenv==1.0.1
-
-# ============================================================================
-# MONITORING & SYSTEM
-# ============================================================================
-# psutil - System and process monitoring
-psutil==6.0.0
-
-# ============================================================================
-# HTTP REQUESTS (for NEX Genesis API)
-# ============================================================================
-requests>=2.31.0
-
-# ============================================================================
-# SECURITY (OPTIONAL - for vulnerability scanning)
-# ============================================================================
-# Uncomment for security scanning in development:
-# safety==3.2.0  # Check for known vulnerabilities
-# bandit==1.7.10  # Security linter for Python
-
-# ============================================================================
-# VERSION PINNING NOTES
-# ============================================================================
-# Updated for Python 3.13 compatibility (October 2024)
 #
-# Changes from original requirements.txt:
-#   - fastapi: 0.104.1 -> 0.115.0
-#   - uvicorn: 0.24.0.post1 -> 0.32.0
-#   - pydantic: 2.5.0 -> 2.9.0
-#   - python-multipart: 0.0.6 -> 0.0.12
-#   - pdfplumber: 0.10.3 -> 0.11.4
+#
+#
+#
+#
+#
+#
+#   - Debian 11, 12
 #   - Pillow: 10.1.0 -> >=10.4.0 (flexible for latest)
+#   - Python 2.x (obviously)
+#   - Python 3.10, 3.11, 3.12, 3.13
+#   - Python 3.9 or earlier (missing type hints features)
+#   - Ubuntu 20.04 LTS, 22.04 LTS
+#   - Windows 10, 11
+#   - Windows Server 2019, 2022
+#   - fastapi: 0.104.1 -> 0.115.0
 #   - lxml: 4.9.3 -> >=5.0.0 (flexible for latest)
-#   - python-dotenv: 1.0.0 -> 1.0.1
+#   - pdfplumber: 0.10.3 -> 0.11.4
 #   - psutil: 5.9.6 -> 6.0.0
-#
-# All new versions are tested and backward compatible with the application.
-#
-# Update strategy:
+#   - pydantic: 2.5.0 -> 2.9.0
+#   - python-dotenv: 1.0.0 -> 1.0.1
+#   - python-multipart: 0.0.6 -> 0.0.12
+#   - uvicorn: 0.24.0.post1 -> 0.32.0
+#   .\venv\Scripts\activate   # Windows
 #   1. Test updates in development first
 #   2. Update one package at a time
 #   3. Run full test suite after each update
 #   4. Monitor logs for issues
-#
-# Check for updates:
-#   pip list --outdated
-#
-# Check for vulnerabilities:
-#   pip install safety
-#   safety check -r requirements.txt
-#
-# Upgrade all (carefully!):
 #   pip install --upgrade -r requirements.txt
-
+#   pip install --upgrade pip
+#   pip install -r requirements.txt
+#   pip install safety
+#   pip list --outdated
+#   python -m venv venv
+#   safety check -r requirements.txt
+#   source venv/bin/activate  # Linux/Mac
 # ============================================================================
+# ============================================================================
+# ============================================================================
+# ============================================================================
+# ============================================================================
+# ============================================================================
+# ============================================================================
+# ============================================================================
+# ============================================================================
+# ============================================================================
+# ============================================================================
+# ============================================================================
+# ============================================================================
+# ============================================================================
+# ============================================================================
+# ============================================================================
+# ============================================================================
+# ============================================================================
+# All new versions are tested and backward compatible with the application.
 # COMPATIBILITY
-# ============================================================================
-# Tested with:
-#   - Python 3.10, 3.11, 3.12, 3.13
-#   - Windows Server 2019, 2022
-#   - Windows 10, 11
-#   - Ubuntu 20.04 LTS, 22.04 LTS
-#   - Debian 11, 12
-#
-# Not compatible with:
-#   - Python 3.9 or earlier (missing type hints features)
-#   - Python 2.x (obviously)
-pg8000>=1.29.0  # Pure Python PostgreSQL driver (32-bit compatible)
-
+# Changes from original requirements.txt:
+# Check for updates:
+# Check for vulnerabilities:
 # DAY 4 - Missing dependencies discovered during testing
-pytesseract>=0.3.13  # DAY 4 - OCR support
+# ENVIRONMENT & CONFIGURATION
+# FastAPI - Modern web framework with automatic API documentation
+# HTTP REQUESTS (for NEX Genesis API)
+# Install: pip install -r requirements.txt
+# MONITORING & SYSTEM
+# Not compatible with:
+# PDF PROCESSING
+# Pillow - Image processing (required by pdfplumber)
+# Production Installation:
+# PyPDF2 - Fallback PDF library
+# Pydantic - Data validation using Python type annotations
+# Python Version Required: 3.10 or later (tested with 3.10, 3.11, 3.12, 3.13)
+# Python multipart - For file uploads
+# SECURITY (OPTIONAL - for vulnerability scanning)
+# Supplier Invoice Loader - Dependencies
+# Tested with:
+# Uncomment for security scanning in development:
+# Update strategy:
+# Updated for Python 3.13 compatibility
+# Updated for Python 3.13 compatibility (October 2024)
+# Upgrade all (carefully!):
+# Uvicorn - ASGI server for running FastAPI
+# VERSION PINNING NOTES
+# Version 2.0 - Multi-Customer Support
+# WEB FRAMEWORK
+# XML GENERATION (ISDOC)
+# [standard] includes extra dependencies for production
+# bandit==1.7.10  # Security linter for Python
+# lxml - Fast XML processing library
+# pdfplumber - PDF text extraction (works better than PyPDF2 for tables)
+# psutil - System and process monitoring
+# python-dotenv - Load environment variables from .env file
+# safety==3.2.0  # Check for known vulnerabilities
+Pillow>=10.4.0
+PyPDF2==3.0.1
+PyYAML>=6.0.0
+fastapi==0.115.0
+lxml>=5.0.0
 pdf2image>=1.17.0  # DAY 4 - PDF processing
+pdfplumber==0.11.4
+pg8000>=1.29.0  # Pure Python PostgreSQL driver (32-bit compatible)
+psutil==6.0.0
+pydantic==2.9.0
+pytesseract>=0.3.13  # DAY 4 - OCR support
+python-dotenv==1.0.1
+python-multipart==0.0.12
+requests>=2.31.0
+uvicorn[standard]==0.32.0

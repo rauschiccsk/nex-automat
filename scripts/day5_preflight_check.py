@@ -81,43 +81,44 @@ def check_database_connectivity() -> bool:
         print("   Hint: Set POSTGRES_PASSWORD environment variable")
         success = False
 
-    # SQLite check - try multiple locations + config.yaml
-    sqlite_candidates = [
-        Path("C:/Deployment/nex-automat-data/invoices.db"),
-        Path("data/invoices.db"),
-        Path("../nex-automat-data/invoices.db"),
-    ]
+    # SQLite check - only if configured in config.yaml
+    sqlite_required = False
+    sqlite_path = None
 
-    # Try to load from config.yaml
     try:
-        config_path = Path("config/config.yaml")
+        config_path = Path("apps/supplier-invoice-loader/config/config.yaml")
         if config_path.exists():
             import yaml
             with open(config_path, 'r', encoding='utf-8') as f:
                 config = yaml.safe_load(f)
-                cfg_sqlite = config.get('database', {}).get('sqlite_path')
-                if cfg_sqlite:
-                    sqlite_candidates.insert(0, Path(cfg_sqlite))
-    except:
-        pass
+                db_config = config.get('database', {})
 
-    sqlite_path = None
-    for candidate in sqlite_candidates:
-        if candidate.exists():
-            sqlite_path = candidate
-            break
+                # Check if SQLite is configured
+                sqlite_path_str = db_config.get('sqlite_path')
+                db_type = db_config.get('type', '').lower()
 
-    if not sqlite_path:
-        sqlite_path = sqlite_candidates[0]  # Use first for error message
+                sqlite_required = db_type == 'sqlite' or sqlite_path_str is not None
 
-    if sqlite_path and sqlite_path.exists():
-        print(f"✅ SQLite: Database exists ({sqlite_path})")
+                if sqlite_path_str:
+                    sqlite_path = Path(sqlite_path_str)
+    except Exception as e:
+        print(f"⚠️  Could not read config for SQLite check: {e}")
+
+    # Perform SQLite check if required
+    if sqlite_required:
+        if sqlite_path and sqlite_path.exists():
+            print(f"✅ SQLite: Database exists ({sqlite_path})")
+        elif sqlite_path:
+            print(f"❌ SQLite: Database NOT found at {sqlite_path}")
+            success = False
+        else:
+            print("❌ SQLite: Required but path not configured in config.yaml")
+            success = False
     else:
-        print(f"❌ SQLite: Database NOT found at {sqlite_path}")
-        print(f"   Tried: {[str(p) for p in sqlite_candidates]}")
-        success = False
+        print("✅ SQLite: Not required (using PostgreSQL primary)")
 
     return success
+
 
 def check_dependencies() -> bool:
     """Verify critical dependencies are installed."""
@@ -129,7 +130,7 @@ def check_dependencies() -> bool:
         "pdfplumber",
         "pg8000",
         "pypdf",
-        "pillow",
+        "PIL",
         "httpx",
         "pydantic"
     ]
