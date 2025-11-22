@@ -2,7 +2,7 @@
   "name": "supplier-invoice-loader",
   "type": "application",
   "location": "apps/supplier-invoice-loader",
-  "generated": "2025-11-22T13:35:18.278283",
+  "generated": "2025-11-22T13:51:36.368606",
   "statistics": {
     "total_files": 116,
     "total_dirs": 34,
