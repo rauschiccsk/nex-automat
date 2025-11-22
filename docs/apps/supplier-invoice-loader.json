@@ -2,14 +2,14 @@
   "name": "supplier-invoice-loader",
   "type": "application",
   "location": "apps/supplier-invoice-loader",
-  "generated": "2025-11-21T23:56:34.212388",
+  "generated": "2025-11-22T13:35:18.278283",
   "statistics": {
-    "total_files": 128,
-    "total_dirs": 36,
+    "total_files": 116,
+    "total_dirs": 34,
     "python_files": 53,
     "test_files": 15,
     "total_lines": 10273,
-    "total_size": 9153165
+    "total_size": 9050311
   },
   "structure": {
     "has_src": true,
@@ -55,7 +55,7 @@
     {
       "path": "apps/supplier-invoice-loader/backups/backup.log",
       "name": "backup.log",
-      "size": 640,
+      "size": 1280,
       "extension": ".log",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/apps/supplier-invoice-loader/backups/backup.log"
     },
@@ -90,20 +90,6 @@
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/apps/supplier-invoice-loader/config/config_template.py",
       "lines": 434,
       "type": "source"
-    },
-    {
-      "path": "apps/supplier-invoice-loader/config/invoices.db",
-      "name": "invoices.db",
-      "size": 45056,
-      "extension": ".db",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/apps/supplier-invoice-loader/config/invoices.db"
-    },
-    {
-      "path": "apps/supplier-invoice-loader/coverage.xml",
-      "name": "coverage.xml",
-      "size": 36250,
-      "extension": ".xml",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/apps/supplier-invoice-loader/coverage.xml"
     },
     {
       "path": "apps/supplier-invoice-loader/database/schemas/README.md",
@@ -378,7 +364,7 @@
     {
       "path": "apps/supplier-invoice-loader/requirements.txt",
       "name": "requirements.txt",
-      "size": 4394,
+      "size": 4543,
       "extension": ".txt",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/apps/supplier-invoice-loader/requirements.txt"
     },
@@ -676,41 +662,6 @@
       "type": "source"
     },
     {
-      "path": "apps/supplier-invoice-loader/src/supplier_invoice_loader.egg-info/PKG-INFO",
-      "name": "PKG-INFO",
-      "size": 10028,
-      "extension": "",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/apps/supplier-invoice-loader/src/supplier_invoice_loader.egg-info/PKG-INFO"
-    },
-    {
-      "path": "apps/supplier-invoice-loader/src/supplier_invoice_loader.egg-info/SOURCES.txt",
-      "name": "SOURCES.txt",
-      "size": 681,
-      "extension": ".txt",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/apps/supplier-invoice-loader/src/supplier_invoice_loader.egg-info/SOURCES.txt"
-    },
-    {
-      "path": "apps/supplier-invoice-loader/src/supplier_invoice_loader.egg-info/dependency_links.txt",
-      "name": "dependency_links.txt",
-      "size": 1,
-      "extension": ".txt",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/apps/supplier-invoice-loader/src/supplier_invoice_loader.egg-info/dependency_links.txt"
-    },
-    {
-      "path": "apps/supplier-invoice-loader/src/supplier_invoice_loader.egg-info/requires.txt",
-      "name": "requires.txt",
-      "size": 391,
-      "extension": ".txt",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/apps/supplier-invoice-loader/src/supplier_invoice_loader.egg-info/requires.txt"
-    },
-    {
-      "path": "apps/supplier-invoice-loader/src/supplier_invoice_loader.egg-info/top_level.txt",
-      "name": "top_level.txt",
-      "size": 48,
-      "extension": ".txt",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/apps/supplier-invoice-loader/src/supplier_invoice_loader.egg-info/top_level.txt"
-    },
-    {
       "path": "apps/supplier-invoice-loader/src/utils/__init__.py",
       "name": "__init__.py",
       "size": 21,
@@ -754,41 +705,6 @@
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/apps/supplier-invoice-loader/src/utils/notifications.py",
       "lines": 578,
       "type": "source"
-    },
-    {
-      "path": "apps/supplier-invoice-loader/supplier_invoice_loader.egg-info/PKG-INFO",
-      "name": "PKG-INFO",
-      "size": 10072,
-      "extension": "",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/apps/supplier-invoice-loader/supplier_invoice_loader.egg-info/PKG-INFO"
-    },
-    {
-      "path": "apps/supplier-invoice-loader/supplier_invoice_loader.egg-info/SOURCES.txt",
-      "name": "SOURCES.txt",
-      "size": 693,
-      "extension": ".txt",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/apps/supplier-invoice-loader/supplier_invoice_loader.egg-info/SOURCES.txt"
-    },
-    {
-      "path": "apps/supplier-invoice-loader/supplier_invoice_loader.egg-info/dependency_links.txt",
-      "name": "dependency_links.txt",
-      "size": 1,
-      "extension": ".txt",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/apps/supplier-invoice-loader/supplier_invoice_loader.egg-info/dependency_links.txt"
-    },
-    {
-      "path": "apps/supplier-invoice-loader/supplier_invoice_loader.egg-info/requires.txt",
-      "name": "requires.txt",
-      "size": 418,
-      "extension": ".txt",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/apps/supplier-invoice-loader/supplier_invoice_loader.egg-info/requires.txt"
-    },
-    {
-      "path": "apps/supplier-invoice-loader/supplier_invoice_loader.egg-info/top_level.txt",
-      "name": "top_level.txt",
-      "size": 4,
-      "extension": ".txt",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/apps/supplier-invoice-loader/supplier_invoice_loader.egg-info/top_level.txt"
     },
     {
       "path": "apps/supplier-invoice-loader/tests/README.md",

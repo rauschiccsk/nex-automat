@@ -118,3 +118,7 @@ requests>=2.31.0
 #   - Python 3.9 or earlier (missing type hints features)
 #   - Python 2.x (obviously)
 pg8000>=1.29.0  # Pure Python PostgreSQL driver (32-bit compatible)
+
+# DAY 4 - Missing dependencies discovered during testing
+pytesseract>=0.3.13  # DAY 4 - OCR support
+pdf2image>=1.17.0  # DAY 4 - PDF processing

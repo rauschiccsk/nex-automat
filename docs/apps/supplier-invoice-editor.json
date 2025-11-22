@@ -2,14 +2,14 @@
   "name": "supplier-invoice-editor",
   "type": "application",
   "location": "apps/supplier-invoice-editor",
-  "generated": "2025-11-21T23:56:34.062194",
+  "generated": "2025-11-22T13:35:18.150824",
   "statistics": {
-    "total_files": 71,
+    "total_files": 67,
     "total_dirs": 28,
     "python_files": 48,
     "test_files": 8,
     "total_lines": 6699,
-    "total_size": 407062
+    "total_size": 363725
   },
   "structure": {
     "has_src": true,
@@ -144,34 +144,6 @@
       "size": 21585,
       "extension": ".json",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/apps/supplier-invoice-editor/docs/project_file_access.json"
-    },
-    {
-      "path": "apps/supplier-invoice-editor/logs/invoice_editor_20251112.log",
-      "name": "invoice_editor_20251112.log",
-      "size": 34302,
-      "extension": ".log",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/apps/supplier-invoice-editor/logs/invoice_editor_20251112.log"
-    },
-    {
-      "path": "apps/supplier-invoice-editor/logs/invoice_editor_20251118.log",
-      "name": "invoice_editor_20251118.log",
-      "size": 2431,
-      "extension": ".log",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/apps/supplier-invoice-editor/logs/invoice_editor_20251118.log"
-    },
-    {
-      "path": "apps/supplier-invoice-editor/logs/supplier_invoice_editor_20251119.log",
-      "name": "supplier_invoice_editor_20251119.log",
-      "size": 0,
-      "extension": ".log",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/apps/supplier-invoice-editor/logs/supplier_invoice_editor_20251119.log"
-    },
-    {
-      "path": "apps/supplier-invoice-editor/logs/supplier_invoice_editor_20251120.log",
-      "name": "supplier_invoice_editor_20251120.log",
-      "size": 6604,
-      "extension": ".log",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/apps/supplier-invoice-editor/logs/supplier_invoice_editor_20251120.log"
     },
     {
       "path": "apps/supplier-invoice-editor/main.py",
