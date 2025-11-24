@@ -288,7 +288,7 @@ async def process_invoice(
 
         # Save PDF to disk
         pdf_path.write_bytes(pdf_data)
-        print(f"✅ PDF saved: {pdf_path}")
+        print(f"[OK] PDF saved: {pdf_path}")
 
         # Calculate file hash for duplicate detection
         file_hash = hashlib.md5(pdf_data).hexdigest()
@@ -299,7 +299,7 @@ async def process_invoice(
         if not invoice_data:
             raise Exception("Failed to extract data from PDF")
 
-        print(f"✅ Data extracted: Invoice {invoice_data.invoice_number}")
+        print(f"[OK] Data extracted: Invoice {invoice_data.invoice_number}")
 
         # 3. Save to SQLite database
         database.init_database()
@@ -312,14 +312,14 @@ async def process_invoice(
             file_hash=file_hash,
             status="received"
         )
-        print(f"✅ Saved to SQLite: {invoice_data.invoice_number}")
+        print(f"[OK] Saved to SQLite: {invoice_data.invoice_number}")
 
         # 4. Generate ISDOC XML
         xml_filename = f"{invoice_data.invoice_number}.xml"
         xml_path = config.XML_DIR / xml_filename
 
         isdoc_xml = generate_isdoc_xml(invoice_data, str(xml_path))
-        print(f"✅ ISDOC XML generated: {xml_path}")
+        print(f"[OK] ISDOC XML generated: {xml_path}")
 
         # 5. Save to PostgreSQL staging database (if enabled)
         postgres_saved = False
@@ -345,7 +345,7 @@ async def process_invoice(
                     )
 
                     if is_duplicate:
-                        print(f"⚠️  Invoice already exists in PostgreSQL staging: {invoice_data.invoice_number}")
+                        print(f"[WARN]️  Invoice already exists in PostgreSQL staging: {invoice_data.invoice_number}")
                     else:
                         # Prepare invoice data for PostgreSQL
                         invoice_pg_data = {
@@ -383,13 +383,13 @@ async def process_invoice(
 
                         if postgres_invoice_id:
                             postgres_saved = True
-                            print(f"✅ Saved to PostgreSQL staging: invoice_id={postgres_invoice_id}")
+                            print(f"[OK] Saved to PostgreSQL staging: invoice_id={postgres_invoice_id}")
                         else:
-                            print(f"❌ Failed to save to PostgreSQL staging")
+                            print(f"[FAIL] Failed to save to PostgreSQL staging")
 
             except Exception as pg_error:
                 # Log error but don't fail the whole process
-                print(f"⚠️  PostgreSQL staging error: {pg_error}")
+                print(f"[WARN]️  PostgreSQL staging error: {pg_error}")
                 # Continue - invoice is still saved to SQLite and files
 
         # Return success response
@@ -411,7 +411,7 @@ async def process_invoice(
 
     except Exception as e:
         # Log error
-        print(f"❌ Invoice processing failed: {e}")
+        print(f"[FAIL] Invoice processing failed: {e}")
         import traceback
         traceback.print_exc()
 
@@ -474,7 +474,7 @@ async def admin_send_summary(api_key: str = Depends(verify_api_key)):
 async def startup_event():
     """Initialize application on startup"""
     print("=" * 60)
-    print("🚀 Supplier Invoice Loader v2.0 Starting...")
+    print("[ROCKET] Supplier Invoice Loader v2.0 Starting...")
     print("=" * 60)
     print(f"Customer: {config.CUSTOMER_NAME}")
     print(f"PDF Storage: {config.PDF_DIR}")
@@ -490,7 +490,7 @@ async def startup_event():
 async def shutdown_event():
     """Cleanup on shutdown"""
     print("=" * 60)
-    print("🛑 Supplier Invoice Loader Shutting Down...")
+    print("[STOP] Supplier Invoice Loader Shutting Down...")
     print("=" * 60)
 
 
@@ -502,11 +502,11 @@ if __name__ == "__main__":
     import uvicorn
 
     print("=" * 60)
-    print("🚀 Starting Supplier Invoice Loader v2.0")
+    print("[ROCKET] Starting Supplier Invoice Loader v2.0")
     print("=" * 60)
-    print(f"📊 API Documentation: http://localhost:8000/docs")
-    print(f"📊 ReDoc: http://localhost:8000/redoc")
-    print(f"🔍 Health Check: http://localhost:8000/health")
+    print(f" API Documentation: http://localhost:8000/docs")
+    print(f" ReDoc: http://localhost:8000/redoc")
+    print(f"[SEARCH] Health Check: http://localhost:8000/health")
     print("=" * 60)
 
     uvicorn.run(
