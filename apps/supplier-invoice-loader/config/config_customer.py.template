@@ -1,0 +1,60 @@
+# -*- coding: utf-8 -*-
+"""
+Supplier Invoice Loader - Customer Configuration Template
+Copy to config_customer.py and update values for your customer
+"""
+
+import os
+from pathlib import Path
+
+# ============================================================================
+# CUSTOMER SPECIFIC CONFIGURATION
+# ============================================================================
+
+CUSTOMER_NAME = "CUSTOMER_CODE"
+CUSTOMER_FULL_NAME = "Customer Name s.r.o."
+
+NEX_GENESIS_API_URL = "http://localhost:8080/api"
+NEX_GENESIS_API_KEY = "customer-api-key"
+
+OPERATOR_EMAIL = "operator@customer.sk"
+AUTOMATION_EMAIL = "automation@customer.sk"
+
+ALERT_EMAIL = "rausch@icc.sk"
+SEND_DAILY_SUMMARY = True
+HEARTBEAT_ENABLED = True
+
+# ============================================================================
+# GENERIC CONFIGURATION
+# ============================================================================
+
+API_KEY = os.getenv("LS_API_KEY", "ls-dev-key-change-in-production-2025")
+
+BASE_DIR = Path(__file__).resolve().parent
+STORAGE_BASE = Path(r"C:\NEX\IMPORT\LS")
+PDF_DIR = STORAGE_BASE / "PDF"
+XML_DIR = STORAGE_BASE / "XML"
+
+PDF_DIR.mkdir(parents=True, exist_ok=True)
+XML_DIR.mkdir(parents=True, exist_ok=True)
+
+DB_FILE = BASE_DIR / "invoices.db"
+LOG_FILE = BASE_DIR / "invoice_loader.log"
+LOG_LEVEL = "INFO"
+
+SMTP_HOST = "smtp.gmail.com"
+SMTP_PORT = 587
+SMTP_USER = os.getenv("SMTP_USER", "")
+SMTP_PASSWORD = os.getenv("SMTP_PASSWORD", "")
+SMTP_FROM = "noreply@icc.sk"
+
+# ==============================================================================
+# POSTGRESQL STAGING CONFIGURATION
+# ==============================================================================
+
+POSTGRES_STAGING_ENABLED = True
+POSTGRES_HOST = "localhost"
+POSTGRES_PORT = 5432
+POSTGRES_DATABASE = "invoice_staging"
+POSTGRES_USER = "postgres"
+POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD", "")

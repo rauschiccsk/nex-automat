@@ -2,14 +2,14 @@
   "name": "supplier-invoice-loader",
   "type": "application",
   "location": "apps/supplier-invoice-loader",
-  "generated": "2025-11-24T18:29:00.900094",
+  "generated": "2025-11-24T19:38:55.778213",
   "statistics": {
-    "total_files": 118,
+    "total_files": 120,
     "total_dirs": 34,
     "python_files": 53,
     "test_files": 15,
     "total_lines": 10273,
-    "total_size": 9058887
+    "total_size": 9061417
   },
   "structure": {
     "has_src": true,
@@ -74,6 +74,13 @@
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/apps/supplier-invoice-loader/config/config.yaml"
     },
     {
+      "path": "apps/supplier-invoice-loader/config/config.yaml.template",
+      "name": "config.yaml.template",
+      "size": 2018,
+      "extension": ".template",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/apps/supplier-invoice-loader/config/config.yaml.template"
+    },
+    {
       "path": "apps/supplier-invoice-loader/config/config_customer.py",
       "name": "config_customer.py",
       "size": 2624,
@@ -81,6 +88,13 @@
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/apps/supplier-invoice-loader/config/config_customer.py",
       "lines": 82,
       "type": "source"
+    },
+    {
+      "path": "apps/supplier-invoice-loader/config/config_customer.py.template",
+      "name": "config_customer.py.template",
+      "size": 1929,
+      "extension": ".template",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/apps/supplier-invoice-loader/config/config_customer.py.template"
     },
     {
       "path": "apps/supplier-invoice-loader/config/config_template.py",
@@ -378,7 +392,7 @@
     {
       "path": "apps/supplier-invoice-loader/requirements.txt",
       "name": "requirements.txt",
-      "size": 4548,
+      "size": 3131,
       "extension": ".txt",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/apps/supplier-invoice-loader/requirements.txt"
     },

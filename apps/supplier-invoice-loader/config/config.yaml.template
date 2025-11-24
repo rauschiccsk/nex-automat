@@ -1,0 +1,86 @@
+# NEX Automat v2.0 - Configuration Template
+# Copy to config.yaml and update values for your customer
+
+customer:
+  name: CUSTOMER_CODE           # Short customer code (e.g., MAGERSTAV)
+  full_name: Customer Name s.r.o.  # Full company name
+  ico: '00000000'               # Company registration number (IČO)
+
+database:
+  postgres:
+    host: localhost
+    port: 5432
+    database: invoice_staging
+    user: postgres
+    password: ${ENV:POSTGRES_PASSWORD}  # Set POSTGRES_PASSWORD environment variable
+
+paths:
+  pdf_storage: C:/NEX/IMPORT/pdf
+  xml_storage: C:/NEX/IMPORT/xml
+  temp_processing: C:/NEX/IMPORT/temp
+  archive: C:/NEX/IMPORT/archive
+  error: C:/NEX/IMPORT/error
+
+nex_genesis:
+  api_url: http://localhost:8080/api
+  api_key: ''
+  timeout: 30
+  retry_attempts: 3
+  retry_delay: 5
+  root_path: C:/NEX
+  yearact_path: C:/NEX/YEARACT
+  stores_path: C:/NEX/YEARACT/STORES
+  dials_path: C:/NEX/YEARACT/DIALS
+
+email:
+  operator: operator@customer.sk
+  alert: alert@icc.sk
+  smtp_host: ''
+  smtp_port: 587
+  smtp_user: ''
+  smtp_password: ''
+  enabled: false
+
+features:
+  send_daily_summary: false
+  heartbeat_enabled: true
+  auto_approve_threshold: 1000
+  require_double_approval: true
+  double_approval_threshold: 10000
+
+logging:
+  level: INFO
+  log_dir: C:/Deployment/nex-automat/logs
+  max_bytes: 10485760
+  backup_count: 10
+
+backup:
+  backup_dir: C:/Deployment/nex-automat/backups
+  retention:
+    daily: 7
+    weekly: 30
+    monthly: 365
+  compress: true
+  encrypt_config: true
+
+processing:
+  batch_size: 10
+  interval: 60
+  max_processing_time: 300
+  max_retries: 3
+  concurrent_workers: 2
+
+monitoring:
+  enabled: true
+  metrics_interval: 60
+  health_check_enabled: true
+  health_check_port: 8000
+
+application:
+  name: NEX-Automat-Loader
+  version: 2.0.0
+  environment: production
+
+security:
+  # Generate new key: python -c "import secrets; print(secrets.token_hex(32))"
+  encryption_key: GENERATE_NEW_KEY_FOR_PRODUCTION

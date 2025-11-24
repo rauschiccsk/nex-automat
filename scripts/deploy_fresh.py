@@ -146,6 +146,47 @@ def create_directories(deploy_path: Path):
     log(f"Directories created: {', '.join(dirs)}", "OK")
 
 
+
+def copy_from_templates(deploy_path: Path):
+    """Copy configuration templates when no backup exists."""
+    log("Copying from templates (clean installation)...", "STEP")
+
+    config_dir = deploy_path / "apps" / "supplier-invoice-loader" / "config"
+
+    templates = [
+        ("config.yaml.template", "config.yaml"),
+        ("config_customer.py.template", "config_customer.py"),
+    ]
+
+    for template_name, target_name in templates:
+        template = config_dir / template_name
+        target = config_dir / target_name
+
+        if template.exists() and not target.exists():
+            shutil.copy2(template, target)
+            log(f"Created from template: {target_name}", "OK")
+        elif target.exists():
+            log(f"Already exists: {target_name}", "INFO")
+        else:
+            log(f"Template not found: {template_name}", "WARN")
+
+    # Try to find NSSM
+    nssm_dst = deploy_path / "tools" / "nssm"
+    if not nssm_dst.exists():
+        alt_nssm = Path(r"C:\Tools\nssm")
+        if alt_nssm.exists():
+            shutil.copytree(alt_nssm, nssm_dst)
+            log(f"Copied NSSM from {alt_nssm}", "OK")
+        else:
+            log("NSSM not found - install manually to tools/nssm/", "WARN")
+
+    log("", "WARN")
+    log("IMPORTANT: Edit config files before starting service!", "WARN")
+    log(f"  1. Edit: {config_dir / 'config.yaml'}", "WARN")
+    log(f"  2. Edit: {config_dir / 'config_customer.py'}", "WARN")
+    log("  3. Generate new security.encryption_key", "WARN")
+
+
 def copy_from_backup(deploy_path: Path, backup_path: Path):
     """Copy configuration files from backup."""
     log(f"Copying files from backup: {backup_path}...", "STEP")
@@ -342,7 +383,7 @@ def main():
             copy_from_backup(deploy_path, backup_path)
         else:
             log(f"No backup found at {backup_path}", "WARN")
-            log("You will need to manually copy config.yaml and config_customer.py", "WARN")
+            copy_from_templates(deploy_path)
 
         # Step 7: Service
         if not args.skip_service:
