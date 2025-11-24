@@ -122,4 +122,4 @@ pytesseract>=0.3.13  # DAY 4 - OCR support
 python-dotenv==1.0.1
 python-multipart==0.0.12
 requests>=2.31.0
-uvicorn[standard]==0.32.0
+uvicorn==0.32.0
