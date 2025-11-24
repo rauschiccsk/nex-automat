@@ -1,441 +1,217 @@
-# Init Prompt for New Chat - DAY 5 Testing Phase
+# Init Prompt for New Chat - DAY 7 Go-Live
 
 **Project:** NEX Automat v2.0 - Supplier Invoice Loader  
 **Customer:** Mágerstav s.r.o.  
-**Current Progress:** 95% (Service Recovery Complete, Ready for Testing)  
-**Last Session:** DAY 5 Service Recovery & Performance Baseline (2025-11-22)  
-**Next Phase:** DAY 5 Error Handling & Final Validation  
+**Current Progress:** 99% (Ready for Go-Live)  
+**Last Session:** DAY 5-6 Testing + Final Preparation (2025-11-24)  
+**Next Phase:** DAY 7 Go-Live (2025-11-27)  
 
 ---
 
 ## Quick Context
 
-Pokračujeme v projekte NEX Automat v2.0 - automatizované spracovanie dodávateľských faktúr pre zákazníka Mágerstav s.r.o.
+Projekt NEX Automat v2.0 - automatizované spracovanie dodávateľských faktúr pre zákazníka Mágerstav s.r.o.
 
 **Stav projektu:**
 - DAY 1-4: ✅ Complete (Migration, Backup, Service, Integration)
-- DAY 5: ✅ Service Recovery Complete → 🔜 Testing Phase
-- Target Go-Live: 2025-11-27 (4 dni zostáva)
+- DAY 5: ✅ Complete (Testing - 18/18 PASS)
+- DAY 6: ✅ Complete (Final Preparation - Documentation)
+- DAY 7: ⏳ Go-Live (2025-11-27)
 
-**Preflight Status:** 6/6 PASS 🟢 READY
+**System Status:** 🟢 READY FOR GO-LIVE
 
 ---
 
-## Last Session Achievements (2025-11-22)
+## Last Session Achievements (2025-11-24)
 
-### Critical Fixes Completed
+### DAY 5: Testing Complete
+- Error Handling Tests: 12/12 PASS
+- Performance Tests: 6/6 PASS
+- Baseline comparison: +15.9% improved
 
-1. **manage_service.py Reconstruction**
-   - Was corrupt (453 bytes) → Reconstructed (8.8 KB)
-   - Recovered from chat history
-   - All functions working: status, start, stop, restart, logs, tail
-
-2. **NSSM UTF-16LE Encoding Fix**
-   - Issue: NSSM returns UTF-16LE with `\x00` null bytes
-   - Fixed: manage_service.py + day5_preflight_check.py
-   - Solution: Decode bytes + strip null bytes
-
-3. **Performance Baseline Created**
-   - Script: create_baseline.py (no psutil dependency)
-   - Metrics: PDF processing, DB operations, system info
-   - Location: test_results/performance_baseline.json
-
-4. **Preflight Checks: 6/6 PASS**
-   - ✅ Service Status: RUNNING
-   - ✅ Database Connectivity: PostgreSQL OK
-   - ✅ Dependencies: All installed
-   - ✅ Known Issues: Documented
-   - ✅ Test Data: 18 PDFs ready
-   - ✅ Performance Baseline: Created
+### DAY 6: Final Preparation Complete
+- GO_LIVE_CHECKLIST.md - 9 sections + rollback plan
+- OPERATIONS_GUIDE.md - daily operations
+- TRAINING_GUIDE.md - 5 modules (2h training)
+- RECOVERY_PROCEDURES.md - emergency procedures
 
 ---
 
 ## Current System State
-
-### Development Environment
-```
-Location: C:\Development\nex-automat
-Status: ✅ All fixes applied, ready for Git commit
-Config: apps/supplier-invoice-loader/config/config.yaml
-Python: 3.13.7 32-bit (venv32)
-Git: Ready to commit service recovery changes
-```
 
 ### Deployment Environment
 ```
 Location: C:\Deployment\nex-automat
 Service: NEX-Automat-Loader (RUNNING) ✅
 Database: PostgreSQL localhost:5432/invoice_staging ✅
-Dependencies: All installed ✅
-Performance: Baseline created ✅
-Status: 🟢 READY for DAY 5 testing
+Tests: 18/18 PASS ✅
+Documentation: Complete ✅
 ```
 
-### Preflight Check Results
+### Test Results
 ```
-Checks: 6/6 passed
-Status: 🟢 READY
-✅ Service Status
-✅ Database Connectivity
-✅ Dependencies
-✅ Known Issues
-✅ Test Data
-✅ Performance Baseline
+Error Handling: 12/12 PASS (100%)
+Performance: 6/6 PASS (100%)
+Preflight: 6/6 PASS (100%)
 ```
 
----
-
-## Immediate Next Steps
-
-### PRIORITY 1: Git Commit (First thing!)
-
-**What to commit:**
-- Service recovery scripts (manage_service.py reconstruction)
-- UTF-16 encoding fixes (manage_service.py, day5_preflight_check.py)
-- Performance baseline (create_baseline.py)
-- Deployment updates (deploy_to_deployment.py)
-- All diagnostic/fix scripts
-
-**Git workflow:**
-```bash
-cd C:\Development\nex-automat
-git status
-git add .
-git commit -m "[your commit message]"
-git push
+### Key Metrics
 ```
-
-### PRIORITY 2: DAY 5 Error Handling Testing
-
-**Test Scenarios:**
-1. Service crash recovery
-2. Database connection failures
-3. PDF processing errors
-4. Concurrent request handling
-5. Memory leak detection
-6. Error logging validation
-
-**Expected outcomes:**
-- Service auto-restarts after crash
-- Graceful database reconnection
-- Proper error messages in logs
-- No memory leaks under load
-- Error rates within acceptable limits
-
-### PRIORITY 3: Recovery Procedures
-
-**Document and test:**
-1. Service restart procedures
-2. Backup restoration
-3. Rollback scenarios
-4. Emergency contacts
-5. Troubleshooting guides
-
----
-
-## Key Scripts & Locations
-
-### Service Management
-```
-scripts/manage_service.py (8.8 KB) - Service control + UTF-16 fix
-scripts/recreate_manage_service.py - Service reconstruction script
-```
-
-### Testing & Validation
-```
-scripts/day5_preflight_check.py (9.8 KB) - 6/6 checks
-scripts/create_baseline.py (7.3 KB) - Performance baseline
-scripts/test_preflight_in_development.py - Dev testing
-```
-
-### Deployment
-```
-scripts/deploy_to_deployment.py (4.5 KB) - Automated sync
-```
-
-### Test Data
-```
-apps/supplier-invoice-loader/tests/samples/ - 18 PDF invoices
-test_results/performance_baseline.json - Performance metrics
+PDF Processing: 1.56s avg
+Throughput: 0.52-0.57 files/sec
+Memory: 83.1 MB peak (no leak)
+DB Query: 0.42ms avg
 ```
 
 ---
 
-## Important Technical Details
+## Go-Live Checklist Summary
 
-### UTF-16LE Encoding Fix
-**Problem:** NSSM returns mixed encoding
-- Service name: ASCII
-- Status value: UTF-16LE with `\x00` null bytes
+### Pre-Go-Live (T-1)
+- [ ] Final backup created
+- [ ] Customer training delivered
+- [ ] Sign-off obtained
+- [ ] End-to-end test with real invoice
 
-**Solution in manage_service.py:**
-```python
-def decode_nssm_output(result):
-    try:
-        if isinstance(result.stdout, bytes):
-            stdout = result.stdout.decode('utf-16le').rstrip('\x00')
-        else:
-            stdout = result.stdout.replace('\x00', '')
-    except:
-        stdout = str(result.stdout).replace('\x00', '')
-    return stdout
-```
+### Go-Live Day
+- [ ] Morning preflight check
+- [ ] Enable production processing
+- [ ] First invoice verification
+- [ ] 1h stability monitoring
+- [ ] Customer handoff
 
-**Solution in day5_preflight_check.py:**
-```python
-result = subprocess.run(..., text=False)  # Get bytes
-stdout = result.stdout.decode("utf-8", errors="ignore")
-stdout = stdout.replace("\x00", "")  # Strip null bytes
-```
-
-### Performance Baseline Structure
-```json
-{
-  "timestamp": "2025-11-22T19:54:34.701284",
-  "location": "C:\\Deployment\\nex-automat",
-  "pdf_processing": {
-    "count": 5,
-    "avg_time": 2.160,
-    "min_time": 2.083,
-    "max_time": 2.248,
-    "throughput_per_second": 0.463
-  },
-  "database_operations": {
-    "connection_time": 0.XXX,
-    "simple_select_time": 0.XXX,
-    "table_query_time": 0.XXX
-  },
-  "system_info": {
-    "cpu_cores": 24,
-    "platform": "Windows",
-    "python_version": "3.13.7"
-  }
-}
-```
+### Post Go-Live
+- [ ] 24h stability check
+- [ ] Documentation delivered
+- [ ] Support handoff to customer
 
 ---
 
-## Environment Variables (CRITICAL)
+## Key Files
 
-### Required in Deployment
+### Scripts
 ```
-POSTGRES_PASSWORD - PostgreSQL authentication (MUST BE SET!)
-LS_API_KEY - API authentication
+scripts/manage_service.py - Service control
+scripts/day5_preflight_check.py - System diagnostics
+scripts/day5_error_handling_tests.py - Error tests
+scripts/day5_performance_tests.py - Performance tests
 ```
 
-### Verification
-```bash
-# In PowerShell (Deployment)
-$env:POSTGRES_PASSWORD
-$env:LS_API_KEY
+### Documentation (docs/deployment/)
+```
+RECOVERY_PROCEDURES.md - Emergency recovery
+GO_LIVE_CHECKLIST.md - Launch checklist
+OPERATIONS_GUIDE.md - Daily operations
+TRAINING_GUIDE.md - Customer training
 ```
 
 ---
 
 ## Commands Quick Reference
 
-### Service Management (Deployment only)
-```bash
+### Service Management
+```powershell
 cd C:\Deployment\nex-automat
-
-# Status
 python scripts\manage_service.py status
-
-# Control (requires Admin)
-python scripts\manage_service.py start
-python scripts\manage_service.py stop
 python scripts\manage_service.py restart
-
-# Logs
-python scripts\manage_service.py logs      # Last 50 lines
-python scripts\manage_service.py tail      # Live tail
+python scripts\manage_service.py logs
 ```
 
-### Preflight Checks
-```bash
-# Development
-cd C:\Development\nex-automat
-python scripts\test_preflight_in_development.py
-
-# Deployment
-cd C:\Deployment\nex-automat
+### Diagnostics
+```powershell
 python scripts\day5_preflight_check.py
+python scripts\day5_error_handling_tests.py
+python scripts\day5_performance_tests.py
 ```
 
-### Performance Baseline
-```bash
-# Create/Update
-python scripts\create_baseline.py
-
-# View results
-type test_results\performance_baseline.json
-```
-
-### Deployment Sync
-```bash
-# From Development
-cd C:\Development\nex-automat
-python scripts\deploy_to_deployment.py
+### Backup
+```powershell
+$d = Get-Date -Format "yyyyMMdd_HHmmss"
+pg_dump -h localhost -U postgres -d invoice_staging -f "backups\golive_$d.sql"
 ```
 
 ---
 
-## Known Limitations
+## Go-Live Day Procedure
 
-1. **Performance Baseline in Development**
-   - Database metrics show error (no PostgreSQL in Dev)
-   - Expected behavior - not a problem
-   - Full baseline only works in Deployment
+### 1. Morning (08:00)
+```powershell
+# Final backup
+$d = Get-Date -Format "yyyyMMdd_HHmmss"
+pg_dump -h localhost -U postgres -d invoice_staging -f "backups\golive_$d.sql"
 
-2. **KNOWN_ISSUES.md Outdated**
-   - Shows old critical issues (already resolved)
-   - Preflight warns but passes
-   - Needs update during DAY 5 cleanup
+# Preflight check
+python scripts\day5_preflight_check.py
+# Expected: 6/6 PASS
+```
 
-3. **Service Logs Location**
-   - Windows Service logs: Windows Event Viewer
-   - Application logs: logs/service-*.log
-   - Both locations should be monitored
+### 2. Launch (09:00)
+- Enable production invoice input
+- Monitor logs: `python scripts\manage_service.py tail`
+
+### 3. Verify (09:30)
+- Check first invoice processed
+- Verify in NEX Genesis
+- Confirm with customer
+
+### 4. Monitor (10:00-11:00)
+- Watch for errors in logs
+- Check memory usage
+- Confirm stability
+
+### 5. Handoff (11:00)
+- Deliver documentation
+- Confirm support contacts
+- Customer sign-off
 
 ---
 
-## Testing Checklist for DAY 5
+## Rollback Plan
 
-### Error Handling Tests
-- [ ] Service crash and auto-restart
-- [ ] Database connection loss and recovery
-- [ ] Invalid PDF handling
-- [ ] Missing environment variables
-- [ ] Disk space exhaustion
-- [ ] Memory pressure scenarios
-- [ ] Concurrent request overload
+**If Go-Live fails:**
 
-### Performance Tests
-- [ ] Single invoice processing time
-- [ ] Concurrent processing (5, 10, 20 invoices)
-- [ ] Memory usage under load
-- [ ] CPU usage patterns
-- [ ] Database query performance
-- [ ] API response times
+1. Stop service: `python scripts\manage_service.py stop`
+2. Restore from backup: `psql -f backups\golive_[timestamp].sql`
+3. Inform customer
+4. Analyze root cause
+5. Reschedule Go-Live
 
-### Recovery Tests
-- [ ] Service stop/start cycle
-- [ ] Database restore from backup
-- [ ] Config rollback
-- [ ] Emergency shutdown procedure
-- [ ] Data corruption recovery
+**Rollback criteria:**
+- Service won't start within 15 min
+- Critical processing errors
+- Customer requests stop
 
-### Documentation Tests
-- [ ] All procedures executable by customer
-- [ ] Troubleshooting guide accurate
-- [ ] Error messages clear and actionable
-- [ ] Monitoring setup functional
-- [ ] Backup/restore documented
+---
+
+## Contact Information
+
+**ICC Komárno:**
+- Email: podpora@icc-komarno.sk
+- Phone: +421 XXX XXX XXX
+
+**Mágerstav s.r.o.:**
+- IT Contact: [name]
+- PM Contact: [name]
 
 ---
 
 ## Success Criteria
 
-### For This Session
-1. **Git Commit Complete**
-   - All service recovery changes committed
-   - Clean git status
-   - Pushed to GitHub
+### Go-Live Day
+- [ ] Service running 1h+ without restart
+- [ ] First real invoice processed
+- [ ] Customer confirms data in NEX Genesis
+- [ ] No critical errors in logs
 
-2. **Error Handling Validated**
-   - Service recovers from crashes
-   - Database reconnection works
-   - Error logs are comprehensive
-   - No critical failure modes
-
-3. **Recovery Procedures Documented**
-   - Step-by-step guides created
-   - Tested and verified
-   - Customer-friendly format
-
-### For Go-Live (2025-11-27)
-1. Service stable for 48h continuous operation
-2. Error rate < 1% under normal load
-3. All documentation complete
-4. Customer trained and comfortable
-5. Monitoring and alerting functional
+### Go-Live +24h
+- [ ] Continuous operation
+- [ ] All invoices processed
+- [ ] Error rate < 1%
+- [ ] Customer satisfied
 
 ---
 
-## Critical Reminders
-
-### Workflow (MANDATORY)
-```
-Development → Git commit → Git push → Deploy to Deployment
-NEVER fix directly in Deployment!
-```
-
-### Before Starting Any Work
-1. Check GitHub for latest changes
-2. Load SESSION_NOTES.md for context
-3. Verify preflight: 6/6 PASS
-4. Ensure Service is RUNNING
-
-### When Problems Occur
-1. Check service logs first: `python scripts\manage_service.py logs`
-2. Verify environment variables set
-3. Check database connectivity
-4. Review KNOWN_ISSUES.md
-5. Search conversation history if needed
-
-### Communication Style
-- One solution at a time
-- Wait for confirmation before next step
-- Generate all outputs into artifacts
-- End each response with token usage
-- No alternatives unless explicitly requested
-
----
-
-## File Locations Map
-
-### Configuration
-```
-apps/supplier-invoice-loader/config/config.yaml - Main config
-```
-
-### Logs
-```
-logs/service-*.log - Application logs
-Windows Event Viewer - Service logs
-```
-
-### Data
-```
-apps/supplier-invoice-loader/tests/samples/ - Test PDFs
-test_results/performance_baseline.json - Performance data
-```
-
-### Documentation
-```
-docs/SESSION_NOTES.md - This file
-docs/deployment/ - Deployment guides
-docs/KNOWN_ISSUES.md - Issue tracking
-```
-
----
-
-## Next Steps Summary
-
-**IMMEDIATE:**
-1. Git commit all service recovery changes
-2. Start DAY 5 error handling testing
-3. Document recovery procedures
-
-**THEN:**
-1. Performance validation under load
-2. Final documentation review
-3. Customer training preparation
-4. Go-live checklist completion
-
----
-
-**Last Updated:** 2025-11-22  
-**Progress:** 95/100  
-**Status:** 🟢 READY FOR DAY 5 TESTING  
-**Target:** Complete testing + documentation by 2025-11-25
+**Last Updated:** 2025-11-24  
+**Progress:** 99/100  
+**Status:** 🟢 READY FOR GO-LIVE  
+**Target:** 2025-11-27
