@@ -312,7 +312,7 @@ def run_validation(deploy_path: Path, venv_path: Path):
     python = venv_path / "Scripts" / "python.exe"
 
     # Preflight check
-    preflight = deploy_path / "scripts" / "day5_preflight_check.py"
+    preflight = deploy_path / "scripts" / "preflight_check.py"
     if preflight.exists():
         result = run_cmd(f'"{python}" "{preflight}"', cwd=deploy_path, check=False, capture=True)
         print(result.stdout)
