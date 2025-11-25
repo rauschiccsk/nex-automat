@@ -1,192 +1,253 @@
-# Init Prompt - Go-Live Deployment
+# Init Prompt - Post Go-Live / Next Development Phase
 
 **Project:** NEX Automat v2.0 - Supplier Invoice Loader  
 **Customer:** Mágerstav s.r.o.  
-**Current Progress:** 100% (Ready for Go-Live)  
-**Last Session:** Fresh Deployment Test - SUCCESS (2025-11-24)  
-**This Session:** Go-Live Deployment @ Customer  
+**Last Session:** 2025-11-25 (Git workflow, documentation)  
+**This Session:** TBD (Go-Live or Development continuation)  
 
 ---
 
 ## Quick Context
 
-Projekt NEX Automat v2.0 - Go-Live nasadenie u zákazníka Mágerstav s.r.o.
+NEX Automat v2.0 je pripravený na produkčné nasadenie u zákazníka Mágerstav s.r.o.
 
-**Stav projektu:**
-
-- DAY 1-6: ✅ Complete
-- Dress Rehearsal: ✅ Complete
-- Fresh Deployment Test: ✅ Complete (all tests PASS)
-- This Session: Go-Live @ Customer
-- Target Date: 2025-11-27
+**Aktuálny stav:**
+- Version: 2.0.0 (tagged)
+- Status: 🟢 Ready for Production
+- Go-Live Target: 2025-11-27
+- All tests: PASS
 
 ---
 
-## Session Goal
+## Git Structure
 
-Nasadiť NEX Automat v2.0 na produkčný server zákazníka Mágerstav.
+**Branches:**
+- `main` - Production (v2.0.0 tagged, ready for deployment)
+- `develop` - Active development (uncommitted changes from last session)
+- `hotfix_v2.0` - Bugfixes for production
+
+**Workflow:**
+- New features → `develop` → `main` (at release)
+- Bugfixes → `hotfix_v2.0` → `main` + merge to `develop`
+
+**See:** `docs/GIT_GUIDE.md` for PyCharm workflow
 
 ---
 
-## Pre-Deployment Checklist
+## Pending Actions from Last Session
 
-### On Customer Server (verify before deployment)
+### Must Complete Before Go-Live
+
+1. **Commit Pending Changes**
+   ```
+   Branch: develop
+   Files: GIT_GUIDE.md, scripts (branching, shortcuts, cleanup), deployment docs
+   Message: See COMMIT_MESSAGE.txt artifact from last session
+   ```
+
+2. **Run Cleanup**
+   ```
+   scripts/cleanup_backups.ps1
+   - Removes temp fix scripts
+   - Removes backup files (*.md.backup, *.md.corrupted)
+   ```
+
+3. **Verify Desktop Shortcuts**
+   ```
+   scripts/create_desktop_shortcuts.ps1
+   Location: Desktop/NEX Automat Docs
+   ```
+
+---
+
+## Possible Session Scenarios
+
+### Scenario A: Go-Live Deployment (2025-11-27)
+
+**Follow:** `docs/deployment/DEPLOYMENT_GUIDE.md`
+
+**Key Steps:**
+1. Pre-deployment checklist (PRE_DEPLOYMENT_CHECKLIST.md)
+2. Run deploy_fresh.py at customer
+3. Configure customer settings
+4. Install Windows service
+5. Validation tests (preflight, error handling, performance)
+6. Monitor for 4+ hours
+
+**Documents needed:**
+- DEPLOYMENT_GUIDE.md
+- GO_LIVE_CHECKLIST.md
+- SERVICE_MANAGEMENT.md
+- TROUBLESHOOTING.md
+
+### Scenario B: Post Go-Live Support
+
+**Focus:**
+- Monitor production service
+- Handle any issues (see TROUBLESHOOTING.md)
+- Customer support
+- Performance optimization
+
+### Scenario C: Next Development Phase
+
+**Focus:**
+- New features in `develop` branch
+- Customer feedback implementation
+- Performance improvements
+- Additional customers
+
+---
+
+## Project Files Structure
 
 ```
-[ ] Python 3.13 32-bit installed
-[ ] Git installed
-[ ] PostgreSQL running
-[ ] Database invoice_staging exists
-[ ] NSSM at C:\Tools\nssm
-[ ] Environment variable POSTGRES_PASSWORD set
-[ ] Network access to GitHub
+C:\Development\nex-automat\
+├── docs\
+│   ├── SESSION_NOTES.md (current status)
+│   ├── GIT_GUIDE.md (PyCharm workflow)
+│   └── deployment\
+│       ├── DEPLOYMENT_GUIDE.md
+│       ├── GO_LIVE_CHECKLIST.md
+│       ├── PRE_DEPLOYMENT_CHECKLIST.md
+│       ├── SERVICE_MANAGEMENT.md
+│       └── TROUBLESHOOTING.md
+├── scripts\
+│   ├── create_branches.ps1
+│   ├── create_desktop_shortcuts.ps1
+│   ├── cleanup_backups.ps1
+│   ├── deploy_fresh.py (for customer deployment)
+│   ├── manage_service.py
+│   └── [validation scripts]
+└── apps\
+    └── supplier-invoice-loader\
 ```
 
 ---
 
-## Deployment Steps
+## Key Information
 
-### Step 1: Download and Run Deployment Script
+### Customer Details
+**Name:** Mágerstav s.r.o.  
+**Deployment Path:** C:\Deployment\nex-automat  
+**Database:** PostgreSQL - invoice_staging  
+**Service:** NEX-Automat-Loader
 
+### System Requirements
+- Windows Server 2019/2022
+- Python 3.13.0 32-bit
+- PostgreSQL 15.14+
+- NSSM 2.24
+
+### Critical Configuration
+- Environment variable: POSTGRES_PASSWORD
+- Config: apps/supplier-invoice-loader/config/config.yaml
+- Customer: MAGERSTAV
+- Storage paths: C:\NEX\IMPORT\*
+
+---
+
+## Common Commands
+
+### Git Operations
 ```powershell
-cd C:\Deployment
+# Check current branch
+git branch --show-current
 
-# Download deployment script
-Invoke-WebRequest -Uri "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/scripts/deploy_fresh.py" -OutFile "deploy_fresh.py"
+# Switch to develop
+git checkout develop
 
-# Run deployment
-python deploy_fresh.py
+# Commit changes
+git add .
+git commit -m "message"
+git push origin develop
 ```
 
-### Step 2: Configure for Customer
-
-Edit config files with customer-specific values:
-
-```powershell
-notepad C:\Deployment\nex-automat\apps\supplier-invoice-loader\config\config.yaml
-notepad C:\Deployment\nex-automat\apps\supplier-invoice-loader\config\config_customer.py
-```
-
-**Key values to update:**
-
-- `customer.name`: MAGERSTAV
-- `customer.full_name`: Mágerstav s.r.o.
-- `customer.ico`: actual IČO
-- `email.operator`: actual operator email
-- `security.encryption_key`: generate new key
-- `NEX_GENESIS_API_URL`: actual server URL
-- `OPERATOR_EMAIL`: actual email
-
-### Step 3: Generate New Encryption Key
-
+### Service Management (at customer)
 ```powershell
 cd C:\Deployment\nex-automat
-.\venv32\Scripts\Activate.ps1
-python -c "import secrets; print(secrets.token_hex(32))"
-```
-
-Copy output to `config.yaml` → `security.encryption_key`
-
-### Step 4: Restart Service
-
-```powershell
-python scripts\manage_service.py restart
-```
-
-### Step 5: Validate Deployment
-
-```powershell
-python scripts\preflight_check.py
-python scripts\error_handling_tests.py
-python scripts\performance_tests.py
-```
-
-**Expected Results:**
-
-- Preflight: 6/6 PASS
-- Error Handling: 12/12 PASS
-- Performance: 6/6 PASS
-
----
-
-## Service Management Commands
-
-```powershell
-cd C:\Deployment\nex-automat
-.\venv32\Scripts\Activate.ps1
+venv32\Scripts\activate
 
 # Status
 python scripts\manage_service.py status
 
-# Start/Stop/Restart
-python scripts\manage_service.py start
-python scripts\manage_service.py stop
-python scripts\manage_service.py restart
-
-# View logs
+# Logs
 python scripts\manage_service.py logs
+
+# Restart
+python scripts\manage_service.py restart
+```
+
+### Deployment
+```powershell
+# At customer server
+cd C:\Deployment
+python deploy_fresh.py
 ```
 
 ---
 
-## Troubleshooting
+## Testing Status
 
-### Service won't start
-
-```powershell
-# Check logs
-type logs\service-stderr.log
-
-# Verify config
-python scripts\validate_config.py
-```
-
-### Database connection failed
-
-```powershell
-# Test connection
-python scripts\test_database_connection.py
-
-# Check POSTGRES_PASSWORD
-$env:POSTGRES_PASSWORD
-```
-
-### Missing dependencies
-
-```powershell
-.\venv32\Scripts\pip.exe install -r apps\supplier-invoice-loader\requirements.txt
-```
+**Last Full Test:** 2025-11-24  
+**Results:**
+- Preflight: 6/6 PASS ✅
+- Error Handling: 12/12 PASS ✅
+- Performance: 6/6 PASS ✅
+- Fresh Deployment: SUCCESS ✅
 
 ---
 
-## Success Criteria
+## Desktop Shortcuts
 
-Deployment is successful when:
+**Location:** Desktop/NEX Automat Docs
 
-- [ ] Service status: SERVICE_RUNNING
-- [ ] Preflight: 6/6 PASS
-- [ ] Error Handling: 12/12 PASS
-- [ ] Performance: 6/6 PASS
-- [ ] Health endpoint responds: http://localhost:8000/health
+**Contents:**
+- All Markdown documentation from Development
+- Prefix "DEPLOY -" for deployment docs
+- Opens with MarkText (or VS Code if configured)
+
+**Refresh:** Run `scripts\create_desktop_shortcuts.ps1`
 
 ---
 
-## Post-Deployment
+## Next Steps Checklist
 
-After successful deployment:
+**Before starting work:**
+- [ ] Load SESSION_NOTES.md to understand current state
+- [ ] Check Git branch (should be on `develop` or `hotfix_v2.0`)
+- [ ] Review pending actions above
+- [ ] Determine session scenario (A, B, or C)
 
-1. Document any customer-specific configurations
-2. Provide customer with service management commands
-3. Schedule follow-up check (1 week)
+**If Go-Live deployment:**
+- [ ] Review DEPLOYMENT_GUIDE.md
+- [ ] Review GO_LIVE_CHECKLIST.md
+- [ ] Ensure all tools ready (USB with scripts, credentials)
+
+**If continuing development:**
+- [ ] Check for uncommitted changes
+- [ ] Review GitHub issues/backlog
+- [ ] Plan feature implementation
+
+---
+
+## Important Notes
+
+- **Always check current branch before commits**
+- **Development changes go to `develop` branch**
+- **Production bugfixes go to `hotfix_v2.0` branch**
+- **Never commit directly to `main`**
+- **Desktop shortcuts point to Development, not Deployment**
 
 ---
 
 ## Contact
 
-**ICC Support:** rausch@icc.sk  
-**Customer:** Mágerstav s.r.o.
+**Developer:** Zoltán Rausch  
+**Company:** ICC Komárno  
+**Email:** zoltan.rausch@icc.sk
 
 ---
 
-**Last Updated:** 2025-11-24  
-**Status:** 🟢 READY FOR GO-LIVE
+**Last Updated:** 2025-11-25  
+**Version:** 1.0  
+**Status:** 🟢 Ready for Go-Live

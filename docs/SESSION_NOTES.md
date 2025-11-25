@@ -1,116 +1,177 @@
 # Session Notes - NEX Automat v2.0
 
-**Date:** 2025-11-24  
-**Session:** Fresh Deployment Test (Dress Rehearsal)  
+**Date:** 2025-11-25  
 **Project:** NEX Automat v2.0 - Supplier Invoice Loader  
-**Customer:** Mágerstav s.r.o.
-
----
-
-## Session Summary
-
-Úspešne otestovaný automatizovaný deployment skript `deploy_fresh.py` pre čistú inštaláciu od nuly.
-
----
-
-## Completed Tasks
-
-### 1. Fix uvicorn[standard] Dependency
-
-- **Problem:** `uvicorn[standard]` obsahuje `httptools` ktorý vyžaduje C++ kompilátor
-- **Solution:** Zmenené na `uvicorn==0.32.0` bez [standard] extras
-- **Files:** `apps/supplier-invoice-loader/requirements.txt`
-
-### 2. Config Templates for Clean Installation
-
-- **Problem:** `deploy_fresh.py` vyžadoval backup pre config súbory
-- **Solution:** Vytvorené template súbory + funkcia `copy_from_templates()`
-- **Files created:**
-  - `apps/supplier-invoice-loader/config/config.yaml.template`
-  - `apps/supplier-invoice-loader/config/config_customer.py.template`
-- **Files updated:**
-  - `scripts/deploy_fresh.py` - pridaná `copy_from_templates()` funkcia
-
-### 3. Fresh Deployment Test - SUCCESS
-
-- Deployment od nuly pomocou jedného príkazu
-- Všetky validačné testy PASS
-
----
-
-## Test Results
-
-| Test Suite      | Result  |
-| --------------- | ------- |
-| Preflight Check | 6/6 ✅   |
-| Error Handling  | 12/12 ✅ |
-| Performance     | 6/6 ✅   |
-
----
-
-## Verified Go-Live Workflow
-
-```powershell
-# Na zákazníkovom serveri:
-cd C:\Deployment
-
-# 1. Stiahnuť deployment skript
-Invoke-WebRequest -Uri "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/scripts/deploy_fresh.py" -OutFile "deploy_fresh.py"
-
-# 2. Spustiť deployment
-python deploy_fresh.py
-
-# 3. Upraviť config súbory
-# 4. Reštart služby: python nex-automat\scripts\manage_service.py restart
-# 5. Validácia: python nex-automat\scripts\day5_preflight_check.py
-```
-
----
-
-## Prerequisites for Go-Live
-
-- [ ] Python 3.13 32-bit installed
-- [ ] Git installed  
-- [ ] NSSM v `C:\Tools\nssm`
-- [ ] PostgreSQL running
-- [ ] Database `invoice_staging` exists
-- [ ] Environment variable `POSTGRES_PASSWORD` set
+**Customer:** Mágerstav s.r.o.  
+**Session Focus:** Git workflow, documentation access, encoding fixes  
 
 ---
 
 ## Current Status
 
-```
-✅ Deployment script tested
-✅ Clean installation verified
-✅ All validation tests PASS
-✅ Ready for Go-Live: 2025-11-27
-```
+### Project Readiness: 🟢 100% - Ready for Go-Live
+
+**Go-Live Date:** 2025-11-27 (zajtra)  
+**Customer:** Mágerstav s.r.o.  
+**Version:** 2.0.0
+
+### Completed Today
+
+1. ✅ **Git Branching Strategy**
+   - Created production workflow: main/develop/hotfix_v2.0
+   - Tagged v2.0.0 for production
+   - Script: create_branches.ps1
+
+2. ✅ **Documentation Access**
+   - Created GIT_GUIDE.md with PyCharm workflow
+   - Desktop shortcuts script for all Markdown docs
+   - Automatic viewer detection (MarkText/VS Code)
+   - Shortcuts only from Development (not Deployment)
+
+3. ✅ **Deployment Documentation Fixes**
+   - Fixed encoding in all deployment docs:
+     * DEPLOYMENT_GUIDE.md
+     * PRE_DEPLOYMENT_CHECKLIST.md
+     * SERVICE_MANAGEMENT.md
+     * TROUBLESHOOTING.md
+   - Proper UTF-8 encoding
+   - Slovak characters correct (Mágerstav, Zoltán)
+
+4. ✅ **Cleanup & Maintenance**
+   - Created cleanup_backups.ps1
+   - Removes temp files and backup docs
+   - Ready for commit
+
+### Git Status
+
+**Current Branch:** develop  
+**Pending:** Commit and push today's changes  
+
+**Branches:**
+- `main` - Production (v2.0.0 tagged)
+- `develop` - Active development (current)
+- `hotfix_v2.0` - Bugfixes for v2.0.x
 
 ---
 
 ## Next Steps
 
-1. Cleanup nepotrebných opravných skriptov
-2. Go-Live u zákazníka Mágerstav (2025-11-27)
+### Immediate (Today - 2025-11-25)
+
+1. **Commit Changes to develop**
+   - All documentation fixes
+   - New scripts (branching, shortcuts, cleanup)
+   - GIT_GUIDE.md
+   - Push to GitHub
+
+2. **Run Cleanup**
+   - Execute cleanup_backups.ps1
+   - Remove temporary fix scripts
+   - Remove backup files
+
+3. **Refresh Desktop Shortcuts**
+   - Run create_desktop_shortcuts.ps1
+   - Verify all links work correctly
+
+### Tomorrow (Go-Live Day - 2025-11-27)
+
+1. **Pre-Deployment Checks**
+   - Review PRE_DEPLOYMENT_CHECKLIST.md
+   - Verify all systems operational
+   - Final backup before deployment
+
+2. **Deployment @ Customer**
+   - Follow DEPLOYMENT_GUIDE.md
+   - Use deploy_fresh.py script
+   - Configure customer-specific settings
+   - Install Windows service
+   - Run all validation tests
+
+3. **Post-Deployment**
+   - Monitor service for 4 hours
+   - Review logs continuously
+   - Customer training
+   - Document any issues
 
 ---
 
 ## Files Changed This Session
 
 ### New Files
-
-- `apps/supplier-invoice-loader/config/config.yaml.template`
-- `apps/supplier-invoice-loader/config/config_customer.py.template`
-- `scripts/fix_uvicorn_requirement.py`
-- `scripts/add_config_templates.py`
+- `docs/GIT_GUIDE.md` - Git workflow for PyCharm
+- `scripts/create_branches.ps1` - Git branching setup
+- `scripts/create_desktop_shortcuts.ps1` - Documentation shortcuts
+- `scripts/cleanup_backups.ps1` - Cleanup temp files
 
 ### Modified Files
+- `docs/deployment/DEPLOYMENT_GUIDE.md` - Fixed encoding
+- `docs/deployment/PRE_DEPLOYMENT_CHECKLIST.md` - Fixed encoding
+- `docs/deployment/SERVICE_MANAGEMENT.md` - Fixed encoding
+- `docs/deployment/TROUBLESHOOTING.md` - Fixed encoding
 
-- `apps/supplier-invoice-loader/requirements.txt`
-- `scripts/deploy_fresh.py`
+### Temporary Files (to be cleaned)
+- `scripts/create_clean_deployment_docs.py`
+- Various `*.md.backup`, `*.md.corrupted` files
 
 ---
 
-**Progress:** 100% - Ready for Go-Live  
-**Next Session:** Go-Live Deployment @ Mágerstav
+## Important Notes
+
+### Git Workflow Established
+- **New features** → `develop` branch
+- **Bugfixes** → `hotfix_v2.0` branch
+- **Production** → `main` branch (tagged releases only)
+
+### Documentation Access
+- Desktop shortcuts created in "NEX Automat Docs" folder
+- All shortcuts point to Development versions only
+- MarkText configured for Markdown viewing
+
+### Encoding Issues Resolved
+- Root cause: Files had escaped Markdown syntax
+- Solution: Created clean versions with proper UTF-8
+- All deployment docs now display correctly
+
+---
+
+## Testing Status
+
+### Last Test Results (2025-11-24)
+
+- ✅ Preflight checks: 6/6 PASS
+- ✅ Error handling: 12/12 PASS  
+- ✅ Performance tests: 6/6 PASS
+- ✅ Fresh deployment: SUCCESS
+- ✅ Service auto-restart: WORKING
+
+### Ready for Production
+
+All systems tested and operational:
+- Windows Service running stable
+- PostgreSQL integration working
+- API endpoints responding
+- Auto-restart configured
+- Logging operational
+
+---
+
+## Customer Information
+
+**Customer:** Mágerstav s.r.o.  
+**Contact:** [To be added at deployment]  
+**Server:** [To be configured at deployment]  
+**Go-Live:** 2025-11-27, 10:00 AM (estimated)
+
+---
+
+## Support Information
+
+**Developer:** Zoltán Rausch  
+**Company:** ICC Komárno  
+**Email:** zoltan.rausch@icc.sk
+
+---
+
+**Session End:** 2025-11-25  
+**Next Session:** Go-Live Deployment @ Customer  
+**Status:** 🟢 All systems ready for production deployment
