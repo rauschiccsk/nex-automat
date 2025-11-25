@@ -13,6 +13,7 @@
 Projekt NEX Automat v2.0 - Go-Live nasadenie u zákazníka Mágerstav s.r.o.
 
 **Stav projektu:**
+
 - DAY 1-6: ✅ Complete
 - Dress Rehearsal: ✅ Complete
 - Fresh Deployment Test: ✅ Complete (all tests PASS)
@@ -67,6 +68,7 @@ notepad C:\Deployment\nex-automat\apps\supplier-invoice-loader\config\config_cus
 ```
 
 **Key values to update:**
+
 - `customer.name`: MAGERSTAV
 - `customer.full_name`: Mágerstav s.r.o.
 - `customer.ico`: actual IČO
@@ -100,6 +102,7 @@ python scripts\performance_tests.py
 ```
 
 **Expected Results:**
+
 - Preflight: 6/6 PASS
 - Error Handling: 12/12 PASS
 - Performance: 6/6 PASS
@@ -129,6 +132,7 @@ python scripts\manage_service.py logs
 ## Troubleshooting
 
 ### Service won't start
+
 ```powershell
 # Check logs
 type logs\service-stderr.log
@@ -138,6 +142,7 @@ python scripts\validate_config.py
 ```
 
 ### Database connection failed
+
 ```powershell
 # Test connection
 python scripts\test_database_connection.py
@@ -147,6 +152,7 @@ $env:POSTGRES_PASSWORD
 ```
 
 ### Missing dependencies
+
 ```powershell
 .\venv32\Scripts\pip.exe install -r apps\supplier-invoice-loader\requirements.txt
 ```
@@ -156,6 +162,7 @@ $env:POSTGRES_PASSWORD
 ## Success Criteria
 
 Deployment is successful when:
+
 - [ ] Service status: SERVICE_RUNNING
 - [ ] Preflight: 6/6 PASS
 - [ ] Error Handling: 12/12 PASS
@@ -167,6 +174,7 @@ Deployment is successful when:
 ## Post-Deployment
 
 After successful deployment:
+
 1. Document any customer-specific configurations
 2. Provide customer with service management commands
 3. Schedule follow-up check (1 week)

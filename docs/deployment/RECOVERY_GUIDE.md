@@ -47,6 +47,7 @@ This guide provides step-by-step procedures for recovering the NEX Automat datab
 **Target: < 1 hour**
 
 Maximum acceptable time to restore database operations after failure:
+
 - Database restore: ~15-30 minutes (depending on size)
 - Service restart: ~5 minutes
 - Verification: ~10 minutes
@@ -57,6 +58,7 @@ Maximum acceptable time to restore database operations after failure:
 **Target: < 24 hours**
 
 Maximum acceptable data loss in time:
+
 - Daily backups at 02:00 AM
 - Maximum data loss: up to 24 hours (last backup point)
 - For critical operations: consider increasing backup frequency
@@ -68,12 +70,14 @@ Maximum acceptable data loss in time:
 ### Backup Types
 
 **1. Daily Backups**
+
 - **Schedule:** Every day at 02:00 AM
 - **Retention:** 7 days (rolling window)
 - **Location:** `backups/daily/`
 - **Format:** `backup_YYYYMMDD_HHMMSS_invoice_staging.sql.gz`
 
 **2. Weekly Backups**
+
 - **Schedule:** Every Sunday at 02:00 AM
 - **Retention:** 4 weeks (rolling window)
 - **Location:** `backups/weekly/`
@@ -100,6 +104,7 @@ python scripts\restore_database.py list
 ```
 
 **Expected Output:**
+
 ```
 Available backups (2):
 
@@ -127,11 +132,13 @@ python scripts\restore_database.py verify backups\daily\backup_20251121_020000_i
 ```
 
 **Expected Output:**
+
 ```
 ✓ Backup verified successfully (checksum OK)
 ```
 
 **If verification fails:**
+
 - Try previous backup
 - Check disk integrity
 - Contact support (see Emergency Contacts)
@@ -147,6 +154,7 @@ python scripts\restore_database.py info backups\daily\backup_20251121_020000_inv
 ```
 
 **Expected Output:**
+
 ```
 Restore Point Information:
 
@@ -171,6 +179,7 @@ python scripts\restore_database.py restore backups\daily\backup_20251121_020000_
 ```
 
 **Process:**
+
 1. Verifies backup integrity (SHA256 + gzip)
 2. Restores SQL commands to existing database
 3. Preserves existing data
@@ -202,12 +211,14 @@ python scripts\restore_database.py restore backups\daily\backup_20251121_020000_
 ```
 
 **Interactive Confirmation:**
+
 ```
 ⚠ WARNING: Existing database will be dropped!
 Continue? (yes/no): yes
 ```
 
 **Process:**
+
 1. Verifies backup integrity
 2. Drops existing database
 3. Creates new empty database
@@ -255,6 +266,7 @@ Copy-Item restored\.env .
 **Symptoms:** Specific invoices or data corrupted
 
 **Recovery:**
+
 1. Identify affected data scope
 2. Export clean data from backup
 3. Restore only affected tables
@@ -262,6 +274,7 @@ Copy-Item restored\.env .
 5. **RPO:** Last backup (max 24h)
 
 **Commands:**
+
 ```bash
 # Extract specific table from backup
 gunzip -c backups\daily\backup_20251121_020000_invoice_staging.sql.gz | findstr "invoices" > invoices_restore.sql
@@ -277,6 +290,7 @@ psql -h localhost -U postgres -d invoice_staging -f invoices_restore.sql
 **Symptoms:** Database unavailable, corrupted, or deleted
 
 **Recovery:**
+
 1. Stop all services
 2. Full database restore with --drop
 3. Verify data integrity
@@ -293,6 +307,7 @@ psql -h localhost -U postgres -d invoice_staging -f invoices_restore.sql
 **Symptoms:** Mid-transaction failure, partial data
 
 **Recovery:**
+
 1. Check current database state
 2. Identify last successful transaction
 3. Partial restore if needed
@@ -301,6 +316,7 @@ psql -h localhost -U postgres -d invoice_staging -f invoices_restore.sql
 6. **RPO:** Real-time (transaction log recovery)
 
 **Commands:**
+
 ```bash
 # Check database status
 psql -h localhost -U postgres -d invoice_staging -c "SELECT COUNT(*) FROM invoices WHERE status='processing';"
@@ -316,6 +332,7 @@ python scripts\restore_database.py restore backups\daily\backup_20251121_020000_
 **Symptoms:** Hardware unavailable, disk corruption
 
 **Recovery:**
+
 1. Install PostgreSQL on new hardware
 2. Copy backup files to new server
 3. Restore database
@@ -325,6 +342,7 @@ python scripts\restore_database.py restore backups\daily\backup_20251121_020000_
 7. **RPO:** Last backup (max 24h)
 
 **Commands:**
+
 ```bash
 # On new server
 python scripts\restore_database.py restore \\backup-server\backups\daily\backup_20251121_020000_invoice_staging.sql.gz --drop
@@ -337,6 +355,7 @@ python scripts\restore_database.py restore \\backup-server\backups\daily\backup_
 **Symptoms:** User error, deleted records
 
 **Recovery:**
+
 1. Immediately stop all writes
 2. Export deleted data from backup
 3. Restore only deleted records
@@ -344,6 +363,7 @@ python scripts\restore_database.py restore \\backup-server\backups\daily\backup_
 5. **RPO:** Last backup (max 24h)
 
 **Commands:**
+
 ```bash
 # Identify deleted records timeframe
 # Restore from backup before deletion
@@ -359,47 +379,56 @@ python scripts\restore_database.py restore backups\daily\backup_20251120_020000_
 **Before going live, test all recovery procedures:**
 
 - [ ] **Test 1: List Backups**
+  
   - Command: `python scripts\restore_database.py list`
   - Expected: List of daily and weekly backups
   - Status: ______
 
 - [ ] **Test 2: Verify Backup**
+  
   - Command: `python scripts\restore_database.py verify [backup]`
   - Expected: Checksum OK
   - Status: ______
 
 - [ ] **Test 3: Get Info**
+  
   - Command: `python scripts\restore_database.py info [backup]`
   - Expected: Detailed backup information
   - Status: ______
 
 - [ ] **Test 4: Partial Restore (Test DB)**
+  
   - Command: `python scripts\restore_database.py restore [backup]`
   - Expected: Successful restore without drop
   - Status: ______
 
 - [ ] **Test 5: Full Restore (Test DB)**
+  
   - Command: `python scripts\restore_database.py restore [backup] --drop`
   - Expected: Complete database replacement
   - Status: ______
 
 - [ ] **Test 6: Configuration Restore**
+  
   - Command: `python scripts\backup_config.py restore [...]`
   - Expected: Config files restored
   - Status: ______
 
 - [ ] **Test 7: End-to-End Recovery**
+  
   - Simulate complete failure
   - Restore from backup
   - Verify application functionality
   - Status: ______
 
 - [ ] **Test 8: RTO Validation**
+  
   - Measure actual recovery time
   - Target: < 1 hour
   - Actual: ______ minutes
 
 - [ ] **Test 9: RPO Validation**
+  
   - Verify data loss scope
   - Target: < 24 hours
   - Actual: ______ hours
@@ -411,6 +440,7 @@ python scripts\restore_database.py restore backups\daily\backup_20251120_020000_
 **Schedule:** First Monday of each month
 
 **Procedure:**
+
 1. Select random backup from previous week
 2. Restore to test environment
 3. Verify data integrity
@@ -418,6 +448,7 @@ python scripts\restore_database.py restore backups\daily\backup_20251120_020000_
 5. Update procedures if needed
 
 **Documentation Template:**
+
 ```
 Date: _______________
 Backup Used: _______________
@@ -434,11 +465,13 @@ Verified By: _______________
 **After any restore operation, verify:**
 
 1. **Database Connectivity**
+   
    ```bash
    psql -h localhost -U postgres -d invoice_staging -c "SELECT 1;"
    ```
 
 2. **Record Counts**
+   
    ```sql
    SELECT 
        'invoices' AS table_name, COUNT(*) FROM invoices
@@ -447,16 +480,19 @@ Verified By: _______________
    ```
 
 3. **Latest Data**
+   
    ```sql
    SELECT MAX(created_at) FROM invoices;
    ```
 
 4. **Application Functionality**
+   
    - Start loader service
    - Process test invoice
    - Verify in NEX Genesis
 
 5. **User Notification**
+   
    - Inform users of recovery completion
    - Document data loss scope (if any)
 
@@ -484,16 +520,19 @@ Verified By: _______________
 ### Support Levels
 
 **Level 1: Standard Support**
+
 - Response Time: 4 business hours
 - For: Backup verification, partial restores
 - Contact: Email to zoltan.rausch@icc.sk
 
 **Level 2: Priority Support**
+
 - Response Time: 1 hour
 - For: Full restore needed, data corruption
 - Contact: Phone call + Email
 
 **Level 3: Emergency Support**
+
 - Response Time: 15 minutes
 - For: Complete system failure, production down
 - Contact: Direct phone call

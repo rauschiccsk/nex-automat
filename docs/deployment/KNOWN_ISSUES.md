@@ -8,21 +8,25 @@
 ## Critical Issues Fixed During DAY 4
 
 ### 1. Missing pdfplumber (CRITICAL)
+
 - **Symptom:** ModuleNotFoundError: No module named 'pdfplumber'
 - **Fix:** pip install pdfplumber
 - **Status:** Added to requirements.txt
 
-### 2. Missing pg8000 (CRITICAL)  
+### 2. Missing pg8000 (CRITICAL)
+
 - **Symptom:** PostgreSQL staging error: pg8000 package not installed
 - **Fix:** pip install pg8000
 - **Status:** Added to requirements.txt
 
 ### 3. Missing LS_API_KEY (CRITICAL)
+
 - **Symptom:** 422 - Missing X-API-Key header
 - **Fix:** setx LS_API_KEY "your_key"
 - **Status:** Documented in DEPLOYMENT_GUIDE.md
 
 ### 4. POSTGRES_PASSWORD not set (CRITICAL)
+
 - **Symptom:** password authentication failed for user "postgres"
 - **Fix:** setx POSTGRES_PASSWORD "your_password"
 - **Status:** Documented in DEPLOYMENT_GUIDE.md

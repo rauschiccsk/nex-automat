@@ -42,9 +42,11 @@ nex-automat/
 ### Applications
 
 #### 🔹 Supplier Invoice Loader
+
 FastAPI service pre automatické spracovanie dodávateľských faktúr.
 
 **Features:**
+
 - PDF parsing a OCR
 - ISDOC XML generovanie
 - Duplikát detekcia
@@ -52,15 +54,18 @@ FastAPI service pre automatické spracovanie dodávateľských faktúr.
 - Email notifikácie
 
 **Tech Stack:**
+
 - FastAPI, Uvicorn
 - PyPDF, Pillow
 - asyncpg, aiosqlite
 - Pydantic v2
 
 #### 🔹 Supplier Invoice Editor
+
 Qt5 desktop aplikácia pre manuálnu editáciu a kontrolu faktúr.
 
 **Features:**
+
 - PostgreSQL staging browser
 - ISDOC invoice approval workflow
 - Manual data correction
@@ -68,6 +73,7 @@ Qt5 desktop aplikácia pre manuálnu editáciu a kontrolu faktúr.
 - Multi-user support
 
 **Tech Stack:**
+
 - PyQt5 (Qt5 framework)
 - asyncpg (PostgreSQL client)
 - PyYAML (configuration)
@@ -78,15 +84,18 @@ Qt5 desktop aplikácia pre manuálnu editáciu a kontrolu faktúr.
 ### Packages
 
 #### 📦 invoice-shared
+
 Zdieľané utility pre prácu s faktúrami.
 
 **Modules:**
+
 - `database/` - PostgreSQL staging client
 - `utils/` - Text processing utilities
 - `models/` - Data models
 - `schemas/` - Pydantic schemas
 
 #### 📦 nex-shared
+
 Utility pre prácu s NEX Genesis ERP (Btrieve).
 
 **Status:** Placeholder
@@ -182,14 +191,14 @@ POSTGRES_PASSWORD = "password"
 
 ### API Endpoints
 
-| Endpoint | Method | Auth | Description |
-|----------|--------|------|-------------|
-| `/` | GET | No | Service info |
-| `/health` | GET | No | Health check |
-| `/metrics` | GET | No | Metrics (JSON) |
-| `/status` | GET | Yes | Detailed status |
-| `/invoice` | POST | Yes | Process invoice |
-| `/invoices` | GET | Yes | List invoices |
+| Endpoint    | Method | Auth | Description     |
+| ----------- | ------ | ---- | --------------- |
+| `/`         | GET    | No   | Service info    |
+| `/health`   | GET    | No   | Health check    |
+| `/metrics`  | GET    | No   | Metrics (JSON)  |
+| `/status`   | GET    | Yes  | Detailed status |
+| `/invoice`  | POST   | Yes  | Process invoice |
+| `/invoices` | GET    | Yes  | List invoices   |
 
 **Authentication:** API Key in `X-API-Key` header
 
@@ -233,11 +242,13 @@ pytest --tb=no -q
 ### Test Results
 
 **supplier-invoice-loader:**
+
 - ✅ 61/72 tests passing (85% coverage)
 - ⏭️ 11 tests skipped
 - ❌ 0 tests failing
 
 **supplier-invoice-editor:**
+
 - ✅ 10/14 tests passing (71% coverage)
 - ⏭️ 4 tests skipped
 - ❌ 0 tests failing
@@ -261,6 +272,7 @@ Hierarchické JSON manifesty pre efektívne načítavanie projektu:
 - `docs/packages/*.json` - Per-package details
 
 Generate manifests:
+
 ```bash
 python generate_projects_access.py
 ```
@@ -309,6 +321,7 @@ Email → n8n → FastAPI → PDF Extraction → SQLite
 ### Technology Stack
 
 **Backend:**
+
 - Python 3.13.7 32-bit
 - FastAPI, Uvicorn
 - PyQt5 (desktop UI)
@@ -316,17 +329,20 @@ Email → n8n → FastAPI → PDF Extraction → SQLite
 - asyncpg, aiosqlite
 
 **Processing:**
+
 - PyPDF (PDF parsing)
 - Pillow (image processing)
 - PyYAML (configuration)
 - Custom extractors
 
 **Data Formats:**
+
 - ISDOC XML (Czech invoicing standard)
 - JSON (API communication)
 - PDF (input documents)
 
 **Infrastructure:**
+
 - Windows Server 2012 R2
 - NEX Genesis ERP (Btrieve)
 - PostgreSQL 14+
@@ -370,11 +386,13 @@ ALERT_EMAIL=admin@example.com
 ### Metrics Endpoints
 
 **JSON format:**
+
 ```bash
 curl http://localhost:8000/metrics
 ```
 
 **Prometheus format:**
+
 ```bash
 curl http://localhost:8000/metrics/prometheus
 ```
@@ -400,6 +418,7 @@ curl http://localhost:8000/metrics/prometheus
 
 **Problem:** Tests failing after git pull  
 **Solution:** 
+
 ```bash
 pip install -e packages/invoice-shared -e packages/nex-shared
 pip install -e apps/supplier-invoice-loader
@@ -457,6 +476,7 @@ This project is proprietary software.
 **Last Updated:** 2025-11-19
 
 **Migration Status:**
+
 - ✅ Monorepo structure
 - ✅ Shared packages
 - ✅ Testing infrastructure

@@ -16,11 +16,13 @@
 ## Completed Tasks
 
 ### 1. Fix uvicorn[standard] Dependency
+
 - **Problem:** `uvicorn[standard]` obsahuje `httptools` ktorý vyžaduje C++ kompilátor
 - **Solution:** Zmenené na `uvicorn==0.32.0` bez [standard] extras
 - **Files:** `apps/supplier-invoice-loader/requirements.txt`
 
 ### 2. Config Templates for Clean Installation
+
 - **Problem:** `deploy_fresh.py` vyžadoval backup pre config súbory
 - **Solution:** Vytvorené template súbory + funkcia `copy_from_templates()`
 - **Files created:**
@@ -30,6 +32,7 @@
   - `scripts/deploy_fresh.py` - pridaná `copy_from_templates()` funkcia
 
 ### 3. Fresh Deployment Test - SUCCESS
+
 - Deployment od nuly pomocou jedného príkazu
 - Všetky validačné testy PASS
 
@@ -37,11 +40,11 @@
 
 ## Test Results
 
-| Test Suite | Result |
-|------------|--------|
-| Preflight Check | 6/6 ✅ |
-| Error Handling | 12/12 ✅ |
-| Performance | 6/6 ✅ |
+| Test Suite      | Result  |
+| --------------- | ------- |
+| Preflight Check | 6/6 ✅   |
+| Error Handling  | 12/12 ✅ |
+| Performance     | 6/6 ✅   |
 
 ---
 
@@ -96,12 +99,14 @@ python deploy_fresh.py
 ## Files Changed This Session
 
 ### New Files
+
 - `apps/supplier-invoice-loader/config/config.yaml.template`
 - `apps/supplier-invoice-loader/config/config_customer.py.template`
 - `scripts/fix_uvicorn_requirement.py`
 - `scripts/add_config_templates.py`
 
 ### Modified Files
+
 - `apps/supplier-invoice-loader/requirements.txt`
 - `scripts/deploy_fresh.py`
 

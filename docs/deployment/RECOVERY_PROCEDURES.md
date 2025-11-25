@@ -42,12 +42,12 @@ python scripts\day5_preflight_check.py
 
 ### Dôležité súbory
 
-| Súbor | Účel |
-|-------|------|
-| `config/config.yaml` | Hlavná konfigurácia |
-| `logs/service-*.log` | Aplikačné logy |
-| `backups/` | Zálohy databázy |
-| `scripts/manage_service.py` | Správa služby |
+| Súbor                       | Účel                |
+| --------------------------- | ------------------- |
+| `config/config.yaml`        | Hlavná konfigurácia |
+| `logs/service-*.log`        | Aplikačné logy      |
+| `backups/`                  | Zálohy databázy     |
+| `scripts/manage_service.py` | Správa služby       |
 
 ---
 
@@ -58,6 +58,7 @@ python scripts\day5_preflight_check.py
 **Kedy použiť:** Služba nereaguje, pomalé spracovanie, po zmene konfigurácie
 
 **Postup:**
+
 1. Otvorte PowerShell ako Administrátor
 2. Spustite príkazy:
 
@@ -67,9 +68,10 @@ python scripts\manage_service.py restart
 ```
 
 3. Overte stav:
-```powershell
-python scripts\manage_service.py status
-```
+   
+   ```powershell
+   python scripts\manage_service.py status
+   ```
 
 **Očakávaný výstup:** `SERVICE_RUNNING`
 
@@ -109,6 +111,7 @@ C:\Tools\nssm\win64\nssm.exe start NEX-Automat-Loader
 ### 3.1 Automatické zálohy
 
 Systém vytvára automatické zálohy:
+
 - **Umiestnenie:** `C:\Deployment\nex-automat\backups\`
 - **Frekvencia:** Denne o 02:00
 - **Retencia:** 7 dní
@@ -134,31 +137,36 @@ Write-Host "Záloha vytvorená: $backupFile"
 **Postup:**
 
 1. **Zastavte službu:**
-```powershell
-cd C:\Deployment\nex-automat
-python scripts\manage_service.py stop
-```
+   
+   ```powershell
+   cd C:\Deployment\nex-automat
+   python scripts\manage_service.py stop
+   ```
 
 2. **Vyberte zálohu:**
-```powershell
-dir backups\*.sql
-```
+   
+   ```powershell
+   dir backups\*.sql
+   ```
 
 3. **Obnovte databázu:**
-```powershell
-# Nahraďte FILENAME názvom zálohy
-psql -h localhost -U postgres -d invoice_staging -f backups\FILENAME.sql
-```
+   
+   ```powershell
+   # Nahraďte FILENAME názvom zálohy
+   psql -h localhost -U postgres -d invoice_staging -f backups\FILENAME.sql
+   ```
 
 4. **Spustite službu:**
-```powershell
-python scripts\manage_service.py start
-```
+   
+   ```powershell
+   python scripts\manage_service.py start
+   ```
 
 5. **Overte funkčnosť:**
-```powershell
-python scripts\day5_preflight_check.py
-```
+   
+   ```powershell
+   python scripts\day5_preflight_check.py
+   ```
 
 ### 3.4 Obnova jednej tabuľky
 
@@ -222,6 +230,7 @@ dir migrations\
 ### 5.1 Služba spadla a nereštartuje sa
 
 **Diagnostika:**
+
 ```powershell
 cd C:\Deployment\nex-automat
 
@@ -234,22 +243,24 @@ python scripts\day5_preflight_check.py
 
 **Možné príčiny a riešenia:**
 
-| Príčina | Riešenie |
-|---------|----------|
-| Chýba POSTGRES_PASSWORD | Nastavte environment variable |
-| Databáza nedostupná | Reštartujte PostgreSQL |
-| Port obsadený | Nájdite a ukončite konfliktný proces |
-| Poškodená konfigurácia | Rollback konfigurácie |
+| Príčina                 | Riešenie                             |
+| ----------------------- | ------------------------------------ |
+| Chýba POSTGRES_PASSWORD | Nastavte environment variable        |
+| Databáza nedostupná     | Reštartujte PostgreSQL               |
+| Port obsadený           | Nájdite a ukončite konfliktný proces |
+| Poškodená konfigurácia  | Rollback konfigurácie                |
 
 ### 5.2 Databáza nedostupná
 
 **Diagnostika:**
+
 ```powershell
 # Test pripojenia
 psql -h localhost -U postgres -d invoice_staging -c "SELECT 1"
 ```
 
 **Riešenie:**
+
 ```powershell
 # Reštart PostgreSQL služby
 net stop postgresql-x64-16
@@ -259,11 +270,13 @@ net start postgresql-x64-16
 ### 5.3 Disk plný
 
 **Diagnostika:**
+
 ```powershell
 Get-PSDrive C | Select-Object Used, Free
 ```
 
 **Riešenie:**
+
 1. Vymažte staré logy: `del logs\service-*.log` (okrem posledného)
 2. Vymažte staré zálohy: `del backups\*.sql` (okrem posledných 3)
 3. Vyprázdnite Temp: `del $env:TEMP\* -Recurse`
@@ -271,11 +284,13 @@ Get-PSDrive C | Select-Object Used, Free
 ### 5.4 Vysoké využitie pamäte
 
 **Diagnostika:**
+
 ```powershell
 Get-Process python | Select-Object Name, WorkingSet64
 ```
 
 **Riešenie:**
+
 ```powershell
 python scripts\manage_service.py restart
 ```
@@ -309,19 +324,20 @@ python scripts\day5_preflight_check.py
 
 ### 6.1 Chybové hlásenia a riešenia
 
-| Chyba | Príčina | Riešenie |
-|-------|---------|----------|
-| `Connection refused` | DB nebeží | Reštart PostgreSQL |
-| `Authentication failed` | Zlé heslo | Overte POSTGRES_PASSWORD |
-| `Service not found` | NSSM problém | Preinštalujte službu |
-| `Permission denied` | Práva | Spustite ako Admin |
-| `Port in use` | Konflikt | Nájdite proces na porte |
-| `Out of memory` | RAM | Reštart služby |
-| `PDF processing error` | Poškodený PDF | Skontrolujte vstupný súbor |
+| Chyba                   | Príčina       | Riešenie                   |
+| ----------------------- | ------------- | -------------------------- |
+| `Connection refused`    | DB nebeží     | Reštart PostgreSQL         |
+| `Authentication failed` | Zlé heslo     | Overte POSTGRES_PASSWORD   |
+| `Service not found`     | NSSM problém  | Preinštalujte službu       |
+| `Permission denied`     | Práva         | Spustite ako Admin         |
+| `Port in use`           | Konflikt      | Nájdite proces na porte    |
+| `Out of memory`         | RAM           | Reštart služby             |
+| `PDF processing error`  | Poškodený PDF | Skontrolujte vstupný súbor |
 
 ### 6.2 Kontrola logov
 
 **Aplikačné logy:**
+
 ```powershell
 # Posledných 50 riadkov
 python scripts\manage_service.py logs
@@ -331,6 +347,7 @@ python scripts\manage_service.py tail
 ```
 
 **Windows Event Log:**
+
 1. Otvorte Event Viewer (`eventvwr.msc`)
 2. Windows Logs → Application
 3. Filtrujte podľa "NEX-Automat"
@@ -348,18 +365,21 @@ python scripts\day5_error_handling_tests.py
 ### 6.4 Časté problémy
 
 **Problém: Faktúry sa nespracovávajú**
+
 1. Skontrolujte či služba beží
 2. Skontrolujte vstupný priečinok
 3. Pozrite logy pre chyby
 4. Overte formát PDF súborov
 
 **Problém: Pomalé spracovanie**
+
 1. Skontrolujte využitie CPU/RAM
 2. Skontrolujte dostupný disk
 3. Reštartujte službu
 4. Kontaktujte podporu ak pretrváva
 
 **Problém: Chýbajúce dáta v databáze**
+
 1. Skontrolujte logy pre chyby
 2. Overte že PDF bolo správne spracované
 3. Obnovte zo zálohy ak potrebné
@@ -372,19 +392,19 @@ python scripts\day5_error_handling_tests.py
 
 **ICC Komárno - Innovation & Consulting Center**
 
-| Kontakt | Informácie |
-|---------|------------|
-| Email | podpora@icc-komarno.sk |
-| Telefón | +421 XXX XXX XXX |
-| Pracovná doba | Po-Pi 8:00-16:00 |
+| Kontakt       | Informácie             |
+| ------------- | ---------------------- |
+| Email         | podpora@icc-komarno.sk |
+| Telefón       | +421 XXX XXX XXX       |
+| Pracovná doba | Po-Pi 8:00-16:00       |
 
 ### Eskalácia
 
-| Úroveň | Situácia | Kontakt |
-|--------|----------|---------|
-| L1 | Bežné problémy | Email |
-| L2 | Služba nefunguje | Telefón |
-| L3 | Strata dát | Telefón + Email |
+| Úroveň | Situácia         | Kontakt         |
+| ------ | ---------------- | --------------- |
+| L1     | Bežné problémy   | Email           |
+| L2     | Služba nefunguje | Telefón         |
+| L3     | Strata dát       | Telefón + Email |
 
 ### Pred kontaktovaním podpory pripravte:
 

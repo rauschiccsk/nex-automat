@@ -1,976 +1,456 @@
-\# Service Management Guide - NEX Automat
+# Service Management Guide - NEX Automat
 
+Complete guide for managing the NEX Automat Windows Service.
 
-
-\*\*Service Name:\*\* NEX-Automat-Loader  
-
-\*\*Display Name:\*\* NEX Automat - Supplier Invoice Loader  
-
-\*\*Location:\*\* C:\\Deployment\\nex-automat
-
-
+**Service Name:** NEX-Automat-Loader  
+**Display Name:** NEX Automat - Supplier Invoice Loader  
+**Version:** 2.0.0
 
 ---
 
+## Quick Reference
 
-
-\## Quick Reference
-
-
-
-\### Basic Commands
-
-
+### Common Commands
 
 ```powershell
+# Status
+python scripts\manage_service.py status
 
-\# Navigate to deployment directory
+# Start
+python scripts\manage_service.py start
 
-cd C:\\Deployment\\nex-automat
+# Stop
+python scripts\manage_service.py stop
 
-venv32\\Scripts\\activate
+# Restart
+python scripts\manage_service.py restart
 
+# View logs
+python scripts\manage_service.py logs
 
-
-\# Check status
-
-python scripts\\manage\_service.py status
-
-
-
-\# Start service (requires Administrator)
-
-python scripts\\manage\_service.py start
-
-
-
-\# Stop service (requires Administrator)
-
-python scripts\\manage\_service.py stop
-
-
-
-\# Restart service (requires Administrator)
-
-python scripts\\manage\_service.py restart
-
-
-
-\# View logs
-
-python scripts\\manage\_service.py logs
-
-
-
-\# Monitor logs in real-time
-
-python scripts\\manage\_service.py tail
-
+# Tail logs (follow)
+python scripts\manage_service.py tail
 ```
-
-
-
-\### Direct NSSM Commands
-
-
-
-```powershell
-
-\# Using NSSM directly (requires Administrator)
-
-C:\\Deployment\\nex-automat\\tools\\nssm\\win32\\nssm.exe status NEX-Automat-Loader
-
-C:\\Deployment\\nex-automat\\tools\\nssm\\win32\\nssm.exe start NEX-Automat-Loader
-
-C:\\Deployment\\nex-automat\\tools\\nssm\\win32\\nssm.exe stop NEX-Automat-Loader
-
-C:\\Deployment\\nex-automat\\tools\\nssm\\win32\\nssm.exe restart NEX-Automat-Loader
-
-```
-
-
 
 ---
 
+## Service Management
 
+### Starting the Service
 
-\## Service Operations
-
-
-
-\### Starting the Service
-
-
-
-\*\*Prerequisites:\*\*
-
-\- PostgreSQL must be running
-
-\- POSTGRES\_PASSWORD environment variable set
-
-\- All storage directories exist
-
-
-
-\*\*Method 1: Using manage\_service.py\*\*
+**Using management script:**
 
 ```powershell
-
-cd C:\\Deployment\\nex-automat
-
-venv32\\Scripts\\activate
-
-python scripts\\manage\_service.py start
-
+cd C:\Deployment\nex-automat
+venv32\Scripts\activate
+python scripts\manage_service.py start
 ```
 
-
-
-\*\*Method 2: Using NSSM directly\*\*
+**Using NSSM directly:**
 
 ```powershell
-
-C:\\Deployment\\nex-automat\\tools\\nssm\\win32\\nssm.exe start NEX-Automat-Loader
-
+C:\Deployment\nex-automat\tools\nssm\win32\nssm.exe start NEX-Automat-Loader
 ```
 
+**Using Windows Services:**
 
+1. Open Services (services.msc)
+2. Find "NEX Automat - Supplier Invoice Loader"
+3. Right-click → Start
 
-\*\*Method 3: Using Windows Services\*\*
+**Expected Result:**
 
-1\. Open Services (services.msc)
-
-2\. Find "NEX Automat - Supplier Invoice Loader"
-
-3\. Right-click → Start
-
-
-
-\*\*Expected Output:\*\*
-
-```
-
-Starting service 'NEX-Automat-Loader'...
-
-✅ Service started successfully
-
-&nbsp;  Status: SERVICE\_RUNNING
-
-```
-
-
-
-\*\*Verification:\*\*
-
-```powershell
-
-\# Check API is responding
-
-Invoke-WebRequest -Uri http://localhost:8000/health
-
-
-
-\# Should return: {"status":"healthy","timestamp":"..."}
-
-```
-
-
+- Service status: RUNNING
+- API accessible at http://localhost:8000/health
+- Logs being written to logs\service-stdout.log
 
 ---
 
+### Stopping the Service
 
-
-\### Stopping the Service
-
-
-
-\*\*⚠️ IMPORTANT:\*\* Stop the service gracefully before:
-
-\- Updating the application
-
-\- Modifying configuration
-
-\- Database maintenance
-
-\- Server maintenance
-
-
-
-\*\*Method 1: Using manage\_service.py\*\*
+**Using management script:**
 
 ```powershell
-
-python scripts\\manage\_service.py stop
-
+python scripts\manage_service.py stop
 ```
 
-
-
-\*\*Method 2: Using NSSM directly\*\*
+**Using NSSM directly:**
 
 ```powershell
-
-C:\\Deployment\\nex-automat\\tools\\nssm\\win32\\nssm.exe stop NEX-Automat-Loader
-
+C:\Deployment\nex-automat\tools\nssm\win32\nssm.exe stop NEX-Automat-Loader
 ```
 
+**Using Windows Services:**
 
+1. Open Services (services.msc)
+2. Find "NEX Automat - Supplier Invoice Loader"
+3. Right-click → Stop
 
-\*\*Expected Output:\*\*
-
-```
-
-Stopping service 'NEX-Automat-Loader'...
-
-✅ Service stopped successfully
-
-&nbsp;  Status: SERVICE\_STOPPED
-
-```
-
-
+**Wait Time:** Service may take 5-10 seconds to stop gracefully.
 
 ---
 
+### Restarting the Service
 
-
-\### Restarting the Service
-
-
-
-\*\*When to restart:\*\*
-
-\- After configuration changes
-
-\- After code updates
-
-\- To clear memory/connections
-
-\- As part of troubleshooting
-
-
-
-\*\*Command:\*\*
+**Using management script:**
 
 ```powershell
-
-python scripts\\manage\_service.py restart
-
+python scripts\manage_service.py restart
 ```
 
-
-
-\*\*What happens:\*\*
-
-1\. Service stops gracefully
-
-2\. Wait 2 seconds
-
-3\. Service starts
-
-4\. Status verification
-
-
-
----
-
-
-
-\### Checking Service Status
-
-
-
-\*\*Quick status check:\*\*
+**Manual restart:**
 
 ```powershell
-
-python scripts\\manage\_service.py status
-
-```
-
-
-
-\*\*Possible statuses:\*\*
-
-\- 🟢 \*\*SERVICE\_RUNNING\*\* - Service is running normally
-
-\- 🔴 \*\*SERVICE\_STOPPED\*\* - Service is stopped
-
-\- 🟡 \*\*SERVICE\_PAUSED\*\* - Service is paused (unusual)
-
-\- ⚠️ \*\*ERROR\*\* - Service error occurred
-
-
-
-\*\*Detailed status:\*\*
-
-```powershell
-
-\# Using NSSM
-
-C:\\Deployment\\nex-automat\\tools\\nssm\\win32\\nssm.exe status NEX-Automat-Loader
-
-
-
-\# Check process
-
-Get-Process python\* | Where-Object {$\_.Path -like "\*nex-automat\*"}
-
-
-
-\# Check port binding
-
-netstat -ano | findstr :8000
-
-```
-
-
-
----
-
-
-
-\## Log Management
-
-
-
-\### Viewing Logs
-
-
-
-\*\*Recent logs (last 50 lines):\*\*
-
-```powershell
-
-python scripts\\manage\_service.py logs
-
-```
-
-
-
-\*\*Real-time monitoring:\*\*
-
-```powershell
-
-python scripts\\manage\_service.py tail
-
-\# Press Ctrl+C to exit
-
-```
-
-
-
-\*\*View specific log file:\*\*
-
-```powershell
-
-\# Standard output
-
-type logs\\service-stdout.log
-
-
-
-\# Standard error
-
-type logs\\service-stderr.log
-
-
-
-\# Last 100 lines
-
-Get-Content logs\\service-stdout.log -Tail 100
-
-```
-
-
-
-\### Log Files
-
-
-
-\*\*Location:\*\* `C:\\Deployment\\nex-automat\\logs\\`
-
-
-
-\*\*Files:\*\*
-
-\- `service-stdout.log` - Application output
-
-\- `service-stderr.log` - Errors and warnings
-
-\- `app-YYYY-MM-DD.log` - Daily application logs (if configured)
-
-
-
-\### Log Rotation
-
-
-
-\*\*Configuration:\*\*
-
-\- \*\*Rotation:\*\* Daily
-
-\- \*\*Max size:\*\* 10 MB per file
-
-\- \*\*Retention:\*\* Automatic (NSSM manages)
-
-
-
-\*\*Manual rotation:\*\*
-
-```powershell
-
-\# Trigger log rotation
-
-C:\\Deployment\\nex-automat\\tools\\nssm\\win32\\nssm.exe rotate NEX-Automat-Loader
-
-```
-
-
-
----
-
-
-
-\## Configuration Management
-
-
-
-\### Viewing Current Configuration
-
-
-
-```powershell
-
-\# Application config
-
-type apps\\supplier-invoice-loader\\config\\config.yaml
-
-
-
-\# Service config (all parameters)
-
-C:\\Deployment\\nex-automat\\tools\\nssm\\win32\\nssm.exe dump NEX-Automat-Loader
-
-```
-
-
-
-\### Modifying Configuration
-
-
-
-\*\*⚠️ IMPORTANT:\*\* Always stop service before config changes!
-
-
-
-```powershell
-
-\# 1. Stop service
-
-python scripts\\manage\_service.py stop
-
-
-
-\# 2. Edit configuration
-
-notepad apps\\supplier-invoice-loader\\config\\config.yaml
-
-
-
-\# 3. Validate configuration
-
-python scripts\\validate\_config.py
-
-
-
-\# 4. Start service
-
-python scripts\\manage\_service.py start
-
-```
-
-
-
-\### Service Parameters
-
-
-
-\*\*View parameter:\*\*
-
-```powershell
-
-C:\\Deployment\\nex-automat\\tools\\nssm\\win32\\nssm.exe get NEX-Automat-Loader <parameter>
-
-```
-
-
-
-\*\*Set parameter:\*\*
-
-```powershell
-
-C:\\Deployment\\nex-automat\\tools\\nssm\\win32\\nssm.exe set NEX-Automat-Loader <parameter> <value>
-
-```
-
-
-
-\*\*Common parameters:\*\*
-
-\- `AppDirectory` - Working directory
-
-\- `AppRestartDelay` - Restart delay (milliseconds)
-
-\- `AppStdout` - stdout log path
-
-\- `AppStderr` - stderr log path
-
-\- `Start` - Startup type
-
-
-
----
-
-
-
-\## Auto-Restart Configuration
-
-
-
-\*\*Current settings:\*\*
-
-\- \*\*Restart on failure:\*\* YES
-
-\- \*\*Restart delay:\*\* 0 seconds (immediate)
-
-\- \*\*Exit code:\*\* Any (Default)
-
-
-
-\*\*Verify auto-restart:\*\*
-
-```powershell
-
-C:\\Deployment\\nex-automat\\tools\\nssm\\win32\\nssm.exe get NEX-Automat-Loader AppExit Default
-
-\# Should return: Restart
-
-
-
-C:\\Deployment\\nex-automat\\tools\\nssm\\win32\\nssm.exe get NEX-Automat-Loader AppRestartDelay
-
-\# Should return: 0
-
-```
-
-
-
-\*\*Test auto-restart:\*\*
-
-```powershell
-
-\# 1. Get current PID
-
-netstat -ano | findstr :8000
-
-
-
-\# 2. Kill process
-
-taskkill /F /PID <PID>
-
-
-
-\# 3. Wait 5 seconds
-
+python scripts\manage_service.py stop
 Start-Sleep -Seconds 5
+python scripts\manage_service.py start
+```
 
+**When to Restart:**
 
+- After configuration changes
+- After code updates
+- When service is unresponsive
+- During troubleshooting
 
-\# 4. Verify service restarted
+---
 
-python scripts\\manage\_service.py status
+### Checking Service Status
 
+**Detailed status:**
+
+```powershell
+python scripts\manage_service.py status
+```
+
+**Output includes:**
+
+- Service state (RUNNING, STOPPED, etc.)
+- Process ID (PID)
+- Uptime
+- Memory usage
+- API health check result
+
+**Quick check:**
+
+```powershell
+# Check if running
+Get-Service "NEX-Automat-Loader" | Select-Object Status
+
+# Test API
 Invoke-WebRequest -Uri http://localhost:8000/health
-
 ```
-
-
 
 ---
 
+## Log Management
 
+### Viewing Logs
 
-\## Troubleshooting
-
-
-
-\### Service Won't Start
-
-
-
-\*\*Check:\*\*
-
-1\. PostgreSQL is running
-
-2\. POSTGRES\_PASSWORD environment variable set
-
-3\. Port 8000 is not in use
-
-4\. All storage directories exist
-
-5\. Config file is valid
-
-
-
-\*\*Commands:\*\*
+**Recent logs (last 50 lines):**
 
 ```powershell
-
-\# Check PostgreSQL
-
-Get-Service postgresql\*
-
-
-
-\# Check port
-
-netstat -ano | findstr :8000
-
-
-
-\# Validate config
-
-python scripts\\validate\_config.py
-
-
-
-\# Check logs
-
-type logs\\service-stderr.log
-
+python scripts\manage_service.py logs
 ```
 
-
-
-\### Service Crashes Repeatedly
-
-
-
-\*\*Steps:\*\*
-
-1\. Check stderr log for errors
-
-2\. Test application manually
-
-3\. Verify database connection
-
-4\. Check disk space
-
-5\. Review recent changes
-
-
+**Specific number of lines:**
 
 ```powershell
-
-\# Test manual run
-
-cd C:\\Deployment\\nex-automat\\apps\\supplier-invoice-loader
-
-..\\..\\venv32\\Scripts\\python.exe main.py
-
+python scripts\manage_service.py logs --lines 100
 ```
 
-
-
-\### High Memory Usage
-
-
-
-\*\*Monitor:\*\*
+**Follow logs (tail -f):**
 
 ```powershell
-
-\# Check process memory
-
-Get-Process python\* | Where-Object {$\_.Path -like "\*nex-automat\*"} | Select-Object Name,Id,PM,WS
-
-
-
-\# Monitor over time
-
-while ($true) {
-
-&nbsp;   Get-Process python\* | Where-Object {$\_.Path -like "\*nex-automat\*"} | Select-Object Name,Id,PM,WS
-
-&nbsp;   Start-Sleep -Seconds 5
-
-}
-
+python scripts\manage_service.py tail
 ```
 
+**Direct log access:**
 
+```powershell
+# Service output
+Get-Content logs\service-stdout.log -Tail 50
 
-\*\*If memory leak suspected:\*\*
+# Service errors
+Get-Content logs\service-stderr.log -Tail 50
 
-1\. Schedule regular service restarts
+# Follow live
+Get-Content logs\service-stdout.log -Wait
+```
 
-2\. Review code for memory leaks
+### Log Files
 
-3\. Monitor database connection pool
+| File                    | Purpose                 | Rotation    |
+| ----------------------- | ----------------------- | ----------- |
+| logs\service-stdout.log | Service standard output | 10MB, daily |
+| logs\service-stderr.log | Service errors          | 10MB, daily |
+| logs\app-*.log          | Application logs        | Daily       |
 
+### Log Rotation
 
+Logs are automatically rotated:
+
+- **Size-based:** When file reaches 10MB
+- **Time-based:** Daily at midnight
+- **Retention:** 30 days of logs kept
+
+**Manual cleanup:**
+
+```powershell
+# Remove old logs (older than 30 days)
+Get-ChildItem logs\* -Include *.log | Where-Object {$_.LastWriteTime -lt (Get-Date).AddDays(-30)} | Remove-Item
+```
 
 ---
 
+## Troubleshooting
 
+### Service Won't Start
 
-\## Maintenance Procedures
-
-
-
-\### Regular Maintenance
-
-
-
-\*\*Daily:\*\*
-
-\- Check service status
-
-\- Review error logs
-
-\- Verify API health
-
-
-
-\*\*Weekly:\*\*
-
-\- Review all logs
-
-\- Check disk space
-
-\- Verify backup processes
-
-
-
-\*\*Monthly:\*\*
-
-\- Clean old log files
-
-\- Review configuration
-
-\- Test recovery procedures
-
-
-
-\### Service Updates
-
-
-
-\*\*Update procedure:\*\*
+**Check logs first:**
 
 ```powershell
+python scripts\manage_service.py logs
+Get-Content logs\service-stderr.log -Tail 20
+```
 
-\# 1. Stop service
+**Common causes:**
 
-python scripts\\manage\_service.py stop
+1. **Port 8000 already in use**
+   
+   ```powershell
+   netstat -ano | findstr :8000
+   ```
 
+2. **Database connection failed**
+   
+   ```powershell
+   python scripts\test_database_connection.py
+   ```
 
+3. **Configuration error**
+   
+   ```powershell
+   python scripts\validate_config.py
+   ```
 
-\# 2. Backup current version
+4. **Missing dependencies**
+   
+   ```powershell
+   venv32\Scripts\pip list
+   ```
 
-Copy-Item -Recurse apps\\supplier-invoice-loader apps\\supplier-invoice-loader.backup
+**Resolution:**
 
+```powershell
+# Fix the issue, then restart
+python scripts\manage_service.py start
+```
 
+---
 
-\# 3. Deploy new version
+### Service Crashes/Stops Unexpectedly
 
-\# (copy new files)
+**Check crash logs:**
 
+```powershell
+Get-Content logs\service-stderr.log -Tail 100
+```
 
+**Auto-restart configuration:**
+Service is configured to restart automatically on failure with 0-second delay.
 
-\# 4. Test configuration
+**Verify auto-restart:**
 
-python scripts\\validate\_config.py
+```powershell
+C:\Deployment\nex-automat\tools\nssm\win32\nssm.exe get NEX-Automat-Loader AppRestartDelay
+# Should show: 0
+```
 
+**If auto-restart not working:**
 
+```powershell
+C:\Deployment\nex-automat\tools\nssm\win32\nssm.exe set NEX-Automat-Loader AppRestartDelay 0
+```
 
-\# 5. Start service
+---
 
-python scripts\\manage\_service.py start
+### High Memory Usage
 
+**Check memory:**
 
+```powershell
+python scripts\manage_service.py status
+```
 
-\# 6. Verify
+**Normal memory usage:** 100-200 MB
 
-python scripts\\manage\_service.py logs
+**If memory usage high (>500 MB):**
 
+1. Review recent logs for errors
+2. Check for memory leaks
+3. Restart service:
+   
+   ```powershell
+   python scripts\manage_service.py restart
+   ```
+
+---
+
+### API Not Responding
+
+**Test API:**
+
+```powershell
 Invoke-WebRequest -Uri http://localhost:8000/health
-
 ```
 
+**If no response:**
 
+1. Check if service running:
+   
+   ```powershell
+   python scripts\manage_service.py status
+   ```
+
+2. Check if port 8000 listening:
+   
+   ```powershell
+   netstat -ano | findstr :8000
+   ```
+
+3. Check firewall rules (if applicable)
+
+4. Restart service:
+   
+   ```powershell
+   python scripts\manage_service.py restart
+   ```
 
 ---
 
+## Maintenance Tasks
 
+### Weekly
 
-\## Emergency Procedures
+- [ ] Review logs for errors
+- [ ] Check service uptime
+- [ ] Verify API health
+- [ ] Check disk space
 
-
-
-\### Complete Service Reset
-
-
-
-```powershell
-
-\# 1. Stop and remove service
-
-C:\\Deployment\\nex-automat\\tools\\nssm\\win32\\nssm.exe stop NEX-Automat-Loader
-
-C:\\Deployment\\nex-automat\\tools\\nssm\\win32\\nssm.exe remove NEX-Automat-Loader confirm
-
-
-
-\# 2. Recreate service
-
-python scripts\\create\_windows\_service.py
-
-
-
-\# 3. Start service
-
-python scripts\\manage\_service.py start
-
-```
-
-
-
-\### Service Won't Stop
-
-
+**Commands:**
 
 ```powershell
-
-\# Force stop via NSSM
-
-C:\\Deployment\\nex-automat\\tools\\nssm\\win32\\nssm.exe stop NEX-Automat-Loader
-
-
-
-\# If still running, force kill process
-
-Get-Process python\* | Where-Object {$\_.Path -like "\*nex-automat\*"} | Stop-Process -Force
-
+python scripts\manage_service.py status
+python scripts\manage_service.py logs | Select-String "ERROR"
+Get-PSDrive C | Select-Object Used,Free
 ```
 
+### Monthly
 
+- [ ] Review performance metrics
+- [ ] Check log rotation
+- [ ] Verify backups
+- [ ] Update documentation if needed
 
 ---
 
+## Performance Monitoring
 
+### Key Metrics
 
-\## Monitoring \& Alerts
-
-
-
-\### Health Check Endpoint
-
-
+**Service Status:**
 
 ```powershell
-
-\# Manual check
-
-Invoke-WebRequest -Uri http://localhost:8000/health
-
-
-
-\# Automated monitoring script
-
-while ($true) {
-
-&nbsp;   try {
-
-&nbsp;       $response = Invoke-WebRequest -Uri http://localhost:8000/health -TimeoutSec 5
-
-&nbsp;       Write-Host "\[OK] Service healthy - $($response.Content)"
-
-&nbsp;   } catch {
-
-&nbsp;       Write-Host "\[ERROR] Service not responding - $\_"
-
-&nbsp;   }
-
-&nbsp;   Start-Sleep -Seconds 60
-
-}
-
+python scripts\manage_service.py status
 ```
 
-
-
-\### Performance Metrics
-
-
+**API Response Time:**
 
 ```powershell
-
-\# CPU and Memory
-
-Get-Process python\* | Where-Object {$\_.Path -like "\*nex-automat\*"} | Select-Object Name,Id,CPU,PM,WS
-
-
-
-\# Database connections
-
-\# (check via PostgreSQL admin tools)
-
-
-
-\# Port status
-
-netstat -ano | findstr :8000
-
+Measure-Command { Invoke-WebRequest -Uri http://localhost:8000/health }
 ```
 
+**Database Performance:**
 
+```powershell
+python scripts\test_database_connection.py
+```
+
+**Disk Space:**
+
+```powershell
+Get-PSDrive C | Select-Object Used,Free
+```
 
 ---
 
+## Emergency Procedures
 
+### Complete Service Failure
 
-\## Contact \& Support
+1. **Stop service:**
+   
+   ```powershell
+   python scripts\manage_service.py stop
+   ```
 
+2. **Check logs:**
+   
+   ```powershell
+   Get-Content logs\service-stderr.log -Tail 100
+   ```
 
+3. **Verify database:**
+   
+   ```powershell
+   python scripts\test_database_connection.py
+   ```
 
-\*\*Developer:\*\* Zoltán Rausch  
+4. **Restart service:**
+   
+   ```powershell
+   python scripts\manage_service.py start
+   ```
 
-\*\*Company:\*\* ICC Komárno  
+5. **If still failing, contact support**
 
-\*\*Email:\*\* zoltan.rausch@icc.sk  
+### Database Connection Lost
 
-\*\*Customer:\*\* Mágerstav s.r.o.
+1. **Check PostgreSQL service:**
+   
+   ```powershell
+   Get-Service postgresql*
+   ```
 
+2. **Test connection:**
+   
+   ```powershell
+   python scripts\test_database_connection.py
+   ```
 
+3. **Restart PostgreSQL if needed:**
+   
+   ```powershell
+   Restart-Service postgresql-x64-15
+   ```
 
-\*\*For urgent issues:\*\*
-
-1\. Check TROUBLESHOOTING.md
-
-2\. Review service logs
-
-3\. Contact developer
-
-
+4. **Restart application service:**
+   
+   ```powershell
+   python scripts\manage_service.py restart
+   ```
 
 ---
 
+## Contact Information
 
+**Support:** zoltan.rausch@icc.sk  
+**Company:** ICC Komárno  
+**Emergency:** [phone number]
 
-\*\*Last Updated:\*\* 2025-11-21  
+---
 
-\*\*Version:\*\* 1.0
-
+**Document Version:** 1.0  
+**Last Updated:** 2025-11-21  
+**Next Review:** 2025-12-21

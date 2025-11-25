@@ -31,12 +31,12 @@ PDF faktúra → OCR spracovanie → Extrakcia dát → Uloženie do DB → Expo
 
 ### 1.2 Komponenty
 
-| Komponent | Popis | Umiestnenie |
-|-----------|-------|-------------|
-| Windows Service | NEX-Automat-Loader | Windows Services |
-| Databáza | PostgreSQL 16 | localhost:5432 |
-| Aplikácia | Python FastAPI | C:\Deployment\nex-automat |
-| Logy | Aplikačné logy | C:\Deployment\nex-automat\logs |
+| Komponent       | Popis              | Umiestnenie                    |
+| --------------- | ------------------ | ------------------------------ |
+| Windows Service | NEX-Automat-Loader | Windows Services               |
+| Databáza        | PostgreSQL 16      | localhost:5432                 |
+| Aplikácia       | Python FastAPI     | C:\Deployment\nex-automat      |
+| Logy            | Aplikačné logy     | C:\Deployment\nex-automat\logs |
 
 ### 1.3 Priečinky
 
@@ -60,27 +60,34 @@ C:\Deployment\nex-automat\
 **Každý pracovný deň ráno vykonajte:**
 
 1. **Skontrolujte stav služby:**
-```powershell
-cd C:\Deployment\nex-automat
-python scripts\manage_service.py status
-```
-Očakávaný výstup: `SERVICE_RUNNING`
+   
+   ```powershell
+   cd C:\Deployment\nex-automat
+   python scripts\manage_service.py status
+   ```
+   
+   Očakávaný výstup: `SERVICE_RUNNING`
 
 2. **Skontrolujte posledné logy:**
-```powershell
-python scripts\manage_service.py logs
-```
-Hľadajte: Žiadne ERROR alebo CRITICAL správy
+   
+   ```powershell
+   python scripts\manage_service.py logs
+   ```
+   
+   Hľadajte: Žiadne ERROR alebo CRITICAL správy
 
 3. **Skontrolujte disk:**
-```powershell
-Get-PSDrive C | Select-Object Used, Free
-```
-Požadované: Minimálne 10 GB voľné
+   
+   ```powershell
+   Get-PSDrive C | Select-Object Used, Free
+   ```
+   
+   Požadované: Minimálne 10 GB voľné
 
 ### 2.2 Spracovanie faktúr
 
 **Systém automaticky:**
+
 - Monitoruje vstupný priečinok
 - Spracováva nové PDF faktúry
 - Ukladá dáta do databázy
@@ -129,6 +136,7 @@ python scripts\manage_service.py tail
 ### 3.2 Kedy reštartovať službu
 
 Reštartujte službu ak:
+
 - Služba nereaguje dlhšie ako 5 minút
 - Vysoké využitie pamäte (>500 MB)
 - Po zmene konfigurácie
@@ -137,6 +145,7 @@ Reštartujte službu ak:
 ### 3.3 Automatický reštart
 
 Služba je nakonfigurovaná na automatický reštart pri:
+
 - Zlyhaní služby
 - Reštarte servera
 
@@ -148,27 +157,30 @@ Nie je potrebná manuálna intervencia.
 
 ### 4.1 Čo sledovať
 
-| Metrika | Normálna hodnota | Kritická hodnota |
-|---------|------------------|------------------|
-| Service status | RUNNING | STOPPED |
-| Memory usage | <200 MB | >500 MB |
-| Disk space | >50 GB | <10 GB |
-| Error rate | 0% | >5% |
-| Processing time | <3s/faktúra | >10s/faktúra |
+| Metrika         | Normálna hodnota | Kritická hodnota |
+| --------------- | ---------------- | ---------------- |
+| Service status  | RUNNING          | STOPPED          |
+| Memory usage    | <200 MB          | >500 MB          |
+| Disk space      | >50 GB           | <10 GB           |
+| Error rate      | 0%               | >5%              |
+| Processing time | <3s/faktúra      | >10s/faktúra     |
 
 ### 4.2 Kontrolné príkazy
 
 **Kompletná diagnostika:**
+
 ```powershell
 python scripts\day5_preflight_check.py
 ```
 
 **Performance test:**
+
 ```powershell
 python scripts\day5_performance_tests.py
 ```
 
 **Error handling test:**
+
 ```powershell
 python scripts\day5_error_handling_tests.py
 ```
@@ -203,11 +215,13 @@ pg_dump -h localhost -U postgres -d invoice_staging -f $backupFile
 ### 5.3 Kontrola záloh
 
 **Týždenne skontrolujte:**
+
 ```powershell
 dir C:\Deployment\nex-automat\backups\*.sql
 ```
 
 Overte že:
+
 - Zálohy existujú za posledných 7 dní
 - Veľkosť záloh je rozumná (nie 0 KB)
 
@@ -220,23 +234,26 @@ Overte že:
 **Každý piatok:**
 
 1. **Vymazať staré logy:**
-```powershell
-# Ponechať len posledných 7 dní
-Get-ChildItem logs\*.log | 
-  Where-Object { $_.LastWriteTime -lt (Get-Date).AddDays(-7) } | 
-  Remove-Item
-```
+   
+   ```powershell
+   # Ponechať len posledných 7 dní
+   Get-ChildItem logs\*.log | 
+   Where-Object { $_.LastWriteTime -lt (Get-Date).AddDays(-7) } | 
+   Remove-Item
+   ```
 
 2. **Skontrolovať veľkosť databázy:**
-```powershell
-psql -h localhost -U postgres -d invoice_staging -c "
-  SELECT pg_size_pretty(pg_database_size('invoice_staging'));"
-```
+   
+   ```powershell
+   psql -h localhost -U postgres -d invoice_staging -c "
+   SELECT pg_size_pretty(pg_database_size('invoice_staging'));"
+   ```
 
 3. **Spustiť diagnostiku:**
-```powershell
-python scripts\day5_preflight_check.py
-```
+   
+   ```powershell
+   python scripts\day5_preflight_check.py
+   ```
 
 ### 6.2 Mesačná údržba
 
@@ -262,11 +279,11 @@ python scripts\day5_preflight_check.py
 
 ### 7.1 Prístupové údaje
 
-| Systém | Používateľ | Kde je heslo |
-|--------|------------|--------------|
-| Windows | Admin | IT správa |
-| PostgreSQL | postgres | Environment variable |
-| Aplikácia | - | Bez autentifikácie |
+| Systém     | Používateľ | Kde je heslo         |
+| ---------- | ---------- | -------------------- |
+| Windows    | Admin      | IT správa            |
+| PostgreSQL | postgres   | Environment variable |
+| Aplikácia  | -          | Bez autentifikácie   |
 
 ### 7.2 Bezpečnostné pravidlá
 
@@ -306,15 +323,16 @@ python scripts\day5_preflight_check.py
 
 ### Kedy volať podporu
 
-| Situácia | Urgencia | Kontakt |
-|----------|----------|---------|
-| Služba nebeží >30 min | Vysoká | Telefón |
-| Chyby v spracovaní | Stredná | Email |
-| Otázky | Nízka | Email |
+| Situácia              | Urgencia | Kontakt |
+| --------------------- | -------- | ------- |
+| Služba nebeží >30 min | Vysoká   | Telefón |
+| Chyby v spracovaní    | Stredná  | Email   |
+| Otázky                | Nízka    | Email   |
 
 ### Kontakt na podporu
 
 **ICC Komárno**
+
 - Email: podpora@icc-komarno.sk
 - Telefón: +421 XXX XXX XXX
 - Pracovná doba: Po-Pi 8:00-16:00

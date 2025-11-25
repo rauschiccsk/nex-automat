@@ -9,13 +9,13 @@
 
 ## Obsah školenia
 
-| # | Téma | Trvanie | Cieľová skupina |
-|---|------|---------|-----------------|
-| 1 | Úvod do systému | 15 min | Všetci |
-| 2 | Základné operácie | 20 min | Používatelia |
-| 3 | Administrácia | 30 min | IT Admin |
-| 4 | Riešenie problémov | 20 min | IT Admin |
-| 5 | Praktické cvičenia | 25 min | Všetci |
+| #   | Téma               | Trvanie | Cieľová skupina |
+| --- | ------------------ | ------- | --------------- |
+| 1   | Úvod do systému    | 15 min  | Všetci          |
+| 2   | Základné operácie  | 20 min  | Používatelia    |
+| 3   | Administrácia      | 30 min  | IT Admin        |
+| 4   | Riešenie problémov | 20 min  | IT Admin        |
+| 5   | Praktické cvičenia | 25 min  | Všetci          |
 
 **Celkové trvanie:** 2 hodiny
 
@@ -36,12 +36,12 @@ NEX Automat je automatizovaný systém na spracovanie dodávateľských faktúr:
 
 ### 1.2 Výhody systému
 
-| Pred | Po |
-|------|-----|
+| Pred                      | Po                      |
+| ------------------------- | ----------------------- |
 | Manuálne zadávanie faktúr | Automatické spracovanie |
-| Chyby pri prepise | Presná extrakcia dát |
-| Hodiny práce | Sekundy na faktúru |
-| Nekonzistentné dáta | Štandardizovaný formát |
+| Chyby pri prepise         | Presná extrakcia dát    |
+| Hodiny práce              | Sekundy na faktúru      |
+| Nekonzistentné dáta       | Štandardizovaný formát  |
 
 ### 1.3 Čo systém spracováva
 
@@ -72,11 +72,13 @@ Vstupný priečinok: [bude nakonfigurovaný]
 ### 2.2 Kontrola stavu spracovania
 
 **V NEX Genesis:**
+
 1. Otvorte modul Dodávateľské faktúry
 2. Vyhľadajte faktúru podľa čísla
 3. Skontrolujte správnosť dát
 
 **Ak faktúra chýba:**
+
 1. Počkajte 5 minút (systém môže byť zaneprázdnený)
 2. Skontrolujte či PDF je v správnom priečinku
 3. Kontaktujte IT ak problém pretrváva
@@ -84,12 +86,14 @@ Vstupný priečinok: [bude nakonfigurovaný]
 ### 2.3 Formát PDF faktúry
 
 **Správny formát:**
+
 - PDF súbor (nie obrázok)
 - Čitateľný text (nie sken)
 - Štandardná štruktúra faktúry
 - Názov súboru bez špeciálnych znakov
 
 **Príklad správneho názvu:**
+
 ```
 faktura_2024_001234.pdf
 FA-2024-001234.pdf
@@ -97,6 +101,7 @@ dodavatel_november_2024.pdf
 ```
 
 **Nevhodné názvy:**
+
 ```
 faktúra číslo 123 (1).pdf  ❌ (medzery, zátvorky)
 nová&faktúra.pdf           ❌ (špeciálne znaky)
@@ -109,6 +114,7 @@ nová&faktúra.pdf           ❌ (špeciálne znaky)
 ### 3.1 Prístup k serveru
 
 **Pripojenie:**
+
 1. Spustite Remote Desktop (mstsc)
 2. Zadajte adresu servera
 3. Prihláste sa s admin účtom
@@ -123,13 +129,13 @@ cd C:\Deployment\nex-automat
 
 **Základné príkazy:**
 
-| Akcia | Príkaz |
-|-------|--------|
-| Stav služby | `python scripts\manage_service.py status` |
-| Spustiť | `python scripts\manage_service.py start` |
-| Zastaviť | `python scripts\manage_service.py stop` |
+| Akcia       | Príkaz                                     |
+| ----------- | ------------------------------------------ |
+| Stav služby | `python scripts\manage_service.py status`  |
+| Spustiť     | `python scripts\manage_service.py start`   |
+| Zastaviť    | `python scripts\manage_service.py stop`    |
 | Reštartovať | `python scripts\manage_service.py restart` |
-| Logy | `python scripts\manage_service.py logs` |
+| Logy        | `python scripts\manage_service.py logs`    |
 
 ### 3.3 Denná kontrola
 
@@ -168,6 +174,7 @@ pg_dump -h localhost -U postgres -d invoice_staging -f "backups\manual_$d.sql"
 ```
 
 **Kontrola záloh:**
+
 ```powershell
 dir backups\*.sql
 ```
@@ -181,6 +188,7 @@ dir backups\*.sql
 **Príznaky:** Faktúry sa nespracovávajú
 
 **Riešenie:**
+
 ```powershell
 # 1. Skontrolujte stav
 python scripts\manage_service.py status
@@ -195,28 +203,31 @@ python scripts\manage_service.py status
 ### 4.2 Chyby v logoch
 
 **Ako nájsť chyby:**
+
 ```powershell
 python scripts\manage_service.py logs
 ```
 
 **Časté chyby a riešenia:**
 
-| Chyba | Príčina | Riešenie |
-|-------|---------|----------|
-| `Connection refused` | DB nebeží | Reštartujte PostgreSQL |
-| `Permission denied` | Práva | Spustite ako Admin |
-| `File not found` | Chýba súbor | Skontrolujte cestu |
-| `Invalid PDF` | Poškodený PDF | Skontrolujte súbor |
+| Chyba                | Príčina       | Riešenie               |
+| -------------------- | ------------- | ---------------------- |
+| `Connection refused` | DB nebeží     | Reštartujte PostgreSQL |
+| `Permission denied`  | Práva         | Spustite ako Admin     |
+| `File not found`     | Chýba súbor   | Skontrolujte cestu     |
+| `Invalid PDF`        | Poškodený PDF | Skontrolujte súbor     |
 
 ### 4.3 Faktúra sa nespracovala
 
 **Checklist:**
+
 1. [ ] Je PDF v správnom priečinku?
 2. [ ] Je to platný PDF súbor?
 3. [ ] Služba beží?
 4. [ ] Nie sú chyby v logoch?
 
 **Ak nič nepomáha:**
+
 1. Reštartujte službu
 2. Počkajte 5 minút
 3. Skontrolujte znova
@@ -225,11 +236,13 @@ python scripts\manage_service.py logs
 ### 4.4 Pomalé spracovanie
 
 **Možné príčiny:**
+
 - Veľa faktúr naraz
 - Málo miesta na disku
 - Vysoké využitie pamäte
 
 **Riešenie:**
+
 ```powershell
 # Skontrolujte performance
 python scripts\day5_performance_tests.py
@@ -253,6 +266,7 @@ python scripts\day5_preflight_check.py
 ```
 
 **Očakávaný výsledok:**
+
 - Status: SERVICE_RUNNING
 - Preflight: 6/6 PASS
 
@@ -288,16 +302,18 @@ python scripts\manage_service.py status
 **Úloha:** Spracujte testovaciu faktúru
 
 1. Nájdite testovacie PDF:
-```powershell
-dir apps\supplier-invoice-loader\tests\samples\*.pdf
-```
+   
+   ```powershell
+   dir apps\supplier-invoice-loader\tests\samples\*.pdf
+   ```
 
 2. Skopírujte do vstupného priečinka
 
 3. Sledujte logy:
-```powershell
-python scripts\manage_service.py tail
-```
+   
+   ```powershell
+   python scripts\manage_service.py tail
+   ```
 
 4. Overte spracovanie v NEX Genesis
 
@@ -325,16 +341,19 @@ python scripts\manage_service.py tail
 ## Kontakty a podpora
 
 ### Interná podpora (Mágerstav IT)
+
 - Prvý kontakt pre používateľov
 - Základné troubleshooting
 - Reštart služby
 
 ### Externá podpora (ICC Komárno)
+
 - Komplexné problémy
 - Aktualizácie systému
 - Zmeny konfigurácie
 
 **ICC Komárno:**
+
 - Email: podpora@icc-komarno.sk
 - Telefón: +421 XXX XXX XXX
 - Pracovná doba: Po-Pi 8:00-16:00
@@ -343,11 +362,11 @@ python scripts\manage_service.py tail
 
 ## Materiály na stiahnutie
 
-| Dokument | Účel |
-|----------|------|
-| OPERATIONS_GUIDE.md | Denná prevádzka |
+| Dokument               | Účel                  |
+| ---------------------- | --------------------- |
+| OPERATIONS_GUIDE.md    | Denná prevádzka       |
 | RECOVERY_PROCEDURES.md | Obnova pri problémoch |
-| GO_LIVE_CHECKLIST.md | Kontrolný zoznam |
+| GO_LIVE_CHECKLIST.md   | Kontrolný zoznam      |
 
 **Umiestnenie:** `C:\Deployment\nex-automat\docs\deployment\`
 
