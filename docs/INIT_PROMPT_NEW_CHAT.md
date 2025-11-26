@@ -1,100 +1,112 @@
-# Init Prompt - Post Go-Live / Next Development Phase
+# Init Prompt - Strategic Planning Phase 2
 
-**Project:** NEX Automat v2.0 - Supplier Invoice Loader  
-**Customer:** Mágerstav s.r.o.  
-**Last Session:** 2025-11-25 (Git workflow, documentation)  
-**This Session:** TBD (Go-Live or Development continuation)  
+**Project:** NEX Automat  
+**Last Session:** 2025-11-26 (Terminology & Vision)  
+**This Session:** Strategic Planning - Bod 2 (Aktuálny stav)  
 
 ---
 
 ## Quick Context
 
-NEX Automat v2.0 je pripravený na produkčné nasadenie u zákazníka Mágerstav s.r.o.
+NEX Automat je projekt pre kompletná automatizáciu podnikových procesov pre zákazníkov používajúcich NEX Genesis ERP.
 
 **Aktuálny stav:**
 - Version: 2.0.0 (tagged)
-- Status: 🟢 Ready for Production
-- Go-Live Target: 2025-11-27
-- All tests: PASS
+- GO-LIVE: 2025-11-27 (preview/demo pre Mágerstav)
+- Strategic Planning: In Progress
 
 ---
 
-## Git Structure
+## What Was Completed Last Session
 
-**Branches:**
-- `main` - Production (v2.0.0 tagged, ready for deployment)
-- `develop` - Active development (uncommitted changes from last session)
-- `hotfix_v2.0` - Bugfixes for production
+### 1. Project Vision ✅
+- NEX Automat = Kompletná automatizácia podniku
+- Stratégia: Čiastočná → Úplná automatizácia
+- Hodnota: Ušetrenie 1-3 FTE na zákazníka
 
-**Workflow:**
-- New features → `develop` → `main` (at release)
-- Bugfixes → `hotfix_v2.0` → `main` + merge to `develop`
+### 2. Business Context ✅
+- Pilotní zákazníci: Mágerstav, ANDROS, ICC
+- Success kritériá definované
 
-**See:** `docs/GIT_GUIDE.md` for PyCharm workflow
-
----
-
-## Pending Actions from Last Session
-
-### Must Complete Before Go-Live
-
-1. **Commit Pending Changes**
-   ```
-   Branch: develop
-   Files: GIT_GUIDE.md, scripts (branching, shortcuts, cleanup), deployment docs
-   Message: See COMMIT_MESSAGE.txt artifact from last session
-   ```
-
-2. **Run Cleanup**
-   ```
-   scripts/cleanup_backups.ps1
-   - Removes temp fix scripts
-   - Removes backup files (*.md.backup, *.md.corrupted)
-   ```
-
-3. **Verify Desktop Shortcuts**
-   ```
-   scripts/create_desktop_shortcuts.ps1
-   Location: Desktop/NEX Automat Docs
-   ```
+### 3. Terminology Dictionary ✅
+- 8 podsystémov NEX Genesis
+- 31 modulov s EN názvami a kódmi
+- Dokument: TERMINOLOGY.md (artifact)
 
 ---
 
-## Possible Session Scenarios
+## Planning Progress
 
-### Scenario A: Go-Live Deployment (2025-11-27)
+| Bod | Názov | Status |
+|-----|-------|--------|
+| 1 | Definícia cieľov | ✅ COMPLETE |
+| - | Terminológia | ✅ COMPLETE |
+| 2 | Aktuálny stav (inventory) | ⏳ **THIS SESSION** |
+| 3 | Požiadavky & Priority | ⚪ TODO |
+| 4 | Architektúra & Design | ⚪ TODO |
+| 5 | Roadmap & Fázy | ⚪ TODO |
+| 6 | Dokumentácia | ⚪ TODO |
 
-**Follow:** `docs/deployment/DEPLOYMENT_GUIDE.md`
+---
 
-**Key Steps:**
-1. Pre-deployment checklist (PRE_DEPLOYMENT_CHECKLIST.md)
-2. Run deploy_fresh.py at customer
-3. Configure customer settings
-4. Install Windows service
-5. Validation tests (preflight, error handling, performance)
-6. Monitor for 4+ hours
+## This Session Goals
 
-**Documents needed:**
-- DEPLOYMENT_GUIDE.md
-- GO_LIVE_CHECKLIST.md
-- SERVICE_MANAGEMENT.md
-- TROUBLESHOOTING.md
+### Bod 2 - AKTUÁLNY STAV (inventory)
 
-### Scenario B: Post Go-Live Support
+Zmapovať:
+1. **Čo máme hotové** - všetky komponenty NEX Automat
+2. **Čo funguje dobre** - stabilné časti systému
+3. **Kde sú limity** - známe problémy, technické obmedzenia
 
-**Focus:**
-- Monitor production service
-- Handle any issues (see TROUBLESHOOTING.md)
-- Customer support
-- Performance optimization
+**Komponenty na review:**
+- n8n workflow (email processing)
+- AI extrakcia (PDF → XML)
+- FastAPI transfer
+- supplier-invoice-loader
+- supplier-invoice-editor
+- PostgreSQL staging
+- Btrieve integration
 
-### Scenario C: Next Development Phase
+---
 
-**Focus:**
-- New features in `develop` branch
-- Customer feedback implementation
-- Performance improvements
-- Additional customers
+## Key Artifacts from Last Session
+
+### TERMINOLOGY.md
+Kompletný terminologický slovník NEX Genesis:
+
+**Podsystémy:**
+| Code | SK | EN |
+|------|----|----|
+| MASTER- | Všeobecné číselníky | Master Data |
+| STK- | Skladové hospodárstvo | Stock Management |
+| PROD- | Výroba | Production Management |
+| PROC- | Obstarávanie tovaru | Procurement |
+| PRICE- | Tvorba predajných cien | Sales Price Management |
+| SALES- | Predaj tovaru | Sales Management |
+| FIN- | Finančné účtovníctvo | Financial Management |
+| ACC- | Podvojné účtovníctvo | General Ledger Accounting |
+
+**Relevantné moduly pre aktuálny projekt:**
+- PROC-DN: Supplier Delivery Notes
+- PROC-INV: Supplier Invoices
+- PRICE-CHANGE: Price Change Requests
+- PRODUCTS: Product and Service Catalog
+- PARTNERS: Business Partner Catalog
+
+---
+
+## Documentation Structure Decision
+
+Navrhnutá štruktúra (schváliť):
+```
+docs/
+└── strategy/           ← NOVÝ PRIEČINOK
+    ├── TERMINOLOGY.md
+    ├── VISION.md
+    ├── ARCHITECTURE.md
+    ├── ROADMAP.md
+    └── REQUIREMENTS.md
+```
 
 ---
 
@@ -103,151 +115,63 @@ NEX Automat v2.0 je pripravený na produkčné nasadenie u zákazníka Mágersta
 ```
 C:\Development\nex-automat\
 ├── docs\
-│   ├── SESSION_NOTES.md (current status)
-│   ├── GIT_GUIDE.md (PyCharm workflow)
-│   └── deployment\
-│       ├── DEPLOYMENT_GUIDE.md
-│       ├── GO_LIVE_CHECKLIST.md
-│       ├── PRE_DEPLOYMENT_CHECKLIST.md
-│       ├── SERVICE_MANAGEMENT.md
-│       └── TROUBLESHOOTING.md
-├── scripts\
-│   ├── create_branches.ps1
-│   ├── create_desktop_shortcuts.ps1
-│   ├── cleanup_backups.ps1
-│   ├── deploy_fresh.py (for customer deployment)
-│   ├── manage_service.py
-│   └── [validation scripts]
-└── apps\
-    └── supplier-invoice-loader\
+│   ├── SESSION_NOTES.md
+│   ├── strategy\           ← NEW (to create)
+│   │   └── TERMINOLOGY.md
+│   └── apps\
+│       └── supplier-invoice-editor.json
+├── apps\
+│   ├── supplier-invoice-loader\
+│   └── supplier-invoice-editor\
+└── packages\
+    ├── invoice-shared\
+    └── nex-shared\
 ```
 
 ---
 
 ## Key Information
 
-### Customer Details
-**Name:** Mágerstav s.r.o.  
-**Deployment Path:** C:\Deployment\nex-automat  
-**Database:** PostgreSQL - invoice_staging  
-**Service:** NEX-Automat-Loader
+### Current Project Status
+- **supplier-invoice-loader:** Production ready (v2.0.0)
+- **supplier-invoice-editor:** 75% complete (Phase 4 done)
+- **n8n workflow:** Running on dev server
+- **PostgreSQL:** invoice_staging database
 
-### System Requirements
-- Windows Server 2019/2022
-- Python 3.13.0 32-bit
-- PostgreSQL 15.14+
-- NSSM 2.24
+### GO-LIVE 2025-11-27
+- **Type:** Preview/Demo
+- **Customer:** Mágerstav s.r.o.
+- **Scope:** Email → GUI display (no NEX Genesis write)
+- **Purpose:** Customer familiarization, AI validation
 
-### Critical Configuration
-- Environment variable: POSTGRES_PASSWORD
-- Config: apps/supplier-invoice-loader/config/config.yaml
-- Customer: MAGERSTAV
-- Storage paths: C:\NEX\IMPORT\*
-
----
-
-## Common Commands
-
-### Git Operations
-```powershell
-# Check current branch
-git branch --show-current
-
-# Switch to develop
-git checkout develop
-
-# Commit changes
-git add .
-git commit -m "message"
-git push origin develop
-```
-
-### Service Management (at customer)
-```powershell
-cd C:\Deployment\nex-automat
-venv32\Scripts\activate
-
-# Status
-python scripts\manage_service.py status
-
-# Logs
-python scripts\manage_service.py logs
-
-# Restart
-python scripts\manage_service.py restart
-```
-
-### Deployment
-```powershell
-# At customer server
-cd C:\Deployment
-python deploy_fresh.py
-```
+### Known TODOs
+- Filename duplicity issue (PDF/XML storage)
+- Phase 5: NEX Genesis write operations
+- Approval workflow
+- Price Change Requests creation
 
 ---
 
-## Testing Status
+## How to Start This Session
 
-**Last Full Test:** 2025-11-24  
-**Results:**
-- Preflight: 6/6 PASS ✅
-- Error Handling: 12/12 PASS ✅
-- Performance: 6/6 PASS ✅
-- Fresh Deployment: SUCCESS ✅
-
----
-
-## Desktop Shortcuts
-
-**Location:** Desktop/NEX Automat Docs
-
-**Contents:**
-- All Markdown documentation from Development
-- Prefix "DEPLOY -" for deployment docs
-- Opens with MarkText (or VS Code if configured)
-
-**Refresh:** Run `scripts\create_desktop_shortcuts.ps1`
-
----
-
-## Next Steps Checklist
-
-**Before starting work:**
-- [ ] Load SESSION_NOTES.md to understand current state
-- [ ] Check Git branch (should be on `develop` or `hotfix_v2.0`)
-- [ ] Review pending actions above
-- [ ] Determine session scenario (A, B, or C)
-
-**If Go-Live deployment:**
-- [ ] Review DEPLOYMENT_GUIDE.md
-- [ ] Review GO_LIVE_CHECKLIST.md
-- [ ] Ensure all tools ready (USB with scripts, credentials)
-
-**If continuing development:**
-- [ ] Check for uncommitted changes
-- [ ] Review GitHub issues/backlog
-- [ ] Plan feature implementation
+1. Load SESSION_NOTES.md from GitHub
+2. Confirm understanding of last session
+3. Start Bod 2: Aktuálny stav (inventory)
+   - Review each component systematically
+   - Document what works, what doesn't
+   - Identify gaps and limitations
 
 ---
 
 ## Important Notes
 
-- **Always check current branch before commits**
-- **Development changes go to `develop` branch**
-- **Production bugfixes go to `hotfix_v2.0` branch**
-- **Never commit directly to `main`**
-- **Desktop shortcuts point to Development, not Deployment**
+- **This is planning session** - no coding
+- **Output:** Strategic documentation
+- **Use terminology** from TERMINOLOGY.md
+- **Step by step** - one topic at a time
 
 ---
 
-## Contact
-
-**Developer:** Zoltán Rausch  
-**Company:** ICC Komárno  
-**Email:** zoltan.rausch@icc.sk
-
----
-
-**Last Updated:** 2025-11-25  
+**Last Updated:** 2025-11-26  
 **Version:** 1.0  
-**Status:** 🟢 Ready for Go-Live
+**Status:** 🟡 Strategic Planning In Progress
