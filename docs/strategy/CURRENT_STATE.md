@@ -22,44 +22,18 @@ Postupná cesta: Čiastočná → Úplná automatizácia
 
 ## 2. ARCHITEKTÚRA SYSTÉMU
 
-```
-┌─────────────────────────────┐      ┌─────────────────────────────────────┐
-│  ICC Server (Dev Center)    │      │  Zákazník Server (Mágerstav)        │
-│                             │      │                                     │
-│  ┌───────────────────────┐  │      │  ┌─────────────────────────────┐    │
-│  │  n8n Workflows        │──┼──────┼─→│  FastAPI                    │    │
-│  │  (IMAP → PDF → API)   │  │ HTTPS│  │  (supplier-invoice-loader)  │    │
-│  └───────────────────────┘  │ via  │  └──────────────┬──────────────┘    │
-│                             │ CF   │                 │                   │
-│  Email:                     │Tunnel│                 ↓                   │
-│  magerstavinvoice@gmail.com │      │  ┌─────────────────────────────┐    │
-│  (dedikovaná schránka)      │      │  │  File Storage               │    │
-│                             │      │  │  C:\NEX\IMPORT\PDF\         │    │
-└─────────────────────────────┘      │  │  C:\NEX\IMPORT\XML\         │    │
-                                     │  └──────────────┬──────────────┘    │
-                                     │                 │                   │
-                                     │                 ↓                   │
-                                     │  ┌─────────────────────────────┐    │
-                                     │  │  PostgreSQL                 │    │
-                                     │  │  DB: invoice_staging        │    │
-                                     │  │  - invoices                 │    │
-                                     │  │  - invoice_items            │    │
-                                     │  └──────────────┬──────────────┘    │
-                                     │                 │                   │
-                                     │                 ↓                   │
-                                     │  ┌─────────────────────────────┐    │
-                                     │  │  GUI (PyQt5)                │    │
-                                     │  │  (supplier-invoice-editor)  │    │
-                                     │  └──────────────┬──────────────┘    │
-                                     │                 │                   │
-                                     │                 ↓                   │
-                                     │  ┌─────────────────────────────┐    │
-                                     │  │  NEX Genesis (Btrieve)      │    │
-                                     │  │  C:\NEX\DATA\               │    │
-                                     │  └─────────────────────────────┘    │
-                                     │                                     │
-                                     └─────────────────────────────────────┘
-```
+**ICC Server (Dev Center)**
+- n8n Workflows (IMAP → PDF → API)
+- Email: magerstavinvoice@gmail.com (dedikovaná schránka)
+
+↓ HTTPS via Cloudflare Tunnel ↓
+
+**Zákazník Server (Mágerstav)**
+- FastAPI (supplier-invoice-loader)
+- File Storage: C:\NEX\IMPORT\PDF\ + XML\
+- PostgreSQL: DB invoice_staging (invoices + invoice_items)
+- GUI (PyQt5): supplier-invoice-editor
+- NEX Genesis (Btrieve): C:\NEX\DATA\
 
 ---
 
@@ -113,6 +87,7 @@ Has PDF Attachment? (Switch)
 ```
 
 **Parametre:**
+
 | Parameter | Hodnota |
 |-----------|---------|
 | Mailbox | magerstavinvoice@gmail.com |
@@ -163,6 +138,7 @@ PDF → pdfplumber → Regex Extractor → InvoiceData → ISDOC Generator → X
 **Port:** 8000 (default)  
 
 **Endpoints:**
+
 | Endpoint | Auth | Popis |
 |----------|------|-------|
 | `GET /` | ❌ | Service info |
@@ -177,6 +153,7 @@ PDF → pdfplumber → Regex Extractor → InvoiceData → ISDOC Generator → X
 | `POST /admin/send-summary` | ✅ | Daily summary |
 
 **Cloudflare Tunnel:**
+
 | Parameter | Stav |
 |-----------|------|
 | Konfigurácia | ✅ Hotová |
@@ -253,131 +230,123 @@ src/
 
 ### 5.1 Kompletný workflow
 
-```
-┌─────────────────────────────────────────────────────────────────────────┐
-│  FÁZA A: Email → Staging (✅ HOTOVÉ)                                    │
-│                                                                         │
-│  1. Email s PDF príde do magerstavinvoice@gmail.com                    │
-│  2. n8n IMAP trigger zachytí email                                     │
-│  3. PDF extrakcia (pdfplumber + regex)                                 │
-│  4. ISDOC XML generovanie                                              │
-│  5. HTTP POST na FastAPI (cez Cloudflare Tunnel)                       │
-│  6. Uloženie PDF + XML do C:\NEX\IMPORT\                               │
-│  7. Zápis do PostgreSQL staging (invoices + invoice_items)             │
-│  8. NEX Lookup - pre každú položku nájdi PLU podľa EAN                 │
-│                                                                         │
-└─────────────────────────────────────────────────────────────────────────┘
-                                    │
-                                    ▼
-┌─────────────────────────────────────────────────────────────────────────┐
-│  FÁZA B: GUI Kontrola a príprava (⚪ NÁVRH)                             │
-│                                                                         │
-│  1. Operátor otvorí GUI (supplier-invoice-editor)                      │
-│  2. Vyberie faktúru zo zoznamu                                         │
-│  3. Otvorí detail faktúry s položkami                                  │
-│                                                                         │
-│  Vizuálne rozlíšenie položiek:                                         │
-│  ┌────────────────────────────────────────────────────────────────┐    │
-│  │ PLU > 0, skupina OK     │ BIELA    │ Existuje v GSCAT         │    │
-│  │ PLU = 0, skupina NONE   │ ČERVENÁ  │ Nová, treba priradiť sk. │    │
-│  │ PLU = 0, skupina OK     │ ORANŽOVÁ │ Pripravená na vytvorenie │    │
-│  │ Cena zmenená            │ ŽLTÁ     │ Pôjde do RPC             │    │
-│  └────────────────────────────────────────────────────────────────┘    │
-│                                                                         │
-│  4. Pre ČERVENÉ položky (PLU = 0):                                     │
-│     - Operátor otvorí zoznam tovarových skupín (MGLST)                 │
-│     - Vyberie skupinu pre každú novú položku                           │
-│     - Voliteľne: upraví názov z XML                                    │
-│     - Položka zmení farbu na ORANŽOVÚ                                  │
-│                                                                         │
-│  5. Kontrola marže pre každú položku:                                  │
-│     - Nákupná cena (z XML)                                             │
-│     - Aktuálna predajná cena (z PLS)                                   │
-│     - Marža = (predajná - nákupná) / predajná * 100                    │
-│     - Ak marža < minimum → operátor zmení predajnú cenu                │
-│     - Položka s novou cenou → ŽLTÁ (pôjde do RPC)                      │
-│                                                                         │
-└─────────────────────────────────────────────────────────────────────────┘
-                                    │
-                                    ▼
-┌─────────────────────────────────────────────────────────────────────────┐
-│  FÁZA C: Vytvorenie produktových kariet (⚪ NÁVRH)                      │
-│                                                                         │
-│  Podmienka: Všetky nové položky majú priradenú skupinu (ORANŽOVÉ)      │
-│                                                                         │
-│  1. Operátor klikne "Vytvoriť nové položky"                            │
-│                                                                         │
-│  2. Pre každú položku s PLU = 0:                                       │
-│     a) Vygeneruj nové PLU: MAX(GSCAT.GsCode) + 1                       │
-│     b) Zapíš do GSCAT.BTR:                                             │
-│        - GsCode (PLU)                                                  │
-│        - Name (názov z XML alebo upravený)                             │
-│        - MGLST (tovarová skupina)                                      │
-│        - NakupC (nákupná cena)                                         │
-│        - PredajC (predajná cena)                                       │
-│     c) Zapíš do BARCODE.BTR:                                           │
-│        - CaRKod (EAN z XML)                                            │
-│        - GS (PLU väzba na GSCAT)                                       │
-│                                                                         │
-│  3. Refresh - znovu načítaj údaje z GSCAT pre všetky položky           │
-│                                                                         │
-│  4. Validácia:                                                         │
-│     - Žiadny riadok s PLU = 0 → ✅ OK, pokračuj                        │
-│     - Ak ešte existuje PLU = 0 → ⚠️ Chyba, riešiť                      │
-│                                                                         │
-└─────────────────────────────────────────────────────────────────────────┘
-                                    │
-                                    ▼
-┌─────────────────────────────────────────────────────────────────────────┐
-│  FÁZA D: Zaevidovanie dodávateľského DL (⚪ NÁVRH)                      │
-│                                                                         │
-│  Podmienka: Všetky položky majú PLU > 0                                │
-│                                                                         │
-│  1. Operátor klikne "Zaevidovať dodací list"                           │
-│                                                                         │
-│  2. Vytvor hlavičku dokladu (TSH):                                     │
-│     - Číslo dokladu (automaticky generované)                           │
-│     - Dátum vystavenia                                                 │
-│     - Dátum dodania                                                    │
-│     - Dodávateľ IČO (z XML → PAB)                                      │
-│     - Status: "Pripravený"                                             │
-│                                                                         │
-│  3. Vytvor položky dokladu (TSI):                                      │
-│     Pre každú položku faktúry:                                         │
-│     - Väzba na hlavičku (TSH)                                          │
-│     - PLU (GsCode)                                                     │
-│     - Množstvo                                                         │
-│     - Nákupná cena                                                     │
-│     - Celková cena                                                     │
-│                                                                         │
-│  4. Pre položky so zmenenou cenou (ŽLTÉ):                              │
-│     Zapíš do RPC (Požiadavky na zmenu cien):                           │
-│     - PLU (GsCode)                                                     │
-│     - Nová predajná cena                                               │
-│     - Dátum platnosti                                                  │
-│                                                                         │
-│  5. Spätná kontrola:                                                   │
-│     - Suma položiek TSI = Suma z XML?                                  │
-│     - Počet položiek TSI = Počet z XML?                                │
-│                                                                         │
-│  6. Označenie faktúry ako vybavenú:                                    │
-│     - PostgreSQL staging: status = "completed"                         │
-│                                                                         │
-└─────────────────────────────────────────────────────────────────────────┘
-                                    │
-                                    ▼
-┌─────────────────────────────────────────────────────────────────────────┐
-│  VÝSLEDOK                                                               │
-│                                                                         │
-│  ✅ Dodávateľský DL v NEX Genesis (status "Pripravený")                │
-│  ✅ Nové produkty v katalógu (GSCAT + BARCODE)                         │
-│  ✅ Požiadavky na zmenu cien (RPC)                                     │
-│  ✅ Faktúra v staging označená ako vybavená                            │
-│                                                                         │
-│  ⏳ Naskladnenie robí operátor v NEX Genesis (MIMO SCOPE v2.0)         │
-│                                                                         │
-└─────────────────────────────────────────────────────────────────────────┘
-```
+**FÁZA A: Email → Staging** (✅ HOTOVÉ)
+
+KROKY:
+1. Email s PDF príde do magerstavinvoice@gmail.com
+2. n8n IMAP trigger zachytí email
+3. PDF extrakcia (pdfplumber + regex)
+4. ISDOC XML generovanie
+5. HTTP POST na FastAPI (cez Cloudflare Tunnel)
+6. Uloženie PDF + XML do C:\NEX\IMPORT\
+7. Zápis do PostgreSQL staging (invoices + invoice_items)
+8. NEX Lookup - pre každú položku nájdi PLU podľa EAN
+
+---
+
+**FÁZA B: GUI Kontrola a príprava** (⚪ NÁVRH)
+
+KROKY:
+1. Operátor otvorí GUI (supplier-invoice-editor)
+2. Vyberie faktúru zo zoznamu
+3. Otvorí detail faktúry s položkami
+
+VIZUÁLNE ROZLÍŠENIE POLOŽIEK:
+
+| Stav | Farba | Význam |
+|------|-------|--------|
+| PLU > 0, skupina OK | BIELA | Existuje v GSCAT |
+| PLU = 0, skupina NONE | ČERVENÁ | Nová, treba priradiť sk. |
+| PLU = 0, skupina OK | ORANŽOVÁ | Pripravená na vytvorenie |
+| Cena zmenená | ŽLTÁ | Pôjde do RPC |
+
+4. Pre ČERVENÉ položky (PLU = 0):
+   - Operátor otvorí zoznam tovarových skupín (MGLST)
+   - Vyberie skupinu pre každú novú položku
+   - Voliteľne: upraví názov z XML
+   - Položka zmení farbu na ORANŽOVÚ
+
+5. Kontrola marže pre každú položku:
+   - Nákupná cena (z XML)
+   - Aktuálna predajná cena (z PLS)
+   - Marža = (predajná - nákupná) / predajná * 100
+   - Ak marža < minimum → operátor zmení predajnú cenu
+   - Položka s novou cenou → ŽLTÁ (pôjde do RPC)
+
+---
+
+**FÁZA C: Vytvorenie produktových kariet** (⚪ NÁVRH)
+
+PODMIENKA: Všetky nové položky majú priradenú skupinu (ORANŽOVÉ)
+
+KROKY:
+1. Operátor klikne "Vytvoriť nové položky"
+
+2. Pre každú položku s PLU = 0:
+   - a) Vygeneruj nové PLU: MAX(GSCAT.GsCode) + 1
+   - b) Zapíš do GSCAT.BTR:
+     * GsCode (PLU)
+     * Name (názov z XML alebo upravený)
+     * MGLST (tovarová skupina)
+     * NakupC (nákupná cena)
+     * PredajC (predajná cena)
+   - c) Zapíš do BARCODE.BTR:
+     * CaRKod (EAN z XML)
+     * GS (PLU väzba na GSCAT)
+
+3. Refresh - znovu načítaj údaje z GSCAT pre všetky položky
+
+4. Validácia:
+   - Žiadny riadok s PLU = 0 → ✅ OK, pokračuj
+   - Ak ešte existuje PLU = 0 → ⚠️ Chyba, riešiť
+
+---
+
+**FÁZA D: Zaevidovanie dodávateľského DL** (⚪ NÁVRH)
+
+PODMIENKA: Všetky položky majú PLU > 0
+
+KROKY:
+1. Operátor klikne "Zaevidovať dodací list"
+
+2. Vytvor hlavičku dokladu (TSH):
+   - Číslo dokladu (automaticky generované)
+   - Dátum vystavenia
+   - Dátum dodania
+   - Dodávateľ IČO (z XML → PAB)
+   - Status: "Pripravený"
+
+3. Vytvor položky dokladu (TSI):
+   - Pre každú položku faktúry:
+     * Väzba na hlavičku (TSH)
+     * PLU (GsCode)
+     * Množstvo
+     * Nákupná cena
+     * Celková cena
+
+4. Pre položky so zmenenou cenou (ŽLTÉ):
+   - Zapíš do RPC (Požiadavky na zmenu cien):
+     * PLU (GsCode)
+     * Nová predajná cena
+     * Dátum platnosti
+
+5. Spätná kontrola:
+   - Suma položiek TSI = Suma z XML?
+   - Počet položiek TSI = Počet z XML?
+
+6. Označenie faktúry ako vybavenú:
+   - PostgreSQL staging: status = "completed"
+
+---
+
+**VÝSLEDOK**
+
+✅ Dodávateľský DL v NEX Genesis (status "Pripravený")  
+✅ Nové produkty v katalógu (GSCAT + BARCODE)  
+✅ Požiadavky na zmenu cien (RPC)  
+✅ Faktúra v staging označená ako vybavená  
+
+⏳ Naskladnenie robí operátor v NEX Genesis (MIMO SCOPE v2.0)
 
 ---
 
@@ -551,4 +520,4 @@ Viď samostatný dokument: `TERMINOLOGY.md`
 
 **Dokument vytvorený:** 2025-11-26  
 **Autor:** Claude AI + Zoltán Rausch  
-**Verzia:** 1.0
+**Verzia:** 1.1 (Fixed per pravidlo 18)

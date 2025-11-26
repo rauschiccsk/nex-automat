@@ -1,7 +1,7 @@
 # NEX Automat - Požiadavky
 
 **Projekt:** NEX Automat  
-**Verzia dokumentu:** 1.0  
+**Verzia dokumentu:** 1.1  
 **Dátum:** 2025-11-26  
 
 ---
@@ -147,86 +147,79 @@
 
 ### 3.1 Kompletný workflow
 
-```
-┌─────────────────────────────────────────────────────────────────────────┐
-│  FÁZA A: Email → Staging                                                │
-│                                                                         │
-│  VSTUP: Email s PDF faktúrou                                           │
-│                                                                         │
-│  KROKY:                                                                 │
-│  1. [REQ-EMAIL-01] Trigger na novom emaili                             │
-│  2. [REQ-EMAIL-02] Extrakcia PDF prílohy                               │
-│  3. [REQ-PDF-01..08] Extrakcia dát a generovanie XML                   │
-│  4. [REQ-DB-01..04] Uloženie do PostgreSQL                             │
-│  5. [REQ-LOOKUP-01..04] NEX Lookup pre položky                         │
-│                                                                         │
-│  VÝSTUP: Faktúra v staging DB s NEX údajmi                             │
-│                                                                         │
-│  STATUS: ✅ IMPLEMENTOVANÉ                                              │
-└─────────────────────────────────────────────────────────────────────────┘
-                                    │
-                                    ▼
-┌─────────────────────────────────────────────────────────────────────────┐
-│  FÁZA B: GUI Kontrola a príprava                                        │
-│                                                                         │
-│  VSTUP: Faktúra v staging DB                                           │
-│                                                                         │
-│  KROKY:                                                                 │
-│  1. [REQ-GUI-01..04] Zobrazenie faktúry a položiek                     │
-│  2. [REQ-EDIT-01] Farebné rozlíšenie:                                  │
-│     - BIELA: PLU > 0 (existuje v GSCAT)                                │
-│     - ČERVENÁ: PLU = 0, skupina nepriradená                            │
-│     - ORANŽOVÁ: PLU = 0, skupina priradená                             │
-│     - ŽLTÁ: cena zmenená (pôjde do RPC)                                │
-│  3. [REQ-EDIT-02..03] Pre ČERVENÉ: priradiť skupinu, upraviť názov     │
-│  4. [REQ-EDIT-04..06] Kontrola marže, úprava predajnej ceny            │
-│                                                                         │
-│  VÝSTUP: Všetky položky pripravené (ORANŽOVÉ alebo BIELE/ŽLTÉ)         │
-│                                                                         │
-│  STATUS: ⚪ NÁVRH                                                       │
-└─────────────────────────────────────────────────────────────────────────┘
-                                    │
-                                    ▼
-┌─────────────────────────────────────────────────────────────────────────┐
-│  FÁZA C: Vytvorenie produktových kariet                                 │
-│                                                                         │
-│  VSTUP: ORANŽOVÉ položky (PLU = 0, skupina priradená)                  │
-│                                                                         │
-│  PODMIENKA: Všetky nové položky majú skupinu                           │
-│                                                                         │
-│  KROKY:                                                                 │
-│  1. [REQ-GSCAT-01..04] Vytvorenie GSCAT záznamov                       │
-│  2. [REQ-GSCAT-05] Vytvorenie BARCODE záznamov                         │
-│  3. [REQ-GSCAT-06] Refresh PLU z GSCAT                                 │
-│                                                                         │
-│  VALIDÁCIA: Žiadna položka s PLU = 0                                   │
-│                                                                         │
-│  VÝSTUP: Všetky položky majú PLU > 0                                   │
-│                                                                         │
-│  STATUS: ⚪ NÁVRH                                                       │
-└─────────────────────────────────────────────────────────────────────────┘
-                                    │
-                                    ▼
-┌─────────────────────────────────────────────────────────────────────────┐
-│  FÁZA D: Zaevidovanie dodávateľského DL                                 │
-│                                                                         │
-│  VSTUP: Faktúra so všetkými PLU > 0                                    │
-│                                                                         │
-│  PODMIENKA: Všetky položky majú PLU                                    │
-│                                                                         │
-│  KROKY:                                                                 │
-│  1. [REQ-DL-01..03] Vytvorenie hlavičky TSH                            │
-│  2. [REQ-DL-04..05] Vytvorenie položiek TSI                            │
-│  3. [REQ-RPC-01..04] Pre ŽLTÉ: vytvorenie RPC záznamov                 │
-│  4. [REQ-DL-06] Nastavenie status "Pripravený"                         │
-│  5. [REQ-DL-07] Spätná kontrola súm                                    │
-│  6. Označenie faktúry ako vybavenej (staging)                          │
-│                                                                         │
-│  VÝSTUP: DL v NEX Genesis, faktúra completed                           │
-│                                                                         │
-│  STATUS: ⚪ NÁVRH                                                       │
-└─────────────────────────────────────────────────────────────────────────┘
-```
+**FÁZA A: Email → Staging**
+
+STATUS: ✅ IMPLEMENTOVANÉ
+
+VSTUP: Email s PDF faktúrou
+
+KROKY:
+1. [REQ-EMAIL-01] Trigger na novom emaili
+2. [REQ-EMAIL-02] Extrakcia PDF prílohy
+3. [REQ-PDF-01..08] Extrakcia dát a generovanie XML
+4. [REQ-DB-01..04] Uloženie do PostgreSQL
+5. [REQ-LOOKUP-01..04] NEX Lookup pre položky
+
+VÝSTUP: Faktúra v staging DB s NEX údajmi
+
+---
+
+**FÁZA B: GUI Kontrola a príprava**
+
+STATUS: ⚪ NÁVRH
+
+VSTUP: Faktúra v staging DB
+
+KROKY:
+1. [REQ-GUI-01..04] Zobrazenie faktúry a položiek
+2. [REQ-EDIT-01] Farebné rozlíšenie:
+   - BIELA: PLU > 0 (existuje v GSCAT)
+   - ČERVENÁ: PLU = 0, skupina nepriradená
+   - ORANŽOVÁ: PLU = 0, skupina priradená
+   - ŽLTÁ: cena zmenená (pôjde do RPC)
+3. [REQ-EDIT-02..03] Pre ČERVENÉ: priradiť skupinu, upraviť názov
+4. [REQ-EDIT-04..06] Kontrola marže, úprava predajnej ceny
+
+VÝSTUP: Všetky položky pripravené (ORANŽOVÉ alebo BIELE/ŽLTÉ)
+
+---
+
+**FÁZA C: Vytvorenie produktových kariet**
+
+STATUS: ⚪ NÁVRH
+
+VSTUP: ORANŽOVÉ položky (PLU = 0, skupina priradená)
+
+PODMIENKA: Všetky nové položky majú skupinu
+
+KROKY:
+1. [REQ-GSCAT-01..04] Vytvorenie GSCAT záznamov
+2. [REQ-GSCAT-05] Vytvorenie BARCODE záznamov
+3. [REQ-GSCAT-06] Refresh PLU z GSCAT
+
+VALIDÁCIA: Žiadna položka s PLU = 0
+
+VÝSTUP: Všetky položky majú PLU > 0
+
+---
+
+**FÁZA D: Zaevidovanie dodávateľského DL**
+
+STATUS: ⚪ NÁVRH
+
+VSTUP: Faktúra so všetkými PLU > 0
+
+PODMIENKA: Všetky položky majú PLU
+
+KROKY:
+1. [REQ-DL-01..03] Vytvorenie hlavičky TSH
+2. [REQ-DL-04..05] Vytvorenie položiek TSI
+3. [REQ-RPC-01..04] Pre ŽLTÉ: vytvorenie RPC záznamov
+4. [REQ-DL-06] Nastavenie status "Pripravený"
+5. [REQ-DL-07] Spätná kontrola súm
+6. Označenie faktúry ako vybavenej (staging)
+
+VÝSTUP: DL v NEX Genesis, faktúra completed
 
 ---
 
@@ -321,4 +314,5 @@
 ---
 
 **Dokument vytvorený:** 2025-11-26  
-**Autor:** Claude AI + Zoltán Rausch
+**Autor:** Claude AI + Zoltán Rausch  
+**Revízia:** 1.1 (Fixed per pravidlo 18)

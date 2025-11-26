@@ -1,7 +1,7 @@
 # NEX Automat - Architektúra systému
 
 **Projekt:** NEX Automat  
-**Verzia dokumentu:** 1.0  
+**Verzia dokumentu:** 1.1  
 **Dátum:** 2025-11-26  
 
 ---
@@ -10,35 +10,17 @@
 
 ### 1.1 High-Level Diagram
 
-```
-┌─────────────────────────────┐      ┌─────────────────────────────────────┐
-│  ICC Server (Dev Center)    │      │  Zákazník Server                    │
-│                             │      │                                     │
-│  ┌───────────────────────┐  │      │  ┌─────────────────────────────┐    │
-│  │  n8n Workflows        │──┼──────┼─→│  FastAPI                    │    │
-│  │                       │  │ HTTPS│  │  (supplier-invoice-loader)  │    │
-│  └───────────────────────┘  │ via  │  └──────────────┬──────────────┘    │
-│                             │ CF   │                 │                   │
-│  Zdieľané pre všetkých     │Tunnel│                 ↓                   │
-│  zákazníkov                 │      │  ┌─────────────────────────────┐    │
-│                             │      │  │  PostgreSQL                 │    │
-└─────────────────────────────┘      │  │  (invoice_staging)          │    │
-                                     │  └──────────────┬──────────────┘    │
-                                     │                 │                   │
-                                     │                 ↓                   │
-                                     │  ┌─────────────────────────────┐    │
-                                     │  │  GUI Application            │    │
-                                     │  │  (supplier-invoice-editor)  │    │
-                                     │  └──────────────┬──────────────┘    │
-                                     │                 │                   │
-                                     │                 ↓                   │
-                                     │  ┌─────────────────────────────┐    │
-                                     │  │  NEX Genesis (Btrieve)      │    │
-                                     │  └─────────────────────────────┘    │
-                                     │                                     │
-                                     │  Všetko beží lokálne u zákazníka   │
-                                     └─────────────────────────────────────┘
-```
+**ICC Server (Dev Center)**
+- n8n Workflows (zdieľané pre všetkých zákazníkov)
+- Komunikácia cez HTTPS (Cloudflare Tunnel)
+
+↓ HTTPS/CF Tunnel ↓
+
+**Zákazník Server** (všetko beží lokálne)
+- FastAPI (supplier-invoice-loader)
+- PostgreSQL (invoice_staging)
+- GUI Application (supplier-invoice-editor)
+- NEX Genesis (Btrieve)
 
 ### 1.2 Princípy
 
@@ -61,6 +43,7 @@
 - HTTP (API volania)
 
 **Workflow:** `n8n-SupplierInvoiceEmailLoader`
+
 ```
 Email Trigger (IMAP)
     ↓
@@ -92,6 +75,7 @@ Has PDF? (Switch)
 - Cloudflare Tunnel (HTTPS)
 
 **Štruktúra:**
+
 ```
 supplier-invoice-loader/
 ├── main.py                    # FastAPI app
@@ -177,6 +161,7 @@ CREATE TABLE invoice_items (
 - Btrieve client (NEX Genesis)
 
 **Štruktúra:**
+
 ```
 supplier-invoice-editor/
 ├── main.py                    # Entry point
@@ -232,59 +217,46 @@ supplier-invoice-editor/
 
 ### 3.1 End-to-End Flow
 
-```
-┌─────────────────────────────────────────────────────────────────────────┐
-│  1. EMAIL                                                               │
-│     Dodávateľ → Operátor Mágerstav → magerstavinvoice@gmail.com        │
-└─────────────────────────────────────────────────────────────────────────┘
-                                    │
-                                    ▼
-┌─────────────────────────────────────────────────────────────────────────┐
-│  2. N8N WORKFLOW (ICC Server)                                           │
-│     IMAP Trigger → Split PDF → HTTP POST                               │
-└─────────────────────────────────────────────────────────────────────────┘
-                                    │
-                                    ▼ HTTPS (Cloudflare Tunnel)
-┌─────────────────────────────────────────────────────────────────────────┐
-│  3. FASTAPI (Zákazník Server)                                           │
-│     Receive → Extract (Regex) → Generate XML → Save Files              │
-└─────────────────────────────────────────────────────────────────────────┘
-                                    │
-                    ┌───────────────┼───────────────┐
-                    ▼               ▼               ▼
-            ┌───────────┐   ┌───────────┐   ┌───────────┐
-            │ PDF File  │   │ XML File  │   │ PostgreSQL│
-            │ C:\NEX\   │   │ C:\NEX\   │   │ staging   │
-            │ IMPORT\   │   │ IMPORT\   │   │           │
-            │ PDF\      │   │ XML\      │   │           │
-            └───────────┘   └───────────┘   └─────┬─────┘
-                                                  │
-                                                  ▼
-┌─────────────────────────────────────────────────────────────────────────┐
-│  4. NEX LOOKUP                                                          │
-│     Pre každú položku: EAN → GSCAT.BTR → PLU                           │
-│     Výsledok uložený do PostgreSQL (nex_plu, in_nex)                   │
-└─────────────────────────────────────────────────────────────────────────┘
-                                    │
-                                    ▼
-┌─────────────────────────────────────────────────────────────────────────┐
-│  5. GUI (supplier-invoice-editor)                                       │
-│     Zobrazenie → Editácia → Validácia → Schválenie                     │
-└─────────────────────────────────────────────────────────────────────────┘
-                                    │
-                                    ▼
-┌─────────────────────────────────────────────────────────────────────────┐
-│  6. BTRIEVE ZÁPIS                                                       │
-│     GSCAT (nové produkty) → BARCODE → TSH → TSI → RPC                  │
-└─────────────────────────────────────────────────────────────────────────┘
-                                    │
-                                    ▼
-┌─────────────────────────────────────────────────────────────────────────┐
-│  7. VÝSLEDOK                                                            │
-│     Dodávateľský DL v NEX Genesis (status "Pripravený")                │
-│     Operátor dokončí naskladnenie v NEX Genesis                        │
-└─────────────────────────────────────────────────────────────────────────┘
-```
+**KROK 1: EMAIL**
+- Dodávateľ → Operátor Mágerstav → magerstavinvoice@gmail.com
+
+↓
+
+**KROK 2: N8N WORKFLOW (ICC Server)**
+- IMAP Trigger → Split PDF → HTTP POST
+
+↓ HTTPS (Cloudflare Tunnel) ↓
+
+**KROK 3: FASTAPI (Zákazník Server)**
+- Receive → Extract (Regex) → Generate XML → Save Files
+
+↓ (3 výstupy) ↓
+
+- PDF File: C:\NEX\IMPORT\PDF\
+- XML File: C:\NEX\IMPORT\XML\
+- PostgreSQL: invoice_staging
+
+↓
+
+**KROK 4: NEX LOOKUP**
+- Pre každú položku: EAN → GSCAT.BTR → PLU
+- Výsledok uložený do PostgreSQL (nex_plu, in_nex)
+
+↓
+
+**KROK 5: GUI (supplier-invoice-editor)**
+- Zobrazenie → Editácia → Validácia → Schválenie
+
+↓
+
+**KROK 6: BTRIEVE ZÁPIS**
+- GSCAT (nové produkty) → BARCODE → TSH → TSI → RPC
+
+↓
+
+**KROK 7: VÝSLEDOK**
+- Dodávateľský DL v NEX Genesis (status "Pripravený")
+- Operátor dokončí naskladnenie v NEX Genesis
 
 ---
 
@@ -446,4 +418,5 @@ n8n Server (ICC)
 ---
 
 **Dokument vytvorený:** 2025-11-26  
-**Autor:** Claude AI + Zoltán Rausch
+**Autor:** Claude AI + Zoltán Rausch  
+**Revízia:** 1.1 (Fixed per pravidlo 18)

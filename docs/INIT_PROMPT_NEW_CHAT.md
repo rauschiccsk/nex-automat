@@ -1,7 +1,7 @@
-# Init Prompt - Post Strategic Planning
+# Init Prompt - Post Documentation Cleanup
 
-**Project:** NEX Automat  
-**Last Session:** 2025-11-26 (Strategic Planning Complete)  
+**Projekt:** NEX Automat  
+**Last Session:** 2025-11-26 (Documentation Cleanup - Pravidlo 18)  
 **This Session:** Implementation Phase  
 
 ---
@@ -14,34 +14,31 @@ NEX Automat je projekt pre kompletnú automatizáciu podnikových procesov pre z
 - Version: 2.0.0 (tagged)
 - GO-LIVE: 2025-11-27 (Preview/Demo pre Mágerstav)
 - Strategic Planning: ✅ COMPLETE
+- Documentation: ✅ CLEAN (all docs comply with pravidlo 18)
 
 ---
 
 ## What Was Completed Last Session
 
-### Strategic Planning - ALL COMPLETE ✅
+### Documentation Cleanup ✅
 
-| Bod | Názov | Status |
-|-----|-------|--------|
-| 1 | Definícia cieľov | ✅ |
-| - | Terminológia | ✅ |
-| 2 | Aktuálny stav (inventory) | ✅ |
-| 3 | Požiadavky & Priority | ✅ |
-| 4 | Architektúra & Design | ✅ |
-| 5 | Roadmap & Fázy | ✅ |
-| 6 | Dokumentácia | ✅ |
+Všetkých 6 strategických dokumentov upravených podľa pravidla 18:
 
-### Strategická dokumentácia vytvorená
+**Modified (Fixed):**
+- `docs/strategy/ARCHITECTURE.md` → v1.1
+- `docs/strategy/REQUIREMENTS.md` → v1.1
+- `docs/strategy/CURRENT_STATE.md` → v1.1
 
-```
-docs/strategy/
-├── TERMINOLOGY.md      # Slovník pojmov NEX Genesis
-├── CURRENT_STATE.md    # Inventory + navrhnutý workflow
-├── VISION.md           # Vízia, stratégia, hodnota
-├── ARCHITECTURE.md     # Komponenty, dátový tok
-├── REQUIREMENTS.md     # Funkcionálne požiadavky
-└── ROADMAP.md          # 9 fáz implementácie
-```
+**Already compliant:**
+- `docs/strategy/TERMINOLOGY.md` → v1.0
+- `docs/strategy/VISION.md` → v1.0
+- `docs/strategy/ROADMAP.md` → v1.0
+
+**Zmeny:**
+- Odstránené všetky box-drawing chars (┌─│└)
+- Štandardné Markdown tabuľky
+- Plain text formátovanie diagramov
+- ASCII tree štruktúry zachované
 
 ---
 
@@ -61,38 +58,26 @@ FÁZA 9: Ďalší zákazníci + Rozšírenia         ⚪ FUTURE
 
 ---
 
-## Navrhnutý Workflow v2.0
+## Project Structure
 
-### Fáza A: Email → Staging ✅ HOTOVÉ
-1. Email s PDF → n8n IMAP trigger
-2. PDF extrakcia (regex)
-3. ISDOC XML generovanie
-4. FastAPI → PostgreSQL staging
-5. NEX Lookup (EAN → PLU)
-
-### Fáza B: GUI Kontrola ⚪ TODO
-1. GUI zobrazí položky faktúry
-2. Farebné rozlíšenie:
-   - BIELA: PLU > 0 (existuje)
-   - ČERVENÁ: PLU = 0, bez skupiny
-   - ORANŽOVÁ: PLU = 0, so skupinou
-   - ŽLTÁ: cena zmenená
-3. Operátor priradí skupiny novým položkám
-4. Operátor skontroluje/upraví marže
-
-### Fáza C: Produktové karty ⚪ TODO
-1. "Vytvoriť nové položky"
-2. GSCAT.BTR zápis (nové PLU)
-3. BARCODE.BTR zápis (EAN väzba)
-4. Refresh PLU
-
-### Fáza D: Dodací list ⚪ TODO
-1. "Zaevidovať DL"
-2. TSH zápis (hlavička)
-3. TSI zápis (položky)
-4. RPC zápis (zmenené ceny)
-5. Spätná kontrola súm
-6. Staging: status = completed
+```
+C:\Development\nex-automat\
+├── docs\
+│   ├── SESSION_NOTES.md
+│   └── strategy\
+│       ├── TERMINOLOGY.md
+│       ├── CURRENT_STATE.md
+│       ├── VISION.md
+│       ├── ARCHITECTURE.md      ← v1.1 (fixed)
+│       ├── REQUIREMENTS.md      ← v1.1 (fixed)
+│       └── ROADMAP.md
+├── apps\
+│   ├── supplier-invoice-loader\   # FastAPI service
+│   └── supplier-invoice-editor\   # PyQt5 GUI
+└── packages\
+    ├── invoice-shared\
+    └── nex-shared\
+```
 
 ---
 
@@ -111,48 +96,9 @@ FÁZA 9: Ďalší zákazníci + Rozšírenia         ⚪ FUTURE
 
 ---
 
-## Project Structure
-
-```
-C:\Development\nex-automat\
-├── docs\
-│   ├── SESSION_NOTES.md
-│   └── strategy\
-│       ├── TERMINOLOGY.md
-│       ├── CURRENT_STATE.md
-│       ├── VISION.md
-│       ├── ARCHITECTURE.md
-│       ├── REQUIREMENTS.md
-│       └── ROADMAP.md
-├── apps\
-│   ├── supplier-invoice-loader\   # FastAPI service
-│   └── supplier-invoice-editor\   # PyQt5 GUI
-└── packages\
-    ├── invoice-shared\
-    └── nex-shared\
-```
-
----
-
-## Key Files for Implementation
-
-**Btrieve modely (existujúce):**
-- `apps/supplier-invoice-editor/src/models/gscat.py`
-- `apps/supplier-invoice-editor/src/models/barcode.py`
-- `apps/supplier-invoice-editor/src/models/pab.py`
-- `apps/supplier-invoice-editor/src/models/mglst.py`
-
-**Btrieve modely (TODO):**
-- `apps/supplier-invoice-editor/src/models/tsh.py` ← vytvoriť
-- `apps/supplier-invoice-editor/src/models/tsi.py` ← vytvoriť
-- `apps/supplier-invoice-editor/src/models/pls.py` ← vytvoriť
-- `apps/supplier-invoice-editor/src/models/rpc.py` ← vytvoriť
-
----
-
 ## How to Start This Session
 
-1. Potvrď GO-LIVE status (2025-11-27)
+1. Commit dokumentáciu (3 upravené súbory)
 2. Vyber ďalší krok:
    - **Opcia A:** Príprava na GO-LIVE (ak treba)
    - **Opcia B:** Fáza 3 - Btrieve Models (TSH, TSI, PLS, RPC)
@@ -163,7 +109,7 @@ C:\Development\nex-automat\
 
 ## Important Notes
 
-- **Strategic docs** sú v `docs/strategy/` - vždy aktuálne
+- **Strategic docs** sú v `docs/strategy/` - všetky vyhovujú pravidlu 18
 - **CURRENT_STATE.md** obsahuje kompletný navrhnutý workflow
 - **ROADMAP.md** obsahuje poradie implementácie
 - Pri implementácii dodržiavať workflow z CURRENT_STATE.md

@@ -1,107 +1,83 @@
-# Session Notes - Strategic Planning Phase 2
+# Session Notes - 2025-11-26
 
 **Projekt:** NEX Automat  
+**Session:** Úprava strategických dokumentov (Pravidlo 18)  
 **Dátum:** 2025-11-26  
-**Session:** Strategic Planning - Bod 2 (Aktuálny stav) + Dokumentácia  
 
 ---
 
-## Čo bolo dokončené
+## Vykonané práce
 
-### 1. Inventory všetkých komponentov ✅
+### 1. Implementácia pravidla 18 do memory edits
 
-Zmapované všetky komponenty NEX Automat v2.0:
+**Pravidlo 18:**
+> In docs use standard Markdown tables only, never ASCII box-drawing chars (┌─│└). Keep ASCII tree structures for file/folder listings.
 
-| Komponent | Status |
-|-----------|--------|
-| n8n Workflow | ✅ ACTIVE, production ready |
-| PDF Extrakcia (regex) | ✅ 100% úspešnosť pre L&Š |
-| FastAPI Service | ✅ Windows Service |
-| PostgreSQL Staging | ✅ Beží u zákazníka |
-| supplier-invoice-editor | ✅ GUI zobrazenie funguje |
-| Btrieve READ | ✅ GSCAT, BARCODE, PAB, MGLST |
-| Btrieve WRITE | ⚪ TODO |
-
-### 2. Navrhnutý workflow pre v2.0 ✅
-
-Kompletný workflow v 4 fázach:
-- **Fáza A:** Email → Staging (✅ HOTOVÉ)
-- **Fáza B:** GUI Kontrola a príprava (⚪ NÁVRH)
-- **Fáza C:** Vytvorenie produktových kariet (⚪ NÁVRH)
-- **Fáza D:** Zaevidovanie dodávateľského DL (⚪ NÁVRH)
-
-### 3. Identifikované chýbajúce Btrieve tabuľky ✅
-
-Pridané do scope:
-- **PLS (PLSnnnnn.BTR)** - Predajný cenník
-- **RPC (RPCnnnnn.BTR)** - Požiadavky na zmeny cien
-- **TSH (TSHA-001.BTR)** - Hlavička DL
-- **TSI (TSIA-001.BTR)** - Položky DL
-
-### 4. Strategická dokumentácia ✅
-
-Vytvorené dokumenty v `docs/strategy/`:
-
-| Dokument | Obsah |
-|----------|-------|
-| CURRENT_STATE.md | Kompletný inventory + navrhnutý workflow |
-| VISION.md | Vízia, stratégia, hodnota pre zákazníka |
-| ARCHITECTURE.md | Komponenty, dátový tok, deployment |
-| REQUIREMENTS.md | Funkcionálne a nefunkcionálne požiadavky |
-| ROADMAP.md | 9 fáz implementácie, milestones |
+- Pravidlo bolo už existujúce v memory edits
+- Overené, že je aktívne
 
 ---
 
-## Kľúčové rozhodnutia
+### 2. Úprava strategických dokumentov
 
-1. **Workflow pre nové produkty:**
-   - Červená farba = PLU 0, bez skupiny
-   - Operátor priradí skupinu → Oranžová
-   - "Vytvoriť nové položky" → GSCAT + BARCODE zápis
+**Upravené (Fixed per pravidlo 18):**
 
-2. **Požiadavky na zmeny cien (RPC):**
-   - Pri editácii ceny → položka žltá
-   - Pri ukladaní DL automaticky vytvorí RPC záznam
+#### ARCHITECTURE.md (v1.0 → v1.1)
+- Odstránené všetky box-drawing chars z diagramov
+- High-level diagram prepísaný do plain text
+- Všetky tabuľky ostali štandardné Markdown
+- Zachované ASCII tree štruktúry pre file listings
 
-3. **Konfiguračné parametre:**
-   - `price_list_number` (nnnnn) pre PLS a RPC súbory
-   - `min_margin_percent` pre kontrolu marže
+#### REQUIREMENTS.md (v1.0 → v1.1)
+- Odstránené box-drawing chars z workflow diagramov (sekcia 3.1)
+- Workflow fázy prepísané do plain text formátu
+- Lepšia čitateľnosť workflow krokov
+- Všetky tabuľky ostali štandardné Markdown
 
----
+#### CURRENT_STATE.md (v1.0 → v1.1)
+- Odstránený veľký ASCII art diagram v sekcii 2 (Architektúra)
+- Prepísaný do plain text formátu s jasnou hierarchiou
+- Kompletný workflow v sekcii 5.1 prepísaný z box-drawing do plain text
+- Všetky fázy (A, B, C, D) majú jasný Markdown formát
+- Pridaná tabuľka pre vizuálne rozlíšenie položiek
+- Zachované ASCII tree štruktúry pre file listings
 
-## Current Status
-
-- **Strategic Planning:** ✅ COMPLETE
-- **GO-LIVE:** 2025-11-27 (Preview/Demo)
-- **Next Phase:** Implementácia (Fáza 3 - Btrieve Models)
-
----
-
-## Next Steps
-
-1. **GO-LIVE zajtra** - Demo pre Mágerstav
-2. **Post GO-LIVE** - Pokračovať s implementáciou:
-   - Fáza 3: Btrieve Models (TSH, TSI, PLS, RPC)
-   - Fáza 4: GUI Editácia + Farebné rozlíšenie
-   - Fáza 5: Vytvorenie produktových kariet
-   - Fáza 6: Zaevidovanie dodávateľského DL
-   - Fáza 7: Požiadavky na zmenu cien
+**Dokumenty bez úprav (už vyhovovali pravidlu 18):**
+- ✅ TERMINOLOGY.md - žiadne box-drawing chars
+- ✅ VISION.md - žiadne box-drawing chars
+- ✅ ROADMAP.md - žiadne box-drawing chars
 
 ---
 
-## Súbory zmenené/vytvorené
+## Výsledok
+
+**Všetkých 6 strategických dokumentov teraz vyhovuje pravidlu 18:**
+- Štandardné Markdown tabuľky
+- Žiadne box-drawing chars (┌─│└)
+- ASCII tree štruktúry zachované pre file/folder listings
+- Konzistentný formát naprieč celou dokumentáciou
+
+---
+
+## Súbory na commit
 
 ```
-docs/strategy/
-├── CURRENT_STATE.md    ← NOVÝ
-├── VISION.md           ← NOVÝ
-├── ARCHITECTURE.md     ← NOVÝ
-├── REQUIREMENTS.md     ← NOVÝ
-└── ROADMAP.md          ← NOVÝ
+docs/strategy/ARCHITECTURE.md   (modified - v1.1)
+docs/strategy/REQUIREMENTS.md   (modified - v1.1)
+docs/strategy/CURRENT_STATE.md  (modified - v1.1)
 ```
 
 ---
 
-**Session End:** 2025-11-26  
-**Duration:** ~2 hodiny  
-**Tokens Used:** ~80,000/128,000
+## Poznámky
+
+- Všetky zmeny boli kozmetické (formátovanie)
+- Žiadny obsah nebol zmenený
+- Dokumenty sú teraz konzistentné s pravidlom 18
+- Pripravené na commit
+
+---
+
+**Session trvanie:** ~30 minút  
+**Token usage:** ~61K tokens  
+**Status:** ✅ COMPLETE
