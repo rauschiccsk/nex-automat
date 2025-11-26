@@ -1,128 +1,132 @@
-# Init Prompt - Strategic Planning Phase 2
+# Init Prompt - Post Strategic Planning
 
 **Project:** NEX Automat  
-**Last Session:** 2025-11-26 (Terminology & Vision)  
-**This Session:** Strategic Planning - Bod 2 (Aktuálny stav)  
+**Last Session:** 2025-11-26 (Strategic Planning Complete)  
+**This Session:** Implementation Phase  
 
 ---
 
 ## Quick Context
 
-NEX Automat je projekt pre kompletná automatizáciu podnikových procesov pre zákazníkov používajúcich NEX Genesis ERP.
+NEX Automat je projekt pre kompletnú automatizáciu podnikových procesov pre zákazníkov používajúcich NEX Genesis ERP.
 
 **Aktuálny stav:**
 - Version: 2.0.0 (tagged)
-- GO-LIVE: 2025-11-27 (preview/demo pre Mágerstav)
-- Strategic Planning: In Progress
+- GO-LIVE: 2025-11-27 (Preview/Demo pre Mágerstav)
+- Strategic Planning: ✅ COMPLETE
 
 ---
 
 ## What Was Completed Last Session
 
-### 1. Project Vision ✅
-- NEX Automat = Kompletná automatizácia podniku
-- Stratégia: Čiastočná → Úplná automatizácia
-- Hodnota: Ušetrenie 1-3 FTE na zákazníka
-
-### 2. Business Context ✅
-- Pilotní zákazníci: Mágerstav, ANDROS, ICC
-- Success kritériá definované
-
-### 3. Terminology Dictionary ✅
-- 8 podsystémov NEX Genesis
-- 31 modulov s EN názvami a kódmi
-- Dokument: TERMINOLOGY.md (artifact)
-
----
-
-## Planning Progress
+### Strategic Planning - ALL COMPLETE ✅
 
 | Bod | Názov | Status |
 |-----|-------|--------|
-| 1 | Definícia cieľov | ✅ COMPLETE |
-| - | Terminológia | ✅ COMPLETE |
-| 2 | Aktuálny stav (inventory) | ⏳ **THIS SESSION** |
-| 3 | Požiadavky & Priority | ⚪ TODO |
-| 4 | Architektúra & Design | ⚪ TODO |
-| 5 | Roadmap & Fázy | ⚪ TODO |
-| 6 | Dokumentácia | ⚪ TODO |
+| 1 | Definícia cieľov | ✅ |
+| - | Terminológia | ✅ |
+| 2 | Aktuálny stav (inventory) | ✅ |
+| 3 | Požiadavky & Priority | ✅ |
+| 4 | Architektúra & Design | ✅ |
+| 5 | Roadmap & Fázy | ✅ |
+| 6 | Dokumentácia | ✅ |
 
----
+### Strategická dokumentácia vytvorená
 
-## This Session Goals
-
-### Bod 2 - AKTUÁLNY STAV (inventory)
-
-Zmapovať:
-1. **Čo máme hotové** - všetky komponenty NEX Automat
-2. **Čo funguje dobre** - stabilné časti systému
-3. **Kde sú limity** - známe problémy, technické obmedzenia
-
-**Komponenty na review:**
-- n8n workflow (email processing)
-- AI extrakcia (PDF → XML)
-- FastAPI transfer
-- supplier-invoice-loader
-- supplier-invoice-editor
-- PostgreSQL staging
-- Btrieve integration
-
----
-
-## Key Artifacts from Last Session
-
-### TERMINOLOGY.md
-Kompletný terminologický slovník NEX Genesis:
-
-**Podsystémy:**
-| Code | SK | EN |
-|------|----|----|
-| MASTER- | Všeobecné číselníky | Master Data |
-| STK- | Skladové hospodárstvo | Stock Management |
-| PROD- | Výroba | Production Management |
-| PROC- | Obstarávanie tovaru | Procurement |
-| PRICE- | Tvorba predajných cien | Sales Price Management |
-| SALES- | Predaj tovaru | Sales Management |
-| FIN- | Finančné účtovníctvo | Financial Management |
-| ACC- | Podvojné účtovníctvo | General Ledger Accounting |
-
-**Relevantné moduly pre aktuálny projekt:**
-- PROC-DN: Supplier Delivery Notes
-- PROC-INV: Supplier Invoices
-- PRICE-CHANGE: Price Change Requests
-- PRODUCTS: Product and Service Catalog
-- PARTNERS: Business Partner Catalog
-
----
-
-## Documentation Structure Decision
-
-Navrhnutá štruktúra (schváliť):
 ```
-docs/
-└── strategy/           ← NOVÝ PRIEČINOK
-    ├── TERMINOLOGY.md
-    ├── VISION.md
-    ├── ARCHITECTURE.md
-    ├── ROADMAP.md
-    └── REQUIREMENTS.md
+docs/strategy/
+├── TERMINOLOGY.md      # Slovník pojmov NEX Genesis
+├── CURRENT_STATE.md    # Inventory + navrhnutý workflow
+├── VISION.md           # Vízia, stratégia, hodnota
+├── ARCHITECTURE.md     # Komponenty, dátový tok
+├── REQUIREMENTS.md     # Funkcionálne požiadavky
+└── ROADMAP.md          # 9 fáz implementácie
 ```
 
 ---
 
-## Project Files Structure
+## Implementation Roadmap
+
+```
+FÁZA 1: Email → Staging → GUI Zobrazenie     ✅ COMPLETE
+FÁZA 2: GO-LIVE Preview/Demo                 🟡 IN PROGRESS (zajtra)
+FÁZA 3: Btrieve Models (TSH, TSI, PLS, RPC)  ⚪ TODO ← NEXT
+FÁZA 4: GUI Editácia + Farebné rozlíšenie    ⚪ TODO
+FÁZA 5: Vytvorenie produktových kariet       ⚪ TODO
+FÁZA 6: Zaevidovanie dodávateľského DL       ⚪ TODO
+FÁZA 7: Požiadavky na zmenu cien             ⚪ TODO
+FÁZA 8: Testovanie + Production Hardening    ⚪ TODO
+FÁZA 9: Ďalší zákazníci + Rozšírenia         ⚪ FUTURE
+```
+
+---
+
+## Navrhnutý Workflow v2.0
+
+### Fáza A: Email → Staging ✅ HOTOVÉ
+1. Email s PDF → n8n IMAP trigger
+2. PDF extrakcia (regex)
+3. ISDOC XML generovanie
+4. FastAPI → PostgreSQL staging
+5. NEX Lookup (EAN → PLU)
+
+### Fáza B: GUI Kontrola ⚪ TODO
+1. GUI zobrazí položky faktúry
+2. Farebné rozlíšenie:
+   - BIELA: PLU > 0 (existuje)
+   - ČERVENÁ: PLU = 0, bez skupiny
+   - ORANŽOVÁ: PLU = 0, so skupinou
+   - ŽLTÁ: cena zmenená
+3. Operátor priradí skupiny novým položkám
+4. Operátor skontroluje/upraví marže
+
+### Fáza C: Produktové karty ⚪ TODO
+1. "Vytvoriť nové položky"
+2. GSCAT.BTR zápis (nové PLU)
+3. BARCODE.BTR zápis (EAN väzba)
+4. Refresh PLU
+
+### Fáza D: Dodací list ⚪ TODO
+1. "Zaevidovať DL"
+2. TSH zápis (hlavička)
+3. TSI zápis (položky)
+4. RPC zápis (zmenené ceny)
+5. Spätná kontrola súm
+6. Staging: status = completed
+
+---
+
+## Btrieve Tabuľky
+
+| Tabuľka | Súbor | Model | READ | WRITE |
+|---------|-------|-------|------|-------|
+| GSCAT | GSCAT.BTR | ✅ | ✅ | ⚪ TODO |
+| BARCODE | BARCODE.BTR | ✅ | ✅ | ⚪ TODO |
+| PAB | PAB.BTR | ✅ | ✅ | — |
+| MGLST | MGLST.BTR | ✅ | ✅ | — |
+| TSH | TSHA-001.BTR | ⚪ TODO | ⚪ TODO | ⚪ TODO |
+| TSI | TSIA-001.BTR | ⚪ TODO | ⚪ TODO | ⚪ TODO |
+| PLS | PLSnnnnn.BTR | ⚪ TODO | ⚪ TODO | — |
+| RPC | RPCnnnnn.BTR | ⚪ TODO | ⚪ TODO | ⚪ TODO |
+
+---
+
+## Project Structure
 
 ```
 C:\Development\nex-automat\
 ├── docs\
 │   ├── SESSION_NOTES.md
-│   ├── strategy\           ← NEW (to create)
-│   │   └── TERMINOLOGY.md
-│   └── apps\
-│       └── supplier-invoice-editor.json
+│   └── strategy\
+│       ├── TERMINOLOGY.md
+│       ├── CURRENT_STATE.md
+│       ├── VISION.md
+│       ├── ARCHITECTURE.md
+│       ├── REQUIREMENTS.md
+│       └── ROADMAP.md
 ├── apps\
-│   ├── supplier-invoice-loader\
-│   └── supplier-invoice-editor\
+│   ├── supplier-invoice-loader\   # FastAPI service
+│   └── supplier-invoice-editor\   # PyQt5 GUI
 └── packages\
     ├── invoice-shared\
     └── nex-shared\
@@ -130,48 +134,42 @@ C:\Development\nex-automat\
 
 ---
 
-## Key Information
+## Key Files for Implementation
 
-### Current Project Status
-- **supplier-invoice-loader:** Production ready (v2.0.0)
-- **supplier-invoice-editor:** 75% complete (Phase 4 done)
-- **n8n workflow:** Running on dev server
-- **PostgreSQL:** invoice_staging database
+**Btrieve modely (existujúce):**
+- `apps/supplier-invoice-editor/src/models/gscat.py`
+- `apps/supplier-invoice-editor/src/models/barcode.py`
+- `apps/supplier-invoice-editor/src/models/pab.py`
+- `apps/supplier-invoice-editor/src/models/mglst.py`
 
-### GO-LIVE 2025-11-27
-- **Type:** Preview/Demo
-- **Customer:** Mágerstav s.r.o.
-- **Scope:** Email → GUI display (no NEX Genesis write)
-- **Purpose:** Customer familiarization, AI validation
-
-### Known TODOs
-- Filename duplicity issue (PDF/XML storage)
-- Phase 5: NEX Genesis write operations
-- Approval workflow
-- Price Change Requests creation
+**Btrieve modely (TODO):**
+- `apps/supplier-invoice-editor/src/models/tsh.py` ← vytvoriť
+- `apps/supplier-invoice-editor/src/models/tsi.py` ← vytvoriť
+- `apps/supplier-invoice-editor/src/models/pls.py` ← vytvoriť
+- `apps/supplier-invoice-editor/src/models/rpc.py` ← vytvoriť
 
 ---
 
 ## How to Start This Session
 
-1. Load SESSION_NOTES.md from GitHub
-2. Confirm understanding of last session
-3. Start Bod 2: Aktuálny stav (inventory)
-   - Review each component systematically
-   - Document what works, what doesn't
-   - Identify gaps and limitations
+1. Potvrď GO-LIVE status (2025-11-27)
+2. Vyber ďalší krok:
+   - **Opcia A:** Príprava na GO-LIVE (ak treba)
+   - **Opcia B:** Fáza 3 - Btrieve Models (TSH, TSI, PLS, RPC)
+   - **Opcia C:** Fáza 4 - GUI Editácia
+   - **Opcia D:** Iné
 
 ---
 
 ## Important Notes
 
-- **This is planning session** - no coding
-- **Output:** Strategic documentation
-- **Use terminology** from TERMINOLOGY.md
-- **Step by step** - one topic at a time
+- **Strategic docs** sú v `docs/strategy/` - vždy aktuálne
+- **CURRENT_STATE.md** obsahuje kompletný navrhnutý workflow
+- **ROADMAP.md** obsahuje poradie implementácie
+- Pri implementácii dodržiavať workflow z CURRENT_STATE.md
 
 ---
 
 **Last Updated:** 2025-11-26  
 **Version:** 1.0  
-**Status:** 🟡 Strategic Planning In Progress
+**Status:** 🟢 Ready for Implementation
