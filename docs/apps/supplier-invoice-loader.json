@@ -2,14 +2,14 @@
   "name": "supplier-invoice-loader",
   "type": "application",
   "location": "apps/supplier-invoice-loader",
-  "generated": "2025-11-27T09:26:05.134726",
+  "generated": "2025-11-27T12:52:52.637457",
   "statistics": {
     "total_files": 123,
     "total_dirs": 34,
     "python_files": 53,
     "test_files": 15,
     "total_lines": 10273,
-    "total_size": 9074368
+    "total_size": 9074361
   },
   "structure": {
     "has_src": true,
@@ -19,7 +19,6 @@
   },
   "dependencies": {
     "main": [
-      "invoice-shared",
       "fastapi>=0.104.0",
       "uvicorn>=0.24.0",
       "asyncpg>=0.29.0",
@@ -28,7 +27,8 @@
       "pypdf>=3.17.0",
       "pillow>=10.1.0",
       "python-multipart>=0.0.6",
-      "httpx>=0.25.0"
+      "httpx>=0.25.0",
+      "nexdata"
     ],
     "dev": [
       "pytest>=7.4.0",
@@ -399,7 +399,7 @@
     {
       "path": "apps/supplier-invoice-loader/pyproject.toml",
       "name": "pyproject.toml",
-      "size": 1166,
+      "size": 1159,
       "extension": ".toml",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/apps/supplier-invoice-loader/pyproject.toml"
     },

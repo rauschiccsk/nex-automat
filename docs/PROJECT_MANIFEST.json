@@ -4,20 +4,20 @@
   "version": "2.0.0",
   "description": "Multi-customer SaaS for automated invoice processing",
   "location": "C:\\Development\\nex-automat",
-  "generated": "2025-11-27T09:26:05.676286",
+  "generated": "2025-11-27T12:52:53.157202",
   "structure": {
     "apps": 2,
-    "packages": 2,
+    "packages": 1,
     "docs": true,
     "tools": true
   },
   "statistics": {
-    "total_files": 5284,
-    "total_dirs": 591,
-    "python_files": 2072,
-    "test_files": 67,
-    "total_lines": 739563,
-    "total_size": 104957696
+    "total_files": 5495,
+    "total_dirs": 605,
+    "python_files": 2263,
+    "test_files": 70,
+    "total_lines": 770692,
+    "total_size": 105924251
   },
   "applications": [
     {
@@ -39,17 +39,10 @@
   ],
   "packages": [
     {
-      "name": "invoice-shared",
-      "location": "packages/invoice-shared",
-      "manifest": "docs/packages/invoice-shared.json",
-      "python_files": 7,
-      "dependencies_count": 2
-    },
-    {
-      "name": "nex-shared",
-      "location": "packages/nex-shared",
-      "manifest": "docs/packages/nex-shared.json",
-      "python_files": 21,
+      "name": "nexdata",
+      "location": "packages/nexdata",
+      "manifest": "docs/packages/nexdata.json",
+      "python_files": 22,
       "dependencies_count": 1
     }
   ],
@@ -61,7 +54,7 @@
       "asyncpg",
       "fastapi",
       "httpx",
-      "invoice-shared",
+      "nexdata",
       "openpyxl",
       "pillow",
       "pydantic",
@@ -86,7 +79,7 @@
     "session_notes": {
       "path": "docs/SESSION_NOTES.md",
       "exists": true,
-      "size": 11422,
+      "size": 6135,
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/docs/SESSION_NOTES.md"
     }
   },

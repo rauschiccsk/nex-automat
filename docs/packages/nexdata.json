@@ -1,0 +1,307 @@
+{
+  "name": "nexdata",
+  "type": "package",
+  "location": "packages/nexdata",
+  "generated": "2025-11-27T12:52:52.802806",
+  "statistics": {
+    "total_files": 24,
+    "total_dirs": 8,
+    "python_files": 22,
+    "test_files": 0,
+    "total_lines": 2545,
+    "total_size": 89167
+  },
+  "dependencies": {
+    "main": [
+      "pyyaml>=6.0.0"
+    ],
+    "dev": [],
+    "optional": {}
+  },
+  "files": [
+    {
+      "path": "packages/nexdata/README.md",
+      "name": "README.md",
+      "size": 1029,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/packages/nexdata/README.md"
+    },
+    {
+      "path": "packages/nexdata/nexdata/__init__.py",
+      "name": "__init__.py",
+      "size": 993,
+      "extension": ".py",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/packages/nexdata/nexdata/__init__.py",
+      "lines": 48,
+      "type": "source"
+    },
+    {
+      "path": "packages/nexdata/nexdata/auth/__init__.py",
+      "name": "__init__.py",
+      "size": 30,
+      "extension": ".py",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/packages/nexdata/nexdata/auth/__init__.py",
+      "lines": 1,
+      "type": "source"
+    },
+    {
+      "path": "packages/nexdata/nexdata/btrieve/__init__.py",
+      "name": "__init__.py",
+      "size": 15,
+      "extension": ".py",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/packages/nexdata/nexdata/btrieve/__init__.py",
+      "lines": 1,
+      "type": "source"
+    },
+    {
+      "path": "packages/nexdata/nexdata/btrieve/btrieve_client.py",
+      "name": "btrieve_client.py",
+      "size": 10982,
+      "extension": ".py",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/packages/nexdata/nexdata/btrieve/btrieve_client.py",
+      "lines": 343,
+      "type": "source"
+    },
+    {
+      "path": "packages/nexdata/nexdata/database/__init__.py",
+      "name": "__init__.py",
+      "size": 30,
+      "extension": ".py",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/packages/nexdata/nexdata/database/__init__.py",
+      "lines": 1,
+      "type": "source"
+    },
+    {
+      "path": "packages/nexdata/nexdata/models/__init__.py",
+      "name": "__init__.py",
+      "size": 15,
+      "extension": ".py",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/packages/nexdata/nexdata/models/__init__.py",
+      "lines": 1,
+      "type": "source"
+    },
+    {
+      "path": "packages/nexdata/nexdata/models/barcode.py",
+      "name": "barcode.py",
+      "size": 7180,
+      "extension": ".py",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/packages/nexdata/nexdata/models/barcode.py",
+      "lines": 214,
+      "type": "source"
+    },
+    {
+      "path": "packages/nexdata/nexdata/models/gscat.py",
+      "name": "gscat.py",
+      "size": 11665,
+      "extension": ".py",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/packages/nexdata/nexdata/models/gscat.py",
+      "lines": 298,
+      "type": "source"
+    },
+    {
+      "path": "packages/nexdata/nexdata/models/mglst.py",
+      "name": "mglst.py",
+      "size": 8291,
+      "extension": ".py",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/packages/nexdata/nexdata/models/mglst.py",
+      "lines": 237,
+      "type": "source"
+    },
+    {
+      "path": "packages/nexdata/nexdata/models/pab.py",
+      "name": "pab.py",
+      "size": 9589,
+      "extension": ".py",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/packages/nexdata/nexdata/models/pab.py",
+      "lines": 256,
+      "type": "source"
+    },
+    {
+      "path": "packages/nexdata/nexdata/models/tsh.py",
+      "name": "tsh.py",
+      "size": 10551,
+      "extension": ".py",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/packages/nexdata/nexdata/models/tsh.py",
+      "lines": 254,
+      "type": "source"
+    },
+    {
+      "path": "packages/nexdata/nexdata/models/tsi.py",
+      "name": "tsi.py",
+      "size": 9810,
+      "extension": ".py",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/packages/nexdata/nexdata/models/tsi.py",
+      "lines": 252,
+      "type": "source"
+    },
+    {
+      "path": "packages/nexdata/nexdata/monitoring/__init__.py",
+      "name": "__init__.py",
+      "size": 30,
+      "extension": ".py",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/packages/nexdata/nexdata/monitoring/__init__.py",
+      "lines": 1,
+      "type": "source"
+    },
+    {
+      "path": "packages/nexdata/nexdata/repositories/__init__.py",
+      "name": "__init__.py",
+      "size": 539,
+      "extension": ".py",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/packages/nexdata/nexdata/repositories/__init__.py",
+      "lines": 21,
+      "type": "source"
+    },
+    {
+      "path": "packages/nexdata/nexdata/repositories/barcode_repository.py",
+      "name": "barcode_repository.py",
+      "size": 1650,
+      "extension": ".py",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/packages/nexdata/nexdata/repositories/barcode_repository.py",
+      "lines": 57,
+      "type": "source"
+    },
+    {
+      "path": "packages/nexdata/nexdata/repositories/base_repository.py",
+      "name": "base_repository.py",
+      "size": 6913,
+      "extension": ".py",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/packages/nexdata/nexdata/repositories/base_repository.py",
+      "lines": 218,
+      "type": "source"
+    },
+    {
+      "path": "packages/nexdata/nexdata/repositories/gscat_repository.py",
+      "name": "gscat_repository.py",
+      "size": 1633,
+      "extension": ".py",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/packages/nexdata/nexdata/repositories/gscat_repository.py",
+      "lines": 58,
+      "type": "source"
+    },
+    {
+      "path": "packages/nexdata/nexdata/repositories/mglst_repository.py",
+      "name": "mglst_repository.py",
+      "size": 1687,
+      "extension": ".py",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/packages/nexdata/nexdata/repositories/mglst_repository.py",
+      "lines": 63,
+      "type": "source"
+    },
+    {
+      "path": "packages/nexdata/nexdata/repositories/pab_repository.py",
+      "name": "pab_repository.py",
+      "size": 1953,
+      "extension": ".py",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/packages/nexdata/nexdata/repositories/pab_repository.py",
+      "lines": 74,
+      "type": "source"
+    },
+    {
+      "path": "packages/nexdata/nexdata/repositories/tsh_repository.py",
+      "name": "tsh_repository.py",
+      "size": 2092,
+      "extension": ".py",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/packages/nexdata/nexdata/repositories/tsh_repository.py",
+      "lines": 72,
+      "type": "source"
+    },
+    {
+      "path": "packages/nexdata/nexdata/repositories/tsi_repository.py",
+      "name": "tsi_repository.py",
+      "size": 2153,
+      "extension": ".py",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/packages/nexdata/nexdata/repositories/tsi_repository.py",
+      "lines": 74,
+      "type": "source"
+    },
+    {
+      "path": "packages/nexdata/nexdata/utils/__init__.py",
+      "name": "__init__.py",
+      "size": 15,
+      "extension": ".py",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/packages/nexdata/nexdata/utils/__init__.py",
+      "lines": 1,
+      "type": "source"
+    },
+    {
+      "path": "packages/nexdata/pyproject.toml",
+      "name": "pyproject.toml",
+      "size": 322,
+      "extension": ".toml",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/packages/nexdata/pyproject.toml"
+    }
+  ],
+  "modules": [
+    {
+      "name": "btrieve_client",
+      "path": "btrieve/btrieve_client.py",
+      "lines": 343
+    },
+    {
+      "name": "barcode",
+      "path": "models/barcode.py",
+      "lines": 214
+    },
+    {
+      "name": "gscat",
+      "path": "models/gscat.py",
+      "lines": 298
+    },
+    {
+      "name": "mglst",
+      "path": "models/mglst.py",
+      "lines": 237
+    },
+    {
+      "name": "pab",
+      "path": "models/pab.py",
+      "lines": 256
+    },
+    {
+      "name": "tsh",
+      "path": "models/tsh.py",
+      "lines": 254
+    },
+    {
+      "name": "tsi",
+      "path": "models/tsi.py",
+      "lines": 252
+    },
+    {
+      "name": "barcode_repository",
+      "path": "repositories/barcode_repository.py",
+      "lines": 57
+    },
+    {
+      "name": "base_repository",
+      "path": "repositories/base_repository.py",
+      "lines": 218
+    },
+    {
+      "name": "gscat_repository",
+      "path": "repositories/gscat_repository.py",
+      "lines": 58
+    },
+    {
+      "name": "mglst_repository",
+      "path": "repositories/mglst_repository.py",
+      "lines": 63
+    },
+    {
+      "name": "pab_repository",
+      "path": "repositories/pab_repository.py",
+      "lines": 74
+    },
+    {
+      "name": "tsh_repository",
+      "path": "repositories/tsh_repository.py",
+      "lines": 72
+    },
+    {
+      "name": "tsi_repository",
+      "path": "repositories/tsi_repository.py",
+      "lines": 74
+    }
+  ]
+}
