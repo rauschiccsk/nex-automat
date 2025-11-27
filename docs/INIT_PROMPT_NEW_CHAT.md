@@ -1,8 +1,8 @@
-# Init Prompt - NEX Shared Integration
+# Init Prompt - Btrieve Config Lookup Implementation
 
 **Projekt:** NEX Automat  
-**Last Session:** 2025-11-27 (NEX Shared Package Creation)  
-**This Session:** Integration & Repositories  
+**Last Session:** 2025-11-27 (nexdata Package Creation)  
+**This Session:** Btrieve Config Lookup + Read Operations  
 
 ---
 
@@ -13,248 +13,282 @@ NEX Automat je projekt pre kompletnú automatizáciu podnikových procesov pre z
 **Aktuálny stav:**
 - Version: 2.0.0 (tagged)
 - GO-LIVE: ✅ COMPLETE (2025-11-27)
-- NEX Shared Package: ✅ CREATED (last session)
-- Integration: ⚪ TODO (this session)
+- nexdata Package: ✅ CREATED (last session)
+- Btrieve Integration: 🟡 CONFIG LOOKUP NEEDED ← **HERE**
 
 ---
 
-## What Was Completed Last Session
+## What Was Completed Last Session ✅
 
-### NEX Shared Package ✅
+### nexdata Package Creation
+Úspešne vytvorený package s:
+- ✅ 6 Btrieve models (TSH, TSI, GSCAT, BARCODE, PAB, MGLST)
+- ✅ 7 Repositories s BaseRepository pattern
+- ✅ BtrieveClient wrapper (32-bit Pervasive PSQL)
+- ✅ Proper Python package structure
 
-Vytvorený a nainštalovaný `nex-shared` package:
-
+**Package Location:**
 ```
-packages/nex-shared/
-├── nex_shared/
-│   ├── __init__.py
-│   ├── models/
-│   │   ├── tsh.py          # TSH model (7KB) ✅
-│   │   └── tsi.py          # TSI model (6.8KB) ✅
-│   ├── btrieve/
-│   │   └── btrieve_client.py  # Btrieve wrapper (5.5KB) ✅
-│   └── repositories/
-│       └── base_repository.py  # Repository pattern (2.8KB) ✅
-├── pyproject.toml ✅
-└── README.md ✅
-```
-
-**Models:**
-- ✅ TSHRecord (Dodacie listy - Header)
-- ✅ TSIRecord (Dodacie listy - Items)
-- ✅ BtrieveClient (32-bit Pervasive PSQL wrapper)
-- ✅ BaseRepository (Generic repository pattern)
-
-**Installation:**
-- ✅ `pip install -e packages/nex-shared` - SUCCESS
-- ✅ Import test - PASSED
-- ✅ Basic functionality - OK
-
----
-
-## Implementation Roadmap
-
-```
-FÁZA 1: Email → Staging → GUI Zobrazenie     ✅ COMPLETE
-FÁZA 2: GO-LIVE Preview/Demo                 ✅ COMPLETE
-FÁZA 3: Btrieve Models (TSH, TSI, PLS, RPC)  🟡 IN PROGRESS ← HERE
-  ├── ✅ nex-shared package created
-  ├── ✅ TSH/TSI models
-  ├── ⚪ TODO: Add to apps dependencies
-  ├── ⚪ TODO: Create repositories
-  ├── ⚪ TODO: Test read operations
-  └── ⚪ TODO: PLS, RPC models
-FÁZA 4: GUI Editácia + Farebné rozlíšenie    ⚪ TODO
-FÁZA 5: Vytvorenie produktových kariet       ⚪ TODO
-FÁZA 6: Zaevidovanie dodávateľského DL       ⚪ TODO
-FÁZA 7: Požiadavky na zmenu cien             ⚪ TODO
-FÁZA 8: Testovanie + Production Hardening    ⚪ TODO
-FÁZA 9: Ďalší zákazníci + Rozšírenia         ⚪ FUTURE
+packages/nexdata/
+└── nexdata/              ← Python module
+    ├── __init__.py
+    ├── models/
+    │   ├── tsh.py
+    │   ├── tsi.py
+    │   ├── gscat.py
+    │   ├── barcode.py
+    │   ├── pab.py
+    │   └── mglst.py
+    ├── btrieve/
+    │   └── btrieve_client.py
+    └── repositories/
+        ├── base_repository.py
+        ├── tsh_repository.py
+        ├── tsi_repository.py
+        ├── gscat_repository.py
+        ├── barcode_repository.py
+        ├── pab_repository.py
+        └── mglst_repository.py
 ```
 
----
+### Current Problem Identified
 
-## Project Structure
+**Btrieve Status 161 na všetkých open_file() pokusoch!**
 
-```
-C:\Development\nex-automat\
-├── docs\
-│   ├── SESSION_NOTES.md        ← Updated last session
-│   └── strategy\
-│       ├── TERMINOLOGY.md
-│       ├── CURRENT_STATE.md
-│       ├── VISION.md
-│       ├── ARCHITECTURE.md
-│       ├── REQUIREMENTS.md
-│       └── ROADMAP.md
-├── apps\
-│   ├── supplier-invoice-loader\   # FastAPI service
-│   └── supplier-invoice-editor\   # PyQt5 GUI
-├── packages\
-│   ├── invoice-shared\           # ✅ Working
-│   └── nex-shared\               # ✅ NEW - Working
-└── scripts\
-    ├── create_nex_shared_files.py      # ✅ Used last session
-    ├── reinstall_nex_shared.py         # ✅ Helper script
-    ├── test_nex_shared_import.py       # ✅ Test script
-    └── diagnose_site_packages.py       # ✅ Diagnostic
-```
+**Root Cause:**
+- Repositories vracajú filesystem paths: `"C:/NEX/YEARACT/STORES/GSCAT.BTR"`
+- BtrieveClient.open_file() posiela path priamo do Btrieve DLL
+- **Btrieve očakáva table names + config lookup!**
 
----
-
-## Btrieve Tabuľky
-
-| Tabuľka | Súbor | Model | Package | Status |
-|---------|-------|-------|---------|--------|
-| GSCAT | GSCAT.BTR | ✅ | invoice-shared | READ OK |
-| BARCODE | BARCODE.BTR | ✅ | invoice-shared | READ OK |
-| PAB | PAB.BTR | ✅ | invoice-shared | READ OK |
-| MGLST | MGLST.BTR | ✅ | invoice-shared | READ OK |
-| **TSH** | **TSHA-001.BTR** | **✅** | **nex-shared** | **NEW** ← Next |
-| **TSI** | **TSIA-001.BTR** | **✅** | **nex-shared** | **NEW** ← Next |
-| PLS | PLSnnnnn.BTR | ⚪ | nex-shared | TODO |
-| RPC | RPCnnnnn.BTR | ⚪ | nex-shared | TODO |
-
----
-
-## Next Steps (This Session)
-
-### Priority 1: Add nex-shared Dependency
-
-**Update apps dependencies:**
-
-1. **supplier-invoice-loader/pyproject.toml:**
-   ```toml
-   dependencies = [
-       ...
-       "nex-shared",
-   ]
-   ```
-
-2. **supplier-invoice-editor/pyproject.toml:**
-   ```toml
-   dependencies = [
-       ...
-       "nex-shared",
-   ]
-   ```
-
-3. **Reinstall apps:**
-   ```bash
-   pip install -e apps/supplier-invoice-loader
-   pip install -e apps/supplier-invoice-editor
-   ```
-
-### Priority 2: Create TSH/TSI Repositories
-
-**Location:** `apps/supplier-invoice-loader/src/repositories/`
-
-**Files to create:**
-1. `tsh_repository.py` - Repository pre TSH (Dodacie listy - Header)
-2. `tsi_repository.py` - Repository pre TSI (Dodacie listy - Items)
-
-**Pattern:**
+**Working approach (nex-genesis-server):**
 ```python
-from nex_shared.repositories.base_repository import BaseRepository
-from nex_shared.models.tsh import TSHRecord
-from nex_shared.btrieve.btrieve_client import BtrieveClient
+# Repository
+@property
+def table_name(self) -> str:
+    return 'gscat'  # ← just name
 
+# Config (database.yaml)
+tables:
+  gscat: "C:\\NEX\\YEARACT\\STORES\\GSCAT.BTR"
+
+# BtrieveClient resolves: 'gscat' → full path
+```
+
+**Current broken approach:**
+```python
+# Repository
+@property
+def table_name(self) -> str:
+    return "C:/NEX/YEARACT/STORES/GSCAT.BTR"  # ← direct path
+
+# BtrieveClient receives empty config {}
+# Btrieve DLL cannot resolve path → Status 161
+```
+
+---
+
+## Solution Implementation Plan
+
+### Priority 1: BtrieveClient Config Lookup ⚡
+
+**File:** `packages/nexdata/nexdata/btrieve/btrieve_client.py`
+
+**Modify `open_file()` method:**
+```python
+def open_file(self, table_name_or_path: str, owner_name: str = "", mode: int = -2):
+    """
+    Open Btrieve file by table name or direct path
+    
+    If config exists and table_name_or_path is in config, use mapped path.
+    Otherwise use table_name_or_path as direct filepath.
+    """
+    # Resolve table name to filepath
+    filepath = self._resolve_table_path(table_name_or_path)
+    
+    # ... rest of open logic with filepath
+```
+
+**Add helper method:**
+```python
+def _resolve_table_path(self, table_name_or_path: str) -> str:
+    """
+    Resolve table name to filesystem path using config
+    
+    Args:
+        table_name_or_path: Either table name (e.g. 'gscat') or direct path
+        
+    Returns:
+        Filesystem path to .BTR file
+    """
+    # Check if config has table mapping
+    if self.config and 'nex_genesis' in self.config:
+        tables = self.config.get('nex_genesis', {}).get('tables', {})
+        
+        if table_name_or_path in tables:
+            # It's a table name - resolve from config
+            return tables[table_name_or_path]
+    
+    # It's already a path, or no config - use as-is
+    return table_name_or_path
+```
+
+### Priority 2: Repository Updates
+
+**Update all repositories to return table names:**
+
+**Before:**
+```python
+@property
+def table_name(self) -> str:
+    return "C:/NEX/YEARACT/STORES/GSCAT.BTR"
+```
+
+**After:**
+```python
+@property
+def table_name(self) -> str:
+    return 'gscat'
+```
+
+**Files to update:**
+- `gscat_repository.py` → `'gscat'`
+- `barcode_repository.py` → `'barcode'`
+- `mglst_repository.py` → `'mglst'`
+- `pab_repository.py` → `'pab'`
+- `tsh_repository.py` → `'tsh'` (dynamic: needs book_id)
+- `tsi_repository.py` → `'tsi'` (dynamic: needs book_id)
+
+**Note:** TSH/TSI sú dynamické - používajú `{book_id}` placeholder
+
+### Priority 3: Database Config File
+
+**Create:** `config/database.yaml`
+
+**Content (from nex-genesis-server):**
+```yaml
+nex_genesis:
+  root_path: "C:\\NEX"
+  yearact_path: "C:\\NEX\\YEARACT"
+  
+  tables:
+    gscat: "C:\\NEX\\YEARACT\\STORES\\GSCAT.BTR"
+    barcode: "C:\\NEX\\YEARACT\\STORES\\BARCODE.BTR"
+    mglst: "C:\\NEX\\YEARACT\\STORES\\MGLST.BTR"
+    pab: "C:\\NEX\\YEARACT\\DIALS\\PAB00000.BTR"
+    
+    # Dynamic tables (use {book_id} placeholder)
+    tsh: "C:\\NEX\\YEARACT\\STORES\\TSHA-{book_id}.BTR"
+    tsi: "C:\\NEX\\YEARACT\\STORES\\TSIA-{book_id}.BTR"
+  
+  books:
+    delivery_notes_book: "001"
+    book_type: "A"
+```
+
+### Priority 4: Test Scripts Update
+
+**Update test scripts to use config:**
+```python
+# OLD
+client = BtrieveClient(config_or_path={})
+
+# NEW
+client = BtrieveClient(config_or_path="config/database.yaml")
+```
+
+### Priority 5: Dynamic Book IDs for TSH/TSI
+
+**TSH/TSI repositories need book_id:**
+```python
 class TSHRepository(BaseRepository[TSHRecord]):
+    def __init__(self, btrieve_client: BtrieveClient, book_id: str = "001"):
+        self.book_id = book_id
+        super().__init__(btrieve_client)
+    
     @property
     def table_name(self) -> str:
-        return "C:/NEX/YEARACT/STORES/TSHA-001.BTR"
-    
-    def from_bytes(self, data: bytes) -> TSHRecord:
-        return TSHRecord.from_bytes(data)
+        return f'tsh-{self.book_id}'  # Will resolve via config
 ```
-
-### Priority 3: Test Read Operations
-
-**Create test script:**
-- Read TSH records from NEX Genesis
-- Read TSI records (items) for specific document
-- Verify deserialization
-- Display results
-
-### Priority 4: GUI Integration (Optional)
-
-**If time permits:**
-- Display TSH/TSI in supplier-invoice-editor
-- Basic list view of documents
-- Show document details
 
 ---
 
 ## Available Resources
 
-### Scripts
+### Test Scripts (Need Update)
+- `scripts/test_tsh_tsi_read.py` - TSH/TSI integration test
+- `scripts/test_gscat_read.py` - GSCAT simple test
+- `scripts/test_gscat_with_config.py` - Config approach test
+- `scripts/diagnose_btrieve_paths.py` - Path diagnostic
 
-**Helper Scripts:**
-- `scripts/create_nex_shared_files.py` - Package file creator
-- `scripts/reinstall_nex_shared.py` - Reinstall helper
-- `scripts/test_nex_shared_import.py` - Import test
+### Reference Implementation
+- Location: `C:/Development/nex-genesis-server`
+- Working BtrieveClient with config lookup
+- Working repositories with table names
+- database.yaml with mappings
 
-**Diagnostic Scripts:**
-- `scripts/diagnose_site_packages.py` - Site-packages check
-
-### Documentation
-
-**Strategy Docs:**
-- `docs/strategy/CURRENT_STATE.md` - Workflow definition
-- `docs/strategy/ARCHITECTURE.md` - System architecture
-- `docs/strategy/REQUIREMENTS.md` - Requirements
-
-**Package Docs:**
-- `packages/nex-shared/README.md` - Usage examples
-
-### Related Project
-
-**nex-genesis-server:**
-- Source of Btrieve models
-- Location: C:/Development/nex-genesis-server
-- Has working examples of repositories
+### Environment
+- Python: 3.13.7 32-bit (venv32)
+- Btrieve DLL: w3btrv7.dll (Pervasive PSQL)
+- Service: psqlWGE (Running ✅)
 
 ---
 
 ## How to Start This Session
 
 1. **Load SESSION_NOTES.md** for full context
-2. **Choose priority:**
-   - **Option A:** Add nex-shared to apps dependencies
-   - **Option B:** Create TSH/TSI repositories
-   - **Option C:** Test read operations
-   - **Option D:** Other
+2. **Priority Order:**
+   - **Start with:** BtrieveClient config lookup implementation
+   - **Then:** Update repositories to use table names
+   - **Then:** Create config/database.yaml
+   - **Finally:** Test read operations
 
 3. **Follow workflow:**
-   - Development → Git → Deployment
-   - Test after each change
-   - Document progress
+   - Development → Test → Git
+   - Jeden krok naraz
+   - Testovať po každej zmene
 
 ---
 
-## Important Notes
+## Expected Outcomes
 
-- **nex-shared package:** Fully functional, tested
-- **Models:** TSH, TSI ready for use
-- **BtrieveClient:** 32-bit compatible, tested with w3btrv7.dll
-- **Installation:** Editable mode (`pip install -e`)
-- **Python:** 3.13.7 32-bit (venv32)
+Po dokončení tejto session:
+- ✅ BtrieveClient podporuje config lookup
+- ✅ Všetky repositories používajú table names
+- ✅ config/database.yaml vytvorený
+- ✅ Test read operations fungujú
+- ✅ Môžeme čítať z GSCAT, TSH, TSI, PAB, atď.
 
-**Repository Pattern:**
-- Inherit from `BaseRepository[T]`
-- Implement `table_name` property
-- Implement `from_bytes()` method
-- Use `get_first()`, `get_next()`, `get_all()`
+---
 
-**Btrieve Connection:**
+## Important Technical Notes
+
+### Btrieve Status Codes
+- **0** = SUCCESS
+- **161** = File not found / Invalid path
+- **3** = File not open
+
+### Path Formats
 ```python
-from nex_shared import BtrieveClient
-client = BtrieveClient()
-status, pos_block = client.open_file("C:/NEX/...")
+# Windows paths - any format works:
+"C:\\NEX\\YEARACT\\STORES\\GSCAT.BTR"  # Escaped
+r"C:\NEX\YEARACT\STORES\GSCAT.BTR"     # Raw string
+"C:/NEX/YEARACT/STORES/GSCAT.BTR"      # Forward slash
+```
+
+### Config Resolution Logic
+```
+Input: 'gscat'
+ ↓
+Check config['nex_genesis']['tables']['gscat']
+ ↓
+Found: "C:\\NEX\\YEARACT\\STORES\\GSCAT.BTR"
+ ↓
+Use this path
 ```
 
 ---
 
-**Last Updated:** 2025-11-27  
+**Last Updated:** 2025-11-27 14:30  
 **Version:** 1.0  
-**Status:** 🟢 Ready for Integration
+**Status:** 🟢 Ready for Implementation  
+**Difficulty:** ⚡ Medium (Clear path forward)
