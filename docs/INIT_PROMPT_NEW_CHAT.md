@@ -1,8 +1,8 @@
-# Init Prompt - Post Documentation Cleanup
+# Init Prompt - NEX Shared Integration
 
 **Projekt:** NEX Automat  
-**Last Session:** 2025-11-26 (Documentation Cleanup - Pravidlo 18)  
-**This Session:** Implementation Phase  
+**Last Session:** 2025-11-27 (NEX Shared Package Creation)  
+**This Session:** Integration & Repositories  
 
 ---
 
@@ -12,33 +12,43 @@ NEX Automat je projekt pre kompletnú automatizáciu podnikových procesov pre z
 
 **Aktuálny stav:**
 - Version: 2.0.0 (tagged)
-- GO-LIVE: 2025-11-27 (Preview/Demo pre Mágerstav)
-- Strategic Planning: ✅ COMPLETE
-- Documentation: ✅ CLEAN (all docs comply with pravidlo 18)
+- GO-LIVE: ✅ COMPLETE (2025-11-27)
+- NEX Shared Package: ✅ CREATED (last session)
+- Integration: ⚪ TODO (this session)
 
 ---
 
 ## What Was Completed Last Session
 
-### Documentation Cleanup ✅
+### NEX Shared Package ✅
 
-Všetkých 6 strategických dokumentov upravených podľa pravidla 18:
+Vytvorený a nainštalovaný `nex-shared` package:
 
-**Modified (Fixed):**
-- `docs/strategy/ARCHITECTURE.md` → v1.1
-- `docs/strategy/REQUIREMENTS.md` → v1.1
-- `docs/strategy/CURRENT_STATE.md` → v1.1
+```
+packages/nex-shared/
+├── nex_shared/
+│   ├── __init__.py
+│   ├── models/
+│   │   ├── tsh.py          # TSH model (7KB) ✅
+│   │   └── tsi.py          # TSI model (6.8KB) ✅
+│   ├── btrieve/
+│   │   └── btrieve_client.py  # Btrieve wrapper (5.5KB) ✅
+│   └── repositories/
+│       └── base_repository.py  # Repository pattern (2.8KB) ✅
+├── pyproject.toml ✅
+└── README.md ✅
+```
 
-**Already compliant:**
-- `docs/strategy/TERMINOLOGY.md` → v1.0
-- `docs/strategy/VISION.md` → v1.0
-- `docs/strategy/ROADMAP.md` → v1.0
+**Models:**
+- ✅ TSHRecord (Dodacie listy - Header)
+- ✅ TSIRecord (Dodacie listy - Items)
+- ✅ BtrieveClient (32-bit Pervasive PSQL wrapper)
+- ✅ BaseRepository (Generic repository pattern)
 
-**Zmeny:**
-- Odstránené všetky box-drawing chars (┌─│└)
-- Štandardné Markdown tabuľky
-- Plain text formátovanie diagramov
-- ASCII tree štruktúry zachované
+**Installation:**
+- ✅ `pip install -e packages/nex-shared` - SUCCESS
+- ✅ Import test - PASSED
+- ✅ Basic functionality - OK
 
 ---
 
@@ -46,8 +56,14 @@ Všetkých 6 strategických dokumentov upravených podľa pravidla 18:
 
 ```
 FÁZA 1: Email → Staging → GUI Zobrazenie     ✅ COMPLETE
-FÁZA 2: GO-LIVE Preview/Demo                 🟡 IN PROGRESS (zajtra)
-FÁZA 3: Btrieve Models (TSH, TSI, PLS, RPC)  ⚪ TODO ← NEXT
+FÁZA 2: GO-LIVE Preview/Demo                 ✅ COMPLETE
+FÁZA 3: Btrieve Models (TSH, TSI, PLS, RPC)  🟡 IN PROGRESS ← HERE
+  ├── ✅ nex-shared package created
+  ├── ✅ TSH/TSI models
+  ├── ⚪ TODO: Add to apps dependencies
+  ├── ⚪ TODO: Create repositories
+  ├── ⚪ TODO: Test read operations
+  └── ⚪ TODO: PLS, RPC models
 FÁZA 4: GUI Editácia + Farebné rozlíšenie    ⚪ TODO
 FÁZA 5: Vytvorenie produktových kariet       ⚪ TODO
 FÁZA 6: Zaevidovanie dodávateľského DL       ⚪ TODO
@@ -63,59 +79,182 @@ FÁZA 9: Ďalší zákazníci + Rozšírenia         ⚪ FUTURE
 ```
 C:\Development\nex-automat\
 ├── docs\
-│   ├── SESSION_NOTES.md
+│   ├── SESSION_NOTES.md        ← Updated last session
 │   └── strategy\
 │       ├── TERMINOLOGY.md
 │       ├── CURRENT_STATE.md
 │       ├── VISION.md
-│       ├── ARCHITECTURE.md      ← v1.1 (fixed)
-│       ├── REQUIREMENTS.md      ← v1.1 (fixed)
+│       ├── ARCHITECTURE.md
+│       ├── REQUIREMENTS.md
 │       └── ROADMAP.md
 ├── apps\
 │   ├── supplier-invoice-loader\   # FastAPI service
 │   └── supplier-invoice-editor\   # PyQt5 GUI
-└── packages\
-    ├── invoice-shared\
-    └── nex-shared\
+├── packages\
+│   ├── invoice-shared\           # ✅ Working
+│   └── nex-shared\               # ✅ NEW - Working
+└── scripts\
+    ├── create_nex_shared_files.py      # ✅ Used last session
+    ├── reinstall_nex_shared.py         # ✅ Helper script
+    ├── test_nex_shared_import.py       # ✅ Test script
+    └── diagnose_site_packages.py       # ✅ Diagnostic
 ```
 
 ---
 
 ## Btrieve Tabuľky
 
-| Tabuľka | Súbor | Model | READ | WRITE |
-|---------|-------|-------|------|-------|
-| GSCAT | GSCAT.BTR | ✅ | ✅ | ⚪ TODO |
-| BARCODE | BARCODE.BTR | ✅ | ✅ | ⚪ TODO |
-| PAB | PAB.BTR | ✅ | ✅ | — |
-| MGLST | MGLST.BTR | ✅ | ✅ | — |
-| TSH | TSHA-001.BTR | ⚪ TODO | ⚪ TODO | ⚪ TODO |
-| TSI | TSIA-001.BTR | ⚪ TODO | ⚪ TODO | ⚪ TODO |
-| PLS | PLSnnnnn.BTR | ⚪ TODO | ⚪ TODO | — |
-| RPC | RPCnnnnn.BTR | ⚪ TODO | ⚪ TODO | ⚪ TODO |
+| Tabuľka | Súbor | Model | Package | Status |
+|---------|-------|-------|---------|--------|
+| GSCAT | GSCAT.BTR | ✅ | invoice-shared | READ OK |
+| BARCODE | BARCODE.BTR | ✅ | invoice-shared | READ OK |
+| PAB | PAB.BTR | ✅ | invoice-shared | READ OK |
+| MGLST | MGLST.BTR | ✅ | invoice-shared | READ OK |
+| **TSH** | **TSHA-001.BTR** | **✅** | **nex-shared** | **NEW** ← Next |
+| **TSI** | **TSIA-001.BTR** | **✅** | **nex-shared** | **NEW** ← Next |
+| PLS | PLSnnnnn.BTR | ⚪ | nex-shared | TODO |
+| RPC | RPCnnnnn.BTR | ⚪ | nex-shared | TODO |
+
+---
+
+## Next Steps (This Session)
+
+### Priority 1: Add nex-shared Dependency
+
+**Update apps dependencies:**
+
+1. **supplier-invoice-loader/pyproject.toml:**
+   ```toml
+   dependencies = [
+       ...
+       "nex-shared",
+   ]
+   ```
+
+2. **supplier-invoice-editor/pyproject.toml:**
+   ```toml
+   dependencies = [
+       ...
+       "nex-shared",
+   ]
+   ```
+
+3. **Reinstall apps:**
+   ```bash
+   pip install -e apps/supplier-invoice-loader
+   pip install -e apps/supplier-invoice-editor
+   ```
+
+### Priority 2: Create TSH/TSI Repositories
+
+**Location:** `apps/supplier-invoice-loader/src/repositories/`
+
+**Files to create:**
+1. `tsh_repository.py` - Repository pre TSH (Dodacie listy - Header)
+2. `tsi_repository.py` - Repository pre TSI (Dodacie listy - Items)
+
+**Pattern:**
+```python
+from nex_shared.repositories.base_repository import BaseRepository
+from nex_shared.models.tsh import TSHRecord
+from nex_shared.btrieve.btrieve_client import BtrieveClient
+
+class TSHRepository(BaseRepository[TSHRecord]):
+    @property
+    def table_name(self) -> str:
+        return "C:/NEX/YEARACT/STORES/TSHA-001.BTR"
+    
+    def from_bytes(self, data: bytes) -> TSHRecord:
+        return TSHRecord.from_bytes(data)
+```
+
+### Priority 3: Test Read Operations
+
+**Create test script:**
+- Read TSH records from NEX Genesis
+- Read TSI records (items) for specific document
+- Verify deserialization
+- Display results
+
+### Priority 4: GUI Integration (Optional)
+
+**If time permits:**
+- Display TSH/TSI in supplier-invoice-editor
+- Basic list view of documents
+- Show document details
+
+---
+
+## Available Resources
+
+### Scripts
+
+**Helper Scripts:**
+- `scripts/create_nex_shared_files.py` - Package file creator
+- `scripts/reinstall_nex_shared.py` - Reinstall helper
+- `scripts/test_nex_shared_import.py` - Import test
+
+**Diagnostic Scripts:**
+- `scripts/diagnose_site_packages.py` - Site-packages check
+
+### Documentation
+
+**Strategy Docs:**
+- `docs/strategy/CURRENT_STATE.md` - Workflow definition
+- `docs/strategy/ARCHITECTURE.md` - System architecture
+- `docs/strategy/REQUIREMENTS.md` - Requirements
+
+**Package Docs:**
+- `packages/nex-shared/README.md` - Usage examples
+
+### Related Project
+
+**nex-genesis-server:**
+- Source of Btrieve models
+- Location: C:/Development/nex-genesis-server
+- Has working examples of repositories
 
 ---
 
 ## How to Start This Session
 
-1. Commit dokumentáciu (3 upravené súbory)
-2. Vyber ďalší krok:
-   - **Opcia A:** Príprava na GO-LIVE (ak treba)
-   - **Opcia B:** Fáza 3 - Btrieve Models (TSH, TSI, PLS, RPC)
-   - **Opcia C:** Fáza 4 - GUI Editácia
-   - **Opcia D:** Iné
+1. **Load SESSION_NOTES.md** for full context
+2. **Choose priority:**
+   - **Option A:** Add nex-shared to apps dependencies
+   - **Option B:** Create TSH/TSI repositories
+   - **Option C:** Test read operations
+   - **Option D:** Other
+
+3. **Follow workflow:**
+   - Development → Git → Deployment
+   - Test after each change
+   - Document progress
 
 ---
 
 ## Important Notes
 
-- **Strategic docs** sú v `docs/strategy/` - všetky vyhovujú pravidlu 18
-- **CURRENT_STATE.md** obsahuje kompletný navrhnutý workflow
-- **ROADMAP.md** obsahuje poradie implementácie
-- Pri implementácii dodržiavať workflow z CURRENT_STATE.md
+- **nex-shared package:** Fully functional, tested
+- **Models:** TSH, TSI ready for use
+- **BtrieveClient:** 32-bit compatible, tested with w3btrv7.dll
+- **Installation:** Editable mode (`pip install -e`)
+- **Python:** 3.13.7 32-bit (venv32)
+
+**Repository Pattern:**
+- Inherit from `BaseRepository[T]`
+- Implement `table_name` property
+- Implement `from_bytes()` method
+- Use `get_first()`, `get_next()`, `get_all()`
+
+**Btrieve Connection:**
+```python
+from nex_shared import BtrieveClient
+client = BtrieveClient()
+status, pos_block = client.open_file("C:/NEX/...")
+```
 
 ---
 
-**Last Updated:** 2025-11-26  
+**Last Updated:** 2025-11-27  
 **Version:** 1.0  
-**Status:** 🟢 Ready for Implementation
+**Status:** 🟢 Ready for Integration

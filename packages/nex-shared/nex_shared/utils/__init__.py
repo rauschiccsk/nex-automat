@@ -1,1 +1,1 @@
-"""Package initialization"""
+"""Utils package"""
