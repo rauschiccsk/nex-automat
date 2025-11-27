@@ -11,21 +11,21 @@ from nexdata.btrieve.btrieve_client import BtrieveClient
 class TSIRepository(BaseRepository[TSIRecord]):
     """Repository for accessing TSI records (Dodacie listy - Items)"""
 
-    def __init__(self, btrieve_client: BtrieveClient, store_id: str = "001"):
+    def __init__(self, btrieve_client: BtrieveClient, book_id: str = "001"):
         """
         Initialize TSI repository
 
         Args:
             btrieve_client: Btrieve client instance
-            store_id: Store identifier (default: "001")
+            book_id: Book identifier (default: "001")
         """
-        self.store_id = store_id
+        self.book_id = book_id
         super().__init__(btrieve_client)
 
     @property
     def table_name(self) -> str:
         """Get table file path"""
-        return f"C:/NEX/YEARACT/STORES/TSIA-{self.store_id}.BTR"
+        return f'tsi-{self.book_id}'
 
     def from_bytes(self, data: bytes) -> TSIRecord:
         """Convert bytes to TSIRecord"""

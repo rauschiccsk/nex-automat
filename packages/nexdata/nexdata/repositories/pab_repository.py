@@ -14,7 +14,7 @@ class PABRepository(BaseRepository[PABRecord]):
     @property
     def table_name(self) -> str:
         """Get table file path"""
-        return "C:/NEX/PAB.BTR"
+        return 'pab'
 
     def from_bytes(self, data: bytes) -> PABRecord:
         """Convert bytes to PABRecord"""

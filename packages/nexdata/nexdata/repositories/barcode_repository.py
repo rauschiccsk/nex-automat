@@ -14,7 +14,7 @@ class BARCODERepository(BaseRepository[BarcodeRecord]):
     @property
     def table_name(self) -> str:
         """Get table file path"""
-        return "C:/NEX/BARCODE.BTR"
+        return 'barcode'
 
     def from_bytes(self, data: bytes) -> BarcodeRecord:
         """Convert bytes to BarcodeRecord"""

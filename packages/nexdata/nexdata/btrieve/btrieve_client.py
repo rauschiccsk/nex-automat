@@ -82,7 +82,38 @@ class BtrieveClient:
         # Initialize DLL
         self._load_dll()
 
+    def _resolve_table_path(self, table_name_or_path: str) -> str:
+        """
+        Resolve table name to filesystem path using config
 
+        Args:
+            table_name_or_path: Either table name (e.g. 'gscat', 'tsh-001') or direct path
+
+        Returns:
+            Filesystem path to .BTR file
+        """
+        # Check if config has table mapping
+        if self.config and 'nex_genesis' in self.config:
+            tables = self.config.get('nex_genesis', {}).get('tables', {})
+
+            # First try direct lookup
+            if table_name_or_path in tables:
+                return tables[table_name_or_path]
+
+            # Try dynamic table lookup (e.g., 'tsh-001' -> 'tsh')
+            if '-' in table_name_or_path:
+                parts = table_name_or_path.split('-')
+                if len(parts) == 2:
+                    base_name = parts[0]  # 'tsh' from 'tsh-001'
+                    book_id = parts[1]     # '001' from 'tsh-001'
+
+                    if base_name in tables:
+                        path_template = tables[base_name]
+                        # Replace {book_id} placeholder
+                        return path_template.replace('{book_id}', book_id)
+
+        # It's already a path, or no config - use as-is
+        return table_name_or_path
 
     def _load_dll(self) -> None:
         """Načítaj Btrieve DLL a nastav BTRCALL funkciu - FIXED SIGNATURE"""
@@ -187,7 +218,10 @@ class BtrieveClient:
         data_len = ctypes.c_uint32(0)  # ZERO! (and longInt = 4 bytes)
 
         # FILENAME goes into KEY_BUFFER! (not data_buffer!)
-        filename_bytes = filename.encode('ascii') + b'\x00'
+        # Resolve table name to filepath using config
+        filepath = self._resolve_table_path(filename)
+
+        filename_bytes = filepath.encode('ascii') + b'\x00'
         key_buffer = ctypes.create_string_buffer(filename_bytes)
 
         # keyLen = 255 (max key length, as in BTRV wrapper)

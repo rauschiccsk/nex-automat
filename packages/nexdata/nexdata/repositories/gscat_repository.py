@@ -14,7 +14,7 @@ class GSCATRepository(BaseRepository[GSCATRecord]):
     @property
     def table_name(self) -> str:
         """Get table file path"""
-        return "C:/NEX/YEARACT/STORES/GSCAT.BTR"
+        return 'gscat'
 
     def from_bytes(self, data: bytes) -> GSCATRecord:
         """Convert bytes to GSCATRecord"""

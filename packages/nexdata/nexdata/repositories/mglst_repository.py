@@ -14,7 +14,7 @@ class MGLSTRepository(BaseRepository[MGLSTRecord]):
     @property
     def table_name(self) -> str:
         """Get table file path"""
-        return "C:/NEX/MGLST.BTR"
+        return 'mglst'
 
     def from_bytes(self, data: bytes) -> MGLSTRecord:
         """Convert bytes to MGLSTRecord"""
