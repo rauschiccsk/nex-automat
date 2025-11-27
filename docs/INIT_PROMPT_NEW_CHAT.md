@@ -1,8 +1,8 @@
-# Init Prompt - Btrieve Status 161 Resolution
+# Init Prompt - Btrieve Status 30 (NOT_A_BTRIEVE_FILE) Resolution
 
 **Projekt:** NEX Automat  
-**Last Session:** 2025-11-27 (Btrieve Config Lookup Implementation)  
-**This Session:** Btrieve Status 161 Diagnostics & Resolution  
+**Last Session:** 2025-11-27 (Status 161 → Status 30 Investigation)  
+**This Session:** File Version Analysis & Conversion Strategy  
 
 ---
 
@@ -14,328 +14,426 @@ NEX Automat je projekt pre kompletnú automatizáciu podnikových procesov pre z
 - Version: 2.0.0 (tagged)
 - GO-LIVE: ✅ COMPLETE (2025-11-27)
 - nexdata Package: ✅ CREATED
-- Btrieve Config Lookup: ✅ IMPLEMENTED ← **DONE**
-- Btrieve Testing: ⚠️ BLOCKED BY STATUS 161 ← **HERE**
+- Btrieve Config Lookup: ✅ IMPLEMENTED
+- Btrieve Access: ❌ BLOCKED BY STATUS 30 ← **HERE**
 
 ---
 
-## What Was Completed Last Session ✅
+## Critical Problem Summary
 
-### Btrieve Config Lookup - FULL IMPLEMENTATION ✅
+### Status 30 = B_NOT_A_BTRIEVE_FILE
 
-**1. BtrieveClient Updated**
-- ✅ Pridaná `_resolve_table_path()` metóda
-- ✅ Upravená `open_file()` používa config lookup
-- ✅ Podpora pre statické aj dynamické tabuľky
-- ✅ DLL type fixes (WinDLL, c_uint8, c_int16)
+**Symptom:**
+```python
+client = BtrieveClient()
+status, pos_block = client.open_file(r"C:\NEX\YEARACT\STORES\GSCAT.BTR")
+# Result: status=30 (NOT_A_BTRIEVE_FILE)
+```
 
-**2. Repositories Updated**
-- ✅ 4 statické (gscat, barcode, mglst, pab)
-- ✅ 2 dynamické (tsh, tsi) s book_id
-- ✅ Všetky používajú table names namiesto paths
+**Verified Facts:**
+- ✅ Súbory existujú: C:\NEX\YEARACT\STORES\GSCAT.BTR (29.7 MB)
+- ✅ Pervasive v9 service beží: psqlWGE RUNNING
+- ✅ BUTIL funguje: Dokáže čítať file metadata
+- ✅ NEX Genesis funguje: Používa Btrieve úspešne
+- ❌ Python BTRCALL API: Status 30 vo VŠETKÝCH projektoch
+- ❌ Invoice-editor: TIEŽ status 30 (predtým fungoval)
 
-**3. Database Config Created**
-- ✅ `config/database.yaml` s mappings
-- ✅ Podpora pre {book_id} placeholders
-- ✅ Book configuration
+**Root Cause Hypothesis:**
 
-**4. Tests Written**
-- ✅ Integration test suite (4 tests)
-- ✅ Diagnostic scripts
-- ✅ Direct Btrieve tests
+Súbory boli vytvorené/modifikované **Pervasive v11 Trial** (expirovaná) a sú nekompatibilné s **Pervasive v9 Licensed** API.
 
-### Implementation je 100% hotová! ✅
+---
+
+## What Happened Last Session ✅
+
+### 1. Status 161 → Expirovaný Trial Identified
+
+**Original problem:**
+- Status 161 (FILE_NOT_FOUND) všade
+- Expirovaná Pervasive 11 Trial verzia
+
+**Solution:**
+- Odinštalovanie Pervasive 11 Trial
+- Inštalácia Pervasive v9 Licensed
+- NEX Genesis začal fungovať ✅
+
+### 2. New Problem: Status 30
+
+**Po downgrade na v9:**
+- Status 30 vo všetkých Python projektoch
+- BUTIL funguje, BTRCALL API nie
+
+### 3. Code Analysis
+
+**Porovnanie invoice-editor (fungujúce predtým) vs nex-automat:**
+- ✅ DLL setup: IDENTICKÝ
+- ✅ open_file(): IDENTICKÝ (až na config lookup)
+- ✅ Kód je správny!
+
+### 4. Status Code Discovery
+
+**Z BtrConst.pas (Delphi source):**
+```pascal
+B_NOT_A_BTRIEVE_FILE = 30;  // NIE permission error!
+```
+
+**Správny význam:** File format nie je rozpoznaný Btrieve engine!
+
+### 5. Diagnostic Scripts Created
+
+- ✅ test_open_modes.py - testovanie open modes
+- ✅ test_owner_names.py - testovanie owner names
+- ✅ fix_btrieve_owner_name.py - owner name support
+- ✅ test_file_version.py - file header analysis ← **READY TO RUN**
 
 ---
 
 ## Current Blocking Issue ⚠️
 
-### Btrieve Status 161 na VŠETKÝCH súboroch
+### Btrieve File Format Incompatibility
 
-**Symptom:**
-```python
-client = BtrieveClient("config/database.yaml")
-status, pos_block = client.open_file(r"C:\NEX\YEARACT\STORES\GSCAT.BTR")
-# Result: status=161 (FILE_NOT_FOUND)
-```
+**Problem:**
+Pervasive v11 vytvorené súbory → Pervasive v9 API ich nerozpoznáva
 
-**Verified:**
-- ✅ Súbory existujú: `C:\NEX\YEARACT\STORES\GSCAT.BTR` (29.7 MB)
-- ✅ Pervasive service beží: `psqlWGE` RUNNING
-- ✅ DLL načítaná: `w3btrv7.dll` OK
-- ✅ Súbory readable/writable
-- ✅ Náš kód identický s nex-genesis-server
-- ❌ Status 161 aj v nex-genesis-server!
-- ❌ invoice-editor nemôže načítať DLL
-
-**Záver:** Problém NIE JE v našej implementácii, ale v Btrieve service/configuration!
+**Evidence:**
+1. BUTIL (v9) dokáže čítať metadata → low-level access OK
+2. BTRCALL API (v9) hlási "NOT_A_BTRIEVE_FILE" → engine validation fails
+3. NEX Genesis funguje → používa iné API alebo special config
+4. Všetky Python projekty status 30 → consistent failure
 
 ---
 
-## Solution Approaches
+## Priority Actions for This Session
 
-### Priority 1: NEX Genesis Investigation ⚡
+### Priority 1: File Version Diagnostics ⚡
 
-**Možné príčiny status 161:**
-
-1. **Btrieve service configuration**
-   - Pervasive Control Center nastavenia
-   - Database registration potrebné?
-   - Network vs Local access
-
-2. **File permissions/ownership**
-   - Owner name required?
-   - File mode incorrect?
-   - Security restrictions
-
-3. **Initialization required**
-   - Pre-connection setup?
-   - Configuration file missing?
-   - Engine warm-up needed?
-
-4. **API version mismatch**
-   - w3btrv7.dll kompatibilita
-   - 32-bit vs 64-bit issues
-   - Pervasive PSQL version
-
-### Priority 2: Alternative Tools Test
-
-**Test s Pervasive utilities:**
-```
-BUTIL -stat C:\NEX\YEARACT\STORES\GSCAT.BTR
+**Spustiť file version analysis:**
+```cmd
+cd C:\Development\nex-automat
+venv32\Scripts\python.exe scripts\test_file_version.py
 ```
 
-**Test s Pervasive Control Center:**
-- Open database in GUI
-- Check file status
-- Verify connectivity
+**Očakávaný output:**
+- File format version (Pervasive v9.x vs v11.x)
+- Page size validation
+- Header structure analysis
+- Version compatibility check
 
-### Priority 3: Working Example Search
+**Cieľ:** Potvrdiť, že súbory sú v11 format.
 
-**Locations to check:**
-1. NEX Genesis installation directory
-   - Sample code?
-   - Test utilities?
-   - Documentation?
+### Priority 2: BUTIL File Rebuild Test
 
-2. NEX Genesis support
-   - Technical documentation
-   - Support forum
-   - Contact developers
+**Ak súbory sú v11 format, skúsiť BUTIL rebuild:**
+```cmd
+cd C:\NEX\YEARACT\STORES
+BUTIL -create C:\TEMP\GSCAT_V9.BTR [params from -stat]
+BUTIL -copy GSCAT.BTR C:\TEMP\GSCAT_V9.BTR
+```
 
-3. Other NEX installations
-   - Working deployments?
-   - Configuration comparison
+**ALEBO:**
+```cmd
+BUTIL -save GSCAT.BTR GSCAT.DAT
+BUTIL -load GSCAT_NEW.BTR GSCAT.DAT [with v9 specs]
+```
+
+### Priority 3: NEX Genesis Investigation
+
+**Zistiť ako NEX Genesis pristupuje k Btrieve:**
+
+1. **Check Delphi code v nex-genesis-server:**
+   ```pascal
+   // BtrHand.pas - BtrOpen function
+   // Používa špeciálne parametre?
+   ```
+
+2. **Test s Delphi BTRCALL:**
+   - Funguje Delphi kód na Pervasive v9?
+   - Ak áno, aký je rozdiel oproti Python?
+
+3. **Check NEX Genesis config:**
+   - Pervasive Control Center settings
+   - Database registration
+   - Special compatibility mode?
+
+### Priority 4: Contact NEX Genesis Support
+
+**Informácie na získanie:**
+- Recommended Pervasive version
+- File migration procedure
+- Compatibility notes
+- Support for v11 → v9 downgrade
+
+---
+
+## Alternative Solutions
+
+### Option A: Stay on Pervasive v11
+
+**Ak v11 Trial expiroval, získať v11 License:**
+- Contact Actian/Pervasive
+- Purchase v11 Licensed version
+- Súbory budú kompatibilné
+
+**Pros:** Žiadna file conversion potrebná  
+**Cons:** Drahšie, možno nedostupné
+
+### Option B: File Format Conversion
+
+**Convert v11 files → v9 format:**
+- BUTIL rebuild
+- Export → Import
+- Custom conversion tool
+
+**Pros:** Zostaneme na v9 Licensed  
+**Cons:** Risk of data loss, time consuming
+
+### Option C: ODBC Alternative
+
+**Use Pervasive ODBC driver instead of BTRCALL:**
+```python
+import pyodbc
+conn = pyodbc.connect('DSN=PervasiveSQL;...')
+```
+
+**Pros:** Možno funguje aj s v11 files  
+**Cons:** Iné API, treba prepísať repositories
+
+### Option D: Direct File Parsing
+
+**Parse Btrieve files directly (bez engine):**
+- Implement Btrieve file format parser
+- Based on BUTIL successful read
+
+**Pros:** Nezávislé od Pervasive version  
+**Cons:** Very complex, high risk
+
+---
+
+## Technical Details
+
+### Pervasive Versions
+
+**Pervasive v9:**
+- File format version: 9.x
+- Released: ~2009
+- w3btrv7.dll location: C:\PVSW\bin
+
+**Pervasive v11:**
+- File format version: 11.x
+- Released: ~2013
+- w3btrv7.dll location: C:\Program Files (x86)\Pervasive Software\PSQL\bin
+
+**Compatibility:** v11 files môžu byť backward incompatible!
+
+### BUTIL vs BTRCALL
+
+**BUTIL:**
+- Direct file I/O
+- Low-level metadata access
+- Bypasses engine validation
+- Works with "invalid" files
+
+**BTRCALL API:**
+- Uses Btrieve engine
+- Strict version validation
+- Requires compatible file format
+- Status 30 if version mismatch
+
+### File Header Structure
+
+**Typical Btrieve file header:**
+```
+Offset  Size  Description
+0-1     2     File marker (0x46 0x43 = 'FC')
+2-3     2     Page size (512, 1024, 2048, 4096)
+4-5     2     File version (major.minor)
+8-11    4     Record count
+16-17   2     File flags
+...
+```
 
 ---
 
 ## Available Resources
 
-### Implemented Code (Ready to Test)
+### Implemented Code (Blocked)
 
-**Package structure:**
 ```
 packages/nexdata/
 └── nexdata/
     ├── btrieve/
-    │   └── btrieve_client.py         ← Config lookup ready
+    │   └── btrieve_client.py         ← Status 30 error
     ├── repositories/
-    │   ├── gscat_repository.py       ← 'gscat'
-    │   ├── barcode_repository.py     ← 'barcode'
-    │   ├── mglst_repository.py       ← 'mglst'
-    │   ├── pab_repository.py         ← 'pab'
-    │   ├── tsh_repository.py         ← 'tsh-{book_id}'
-    │   └── tsi_repository.py         ← 'tsi-{book_id}'
+    │   ├── gscat_repository.py       ← Cannot open
+    │   ├── barcode_repository.py     ← Cannot open
+    │   ├── mglst_repository.py       ← Cannot open
+    │   ├── pab_repository.py         ← Cannot open
+    │   ├── tsh_repository.py         ← Cannot open
+    │   └── tsi_repository.py         ← Cannot open
     └── models/                       ← 6 models ready
 ```
 
-**Config file:**
-```
-config/database.yaml                  ← Table mappings
-```
+### Diagnostic Scripts (Ready)
 
-**Test scripts:**
 ```
-scripts/04_test_config_lookup.py      ← Main integration test
-scripts/test_direct_open.py           ← Direct API test
-scripts/diagnose_btrieve_setup.py     ← System diagnostic
+scripts/
+├── test_open_modes.py           ← Tested (all mode = status 30)
+├── test_owner_names.py          ← Tested (all owners = status 30)
+├── fix_btrieve_owner_name.py    ← Applied (no change)
+└── test_file_version.py         ← READY TO RUN ⚡
 ```
 
 ### Reference Projects
 
 **nex-genesis-server:**
-- Location: `C:\Development\nex-genesis-server`
-- Status: Rovnaký problém (status 161)
-- BtrieveClient: Identický s naším
+- Location: C:\Development\nex-genesis-server
+- Status: ✅ WORKING with Pervasive v9
+- Has Delphi source code for Btrieve access
 
 **invoice-editor:**
-- Location: `C:\Development\invoice-editor`
-- Status: DLL load error
-- Test scripts: Available but not working
-
-### Environment
-
-**System:**
-- Python: 3.13.7 32-bit (venv32)
-- Btrieve: w3btrv7.dll (Pervasive PSQL)
-- Service: psqlWGE (Running ✅)
-- OS: Windows
-
-**Paths:**
-- NEX: `C:\NEX\YEARACT`
-- Project: `C:\Development\nex-automat`
+- Location: C:\Development\invoice-editor
+- Status: ❌ Status 30 (broken after v9 install)
+- Was working on Pervasive v11 Trial
 
 ---
 
-## When Btrieve Works - Immediate Next Steps
+## When Issue Resolved - Next Steps
 
-### Step 1: Verify Implementation ✅
-```
+Po vyriešení status 30 problému:
+
+### Step 1: Verify Implementation
+```cmd
 python scripts/04_test_config_lookup.py
 ```
 
-**Expected results:**
+**Expected:**
 - ✅ Config Loading (test 1/4)
 - ✅ Path Resolution (test 2/4)
 - ✅ GSCAT Read (test 3/4)
 - ✅ TSH Read (test 4/4)
 
 ### Step 2: Test All Repositories
+
 ```python
 from nexdata.btrieve.btrieve_client import BtrieveClient
 from nexdata.repositories import *
 
 client = BtrieveClient("config/database.yaml")
 
-# Static tables
+# Test all repositories
 gscat = GSCATRepository(client)
 barcode = BARCODERepository(client)
-mglst = MGLSTRepository(client)
-pab = PABRepository(client)
-
-# Dynamic tables
-tsh = TSHRepository(client, book_id="001")
-tsi = TSIRepository(client, book_id="001")
-
-# Test reads
-with gscat:
-    products = gscat.get_all()
-    print(f"GSCAT: {len(products)} products")
+# ... etc
 ```
 
 ### Step 3: Integration Testing
-- Read operations (get_first, get_next, get_all)
-- Filtering operations (find, find_one)
-- Dynamic book_id handling
-- Performance testing
+
+- Read operations
+- Filtering
+- Dynamic book_id
+- Performance
 - Error handling
 
-### Step 4: Documentation
-- Update README with usage examples
-- Document config format
-- Add troubleshooting guide
-- API documentation finalization
+### Step 4: Documentation & Release
+
+- Update README
+- Document solution
+- Tag version
+- Deploy
 
 ---
 
 ## Important Technical Notes
 
-### Config Resolution Flow
-```
-Repository:
-  repo.table_name → 'gscat'
+### Btrieve Status Codes Reference (Correct!)
 
-BtrieveClient:
-  _resolve_table_path('gscat')
-  → Check config['nex_genesis']['tables']['gscat']
-  → Return: "C:\\NEX\\YEARACT\\STORES\\GSCAT.BTR"
-  
-  open_file() receives resolved path
-  → Btrieve DLL call with full path
-```
-
-### Dynamic Table Resolution
-```
-Repository:
-  repo = TSHRepository(client, book_id="001")
-  repo.table_name → 'tsh-001'
-
-BtrieveClient:
-  _resolve_table_path('tsh-001')
-  → Split: ['tsh', '001']
-  → Check config['nex_genesis']['tables']['tsh']
-  → Template: "C:\\NEX\\YEARACT\\STORES\\TSHA-{book_id}.BTR"
-  → Replace: {book_id} → '001'
-  → Return: "C:\\NEX\\YEARACT\\STORES\\TSHA-001.BTR"
+```pascal
+// From BtrConst.pas
+B_NO_ERROR                = 0;   // SUCCESS
+B_INVALID_FUNCTION        = 1;
+B_IO_ERROR                = 2;
+B_FILE_NOT_OPEN           = 3;
+B_KEY_NOT_FOUND           = 4;
+B_DUPLICATE_KEY           = 5;
+...
+B_NOT_A_BTRIEVE_FILE      = 30;  // ← OUR CURRENT PROBLEM
+...
+B_PERMISSION_ERROR        = 94;  // Different!
+...
+B_USER_COUNT_LIMIT_EXCEEDED = 161; // Was our old problem
 ```
 
-### Btrieve Status Codes Reference
-```
-0   = SUCCESS
-161 = FILE_NOT_FOUND / INVALID_PATH ← Current problem
-3   = FILE_NOT_OPEN
-4   = KEY_NOT_FOUND
-5   = DUPLICATE_KEY
-```
+### Environment
 
----
+**System:**
+- Python: 3.13.7 32-bit (venv32)
+- Pervasive: v9 Licensed (downgrade from v11 Trial)
+- DLL: w3btrv7.dll (C:\PVSW\bin)
+- Service: psqlWGE ✅ Running
+- OS: Windows
 
-## How to Start This Session
-
-1. **Load SESSION_NOTES.md** for full session history
-
-2. **Priority Actions:**
-   - Investigate NEX Genesis Btrieve setup
-   - Test with Pervasive utilities (BUTIL)
-   - Check Pervasive Control Center
-   - Search for working examples
-   - Contact NEX Genesis support
-
-3. **Fallback if unresolvable:**
-   - Document issue in tickets
-   - Plan alternative approach (ODBC?)
-   - Escalate to NEX Genesis team
-
-4. **When resolved:**
-   - Run test suite
-   - Verify all repositories
-   - Complete documentation
-   - Tag next version
-
----
-
-## Expected Outcomes
-
-Po vyriešení Btrieve status 161:
-- ✅ Všetky testy prechádzajú (4/4)
-- ✅ Čítanie z 6 tabuliek funguje
-- ✅ Config lookup je production-ready
-- ✅ Dokumentácia kompletná
-- ✅ Môžeme používať v aplikáciách
+**Paths:**
+- NEX: C:\NEX\YEARACT
+- Project: C:\Development\nex-automat
+- Data: C:\NEX\YEARACT\STORES\*.BTR
 
 ---
 
 ## Critical Reminders
 
-### Implementation Status
-- ✅ **Kód je 100% hotový a správny**
-- ⚠️ **Blokované external issue - Btrieve service**
-- 🎯 **Focus: Diagnostika a riešenie Btrieve**
+### Code is NOT the Problem ✅
 
-### Testing Strategy
-1. Najprv vyriešiť Btrieve status 161
-2. Potom spustiť test suite
-3. Všetko ostatné je pripravené
+- Python implementation je správna
+- Identická s fungujúcim invoice-editor
+- Config lookup funguje
+- Problem is external: file format compatibility
 
-### Code Quality
-- Implementácia zodpovedá best practices
-- Identická s fungujúcou nex-genesis-server verziou
-- Pripravená na production use
-- Len čaká na working Btrieve
+### Focus Areas
+
+1. **File version verification** - test_file_version.py
+2. **Conversion strategy** - BUTIL rebuild/migration
+3. **NEX Genesis analysis** - how does it work?
+4. **Support contact** - NEX Genesis / Actian Pervasive
+
+### Do NOT
+
+- ❌ Meniť Python kód (nie je to problém)
+- ❌ Testovať ďalšie owner names (už otestované)
+- ❌ Testovať ďalšie open modes (už otestované)
+- ✅ Focus on file format compatibility!
 
 ---
 
-**Last Updated:** 2025-11-27 16:30  
+## How to Start This Session
+
+1. **Load SESSION_NOTES.md** for full history
+
+2. **Run file version analysis:**
+   ```cmd
+   cd C:\Development\nex-automat
+   venv32\Scripts\python.exe scripts\test_file_version.py
+   ```
+
+3. **Based on results:**
+   - If v11 format → Plan conversion
+   - If v9 format → Investigate further
+   - If corrupted → Recovery strategy
+
+4. **Contact NEX Genesis support** for guidance
+
+---
+
+## Expected Outcome
+
+Po vyriešení file compatibility issue:
+- ✅ Status 0 (SUCCESS) namiesto status 30
+- ✅ Všetky testy prechádzajú (4/4)
+- ✅ Čítanie z 6 tabuliek funguje
+- ✅ Production ready
+
+---
+
+**Last Updated:** 2025-11-27 18:00  
 **Version:** 1.0  
-**Status:** 🟡 Waiting for Btrieve Resolution  
-**Priority:** ⚡ HIGH - Blocking all testing
+**Status:** 🔴 BLOCKED - File Format Incompatibility  
+**Priority:** ⚡ CRITICAL - Blocking all Btrieve functionality

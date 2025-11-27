@@ -191,16 +191,13 @@ class BtrieveClient:
 
     def open_file(self, filename: str, owner_name: str = "", mode: int = -2) -> Tuple[int, bytes]:
         """
-        Otvor Btrieve súbor - FIXED syntax podľa Delphi BtrOpen
+        Otvor Btrieve súbor - FIXED with owner name support
 
-        IMPORTANT: Based on Delphi BtrOpen (BtrHand.pas):
-        - Filename goes in KEY_BUFFER (not data_buffer!)
-        - Data_buffer is EMPTY (dataLen = 0!)
-        - keyLen = 255 (max key length)
+        CRITICAL: Owner name must be in data_buffer for files with owner security!
 
         Args:
             filename: Cesta k .dat/.BTR súboru
-            owner_name: Owner name (optional, not used)
+            owner_name: Owner name (required for secured files!)
             mode: Open mode
                   0 = Normal
                  -1 = Accelerated
@@ -213,29 +210,36 @@ class BtrieveClient:
         # Position block (128 bytes)
         pos_block = ctypes.create_string_buffer(128)
 
-        # Data buffer is EMPTY for OPEN! (according to Delphi BtrOpen)
-        data_buffer = ctypes.create_string_buffer(256)
-        data_len = ctypes.c_uint32(0)  # ZERO! (and longInt = 4 bytes)
+        # Data buffer with OWNER NAME (if provided)
+        if owner_name:
+            # Owner name goes into data_buffer (null-terminated, max 8 chars)
+            owner_bytes = owner_name.encode('ascii')[:8].ljust(8, b'\x00')
+            data_buffer = ctypes.create_string_buffer(owner_bytes, 256)
+            data_len = ctypes.c_uint32(len(owner_bytes))
+        else:
+            # No owner name - empty data buffer
+            data_buffer = ctypes.create_string_buffer(256)
+            data_len = ctypes.c_uint32(0)
 
-        # FILENAME goes into KEY_BUFFER! (not data_buffer!)
+        # FILENAME goes into KEY_BUFFER!
         # Resolve table name to filepath using config
         filepath = self._resolve_table_path(filename)
 
         filename_bytes = filepath.encode('ascii') + b'\x00'
         key_buffer = ctypes.create_string_buffer(filename_bytes)
 
-        # keyLen = 255 (max key length, as in BTRV wrapper)
+        # keyLen = 255 (max key length)
         key_len = 255
 
-        # Call BTRCALL with CORRECT parameters
+        # Call BTRCALL
         status = self.btrcall(
             self.B_OPEN,
             pos_block,
-            data_buffer,  # EMPTY!
-            ctypes.byref(data_len),  # 0!
-            key_buffer,  # FILENAME!
-            key_len,  # 255!
-            mode & 0xFF  # mode as unsigned BYTE
+            data_buffer,
+            ctypes.byref(data_len),
+            key_buffer,
+            key_len,
+            mode & 0xFF
         )
 
         return status, pos_block.raw

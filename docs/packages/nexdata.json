@@ -2,14 +2,14 @@
   "name": "nexdata",
   "type": "package",
   "location": "packages/nexdata",
-  "generated": "2025-11-27T16:07:21.207297",
+  "generated": "2025-11-27T22:57:53.370195",
   "statistics": {
     "total_files": 24,
     "total_dirs": 8,
     "python_files": 22,
     "test_files": 0,
-    "total_lines": 2579,
-    "total_size": 90463
+    "total_lines": 2583,
+    "total_size": 90551
   },
   "dependencies": {
     "main": [
@@ -56,10 +56,10 @@
     {
       "path": "packages/nexdata/nexdata/btrieve/btrieve_client.py",
       "name": "btrieve_client.py",
-      "size": 12403,
+      "size": 12491,
       "extension": ".py",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/packages/nexdata/nexdata/btrieve/btrieve_client.py",
-      "lines": 377,
+      "lines": 381,
       "type": "source"
     },
     {
@@ -236,7 +236,7 @@
     {
       "name": "btrieve_client",
       "path": "btrieve/btrieve_client.py",
-      "lines": 377
+      "lines": 381
     },
     {
       "name": "barcode",
