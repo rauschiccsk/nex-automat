@@ -4,7 +4,7 @@
   "version": "2.0.0",
   "description": "Multi-customer SaaS for automated invoice processing",
   "location": "C:\\Development\\nex-automat",
-  "generated": "2025-11-26T19:01:53.505219",
+  "generated": "2025-11-27T09:26:05.676286",
   "structure": {
     "apps": 2,
     "packages": 2,
@@ -12,12 +12,12 @@
     "tools": true
   },
   "statistics": {
-    "total_files": 5260,
-    "total_dirs": 585,
-    "python_files": 2050,
-    "test_files": 66,
-    "total_lines": 736193,
-    "total_size": 104827421
+    "total_files": 5284,
+    "total_dirs": 591,
+    "python_files": 2072,
+    "test_files": 67,
+    "total_lines": 739563,
+    "total_size": 104957696
   },
   "applications": [
     {
@@ -49,12 +49,12 @@
       "name": "nex-shared",
       "location": "packages/nex-shared",
       "manifest": "docs/packages/nex-shared.json",
-      "python_files": 5,
-      "dependencies_count": 2
+      "python_files": 21,
+      "dependencies_count": 1
     }
   ],
   "dependencies": {
-    "unique_count": 13,
+    "unique_count": 14,
     "list": [
       "PyQt5",
       "PyYAML",
@@ -68,6 +68,7 @@
       "pydantic-settings",
       "pypdf",
       "python-multipart",
+      "pyyaml",
       "uvicorn"
     ]
   },
@@ -85,7 +86,7 @@
     "session_notes": {
       "path": "docs/SESSION_NOTES.md",
       "exists": true,
-      "size": 2457,
+      "size": 11422,
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/docs/SESSION_NOTES.md"
     }
   },

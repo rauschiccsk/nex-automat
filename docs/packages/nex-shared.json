@@ -2,64 +2,187 @@
   "name": "nex-shared",
   "type": "package",
   "location": "packages/nex-shared",
-  "generated": "2025-11-26T19:01:52.460952",
+  "generated": "2025-11-27T09:26:05.327807",
   "statistics": {
-    "total_files": 6,
-    "total_dirs": 5,
-    "python_files": 5,
+    "total_files": 23,
+    "total_dirs": 12,
+    "python_files": 21,
     "test_files": 0,
-    "total_lines": 5,
-    "total_size": 458
+    "total_lines": 1734,
+    "total_size": 63364
   },
   "dependencies": {
     "main": [
-      "pydantic>=2.0.0",
-      "pydantic-settings>=2.0.0"
+      "pyyaml>=6.0.0"
     ],
     "dev": [],
     "optional": {}
   },
   "files": [
     {
+      "path": "packages/nex-shared/README.md",
+      "name": "README.md",
+      "size": 1029,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/packages/nex-shared/README.md"
+    },
+    {
+      "path": "packages/nex-shared/__init__.py",
+      "name": "__init__.py",
+      "size": 320,
+      "extension": ".py",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/packages/nex-shared/__init__.py",
+      "lines": 14,
+      "type": "source"
+    },
+    {
+      "path": "packages/nex-shared/auth/__init__.py",
+      "name": "__init__.py",
+      "size": 30,
+      "extension": ".py",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/packages/nex-shared/auth/__init__.py",
+      "lines": 1,
+      "type": "source"
+    },
+    {
+      "path": "packages/nex-shared/btrieve/__init__.py",
+      "name": "__init__.py",
+      "size": 15,
+      "extension": ".py",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/packages/nex-shared/btrieve/__init__.py",
+      "lines": 1,
+      "type": "source"
+    },
+    {
+      "path": "packages/nex-shared/btrieve/btrieve_client.py",
+      "name": "btrieve_client.py",
+      "size": 10970,
+      "extension": ".py",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/packages/nex-shared/btrieve/btrieve_client.py",
+      "lines": 343,
+      "type": "source"
+    },
+    {
+      "path": "packages/nex-shared/database/__init__.py",
+      "name": "__init__.py",
+      "size": 30,
+      "extension": ".py",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/packages/nex-shared/database/__init__.py",
+      "lines": 1,
+      "type": "source"
+    },
+    {
+      "path": "packages/nex-shared/models/__init__.py",
+      "name": "__init__.py",
+      "size": 15,
+      "extension": ".py",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/packages/nex-shared/models/__init__.py",
+      "lines": 1,
+      "type": "source"
+    },
+    {
+      "path": "packages/nex-shared/models/tsh.py",
+      "name": "tsh.py",
+      "size": 10551,
+      "extension": ".py",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/packages/nex-shared/models/tsh.py",
+      "lines": 254,
+      "type": "source"
+    },
+    {
+      "path": "packages/nex-shared/models/tsi.py",
+      "name": "tsi.py",
+      "size": 9810,
+      "extension": ".py",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/packages/nex-shared/models/tsi.py",
+      "lines": 252,
+      "type": "source"
+    },
+    {
+      "path": "packages/nex-shared/monitoring/__init__.py",
+      "name": "__init__.py",
+      "size": 30,
+      "extension": ".py",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/packages/nex-shared/monitoring/__init__.py",
+      "lines": 1,
+      "type": "source"
+    },
+    {
       "path": "packages/nex-shared/nex_shared/__init__.py",
       "name": "__init__.py",
-      "size": 30,
+      "size": 320,
       "extension": ".py",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/packages/nex-shared/nex_shared/__init__.py",
+      "lines": 14,
+      "type": "source"
+    },
+    {
+      "path": "packages/nex-shared/nex_shared/btrieve/__init__.py",
+      "name": "__init__.py",
+      "size": 23,
+      "extension": ".py",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/packages/nex-shared/nex_shared/btrieve/__init__.py",
       "lines": 1,
       "type": "source"
     },
     {
-      "path": "packages/nex-shared/nex_shared/auth/__init__.py",
-      "name": "__init__.py",
-      "size": 30,
+      "path": "packages/nex-shared/nex_shared/btrieve/btrieve_client.py",
+      "name": "btrieve_client.py",
+      "size": 5689,
       "extension": ".py",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/packages/nex-shared/nex_shared/auth/__init__.py",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/packages/nex-shared/nex_shared/btrieve/btrieve_client.py",
+      "lines": 172,
+      "type": "source"
+    },
+    {
+      "path": "packages/nex-shared/nex_shared/models/__init__.py",
+      "name": "__init__.py",
+      "size": 22,
+      "extension": ".py",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/packages/nex-shared/nex_shared/models/__init__.py",
       "lines": 1,
       "type": "source"
     },
     {
-      "path": "packages/nex-shared/nex_shared/database/__init__.py",
-      "name": "__init__.py",
-      "size": 30,
+      "path": "packages/nex-shared/nex_shared/models/tsh.py",
+      "name": "tsh.py",
+      "size": 7255,
       "extension": ".py",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/packages/nex-shared/nex_shared/database/__init__.py",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/packages/nex-shared/nex_shared/models/tsh.py",
+      "lines": 186,
+      "type": "source"
+    },
+    {
+      "path": "packages/nex-shared/nex_shared/models/tsi.py",
+      "name": "tsi.py",
+      "size": 7018,
+      "extension": ".py",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/packages/nex-shared/nex_shared/models/tsi.py",
+      "lines": 179,
+      "type": "source"
+    },
+    {
+      "path": "packages/nex-shared/nex_shared/repositories/__init__.py",
+      "name": "__init__.py",
+      "size": 28,
+      "extension": ".py",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/packages/nex-shared/nex_shared/repositories/__init__.py",
       "lines": 1,
       "type": "source"
     },
     {
-      "path": "packages/nex-shared/nex_shared/monitoring/__init__.py",
-      "name": "__init__.py",
-      "size": 30,
+      "path": "packages/nex-shared/nex_shared/repositories/base_repository.py",
+      "name": "base_repository.py",
+      "size": 2914,
       "extension": ".py",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/packages/nex-shared/nex_shared/monitoring/__init__.py",
-      "lines": 1,
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/packages/nex-shared/nex_shared/repositories/base_repository.py",
+      "lines": 91,
       "type": "source"
     },
     {
       "path": "packages/nex-shared/nex_shared/utils/__init__.py",
       "name": "__init__.py",
-      "size": 30,
+      "size": 21,
       "extension": ".py",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/packages/nex-shared/nex_shared/utils/__init__.py",
       "lines": 1,
@@ -68,10 +191,58 @@
     {
       "path": "packages/nex-shared/pyproject.toml",
       "name": "pyproject.toml",
-      "size": 308,
+      "size": 328,
       "extension": ".toml",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/packages/nex-shared/pyproject.toml"
+    },
+    {
+      "path": "packages/nex-shared/repositories/__init__.py",
+      "name": "__init__.py",
+      "size": 15,
+      "extension": ".py",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/packages/nex-shared/repositories/__init__.py",
+      "lines": 1,
+      "type": "source"
+    },
+    {
+      "path": "packages/nex-shared/repositories/base_repository.py",
+      "name": "base_repository.py",
+      "size": 6916,
+      "extension": ".py",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/packages/nex-shared/repositories/base_repository.py",
+      "lines": 218,
+      "type": "source"
+    },
+    {
+      "path": "packages/nex-shared/utils/__init__.py",
+      "name": "__init__.py",
+      "size": 15,
+      "extension": ".py",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/packages/nex-shared/utils/__init__.py",
+      "lines": 1,
+      "type": "source"
     }
   ],
-  "modules": []
+  "modules": [
+    {
+      "name": "btrieve_client",
+      "path": "btrieve/btrieve_client.py",
+      "lines": 172
+    },
+    {
+      "name": "tsh",
+      "path": "models/tsh.py",
+      "lines": 186
+    },
+    {
+      "name": "tsi",
+      "path": "models/tsi.py",
+      "lines": 179
+    },
+    {
+      "name": "base_repository",
+      "path": "repositories/base_repository.py",
+      "lines": 91
+    }
+  ]
 }
