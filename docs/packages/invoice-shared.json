@@ -2,14 +2,14 @@
   "name": "invoice-shared",
   "type": "package",
   "location": "packages/invoice-shared",
-  "generated": "2025-11-24T20:18:04.430055",
+  "generated": "2025-11-29T20:40:00.504632",
   "statistics": {
     "total_files": 9,
     "total_dirs": 5,
     "python_files": 7,
     "test_files": 0,
     "total_lines": 374,
-    "total_size": 13529
+    "total_size": 13096
   },
   "dependencies": {
     "main": [
@@ -23,14 +23,14 @@
     {
       "path": "packages/invoice-shared/README.md",
       "name": "README.md",
-      "size": 1439,
+      "size": 1380,
       "extension": ".md",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/packages/invoice-shared/README.md"
     },
     {
       "path": "packages/invoice-shared/invoice_shared/__init__.py",
       "name": "__init__.py",
-      "size": 344,
+      "size": 329,
       "extension": ".py",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/packages/invoice-shared/invoice_shared/__init__.py",
       "lines": 15,
@@ -39,7 +39,7 @@
     {
       "path": "packages/invoice-shared/invoice_shared/database/__init__.py",
       "name": "__init__.py",
-      "size": 155,
+      "size": 150,
       "extension": ".py",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/packages/invoice-shared/invoice_shared/database/__init__.py",
       "lines": 5,
@@ -48,7 +48,7 @@
     {
       "path": "packages/invoice-shared/invoice_shared/database/postgres_staging.py",
       "name": "postgres_staging.py",
-      "size": 9583,
+      "size": 9288,
       "extension": ".py",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/packages/invoice-shared/invoice_shared/database/postgres_staging.py",
       "lines": 295,
@@ -57,7 +57,7 @@
     {
       "path": "packages/invoice-shared/invoice_shared/models/__init__.py",
       "name": "__init__.py",
-      "size": 89,
+      "size": 84,
       "extension": ".py",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/packages/invoice-shared/invoice_shared/models/__init__.py",
       "lines": 5,
@@ -66,7 +66,7 @@
     {
       "path": "packages/invoice-shared/invoice_shared/schemas/__init__.py",
       "name": "__init__.py",
-      "size": 80,
+      "size": 75,
       "extension": ".py",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/packages/invoice-shared/invoice_shared/schemas/__init__.py",
       "lines": 5,
@@ -75,7 +75,7 @@
     {
       "path": "packages/invoice-shared/invoice_shared/utils/__init__.py",
       "name": "__init__.py",
-      "size": 115,
+      "size": 110,
       "extension": ".py",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/packages/invoice-shared/invoice_shared/utils/__init__.py",
       "lines": 5,
@@ -84,7 +84,7 @@
     {
       "path": "packages/invoice-shared/invoice_shared/utils/text_utils.py",
       "name": "text_utils.py",
-      "size": 1163,
+      "size": 1119,
       "extension": ".py",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/packages/invoice-shared/invoice_shared/utils/text_utils.py",
       "lines": 44,

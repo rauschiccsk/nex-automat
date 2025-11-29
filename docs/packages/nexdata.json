@@ -1,0 +1,21 @@
+{
+  "name": "nexdata",
+  "type": "package",
+  "location": "packages/nexdata",
+  "generated": "2025-11-29T20:40:00.535354",
+  "statistics": {
+    "total_files": 0,
+    "total_dirs": 4,
+    "python_files": 0,
+    "test_files": 0,
+    "total_lines": 0,
+    "total_size": 0
+  },
+  "dependencies": {
+    "main": [],
+    "dev": [],
+    "optional": {}
+  },
+  "files": [],
+  "modules": []
+}

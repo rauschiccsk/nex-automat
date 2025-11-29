@@ -4,20 +4,20 @@
   "version": "2.0.0",
   "description": "Multi-customer SaaS for automated invoice processing",
   "location": "C:\\Development\\nex-automat",
-  "generated": "2025-11-24T20:18:04.783656",
+  "generated": "2025-11-29T20:40:00.874084",
   "structure": {
     "apps": 2,
-    "packages": 2,
+    "packages": 3,
     "docs": true,
     "tools": true
   },
   "statistics": {
-    "total_files": 5248,
-    "total_dirs": 583,
-    "python_files": 2050,
+    "total_files": 5468,
+    "total_dirs": 612,
+    "python_files": 2243,
     "test_files": 66,
-    "total_lines": 736193,
-    "total_size": 104752812
+    "total_lines": 766413,
+    "total_size": 105735008
   },
   "applications": [
     {
@@ -51,6 +51,13 @@
       "manifest": "docs/packages/nex-shared.json",
       "python_files": 5,
       "dependencies_count": 2
+    },
+    {
+      "name": "nexdata",
+      "location": "packages/nexdata",
+      "manifest": "docs/packages/nexdata.json",
+      "python_files": 0,
+      "dependencies_count": 0
     }
   ],
   "dependencies": {
@@ -85,7 +92,7 @@
     "session_notes": {
       "path": "docs/SESSION_NOTES.md",
       "exists": true,
-      "size": 2910,
+      "size": 17835,
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/docs/SESSION_NOTES.md"
     }
   },

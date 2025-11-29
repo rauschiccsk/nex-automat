@@ -2,14 +2,14 @@
   "name": "nex-shared",
   "type": "package",
   "location": "packages/nex-shared",
-  "generated": "2025-11-24T20:18:04.448211",
+  "generated": "2025-11-29T20:40:00.522175",
   "statistics": {
     "total_files": 6,
     "total_dirs": 5,
     "python_files": 5,
     "test_files": 0,
     "total_lines": 5,
-    "total_size": 458
+    "total_size": 453
   },
   "dependencies": {
     "main": [
@@ -23,7 +23,7 @@
     {
       "path": "packages/nex-shared/nex_shared/__init__.py",
       "name": "__init__.py",
-      "size": 30,
+      "size": 29,
       "extension": ".py",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/packages/nex-shared/nex_shared/__init__.py",
       "lines": 1,
@@ -32,7 +32,7 @@
     {
       "path": "packages/nex-shared/nex_shared/auth/__init__.py",
       "name": "__init__.py",
-      "size": 30,
+      "size": 29,
       "extension": ".py",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/packages/nex-shared/nex_shared/auth/__init__.py",
       "lines": 1,
@@ -41,7 +41,7 @@
     {
       "path": "packages/nex-shared/nex_shared/database/__init__.py",
       "name": "__init__.py",
-      "size": 30,
+      "size": 29,
       "extension": ".py",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/packages/nex-shared/nex_shared/database/__init__.py",
       "lines": 1,
@@ -50,7 +50,7 @@
     {
       "path": "packages/nex-shared/nex_shared/monitoring/__init__.py",
       "name": "__init__.py",
-      "size": 30,
+      "size": 29,
       "extension": ".py",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/packages/nex-shared/nex_shared/monitoring/__init__.py",
       "lines": 1,
@@ -59,7 +59,7 @@
     {
       "path": "packages/nex-shared/nex_shared/utils/__init__.py",
       "name": "__init__.py",
-      "size": 30,
+      "size": 29,
       "extension": ".py",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/packages/nex-shared/nex_shared/utils/__init__.py",
       "lines": 1,
