@@ -146,7 +146,6 @@ def create_directories(deploy_path: Path):
     log(f"Directories created: {', '.join(dirs)}", "OK")
 
 
-
 def copy_from_templates(deploy_path: Path):
     """Copy configuration templates when no backup exists."""
     log("Copying from templates (clean installation)...", "STEP")
@@ -236,6 +235,45 @@ def copy_from_backup(deploy_path: Path, backup_path: Path):
                     log(f"NSSM not found at {backup_path / rel_path} or {alt_nssm}", "WARN")
             else:
                 log(f"Missing required directory: {rel_path}", "WARN")
+
+
+def initialize_database(deploy_path: Path, venv_path: Path):
+    """Initialize PostgreSQL database and schema."""
+    log("Initializing database...", "STEP")
+
+    # Check if init_database.py exists
+    init_db_script = deploy_path / "scripts" / "init_database.py"
+
+    if not init_db_script.exists():
+        log("init_database.py not found - skipping database initialization", "WARN")
+        log("Database must be created manually", "WARN")
+        return
+
+    # Check if POSTGRES_PASSWORD is set
+    if not os.environ.get("POSTGRES_PASSWORD"):
+        log("POSTGRES_PASSWORD not set - skipping database initialization", "WARN")
+        log("Set POSTGRES_PASSWORD and run: python scripts\\init_database.py", "WARN")
+        return
+
+    # Run database initialization
+    python = venv_path / "Scripts" / "python.exe"
+
+    try:
+        result = run_cmd(f'"{python}" "{init_db_script}"', cwd=deploy_path, check=False, capture=True)
+
+        if "Database initialization complete" in result.stdout:
+            log("Database initialized successfully", "OK")
+        elif "already exists" in result.stdout:
+            log("Database already exists - schema applied", "OK")
+        else:
+            log("Database initialization had warnings - check output", "WARN")
+            # Print output for debugging
+            if result.stdout:
+                print(result.stdout)
+
+    except Exception as e:
+        log(f"Database initialization error: {e}", "WARN")
+        log("You can run manually: python scripts\\init_database.py", "WARN")
 
 
 def find_nssm(deploy_path: Path) -> Path:
@@ -384,6 +422,9 @@ def main():
         else:
             log(f"No backup found at {backup_path}", "WARN")
             copy_from_templates(deploy_path)
+
+        # Step 6.5: Initialize Database
+        initialize_database(deploy_path, venv_path)
 
         # Step 7: Service
         if not args.skip_service:
