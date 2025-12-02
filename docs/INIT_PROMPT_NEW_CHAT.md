@@ -1,439 +1,560 @@
-# Init Prompt - Btrieve Status 30 (NOT_A_BTRIEVE_FILE) Resolution
+# Init Prompt - Mágerstav Go-Live Testing
 
-**Projekt:** NEX Automat  
-**Last Session:** 2025-11-27 (Status 161 → Status 30 Investigation)  
-**This Session:** File Version Analysis & Conversion Strategy  
+**Project:** NEX Automat v2.0 - Supplier Invoice Loader  
+**Customer:** Mágerstav s.r.o.  
+**Current Progress:** 85% (Server + n8n Ready, Testing Pending)  
+**Last Session:** n8n Recovery & Workflow Setup - SUCCESS (2025-12-02)  
+**This Session:** End-to-End Testing & Production Validation  
 
 ---
 
 ## Quick Context
 
-NEX Automat je projekt pre kompletnú automatizáciu podnikových procesov pre zákazníkov používajúcich NEX Genesis ERP.
+**Server-side deployment** na Mágerstav server je **dokončený a funguje**:
+- ✅ API beží na porte 8001
+- ✅ Cloudflare Tunnel: https://magerstav-invoices.icc.sk
+- ✅ Databáza invoice_staging vytvorená
+- ✅ Health check odpovedá
 
-**Aktuálny stav:**
-- Version: 2.0.0 (tagged)
-- GO-LIVE: ✅ COMPLETE (2025-11-27)
-- nexdata Package: ✅ CREATED
-- Btrieve Config Lookup: ✅ IMPLEMENTED
-- Btrieve Access: ❌ BLOCKED BY STATUS 30 ← **HERE**
+**n8n workflow** na ICC serveri je **nakonfigurovaný a aktívny**:
+- ✅ Workflow: n8n-SupplierInvoiceEmailLoader (ACTIVE)
+- ✅ Email monitoring: magerstavinvoice@gmail.com
+- ✅ IMAP credential: nastavený a funkčný
+- ✅ Gmail credential: nastavený a funkčný
+- ✅ API integration: správna URL a API key
+- ✅ Environment variable: LS_API_KEY nastavená
 
----
-
-## Critical Problem Summary
-
-### Status 30 = B_NOT_A_BTRIEVE_FILE
-
-**Symptom:**
-```python
-client = BtrieveClient()
-status, pos_block = client.open_file(r"C:\NEX\YEARACT\STORES\GSCAT.BTR")
-# Result: status=30 (NOT_A_BTRIEVE_FILE)
-```
-
-**Verified Facts:**
-- ✅ Súbory existujú: C:\NEX\YEARACT\STORES\GSCAT.BTR (29.7 MB)
-- ✅ Pervasive v9 service beží: psqlWGE RUNNING
-- ✅ BUTIL funguje: Dokáže čítať file metadata
-- ✅ NEX Genesis funguje: Používa Btrieve úspešne
-- ❌ Python BTRCALL API: Status 30 vo VŠETKÝCH projektoch
-- ❌ Invoice-editor: TIEŽ status 30 (predtým fungoval)
-
-**Root Cause Hypothesis:**
-
-Súbory boli vytvorené/modifikované **Pervasive v11 Trial** (expirovaná) a sú nekompatibilné s **Pervasive v9 Licensed** API.
+**Čo CHÝBA:**
+- End-to-end testing celého flow
+- Production validation
+- Customer handoff
 
 ---
 
-## What Happened Last Session ✅
+## System Architecture
 
-### 1. Status 161 → Expirovaný Trial Identified
-
-**Original problem:**
-- Status 161 (FILE_NOT_FOUND) všade
-- Expirovaná Pervasive 11 Trial verzia
-
-**Solution:**
-- Odinštalovanie Pervasive 11 Trial
-- Inštalácia Pervasive v9 Licensed
-- NEX Genesis začal fungovať ✅
-
-### 2. New Problem: Status 30
-
-**Po downgrade na v9:**
-- Status 30 vo všetkých Python projektoch
-- BUTIL funguje, BTRCALL API nie
-
-### 3. Code Analysis
-
-**Porovnanie invoice-editor (fungujúce predtým) vs nex-automat:**
-- ✅ DLL setup: IDENTICKÝ
-- ✅ open_file(): IDENTICKÝ (až na config lookup)
-- ✅ Kód je správny!
-
-### 4. Status Code Discovery
-
-**Z BtrConst.pas (Delphi source):**
-```pascal
-B_NOT_A_BTRIEVE_FILE = 30;  // NIE permission error!
 ```
-
-**Správny význam:** File format nie je rozpoznaný Btrieve engine!
-
-### 5. Diagnostic Scripts Created
-
-- ✅ test_open_modes.py - testovanie open modes
-- ✅ test_owner_names.py - testovanie owner names
-- ✅ fix_btrieve_owner_name.py - owner name support
-- ✅ test_file_version.py - file header analysis ← **READY TO RUN**
+┌────────────────────────────────┐
+│ ICC Server (n8n)               │
+│                                │
+│ ┌────────────────────────────┐ │
+│ │ n8n Instance (LocalSystem) │ │
+│ │ - Workflow: ACTIVE         │ │
+│ │ - Email: magerstav...      │ │
+│ │ - IMAP Monitor: Running    │ │
+│ └─────────────┬──────────────┘ │
+└───────────────┼────────────────┘
+                │
+                │ HTTPS POST
+                │ (Cloudflare Tunnel)
+                ▼
+┌────────────────────────────────┐
+│ Mágerstav Server (Production)  │
+│                                │
+│ ┌────────────────────────────┐ │
+│ │ Cloudflare Tunnel          │ │
+│ │ magerstav-invoices.icc.sk  │ │
+│ └─────────────┬──────────────┘ │
+│               ▼                │
+│ ┌────────────────────────────┐ │
+│ │ NEX Automat API:8001       │ │
+│ │ - FastAPI Service          │ │
+│ │ - Invoice Processing       │ │
+│ └─────────────┬──────────────┘ │
+│               ▼                │
+│ ┌────────────────────────────┐ │
+│ │ PostgreSQL 15              │ │
+│ │ - invoice_staging DB       │ │
+│ │ - 6 tables                 │ │
+│ └────────────────────────────┘ │
+└────────────────────────────────┘
+```
 
 ---
 
-## Current Blocking Issue ⚠️
+## Current System State
 
-### Btrieve File Format Incompatibility
+### ✅ Mágerstav Server (Production) - DEPLOYED
 
-**Problem:**
-Pervasive v11 vytvorené súbory → Pervasive v9 API ich nerozpoznáva
+**Services Running:**
+- ✅ postgresql-x64-15 (Running)
+- ✅ NEXAutomat (Running - port 8001)
+- ✅ CloudflaredMagerstav (Running)
 
-**Evidence:**
-1. BUTIL (v9) dokáže čítať metadata → low-level access OK
-2. BTRCALL API (v9) hlási "NOT_A_BTRIEVE_FILE" → engine validation fails
-3. NEX Genesis funguje → používa iné API alebo special config
-4. Všetky Python projekty status 30 → consistent failure
+**API Status:**
+- ✅ Local: http://localhost:8001/health → 200 OK
+- ✅ Public: https://magerstav-invoices.icc.sk/health → 200 OK
+- ✅ API Endpoint: https://magerstav-invoices.icc.sk/invoice
+
+**Database:**
+- ✅ Database: invoice_staging (created)
+- ✅ Tables: 6 (invoices_pending, invoice_items_pending, etc.)
+- ✅ Status: Empty, ready for data
+
+**Configuration:**
+- ✅ Port: 8001
+- ✅ Customer: MAGERSTAV
+- ✅ API Key: `magerstav-PWjoMerqzZc-EJZPuT0wN9iBzM8eK_t1Rh-HFZT4IbY`
+- ✅ Environment: POSTGRES_PASSWORD = Nex1968
+- ✅ Environment: LS_API_KEY = magerstav-PWjoMerqzZc-EJZPuT0wN9iBzM8eK_t1Rh-HFZT4IbY
+
+**Cloudflare Tunnel:**
+- ✅ Config: `C:\cloudflared-magerstav\config.yml`
+- ✅ Tunnel ID: 0fdfffe9-b348-44b5-adcc-969681ac2786
+- ✅ Hostname: magerstav-invoices.icc.sk
+- ✅ Service: http://localhost:8001
+
+### ✅ ICC Server (n8n) - CONFIGURED
+
+**n8n Service:**
+- ✅ Service Name: n8n-service
+- ✅ Manager: NSSM
+- ✅ Account: LocalSystem
+- ✅ Status: Running
+- ✅ Port: 5678
+- ✅ Web UI: http://localhost:5678
+
+**Database:**
+- ✅ Location: `C:\Windows\SysWOW64\config\systemprofile\.n8n\database.sqlite`
+- ✅ Size: 53.98 MB
+- ✅ Workflows: 24 total
+- ✅ Credentials: 8 total (all decrypted)
+- ✅ Encryption Key: `OpvW9Fyd3Wi0x3lJJtpPW0ULcyHeDdK7`
+
+**Environment Variables:**
+```
+N8N_PORT=5678
+N8N_HOST=0.0.0.0
+LS_API_KEY=magerstav-PWjoMerqzZc-EJZPuT0wN9iBzM8eK_t1Rh-HFZT4IbY
+```
+
+**Mágerstav Workflow:**
+- ✅ Name: n8n-SupplierInvoiceEmailLoader
+- ✅ ID: yBsDIpw6oMs96hi6
+- ✅ Status: ACTIVE 🟢
+- ✅ Email: magerstavinvoice@gmail.com
+- ✅ IMAP: Configured and connected
+- ✅ Gmail: Configured and connected
+- ✅ HTTP: magerstav-invoices.icc.sk/invoice
+- ✅ API Key: From $env.LS_API_KEY
+
+**Workflow Nodes:**
+1. Email Trigger (IMAP) - monitors magerstavinvoice@gmail.com
+2. Split PDF (Code) - extracts PDF from attachments
+3. Has PDF? (Switch) - routes based on PDF presence
+   - Output 1 (Has PDF) → HTTP Request → Mágerstav API
+   - Output 2 (No PDF) → Send Error Notification → it@magerstav.sk
 
 ---
 
-## Priority Actions for This Session
+## Session Goals
 
-### Priority 1: File Version Diagnostics ⚡
+### Priority 1: End-to-End Testing (MUST DO)
 
-**Spustiť file version analysis:**
-```cmd
-cd C:\Development\nex-automat
-venv32\Scripts\python.exe scripts\test_file_version.py
-```
+#### Test 1.1: Happy Path - Invoice Processing
 
-**Očakávaný output:**
-- File format version (Pervasive v9.x vs v11.x)
-- Page size validation
-- Header structure analysis
-- Version compatibility check
+**Objective:** Verify complete flow from email to database
 
-**Cieľ:** Potvrdiť, že súbory sú v11 format.
+**Prerequisites:**
+- Sample PDF invoice ready (any invoice PDF, 1-5 MB)
+- Access to magerstavinvoice@gmail.com for sending
+- Access to n8n UI for monitoring
+- Access to Mágerstav server for database check
 
-### Priority 2: BUTIL File Rebuild Test
+**Steps:**
+1. **Send test email:**
+   - To: magerstavinvoice@gmail.com
+   - Subject: "Test Faktúra - Mágerstav"
+   - Body: "Testovacia faktúra pre NEX Automat"
+   - Attachment: PDF invoice file
 
-**Ak súbory sú v11 format, skúsiť BUTIL rebuild:**
-```cmd
-cd C:\NEX\YEARACT\STORES
-BUTIL -create C:\TEMP\GSCAT_V9.BTR [params from -stat]
-BUTIL -copy GSCAT.BTR C:\TEMP\GSCAT_V9.BTR
-```
+2. **Wait 30-60 seconds** (IMAP polling interval)
 
-**ALEBO:**
-```cmd
-BUTIL -save GSCAT.BTR GSCAT.DAT
-BUTIL -load GSCAT_NEW.BTR GSCAT.DAT [with v9 specs]
-```
+3. **Check n8n Executions:**
+   - Open: http://localhost:5678
+   - Go to: Executions tab
+   - Find latest execution
+   - Status should be: SUCCESS (all nodes green)
 
-### Priority 3: NEX Genesis Investigation
+4. **Verify n8n node outputs:**
+   - Email Trigger: Shows email metadata
+   - Split PDF: Shows file_b64 (base64 PDF)
+   - Has PDF?: Routes to Output 1 (Has PDF)
+   - HTTP Request: Response 200, status "success"
 
-**Zistiť ako NEX Genesis pristupuje k Btrieve:**
+5. **Check Mágerstav database:**
+   ```sql
+   -- On Mágerstav server
+   SELECT * FROM invoices_pending ORDER BY created_at DESC LIMIT 1;
+   ```
+   
+   **Expected Fields:**
+   - supplier_name: extracted from PDF
+   - invoice_number: extracted or generated
+   - status: 'pending'
+   - file_hash: unique hash
+   - from_email: sender email
+   - created_at: recent timestamp
 
-1. **Check Delphi code v nex-genesis-server:**
-   ```pascal
-   // BtrHand.pas - BtrOpen function
-   // Používa špeciálne parametre?
+6. **Check NEX Automat logs:**
+   ```powershell
+   Get-Content C:\Deployment\nex-automat\logs\service-stdout.log -Tail 50
+   ```
+   
+   **Expected Log:**
+   ```
+   [INFO] Processing invoice from email: [sender]
+   [INFO] Invoice processed successfully
    ```
 
-2. **Test s Delphi BTRCALL:**
-   - Funguje Delphi kód na Pervasive v9?
-   - Ak áno, aký je rozdiel oproti Python?
+**Success Criteria:**
+- ✅ n8n execution: SUCCESS
+- ✅ HTTP response: 200 with {"status": "success"}
+- ✅ Database record created
+- ✅ No errors in logs
 
-3. **Check NEX Genesis config:**
-   - Pervasive Control Center settings
-   - Database registration
-   - Special compatibility mode?
+#### Test 1.2: Error Path - No PDF Attachment
 
-### Priority 4: Contact NEX Genesis Support
+**Objective:** Verify alert email is sent when no PDF attached
 
-**Informácie na získanie:**
-- Recommended Pervasive version
-- File migration procedure
-- Compatibility notes
-- Support for v11 → v9 downgrade
+**Steps:**
+1. **Send email WITHOUT attachment:**
+   - To: magerstavinvoice@gmail.com
+   - Subject: "Test bez PDF"
+   - Body: Plain text only
+   - NO attachment
+
+2. **Wait 30-60 seconds**
+
+3. **Check n8n Executions:**
+   - Email Trigger: Shows email
+   - Split PDF: No PDF found (error in json)
+   - Has PDF?: Routes to Output 2 (No PDF)
+   - Send Error Notification: SUCCESS
+
+4. **Check alert email recipient inbox:**
+   - Recipient: it@magerstav.sk (needs to be updated to correct email)
+   - Subject: "⚠️ Nerozpoznaná faktúra - Test bez PDF"
+   - Body: Contains email details
+
+5. **Verify NO database record:**
+   ```sql
+   SELECT COUNT(*) FROM invoices_pending 
+   WHERE from_email LIKE '%test%' OR subject LIKE '%Test bez PDF%';
+   -- Expected: 0
+   ```
+
+**Success Criteria:**
+- ✅ n8n execution: SUCCESS
+- ✅ Alert email sent
+- ✅ No database record created
+- ✅ No API call made
+
+#### Test 1.3: Duplicate Detection
+
+**Objective:** Verify same invoice is rejected on second attempt
+
+**Steps:**
+1. **Send same PDF twice** (exact same file)
+
+2. **First execution:**
+   - Check HTTP response: `{"status": "success", "duplicate": false}`
+   - Verify database: 1 record created
+
+3. **Second execution:**
+   - Check HTTP response: `{"status": "success", "duplicate": true}`
+   - Verify database: Still only 1 record (not 2)
+
+**Verification:**
+```sql
+SELECT file_hash, COUNT(*) 
+FROM invoices_pending 
+GROUP BY file_hash 
+HAVING COUNT(*) > 1;
+-- Expected: Empty result (no duplicates)
+```
+
+**Success Criteria:**
+- ✅ First attempt: creates record
+- ✅ Second attempt: duplicate=true
+- ✅ Only 1 database record exists
+
+#### Test 1.4: Large PDF Handling
+
+**Objective:** Verify system handles larger PDFs (5-10 MB)
+
+**Steps:**
+1. Find large invoice PDF (5-10 MB)
+2. Send via email to magerstavinvoice@gmail.com
+3. Monitor n8n execution time
+4. Verify processing completes within timeout (120s)
+
+**If timeout occurs:**
+- Increase timeout in HTTP node settings
+- Check NEX Automat processing time in logs
+- May need to optimize PDF processing
+
+**Success Criteria:**
+- ✅ Execution completes within 120s
+- ✅ Database record created
+- ✅ No timeout errors
 
 ---
 
-## Alternative Solutions
+### Priority 2: Production Validation
 
-### Option A: Stay on Pervasive v11
+#### Validation 2.1: Health Check Availability
 
-**Ak v11 Trial expiroval, získať v11 License:**
-- Contact Actian/Pervasive
-- Purchase v11 Licensed version
-- Súbory budú kompatibilné
-
-**Pros:** Žiadna file conversion potrebná  
-**Cons:** Drahšie, možno nedostupné
-
-### Option B: File Format Conversion
-
-**Convert v11 files → v9 format:**
-- BUTIL rebuild
-- Export → Import
-- Custom conversion tool
-
-**Pros:** Zostaneme na v9 Licensed  
-**Cons:** Risk of data loss, time consuming
-
-### Option C: ODBC Alternative
-
-**Use Pervasive ODBC driver instead of BTRCALL:**
-```python
-import pyodbc
-conn = pyodbc.connect('DSN=PervasiveSQL;...')
-```
-
-**Pros:** Možno funguje aj s v11 files  
-**Cons:** Iné API, treba prepísať repositories
-
-### Option D: Direct File Parsing
-
-**Parse Btrieve files directly (bez engine):**
-- Implement Btrieve file format parser
-- Based on BUTIL successful read
-
-**Pros:** Nezávislé od Pervasive version  
-**Cons:** Very complex, high risk
-
----
-
-## Technical Details
-
-### Pervasive Versions
-
-**Pervasive v9:**
-- File format version: 9.x
-- Released: ~2009
-- w3btrv7.dll location: C:\PVSW\bin
-
-**Pervasive v11:**
-- File format version: 11.x
-- Released: ~2013
-- w3btrv7.dll location: C:\Program Files (x86)\Pervasive Software\PSQL\bin
-
-**Compatibility:** v11 files môžu byť backward incompatible!
-
-### BUTIL vs BTRCALL
-
-**BUTIL:**
-- Direct file I/O
-- Low-level metadata access
-- Bypasses engine validation
-- Works with "invalid" files
-
-**BTRCALL API:**
-- Uses Btrieve engine
-- Strict version validation
-- Requires compatible file format
-- Status 30 if version mismatch
-
-### File Header Structure
-
-**Typical Btrieve file header:**
-```
-Offset  Size  Description
-0-1     2     File marker (0x46 0x43 = 'FC')
-2-3     2     Page size (512, 1024, 2048, 4096)
-4-5     2     File version (major.minor)
-8-11    4     Record count
-16-17   2     File flags
-...
-```
-
----
-
-## Available Resources
-
-### Implemented Code (Blocked)
-
-```
-packages/nexdata/
-└── nexdata/
-    ├── btrieve/
-    │   └── btrieve_client.py         ← Status 30 error
-    ├── repositories/
-    │   ├── gscat_repository.py       ← Cannot open
-    │   ├── barcode_repository.py     ← Cannot open
-    │   ├── mglst_repository.py       ← Cannot open
-    │   ├── pab_repository.py         ← Cannot open
-    │   ├── tsh_repository.py         ← Cannot open
-    │   └── tsi_repository.py         ← Cannot open
-    └── models/                       ← 6 models ready
-```
-
-### Diagnostic Scripts (Ready)
-
-```
-scripts/
-├── test_open_modes.py           ← Tested (all mode = status 30)
-├── test_owner_names.py          ← Tested (all owners = status 30)
-├── fix_btrieve_owner_name.py    ← Applied (no change)
-└── test_file_version.py         ← READY TO RUN ⚡
-```
-
-### Reference Projects
-
-**nex-genesis-server:**
-- Location: C:\Development\nex-genesis-server
-- Status: ✅ WORKING with Pervasive v9
-- Has Delphi source code for Btrieve access
-
-**invoice-editor:**
-- Location: C:\Development\invoice-editor
-- Status: ❌ Status 30 (broken after v9 install)
-- Was working on Pervasive v11 Trial
-
----
-
-## When Issue Resolved - Next Steps
-
-Po vyriešení status 30 problému:
-
-### Step 1: Verify Implementation
-```cmd
-python scripts/04_test_config_lookup.py
+**From ICC Server:**
+```bash
+curl https://magerstav-invoices.icc.sk/health
 ```
 
 **Expected:**
-- ✅ Config Loading (test 1/4)
-- ✅ Path Resolution (test 2/4)
-- ✅ GSCAT Read (test 3/4)
-- ✅ TSH Read (test 4/4)
-
-### Step 2: Test All Repositories
-
-```python
-from nexdata.btrieve.btrieve_client import BtrieveClient
-from nexdata.repositories import *
-
-client = BtrieveClient("config/database.yaml")
-
-# Test all repositories
-gscat = GSCATRepository(client)
-barcode = BARCODERepository(client)
-# ... etc
+```json
+{"status":"healthy","timestamp":"2025-12-02T..."}
 ```
 
-### Step 3: Integration Testing
+**If fails:**
+- Check Cloudflare Tunnel on Mágerstav
+- Check firewall rules
+- Verify DNS resolution
 
-- Read operations
-- Filtering
-- Dynamic book_id
-- Performance
-- Error handling
+#### Validation 2.2: Database Integrity
 
-### Step 4: Documentation & Release
+**On Mágerstav Server:**
+```sql
+-- Check all tables exist
+SELECT table_name FROM information_schema.tables 
+WHERE table_schema = 'public' 
+ORDER BY table_name;
+-- Expected: 6 tables + 2 views
 
-- Update README
-- Document solution
-- Tag version
-- Deploy
+-- Check indexes
+SELECT indexname FROM pg_indexes 
+WHERE schemaname = 'public';
 
----
-
-## Important Technical Notes
-
-### Btrieve Status Codes Reference (Correct!)
-
-```pascal
-// From BtrConst.pas
-B_NO_ERROR                = 0;   // SUCCESS
-B_INVALID_FUNCTION        = 1;
-B_IO_ERROR                = 2;
-B_FILE_NOT_OPEN           = 3;
-B_KEY_NOT_FOUND           = 4;
-B_DUPLICATE_KEY           = 5;
-...
-B_NOT_A_BTRIEVE_FILE      = 30;  // ← OUR CURRENT PROBLEM
-...
-B_PERMISSION_ERROR        = 94;  // Different!
-...
-B_USER_COUNT_LIMIT_EXCEEDED = 161; // Was our old problem
+-- Check for data corruption
+SELECT COUNT(*) as total_invoices,
+       COUNT(DISTINCT file_hash) as unique_hashes
+FROM invoices_pending;
+-- Both should match (no hash collisions)
 ```
 
-### Environment
+#### Validation 2.3: Service Auto-Start
 
-**System:**
-- Python: 3.13.7 32-bit (venv32)
-- Pervasive: v9 Licensed (downgrade from v11 Trial)
-- DLL: w3btrv7.dll (C:\PVSW\bin)
-- Service: psqlWGE ✅ Running
-- OS: Windows
+**Test service resilience:**
+```powershell
+# On Mágerstav server
+Get-Service NEXAutomat | Select-Object Name, Status, StartType
+Get-Service CloudflaredMagerstav | Select-Object Name, Status, StartType
+Get-Service postgresql-x64-15 | Select-Object Name, Status, StartType
 
-**Paths:**
-- NEX: C:\NEX\YEARACT
-- Project: C:\Development\nex-automat
-- Data: C:\NEX\YEARACT\STORES\*.BTR
+# Expected StartType: Automatic for all
+```
 
----
-
-## Critical Reminders
-
-### Code is NOT the Problem ✅
-
-- Python implementation je správna
-- Identická s fungujúcim invoice-editor
-- Config lookup funguje
-- Problem is external: file format compatibility
-
-### Focus Areas
-
-1. **File version verification** - test_file_version.py
-2. **Conversion strategy** - BUTIL rebuild/migration
-3. **NEX Genesis analysis** - how does it work?
-4. **Support contact** - NEX Genesis / Actian Pervasive
-
-### Do NOT
-
-- ❌ Meniť Python kód (nie je to problém)
-- ❌ Testovať ďalšie owner names (už otestované)
-- ❌ Testovať ďalšie open modes (už otestované)
-- ✅ Focus on file format compatibility!
+**Test reboot:**
+1. Restart Mágerstav server (if possible)
+2. Wait 2 minutes
+3. Check all services are Running
+4. Check health endpoint responds
+5. Check n8n can connect
 
 ---
 
-## How to Start This Session
+### Priority 3: Production Handoff
 
-1. **Load SESSION_NOTES.md** for full history
+#### Task 3.1: Update Error Notification Email
 
-2. **Run file version analysis:**
-   ```cmd
-   cd C:\Development\nex-automat
-   venv32\Scripts\python.exe scripts\test_file_version.py
-   ```
+**Current recipient:** it@magerstav.sk (needs confirmation)
 
-3. **Based on results:**
-   - If v11 format → Plan conversion
-   - If v9 format → Investigate further
-   - If corrupted → Recovery strategy
+**In n8n:**
+1. Open workflow: n8n-SupplierInvoiceEmailLoader
+2. Edit node: "Send Error Notification"
+3. Update "Send To" field with correct email
+4. Save workflow
 
-4. **Contact NEX Genesis support** for guidance
+#### Task 3.2: Customer Onboarding Guide
+
+**Create guide for Mágerstav:**
+- How to forward supplier invoices to magerstavinvoice@gmail.com
+- Expected email format
+- How to check if invoice was processed
+- What to do if error occurs
+- Contact for support
+
+#### Task 3.3: Monitoring Setup
+
+**Setup ongoing monitoring:**
+- Daily check of n8n executions
+- Weekly database review
+- Monthly log analysis
+- Error alerting configuration
 
 ---
 
-## Expected Outcome
+## Critical Information
 
-Po vyriešení file compatibility issue:
-- ✅ Status 0 (SUCCESS) namiesto status 30
-- ✅ Všetky testy prechádzajú (4/4)
-- ✅ Čítanie z 6 tabuliek funguje
-- ✅ Production ready
+### Connection Details
+
+**NEX Automat API:**
+- Public URL: https://magerstav-invoices.icc.sk
+- Endpoint: /invoice (POST)
+- Health: /health (GET)
+- API Key: magerstav-PWjoMerqzZc-EJZPuT0wN9iBzM8eK_t1Rh-HFZT4IbY
+
+**n8n Workflow:**
+- Service: n8n-service (LocalSystem)
+- Web UI: http://localhost:5678
+- User: automation@isnex.ai
+- Workflow: n8n-SupplierInvoiceEmailLoader (yBsDIpw6oMs96hi6)
+- Email: magerstavinvoice@gmail.com
+
+**Database:**
+- Host: localhost (Mágerstav server)
+- Port: 5432
+- Database: invoice_staging
+- User: postgres
+- Password: Nex1968
+
+### File Locations
+
+**Mágerstav Server:**
+- NEX Automat: `C:\Deployment\nex-automat`
+- Logs: `C:\Deployment\nex-automat\logs\`
+- Cloudflare: `C:\cloudflared-magerstav\`
+
+**ICC Server (n8n):**
+- Database: `C:\Windows\SysWOW64\config\systemprofile\.n8n\database.sqlite`
+- Config: `C:\Windows\SysWOW64\config\systemprofile\.n8n\config`
+- Logs: `C:\n8n-data\logs\`
 
 ---
 
-**Last Updated:** 2025-11-27 18:00  
-**Version:** 1.0  
-**Status:** 🔴 BLOCKED - File Format Incompatibility  
-**Priority:** ⚡ CRITICAL - Blocking all Btrieve functionality
+## Known Issues (Non-Blocking)
+
+1. **Error notification recipient needs update**
+   - Current: it@magerstav.sk
+   - Action: Confirm correct email with customer
+
+2. **n8n encryption key backup**
+   - Critical: OpvW9Fyd3Wi0x3lJJtpPW0ULcyHeDdK7
+   - Action: Store in secure location
+
+3. **n8n database backup strategy**
+   - Current: No automated backup
+   - Action: Setup weekly backup to safe location
+
+---
+
+## Success Criteria
+
+### Must Have (Blocking)
+
+- [ ] Test 1.1: Email with PDF creates database record
+- [ ] Test 1.2: Email without PDF sends alert
+- [ ] Test 1.3: Duplicate detection works
+- [ ] n8n executions show no errors
+- [ ] NEX Automat logs show no errors
+- [ ] Database integrity verified
+
+### Should Have (Important)
+
+- [ ] Test 1.4: Large PDF handling (5+ MB)
+- [ ] Health check responds from internet
+- [ ] Services auto-start on reboot
+- [ ] Error notification email updated
+- [ ] Customer onboarding guide created
+
+### Nice to Have (Optional)
+
+- [ ] Monitoring/alerting configured
+- [ ] Workflow backup exported
+- [ ] Performance baseline established
+- [ ] Documentation complete
+
+---
+
+## Troubleshooting Guide
+
+### n8n Execution Fails
+
+**Check:**
+1. n8n service status: `Get-Service n8n-service`
+2. n8n logs: `Get-Content C:\n8n-data\logs\n8n-error.log -Tail 50`
+3. Workflow active status in UI
+4. IMAP credential still valid
+
+### HTTP Request Fails
+
+**Check:**
+1. Cloudflare Tunnel: `Get-Service CloudflaredMagerstav`
+2. NEXAutomat service: `Get-Service NEXAutomat`
+3. Health endpoint: `curl https://magerstav-invoices.icc.sk/health`
+4. API key in environment: `$env:LS_API_KEY`
+5. Firewall rules
+
+### Database Record Not Created
+
+**Check:**
+1. Database connection: `psql -U postgres -d invoice_staging -c "SELECT 1;"`
+2. NEX Automat logs: `Get-Content C:\Deployment\nex-automat\logs\service-stderr.log -Tail 50`
+3. POSTGRES_PASSWORD environment variable
+4. PostgreSQL service running
+
+---
+
+## Reference Documents
+
+**Previous Sessions:**
+- SESSION_NOTES.md (last session achievements)
+- Go-Live Deployment Summary (server setup)
+- n8n Recovery Documentation (database migration)
+
+**Configuration:**
+- n8n Workflow: n8n-SupplierInvoiceEmailLoader (in n8n UI)
+- NSSM Service: HKLM:\SYSTEM\CurrentControlSet\Services\n8n-service\Parameters
+
+**API Documentation:**
+- Swagger: https://magerstav-invoices.icc.sk/docs
+- Local: http://localhost:8001/docs (on Mágerstav server)
+
+---
+
+## Next Steps After This Session
+
+1. **Monitor First 48 Hours:**
+   - Check n8n executions daily
+   - Review NEX Automat logs
+   - Verify database growth
+   - Watch for errors
+
+2. **Customer Training:**
+   - Email forwarding setup
+   - Error handling procedure
+   - Support contact information
+
+3. **Schedule 1-Week Review:**
+   - Review processing statistics
+   - Check for any issues
+   - Optimize if needed
+   - Collect customer feedback
+
+4. **Documentation Handoff:**
+   - Export workflow backup
+   - Create operations guide
+   - Provide credentials (secure storage)
+   - Transfer to support team
+
+---
+
+**Session Type:** End-to-End Testing & Production Validation  
+**Expected Duration:** 2-3 hours  
+**Blocking Issues:** None - ready to proceed  
+**Status:** 🟢 READY TO TEST
+
+---
+
+**Last Updated:** 2025-12-02  
+**Previous Session:** n8n Recovery (Complete)  
+**This Session:** Go-Live Testing (Ready to Start)
