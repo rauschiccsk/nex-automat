@@ -116,24 +116,37 @@ def is_duplicate(file_hash: str, message_id: Optional[str] = None, customer_name
     conn = sqlite3.connect(DB_FILE)
     cursor = conn.cursor()
 
-    # Use customer from config if not provided
+    # Single-tenant architecture: if customer_name is None, check only file_hash
     if customer_name is None:
-        customer_name = CUSTOMER_NAME
-
-    # Check by file hash (primary) within customer
-    cursor.execute(
-        "SELECT id FROM invoices WHERE file_hash = ? AND customer_name = ?",
-        (file_hash, customer_name)
-    )
-    result = cursor.fetchone()
-
-    # Check by message_id (secondary) within customer
-    if not result and message_id:
+        # Check by file hash only (no customer filter)
         cursor.execute(
-            "SELECT id FROM invoices WHERE message_id = ? AND customer_name = ?",
-            (message_id, customer_name)
+            "SELECT id FROM invoices WHERE file_hash = ?",
+            (file_hash,)
         )
         result = cursor.fetchone()
+
+        # Check by message_id (secondary) if provided
+        if not result and message_id:
+            cursor.execute(
+                "SELECT id FROM invoices WHERE message_id = ?",
+                (message_id,)
+            )
+            result = cursor.fetchone()
+    else:
+        # Multi-tenant: check within customer scope
+        cursor.execute(
+            "SELECT id FROM invoices WHERE file_hash = ? AND customer_name = ?",
+            (file_hash, customer_name)
+        )
+        result = cursor.fetchone()
+
+        # Check by message_id (secondary) within customer
+        if not result and message_id:
+            cursor.execute(
+                "SELECT id FROM invoices WHERE message_id = ? AND customer_name = ?",
+                (message_id, customer_name)
+            )
+            result = cursor.fetchone()
 
     conn.close()
     return result is not None
