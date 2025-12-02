@@ -297,7 +297,7 @@ async def process_invoice(
         database.init_database()
         is_duplicate_found = database.is_duplicate(
             file_hash=file_hash,
-            customer_name=config.CUSTOMER_NAME
+            customer_name=None  # Fixed: Single-tenant architecture
         )
 
         if is_duplicate_found:

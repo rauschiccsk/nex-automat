@@ -1,116 +1,93 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
-Fix: Add duplicate detection in POST /invoice endpoint
-=======================================================
+Fix duplicate detection to ignore customer_name in single-tenant deployment.
 
-This script adds proper duplicate detection before database insert
-to prevent UNIQUE constraint violations.
+Changes line 300 in main.py from:
+    customer_name=config.CUSTOMER_NAME
+to:
+    customer_name=None
+
+Usage:
+    python fix_duplicate_detection.py
 """
 
 from pathlib import Path
 
-# Target file
-TARGET_FILE = Path("C:/Development/nex-automat/apps/supplier-invoice-loader/main.py")
 
-# Find and replace pattern
-OLD_CODE = '''        # Calculate file hash for duplicate detection
-        file_hash = hashlib.md5(pdf_data).hexdigest()
+def fix_duplicate_detection():
+    """Fix the duplicate detection call in main.py"""
 
-        # 2. Extract data from PDF
-        invoice_data = extract_invoice_data(str(pdf_path))
+    # Path to main.py in Development
+    main_py_path = Path(r"C:\Development\nex-automat\apps\supplier-invoice-loader\main.py")
 
-        if not invoice_data:
-            raise Exception("Failed to extract data from PDF")
-
-        print(f"[OK] Data extracted: Invoice {invoice_data.invoice_number}")
-
-        # 3. Save to SQLite database
-        database.init_database()
-        database.save_invoice('''
-
-NEW_CODE = '''        # Calculate file hash for duplicate detection
-        file_hash = hashlib.md5(pdf_data).hexdigest()
-
-        # Check for duplicate BEFORE extraction (save processing time)
-        database.init_database()
-        is_duplicate = database.check_duplicate(file_hash)
-
-        if is_duplicate:
-            print(f"[WARN] Duplicate invoice detected: file_hash={file_hash}")
-            return {
-                "success": True,
-                "message": "Duplicate invoice detected - already processed",
-                "duplicate": True,
-                "file_hash": file_hash,
-                "received_date": request.received_date
-            }
-
-        # 2. Extract data from PDF
-        invoice_data = extract_invoice_data(str(pdf_path))
-
-        if not invoice_data:
-            raise Exception("Failed to extract data from PDF")
-
-        print(f"[OK] Data extracted: Invoice {invoice_data.invoice_number}")
-
-        # 3. Save to SQLite database
-        database.save_invoice('''
-
-
-def main():
-    """Apply the fix"""
-    print("=" * 70)
-    print("FIX: Add Duplicate Detection in POST /invoice")
-    print("=" * 70)
-
-    # Read current content
-    if not TARGET_FILE.exists():
-        print(f"[ERROR] File not found: {TARGET_FILE}")
+    if not main_py_path.exists():
+        print(f"ERROR: File not found: {main_py_path}")
         return False
 
-    print(f"\n[1] Reading: {TARGET_FILE}")
-    content = TARGET_FILE.read_text(encoding='utf-8')
+    # Read the file
+    print(f"Reading {main_py_path}...")
+    content = main_py_path.read_text(encoding='utf-8')
+    lines = content.splitlines(keepends=True)
 
-    # Check if already fixed
-    if "is_duplicate = database.check_duplicate(file_hash)" in content:
-        print("[INFO] Duplicate detection already implemented!")
-        return True
+    # Find and fix line 300 (index 299)
+    target_line = 299  # Line 300 (0-indexed)
 
-    # Apply fix
-    if OLD_CODE not in content:
-        print("[ERROR] Pattern not found in file!")
-        print("[INFO] File might have been modified. Manual fix required.")
+    if target_line >= len(lines):
+        print(f"ERROR: File has only {len(lines)} lines, cannot access line {target_line + 1}")
         return False
 
-    print("[2] Applying fix...")
-    new_content = content.replace(OLD_CODE, NEW_CODE)
+    original_line = lines[target_line]
 
-    # Save backup
-    backup_file = TARGET_FILE.with_suffix('.py.backup')
-    print(f"[3] Creating backup: {backup_file}")
-    backup_file.write_text(content, encoding='utf-8')
+    # Check if this is the line we want to fix
+    if "customer_name=config.CUSTOMER_NAME" not in original_line:
+        print(f"ERROR: Line {target_line + 1} does not contain expected content")
+        print(f"Found: {original_line.strip()}")
+        print(f"Expected: customer_name=config.CUSTOMER_NAME")
+        return False
 
-    # Save fixed file
-    print(f"[4] Saving fixed file: {TARGET_FILE}")
-    TARGET_FILE.write_text(new_content, encoding='utf-8')
+    # Replace the line
+    fixed_line = original_line.replace(
+        "customer_name=config.CUSTOMER_NAME",
+        "customer_name=None  # Fixed: Single-tenant architecture"
+    )
 
-    print("\n" + "=" * 70)
-    print("[SUCCESS] Duplicate detection added!")
-    print("=" * 70)
-    print("\nChanges:")
-    print("  1. Added: database.check_duplicate(file_hash) before extraction")
-    print("  2. Returns: {duplicate: true} for duplicates")
-    print("  3. Skips: PDF extraction if duplicate detected")
+    lines[target_line] = fixed_line
+    new_content = ''.join(lines)
+
+    # Backup original file
+    backup_path = main_py_path.with_suffix('.py.backup')
+    print(f"Creating backup: {backup_path}")
+    backup_path.write_text(content, encoding='utf-8')
+
+    # Write fixed content
+    print(f"Writing fixed content to {main_py_path}")
+    main_py_path.write_text(new_content, encoding='utf-8')
+
+    print("\n✓ SUCCESS: Duplicate detection fixed")
+    print(f"\nLine {target_line + 1} changed:")
+    print(f"  FROM: {original_line.strip()}")
+    print(f"  TO:   {fixed_line.strip()}")
+
+    print(f"\nBackup saved to: {backup_path}")
     print("\nNext steps:")
-    print("  1. Review the changes in main.py")
-    print("  2. Restart NEXAutomat service on Mágerstav server")
-    print("  3. Test with duplicate invoice")
-    print("=" * 70)
+    print("  1. Verify the fix with:")
+    print("     Select-String -Path main.py -Pattern 'customer_name=None' -Context 2,2")
+    print("  2. Git commit and push")
+    print("  3. Deploy to Production")
 
     return True
 
 
 if __name__ == "__main__":
-    success = main()
-    exit(0 if success else 1)
+    print("=" * 70)
+    print("Fix Duplicate Detection - Single Tenant Architecture")
+    print("=" * 70)
+    print()
+
+    success = fix_duplicate_detection()
+
+    if not success:
+        print("\n✗ FAILED: Fix could not be applied")
+        exit(1)
+
+    print("\n" + "=" * 70)
