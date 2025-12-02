@@ -293,6 +293,23 @@ async def process_invoice(
         # Calculate file hash for duplicate detection
         file_hash = hashlib.md5(pdf_data).hexdigest()
 
+        # Check for duplicate BEFORE extraction (save processing time)
+        database.init_database()
+        is_duplicate_found = database.is_duplicate(
+            file_hash=file_hash,
+            customer_name=config.CUSTOMER_NAME
+        )
+
+        if is_duplicate_found:
+            print(f"[WARN] Duplicate invoice detected: file_hash={file_hash}")
+            return {
+                "success": True,
+                "message": "Duplicate invoice detected - already processed",
+                "duplicate": True,
+                "file_hash": file_hash,
+                "received_date": request.received_date
+            }
+
         # 2. Extract data from PDF
         invoice_data = extract_invoice_data(str(pdf_path))
 
@@ -302,7 +319,6 @@ async def process_invoice(
         print(f"[OK] Data extracted: Invoice {invoice_data.invoice_number}")
 
         # 3. Save to SQLite database
-        database.init_database()
         database.save_invoice(
             customer_name=invoice_data.customer_name,
             invoice_number=invoice_data.invoice_number,
@@ -512,6 +528,6 @@ if __name__ == "__main__":
     uvicorn.run(
         app,
         host="0.0.0.0",
-        port=8000,
+        port=8001,
         log_level="info"
     )

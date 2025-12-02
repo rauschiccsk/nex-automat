@@ -2,14 +2,14 @@
   "name": "supplier-invoice-loader",
   "type": "application",
   "location": "apps/supplier-invoice-loader",
-  "generated": "2025-12-02T16:40:49.811112",
+  "generated": "2025-12-02T20:16:35.204520",
   "statistics": {
-    "total_files": 129,
+    "total_files": 131,
     "total_dirs": 34,
     "python_files": 53,
     "test_files": 15,
-    "total_lines": 10273,
-    "total_size": 9100177
+    "total_lines": 10289,
+    "total_size": 9135691
   },
   "structure": {
     "has_src": true,
@@ -411,11 +411,25 @@
     {
       "path": "apps/supplier-invoice-loader/main.py",
       "name": "main.py",
-      "size": 17187,
+      "size": 17803,
       "extension": ".py",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/apps/supplier-invoice-loader/main.py",
-      "lines": 517,
+      "lines": 533,
       "type": "source"
+    },
+    {
+      "path": "apps/supplier-invoice-loader/main.py.backup",
+      "name": "main.py.backup",
+      "size": 17187,
+      "extension": ".backup",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/apps/supplier-invoice-loader/main.py.backup"
+    },
+    {
+      "path": "apps/supplier-invoice-loader/main.py.backup2",
+      "name": "main.py.backup2",
+      "size": 17711,
+      "extension": ".backup2",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/apps/supplier-invoice-loader/main.py.backup2"
     },
     {
       "path": "apps/supplier-invoice-loader/n8n-workflows/README.md",
