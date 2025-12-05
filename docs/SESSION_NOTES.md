@@ -1,381 +1,306 @@
-# Session Notes - 2025-12-05: Active Column Persistence & Window Position Fix
+# Session Notes - 2025-12-05/06: Grid & Window Settings Persistence
 
 ## Zhrnutie session
 
-Session riešila dva problémy v NEX Automat v2.1 - Supplier Invoice Editor:
-1. **Active Column Persistence** - Grid settings nezapamätali aktívny stĺpec pre quick search
-2. **Window Position Validation** - Okno sa mohlo posunúť mimo obrazovky
-
-## Nový Workflow: Local File Scripts ⭐ PERMANENT
-
-**Od tejto session používame HYBRIDNÝ prístup pre prácu so súbormi:**
-
-### Ako to funguje
-
-1. **Session start:** Priložený manifest (prehľad projektu)
-2. **Active work:** Local scripts (real-time prístup k súborom)
-3. **Session end:** Git commit + push (verziovanie)
-
-### Utility Scripts
-
-#### Script 1: `read_project_file.py` - Jeden súbor
-```powershell
-python scripts\read_project_file.py apps/supplier-invoice-editor/src/ui/main_window.py
-```
-**Output:** Kompletný obsah súboru s metadátami  
-**Copy-paste** output do chatu → Claude má súbor
-
-#### Script 2: `read_module_files.py` - Viacero súborov
-```powershell
-# Celý modul
-python scripts\read_module_files.py --module apps/supplier-invoice-editor/src/ui/widgets
-
-# Konkrétne súbory
-python scripts\read_module_files.py file1.py file2.py file3.py
-
-# Pattern
-python scripts\read_module_files.py --pattern "*/utils/*.py"
-```
-**Output:** Všetky súbory naraz  
-**Copy-paste** output do chatu → Claude má všetky súbory
-
-### Pravidlá Workflow
-
-| Potrebujem... | Použijem... |
-|---------------|-------------|
-| Prehľad projektu | Priložený manifest |
-| 1 súbor | `read_project_file.py` |
-| Celý modul/package | `read_module_files.py --module` |
-| 2-5 konkrétnych súborov | `read_module_files.py file1 file2 ...` |
-| Súbory podľa pattern | `read_module_files.py --pattern` |
-
-### Výhody
-
-✅ **Rýchle** - žiadne web requests  
-✅ **Real-time** - vidím uncommitted changes  
-✅ **Spoľahlivé** - žiadne GitHub problémy  
-✅ **Jednoduché** - len copy-paste  
-✅ **Efektívne** - viacero súborov naraz
-
-### Nevýhody
-
-❌ Funguje len na dev PC (nie cross-machine)  
-❌ Žiadna history (musí commit pre audit)
-
-### Kedy ešte používať GitHub?
-
-- Session review (porovnanie zmien medzi sessionami)
-- Audit trail (kto/čo/kedy zmenil)
-- Backup (záloha projektu)
-- Cross-machine (práca z iného PC)
+Session riešila problémy s persistenciou nastavení v NEX Automat v2.1 - Supplier Invoice Editor:
+1. **Grid Settings API Mismatch** - dict namiesto int parameter ✅ VYRIEŠENÉ
+2. **Window Position Persistence** - nevalidné pozície mimo obrazovky ✅ VYRIEŠENÉ  
+3. **Multi-Monitor Support** - MIN_X rozšírené pre dual monitor ✅ VYRIEŠENÉ
+4. **Window Maximize State** - maximalizované okno ⚠️ ČIASTOČNE (problém zostáva)
 
 ---
 
-## Hlavné problémy a riešenia
+## Vyriešené problémy
 
-### Problém 1: Manifest System - Branch Mismatch
-
-**Symptóm:**
-- Claude nemohol načítať súbory z GitHub pomocou manifestu
-- Dostal 404 error na všetky URL
-
-**Root Cause:**
-- Manifest mal hardcoded `/main/` branch v GitHub raw URL
-- Projekt používa `/develop/` branch pre aktívny vývoj
-- Claude nedokázal načítať súbory lebo URL boli nesprávne
-
-**Riešenie:**
-1. Upravený `scripts/generate_projects_access.py`
-   - Pridané konfiguračné konštanty:
-     ```python
-     GITHUB_REPO = "rauschiccsk/nex-automat"
-     GITHUB_BRANCH = "develop"  # Changed from "main"
-     ```
-   - Všetky GitHub raw URL teraz používajú `GITHUB_BRANCH` variable
-2. Vygenerovaný nový manifest pre všetky aplikácie
-3. Overené načítanie súborov z develop branch
-
-**Status:** ✅ VYRIEŠENÉ - Manifest system funguje s develop branch
-
----
-
-### Problém 2: Active Column Persistence Nefungovala
+### ✅ Problém 1: Grid Settings API Mismatch
 
 **Symptóm:**
-- Grid settings ukladali šírky stĺpcov správne
-- Ale aktívny stĺpec pre quick search sa nezapamätal
-- Po reštarte aplikácie vždy default stĺpec (0)
+- Error: "Error binding parameter 4: type 'dict' is not supported"
+- Grid settings sa neukladali
 
 **Root Cause:**
-Nesprávny názov atribútu v `invoice_list_widget.py`:
-- Controller vytvorený ako: `self.search_controller` (riadok 196)
-- Ale používaný ako: `self.quick_search` (riadky 295, 317)
-- Metódy `get_active_column()` a `set_active_column()` volané na neexistujúcom atribúte
+1. `save_grid_settings()` očakával `int` parameter ale dostával `dict`
+2. Load používal nesprávny kľúč `'active_column'` namiesto `'active_column_index'`
 
 **Riešenie:**
-Script `01_fix_active_column_persistence.py`:
-```python
-# Fix 1: Načítanie (riadok ~295)
-- if hasattr(self, 'quick_search') and self.quick_search:
--     self.quick_search.set_active_column(active_col)
-+ if hasattr(self, 'search_controller') and self.search_controller:
-+     self.search_controller.set_active_column(active_col)
-
-# Fix 2: Ukladanie (riadok ~317)
-- if hasattr(self, 'quick_search') and self.quick_search:
--     active_column = self.quick_search.get_active_column()
-+ if hasattr(self, 'search_controller') and self.search_controller:
-+     active_column = self.search_controller.get_active_column()
-```
+- Script `01_fix_grid_settings_api_mismatch.py` - opravil save volanie
+- Script `04_fix_load_grid_settings_key.py` - opravil load kľúč
 
 **Súbory upravené:**
 - `apps/supplier-invoice-editor/src/ui/widgets/invoice_list_widget.py`
 
-**Status:** ✅ OPRAVENÉ (čaká na testing)
+**Status:** ✅ FUNGUJE - aktívny stĺpec sa zapamätáva
 
 ---
 
-### Problém 3: Window Position Mimo Obrazovky
+### ✅ Problém 2: Window Position - Nevalidné pozície
 
 **Symptóm:**
-- Po spustení aplikácie bolo okno posunuté tak že hlavička bola mimo obrazovky
-- Používateľ nemohol okno posunúť späť
+- "Invalid position: x=-1660" warning pri štarte
+- Okno sa otváralo mimo obrazovky
+- Nevalidné pozície sa ukladali do databázy
 
 **Root Cause:**
-- `window_settings.py` nemal validáciu pozície okna
-- Databáza obsahovala nevalidný záznam: `x=-1827, y=74`
-- `load_window_settings()` vrátil túto pozíciu bez kontroly
+1. `window_settings.py` nemal validáciu pri load
+2. `closeEvent()` neukladal validáciu pred save
+3. Qt OS cache spôsoboval že okno sa otváralo mimo aj po vymazaní DB
 
-**Riešenie - Časť 1: Pridanie validácie**
-
-Script `02_fix_window_position_validation.py`:
-- Pridaná validácia do `load_window_settings()`:
-  ```python
-  MIN_X = -50   # Povoliť čiastočne mimo (multi-monitor)
-  MIN_Y = 0     # Hlavička musí byť viditeľná
-  MIN_WIDTH = 400
-  MIN_HEIGHT = 300
-  MAX_WIDTH = 3840   # 4K
-  MAX_HEIGHT = 2160
-  ```
-- Ak pozícia nevalidná → vráti `None` → použije sa default
-
-**Riešenie - Časť 2: Vyčistenie nevalidných záznamov**
-
-Script `04_clean_invalid_window_positions.py`:
-- Kontroluje všetky záznamy v databáze
-- Identifikuje nevalidné pozície
-- Vymaže ich z databázy
-- Umožní uloženie novej validnej pozície
+**Riešenie:**
+- Script `05_fix_close_event_validation.py` - validácia v closeEvent
+- Script `06_fix_default_window_position.py` - safe default (100, 100)
+- Script `clean_invalid_window_positions.py` - utility na vyčistenie DB
 
 **Súbory upravené:**
 - `apps/supplier-invoice-editor/src/utils/window_settings.py`
+- `apps/supplier-invoice-editor/src/ui/main_window.py`
 
-**Status:** ✅ OPRAVENÉ (čaká na vyčistenie databázy)
+**Status:** ✅ FUNGUJE - nevalidné pozície sa neukladajú, default je safe
+
+---
+
+### ✅ Problém 3: Multi-Monitor Support
+
+**Symptóm:**
+- Ľavý monitor (negatívne X súradnice) označované ako invalid
+- Okno sa nedalo uložiť na ľavom monitore
+
+**Root Cause:**
+- MIN_X = -50 bolo príliš málo pre dual monitor setup
+- Ľavý monitor môže mať X od -1920 do 0
+
+**Riešenie:**
+- Script `07_fix_multimonitor_support.py` - MIN_X = -3840 (dual 4K)
+
+**Súbory upravené:**
+- `apps/supplier-invoice-editor/src/utils/window_settings.py`
+- `apps/supplier-invoice-editor/src/ui/main_window.py`
+
+**Status:** ✅ FUNGUJE - dual monitor support
+
+---
+
+## ⚠️ Problém 4: Window Maximize State (NEDOKONČENÉ)
+
+**Cieľ:**
+- Zapamätať si maximalizovaný stav okna
+- Otvoriť okno maximalizované na správnom monitore
+
+**Vykonané kroky:**
+
+1. **Databáza rozšírená:**
+   - Script `08_add_window_state_persistence.py`
+   - Pridaný stĺpec `window_state INTEGER DEFAULT 0`
+   - 0 = normal, 2 = maximized
+
+2. **Kód upravený:**
+   - Scripts 09-20 - úpravy save/load logiky
+   - closeEvent() - detekcia `isMaximized()`
+   - load_geometry() - aplikácia `setWindowState(Qt.WindowMaximized)`
+
+3. **Finálna logika (po zjednodušení):**
+   - Maximalizované: uloží normalGeometry() + window_state=2
+   - Load: najprv setGeometry(), potom setWindowState() ak state=2
+
+**Aktuálny stav:**
+- ❌ Maximize state sa stále neukladá správne do DB
+- ❌ Po reštarte sa okno neotvorí maximalizované
+- Debug ukazuje že closeEvent detekuje isMaximized()=True
+- Ale window_state=0 v databáze
+
+**Súbory upravené:**
+- `apps/supplier-invoice-editor/src/utils/window_settings.py`
+- `apps/supplier-invoice-editor/src/ui/main_window.py`
+
+**Status:** ⚠️ NEFUNGUJE - problém v save reťazci
 
 ---
 
 ## Vytvorené scripty
 
-### File Access Scripts (NEW - Permanent Workflow Change)
+### Session Scripts (číslované, temporary)
 
-#### Script: `read_project_file.py`
-**Location:** `scripts/read_project_file.py`  
-**Purpose:** Načíta jeden súbor z projektu  
-**Usage:**
-```powershell
-python scripts\read_project_file.py apps/supplier-invoice-editor/src/ui/main_window.py
-```
-**Status:** ✅ Vytvorený, funkčný
+1. `01_fix_grid_settings_api_mismatch.py` - grid API fix ✅
+2. `04_fix_load_grid_settings_key.py` - load kľúč fix ✅
+3. `05_fix_close_event_validation.py` - window validácia ✅
+4. `06_fix_default_window_position.py` - default pozícia ✅
+5. `07_fix_multimonitor_support.py` - MIN_X rozšírenie ✅
+6. `08_add_window_state_persistence.py` - DB stĺpec ✅
+7. `09_update_window_state_code.py` - window_state kód ⚠️
+8. `10_fix_save_window_settings_signature.py` - signature ⚠️
+9. `11_manual_fix_save_function.py` - manuálny fix ⚠️
+10. `12_fix_maximized_geometry.py` - normalGeometry() ⚠️
+11. `13_update_diagnose_script.py` - diagnostika ✅
+12. `14_add_debug_to_load.py` - debug load ⚠️
+13. `15_fix_load_window_settings_return.py` - return fix ⚠️
+14. `16_fix_window_state_variable.py` - premenná fix ⚠️
+15. `17_add_debug_to_close.py` - debug close ⚠️
+16. `18_simplify_maximize_logic.py` - zjednodušenie ⚠️
+17. `19_fix_close_event_simple.py` - closeEvent rewrite ⚠️
+18. `20_fix_maximize_on_correct_monitor.py` - monitor fix ⚠️
 
-#### Script: `read_module_files.py`
-**Location:** `scripts/read_module_files.py`  
-**Purpose:** Načíta viacero súborov naraz (modul, pattern, list)  
-**Usage:**
-```powershell
-# Celý modul
-python scripts\read_module_files.py --module apps/supplier-invoice-editor/src/ui/widgets
+### Permanent Scripts (bez číslovania)
 
-# Konkrétne súbory
-python scripts\read_module_files.py file1.py file2.py
-
-# Pattern
-python scripts\read_module_files.py --pattern "*/utils/*.py"
-```
-**Status:** ✅ Vytvorený, funkčný
-
----
-
-### Bug Fix Scripts
-
-### Script 01: Fix Active Column Persistence
-**Location:** `scripts/01_fix_active_column_persistence.py`  
-**Purpose:** Opraví odkazy na search_controller v invoice_list_widget.py  
-**Status:** ✅ Spustený, úspešne aplikovaný
-
-### Script 02: Fix Window Position Validation  
-**Location:** `scripts/02_fix_window_position_validation.py`  
-**Purpose:** Pridá validáciu pozície okna do window_settings.py  
-**Status:** ✅ Spustený, úspešne aplikovaný
-
-### Script 03: Check Window Settings DB
-**Location:** `scripts/03_check_window_settings_db.py`  
-**Purpose:** Diagnostický nástroj - zobrazí obsah window_settings databázy  
-**Status:** ✅ Vytvorený, funguje
-
-### Script 04: Clean Invalid Window Positions
-**Location:** `scripts/04_clean_invalid_window_positions.py`  
-**Purpose:** Vymaže nevalidné záznamy z window_settings databázy  
-**Status:** ✅ Vytvorený (čaká na spustenie)
+- `clean_invalid_window_positions.py` - vyčistenie nevalidných pozícií ✅
+- `03_diagnose_window_settings.py` - diagnostika DB (ešte číslovaný) ✅
 
 ---
 
-## Aktuálny stav databáz
+## Databázy
 
 ### Window Settings Database
 **Location:** `C:\NEX\YEARACT\SYSTEM\SQLITE\window_settings.db`
 
-**Aktuálny obsah:**
-```
-ID: 34
-User: Server
-Window: sie_main_window
-Position: x=-1827, y=74  ❌ NEVALIDNÉ
-Size: 1216 x 449
+**Štruktúra tabuľky:**
+```sql
+CREATE TABLE window_settings (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id TEXT NOT NULL,
+    window_name TEXT NOT NULL,
+    x INTEGER NOT NULL,
+    y INTEGER NOT NULL,
+    width INTEGER NOT NULL,
+    height INTEGER NOT NULL,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    window_state INTEGER DEFAULT 0,  -- Pridané v session
+    UNIQUE(user_id, window_name)
+)
 ```
 
-**Akcia potrebná:** Spustiť script 04 na vyčistenie
+**Validačné limity:**
+- MIN_X = -3840 (dual 4K)
+- MIN_Y = 0
+- MIN_WIDTH = 400, MAX_WIDTH = 3840
+- MIN_HEIGHT = 300, MAX_HEIGHT = 2160
+- window_state: 0=normal, 2=maximized
 
 ### Grid Settings Database
 **Location:** `C:\NEX\YEARACT\SYSTEM\SQLITE\grid_settings.db`
 
-**Status:** Funkčné, ukladá:
-- Šírky stĺpcov ✅
-- Poradie stĺpcov ✅
-- Viditeľnosť stĺpcov ✅
-- Aktívny stĺpec ✅ (po oprave)
+**Status:** ✅ Funguje správne
+- Ukladá šírky stĺpcov
+- Ukladá poradie stĺpcov
+- Ukladá viditeľnosť stĺpcov
+- Ukladá aktívny stĺpec pre quick search
 
 ---
 
 ## Testing Checklist
 
-### ✅ Test 1: Manifest System
-- [x] Vygenerovaný nový manifest s develop branch
-- [x] Načítané súbory z GitHub develop branch
-- [x] `quick_search.py` načítaný úspešne
-- [x] `invoice_list_widget.py` načítaný úspešne
+### ✅ Test 1: Grid Settings Persistence
+- [x] Active column sa zapamätáva
+- [x] Šírky stĺpcov sa zapamätávajú
+- [x] Žiadne "dict is not supported" errory
 
-### ⏳ Test 2: Active Column Persistence
-- [x] Fix aplikovaný
-- [ ] Aplikácia spustená
-- [ ] Aktívny stĺpec zmenený (← → šípky)
-- [ ] Zelený header sa posunul
-- [ ] Aplikácia zatvorená (ESC)
-- [ ] Aplikácia znovu spustená
-- [ ] Aktívny stĺpec zostal rovnaký
+### ✅ Test 2: Window Position (Normal)
+- [x] Validné pozície sa zapamätávajú
+- [x] Nevalidné pozície sa neukladajú
+- [x] Default pozícia (100, 100) funguje
+- [x] Multi-monitor support funguje
 
-### ⏳ Test 3: Window Position
-- [x] Validácia pridaná
-- [x] Nevalidný záznam identifikovaný
-- [ ] Databáza vyčistená (script 04)
-- [ ] Aplikácia spustená - default pozícia
-- [ ] Okno presunuté a zmenená veľkosť
-- [ ] Aplikácia zatvorená (ESC)
-- [ ] Aplikácia znovu spustená
-- [ ] Pozícia a veľkosť zapamätané
+### ❌ Test 3: Window Maximize State
+- [x] closeEvent() detekuje isMaximized()
+- [x] DB má window_state stĺpec
+- [ ] window_state=2 sa ukladá do DB
+- [ ] Okno sa otvorí maximalizované
+- [ ] Maximalizuje na správnom monitore
 
 ---
 
 ## Ďalšie kroky (Priority pre ďalší chat)
 
-### Priorita 1: Dokončiť Testing ⚠️ URGENT
-1. Spustiť `python scripts\04_clean_invalid_window_positions.py`
-2. Otestovať active column persistence
-3. Otestovať window position persistence
-4. Overiť že oba systémy fungujú správne
+### Priorita 1: Dokončiť Window Maximize ⚠️ URGENT
 
-### Priorita 2: Git Commit
+**Problém:** window_state sa neukladá do DB aj keď closeEvent() detekuje isMaximized()=True
+
+**Debug kroky:**
+1. Pridať debug do `save_window_settings()` funkcie
+2. Overiť že INSERT statement dostáva window_state=2
+3. Overiť že DB skutočne zapisuje hodnotu
+4. Možno problém v INSERT OR REPLACE logike?
+
+**Súbory na kontrolu:**
+- `apps/supplier-invoice-editor/src/utils/window_settings.py` (save funkcia)
+- Možno je problém s UNIQUE constraint?
+
+### Priorita 2: Cleanup a Testing
+
+Po vyriešení maximize:
+1. Odstrániť debug výpisy z kódu
+2. Kompletné testovanie všetkých scenárov
+3. Cleanup temporary scripts (01-20)
+4. Update diagnostického scriptu (odčíslovať)
+
+### Priorita 3: Git Commit
+
+**Súbory na commit:**
+```
+Modified:
+- apps/supplier-invoice-editor/src/ui/widgets/invoice_list_widget.py
+- apps/supplier-invoice-editor/src/utils/window_settings.py
+- apps/supplier-invoice-editor/src/ui/main_window.py
+- apps/supplier-invoice-editor/src/utils/grid_settings.py
+
+New:
+- scripts/clean_invalid_window_positions.py
+- scripts/diagnose_window_settings.py (premenovať z 03_)
+```
+
+### Priorita 4: Deployment
+
 Po úspešnom testingu:
-```
-Súbory na commit:
-- scripts/generate_projects_access.py (upravený)
-- scripts/01_fix_active_column_persistence.py (nový)
-- scripts/02_fix_window_position_validation.py (nový)
-- scripts/03_check_window_settings_db.py (nový)
-- scripts/04_clean_invalid_window_positions.py (nový)
-- apps/supplier-invoice-editor/src/ui/widgets/invoice_list_widget.py (upravený)
-- apps/supplier-invoice-editor/src/utils/window_settings.py (upravený)
-- docs/apps/supplier-invoice-editor.json (nový manifest)
-```
-
-### Priorita 3: Deployment do Production
-Po úspešnom testingu v Development:
 1. Git commit a push
 2. Pull v Production (Mágerstav server)
 3. Production testing
-4. User acceptance
-
-### Priorita 4: Rozšírenia (Nice to Have)
-- Column visibility UI (right-click context menu)
-- Reset settings button
-- Export/import settings
-- Global vs per-user settings toggle
+4. Vyčistiť production DB pomocou clean script
 
 ---
 
 ## Lessons Learned
 
 ### Čo fungovalo dobre ✅
-1. **Systematická diagnostika** - krok po kroku identifikácia problémov
-2. **Manifest system** - po oprave veľmi efektívne načítanie súborov
-3. **Utility scripty** - Script 03 (check DB) bol kľúčový pre diagnostiku
-4. **Validácia pozície** - predíde budúcim problémom s oknom mimo obrazovky
+
+1. **Systematická diagnostika** - utility scripty (diagnose, clean) veľmi pomohli
+2. **Krok po kroku** - po jednom probléme, nie všetko naraz
+3. **Debug output** - pomohol identifikovať kde presne je problém
+4. **Multi-monitor awareness** - rozšírenie MIN_X bolo správne rozhodnutie
 
 ### Čo nefungovalo ❌
-1. **Branch assumption** - Manifest mal hardcoded "main" namiesto parametrizovaného branch
-2. **Chýbajúca validácia** - Window settings nemali od začiatku validáciu hraníc
-3. **Naming inconsistency** - `search_controller` vs `quick_search` spôsobilo bug
+
+1. **Príliš veľa scripts** - 20 temporary scripts je chaos
+2. **Nedokončený maximize** - 12 scripts na jeden problém a stále nefunguje
+3. **Neoverovanie save chain** - predpokladali sme že INSERT funguje bez overenia
+4. **Komplexná logika** - normalGeometry(), multi-monitor, validácia = príliš komplikované
 
 ### Odporúčania pre budúcnosť 💡
-1. **Manifest generator** - Pridať branch ako parameter alebo auto-detect
-2. **Validácia vždy** - Každé načítanie z DB by malo mať validáciu hraníc
-3. **Testing pred commitom** - Necommitovať zmeny bez testovania funkcionality
-4. **Naming conventions** - Konzistentné názvy atribútov cez celý projekt
+
+1. **SQL debug VŽDY** - pri DB operáciách VŽDY overiť že zápis prebehol
+2. **Jedna vec = jeden script** - nie 12 verzií toho istého
+3. **Testing pred merge** - každý fix otestovať IHNEĎ
+4. **Dokumentácia postupu** - lepšie session notes priebežne
+5. **Možno Qt window state je broken?** - zvážiť iný prístup (custom flag?)
 
 ---
 
-## Štatistiky
+## Technické poznámky
 
-- **Celkový čas:** ~2 hodiny
-- **Vytvorené scripty:** 4
-- **Upravené súbory:** 3
-- **Vyriešené problémy:** 3
-- **Token usage:** ~103K / 190K (54%)
-
----
-
-## Technical Notes
-
-### Window Settings - Súbory a cesty
-```
-Database: C:\NEX\YEARACT\SYSTEM\SQLITE\window_settings.db
-Module:   apps/supplier-invoice-editor/src/utils/window_settings.py
-Usage:    apps/supplier-invoice-editor/src/ui/main_window.py
+### Window State Values (Qt)
+```python
+Qt.WindowNoState = 0      # Normal
+Qt.WindowMinimized = 1    # Minimized  
+Qt.WindowMaximized = 2    # Maximized
+Qt.WindowFullScreen = 4   # Fullscreen
 ```
 
-### Grid Settings - Súbory a cesty
-```
-Database: C:\NEX\YEARACT\SYSTEM\SQLITE\grid_settings.db
-Module:   apps/supplier-invoice-editor/src/utils/grid_settings.py
-Usage:    apps/supplier-invoice-editor/src/ui/widgets/invoice_list_widget.py
-```
+### Geometry vs WindowState
+- `setGeometry()` - nastaví pozíciu a veľkosť
+- `setWindowState()` - nastaví stav (max/min/full)
+- `normalGeometry()` - vráti geometriu pred maximize/fullscreen
+- **POZOR:** setWindowState() po setGeometry() môže ignorovať geometriu!
 
-### Quick Search - Komponenty
-```
-Controller: ui/widgets/quick_search.py (QuickSearchController)
-Methods:    get_active_column(), set_active_column()
-Database:   Ukladá sa cez grid_settings.py
-```
+### Multi-Monitor Súradnice
+- Primary monitor (right): X=0 až 1920, Y=0 až 1080
+- Secondary monitor (left): X=-1920 až 0, Y=0 až 1080
+- Negatívne X je validné!
 
 ---
 
@@ -385,28 +310,23 @@ Database:   Ukladá sa cez grid_settings.py
 - **Location:** C:\Development\nex-automat
 - **Python:** C:\Development\nex-automat\venv32\Scripts\python.exe
 - **Database:** C:\NEX\YEARACT\SYSTEM\SQLITE\
-- **Status:** ✅ Opravy aplikované, čaká na testing
+- **User:** Server (Windows USERNAME)
+- **Status:** ⚠️ Grid funguje, Window maximize nefunguje
 
 ### Production Server (Mágerstav)
 - **Location:** C:\Deployment\nex-automat
 - **Database:** C:\NEX\YEARACT\SYSTEM\SQLITE\
-- **Status:** ⏸️ Čaká na deployment
+- **Status:** ⏸️ Čaká na dokončenie vývoja
 
 ### GitHub Repository
 - **Repo:** rauschiccsk/nex-automat
 - **Branch:** develop (aktívny vývoj)
-- **Branch:** main (stable releases)
-- **Visibility:** Public
+- **Status:** 🔴 Lokálne zmeny nie sú commitnuté
 
 ---
 
-**Session Type:** Bug Fixes & System Maintenance  
-**Version:** v2.1 (Grid Settings era)  
-**Next Session:** Testing & Deployment  
-**Status:** ⚠️ **NEEDS TESTING**
-
-**Critical Path:**
-1. Vyčistiť databázu (script 04) ← **NEXT ACTION**
-2. Otestovať oba systémy
-3. Git commit
-4. Production deployment
+**Session Type:** Bug Fixes & Feature Development  
+**Version:** v2.1 (Grid & Window Settings era)  
+**Duration:** ~3 hodiny
+**Next Session:** Dokončiť Window Maximize State  
+**Status:** ⚠️ **PARTIALLY COMPLETE** - Grid ✅, Position ✅, Maximize ❌

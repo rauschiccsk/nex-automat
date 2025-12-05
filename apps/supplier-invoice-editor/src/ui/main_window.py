@@ -41,12 +41,29 @@ class MainWindow(QMainWindow):
         """Načíta a aplikuje uloženú pozíciu a veľkosť okna."""
         settings = load_window_settings(window_name=WINDOW_MAIN)
         if settings:
-            self.setGeometry(
-                settings['x'],
-                settings['y'],
-                settings['width'],
-                settings['height']
-            )
+            self.logger.info(f"DEBUG: load_window_settings returned: {settings}")
+
+            # Vždy aplikuj geometriu (ak je validná) - určuje monitor
+            if settings.get('x') is not None and settings.get('width'):
+                self.setGeometry(
+                    settings['x'],
+                    settings['y'],
+                    settings['width'],
+                    settings['height']
+                )
+
+            # Potom maximalizuj ak je to potrebné
+            if settings.get('window_state', 0) == 2:  # Qt.WindowMaximized = 2
+                self.setWindowState(Qt.WindowMaximized)
+                self.logger.info(f"Window maximized on monitor with position ({settings.get('x', 0)}, {settings.get('y', 0)})")
+            else:
+                self.logger.info(f"Loaded window position: ({settings['x']}, {settings['y']}) [{settings['width']}x{settings['height']}]")
+        else:
+            # Žiadny uložený záznam - použiť bezpečnú default pozíciu
+            default_x, default_y = 100, 100
+            default_width, default_height = 1400, 900
+            self.setGeometry(default_x, default_y, default_width, default_height)
+            self.logger.info(f"Using default position: ({default_x}, {default_y}) [{default_width}x{default_height}]")
 
     def _setup_ui(self):
         """Setup main window UI"""
@@ -258,12 +275,44 @@ class MainWindow(QMainWindow):
     def closeEvent(self, event):
         """Handle window close event"""
         self.logger.info("Application closing")
-        # Ulož pozíciu a veľkosť okna
-        save_window_settings(
-            window_name=WINDOW_MAIN,
-            x=self.x(),
-            y=self.y(),
-            width=self.width(),
-            height=self.height()
-        )
+
+        # Ak je maximalizované, ulož normalGeometry (pozícia pred maximalizáciou)
+        if self.isMaximized():
+            norm_geom = self.normalGeometry()
+            save_window_settings(
+                window_name=WINDOW_MAIN,
+                x=norm_geom.x(), y=norm_geom.y(),
+                width=norm_geom.width(), height=norm_geom.height(),
+                window_state=2  # Maximalized
+            )
+            self.logger.info(f"Window settings saved: maximized on monitor at ({norm_geom.x()}, {norm_geom.y()})")
+        else:
+            # Normálne okno - validuj a ulož súradnice
+            x, y = self.x(), self.y()
+            width, height = self.width(), self.height()
+
+            # Validačné limity
+            MIN_X, MIN_Y = -3840, 0  # Dual 4K monitor support
+            MIN_WIDTH, MIN_HEIGHT = 400, 300
+            MAX_WIDTH, MAX_HEIGHT = 3840, 2160
+
+            # Kontrola validity
+            is_valid = (
+                x >= MIN_X and y >= MIN_Y and
+                MIN_WIDTH <= width <= MAX_WIDTH and
+                MIN_HEIGHT <= height <= MAX_HEIGHT
+            )
+
+            if is_valid:
+                save_window_settings(
+                    window_name=WINDOW_MAIN,
+                    x=x, y=y,
+                    width=width, height=height,
+                    window_state=0  # Normal
+                )
+                self.logger.info(f"Window settings saved: ({x}, {y}) [{width}x{height}] normal")
+            else:
+                self.logger.warning(f"Invalid position not saved: ({x}, {y}) [{width}x{height}]")
+
         event.accept()
+

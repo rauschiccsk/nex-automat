@@ -288,8 +288,8 @@ class InvoiceListWidget(QWidget):
         # Načítaj grid settings (active column pre quick search)
         grid_settings = load_grid_settings(WINDOW_MAIN, GRID_INVOICE_LIST)
 
-        if grid_settings and 'active_column' in grid_settings:
-            active_col = grid_settings['active_column']
+        if grid_settings and 'active_column_index' in grid_settings:
+            active_col = grid_settings['active_column_index']
             # Nastav aktívny stĺpec v quick search
             if hasattr(self, 'search_controller') and self.search_controller:
                 self.search_controller.set_active_column(active_col)
@@ -322,12 +322,9 @@ class InvoiceListWidget(QWidget):
             active_column = self.search_controller.get_active_column()
             self.logger.info(f"Saving active column: {active_column}")
 
-        grid_settings = {
-            'active_column': active_column
-        }
-
-        # Ulož grid settings
-        save_grid_settings(WINDOW_MAIN, GRID_INVOICE_LIST, grid_settings)
+        # Ulož grid settings (active_column_index ako tretí parameter)
+        if active_column is not None:
+            save_grid_settings(WINDOW_MAIN, GRID_INVOICE_LIST, active_column)
 
     def _on_column_resized(self, logical_index, old_size, new_size):
         """Handler pre zmenu šírky stĺpca."""
