@@ -10,6 +10,7 @@ import sqlite3
 from pathlib import Path
 from typing import Optional, Dict
 from datetime import datetime
+import logging
 
 
 def get_settings_db_path() -> str:
@@ -90,7 +91,7 @@ def load_window_settings(window_name: str, user_id: Optional[str] = None) -> Opt
         cursor = conn.cursor()
         
         cursor.execute("""
-            SELECT x, y, width, height
+            SELECT x, y, width, height, window_state
             FROM window_settings
             WHERE user_id = ? AND window_name = ?
         """, (user_id, window_name))
@@ -140,41 +141,52 @@ def load_window_settings(window_name: str, user_id: Optional[str] = None) -> Opt
 def save_window_settings(window_name: str, x: int, y: int, width: int, height: int,
                         window_state: int = 0, user_id: Optional[str] = None) -> bool:
     """
-    Uloží pozíciu a veľkosť okna pre daného používateľa.
+    Save window settings to database using DELETE + INSERT pattern.
 
     Args:
-        window_name: Identifikátor okna (napr. 'sie_main_window')
-        x: Pozícia X na obrazovke
-        y: Pozícia Y na obrazovke
-        width: Šírka okna v pixeloch
-        height: Výška okna v pixeloch
-        window_state: Stav okna (0=normal, 2=maximized)
-        user_id: ID používateľa (ak None, použije sa aktuálny Windows username)
+        window_name: Unique window identifier
+        x, y: Window position
+        width, height: Window size
+        window_state: 0=normal, 2=maximized
+        user_id: User identifier (default from config)
 
     Returns:
-        bool: True ak úspešné, False pri chybe
+        bool: True if successful
     """
-    if user_id is None:
-        user_id = get_current_user_id()
-
     try:
-        # Inicializuj databázu ak neexistuje
-        init_settings_db()
+        if user_id is None:
+            user_id = 'Server'  # Default user ID
 
-        db_path = get_settings_db_path()
+        db_path = Path(r"C:\NEX\YEARACT\SYSTEM\SQLITE\window_settings.db")
         conn = sqlite3.connect(db_path)
         cursor = conn.cursor()
 
-        # INSERT alebo UPDATE pomocou REPLACE
+                    f"x={x}, y={y}, width={width}, height={height}, "
+                    f"window_state={window_state}, user_id={user_id}")
+
+        # First DELETE existing record to avoid INSERT OR REPLACE issues
         cursor.execute("""
-            INSERT OR REPLACE INTO window_settings
+            DELETE FROM window_settings
+            WHERE user_id = ? AND window_name = ?
+        """, (user_id, window_name))
+
+        # Then INSERT new record with all current values
+        cursor.execute("""
+            INSERT INTO window_settings
             (user_id, window_name, x, y, width, height, window_state, updated_at)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         """, (user_id, window_name, x, y, width, height, window_state, datetime.now()))
 
         conn.commit()
         conn.close()
+
         return True
+
+    except Exception as e:
+        logger.error(f"Error saving window settings: {e}")
+        return False
+
+
 
     except sqlite3.Error as e:
         print(f"Chyba pri ukladaní window settings: {e}")

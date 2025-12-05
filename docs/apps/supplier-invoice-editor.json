@@ -2,14 +2,14 @@
   "name": "supplier-invoice-editor",
   "type": "application",
   "location": "apps/supplier-invoice-editor",
-  "generated": "2025-12-06T00:22:25.391757",
+  "generated": "2025-12-06T00:56:11.811936",
   "statistics": {
     "total_files": 105,
     "total_dirs": 28,
     "python_files": 53,
     "test_files": 8,
-    "total_lines": 8280,
-    "total_size": 1575045
+    "total_lines": 8292,
+    "total_size": 1738501
   },
   "structure": {
     "has_src": true,
@@ -162,7 +162,7 @@
     {
       "path": "apps/supplier-invoice-editor/logs/supplier_invoice_editor_20251206.log",
       "name": "supplier_invoice_editor_20251206.log",
-      "size": 117726,
+      "size": 280848,
       "extension": ".log",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-editor/logs/supplier_invoice_editor_20251206.log"
     },
@@ -792,10 +792,10 @@
     {
       "path": "apps/supplier-invoice-editor/src/utils/window_settings.py",
       "name": "window_settings.py",
-      "size": 5918,
+      "size": 6252,
       "extension": ".py",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-editor/src/utils/window_settings.py",
-      "lines": 181,
+      "lines": 193,
       "type": "source"
     },
     {
