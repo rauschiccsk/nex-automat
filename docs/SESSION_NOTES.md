@@ -6,6 +6,71 @@ Session riešila dva problémy v NEX Automat v2.1 - Supplier Invoice Editor:
 1. **Active Column Persistence** - Grid settings nezapamätali aktívny stĺpec pre quick search
 2. **Window Position Validation** - Okno sa mohlo posunúť mimo obrazovky
 
+## Nový Workflow: Local File Scripts ⭐ PERMANENT
+
+**Od tejto session používame HYBRIDNÝ prístup pre prácu so súbormi:**
+
+### Ako to funguje
+
+1. **Session start:** Priložený manifest (prehľad projektu)
+2. **Active work:** Local scripts (real-time prístup k súborom)
+3. **Session end:** Git commit + push (verziovanie)
+
+### Utility Scripts
+
+#### Script 1: `read_project_file.py` - Jeden súbor
+```powershell
+python scripts\read_project_file.py apps/supplier-invoice-editor/src/ui/main_window.py
+```
+**Output:** Kompletný obsah súboru s metadátami  
+**Copy-paste** output do chatu → Claude má súbor
+
+#### Script 2: `read_module_files.py` - Viacero súborov
+```powershell
+# Celý modul
+python scripts\read_module_files.py --module apps/supplier-invoice-editor/src/ui/widgets
+
+# Konkrétne súbory
+python scripts\read_module_files.py file1.py file2.py file3.py
+
+# Pattern
+python scripts\read_module_files.py --pattern "*/utils/*.py"
+```
+**Output:** Všetky súbory naraz  
+**Copy-paste** output do chatu → Claude má všetky súbory
+
+### Pravidlá Workflow
+
+| Potrebujem... | Použijem... |
+|---------------|-------------|
+| Prehľad projektu | Priložený manifest |
+| 1 súbor | `read_project_file.py` |
+| Celý modul/package | `read_module_files.py --module` |
+| 2-5 konkrétnych súborov | `read_module_files.py file1 file2 ...` |
+| Súbory podľa pattern | `read_module_files.py --pattern` |
+
+### Výhody
+
+✅ **Rýchle** - žiadne web requests  
+✅ **Real-time** - vidím uncommitted changes  
+✅ **Spoľahlivé** - žiadne GitHub problémy  
+✅ **Jednoduché** - len copy-paste  
+✅ **Efektívne** - viacero súborov naraz
+
+### Nevýhody
+
+❌ Funguje len na dev PC (nie cross-machine)  
+❌ Žiadna history (musí commit pre audit)
+
+### Kedy ešte používať GitHub?
+
+- Session review (porovnanie zmien medzi sessionami)
+- Audit trail (kto/čo/kedy zmenil)
+- Backup (záloha projektu)
+- Cross-machine (práca z iného PC)
+
+---
+
 ## Hlavné problémy a riešenia
 
 ### Problém 1: Manifest System - Branch Mismatch
@@ -111,6 +176,37 @@ Script `04_clean_invalid_window_positions.py`:
 ---
 
 ## Vytvorené scripty
+
+### File Access Scripts (NEW - Permanent Workflow Change)
+
+#### Script: `read_project_file.py`
+**Location:** `scripts/read_project_file.py`  
+**Purpose:** Načíta jeden súbor z projektu  
+**Usage:**
+```powershell
+python scripts\read_project_file.py apps/supplier-invoice-editor/src/ui/main_window.py
+```
+**Status:** ✅ Vytvorený, funkčný
+
+#### Script: `read_module_files.py`
+**Location:** `scripts/read_module_files.py`  
+**Purpose:** Načíta viacero súborov naraz (modul, pattern, list)  
+**Usage:**
+```powershell
+# Celý modul
+python scripts\read_module_files.py --module apps/supplier-invoice-editor/src/ui/widgets
+
+# Konkrétne súbory
+python scripts\read_module_files.py file1.py file2.py
+
+# Pattern
+python scripts\read_module_files.py --pattern "*/utils/*.py"
+```
+**Status:** ✅ Vytvorený, funkčný
+
+---
+
+### Bug Fix Scripts
 
 ### Script 01: Fix Active Column Persistence
 **Location:** `scripts/01_fix_active_column_persistence.py`  
