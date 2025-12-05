@@ -112,10 +112,10 @@ V budúcnosti dostanete automatický email s potvrdením, že faktúra bola úsp
 
 ### Spôsob 3: Kontaktovať podporu
 
-Ak potrebujete overiť že faktúra bola spracovaná, kontaktujte:
+Ak potrebujete overiť, že faktúra bola spracovaná, kontaktujte:
 
 **Podpora:**  
-📧 Email: rausch@icc.sk  
+📧 Email: mate.bognar.22@gamail.com  
 📞 Tel: +421905354536 (ICC Komárno)
 
 ---
