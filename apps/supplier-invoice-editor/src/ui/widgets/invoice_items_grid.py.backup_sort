@@ -7,7 +7,7 @@ from PyQt5.QtWidgets import QWidget, QVBoxLayout, QTableView, QHeaderView, QAbst
 from PyQt5.QtCore import Qt, QAbstractTableModel, QVariant, QModelIndex, pyqtSignal
 from decimal import Decimal, InvalidOperation
 
-from .quick_search import QuickSearchContainer, QuickSearchController, GreenHeaderView
+from .quick_search import QuickSearchContainer, QuickSearchController
 
 
 class InvoiceItemsModel(QAbstractTableModel):
@@ -198,30 +198,6 @@ class InvoiceItemsModel(QAbstractTableModel):
                 return str(section + 1)
         return QVariant()
 
-    def sort(self, column, order=Qt.AscendingOrder):
-        """Sort data by column"""
-        if not self._items:
-            return
-
-        self.layoutAboutToBeChanged.emit()
-
-        # Get column key
-        column_key = self.COLUMNS[column][1]
-
-        # Sort items
-        reverse = (order == Qt.DescendingOrder)
-
-        try:
-            self._items.sort(
-                key=lambda x: x.get(column_key, ''),
-                reverse=reverse
-            )
-        except Exception as e:
-            self.logger.error(f"Sort error: {e}")
-
-        self.layoutChanged.emit()
-        self.logger.info(f"Sorted by {column_key}, reverse={reverse}")
-
 
 class InvoiceItemsGrid(QWidget):
     """Widget for editable invoice items grid"""
@@ -245,15 +221,9 @@ class InvoiceItemsGrid(QWidget):
 
         # Create table view
         self.table_view = QTableView()
-
-        # Replace header with custom green header
-        custom_header = GreenHeaderView(Qt.Horizontal, self.table_view)
-        self.table_view.setHorizontalHeader(custom_header)
         self.table_view.setAlternatingRowColors(True)
         self.table_view.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.table_view.setSelectionMode(QAbstractItemView.SingleSelection)
-        # Sorting will be enabled by QuickSearchController
-        self.table_view.setSortingEnabled(False)
 
         # Create and set model
         self.model = InvoiceItemsModel(self)
@@ -293,12 +263,6 @@ class InvoiceItemsGrid(QWidget):
         """Set item data"""
         self.model.set_items(items)
         self.logger.info(f"Items grid updated with {len(items)} items")
-
-        # Sort by current search column after data loaded
-        if hasattr(self, 'search_controller'):
-            current_col = self.search_controller.current_column
-            self.search_controller._sort_by_column(current_col)
-            self.logger.info(f"Re-sorted by column {current_col} after data load")
 
     def get_items(self):
         """Get current items"""

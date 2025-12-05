@@ -252,8 +252,6 @@ class InvoiceItemsGrid(QWidget):
         self.table_view.setAlternatingRowColors(True)
         self.table_view.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.table_view.setSelectionMode(QAbstractItemView.SingleSelection)
-        # Sorting will be enabled by QuickSearchController
-        self.table_view.setSortingEnabled(False)
 
         # Create and set model
         self.model = InvoiceItemsModel(self)
@@ -293,12 +291,6 @@ class InvoiceItemsGrid(QWidget):
         """Set item data"""
         self.model.set_items(items)
         self.logger.info(f"Items grid updated with {len(items)} items")
-
-        # Sort by current search column after data loaded
-        if hasattr(self, 'search_controller'):
-            current_col = self.search_controller.current_column
-            self.search_controller._sort_by_column(current_col)
-            self.logger.info(f"Re-sorted by column {current_col} after data load")
 
     def get_items(self):
         """Get current items"""

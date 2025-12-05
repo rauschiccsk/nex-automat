@@ -1,4 +1,21 @@
+#!/usr/bin/env python3
 """
+Script to integrate quick search into invoice_items_grid.py
+Integruje rýchlo-vyhľadávač do invoice_items_grid.py
+Location: C:\\Development\\nex-automat\\scripts\\04_integrate_invoice_items.py
+"""
+
+import sys
+from pathlib import Path
+
+# Project root
+PROJECT_ROOT = Path(__file__).parent.parent
+
+# Target file
+TARGET_FILE = PROJECT_ROOT / "apps" / "supplier-invoice-editor" / "src" / "ui" / "widgets" / "invoice_items_grid.py"
+
+# New content
+NEW_CONTENT = '''"""
 Invoice Items Grid - Editable grid for invoice line items
 """
 
@@ -7,7 +24,7 @@ from PyQt5.QtWidgets import QWidget, QVBoxLayout, QTableView, QHeaderView, QAbst
 from PyQt5.QtCore import Qt, QAbstractTableModel, QVariant, QModelIndex, pyqtSignal
 from decimal import Decimal, InvalidOperation
 
-from .quick_search import QuickSearchContainer, QuickSearchController, GreenHeaderView
+from .quick_search import QuickSearchEdit, QuickSearchController
 
 
 class InvoiceItemsModel(QAbstractTableModel):
@@ -198,30 +215,6 @@ class InvoiceItemsModel(QAbstractTableModel):
                 return str(section + 1)
         return QVariant()
 
-    def sort(self, column, order=Qt.AscendingOrder):
-        """Sort data by column"""
-        if not self._items:
-            return
-
-        self.layoutAboutToBeChanged.emit()
-
-        # Get column key
-        column_key = self.COLUMNS[column][1]
-
-        # Sort items
-        reverse = (order == Qt.DescendingOrder)
-
-        try:
-            self._items.sort(
-                key=lambda x: x.get(column_key, ''),
-                reverse=reverse
-            )
-        except Exception as e:
-            self.logger.error(f"Sort error: {e}")
-
-        self.layoutChanged.emit()
-        self.logger.info(f"Sorted by {column_key}, reverse={reverse}")
-
 
 class InvoiceItemsGrid(QWidget):
     """Widget for editable invoice items grid"""
@@ -245,15 +238,9 @@ class InvoiceItemsGrid(QWidget):
 
         # Create table view
         self.table_view = QTableView()
-
-        # Replace header with custom green header
-        custom_header = GreenHeaderView(Qt.Horizontal, self.table_view)
-        self.table_view.setHorizontalHeader(custom_header)
         self.table_view.setAlternatingRowColors(True)
         self.table_view.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.table_view.setSelectionMode(QAbstractItemView.SingleSelection)
-        # Sorting will be enabled by QuickSearchController
-        self.table_view.setSortingEnabled(False)
 
         # Create and set model
         self.model = InvoiceItemsModel(self)
@@ -276,12 +263,12 @@ class InvoiceItemsGrid(QWidget):
 
         layout.addWidget(self.table_view)
 
-        # Add quick search container (positions editor under active column)
-        self.quick_search_container = QuickSearchContainer(self.table_view, self)
-        layout.addWidget(self.quick_search_container)
+        # Add quick search widget
+        self.quick_search = QuickSearchEdit(self)
+        layout.addWidget(self.quick_search)
 
         # Create quick search controller
-        self.search_controller = QuickSearchController(self.table_view, self.quick_search_container)
+        self.search_controller = QuickSearchController(self.table_view, self.quick_search)
 
         self.logger.info("Invoice items grid UI setup complete (with quick search)")
 
@@ -294,12 +281,51 @@ class InvoiceItemsGrid(QWidget):
         self.model.set_items(items)
         self.logger.info(f"Items grid updated with {len(items)} items")
 
-        # Sort by current search column after data loaded
-        if hasattr(self, 'search_controller'):
-            current_col = self.search_controller.current_column
-            self.search_controller._sort_by_column(current_col)
-            self.logger.info(f"Re-sorted by column {current_col} after data load")
-
     def get_items(self):
         """Get current items"""
         return self.model.get_items()
+'''
+
+
+def main():
+    """Update invoice_items_grid.py file"""
+    try:
+        # Check if file exists
+        if not TARGET_FILE.exists():
+            print(f"❌ File not found: {TARGET_FILE}")
+            return 1
+
+        # Backup original
+        backup_file = TARGET_FILE.with_suffix('.py.backup')
+        TARGET_FILE.rename(backup_file)
+        print(f"📦 Backup created: {backup_file}")
+
+        # Write new content
+        TARGET_FILE.write_text(NEW_CONTENT, encoding='utf-8')
+
+        print(f"✅ Updated: {TARGET_FILE}")
+        print(f"📊 Size: {TARGET_FILE.stat().st_size} bytes")
+        print(f"📝 Lines: {len(NEW_CONTENT.splitlines())}")
+        print()
+        print("Changes:")
+        print("  + Added import: QuickSearchEdit, QuickSearchController")
+        print("  + Added quick_search widget to layout")
+        print("  + Created search_controller instance")
+
+        return 0
+
+    except Exception as e:
+        print(f"❌ Error: {e}", file=sys.stderr)
+        import traceback
+        traceback.print_exc()
+
+        # Restore backup if exists
+        if backup_file.exists() and not TARGET_FILE.exists():
+            backup_file.rename(TARGET_FILE)
+            print(f"↩️  Backup restored")
+
+        return 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())
