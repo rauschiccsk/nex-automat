@@ -8,6 +8,8 @@ from PyQt5.QtCore import Qt, QAbstractTableModel, QVariant, pyqtSignal
 from decimal import Decimal
 
 from .quick_search import QuickSearchContainer, QuickSearchController, GreenHeaderView
+from utils.constants import WINDOW_MAIN, GRID_INVOICE_LIST
+from utils.grid_settings import load_column_settings, save_column_settings, load_grid_settings, save_grid_settings
 
 
 class InvoiceListModel(QAbstractTableModel):
@@ -135,7 +137,13 @@ class InvoiceListWidget(QWidget):
         self.logger = logging.getLogger(__name__)
 
         self._setup_ui()
-        self._connect_signals()
+        self._load_grid_settings()
+
+
+    def update_invoices(self, invoices):
+        """Update invoice list with new data."""
+        self.model.set_invoices(invoices)
+        self.logger.info(f"Invoice list updated with {len(invoices)} invoices")
 
     def _setup_ui(self):
         """Setup widget UI"""
@@ -172,62 +180,119 @@ class InvoiceListWidget(QWidget):
         header.resizeSection(6, 60)   # Currency
         header.resizeSection(7, 100)  # Status
 
-        layout.addWidget(self.table_view)
+        # Connect header signals for grid settings
+        header.sectionResized.connect(self._on_column_resized)
+        header.sectionMoved.connect(self._on_column_moved)
 
-        # Add quick search container (positions editor under active column)
+        # Create quick search container with search input
         self.quick_search_container = QuickSearchContainer(self.table_view, self)
         layout.addWidget(self.quick_search_container)
 
-        # Create quick search controller
+        # Create search controller
         self.search_controller = QuickSearchController(self.table_view, self.quick_search_container)
 
-        self.logger.info("Invoice list widget UI setup complete (with quick search)")
-
-    def _connect_signals(self):
-        """Connect signals"""
-        # Selection changed
+        # Connect selection change signal
         selection_model = self.table_view.selectionModel()
         selection_model.currentRowChanged.connect(self._on_selection_changed)
 
-        # Double-click
+        # Connect double-click signal
         self.table_view.doubleClicked.connect(self._on_double_clicked)
 
-    def set_invoices(self, invoices):
-        """Set invoice data"""
-        self.model.set_invoices(invoices)
-        self.logger.info(f"Invoice list updated with {len(invoices)} invoices")
+        self.logger.info("Invoice list widget UI setup complete (with quick search)")
 
-        # Sort by current search column after data loaded
-        if hasattr(self, 'search_controller'):
-            current_col = self.search_controller.current_column
-            self.search_controller._sort_by_column(current_col)
-            self.logger.info(f"Re-sorted by column {current_col} after data load")
 
-    def _on_selection_changed(self, current, previous):
-        """Handle selection change"""
-        if current.isValid():
-            row = current.row()
-            invoice_id = self.model.get_invoice_id(row)
-            if invoice_id:
-                self.invoice_selected.emit(invoice_id)
+    def _on_column_resized(self, logical_index, old_size, new_size):
+        """Handler pre zmenu šírky stĺpca."""
+        self._save_grid_settings()
 
-    def _on_double_clicked(self, index):
-        """Handle double-click"""
-        if index.isValid():
-            row = index.row()
-            invoice_id = self.model.get_invoice_id(row)
-            if invoice_id:
-                self.invoice_activated.emit(invoice_id)
+    def _on_column_moved(self, logical_index, old_visual_index, new_visual_index):
+        """Handler pre presunutie stĺpca."""
+        self._save_grid_settings()
 
-    def get_selected_invoice(self):
-        """Get currently selected invoice"""
-        indexes = self.table_view.selectionModel().selectedRows()
-        if indexes:
-            row = indexes[0].row()
-            return self.model.get_invoice(row)
-        return None
+    def _load_grid_settings(self):
+        """Načíta a aplikuje uložené nastavenia gridu."""
+        # Načítaj column settings
+        column_settings = load_column_settings(
+            window_name=WINDOW_MAIN,
+            grid_name=GRID_INVOICE_LIST
+        )
 
-    def get_selected_invoice_id(self):
-        """Get currently selected invoice ID"""
-        invoice = self.get_selected_invoice()
-        return invoice['id'] if invoice else None
+        if column_settings:
+            self.logger.info(f"Loading grid settings: {len(column_settings)} columns")
+
+            header = self.table_view.horizontalHeader()
+
+            # Aplikuj nastavenia na stĺpce
+            for col_setting in column_settings:
+                col_name = col_setting['column_name']
+
+                # Nájdi index stĺpca podľa názvu
+                col_index = None
+                for idx, (display_name, field_name) in enumerate(self.COLUMNS):
+                    if field_name == col_name:
+                        col_index = idx
+                        break
+
+                if col_index is not None:
+                    # Aplikuj šírku
+                    if col_setting.get('width'):
+                        header.resizeSection(col_index, col_setting['width'])
+
+                    # Aplikuj viditeľnosť
+                    if not col_setting.get('visible', True):
+                        self.table_view.hideColumn(col_index)
+
+                    # Aplikuj visual_index (poradie po drag-and-drop)
+                    if col_setting.get('visual_index') is not None:
+                        header.moveSection(header.visualIndex(col_index), col_setting['visual_index'])
+
+        # Načítaj grid-level settings (aktívny stĺpec)
+        grid_settings = load_grid_settings(
+            window_name=WINDOW_MAIN,
+            grid_name=GRID_INVOICE_LIST
+        )
+
+        if grid_settings and grid_settings.get('active_column_index') is not None:
+            # Nastav aktívny stĺpec v QuickSearchController
+            active_col = grid_settings['active_column_index']
+            if hasattr(self, 'search_controller') and self.search_controller:
+                self.search_controller.set_active_column(active_col)
+                self.logger.info(f"Restored active column: {active_col}")
+
+    def _save_grid_settings(self):
+        """Uloží aktuálne nastavenia gridu."""
+        header = self.table_view.horizontalHeader()
+
+        # Zozbieraj nastavenia všetkých stĺpcov
+        columns = []
+        for idx, (display_name, field_name) in enumerate(self.COLUMNS):
+            columns.append({
+                'column_name': field_name,
+                'width': header.sectionSize(idx),
+                'visual_index': header.visualIndex(idx),
+                'visible': not self.table_view.isColumnHidden(idx)
+            })
+
+        # Ulož column settings
+        save_column_settings(
+            window_name=WINDOW_MAIN,
+            grid_name=GRID_INVOICE_LIST,
+            columns=columns
+        )
+
+        # Ulož active column z QuickSearchController
+        if hasattr(self, 'search_controller') and self.search_controller:
+            active_col = self.search_controller.get_active_column()
+            save_grid_settings(
+                window_name=WINDOW_MAIN,
+                grid_name=GRID_INVOICE_LIST,
+                active_column_index=active_col
+            )
+
+    def _on_column_resized(self, logical_index, old_size, new_size):
+        """Handler pre zmenu šírky stĺpca."""
+        self._save_grid_settings()
+
+    def _on_column_moved(self, logical_index, old_visual_index, new_visual_index):
+        """Handler pre presunutie stĺpca."""
+        self._save_grid_settings()

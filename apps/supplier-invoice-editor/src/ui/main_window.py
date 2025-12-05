@@ -13,6 +13,8 @@ from PyQt5.QtGui import QIcon, QKeySequence
 
 from .widgets.invoice_list_widget import InvoiceListWidget
 from business.invoice_service import InvoiceService
+from utils.constants import WINDOW_MAIN
+from utils.window_settings import load_window_settings, save_window_settings
 
 
 class MainWindow(QMainWindow):
@@ -33,6 +35,18 @@ class MainWindow(QMainWindow):
 
         # Load initial data
         QTimer.singleShot(0, self._load_invoices)
+        self._load_geometry()
+
+    def _load_geometry(self):
+        """Načíta a aplikuje uloženú pozíciu a veľkosť okna."""
+        settings = load_window_settings(window_name=WINDOW_MAIN)
+        if settings:
+            self.setGeometry(
+                settings['x'],
+                settings['y'],
+                settings['width'],
+                settings['height']
+            )
 
     def _setup_ui(self):
         """Setup main window UI"""
@@ -158,7 +172,7 @@ class MainWindow(QMainWindow):
             self.logger.info("Loading invoices...")
 
             invoices = self.invoice_service.get_pending_invoices()
-            self.invoice_list.set_invoices(invoices)
+            self.invoice_list.update_invoices(invoices)
 
             count = len(invoices)
             self.statusbar.showMessage(
@@ -228,7 +242,28 @@ class MainWindow(QMainWindow):
             "<p>Developer: Zoltán</p>"
         )
 
+    def keyPressEvent(self, event):
+        """Handle key press events - ESC closes application."""
+        from PyQt5.QtCore import Qt
+        
+        if event.key() == Qt.Key_Escape:
+            self.logger.info("ESC pressed - closing application")
+            self.close()
+            event.accept()
+            return
+        
+        # Pass other keys to parent
+        super().keyPressEvent(event)
+
     def closeEvent(self, event):
         """Handle window close event"""
         self.logger.info("Application closing")
+        # Ulož pozíciu a veľkosť okna
+        save_window_settings(
+            window_name=WINDOW_MAIN,
+            x=self.x(),
+            y=self.y(),
+            width=self.width(),
+            height=self.height()
+        )
         event.accept()

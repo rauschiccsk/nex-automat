@@ -563,6 +563,28 @@ class QuickSearchController(QObject):
 
         return None
 
+
+    def get_active_column(self):
+        """
+        Vráti index aktuálne aktívneho stĺpca.
+        
+        Returns:
+            int: Index aktívneho stĺpca
+        """
+        return self.current_column
+
+    def set_active_column(self, column):
+        """
+        Nastaví aktívny stĺpec a aktualizuje UI.
+        
+        Args:
+            column: Index stĺpca
+        """
+        if 0 <= column < self.table_view.model().columnCount():
+            self.current_column = column
+            self._sort_by_column(column)
+            self.search_container.set_column(column)
+            self.logger.info(f"Active column set to {column}")
     def set_column(self, column):
         """Set active search column programmatically"""
         self.current_column = column

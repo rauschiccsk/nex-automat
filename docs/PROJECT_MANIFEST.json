@@ -4,7 +4,7 @@
   "version": "2.0.0",
   "description": "Multi-customer SaaS for automated invoice processing",
   "location": "C:\\Development\\nex-automat",
-  "generated": "2025-12-05T14:41:13.163587",
+  "generated": "2025-12-05T20:12:37.812241",
   "structure": {
     "apps": 2,
     "packages": 1,
@@ -12,19 +12,19 @@
     "tools": true
   },
   "statistics": {
-    "total_files": 5594,
+    "total_files": 5610,
     "total_dirs": 605,
-    "python_files": 2318,
-    "test_files": 76,
-    "total_lines": 779529,
-    "total_size": 107005563
+    "python_files": 2330,
+    "test_files": 75,
+    "total_lines": 778513,
+    "total_size": 107118841
   },
   "applications": [
     {
       "name": "supplier-invoice-editor",
       "location": "apps/supplier-invoice-editor",
       "manifest": "docs/apps/supplier-invoice-editor.json",
-      "python_files": 50,
+      "python_files": 53,
       "test_files": 4,
       "dependencies_count": 5
     },

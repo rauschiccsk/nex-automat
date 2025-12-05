@@ -1,161 +1,210 @@
-# Init Prompt - NEX Automat v2.1 Post Quick Search Implementation
+# Init Prompt - NEX Automat v2.1 Grid Settings Fix
 
 **Project:** NEX Automat v2.0 - Supplier Invoice Processing  
 **Customer:** Mágerstav s.r.o.  
-**Current Version:** v2.1 (Production) + Quick Search Feature  
-**Status:** ✅ DEPLOYED AND OPERATIONAL  
-**Last Session:** Quick Search Implementation (2025-12-05)  
-**This Session:** Deployment, Testing, or Next Feature
+**Current Version:** v2.1 (Production)  
+**Status:** ⚠️ Window Settings OK, Grid Settings BROKEN  
+**Last Session:** Window & Grid Settings Implementation (2025-12-05)  
+**This Session:** Fix Grid Settings in invoice_list_widget.py
 
 ---
 
 ## Quick Context
 
-**NEX Automat v2.1** je úspešne nasadený v produkcii u zákazníka **Mágerstav s.r.o.** s novou funkciou **rýchlo-vyhľadávač**.
+**NEX Automat v2.1** má implementované window settings (funguje ✅) a čiastočne implementované grid settings (nefunguje ❌).
 
-### What It Does
-- Automaticky spracováva dodávateľské faktúry z emailu
-- Email workflow (n8n) → FastAPI → Database → ISDOC XML
-- GUI aplikácia pre manuálny review faktúr
-- **NEW:** Rýchlo-vyhľadávač v štýle NEX Genesis
-- PostgreSQL staging databáza pre integráciu s NEX Genesis
+### Čo funguje ✅
+- Window settings - ukladanie pozície a veľkosti okna
+- Klávesové skratky (ENTER, ESC)
+- Quick search s zeleným headerom
+- Základná funkcionalita aplikácie
 
-### Current Status
-- **Production:** ✅ Running, 9 faktúr spracovaných, 0 chýb
-- **Quick Search:** ✅ Implemented in Development, ready for deployment
-- **Desktop App:** ✅ Funkčná ikona "NEX - Správa faktúr"
-- **Health Check:** ✅ https://magerstav-invoices.icc.sk/health (200 OK)
+### Čo nefunguje ❌
+- Grid settings - aplikácia spadne pri štarte
+- Chyba: `AttributeError: 'InvoiceListWidget' object has no attribute '_on_selection_changed'`
 
 ---
 
-## Recent Changes - Quick Search Feature
+## Aktuálny problém
 
-### Feature Summary
-Implementovaný univerzálny "rýchlo-vyhľadávač" pre zoznamy faktúr a položiek faktúr.
-
-### Key Features
-- ✅ Zelený editor pod aktívnym stĺpcom
-- ✅ Zelená hlavička aktívneho stĺpca
-- ✅ Incremental prefix search
-- ✅ Case-insensitive + diacritic-insensitive
-- ✅ Číselné hodnoty hľadané ako čísla
-- ✅ Šípky ←/→ menia stĺpec + triedenie
-- ✅ Šípky ↑/↓ pohyb v zozname
-- ✅ Beep pri nenájdení
-- ✅ Automatické triedenie podľa aktívneho stĺpca
-
-### Files Created
-1. **`src/utils/text_utils.py`** (135 lines)
-   - Text normalization utilities
-   - Diacritic removal
-   - Numeric comparison
-
-2. **`src/ui/widgets/quick_search.py`** (373 lines)
-   - QuickSearchEdit - green search input
-   - QuickSearchContainer - positioning
-   - QuickSearchController - logic
-   - GreenHeaderView - custom header
-
-### Files Modified
-3. **`src/ui/widgets/invoice_list_widget.py`**
-   - Integrated quick search
-   - Added sort() to model
-   - Uses GreenHeaderView
-
-4. **`src/ui/widgets/invoice_items_grid.py`**
-   - Integrated quick search
-   - Added sort() to model
-   - Uses GreenHeaderView
-
-5. **`src/ui/widgets/__init__.py`**
-   - Added exports
-
-### Testing Status
-- ✅ Functionality tested in Development
-- ✅ All features working correctly
-- ⏳ Needs deployment to Production
-- ⏳ Needs user acceptance testing
-
----
-
-## System Architecture (Production)
-
+### Chybová správa
 ```
-ICC Server (n8n)
-  │
-  ├─ n8n Workflow: SupplierInvoiceEmailLoader
-  │  - Email: magerstavinvoice@gmail.com
-  │  - API Key: magerstav-PWjo...
-  │
-  │ (HTTPS POST via Cloudflare Tunnel)
-  │
-  ▼
-Mágerstav Server (Production)
-  │
-  ├─ NEXAutomat Service (Port 8001)
-  │  - Status: Running, Automatic
-  │  - Duplicate Detection: FIXED ✅
-  │
-  ├─ Supplier Invoice Editor (PyQt5 GUI)
-  │  - Desktop Shortcut: "NEX - Správa faktúr"
-  │  - PostgreSQL Connection: Working ✅
-  │  - Quick Search: In Development, ready ✅
-  │
-  ├─ Databases
-  │  - SQLite: 9 invoices, 0 duplicates
-  │  - PostgreSQL staging: 9 invoices
-  │
-  └─ Cloudflare Tunnel
-     - Public: https://magerstav-invoices.icc.sk
-     - Status: Active
+AttributeError: 'InvoiceListWidget' object has no attribute '_on_selection_changed'
+File "invoice_list_widget.py", line 196, in _setup_ui
+    selection_model.currentRowChanged.connect(self._on_selection_changed)
+```
+
+### Príčina
+Súbor `invoice_list_widget.py` bol v predchádzajúcej session rozbittý postupnými opravami (35 skriptov). Pri pridávaní grid settings metód sa stratili pôvodné metódy:
+- `_on_selection_changed()` - chýba
+- `_on_double_clicked()` - chýba  
+- Pravdepodobne aj ďalšie
+
+### Riešenie
+1. **Git restore** `invoice_list_widget.py` na fungujúcu verziu (pred grid settings)
+2. **Jeden komplexný script** ktorý pridá grid settings správne
+3. **Testovať** po každej zmene
+
+---
+
+## Implementované v predchádzajúcej session
+
+### 1. Window Settings (✅ FUNKČNÉ)
+
+**Databáza:** `C:\NEX\YEARACT\SYSTEM\SQLITE\window_settings.db`
+
+**Súbory:**
+- `src/utils/constants.py` - APP_PREFIX, WINDOW_MAIN, GRID_INVOICE_LIST, atď.
+- `src/utils/window_settings.py` - load/save window settings
+- `src/ui/main_window.py` - integrované window settings
+
+**Funkcie:**
+- Ukladanie/načítavanie pozície okna (x, y)
+- Ukladanie/načítavanie veľkosti okna (width, height)
+- Per-user (Windows username)
+- ESC klávesa pre zatvorenie
+
+### 2. Grid Settings (⚠️ IMPLEMENTOVANÉ, ALE ROZBITÉ)
+
+**Databáza:** `C:\NEX\YEARACT\SYSTEM\SQLITE\grid_settings.db` (prázdna)
+
+**Súbory vytvorené:**
+- `src/utils/grid_settings.py` - load/save grid settings (264 riadkov)
+
+**Súbory upravené (ROZBITÉ):**
+- `src/ui/widgets/invoice_list_widget.py` - pridané metódy, ale chýbajú pôvodné
+- `src/ui/widgets/quick_search.py` - pridané get/set_active_column() ✅
+
+**Metódy ktoré MALI BYŤ pridané:**
+```python
+def _load_grid_settings(self):
+    """Načíta a aplikuje uložené nastavenia gridu."""
+    # Načíta column_settings a grid_settings z databázy
+    # Aplikuje width, visual_index, visible, active_column
+
+def _save_grid_settings(self):
+    """Uloží aktuálne nastavenia gridu."""
+    # Zozbiera šírky, poradie, viditeľnosť stĺpcov
+    # Uloží do databázy
+
+def _on_column_resized(self, logical_index, old_size, new_size):
+    """Handler pre zmenu šírky stĺpca."""
+    self._save_grid_settings()
+
+def _on_column_moved(self, logical_index, old_visual_index, new_visual_index):
+    """Handler pre presunutie stĺpca."""
+    self._save_grid_settings()
+```
+
+**Signály ktoré MALI BYŤ pripojené v _setup_ui:**
+```python
+header.sectionResized.connect(self._on_column_resized)
+header.sectionMoved.connect(self._on_column_moved)
+```
+
+---
+
+## Postup pre túto session
+
+### Krok 1: Diagnostika
+```powershell
+# Zisti aktuálny stav súboru
+git status src/ui/widgets/invoice_list_widget.py
+
+# Zobraz rozdiely oproti commit
+git diff src/ui/widgets/invoice_list_widget.py
+```
+
+### Krok 2: Restore na funkčnú verziu
+```powershell
+# Obnov súbor pred grid settings
+git restore src/ui/widgets/invoice_list_widget.py
+
+# Alebo z konkrétneho commitu
+git checkout <commit_hash> -- src/ui/widgets/invoice_list_widget.py
+```
+
+### Krok 3: Verifikácia
+```powershell
+# Spusti aplikáciu - mala by fungovať BEZ grid settings
+python main.py
+```
+
+### Krok 4: Integrácia grid settings - SPRÁVNE
+
+**Vytvor JEDEN komplexný script ktorý:**
+
+1. Pridá importy na začiatok súboru:
+```python
+from utils.constants import WINDOW_MAIN, GRID_INVOICE_LIST
+from utils.grid_settings import (
+    load_column_settings, save_column_settings,
+    load_grid_settings, save_grid_settings
+)
+```
+
+2. Pridá volanie `self._load_grid_settings()` do `__init__` (za `self._setup_ui()`)
+
+3. Pridá pripojenie signálov v `_setup_ui()` (za `header.resizeSection...`):
+```python
+# Connect header signals for grid settings
+header.sectionResized.connect(self._on_column_resized)
+header.sectionMoved.connect(self._on_column_moved)
+```
+
+4. Pridá všetky 4 metódy NA KONIEC triedy `InvoiceListWidget`:
+   - `_load_grid_settings()`
+   - `_save_grid_settings()`
+   - `_on_column_resized()`
+   - `_on_column_moved()`
+
+**KRITICKÉ:** Nesmie sa stratiť žiadna existujúca metóda!
+
+### Krok 5: Testovanie
+```powershell
+# Test 1: Aplikácia sa spustí
+python main.py
+
+# Test 2: Zmena šírky stĺpca
+# - Potiahnuť okraj hlavičky
+# - Zatvoriť aplikáciu
+# - Skontrolovať databázu
+
+# Test 3: Opätovné spustenie
+# - Šírka by mala zostať
 ```
 
 ---
 
 ## File Locations
 
-### Development (ICC Server) - Quick Search Ready
-
+### Development (ICC Server)
 ```
 C:\Development\nex-automat\
 ├── apps\
 │   └── supplier-invoice-editor\
 │       ├── src\
 │       │   ├── utils\
-│       │   │   └── text_utils.py              [NEW ✅]
+│       │   │   ├── constants.py          [OK ✅]
+│       │   │   ├── window_settings.py    [OK ✅]
+│       │   │   ├── grid_settings.py      [OK ✅]
+│       │   │   └── __init__.py           [OK ✅]
 │       │   └── ui\
+│       │       ├── main_window.py        [OK ✅]
 │       │       └── widgets\
-│       │           ├── quick_search.py        [NEW ✅]
-│       │           ├── invoice_list_widget.py [MODIFIED ✅]
-│       │           ├── invoice_items_grid.py  [MODIFIED ✅]
-│       │           └── __init__.py            [MODIFIED ✅]
-│       │
+│       │           ├── invoice_list_widget.py  [BROKEN ❌]
+│       │           └── quick_search.py         [OK ✅]
 │       └── scripts\
-│           ├── 01_create_text_utils.py
-│           ├── 02_create_quick_search.py
-│           ├── ... (17 scripts total)
-│           └── 17_fix_sort_after_data_load.py
-│
-└── .git\
+│           ├── 01-35_*.py                [35 scripts z predch. session]
+│           └── 36_restore_and_integrate_grid.py  [NOVÝ - vytvor tento!]
 ```
 
-### Production (Mágerstav Server) - Needs Deployment
-
+### Production (Mágerstav Server)
 ```
 C:\Deployment\nex-automat\
 └── apps\
     └── supplier-invoice-editor\
-        ├── src\
-        │   ├── utils\
-        │   │   └── text_utils.py              [TO DEPLOY]
-        │   └── ui\
-        │       └── widgets\
-        │           ├── quick_search.py        [TO DEPLOY]
-        │           ├── invoice_list_widget.py [TO DEPLOY]
-        │           ├── invoice_items_grid.py  [TO DEPLOY]
-        │           └── __init__.py            [TO DEPLOY]
-        │
-        └── logs\
+        └── [Window settings už sú deployed, fungujú ✅]
 ```
 
 ---
@@ -164,218 +213,90 @@ C:\Deployment\nex-automat\
 
 ### NEX Automat API
 - **Public URL:** https://magerstav-invoices.icc.sk
-- **Endpoints:**
-  - GET /health (public)
-  - POST /invoice (protected, X-API-Key)
-  - GET /stats (protected)
-- **API Key:** magerstav-PWjoMerqzZc-EJZPuT0wN9iBzM8eK_t1Rh-HFZT4IbY
-- **Internal Port:** 8001
-
-### n8n Workflow (ICC Server)
-- **Web UI:** http://localhost:5678
-- **User:** automation@isnex.ai
-- **Workflow:** n8n-SupplierInvoiceEmailLoader
-- **Email:** magerstavinvoice@gmail.com
-- **Status:** Active
+- **Status:** Running ✅
 
 ### PostgreSQL (Mágerstav Server)
 - **Host:** localhost
-- **Port:** 5432
 - **Database:** invoice_staging
 - **User:** postgres
 - **Password:** Nex1968
 
-### SQLite (Mágerstav Server)
-- **Path:** C:\Deployment\nex-automat\apps\supplier-invoice-loader\config\invoices.db
-- **Records:** 9 invoices
-- **Duplicates:** 0
+### Databázy (Development)
+- `C:\NEX\YEARACT\SYSTEM\SQLITE\window_settings.db` - funguje ✅
+- `C:\NEX\YEARACT\SYSTEM\SQLITE\grid_settings.db` - prázdna (implementácia nedokončená)
 
 ---
 
 ## Known Issues
 
-### None - All Issues Resolved ✅
+### 🔴 Kritické (blokujúce)
+- **invoice_list_widget.py je rozbytý** - aplikácia spadne pri štarte
+  - Chýbajúce metódy: `_on_selection_changed()`, `_on_double_clicked()`
+  - Riešenie: Git restore + správna integrácia
 
-Previous issues from v2.0 are all fixed:
-- ✅ Duplicate detection working
-- ✅ Git sync stable
-- ✅ Config files handled properly
+### 🟡 Menšie (nefunkčné features)
+- **Grid settings neukladajú** - databáza je prázdna
+  - Riešenie: Po oprave invoice_list_widget.py by malo fungovať
 
 ---
 
 ## Possible Next Steps
 
-### Option 1: Deploy Quick Search to Production (Mágerstav)
+### Option 1: Dokončiť Grid Settings (PRIORITA)
+1. Git restore `invoice_list_widget.py`
+2. Vytvoriť komplexný script pre integráciu
+3. Otestovať funkčnosť
+4. Commit funkčnej verzie
 
-**Steps:**
-1. Copy modified files from Development → Deployment
-2. Test application startup
-3. Verify quick search functionality
-4. User acceptance testing with Mágerstav
-5. Document for user
+### Option 2: Grid Settings pre invoice items
+- Po dokončení invoice_list gridu
+- Rovnaký prístup pre items grid
 
-**Risk:** Low (thoroughly tested in Development)
-
-### Option 2: Next Customer Deployment (ANDROS)
-
-**Pilot Customers:**
-- ✅ Mágerstav s.r.o. (DEPLOYED)
-- ⏳ ANDROS (Next)
-- ⏳ ICC itself (Internal use)
-
-**Deployment Steps:**
-1. Create new n8n workflow for ANDROS
-2. Setup dedicated email (e.g., androsinvoice@gmail.com)
-3. Configure customer-specific config
-4. Deploy to ANDROS server (or shared server)
-5. Test complete flow
-6. Customer training
-
-### Option 3: NEX Genesis Integration
-
-**Automated Sync:**
-- Sync from PostgreSQL staging to NEX Genesis
-- Bi-directional status tracking
-- Error handling and retry logic
-- Monitoring dashboard
-
-**Requirements:**
-- NEX Genesis API/database access
-- Field mapping (staging → NEX Genesis)
-- Transaction handling
-- Rollback capability
-
-### Option 4: Additional GUI Features
-
-**Possible Features:**
-- Invoice approval workflow
-- Bulk operations (approve/reject multiple)
-- Export to Excel
-- Invoice statistics dashboard
-- Email notifications
-- Audit log viewer
-
-### Option 5: Web Dashboard
-
-**Features:**
-- Web-based invoice viewer (alternative to PyQt5)
-- Real-time statistics
-- Invoice search and filtering
-- Export functionality
-- Multi-user access
-
-**Tech Stack:**
-- Frontend: React/Vue.js
-- Backend: FastAPI (extend existing)
-- Auth: JWT tokens
-- Deployment: Same server or separate
-
----
-
-## Quick Commands
-
-### Deploy Quick Search to Production
-
-```powershell
-# 1. Copy files from Development to Deployment
-Copy-Item "C:\Development\nex-automat\apps\supplier-invoice-editor\src\utils\text_utils.py" `
-          "C:\Deployment\nex-automat\apps\supplier-invoice-editor\src\utils\" -Force
-
-Copy-Item "C:\Development\nex-automat\apps\supplier-invoice-editor\src\ui\widgets\quick_search.py" `
-          "C:\Deployment\nex-automat\apps\supplier-invoice-editor\src\ui\widgets\" -Force
-
-Copy-Item "C:\Development\nex-automat\apps\supplier-invoice-editor\src\ui\widgets\invoice_list_widget.py" `
-          "C:\Deployment\nex-automat\apps\supplier-invoice-editor\src\ui\widgets\" -Force
-
-Copy-Item "C:\Development\nex-automat\apps\supplier-invoice-editor\src\ui\widgets\invoice_items_grid.py" `
-          "C:\Deployment\nex-automat\apps\supplier-invoice-editor\src\ui\widgets\" -Force
-
-Copy-Item "C:\Development\nex-automat\apps\supplier-invoice-editor\src\ui\widgets\__init__.py" `
-          "C:\Deployment\nex-automat\apps\supplier-invoice-editor\src\ui\widgets\" -Force
-
-# 2. Test on Mágerstav server
-cd C:\Deployment\nex-automat\apps\supplier-invoice-editor
-C:\Deployment\nex-automat\venv32\Scripts\python.exe main.py
-```
-
-### Check Production Status
-
-```powershell
-# Service status
-Get-Service NEXAutomat,postgresql-x64-15,CloudflaredMagerstav | Select-Object Name, Status, StartType
-
-# Health check
-curl https://magerstav-invoices.icc.sk/health
-
-# Database stats
-cd C:\Deployment\nex-automat\apps\supplier-invoice-loader\config
-C:\Deployment\nex-automat\venv32\Scripts\python.exe -c "import sqlite3; conn = sqlite3.connect('invoices.db'); cursor = conn.cursor(); cursor.execute('SELECT COUNT(*) FROM invoices'); print(f'Total: {cursor.fetchone()[0]}'); cursor.execute('SELECT COUNT(*) FROM invoices GROUP BY file_hash HAVING COUNT(*) > 1'); print(f'Duplicates: {len(cursor.fetchall())}')"
-```
+### Option 3: Deployment do Production
+- Ak grid settings fungujú
+- Deploy do Mágerstav
+- User testing
 
 ---
 
 ## Success Criteria
 
-### Must Have ✅
-- [x] Production deployment successful (v2.0)
-- [x] All services running and auto-start
-- [x] Duplicate detection working
-- [x] Health check accessible
-- [x] Database integrity verified
-- [x] Desktop application deployed
-- [x] Quick search implemented in Development
+### Must Have (tento chat)
+- [ ] `invoice_list_widget.py` funkčný - aplikácia sa spustí
+- [ ] Grid settings implementované správne
+- [ ] Test: Zmena šírky stĺpca → ulož → otvor → šírka zostala
+- [ ] Databáza `grid_settings.db` obsahuje záznamy
 
-### Should Have - Quick Search Deployment
-- [ ] Quick search deployed to Production
-- [ ] User testing completed
-- [ ] User documentation delivered
-- [ ] Performance verified in Production
+### Should Have
+- [ ] Test: Drag-and-drop stĺpca → poradie zostane
+- [ ] Test: Zmena aktívneho stĺpca → zostane
 
-### Nice to Have (Future)
-- [ ] Monitoring dashboard
-- [ ] Automated alerts
-- [ ] Performance metrics baseline
-- [ ] Automated backups
-- [ ] Second customer deployed
+### Nice to Have
+- [ ] Dokumentácia pre grid settings
+- [ ] Deployment do Production
 
 ---
 
 ## Documentation References
 
-### Customer Documentation
-- **MAGERSTAV_ONBOARDING_GUIDE.md** - User guide, FAQ, contacts
+### Súbory z predchádzajúcej session
+- **SESSION_NOTES.md** - kompletné poznámky z poslednej session
+- **PROJECT_MANIFEST.json** - štruktúra projektu
 
-### Technical Documentation
-- **SESSION_NOTES.md** - Complete session history including quick search
-- **PROJECT_MANIFEST.json** - Project structure
-- **n8n-SupplierInvoiceEmailLoader.json** - Workflow backup
-
-### Code Documentation
-- Inline comments in all quick search files
-- Docstrings for all public methods
-- Type hints where applicable
+### Kód referencie
+- `window_settings.py` - funkčný príklad (použiť ako vzor)
+- `grid_settings.py` - hotové funkcie, len integrovať
 
 ---
 
-## Contact Information
-
-**Technical Support:**
-- Email: rausch@icc.sk
-- Error notifications: Automatic to rausch@icc.sk
-
-**Customer:**
-- Company: Mágerstav s.r.o.
-- Email endpoint: magerstavinvoice@gmail.com
+**Session Type:** Fix Grid Settings Integration  
+**Expected Focus:** Oprava invoice_list_widget.py  
+**Status:** ⚠️ **BROKEN - NEEDS IMMEDIATE FIX**  
+**Priority:** 🔴 **HIGH**
 
 ---
 
-**Session Type:** Quick Search Deployment / Next Feature / Next Customer  
-**Expected Focus:** Based on user request  
-**Status:** ✅ **QUICK SEARCH READY - CHOOSE NEXT TASK**  
-
----
-
-**Last Updated:** 2025-12-05 14:30  
-**Previous Session:** Quick Search Implementation  
-**Version:** v2.1 + Quick Search  
-**Next Milestone:** Production Deployment or Next Feature
+**Last Updated:** 2025-12-05 20:10  
+**Previous Session:** Window & Grid Settings Implementation  
+**Version:** v2.1 (Window Settings OK, Grid Settings Broken)  
+**Next Milestone:** Funkčné Grid Settings
