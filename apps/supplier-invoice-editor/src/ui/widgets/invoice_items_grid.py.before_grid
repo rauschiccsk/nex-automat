@@ -8,12 +8,6 @@ from PyQt5.QtCore import Qt, QAbstractTableModel, QVariant, QModelIndex, pyqtSig
 from decimal import Decimal, InvalidOperation
 
 from .quick_search import QuickSearchContainer, QuickSearchController, GreenHeaderView
-from utils.constants import WINDOW_MAIN, GRID_INVOICE_ITEMS
-from utils.grid_settings import (
-    load_column_settings, save_column_settings,
-    load_grid_settings, save_grid_settings
-)
-
 
 
 class InvoiceItemsModel(QAbstractTableModel):
@@ -244,9 +238,6 @@ class InvoiceItemsGrid(QWidget):
         self._setup_ui()
         self._connect_signals()
 
-
-        # Load grid settings
-        self._load_grid_settings()
     def _setup_ui(self):
         """Setup widget UI"""
         layout = QVBoxLayout(self)
@@ -294,11 +285,6 @@ class InvoiceItemsGrid(QWidget):
 
         self.logger.info("Invoice items grid UI setup complete (with quick search)")
 
-
-        # Connect header signals for grid settings
-        header = self.table_view.horizontalHeader()
-        header.sectionResized.connect(self._on_column_resized)
-        header.sectionMoved.connect(self._on_column_moved)
     def _connect_signals(self):
         """Connect signals"""
         self.model.items_changed.connect(self.items_changed.emit)
@@ -317,44 +303,3 @@ class InvoiceItemsGrid(QWidget):
     def get_items(self):
         """Get current items"""
         return self.model.get_items()
-
-    def _load_grid_settings(self):
-        """Načíta a aplikuje uložené nastavenia gridu."""
-        column_settings = load_column_settings(WINDOW_MAIN, GRID_INVOICE_ITEMS)
-
-        if column_settings:
-            header = self.table_view.horizontalHeader()
-            for col_idx in range(self.model.columnCount()):
-                col_name = self.model.COLUMNS[col_idx][0]
-                col_settings = next((s for s in column_settings if s.get('column_name') == col_name), None)
-                if col_settings:
-                    if 'width' in col_settings:
-                        header.resizeSection(col_idx, col_settings['width'])
-                    if 'visual_index' in col_settings:
-                        header.moveSection(header.visualIndex(col_idx), col_settings['visual_index'])
-                    if 'visible' in col_settings:
-                        self.table_view.setColumnHidden(col_idx, not col_settings['visible'])
-
-    def _save_grid_settings(self):
-        """Uloží aktuálne nastavenia gridu."""
-        header = self.table_view.horizontalHeader()
-        column_settings = []
-        for col_idx in range(self.model.columnCount()):
-            col_name = self.model.COLUMNS[col_idx][0]
-            column_settings.append({
-                'column_name': col_name,
-                'width': header.sectionSize(col_idx),
-                'visual_index': header.visualIndex(col_idx),
-                'visible': not self.table_view.isColumnHidden(col_idx)
-            })
-        save_column_settings(WINDOW_MAIN, GRID_INVOICE_ITEMS, column_settings)
-        save_grid_settings(WINDOW_MAIN, GRID_INVOICE_ITEMS, {'active_column': None})
-
-    def _on_column_resized(self, logical_index, old_size, new_size):
-        """Handler pre zmenu šírky stĺpca."""
-        self._save_grid_settings()
-
-    def _on_column_moved(self, logical_index, old_visual_index, new_visual_index):
-        """Handler pre presunutie stĺpca."""
-        self._save_grid_settings()
-
