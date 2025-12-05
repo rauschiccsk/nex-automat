@@ -2,9 +2,9 @@
 # -*- coding: utf-8 -*-
 """
 Generate Projects Access - NEX Automat Monorepo
-Location: C:/Development/nex-automat/generate_projects_access.py
+Location: C:/Development/nex-automat/scripts/generate_projects_access.py
 
-Vytvorí hierarchické JSON manifesty:
+Vytvárí hierarchické JSON manifesty:
 - docs/PROJECT_MANIFEST.json - root overview
 - docs/apps/{app_name}.json - per-app manifests
 - docs/packages/{package_name}.json - per-package manifests
@@ -20,6 +20,10 @@ MONOREPO_ROOT = Path("C:/Development/nex-automat")
 DOCS_DIR = MONOREPO_ROOT / "docs"
 APPS_MANIFEST_DIR = DOCS_DIR / "apps"
 PACKAGES_MANIFEST_DIR = DOCS_DIR / "packages"
+
+# GitHub Configuration
+GITHUB_REPO = "rauschiccsk/nex-automat"
+GITHUB_BRANCH = "develop"  # Changed from "main" to "develop"
 
 # Exclude patterns
 EXCLUDE_DIRS = {
@@ -73,7 +77,7 @@ def scan_files(root: Path, relative_to: Path = None) -> list[dict]:
                 "name": item.name,
                 "size": item.stat().st_size,
                 "extension": item.suffix,
-                "github_raw": f"https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/{str(rel_path).replace(chr(92), '/')}"
+                "github_raw": f"https://raw.githubusercontent.com/{GITHUB_REPO}/{GITHUB_BRANCH}/{str(rel_path).replace(chr(92), '/')}"
             }
 
             # Python-specific info
@@ -269,7 +273,7 @@ def get_documentation_files() -> dict:
             "path": "docs/SESSION_NOTES.md",
             "exists": True,
             "size": session_notes.stat().st_size,
-            "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/docs/SESSION_NOTES.md"
+            "github_raw": f"https://raw.githubusercontent.com/{GITHUB_REPO}/{GITHUB_BRANCH}/docs/SESSION_NOTES.md"
         }
 
     # Ostatné kľúčové dokumenty
@@ -286,7 +290,7 @@ def get_documentation_files() -> dict:
                 "path": f"docs/{doc_path}",
                 "description": description,
                 "exists": True,
-                "github_raw": f"https://raw.githubusercontent.com/rauschiccsk/nex-automat/main/docs/{doc_path}"
+                "github_raw": f"https://raw.githubusercontent.com/{GITHUB_REPO}/{GITHUB_BRANCH}/docs/{doc_path}"
             }
 
     return docs
@@ -399,6 +403,7 @@ def main():
     print("=" * 70)
     print()
     print(f"Monorepo: {MONOREPO_ROOT}")
+    print(f"GitHub:   {GITHUB_REPO} (branch: {GITHUB_BRANCH})")
     print()
 
     # Create manifest directories
@@ -475,14 +480,16 @@ def main():
     print(f"🐍 Python files: {root_manifest['statistics']['python_files']}")
     print(f"📝 Total lines: {root_manifest['statistics']['total_lines']:,}")
     print()
+    print(f"🌿 Branch: {GITHUB_BRANCH}")
+    print()
     print("=" * 70)
     print("USAGE IN CLAUDE:")
     print("=" * 70)
     print("# Load root manifest:")
-    print("web_fetch('https://raw.githubusercontent.com/.../docs/PROJECT_MANIFEST.json')")
+    print(f"web_fetch('https://raw.githubusercontent.com/{GITHUB_REPO}/{GITHUB_BRANCH}/docs/PROJECT_MANIFEST.json')")
     print()
     print("# Load specific app:")
-    print("web_fetch('https://raw.githubusercontent.com/.../docs/apps/supplier-invoice-loader.json')")
+    print(f"web_fetch('https://raw.githubusercontent.com/{GITHUB_REPO}/{GITHUB_BRANCH}/docs/apps/supplier-invoice-loader.json')")
     print()
     print("=" * 70)
 

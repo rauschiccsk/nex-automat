@@ -99,34 +99,11 @@ def load_window_settings(window_name: str, user_id: Optional[str] = None) -> Opt
         conn.close()
         
         if row:
-            x, y, width, height = row[0], row[1], row[2], row[3]
-
-            # Validácia pozície okna - musí byť viditeľné na obrazovke
-            MIN_X = -50  # Povoliť čiastočne mimo obrazovky (pre multi-monitor)
-            MIN_Y = 0    # Y musí byť >= 0 (hlavička musí byť viditeľná)
-            MIN_WIDTH = 400
-            MIN_HEIGHT = 300
-            MAX_WIDTH = 3840  # 4K rozlíšenie
-            MAX_HEIGHT = 2160
-
-            # Kontrola hraníc
-            if x < MIN_X or y < MIN_Y:
-                print(f"⚠️  Invalid position: x={x}, y={y} (outside screen bounds)")
-                return None
-
-            if width < MIN_WIDTH or width > MAX_WIDTH:
-                print(f"⚠️  Invalid width: {width} (must be {MIN_WIDTH}-{MAX_WIDTH})")
-                return None
-
-            if height < MIN_HEIGHT or height > MAX_HEIGHT:
-                print(f"⚠️  Invalid height: {height} (must be {MIN_HEIGHT}-{MAX_HEIGHT})")
-                return None
-
             return {
-                'x': x,
-                'y': y,
-                'width': width,
-                'height': height
+                'x': row[0],
+                'y': row[1],
+                'width': row[2],
+                'height': row[3]
             }
         return None
         

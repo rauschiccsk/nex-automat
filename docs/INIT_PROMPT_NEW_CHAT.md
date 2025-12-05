@@ -1,70 +1,199 @@
-# Init Prompt - NEX Automat v2.1 Post-Grid Settings
+# Init Prompt - NEX Automat v2.1 Testing & Cleanup
 
-**Project:** NEX Automat v2.0 - Supplier Invoice Processing  
+**Project:** NEX Automat v2.0 - Supplier Invoice Editor  
 **Customer:** Mágerstav s.r.o.  
-**Current Version:** v2.1 (Production-ready)  
-**Status:** ✅ Grid Settings KOMPLETNÉ a funkčné  
-**Last Session:** Grid Settings Implementation (2025-12-05)  
-**This Session:** Deployment / Next Features
+**Current Version:** v2.1 (Grid Settings + Fixes)  
+**Status:** ⚠️ **NEEDS TESTING & CLEANUP**  
+**Last Session:** Active Column & Window Position Fixes (2025-12-05)  
+**This Session:** Testing, Database Cleanup, Git Commit
+
+---
+
+## CRITICAL - Must Do First! ⚠️
+
+**Before ANY other work, execute cleanup script:**
+
+```powershell
+cd C:\Development\nex-automat
+python scripts\04_clean_invalid_window_positions.py
+```
+
+**Why:** Window settings database contains invalid position (x=-1827) that prevents proper window positioning.
 
 ---
 
 ## Quick Context
 
-**NEX Automat v2.1** je kompletne funkčná aplikácia s grid settings pre oba hlavné widgety.
+**V minulej session boli OPRAVENÉ 3 problémy:**
 
-### Čo funguje ✅
+### 1. ✅ Manifest System Fixed
+- **Problém:** Claude nemohol načítať súbory (404 error)
+- **Príčina:** Manifest mal `/main/` branch, projekt používa `/develop/`
+- **Riešenie:** Upravený `scripts/generate_projects_access.py` s parametrom branch
+- **Status:** VYRIEŠENÉ, manifest funguje
 
-#### Window Settings
-- Ukladanie pozície a veľkosti okna
-- Per-user (Windows username)
-- ESC klávesa zatvorí aplikáciu
-- Automatické načítanie pri štarte
+### 2. ✅ Active Column Persistence Fixed  
+- **Problém:** Aktívny stĺpec sa nezapamätal po reštarte
+- **Príčina:** Nesprávny názov atribútu (`quick_search` vs `search_controller`)
+- **Riešenie:** Script `01_fix_active_column_persistence.py` opravil 2 miesta
+- **Status:** OPRAVENÉ, čaká na testing
 
-#### Grid Settings - Invoice List
-- Ukladanie šírky stĺpcov
-- Ukladanie poradia stĺpcov (drag-and-drop)
-- Ukladanie viditeľnosti stĺpcov
-- Automatické ukladanie pri zmene
-- Per-user databáza
-
-#### Grid Settings - Invoice Items
-- Ukladanie šírky stĺpcov položiek faktúr
-- Ukladanie poradia stĺpcov
-- Ukladanie viditeľnosti stĺpcov
-- Automatické ukladanie pri zmene
-
-#### Základná funkcionalita
-- Quick search s zeleným headerom
-- Sorting
-- Double-click na faktúru otvorí editor
-- Invoice items editable grid
-- PostgreSQL integrácia
+### 3. ✅ Window Position Validation Added
+- **Problém:** Okno sa mohlo posunúť mimo obrazovky
+- **Príčina:** Chýbala validácia pozície v `window_settings.py`
+- **Riešenie:** Script `02_fix_window_position_validation.py` pridal validáciu
+- **Status:** OPRAVENÉ, ale databáza obsahuje nevalidný záznam
 
 ---
 
-## Aktuálny stav projektu
+## Current Status
 
 ### Development (ICC Server)
 **Location:** `C:\Development\nex-automat\apps\supplier-invoice-editor`
 
-**Status:** ✅ Všetko funguje
-- Window settings: ✅
-- Grid settings (invoice list): ✅
-- Grid settings (invoice items): ✅
-- Quick search: ✅
-- Database: ✅
+**Opravy aplikované:** ✅ ÁNO
+- `invoice_list_widget.py` - active column fix
+- `window_settings.py` - validation added
+- `generate_projects_access.py` - branch parameter
 
-**Databázy:**
-- `C:\NEX\YEARACT\SYSTEM\SQLITE\window_settings.db` ✅
-- `C:\NEX\YEARACT\SYSTEM\SQLITE\grid_settings.db` ✅
+**Testing:** ❌ NIE (čaká na cleanup)
+
+**Database problém:**
+```
+C:\NEX\YEARACT\SYSTEM\SQLITE\window_settings.db
+└─ Záznam ID 34: x=-1827 (NEVALIDNÉ)
+```
 
 ### Production (Mágerstav Server)
 **Location:** `C:\Deployment\nex-automat\apps\supplier-invoice-editor`
 
-**Status:** ⏸️ Ešte nedeploynuté
-- Window settings: Deployed v minulosti
-- Grid settings: ❌ Čaká na deployment
+**Status:** ⏸️ Čaká na development testing a Git commit
+
+---
+
+## Priority Tasks - In Order!
+
+### 🔴 PRIORITY 1: Database Cleanup (BLOCKING)
+
+**Pred AKÝMKOĽVEK testovaním:**
+
+```powershell
+cd C:\Development\nex-automat
+python scripts\04_clean_invalid_window_positions.py
+```
+
+**Script vymaže:**
+- Nevalidný záznam s x=-1827
+- Umožní uložiť novú validnú pozíciu
+
+**Očakávaný output:**
+```
+✅ Vymazaných 1 záznamov
+✅ Zostalo 0
+```
+
+---
+
+### 🟡 PRIORITY 2: Testing (After Cleanup)
+
+#### Test A: Window Position Persistence
+
+1. **Spusti aplikáciu:**
+   ```powershell
+   cd C:\Development\nex-automat\apps\supplier-invoice-editor
+   C:\Development\nex-automat\venv32\Scripts\python.exe main.py
+   ```
+
+2. **Test scenario:**
+   - Presuň okno na inú pozíciu
+   - Zmeň veľkosť okna
+   - Zatvor aplikáciu (ESC)
+   - Znovu spusti aplikáciu
+   - **Overiť:** Pozícia a veľkosť zostali? ✅/❌
+
+3. **Diagnostika (ak nefunguje):**
+   ```powershell
+   python scripts\03_check_window_settings_db.py
+   ```
+
+#### Test B: Active Column Persistence
+
+1. **V aplikácii:**
+   - Použite šípky ← → na zmenu aktívneho stĺpca
+   - Skontrolujte že sa zmení zelený header
+   - Zatvorte aplikáciu (ESC)
+   - Znovu spustite aplikáciu
+   - **Overiť:** Aktívny stĺpec zostal rovnaký? ✅/❌
+
+2. **Diagnostika (ak nefunguje):**
+   ```powershell
+   # Pozri logs v konzole - hľadaj "Loaded active column" a "Saving active column"
+   ```
+
+#### Test C: Grid Settings (Regression Test)
+
+1. **Overenie že stále funguje:**
+   - Zmeň šírku stĺpcov v invoice list
+   - Zatvor a znovu otvor aplikáciu
+   - **Overiť:** Šírky stĺpcov zostali? ✅/❌
+
+---
+
+### 🟢 PRIORITY 3: Git Commit (After Successful Testing)
+
+**Súbory na commit:**
+
+```
+Modified:
+  scripts/generate_projects_access.py
+  apps/supplier-invoice-editor/src/ui/widgets/invoice_list_widget.py
+  apps/supplier-invoice-editor/src/utils/window_settings.py
+
+New:
+  scripts/01_fix_active_column_persistence.py
+  scripts/02_fix_window_position_validation.py
+  scripts/03_check_window_settings_db.py
+  scripts/04_clean_invalid_window_positions.py
+  docs/apps/supplier-invoice-editor.json (updated manifest)
+```
+
+**Commit message je v artifacts nižšie.**
+
+---
+
+### 🔵 PRIORITY 4: Production Deployment (After Git Push)
+
+**Na Mágerstav serveri:**
+
+```powershell
+cd C:\Deployment\nex-automat
+git pull origin develop
+
+# Vyčistiť production database
+python scripts\04_clean_invalid_window_positions.py
+
+# Testovať
+cd apps\supplier-invoice-editor
+python main.py
+```
+
+---
+
+## Available Utility Scripts
+
+### Script 03: Database Inspector
+```powershell
+python scripts\03_check_window_settings_db.py
+```
+**Purpose:** Zobrazí obsah window_settings databázy  
+**Use when:** Debugging ukladania/načítania okna
+
+### Script 04: Database Cleaner
+```powershell
+python scripts\04_clean_invalid_window_positions.py
+```
+**Purpose:** Vymaže nevalidné pozície okien  
+**Use when:** Okno mimo obrazovky alebo iné problémy s pozíciou
 
 ---
 
@@ -72,421 +201,179 @@
 
 ```
 C:\Development\nex-automat\
-├── apps\
-│   └── supplier-invoice-editor\
-│       ├── src\
-│       │   ├── utils\
-│       │   │   ├── constants.py          [OK ✅ - GRID_INVOICE_LIST, GRID_INVOICE_ITEMS]
-│       │   │   ├── window_settings.py    [OK ✅ - v2.1]
-│       │   │   ├── grid_settings.py      [OK ✅ - v2.1, 264 lines]
-│       │   │   └── __init__.py           [OK ✅]
-│       │   ├── ui\
-│       │   │   ├── main_window.py        [OK ✅ - window settings integrated]
-│       │   │   └── widgets\
-│       │   │       ├── invoice_list_widget.py  [OK ✅ - 336 lines, grid settings]
-│       │   │       ├── invoice_items_grid.py   [OK ✅ - 360 lines, grid settings]
-│       │   │       └── quick_search.py         [OK ✅]
-│       │   ├── business\
-│       │   │   └── invoice_service.py    [OK ✅]
-│       │   └── database\
-│       │       └── postgres_client.py    [OK ✅]
-│       ├── main.py                       [OK ✅]
-│       ├── config\config.yaml            [OK ✅]
-│       └── scripts\
-│           ├── 01-20_*.py                [20 scripts z grid settings session]
-│           └── SESSION_NOTES.md          [Kompletná dokumentácia]
-```
-
----
-
-## Grid Settings Implementation Details
-
-### Invoice List Widget (invoice_list_widget.py)
-
-**Pridané metódy:**
-```python
-def _load_grid_settings(self):
-    """Načíta column settings z databázy a aplikuje ich."""
-    column_settings = load_column_settings(WINDOW_MAIN, GRID_INVOICE_LIST)
-    if column_settings:
-        for col_idx in range(self.model.columnCount()):
-            col_name = self.model.COLUMNS[col_idx][0]
-            col_settings = next((s for s in column_settings if s.get('column_name') == col_name), None)
-            if col_settings:
-                header.resizeSection(col_idx, col_settings['width'])
-                # ... visual_index, visible
-
-def _save_grid_settings(self):
-    """Uloží column settings do databázy."""
-    column_settings = []
-    for col_idx in range(self.model.columnCount()):
-        col_name = self.model.COLUMNS[col_idx][0]
-        column_settings.append({
-            'column_name': col_name,
-            'width': header.sectionSize(col_idx),
-            'visual_index': header.visualIndex(col_idx),
-            'visible': not self.table_view.isColumnHidden(col_idx)
-        })
-    save_column_settings(WINDOW_MAIN, GRID_INVOICE_LIST, column_settings)
-
-def _on_column_resized(self, logical_index, old_size, new_size):
-    """Automaticky uloží pri zmene šírky."""
-    self._save_grid_settings()
-
-def _on_column_moved(self, logical_index, old_visual_index, new_visual_index):
-    """Automaticky uloží pri presunutí."""
-    self._save_grid_settings()
-```
-
-**Pripojené signály v _setup_ui():**
-```python
-header = self.table_view.horizontalHeader()
-header.sectionResized.connect(self._on_column_resized)
-header.sectionMoved.connect(self._on_column_moved)
-```
-
-**Volanie v __init__:**
-```python
-def __init__(self, invoice_service):
-    super().__init__()
-    self.invoice_service = invoice_service
-    self._setup_ui()
-    self._connect_signals()
-    
-    # Load grid settings
-    self._load_grid_settings()  # ← Pridané
-```
-
-### Invoice Items Grid (invoice_items_grid.py)
-
-**Rovnaká implementácia**, ale:
-- Konštanta: `GRID_INVOICE_ITEMS`
-- Model má 3-tuple COLUMNS: `(name, field, editable)`
-- Extrakcia názvu: `col_name = self.model.COLUMNS[col_idx][0]`
-
----
-
-## Database Schema
-
-### grid_settings.db
-
-**Table: grid_column_settings**
-```sql
-CREATE TABLE grid_column_settings (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id TEXT NOT NULL,
-    window_name TEXT NOT NULL,
-    grid_name TEXT NOT NULL,
-    column_name TEXT NOT NULL,
-    width INTEGER,
-    visual_index INTEGER,
-    visible INTEGER DEFAULT 1,
-    updated_at TEXT NOT NULL,
-    UNIQUE(user_id, window_name, grid_name, column_name)
-);
-```
-
-**Table: grid_settings**
-```sql
-CREATE TABLE grid_settings (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id TEXT NOT NULL,
-    window_name TEXT NOT NULL,
-    grid_name TEXT NOT NULL,
-    setting_key TEXT NOT NULL,
-    setting_value TEXT,
-    updated_at TEXT NOT NULL,
-    UNIQUE(user_id, window_name, grid_name, setting_key)
-);
+├── scripts\
+│   ├── generate_projects_access.py      [MODIFIED - develop branch]
+│   ├── 01_fix_active_column_persistence.py      [NEW]
+│   ├── 02_fix_window_position_validation.py     [NEW]
+│   ├── 03_check_window_settings_db.py           [NEW]
+│   └── 04_clean_invalid_window_positions.py     [NEW]
+│
+├── apps\supplier-invoice-editor\
+│   ├── src\
+│   │   ├── ui\
+│   │   │   ├── main_window.py                   [OK]
+│   │   │   └── widgets\
+│   │   │       ├── invoice_list_widget.py       [MODIFIED]
+│   │   │       ├── invoice_items_grid.py        [OK]
+│   │   │       └── quick_search.py              [OK]
+│   │   └── utils\
+│   │       ├── window_settings.py               [MODIFIED]
+│   │       ├── grid_settings.py                 [OK]
+│   │       └── constants.py                     [OK]
+│   └── main.py                                  [OK]
+│
+└── docs\
+    └── apps\
+        └── supplier-invoice-editor.json         [UPDATED]
 ```
 
 ---
 
 ## Connection Details
 
-### NEX Automat API
-- **Public URL:** https://magerstav-invoices.icc.sk
-- **Status:** Running ✅
+### Development Server (ICC)
+- **Path:** C:\Development\nex-automat
+- **Python:** C:\Development\nex-automat\venv32\Scripts\python.exe
+- **Database:** C:\NEX\YEARACT\SYSTEM\SQLITE\
+- **Git Branch:** develop
 
-### PostgreSQL (Mágerstav Server)
+### Production Server (Mágerstav)
+- **Path:** C:\Deployment\nex-automat
+- **Database:** C:\NEX\YEARACT\SYSTEM\SQLITE\
+- **Service:** NEXAutomat (pre supplier-invoice-loader)
+
+### PostgreSQL Database (Mágerstav)
 - **Host:** localhost
 - **Database:** invoice_staging
 - **User:** postgres
 - **Password:** Nex1968
-- **Status:** Connected ✅
 
-### SQLite Databases (Local)
-- **Window Settings:** `C:\NEX\YEARACT\SYSTEM\SQLITE\window_settings.db` ✅
-- **Grid Settings:** `C:\NEX\YEARACT\SYSTEM\SQLITE\grid_settings.db` ✅
+### GitHub Repository
+- **URL:** https://github.com/rauschiccsk/nex-automat
+- **Active Branch:** develop
+- **Stable Branch:** main
 
 ---
 
-## Known Limitations
+## Known Issues & Limitations
 
-### 1. Active Column Setting
-- **Status:** Implementované ukladanie, ale nie načítanie
-- **Reason:** Quick search nemá `set_active_column()` metódu
-- **Impact:** Low - nie je kritické
-- **Future:** Implementovať ak bude potreba
+### Issue 1: Multi-Monitor Edge Case
+- **Problém:** Validácia MIN_X = -50 môže byť nedostatočná pre wide multi-monitor setup
+- **Workaround:** Ak okno zmizne, vymazať databázu
+- **Future Fix:** Detekcia dostupných monitorov a dynamická validácia
 
-### 2. Column Visibility UI
-- **Status:** Backend implementovaný, UI chýba
-- **Reason:** Nie je context menu na header
-- **Impact:** Low - používateľ zatiaľ neskrýva stĺpce
-- **Future:** Pridať context menu ak bude požiadavka
-
-### 3. Per-User Only
-- **Status:** Funguje len per-user
-- **Reason:** Design decision
-- **Impact:** None - je to feature, nie bug
-- **Future:** Možnosť global/shared settings ak bude potreba
+### Issue 2: Aktívny stĺpec pri prázdnej tabuľke
+- **Problém:** Ak tabuľka nemá dáta, aktívny stĺpec sa nemusí zobraziť správne
+- **Impact:** Low - v produkcii vždy sú dáta
+- **Future Fix:** Pridať check pre prázdnu tabuľku
 
 ---
 
 ## Testing Checklist
 
-### Test 1: Window Settings ✅
-- [x] Presunúť okno na inú pozíciu
-- [x] Zmeniť veľkosť okna
-- [x] Zatvoriť (ESC)
-- [x] Znovu spustiť
-- [x] Pozícia a veľkosť zostali
+### ✅ Completed (Previous Session)
+- [x] Manifest system fixed
+- [x] Active column fix applied
+- [x] Window validation added
+- [x] Database inspector created
+- [x] Database cleaner created
 
-### Test 2: Invoice List Grid Settings ✅
-- [x] Spustiť aplikáciu
-- [x] Zmeniť šírku stĺpca "Invoice Number"
-- [x] Zatvoriť aplikáciu
-- [x] Znovu spustiť
-- [x] Šírka zostala
-
-### Test 3: Invoice Items Grid Settings ✅
-- [x] Double-click na faktúru
-- [x] Zmeniť šírku stĺpca "Názov"
-- [x] Zatvoriť editor
-- [x] Znovu otvoriť faktúru
-- [x] Šírka zostala
+### ⏳ TODO (This Session)
+- [ ] Run database cleanup script
+- [ ] Test window position persistence
+- [ ] Test active column persistence
+- [ ] Test grid settings (regression)
+- [ ] Git commit
+- [ ] Git push
+- [ ] Production deployment
+- [ ] Production testing
 
 ---
 
-## Possible Next Steps
+## Troubleshooting Guide
 
-### Option 1: Deployment do Production 🎯 PRIORITA
-**Dôvod:** Grid settings sú hotové a otestované
+### Problém: Okno mimo obrazovky
+**Riešenie:**
+```powershell
+del "C:\NEX\YEARACT\SYSTEM\SQLITE\window_settings.db"
+```
 
-**Kroky:**
-1. Git commit zmien
-2. Push do repository
-3. Deploy do Mágerstav server
-4. Production testing
-5. User feedback
+### Problém: Aktívny stĺpec sa nezapamätá
+**Diagnostika:**
+1. Pozri console output - hľadaj "Loaded active column" a "Saving active column"
+2. Over databázu: `python scripts\03_check_window_settings_db.py`
+3. Over že `search_controller` existuje v `invoice_list_widget.py`
 
-**Odhadovaný čas:** 30-60 minút
+### Problém: Šírky stĺpcov sa nezapamätajú
+**Diagnostika:**
+1. Over že existuje: `C:\NEX\YEARACT\SYSTEM\SQLITE\grid_settings.db`
+2. Over že column_settings tabuľka má záznamy
+3. Skontroluj logy v konzole
 
-### Option 2: Active Column Persistence
-**Dôvod:** Dokončiť feature
+### Problém: Manifest nemôže načítať súbory
+**Riešenie:**
+1. Over že repository je PUBLIC na GitHub
+2. Over že branch existuje: `git branch -r`
+3. Vygeneruj nový manifest: `python scripts\generate_projects_access.py`
 
-**Kroky:**
-1. Pridať `set_active_column()` do QuickSearchController
-2. Implementovať načítanie v `_load_grid_settings()`
-3. Testovanie
+---
 
-**Odhadovaný čas:** 1 hodina
+## Next Features (Backlog)
 
-### Option 3: Column Visibility UI
-**Dôvod:** User-friendly feature
+**Po úspešnom deploymente v2.1:**
 
-**Kroky:**
-1. Pridať context menu na header (right-click)
-2. Show/Hide checkboxes pre stĺpce
-3. Integrácia s grid_settings
-4. Testovanie
+1. **Column Visibility UI**
+   - Right-click context menu na header
+   - Show/Hide checkboxes
+   - Save to grid_settings
 
-**Odhadovaný čas:** 2 hodiny
+2. **Reset Settings Button**
+   - Toolbar button "Reset nastavenia"
+   - Vymaže databázy
+   - Reštartuje aplikáciu
 
-### Option 4: Dokumentácia pre používateľov
-**Dôvod:** User guide
+3. **Settings Export/Import**
+   - Export nastavení do JSON
+   - Import z JSON
+   - Zdieľanie medzi používateľmi
 
-**Kroky:**
-1. Screenshot aplikácie
-2. Návod na používanie grid settings
-3. FAQ
-4. PDF export
-
-**Odhadovaný čas:** 1 hodina
-
-### Option 5: Nová funkcionalita
-**Možnosti:**
-- Export do Excel/PDF
-- Batch operations
-- Advanced filtering
-- Email integration
+4. **Global Settings Option**
+   - Toggle: Per-user / Global (všetci používatelia)
+   - Admin može nastaviť default pre všetkých
 
 ---
 
 ## Important Notes
 
-### Grid Settings Technical Details
-
-**Formát dát pre save_column_settings():**
+### Window Settings Validácia
 ```python
-List[Dict[str, Any]] = [
-    {
-        'column_name': 'ID',          # Povinné!
-        'width': 60,
-        'visual_index': 0,
-        'visible': True
-    },
-    ...
-]
+MIN_X = -50    # Povoliť čiastočne mimo (multi-monitor)
+MIN_Y = 0      # Hlavička MUSÍ byť viditeľná
+MIN_WIDTH = 400
+MIN_HEIGHT = 300
+MAX_WIDTH = 3840   # 4K
+MAX_HEIGHT = 2160
 ```
 
-**NEPOUŽIVAŤ dict formát:**
-```python
-# ❌ NESPRÁVNE
-{'ID': {'width': 60, ...}}
+### Grid Settings - Two Databases
+1. **window_settings.db** - pozície okien
+2. **grid_settings.db** - grid nastavenia (šírky, poradie, viditeľnosť, aktívny stĺpec)
 
-# ✅ SPRÁVNE
-[{'column_name': 'ID', 'width': 60, ...}]
-```
-
-### Model Compatibility
-
-**InvoiceListModel:**
-```python
-COLUMNS = [
-    ('ID', 'id'),
-    ('Invoice Number', 'invoice_number'),
-    ...
-]
-# Extrakcia: col_name = COLUMNS[idx][0]
-```
-
-**InvoiceItemsModel:**
-```python
-COLUMNS = [
-    ('PLU', 'plu_code', False),           # (name, field, editable)
-    ('Názov', 'item_name', True),
-    ...
-]
-# Extrakcia: col_name = COLUMNS[idx][0]
-```
-
-### Import Pattern
-
-**Top-level importy (začiatok súboru):**
-```python
-from utils.constants import WINDOW_MAIN, GRID_INVOICE_LIST
-from utils.grid_settings import (
-    load_column_settings, save_column_settings,
-    load_grid_settings, save_grid_settings
-)
-```
-
-**NIE inline importy vo funkciách!**
+### Quick Search - Arrow Keys
+- **← →** Change active column
+- **↑ ↓** Move selection + clear search
+- **ESC** Close application
 
 ---
 
-## Success Criteria
-
-### Must Have (už splnené ✅)
-- [x] Window settings fungujú
-- [x] Grid settings pre invoice list
-- [x] Grid settings pre invoice items
-- [x] Automatické ukladanie
-- [x] Per-user separation
-- [x] Všetky testy prešli
-
-### Should Have (budúce)
-- [ ] Production deployment
-- [ ] User documentation
-- [ ] Active column persistence
-
-### Nice to Have (budúce)
-- [ ] Column visibility UI
-- [ ] Global/shared settings
-- [ ] Export/import settings
-- [ ] Reset to default button
+**Session Type:** Testing, Cleanup & Deployment  
+**Critical Path:** Cleanup → Test → Commit → Deploy  
+**Status:** ⚠️ **BLOCKED ON DATABASE CLEANUP**  
+**Next Action:** 🔴 **RUN SCRIPT 04 FIRST!**
 
 ---
 
-## Deployment Checklist
-
-### Pre-Deployment
-- [x] Development testing completed
-- [x] All bugs fixed
-- [x] Code reviewed
-- [ ] Git commit created
-- [ ] Changes documented
-
-### Deployment
-- [ ] Backup Production database
-- [ ] Deploy new code to Production
-- [ ] Run database migrations (if any)
-- [ ] Test on Production
-- [ ] Monitor logs
-
-### Post-Deployment
-- [ ] User acceptance testing
-- [ ] Collect feedback
-- [ ] Monitor for issues
-- [ ] Update documentation
-
----
-
-## Git Information
-
-**Repository:** (pravdepodobne GitHub, nie je špecifikované v session)
-
-**Last Commit:** Neznámy (pred grid settings session)
-
-**Pending Changes:**
-- `src/ui/widgets/invoice_list_widget.py` (modified)
-- `src/ui/widgets/invoice_items_grid.py` (modified)
-- `scripts/01-20_*.py` (new - temporary scripts)
-- `docs/SESSION_NOTES.md` (new)
-
-**Suggested Commit Message:**
-```
-feat: Complete Grid Settings implementation for Invoice List and Items
-
-- Add grid settings for invoice list widget (336 lines)
-- Add grid settings for invoice items grid (360 lines)
-- Persist column widths, order, visibility per-user
-- Automatic save on column resize/move
-- Uses GRID_INVOICE_LIST and GRID_INVOICE_ITEMS constants
-- SQLite database: grid_settings.db with 2 tables
-- Tested and working in Development
-
-Fixes: Column width/order not persisting across sessions
-```
-
----
-
-## Previous Sessions Context
-
-### Session History
-1. **v1.0 - Initial Development:** Basic invoice processing
-2. **v2.0 - Monorepo Migration:** Refactoring do monorepo štruktúry
-3. **v2.1 - Window Settings:** Ukladanie pozície okna
-4. **v2.1 - Grid Settings (This Session):** Kompletná implementácia grid settings
-
-### Key Technical Decisions from Past
-- PyQt5 for GUI
-- PostgreSQL for main data
-- SQLite for local settings (window, grid)
-- n8n for automation workflows
-- FastAPI for API endpoints
-
----
-
-**Session Type:** Next Steps / Deployment / New Features  
-**Current Focus:** Určí používateľ  
-**Status:** ✅ **READY FOR NEXT TASK**  
-**Priority:** 🎯 **Deployment to Production**
-
----
-
-**Last Updated:** 2025-12-05 21:00  
-**Previous Session:** Grid Settings Implementation (COMPLETE)  
-**Version:** v2.1 (Production-ready)  
-**Next Milestone:** Production Deployment alebo New Features
+**Last Updated:** 2025-12-05 22:30  
+**Previous Session:** Active Column & Window Position Fixes  
+**Version:** v2.1.1 (with fixes)  
+**Target:** Production Deployment

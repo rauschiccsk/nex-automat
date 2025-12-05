@@ -291,9 +291,8 @@ class InvoiceListWidget(QWidget):
         if grid_settings and 'active_column' in grid_settings:
             active_col = grid_settings['active_column']
             # Nastav aktívny stĺpec v quick search
-            if hasattr(self, 'search_controller') and self.search_controller:
-                self.search_controller.set_active_column(active_col)
-                self.logger.info(f"Loaded active column: {active_col}")
+            if hasattr(self, 'quick_search') and self.quick_search:
+                self.quick_search.set_active_column(active_col)
 
     def _save_grid_settings(self):
         """Uloží aktuálne nastavenia gridu."""
@@ -318,9 +317,8 @@ class InvoiceListWidget(QWidget):
 
         # Zozbieraj grid settings (active column)
         active_column = None
-        if hasattr(self, 'search_controller') and self.search_controller:
-            active_column = self.search_controller.get_active_column()
-            self.logger.info(f"Saving active column: {active_column}")
+        if hasattr(self, 'quick_search') and self.quick_search:
+            active_column = self.quick_search.get_active_column()
 
         grid_settings = {
             'active_column': active_column
