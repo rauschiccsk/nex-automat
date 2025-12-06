@@ -151,15 +151,30 @@ class WindowPersistenceManager:
         height = settings.get('height', default_size[1])
         window_state = settings.get('window_state', 0)
 
-        # Ak je pozícia invalid, použiť default
+        # Ak je pozícia invalid, opraviť pozíciu ale ZACHOVAŤ rozmery z DB
         if not cls.validate_position(x, y, width, height):
-            logger.info(f"Using default position due to invalid settings")
+            logger.info(f"Invalid position ({x}, {y}) - correcting but keeping size {width}x{height}")
+
+            # Opraviť len pozíciu - posunúť okno na viditeľnú oblasť
+            screen = QApplication.primaryScreen().geometry()
+
+            # Ensure window fits on screen
+            x = max(0, min(x, screen.width() - width))
+            y = max(0, min(y, screen.height() - height))
+
+            # If still doesn't fit, use default position but KEEP size from DB
+            if x < 0 or y < 0:
+                x = default_pos[0]
+                y = default_pos[1]
+
+            logger.info(f"Corrected position to ({x}, {y}) with original size {width}x{height}")
+
             return {
-                'x': default_pos[0],
-                'y': default_pos[1],
-                'width': default_size[0],
-                'height': default_size[1],
-                'window_state': 0  # Reset to normal
+                'x': x,
+                'y': y,
+                'width': width,  # ✅ ZACHOVANÉ z DB!
+                'height': height,  # ✅ ZACHOVANÉ z DB!
+                'window_state': window_state  # ✅ ZACHOVANÉ z DB!
             }
 
         return {

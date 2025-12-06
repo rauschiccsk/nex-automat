@@ -85,13 +85,10 @@ class BaseWindow(QMainWindow):
                 default_pos=self._default_pos
             )
 
-            # Apply geometry
-            self.setGeometry(
-                safe_settings['x'],
-                safe_settings['y'],
-                safe_settings['width'],
-                safe_settings['height']
-            )
+            # Apply position and size separately to avoid frame geometry drift
+            # Use move() for position and resize() for size
+            self.move(safe_settings['x'], safe_settings['y'])
+            self.resize(safe_settings['width'], safe_settings['height'])
 
             # Apply window state
             if safe_settings.get('window_state', 0) == 2:
@@ -107,12 +104,8 @@ class BaseWindow(QMainWindow):
         except Exception as e:
             logger.error(f"Error loading window settings for '{self._window_name}': {e}")
             # Fallback to defaults
-            self.setGeometry(
-                self._default_pos[0],
-                self._default_pos[1],
-                self._default_size[0],
-                self._default_size[1]
-            )
+            self.move(self._default_pos[0], self._default_pos[1])
+            self.resize(self._default_size[0], self._default_size[1])
 
     def _save_settings(self):
         """Uloží window settings do DB."""

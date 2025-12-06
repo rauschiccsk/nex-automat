@@ -45,7 +45,7 @@ class MainWindow(BaseWindow):
     def _setup_ui(self):
         """Setup main window UI"""
         self.setWindowTitle("Invoice Editor - ISDOC Approval")
-        self.resize(1400, 900)
+        # REMOVED: resize(1400, 900) - BaseWindow handles size from DB
 
         # Central widget with invoice list
         central_widget = QWidget()
@@ -215,7 +215,7 @@ class MainWindow(BaseWindow):
         detail_window.invoice_saved.connect(self._on_invoice_saved)
 
         # Show as modal dialog
-        detail_window.exec_()
+        detail_window.show()
 
     def _on_invoice_saved(self, invoice_id):
         """Handle invoice saved signal"""
@@ -238,6 +238,17 @@ class MainWindow(BaseWindow):
         """Handle key press events - ESC closes application."""
         from PyQt5.QtCore import Qt
         
+
+        # Open invoice detail on Enter/Return
+        if event.key() in (Qt.Key_Return, Qt.Key_Enter):
+            # Get currently selected invoice
+            if hasattr(self, 'invoice_list') and self.invoice_list:
+                invoice_id = self.invoice_list.get_selected_invoice_id()
+                if invoice_id:
+                    self._on_invoice_activated(invoice_id)
+                    event.accept()
+                    return
+
         if event.key() == Qt.Key_Escape:
             self.logger.info("ESC pressed - closing application")
             self.close()

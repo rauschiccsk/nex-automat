@@ -4,6 +4,7 @@ Invoice Detail Window - Display and edit invoice with items
 
 import logging
 from PyQt5.QtWidgets import (
+    QWidget,
     QDialog, QVBoxLayout, QHBoxLayout, QGroupBox, QLabel, 
     QPushButton, QMessageBox, QFormLayout
 )
@@ -12,16 +13,24 @@ from PyQt5.QtGui import QKeySequence
 from decimal import Decimal
 
 from .widgets.invoice_items_grid import InvoiceItemsGrid
+from nex_shared.ui import BaseWindow
+from ..utils.constants import WINDOW_INVOICE_DETAIL
 
 
-class InvoiceDetailWindow(QDialog):
+class InvoiceDetailWindow(BaseWindow):
     """Dialog window for invoice detail and editing"""
 
     # Signal emitted when invoice is saved
     invoice_saved = pyqtSignal(int)  # invoice_id
 
     def __init__(self, invoice_service, invoice_id, parent=None):
-        super().__init__(parent)
+        # Initialize BaseWindow first
+        super().__init__(
+            window_name=WINDOW_INVOICE_DETAIL,
+            default_size=(900, 700),
+            default_pos=(200, 100),
+            parent=parent
+        )
 
         self.invoice_service = invoice_service
         self.invoice_id = invoice_id
@@ -55,14 +64,19 @@ class InvoiceDetailWindow(QDialog):
                 "Chyba",
                 f"Nepodarilo sa načítať faktúru:\n\n{str(e)}"
             )
-            self.reject()
+            self.close()
 
     def _setup_ui(self):
         """Setup window UI"""
         self.setWindowTitle(f"Detail faktúry: {self.invoice['invoice_number']}")
         self.setMinimumSize(1200, 700)
 
-        layout = QVBoxLayout(self)
+        # Create central widget for QMainWindow
+        central_widget = QWidget()
+        self.setCentralWidget(central_widget)
+
+        # Create layout on central widget
+        layout = QVBoxLayout(central_widget)
 
         # Header group
         header_group = self._create_header_group()
@@ -150,7 +164,7 @@ class InvoiceDetailWindow(QDialog):
 
         # Cancel button
         cancel_button = QPushButton("Zrušiť (Escape)")
-        cancel_button.clicked.connect(self.reject)
+        cancel_button.clicked.connect(self.close)
         layout.addWidget(cancel_button)
 
         return layout
@@ -201,7 +215,7 @@ class InvoiceDetailWindow(QDialog):
 
                 # Emit signal and close
                 self.invoice_saved.emit(self.invoice_id)
-                self.accept()
+                self.close()
             else:
                 QMessageBox.warning(
                     self,
@@ -225,7 +239,7 @@ class InvoiceDetailWindow(QDialog):
             event.accept()
         # Escape to cancel
         elif event.key() == Qt.Key_Escape:
-            self.reject()
+            self.close()
             event.accept()
         else:
             super().keyPressEvent(event)

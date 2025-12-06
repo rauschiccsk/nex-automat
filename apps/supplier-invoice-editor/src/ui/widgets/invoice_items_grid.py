@@ -348,7 +348,7 @@ class InvoiceItemsGrid(QWidget):
                 'visible': not self.table_view.isColumnHidden(col_idx)
             })
         save_column_settings(WINDOW_MAIN, GRID_INVOICE_ITEMS, column_settings)
-        save_grid_settings(WINDOW_MAIN, GRID_INVOICE_ITEMS, {'active_column': None})
+        save_grid_settings(WINDOW_MAIN, GRID_INVOICE_ITEMS, -1)  # -1 = no active column
 
     def _on_column_resized(self, logical_index, old_size, new_size):
         """Handler pre zmenu šírky stĺpca."""

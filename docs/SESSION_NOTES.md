@@ -1,236 +1,201 @@
-# Session Notes - BaseWindow Package Integration & Database Fix
+# Session Notes - Window Persistence Fix
 
 **Dátum:** 2025-12-06  
-**Projekt:** nex-automat v2.0.0  
-**Status:** 🟡 ČIASTOČNE HOTOVÉ
+**Projekt:** NEX Automat v2.0 - supplier-invoice-editor  
+**Téma:** Oprava window persistence - zachovávanie pozície a rozmerov okien
 
-## Úspešne Vyriešené
+---
 
-### 1. Proper Package Setup pre nex-shared ✅
-**Problém:** ModuleNotFoundError: No module named 'ui.base_window'
+## Dosiahnuté výsledky
+
+### ✅ Window Size Persistence (BaseWindow)
+**Problém:** Okná sa otvorili vždy s default rozmermi (1400x900) namiesto uložených rozmerov z databázy.
+
+**Riešenia:**
+1. **get_safe_position() bug** - Metóda vracala default rozmery pri invalid pozícii
+   - Opravené: Opravuje len pozíciu, zachováva rozmery z DB
+   - Súbor: `packages/nex-shared/ui/window_persistence.py`
+
+2. **MainWindow resize() konflikt** - Volanie `resize(1400, 900)` prepisovalo načítané rozmery
+   - Opravené: Odstránené volanie, BaseWindow kontroluje rozmery
+   - Súbor: `apps/supplier-invoice-editor/src/ui/main_window.py`
+
+3. **Window position drift** - Okno sa posúvalo pri každom otvorení kvôli frame geometry
+   - Opravené: Použitie `pos()` + `resize()` namiesto `setGeometry()`
+   - Súbor: `packages/nex-shared/ui/base_window.py`
+
+### ✅ Grid Settings Error Fix
+**Problém:** Chyba "type 'dict' is not supported" pri ukladaní grid settings.
 
 **Riešenie:**
-- Vytvorený setup.py s namespace mapping (`package_dir={'nex_shared': '.'`)
-- Nainštalovaný package: `pip install -e packages/nex-shared`
-- Fixed všetky imports na relative imports (`.base_window`, `..database`)
+- Opravené volanie `save_grid_settings()` s int namiesto dict
+- Súbor: `apps/supplier-invoice-editor/src/ui/widgets/invoice_items_grid.py`
+- Zmena: `save_grid_settings(WINDOW_MAIN, GRID_INVOICE_ITEMS, -1)` namiesto dict
 
-**Scripts:** 01-09
+### ✅ InvoiceDetailWindow Persistence
+**Problém:** Detail okno (s položkami faktúry) nededilo z BaseWindow → bez persistence.
 
-### 2. Database Connection Fix ✅
-**Problém:** Password authentication failed, wrong database name
+**Riešenia:**
+1. Zmena dedenia z `QDialog` na `BaseWindow`
+2. Pridané importy: `BaseWindow`, `WINDOW_INVOICE_DETAIL`
+3. Opravené metódy: `accept()`, `reject()` → `close()`
+4. Opravené volanie v MainWindow: `exec_()` → `show()`
+5. Opravený layout: používa `central_widget` pre QMainWindow
+6. Pridaný `QWidget` import
 
-**Root Cause:**
-- Config používal neexistujúcu databázu 'supplier_invoice_editor'
-- postgres_client.py očakával vnorené dict struktury
-- Config nebol kompatibilný s postgres_client logikou
+### ✅ Klávesové skratky
+**Problém:** Stratila sa možnosť otvoriť faktúru klávesou ENTER.
 
 **Riešenie:**
-- Správny názov databázy: **invoice_staging** ✅
-- Config poskytuje flat + nested štruktúru (pre obe vetvy postgres_client)
-- POSTGRES_PASSWORD z environment variables
-- DB path: `C:\NEX\YEARACT\SYSTEM\SQLITE\window_settings.db`
+- Pridaný ENTER/RETURN handling do `keyPressEvent()`
+- Používa `get_selected_invoice_id()` metódu
+- Súbor: `apps/supplier-invoice-editor/src/ui/main_window.py`
 
-**Scripts:** 33-40
+---
 
-### 3. Application Import Chain Fixes ✅
-**Problém:** Množstvo syntax a import errors po migrácii na BaseWindow
+## Technické detaily
 
-**Fixed:**
-- Absolute imports → relative imports v aplikácii (utils, models, services, business)
-- Config parameter removal/restore (bol potrebný pre postgres_client)
-- IndentationError fixes v main_window.py, invoice_service.py
-- F-string multiline fix (rozdelený cez 3 riadky)
-- MainWindow a InvoiceService bez/s config parametrom
-- closeEvent removal z MainWindow (BaseWindow to rieši)
+### Upravené súbory
 
-**Scripts:** 10-32
+**packages/nex-shared/**
+- `ui/base_window.py` - window persistence logika
+- `ui/window_persistence.py` - get_safe_position() fix
+- `database/window_settings_db.py` - bez zmien (správne)
 
-### 4. Window Position Persistence ✅
-**Funguje:** Pozícia okna sa ukladá a obnovuje správne
+**apps/supplier-invoice-editor/src/**
+- `ui/main_window.py` - odstránené resize(), pridaný ENTER handling
+- `ui/invoice_detail_window.py` - zmena na BaseWindow, layout fix
+- `ui/widgets/invoice_items_grid.py` - oprava save_grid_settings()
 
-### 5. Maximized State Persistence ✅
-**Funguje:** Maximalizovaný stav sa ukladá a obnovuje správne
+### Databázová štruktúra
+```sql
+-- C:\NEX\YEARACT\SYSTEM\SQLITE\window_settings.db
+CREATE TABLE window_settings (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id TEXT NOT NULL,
+    window_name TEXT NOT NULL,
+    x INTEGER,
+    y INTEGER,
+    width INTEGER,
+    height INTEGER,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    window_state INTEGER DEFAULT 0,  -- 0=Normal, 2=Maximized
+    UNIQUE(user_id, window_name)
+);
+```
 
-## Zostáva Vyriešiť
+### Window Names
+- `WINDOW_MAIN = "sie_main_window"` - hlavné okno so zoznamom faktúr
+- `WINDOW_INVOICE_DETAIL = "sie_invoice_detail"` - detail okno s položkami
 
-### Window Size Persistence ❌
-**Problém:** Rozmery normálneho okna sa neukladajú
+---
 
-**Identifikovaný Root Cause:**
+## Kľúčové poznatky
+
+### BaseWindow Pattern
 ```python
-# V BaseWindow._save_settings():
-if self._persistence.validate_position(x, y, width, height):
-    self._db.save(...)  # ← Uloží len ak validácia PASS
-else:
-    logger.warning("Invalid position not saved")  # ← Rozmery sa strácajú!
+# Správne použitie BaseWindow
+class MyWindow(BaseWindow):
+    def __init__(self, parent=None):
+        super().__init__(
+            window_name="unique_window_id",
+            default_size=(800, 600),
+            default_pos=(100, 100),
+            parent=parent
+        )
+        # Layout pre QMainWindow vyžaduje central widget
+        central_widget = QWidget()
+        self.setCentralWidget(central_widget)
+        layout = QVBoxLayout(central_widget)
 ```
 
-**Observed behavior:**
-```
-Invalid window position: (-1659, -27) [1400x900]
-Invalid position not saved for 'sie_main_window': (-1659, -27) [1400x900]
-```
+### Window Persistence Flow
+1. **Load:** `_load_and_apply_settings()` v `__init__`
+   - Načíta z DB cez `WindowSettingsDB.load()`
+   - Validuje cez `WindowPersistenceManager.get_safe_position()`
+   - Aplikuje cez `move()` + `resize()`
 
-Pozícia je invalid (y=-27 pod 0, x=-1659 mimo monitora), takže **celý záznam sa NEULOŽÍ** vrátane rozmerov.
+2. **Save:** `_save_settings()` v `closeEvent()`
+   - Získa rozmery cez `pos()` a `size()`
+   - Validuje a opraví pozíciu ak je invalid
+   - Uloží cez `WindowSettingsDB.save()`
 
-**Pokus o fix (Script 46):**
-- Upravená `_save_settings()` aby VŽDY ukladala rozmery
-- Oprava invalid pozície ale zachovanie skutočných rozmerov
-- **VÝSLEDOK: NEFUNGUJE** - rozmery sa stále neukladajú
+### Kritické body
+- ❌ NIKDY nepoužívať `self.resize()` po inicializácii BaseWindow
+- ❌ NIKDY nepoužívať `setGeometry()` - spôsobuje position drift
+- ✅ VŽDY používať `move()` + `resize()` pre nastavenie pozície/rozmerov
+- ✅ VŽDY používať `pos()` + `size()` pre získanie pozície/rozmerov
+- ✅ QMainWindow vyžaduje `setCentralWidget()` pre layout
 
-**Hypotézy prečo nefunguje:**
-1. Script 46 syntax error alebo nebol správne aplikovaný?
-2. Problém nie je v `_save_settings()` ale v `_load_settings()`?
-3. Validation logic stále blokuje save napriek úpravám?
-4. Treba reinštalovať package po zmene? (`pip install -e packages/nex-shared`)
+---
 
-**Next Steps pre ďalšiu session:**
-1. Diagnostikovať prečo script 46 nemal efekt
-2. Pridať extensive logging do `_save_settings()` a `_load_settings()`
-3. Manual test: INSERT do DB, verify že load funguje
-4. Možno oddeliť validáciu pozície od validácie rozmerov
+## Testovanie
 
-## Vytvorené Scripts (46 total)
+### Test 1: Hlavné okno persistence
+1. Spustiť aplikáciu
+2. Zmeniť veľkosť okna (napr. 800x600)
+3. Zatvoriť aplikáciu
+4. Otvoriť znova → rozmery 800x600 ✅
 
-**Package Setup (01-09):**
-- 01: Create setup.py pre nex-shared
-- 02: Update imports v supplier-invoice-editor (absolute → relative)
-- 03-04: Fix main.py indentation
-- 05: Fix main_window.py imports (smart fix)
-- 06: Fix nex-shared ui/__init__.py (relative imports)
-- 07: Fix base_window.py imports (..database)
-- 08: Fix database/__init__.py (relative imports)
-- 09: Fix base_window ui import (relative)
+### Test 2: Detail okno persistence
+1. Otvoriť faktúru (double-click alebo ENTER)
+2. Zmeniť veľkosť detail okna
+3. Zatvoriť detail okno
+4. Otvoriť inú faktúru → rozmery zachované ✅
 
-**Application Fixes (10-32):**
-- 10: Fix absolute imports v app (utils, models, services, business)
-- 11: Fix main.py config parameter
-- 12: Diagnose MainWindow initialization
-- 13: Analyze config usage in MainWindow
-- 14: Analyze InvoiceService config requirements
-- 15: Remove unused config (CHYBA - bol potrebný!)
-- 16: Fix MainWindow syntax after config removal
-- 17: Fix InvoiceService syntax
-- 18: Diagnose remaining issues
-- 19: Remove closeEvent from MainWindow
-- 20: Diagnose _init_database method
-- 21: Diagnose PostgresClient initialization
-- 22: Diagnose connection params
-- 23: Create Config class
-- 24: Restore config parameter (po zistení že je potrebný)
-- 25: Fix MainWindow try block syntax
-- 26: Diagnose syntax around line 171
-- 27: Remove misplaced self.config assignments
-- 28: Diagnose _load_invoices method
-- 29: Fix _load_invoices indentation
-- 30: Patch f-string literal error
-- 31: Show actual line 183
-- 32: Fix multiline f-string
+### Test 3: Position stability
+1. Otvoriť/zatvoriť aplikáciu 5x
+2. Pozícia by mala ostať stabilná (bez posúvania) ✅
 
-**Database Connection (33-40):**
-- 33: Update Config env vars (POSTGRES_*)
-- 34: Diagnose environment variables
-- 35: Test DB connection
-- 36: Create simple hardcoded config
-- 37: Find database name in project
-- 38: Fix database name to invoice_staging
-- 39: Analyze current postgres_client
-- 40: Fix Config for postgres_client compatibility
+### Test 4: Klávesové skratky
+1. Vybrať faktúru v zozname
+2. Stlačiť ENTER → detail sa otvorí ✅
+3. Stlačiť ESC → aplikácia sa zatvorí ✅
 
-**Window Persistence (41-46):**
-- 41: Diagnose window_settings DB
-- 42: Fix window_settings DB path
-- 43: Show window_settings_db.py content
-- 44: Show BaseWindow closeEvent
-- 45: Show _save_settings method
-- 46: Fix _save_settings to always save size (NEFUNGUJE)
+---
 
-## Súbory Zmenené
+## Štatistiky
 
-**nex-shared package:**
-- `packages/nex-shared/setup.py` (CREATED)
-- `packages/nex-shared/ui/__init__.py` (relative imports)
-- `packages/nex-shared/ui/base_window.py` (_save_settings fix, imports)
-- `packages/nex-shared/database/__init__.py` (relative imports)
-- `packages/nex-shared/database/window_settings_db.py` (DB path: C:\NEX\YEARACT\SYSTEM\SQLITE)
+- **Vytvorené scripty:** 43 (01-43)
+- **Upravené súbory:** 6
+- **Opravené bugy:** 5
+- **Pridané funkcie:** 1 (ENTER handling)
+- **Čas riešenia:** ~2.5 hodiny
 
-**supplier-invoice-editor:**
-- `apps/supplier-invoice-editor/src/config.py` (CREATED - invoice_staging config)
-- `apps/supplier-invoice-editor/src/ui/main_window.py` (imports, config param, closeEvent removal)
-- `apps/supplier-invoice-editor/src/business/invoice_service.py` (config param)
-- `apps/supplier-invoice-editor/main.py` (Config import, clean structure)
-- `apps/supplier-invoice-editor/src/ui/__init__.py` (clean imports)
+---
 
-## Database Configuration
+## Ďalšie kroky (budúce session)
 
-**PostgreSQL Connection:**
-- Host: localhost
-- Port: 5432
-- Database: **invoice_staging** ✅
-- User: postgres
-- Password: $env:POSTGRES_PASSWORD
+### Možné vylepšenia
+1. **Multi-monitor support** - validácia pozície pre viacero monitorov
+2. **Window state templates** - prednastavené layouty (malý/veľký/maximalizovaný)
+3. **Per-user settings** - rôzne rozmery pre rôznych používateľov
+4. **Grid column persistence** - zachovanie poradia stĺpcov v grids
 
-**Window Settings SQLite:**
-- Path: `C:\NEX\YEARACT\SYSTEM\SQLITE\window_settings.db`
-- Table: window_settings
-  - Columns: user_id, window_name, x, y, width, height, window_state, updated_at
-  - window_state: 0=Normal, 1=Minimized, 2=Maximized
+### Cleanup
+- Vymazať dočasné scripty 01-43 po commite
+- Aktualizovať PROJECT_MANIFEST.json
 
-## Current Status
+---
 
-**Funguje:**
-- ✅ Package install (pip install -e packages/nex-shared)
-- ✅ Aplikácia sa spúšťa bez errors
-- ✅ Database connection k invoice_staging
-- ✅ Data loading z PostgreSQL DB
-- ✅ Window position persistence
-- ✅ Maximized state persistence
+## Poznámky pre Development → Deployment
 
-**Nefunguje:**
-- ❌ Window size persistence pre normálne okná (nie maximalizované)
-- Script 46 nemal očakávaný efekt - rozmery sa stále neukladajú
+**Development zmeny:**
+- `packages/nex-shared/` - shared package s persistence
+- `apps/supplier-invoice-editor/src/ui/` - UI komponenty
 
-## Lessons Learned
+**Deployment workflow:**
+1. Commit changes v Development
+2. Git push
+3. Git pull v Deployment
+4. Restart aplikácie
 
-1. **Proper package setup je critical**
-   - sys.path hacks sú fragile a nefungujú v import chain
-   - pip install -e je jediné správne riešenie
-   - Relative imports v packages sú nevyhnutné
+**Databáza:**
+- SQLite: `C:\NEX\YEARACT\SYSTEM\SQLITE\window_settings.db`
+- Automaticky sa vytvorí pri prvom spustení
+- Žiadna migrácia potrebná
 
-2. **postgres_client má complex logic**
-   - Očakáva specific config štruktúru (flat + nested)
-   - Má 2 vetvy: dict check vs object check
-   - Config musí byť kompatibilný s oboma
+---
 
-3. **Database name discovery**
-   - Nepýtať sa používateľa - pozrieť sa do PostgreSQL
-   - Používateľ má správne názvy vo svojom prostredí
-
-4. **Validation should not block saves**
-   - Validácia pozície blokovala uloženie rozmerov
-   - Treba oddeliť validáciu od save operácie
-   - Vždy uložiť rozmery, validovať len pozíciu
-
-5. **Import chain debugging**
-   - Testovať imports standalone pred integráciou
-   - Syntax errors sa kaskádujú cez import chain
-   - Fix systematicky od bottom-up (packages → app)
-
-## Recommendations Pre Ďalšiu Session
-
-1. **Debug window size persistence:**
-   - Pridať extensive logging do _save_settings() a _load_settings()
-   - Verify že script 46 changes sú active (možno treba reinstall package)
-   - Manual test: INSERT rozmery do DB, verify že load funguje
-   - Check actual DB values po zatvorení okna
-
-2. **Alternative approach ak debugging nefunguje:**
-   - Úplne oddeliť validáciu pozície od save operácie
-   - Vždy uložiť width/height bez ohľadu na pozíciu
-   - Clamp invalid pozície na valid ranges (0, 0) až (screen_width, screen_height)
-
-3. **Cleanup po vyriešení:**
-   - Odstrániť temporary scripts (01-46)
-   - Commit all changes
-   - Update project documentation
-   - Test na supplier-invoice-loader aplikácii
+**Session ukončená:** 2025-12-06  
+**Status:** ✅ Všetky ciele dosiahnuté
