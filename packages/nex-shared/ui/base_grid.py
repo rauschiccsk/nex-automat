@@ -163,8 +163,6 @@ class BaseGrid(QWidget):
 
     def _load_grid_settings(self):
         """Načíta a aplikuje uložené nastavenia gridu."""
-        print(f"[LOAD] _load_grid_settings called: {self._window_name}/{self._grid_name}")
-
         header = self.table_view.horizontalHeader()
 
         try:
@@ -182,15 +180,12 @@ class BaseGrid(QWidget):
 
             # Load column settings
             column_settings = load_column_settings(
-                self._window_name, 
-                self._grid_name, 
+                self._window_name,
+                self._grid_name,
                 self._user_id
             )
 
-            print(f"[LOAD] column_settings loaded: {column_settings is not None}")
             if column_settings:
-                print(f"[LOAD] Found {len(column_settings)} column settings")
-
                 # Aplikuj nastavenia pre každý stĺpec
                 for col_idx in range(model.columnCount()):
                     # Get column name from model
@@ -198,12 +193,11 @@ class BaseGrid(QWidget):
 
                     # Nájdi nastavenia pre tento stĺpec
                     col_settings = next(
-                        (s for s in column_settings if s.get('column_name') == col_name), 
+                        (s for s in column_settings if s.get('column_name') == col_name),
                         None
                     )
 
                     if col_settings:
-                        print(f"[LOAD] Applying settings for column {col_idx}: {col_name} - width={col_settings.get('width')}")
                         # Šírka stĺpca
                         if 'width' in col_settings:
                             header.resizeSection(col_idx, col_settings['width'])
@@ -211,14 +205,14 @@ class BaseGrid(QWidget):
                         # Vizuálny index (poradie)
                         if 'visual_index' in col_settings:
                             header.moveSection(
-                                header.visualIndex(col_idx), 
+                                header.visualIndex(col_idx),
                                 col_settings['visual_index']
                             )
 
                         # Viditeľnosť
                         if 'visible' in col_settings:
                             self.table_view.setColumnHidden(
-                                col_idx, 
+                                col_idx,
                                 not col_settings['visible']
                             )
 
@@ -228,13 +222,12 @@ class BaseGrid(QWidget):
 
             # Load grid settings (active column pre quick search)
             grid_settings = load_grid_settings(
-                self._window_name, 
-                self._grid_name, 
+                self._window_name,
+                self._grid_name,
                 self._user_id
             )
 
             if grid_settings and 'active_column_index' in grid_settings:
-                print(f"[LOAD] Found grid settings, active_column={grid_settings['active_column_index']}")
                 active_col = grid_settings['active_column_index']
 
                 # Nastav aktívny stĺpec v quick search
@@ -254,17 +247,14 @@ class BaseGrid(QWidget):
 
     def _save_grid_settings(self):
         """Uloží aktuálne nastavenia gridu."""
-        print(f"[DEBUG] _save_grid_settings called: {self._window_name}/{self._grid_name}")
         try:
             # Import grid_settings functions
             from ..utils.grid_settings import save_column_settings, save_grid_settings
 
             model = self.table_view.model()
             if not model:
-                print(f"[DEBUG] No model for {self._window_name}/{self._grid_name}")
                 self.logger.warning("No model set, skipping grid settings save")
                 return
-            print(f"[DEBUG] Model OK, columns: {model.columnCount()}")
 
             header = self.table_view.horizontalHeader()
 
@@ -279,33 +269,27 @@ class BaseGrid(QWidget):
                     'visible': not self.table_view.isColumnHidden(col_idx)
                 })
 
-            # Uloží column settings
-            print(f"[DEBUG] Saving {len(column_settings)} columns for {self._grid_name}")
+            # Ulož column settings
             save_column_settings(
-                self._window_name, 
-                self._grid_name, 
-                column_settings, 
+                self._window_name,
+                self._grid_name,
+                column_settings,
                 self._user_id
             )
-            print(f"[DEBUG] Column settings saved")
 
             # Zozbieraj grid settings (active column)
             active_column = None
             if self.search_controller:
                 active_column = self.search_controller.get_active_column()
 
-            # Uloží grid settings
+            # Ulož grid settings
             if active_column is not None:
-                print(f"[DEBUG] Saving active column: {active_column}")
                 save_grid_settings(
-                    self._window_name, 
-                    self._grid_name, 
-                    active_column, 
+                    self._window_name,
+                    self._grid_name,
+                    active_column,
                     self._user_id
                 )
-                print(f"[DEBUG] Grid settings saved")
-            else:
-                print(f"[DEBUG] No active column to save (search_controller={self.search_controller})")
 
             self.logger.debug(
                 f"Saved grid settings for {self._window_name}/{self._grid_name}"
@@ -316,7 +300,6 @@ class BaseGrid(QWidget):
 
     def _on_active_column_changed(self, column):
         """Handler pre zmenu active column."""
-        print(f"[ACTIVE] Active column changed to {column} for {self._grid_name}")
         self._save_grid_settings()
 
     def _on_column_resized(self, logical_index, old_size, new_size):

@@ -7,9 +7,12 @@ Databáza je zdieľaná medzi všetkými NEX aplikáciami.
 
 import os
 import sqlite3
+import logging
 from pathlib import Path
 from typing import Optional, List, Dict
 from datetime import datetime
+
+logger = logging.getLogger(__name__)
 
 
 def get_grid_settings_db_path() -> str:
@@ -79,7 +82,7 @@ def get_current_user_id() -> str:
     return os.getenv('USERNAME', 'default_user')
 
 
-def load_column_settings(window_name: str, grid_name: str, 
+def load_column_settings(window_name: str, grid_name: str,
                         user_id: Optional[str] = None) -> List[Dict]:
     """
     Načíta uložené nastavenia stĺpcov pre daný grid.
@@ -127,7 +130,7 @@ def load_column_settings(window_name: str, grid_name: str,
         ]
 
     except sqlite3.Error as e:
-        print(f"Chyba pri načítaní column settings: {e}")
+        logger.error(f"Chyba pri načítaní column settings: {e}")
         return []
 
 
@@ -178,7 +181,7 @@ def save_column_settings(window_name: str, grid_name: str, columns: List[Dict],
         return True
 
     except sqlite3.Error as e:
-        print(f"Chyba pri ukladaní column settings: {e}")
+        logger.error(f"Chyba pri ukladaní column settings: {e}")
         return False
 
 
@@ -221,7 +224,7 @@ def load_grid_settings(window_name: str, grid_name: str,
         return None
 
     except sqlite3.Error as e:
-        print(f"Chyba pri načítaní grid settings: {e}")
+        logger.error(f"Chyba pri načítaní grid settings: {e}")
         return None
 
 
@@ -260,5 +263,5 @@ def save_grid_settings(window_name: str, grid_name: str, active_column_index: in
         return True
 
     except sqlite3.Error as e:
-        print(f"Chyba pri ukladaní grid settings: {e}")
+        logger.error(f"Chyba pri ukladaní grid settings: {e}")
         return False

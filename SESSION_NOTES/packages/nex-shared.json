@@ -2,15 +2,15 @@
   "name": "nex-shared",
   "type": "package",
   "location": "packages/nex-shared",
-  "generated": "2025-12-06T20:25:02.742430",
+  "generated": "2025-12-06T20:48:44.418979",
   "statistics": {
     "total_files": 16,
     "total_dirs": 4,
     "python_files": 11,
     "powershell_files": 0,
     "test_files": 0,
-    "total_lines": 1324,
-    "total_size": 45824
+    "total_lines": 1310,
+    "total_size": 44056
   },
   "dependencies": {
     "main": [],
@@ -101,10 +101,10 @@
     {
       "path": "packages/nex-shared/ui/base_grid.py",
       "name": "base_grid.py",
-      "size": 13723,
+      "size": 12138,
       "extension": ".py",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/packages/nex-shared/ui/base_grid.py",
-      "lines": 358,
+      "lines": 341,
       "type": "source"
     },
     {
@@ -137,10 +137,10 @@
     {
       "path": "packages/nex-shared/utils/grid_settings.py",
       "name": "grid_settings.py",
-      "size": 8213,
+      "size": 8030,
       "extension": ".py",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/packages/nex-shared/utils/grid_settings.py",
-      "lines": 264,
+      "lines": 267,
       "type": "source"
     },
     {
