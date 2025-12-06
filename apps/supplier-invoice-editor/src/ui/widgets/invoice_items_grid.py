@@ -255,7 +255,7 @@ class InvoiceItemsGrid(BaseGrid):
         self.table_view.setModel(self.model)
 
         # Setup custom UI (column widths, etc.)
-        self._setup_custom_ui()
+        # REMOVED: self._setup_custom_ui() - BaseGrid loads settings from DB
 
         # Setup quick search
         self.setup_quick_search(QuickSearchContainer, QuickSearchController)
@@ -268,22 +268,8 @@ class InvoiceItemsGrid(BaseGrid):
 
         self.logger.info("Invoice items grid initialized with BaseGrid")
 
-    def _setup_custom_ui(self):
-        """Setup custom UI (column widths)"""
-        header = self.table_view.horizontalHeader()
-        header.setStretchLastSection(True)
-
-        # Set column widths
-        header.resizeSection(0, 80)   # PLU
-        header.resizeSection(1, 300)  # Názov
-        header.resizeSection(2, 80)   # Kategória
-        header.resizeSection(3, 60)   # MJ
-        header.resizeSection(4, 80)   # Množstvo
-        header.resizeSection(5, 80)   # Cena
-        header.resizeSection(6, 80)   # Rabat
-        header.resizeSection(7, 90)   # Po rabate
-        header.resizeSection(8, 90)   # Suma
-
+    # REMOVED: _setup_custom_ui() - BaseGrid loads settings from DB
+    # If you need default widths, set them in first run only
     def _connect_signals(self):
         """Connect signals"""
         self.model.items_changed.connect(self.items_changed.emit)

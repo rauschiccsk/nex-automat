@@ -19,12 +19,14 @@ setup(
     packages=[
         'nex_shared.ui',
         'nex_shared.database',
+        'nex_shared.utils',
     ],
 
     # Include package data
     package_data={
         'nex_shared.ui': ['*.py'],
         'nex_shared.database': ['*.py'],
+        'nex_shared.utils': ['*.py'],
     },
 
     # Dependencies

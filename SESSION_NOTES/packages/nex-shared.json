@@ -2,15 +2,15 @@
   "name": "nex-shared",
   "type": "package",
   "location": "packages/nex-shared",
-  "generated": "2025-12-06T19:08:29.936075",
+  "generated": "2025-12-06T20:25:02.742430",
   "statistics": {
-    "total_files": 15,
+    "total_files": 16,
     "total_dirs": 4,
-    "python_files": 10,
+    "python_files": 11,
     "powershell_files": 0,
     "test_files": 0,
-    "total_lines": 1002,
-    "total_size": 34872
+    "total_lines": 1324,
+    "total_size": 45824
   },
   "dependencies": {
     "main": [],
@@ -21,7 +21,7 @@
     {
       "path": "packages/nex-shared/__init__.py",
       "name": "__init__.py",
-      "size": 290,
+      "size": 292,
       "extension": ".py",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/packages/nex-shared/__init__.py",
       "lines": 14,
@@ -55,7 +55,7 @@
     {
       "path": "packages/nex-shared/nex_shared.egg-info/SOURCES.txt",
       "name": "SOURCES.txt",
-      "size": 297,
+      "size": 495,
       "extension": ".txt",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/packages/nex-shared/nex_shared.egg-info/SOURCES.txt"
     },
@@ -83,10 +83,10 @@
     {
       "path": "packages/nex-shared/setup.py",
       "name": "setup.py",
-      "size": 1372,
+      "size": 1440,
       "extension": ".py",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/packages/nex-shared/setup.py",
-      "lines": 54,
+      "lines": 56,
       "type": "source"
     },
     {
@@ -101,10 +101,10 @@
     {
       "path": "packages/nex-shared/ui/base_grid.py",
       "name": "base_grid.py",
-      "size": 11806,
+      "size": 13723,
       "extension": ".py",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/packages/nex-shared/ui/base_grid.py",
-      "lines": 325,
+      "lines": 358,
       "type": "source"
     },
     {
@@ -128,10 +128,19 @@
     {
       "path": "packages/nex-shared/utils/__init__.py",
       "name": "__init__.py",
-      "size": 0,
+      "size": 554,
       "extension": ".py",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/packages/nex-shared/utils/__init__.py",
-      "lines": 0,
+      "lines": 23,
+      "type": "source"
+    },
+    {
+      "path": "packages/nex-shared/utils/grid_settings.py",
+      "name": "grid_settings.py",
+      "size": 8213,
+      "extension": ".py",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/packages/nex-shared/utils/grid_settings.py",
+      "lines": 264,
       "type": "source"
     },
     {

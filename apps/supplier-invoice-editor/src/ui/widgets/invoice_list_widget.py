@@ -158,7 +158,7 @@ class InvoiceListWidget(BaseGrid):
         self.table_view.setModel(self.model)
 
         # Setup custom UI (column widths, etc.)
-        self._setup_custom_ui()
+        # REMOVED: self._setup_custom_ui() - BaseGrid loads settings from DB
 
         # Setup quick search
         self.setup_quick_search(QuickSearchContainer, QuickSearchController)
@@ -171,21 +171,8 @@ class InvoiceListWidget(BaseGrid):
 
         self.logger.info("Invoice list widget initialized with BaseGrid")
 
-    def _setup_custom_ui(self):
-        """Setup custom UI (column widths)"""
-        header = self.table_view.horizontalHeader()
-        header.setStretchLastSection(True)
-
-        # Set column widths
-        header.resizeSection(0, 60)   # ID
-        header.resizeSection(1, 150)  # Invoice Number
-        header.resizeSection(2, 100)  # Date
-        header.resizeSection(3, 300)  # Supplier Name
-        header.resizeSection(4, 100)  # ICO
-        header.resizeSection(5, 100)  # Amount
-        header.resizeSection(6, 60)   # Currency
-        header.resizeSection(7, 100)  # Status
-
+    # REMOVED: _setup_custom_ui() - BaseGrid loads settings from DB
+    # If you need default widths, set them in first run only
     def _connect_signals(self):
         """Connect signals"""
         # Selection changed

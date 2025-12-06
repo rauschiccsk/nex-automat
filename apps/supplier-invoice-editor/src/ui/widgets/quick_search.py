@@ -167,6 +167,9 @@ class QuickSearchController(QObject):
     Handles search logic and table interaction
     """
 
+    # Signal emitted when active column changes
+    active_column_changed = pyqtSignal(int)
+
     def __init__(self, table_view, search_container):
         """
         Initialize quick search controller
@@ -292,6 +295,9 @@ class QuickSearchController(QObject):
             new_column = 0
 
         self.current_column = new_column
+
+        # Emit signal for BaseGrid to save
+        self.active_column_changed.emit(new_column)
 
         # Clear search text BEFORE sorting to avoid search during sort
         self.search_edit.blockSignals(True)
@@ -455,11 +461,14 @@ class QuickSearchController(QObject):
         Args:
             column: Index stĺpca
         """
-        if 0 <= column < self.table_view.model().columnCount():
+        model = self.table_view.model()
+        if model and 0 <= column < model.columnCount():
             self.current_column = column
             self._sort_by_column(column)
             self.search_container.set_column(column)
-            self.logger.info(f"Active column set to {column}")
+            # IMPORTANT: Update header highlight
+            self.search_container._highlight_header(column)
+            self.logger.info(f"Active column set to {column} with header highlight")
 
     def set_column(self, column):
         """Set active search column programmatically"""

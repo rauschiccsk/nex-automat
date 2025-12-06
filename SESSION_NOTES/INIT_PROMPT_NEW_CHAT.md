@@ -2,7 +2,7 @@
 
 ## KONTEXT Z PREDCHÁDZAJÚCEHO CHATU
 
-Úspešne implementovaný **BaseGrid** pattern v nex-automat projekte.
+Úspešne implementovaný **BaseGrid pattern** s plnou persistence funkčnosťou (column widths + active column).
 
 ---
 
@@ -17,17 +17,20 @@
 
 ## ČO JE NOVÉ
 
-### BaseGrid v nex-shared
+### BaseGrid Pattern - KOMPLETNÉ
 
-**Vytvorené:**
-- `packages/nex-shared/ui/base_grid.py` - Univerzálna base trieda pre gridy
-- Exportované v `packages/nex-shared/ui/__init__.py`
+**Vytvorené v nex-shared:**
+- `packages/nex-shared/ui/base_grid.py` - Univerzálna base trieda
+- `packages/nex-shared/utils/grid_settings.py` - Persistence do SQLite
+- `packages/nex-shared/utils/__init__.py` - Export funkcií
 
 **Funkcionalita:**
-- Automatická QTableView + GreenHeaderView
-- Automatická grid persistence (column widths, active column)
-- QuickSearch integration
-- Auto-load/save settings
+- ✅ Automatická QTableView + GreenHeaderView
+- ✅ Automatická grid persistence (column widths, active column)
+- ✅ QuickSearch integration
+- ✅ Auto-load/save settings
+- ✅ Disconnect/reconnect signals počas load (no recursive save)
+- ✅ Active column signal v QuickSearchController
 
 **Použitie:**
 ```python
@@ -49,7 +52,7 @@ class MyGrid(BaseGrid):
         # Quick search
         self.setup_quick_search(QuickSearchContainer, QuickSearchController)
 
-        # Load settings
+        # Load settings (MUST be after model and quick search!)
         self.apply_model_and_load_settings()
 ```
 
@@ -59,17 +62,20 @@ class MyGrid(BaseGrid):
 
 **invoice_list_widget.py:**
 - Base: QWidget → BaseGrid
-- Odstránený duplicitný kód (~150 riadkov)
+- Odstránený _setup_custom_ui() (hardcoded widths)
 - Zachované: Model, API, signals
+- Persistence: ✅ FUNGUJE
 
 **invoice_items_grid.py:**
 - Base: QWidget → BaseGrid
-- Odstránený duplicitný kód (~150 riadkov)
+- Odstránený _setup_custom_ui() (hardcoded widths)
 - Zachované: Model, editing logic, API
+- Persistence: ✅ FUNGUJE
 
 **quick_search.py:**
-- Odstránený GreenHeaderView (teraz v BaseGrid)
-- Vyčistené (~70 riadkov)
+- Pridaný signal: `active_column_changed = pyqtSignal(int)`
+- Emit v `_change_column()` pre save pri šípkach
+- GreenHeaderView presunutý do base_grid.py
 
 ---
 
@@ -79,19 +85,62 @@ class MyGrid(BaseGrid):
 nex-automat/
 ├── packages/
 │   └── nex-shared/
-│       └── ui/
-│           ├── base_window.py      ← Window persistence
-│           ├── base_grid.py        ← Grid persistence (NEW!)
-│           └── __init__.py
+│       ├── ui/
+│       │   ├── base_window.py      ← Window persistence
+│       │   ├── base_grid.py        ← Grid persistence ✅ NEW
+│       │   └── __init__.py
+│       └── utils/
+│           ├── grid_settings.py    ← SQLite persistence ✅ NEW
+│           └── __init__.py         ✅ NEW
 └── apps/
     └── supplier-invoice-editor/
         └── src/
             └── ui/
                 └── widgets/
-                    ├── invoice_list_widget.py    ← Uses BaseGrid
-                    ├── invoice_items_grid.py     ← Uses BaseGrid
-                    └── quick_search.py           ← Clean
+                    ├── invoice_list_widget.py    ← Uses BaseGrid ✅
+                    ├── invoice_items_grid.py     ← Uses BaseGrid ✅
+                    └── quick_search.py           ← Updated signal ✅
 ```
+
+---
+
+## KRITICKÉ PRAVIDLÁ
+
+### BaseGrid Použitie
+
+**Poradie inicializácie (DÔLEŽITÉ!):**
+```python
+# 1. Init BaseGrid
+super().__init__(window_name=..., grid_name=..., parent=...)
+
+# 2. Set model
+self.model = MyModel()
+self.table_view.setModel(self.model)
+
+# 3. Setup quick search
+self.setup_quick_search(QuickSearchContainer, QuickSearchController)
+
+# 4. Load settings (MUST BE LAST!)
+self.apply_model_and_load_settings()
+```
+
+**NIKDY:**
+- ❌ Nevolať `_setup_custom_ui()` s hardcoded widths
+- ❌ Nevolať `apply_model_and_load_settings()` pred setup_quick_search()
+- ❌ Meniť header signals manuálne (BaseGrid ich riadi)
+
+---
+
+## PERSISTENCE LOCATIONS
+
+```
+Window settings: C:\NEX\YEARACT\SYSTEM\SQLITE\window_settings.db
+Grid settings:   C:\NEX\YEARACT\SYSTEM\SQLITE\grid_settings.db
+```
+
+**Databázové tabuľky:**
+- `grid_column_settings` - column_name, width, visual_index, visible
+- `grid_settings` - active_column_index
 
 ---
 
@@ -110,67 +159,99 @@ nex-automat/
 
 ---
 
-## POUŽÍVANÉ PATTERNS
+## DEBUG TOOLS
 
-### BaseWindow Pattern
-```python
-class MyWindow(BaseWindow):
-    def __init__(self):
-        super().__init__(
-            window_name="unique_name",
-            default_size=(800, 600)
-        )
-```
+**Debug výpisy v console:**
+- `[LOAD]` - načítavanie settings z DB
+- `[DEBUG]` - ukladanie settings do DB
+- `[ACTIVE]` - zmena active column
 
-### BaseGrid Pattern (NEW!)
-```python
-class MyGrid(BaseGrid):
-    def __init__(self, parent=None):
-        super().__init__(
-            window_name=WINDOW_MAIN,
-            grid_name=GRID_NAME,
-            parent=parent
-        )
-        # Model setup
-        # Quick search setup
-        # Load settings
+**Diagnostický script:**
+```powershell
+python scripts\06_diagnose_grid_settings.py
 ```
 
 ---
 
 ## TESTING CHECKLIST
 
-Pri testovaní BaseGrid refactoringu:
-- [ ] Spustiť aplikáciu
-- [ ] Invoice list zobrazuje dáta
+Pri testovaní novej funkcionality:
+- [ ] Spustiť aplikáciu bez errors
+- [ ] Grid zobrazuje dáta správne
 - [ ] Quick search funguje (zelený header)
-- [ ] Column widths sa ukladajú
-- [ ] Active column sa ukladá
+- [ ] Column widths persistence (resize → restart → check)
+- [ ] Active column persistence (šípky → restart → check)
 - [ ] Sorting funguje
-- [ ] Invoice detail grid funguje
-- [ ] Editácia položiek funguje
+- [ ] Editácia funguje (ak applicable)
 
 ---
 
-## POZNÁMKY
+## ZNÁME LIMITÁCIE
 
-### Import Paths
+**nex-shared package:**
+- Používa FLAT štruktúru (nex-shared appears ONLY ONCE in path)
+- Po zmenách v nex-shared: `pip install -e .` v packages/nex-shared
+
+**Grid persistence:**
+- Settings sú per user (default: "Server")
+- Last-write-wins pri concurrent updates
+- Vymazať DB pre reset: `del C:\NEX\YEARACT\SYSTEM\SQLITE\grid_settings.db`
+
+---
+
+## MOŽNÉ BUDÚCE ÚLOHY
+
+1. **Aplikovať BaseGrid na ďalšie gridy** v systéme
+2. **Odstrániť debug print statements** (nahradiť logger calls)
+3. **Pridať context menu** pre grid (reset settings, export/import)
+4. **Multi-user testing** (rôzne user_id values)
+5. **Unit testy** pre BaseGrid
+6. **Dokumentácia** pre vývojárov
+
+---
+
+## PRÍKLADY POUŽITIA
+
+### Jednoduchý Read-Only Grid
 ```python
-# BaseGrid import
-from nex_shared.ui import BaseGrid
-
-# QuickSearch import (lokálne)
-from .quick_search import QuickSearchContainer, QuickSearchController
+class SimpleGrid(BaseGrid):
+    def __init__(self, parent=None):
+        super().__init__(
+            window_name="my_window",
+            grid_name="simple_grid",
+            parent=parent
+        )
+        
+        self.model = SimpleModel()
+        self.table_view.setModel(self.model)
+        self.setup_quick_search(QuickSearchContainer, QuickSearchController)
+        self.apply_model_and_load_settings()
 ```
 
-### Persistence Locations
-```
-Window settings: C:\NEX\YEARACT\SYSTEM\SQLITE\window_settings.db
-Grid settings:   C:\NEX\YEARACT\SYSTEM\SQLITE\grid_settings.db
+### Editable Grid
+```python
+class EditableGrid(BaseGrid):
+    items_changed = pyqtSignal()
+    
+    def __init__(self, parent=None):
+        super().__init__(
+            window_name="my_window",
+            grid_name="editable_grid",
+            parent=parent
+        )
+        
+        self.model = EditableModel()
+        self.table_view.setModel(self.model)
+        self.setup_quick_search(QuickSearchContainer, QuickSearchController)
+        
+        # Connect model signals
+        self.model.dataChanged.connect(self.items_changed.emit)
+        
+        self.apply_model_and_load_settings()
 ```
 
 ---
 
 **Init Prompt Created:** 2025-12-06  
-**Status:** BaseGrid implementovaný a otestovaný  
-**Ready for:** Nové gridy a ďalší vývoj
+**Status:** BaseGrid plne funkčný  
+**Ready for:** Production deployment a ďalší vývoj

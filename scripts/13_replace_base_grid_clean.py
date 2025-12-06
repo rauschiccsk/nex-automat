@@ -1,23 +1,16 @@
 """
-Script 02: Create BaseGrid in nex-shared package
-
-Vytvorí BaseGrid.py v packages/nex-shared/ui/ s podobnou logikou ako BaseWindow.
-
-Spustenie:
-    python scripts\02-create-base-grid.py
+Replace: Nahradí rozhádzaný base_grid.py čistou verziou
+Location: C:\Development\nex-automat\scripts\13_replace_base_grid_clean.py
 """
-
-import sys
 from pathlib import Path
 
-# Project root
-project_root = Path(__file__).parent.parent
+# Paths
+SCRIPT_DIR = Path(__file__).parent
+DEV_ROOT = SCRIPT_DIR.parent
+BASE_GRID = DEV_ROOT / "packages" / "nex-shared" / "ui" / "base_grid.py"
 
-
-def create_base_grid():
-    """Vytvorí BaseGrid súbor v nex-shared/ui/"""
-
-    base_grid_content = '''"""
+# Čistá verzia - copy from artifact
+CLEAN_CONTENT = '''"""
 BaseGrid - univerzálna base trieda pre všetky gridy
 Automatická grid persistence (column widths, active column, quick search).
 """
@@ -179,9 +172,17 @@ class BaseGrid(QWidget):
 
     def _load_grid_settings(self):
         """Načíta a aplikuje uložené nastavenia gridu."""
+        print(f"[LOAD] _load_grid_settings called: {self._window_name}/{self._grid_name}")
+
+        header = self.table_view.horizontalHeader()
+
         try:
+            # Disconnect signals during load to prevent recursive save
+            header.sectionResized.disconnect(self._on_column_resized)
+            header.sectionMoved.disconnect(self._on_column_moved)
+
             # Import grid_settings functions
-            from ...utils.grid_settings import load_column_settings, load_grid_settings
+            from ..utils.grid_settings import load_column_settings, load_grid_settings
 
             model = self.table_view.model()
             if not model:
@@ -195,8 +196,9 @@ class BaseGrid(QWidget):
                 self._user_id
             )
 
+            print(f"[LOAD] column_settings loaded: {column_settings is not None}")
             if column_settings:
-                header = self.table_view.horizontalHeader()
+                print(f"[LOAD] Found {len(column_settings)} column settings")
 
                 # Aplikuj nastavenia pre každý stĺpec
                 for col_idx in range(model.columnCount()):
@@ -210,6 +212,7 @@ class BaseGrid(QWidget):
                     )
 
                     if col_settings:
+                        print(f"[LOAD] Applying settings for column {col_idx}: {col_name} - width={col_settings.get('width')}")
                         # Šírka stĺpca
                         if 'width' in col_settings:
                             header.resizeSection(col_idx, col_settings['width'])
@@ -240,6 +243,7 @@ class BaseGrid(QWidget):
             )
 
             if grid_settings and 'active_column_index' in grid_settings:
+                print(f"[LOAD] Found grid settings, active_column={grid_settings['active_column_index']}")
                 active_col = grid_settings['active_column_index']
 
                 # Nastav aktívny stĺpec v quick search
@@ -252,16 +256,24 @@ class BaseGrid(QWidget):
         except Exception as e:
             self.logger.error(f"Error loading grid settings: {e}")
 
+        finally:
+            # Reconnect signals after load
+            header.sectionResized.connect(self._on_column_resized)
+            header.sectionMoved.connect(self._on_column_moved)
+
     def _save_grid_settings(self):
         """Uloží aktuálne nastavenia gridu."""
+        print(f"[DEBUG] _save_grid_settings called: {self._window_name}/{self._grid_name}")
         try:
             # Import grid_settings functions
-            from ...utils.grid_settings import save_column_settings, save_grid_settings
+            from ..utils.grid_settings import save_column_settings, save_grid_settings
 
             model = self.table_view.model()
             if not model:
+                print(f"[DEBUG] No model for {self._window_name}/{self._grid_name}")
                 self.logger.warning("No model set, skipping grid settings save")
                 return
+            print(f"[DEBUG] Model OK, columns: {model.columnCount()}")
 
             header = self.table_view.horizontalHeader()
 
@@ -276,27 +288,33 @@ class BaseGrid(QWidget):
                     'visible': not self.table_view.isColumnHidden(col_idx)
                 })
 
-            # Ulož column settings
+            # Uloží column settings
+            print(f"[DEBUG] Saving {len(column_settings)} columns for {self._grid_name}")
             save_column_settings(
                 self._window_name, 
                 self._grid_name, 
                 column_settings, 
                 self._user_id
             )
+            print(f"[DEBUG] Column settings saved")
 
             # Zozbieraj grid settings (active column)
             active_column = None
             if self.search_controller:
                 active_column = self.search_controller.get_active_column()
 
-            # Ulož grid settings
+            # Uloží grid settings
             if active_column is not None:
+                print(f"[DEBUG] Saving active column: {active_column}")
                 save_grid_settings(
                     self._window_name, 
                     self._grid_name, 
                     active_column, 
                     self._user_id
                 )
+                print(f"[DEBUG] Grid settings saved")
+            else:
+                print(f"[DEBUG] No active column to save (search_controller={self.search_controller})")
 
             self.logger.debug(
                 f"Saved grid settings for {self._window_name}/{self._grid_name}"
@@ -344,68 +362,23 @@ class BaseGrid(QWidget):
         return self._grid_name
 '''
 
-    # Target file
-    target_file = project_root / "packages" / "nex-shared" / "ui" / "base_grid.py"
+
+def replace():
+    """Nahradí base_grid.py čistou verziou"""
 
     print("=" * 80)
-    print("CREATING BaseGrid IN NEX-SHARED")
+    print("REPLACE: base_grid.py s čistou verziou")
     print("=" * 80)
 
-    print(f"\n1. Target file: {target_file}")
+    # Write clean content
+    with open(BASE_GRID, 'w', encoding='utf-8') as f:
+        f.write(CLEAN_CONTENT)
 
-    # Create file
-    target_file.write_text(base_grid_content, encoding='utf-8')
-    print(f"   ✓ Created: {target_file}")
-
-    # Update __init__.py to export BaseGrid
-    init_file = project_root / "packages" / "nex-shared" / "ui" / "__init__.py"
-
-    print(f"\n2. Updating {init_file}")
-
-    if init_file.exists():
-        content = init_file.read_text(encoding='utf-8')
-
-        # Check if BaseGrid already exported
-        if 'BaseGrid' not in content:
-            # Add import
-            new_content = content.replace(
-                'from .base_window import BaseWindow',
-                'from .base_window import BaseWindow\nfrom .base_grid import BaseGrid, GreenHeaderView'
-            )
-
-            # Update __all__
-            if '__all__' in new_content:
-                new_content = new_content.replace(
-                    "__all__ = ['BaseWindow']",
-                    "__all__ = ['BaseWindow', 'BaseGrid', 'GreenHeaderView']"
-                )
-            else:
-                # Add __all__ if missing
-                new_content += "\n\n__all__ = ['BaseWindow', 'BaseGrid', 'GreenHeaderView']\n"
-
-            init_file.write_text(new_content, encoding='utf-8')
-            print(f"   ✓ Updated __init__.py with BaseGrid export")
-        else:
-            print(f"   - BaseGrid already exported in __init__.py")
-    else:
-        # Create new __init__.py
-        init_content = """\"\"\"
-UI components for NEX Automat
-\"\"\"
-from .base_window import BaseWindow
-from .base_grid import BaseGrid, GreenHeaderView
-
-__all__ = ['BaseWindow', 'BaseGrid', 'GreenHeaderView']
-"""
-        init_file.write_text(init_content, encoding='utf-8')
-        print(f"   ✓ Created __init__.py with exports")
-
-    print("\n" + "=" * 80)
-    print("BaseGrid CREATED SUCCESSFULLY")
-    print("=" * 80)
-    print("\nNext step: Test import")
-    print("  python scripts\\03-test-base-grid-import.py")
+    print(f"\n✓ File replaced: {BASE_GRID.relative_to(DEV_ROOT)}")
+    print("\nTeraz:")
+    print("  1. Spusti aplikáciu - syntax error by mal byť vyriešený")
+    print("  2. Testuj active column persistence")
 
 
 if __name__ == "__main__":
-    create_base_grid()
+    replace()
