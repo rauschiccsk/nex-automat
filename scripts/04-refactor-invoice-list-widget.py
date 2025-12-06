@@ -1,4 +1,43 @@
 """
+Script 04: Refactor invoice_list_widget.py to use BaseGrid
+
+Refaktoruje InvoiceListWidget aby používal BaseGrid z nex-shared.
+
+Spustenie:
+    python scripts\04-refactor-invoice-list-widget.py
+"""
+
+import sys
+from pathlib import Path
+import shutil
+from datetime import datetime
+
+# Project root
+project_root = Path(__file__).parent.parent
+
+
+def refactor_invoice_list_widget():
+    """Refaktoruje invoice_list_widget.py"""
+
+    target_file = project_root / "apps" / "supplier-invoice-editor" / "src" / "ui" / "widgets" / "invoice_list_widget.py"
+
+    print("=" * 80)
+    print("REFACTORING invoice_list_widget.py TO USE BaseGrid")
+    print("=" * 80)
+
+    print(f"\n1. Target file: {target_file}")
+
+    if not target_file.exists():
+        print("   ERROR: File not found!")
+        return
+
+    # Create backup
+    backup_file = target_file.with_suffix(f'.py.backup_{datetime.now().strftime("%Y%m%d_%H%M%S")}')
+    shutil.copy2(target_file, backup_file)
+    print(f"   ✓ Backup created: {backup_file.name}")
+
+    # New refactored content
+    refactored_content = '''"""
 Invoice List Widget - QTableView for displaying pending invoices
 Refactored to use BaseGrid from nex-shared
 """
@@ -238,3 +277,32 @@ class InvoiceListWidget(BaseGrid):
         """Get currently selected invoice ID"""
         invoice = self.get_selected_invoice()
         return invoice['id'] if invoice else None
+'''
+
+    # Write refactored file
+    target_file.write_text(refactored_content, encoding='utf-8')
+    print(f"\n2. ✓ Refactored file saved")
+
+    # Summary
+    print("\n3. Changes made:")
+    print("   ✓ Changed base class: QWidget → BaseGrid")
+    print("   ✓ Removed duplicate _setup_ui code")
+    print("   ✓ Removed duplicate GreenHeaderView code")
+    print("   ✓ Removed duplicate QuickSearchContainer code")
+    print("   ✓ Removed duplicate _load_grid_settings code")
+    print("   ✓ Removed duplicate _save_grid_settings code")
+    print("   ✓ Removed duplicate _on_column_resized handler")
+    print("   ✓ Removed duplicate _on_column_moved handler")
+    print("   ✓ Added setup_quick_search() call")
+    print("   ✓ Added apply_model_and_load_settings() call")
+    print("   ✓ Kept only custom logic (model, signals, column widths)")
+
+    print("\n" + "=" * 80)
+    print("REFACTORING COMPLETE")
+    print("=" * 80)
+    print("\nNext step: Refactor invoice_items_grid.py")
+    print("  python scripts\\05-refactor-invoice-items-grid.py")
+
+
+if __name__ == "__main__":
+    refactor_invoice_list_widget()

@@ -1,4 +1,43 @@
 """
+Script 06: Cleanup quick_search.py - remove GreenHeaderView
+
+Odstráni GreenHeaderView z quick_search.py lebo je už v BaseGrid.
+
+Spustenie:
+    python scripts\06-cleanup-quick-search.py
+"""
+
+import sys
+from pathlib import Path
+import shutil
+from datetime import datetime
+
+# Project root
+project_root = Path(__file__).parent.parent
+
+
+def cleanup_quick_search():
+    """Vyčistí quick_search.py"""
+
+    target_file = project_root / "apps" / "supplier-invoice-editor" / "src" / "ui" / "widgets" / "quick_search.py"
+
+    print("=" * 80)
+    print("CLEANING UP quick_search.py")
+    print("=" * 80)
+
+    print(f"\n1. Target file: {target_file}")
+
+    if not target_file.exists():
+        print("   ERROR: File not found!")
+        return
+
+    # Create backup
+    backup_file = target_file.with_suffix(f'.py.backup_{datetime.now().strftime("%Y%m%d_%H%M%S")}')
+    shutil.copy2(target_file, backup_file)
+    print(f"   ✓ Backup created: {backup_file.name}")
+
+    # New cleaned content (removed GreenHeaderView, kept only QuickSearch components)
+    cleaned_content = '''"""
 Quick Search Widget - NEX Genesis style incremental search
 Rýchlo-vyhľadávač v štýle NEX Genesis
 
@@ -467,3 +506,28 @@ class QuickSearchController(QObject):
         self.search_container.set_column(column)
         self.search_edit.clear()
         self._sort_by_column(column)
+'''
+
+    # Write cleaned file
+    target_file.write_text(cleaned_content, encoding='utf-8')
+    print(f"\n2. ✓ Cleaned file saved")
+
+    # Summary
+    print("\n3. Changes made:")
+    print("   ✓ Removed GreenHeaderView class (now in BaseGrid)")
+    print("   ✓ Removed HighlightHeaderView class (unused)")
+    print("   ✓ Kept QuickSearchEdit")
+    print("   ✓ Kept QuickSearchContainer")
+    print("   ✓ Kept QuickSearchController")
+    print("   ✓ Updated header highlight logic to use external GreenHeaderView")
+
+    print("\n" + "=" * 80)
+    print("CLEANUP COMPLETE")
+    print("=" * 80)
+    print("\nNext step: Test the application")
+    print("  cd apps/supplier-invoice-editor")
+    print("  python main.py")
+
+
+if __name__ == "__main__":
+    cleanup_quick_search()

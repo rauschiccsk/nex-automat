@@ -1,8 +1,6 @@
 """
 Quick Search Widget - NEX Genesis style incremental search
 Rýchlo-vyhľadávač v štýle NEX Genesis
-
-Note: GreenHeaderView is now in nex-shared/ui/base_grid.py
 """
 
 import logging
@@ -11,6 +9,84 @@ from PyQt5.QtCore import Qt, pyqtSignal, QTimer, QEvent, QObject
 from PyQt5.QtGui import QPalette, QColor
 
 from ...utils.text_utils import normalize_for_search, is_numeric, normalize_numeric
+from PyQt5.QtWidgets import QHeaderView
+from PyQt5.QtCore import Qt, QRect
+from PyQt5.QtGui import QPainter, QColor, QPen
+
+
+class GreenHeaderView(QHeaderView):
+    """Custom QHeaderView with green highlighting for active column"""
+
+    def __init__(self, orientation, parent=None):
+        super().__init__(orientation, parent)
+        self.active_column = 0
+
+    def paintSection(self, painter, rect, logicalIndex):
+        """Custom paint for each header section"""
+        painter.save()
+
+        # Background color
+        if logicalIndex == self.active_column:
+            painter.fillRect(rect, QColor(144, 238, 144))  # Light green
+        else:
+            painter.fillRect(rect, QColor(240, 240, 240))  # Light gray
+
+        # Border
+        painter.setPen(QPen(QColor(160, 160, 160)))
+        painter.drawLine(rect.topRight(), rect.bottomRight())
+        painter.drawLine(rect.bottomLeft(), rect.bottomRight())
+
+        # Text
+        text = self.model().headerData(logicalIndex, self.orientation(), Qt.DisplayRole)
+        painter.setPen(QPen(QColor(0, 0, 0)))
+        painter.drawText(rect, Qt.AlignCenter, str(text) if text else "")
+
+        painter.restore()
+
+    def set_active_column(self, column):
+        """Set which column is active for search"""
+        self.active_column = column
+        self.viewport().update()
+
+
+class HighlightHeaderView(QWidget):
+    """Custom header view that supports column highlighting"""
+
+    def __init__(self, table_view, parent=None):
+        super().__init__(parent)
+        self.table_view = table_view
+        self.active_column = 0
+
+        # Get reference to actual header
+        self.header = table_view.horizontalHeader()
+
+    def set_active_column(self, column):
+        """Set which column should be highlighted"""
+        self.active_column = column
+        # Trigger header repaint
+        self.header.viewport().update()
+
+    def paint_header_section(self, painter, rect, logical_index):
+        """Custom paint for header section - called from delegate"""
+        from PyQt5.QtGui import QColor, QPen
+        from PyQt5.QtCore import Qt
+
+        # Background color
+        if logical_index == self.active_column:
+            painter.fillRect(rect, QColor(144, 238, 144))  # Light green
+        else:
+            painter.fillRect(rect, QColor(240, 240, 240))  # Light gray
+
+        # Border
+        painter.setPen(QPen(QColor(160, 160, 160)))
+        painter.drawRect(rect)
+
+        # Text
+        model = self.table_view.model()
+        if model:
+            text = model.headerData(logical_index, Qt.Horizontal, Qt.DisplayRole)
+            painter.setPen(QPen(QColor(0, 0, 0)))
+            painter.drawText(rect, Qt.AlignCenter, str(text))
 
 
 class QuickSearchEdit(QLineEdit):
@@ -152,13 +228,61 @@ class QuickSearchContainer(QWidget):
         # Store active column
         self._active_search_column = column
 
-        # Update custom header view if it has set_active_column method
+        # Update custom header view if it's GreenHeaderView
         if hasattr(header, 'set_active_column'):
             header.set_active_column(column)
-            self.logger.info(f"Header updated to column {column}")
+            self.logger.info(f"GreenHeaderView updated to column {column}")
+
+        # Apply custom stylesheet that highlights the section
+        # We'll use a workaround: set section background via model
+        model = self.table_view.model()
+        if model:
+            # Reset all column backgrounds
+            for col in range(model.columnCount()):
+                model.headerData(col, Qt.Horizontal, Qt.BackgroundRole)
+
+            # Set green for active column using custom painting
+            from PyQt5.QtGui import QColor
+            green = QColor(144, 238, 144)
+
+            # We need to use custom delegate or stylesheet per section
+            # For now, force entire header stylesheet update
+            header.setStyleSheet(f"""
+                QHeaderView::section {{
+                    background-color: #f0f0f0;
+                    padding: 4px;
+                    border: 1px solid #a0a0a0;
+                }}
+                QHeaderView::section:horizontal {{
+                    background-color: #f0f0f0;
+                }}
+            """)
+
+            # Manually paint via stylesheet is limited, we'll use custom approach
+            # Store column index as property
+            header.setProperty("activeColumn", column)
+
+            # WORKAROUND: Set different stylesheet per column using nth-child like selector
+            # This won't work in Qt, so we use custom header delegate
+            self._apply_custom_header_color(column)
 
         header.viewport().update()
         self.logger.info(f"Header highlighted for column {column}")
+
+    def _apply_custom_header_color(self, column):
+        """Apply custom color to header column using palette hack"""
+        header = self.table_view.horizontalHeader()
+
+        # Create custom style for header that respects activeColumn property
+        # This is a workaround since QHeaderView doesn't support per-section background easily
+        from PyQt5.QtWidgets import QStyle, QStyleOptionHeader
+        from PyQt5.QtCore import QRect
+
+        # Force repaint with custom colors by setting section highlight
+        for i in range(header.count()):
+            if i == column:
+                # This section should be green - we'll handle in paint event
+                pass
 
 
 class QuickSearchController(QObject):
@@ -439,10 +563,11 @@ class QuickSearchController(QObject):
 
         return None
 
+
     def get_active_column(self):
         """
         Vráti index aktuálne aktívneho stĺpca.
-
+        
         Returns:
             int: Index aktívneho stĺpca
         """
@@ -451,7 +576,7 @@ class QuickSearchController(QObject):
     def set_active_column(self, column):
         """
         Nastaví aktívny stĺpec a aktualizuje UI.
-
+        
         Args:
             column: Index stĺpca
         """
@@ -460,7 +585,6 @@ class QuickSearchController(QObject):
             self._sort_by_column(column)
             self.search_container.set_column(column)
             self.logger.info(f"Active column set to {column}")
-
     def set_column(self, column):
         """Set active search column programmatically"""
         self.current_column = column

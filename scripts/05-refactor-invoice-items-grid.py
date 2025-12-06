@@ -1,4 +1,43 @@
 """
+Script 05: Refactor invoice_items_grid.py to use BaseGrid
+
+Refaktoruje InvoiceItemsGrid aby používal BaseGrid z nex-shared.
+
+Spustenie:
+    python scripts\05-refactor-invoice-items-grid.py
+"""
+
+import sys
+from pathlib import Path
+import shutil
+from datetime import datetime
+
+# Project root
+project_root = Path(__file__).parent.parent
+
+
+def refactor_invoice_items_grid():
+    """Refaktoruje invoice_items_grid.py"""
+
+    target_file = project_root / "apps" / "supplier-invoice-editor" / "src" / "ui" / "widgets" / "invoice_items_grid.py"
+
+    print("=" * 80)
+    print("REFACTORING invoice_items_grid.py TO USE BaseGrid")
+    print("=" * 80)
+
+    print(f"\n1. Target file: {target_file}")
+
+    if not target_file.exists():
+        print("   ERROR: File not found!")
+        return
+
+    # Create backup
+    backup_file = target_file.with_suffix(f'.py.backup_{datetime.now().strftime("%Y%m%d_%H%M%S")}')
+    shutil.copy2(target_file, backup_file)
+    print(f"   ✓ Backup created: {backup_file.name}")
+
+    # New refactored content
+    refactored_content = '''"""
 Invoice Items Grid - Editable grid for invoice line items
 Refactored to use BaseGrid from nex-shared
 """
@@ -302,3 +341,32 @@ class InvoiceItemsGrid(BaseGrid):
     def get_items(self):
         """Get current items"""
         return self.model.get_items()
+'''
+
+    # Write refactored file
+    target_file.write_text(refactored_content, encoding='utf-8')
+    print(f"\n2. ✓ Refactored file saved")
+
+    # Summary
+    print("\n3. Changes made:")
+    print("   ✓ Changed base class: QWidget → BaseGrid")
+    print("   ✓ Removed duplicate _setup_ui code")
+    print("   ✓ Removed duplicate GreenHeaderView code")
+    print("   ✓ Removed duplicate QuickSearchContainer code")
+    print("   ✓ Removed duplicate _load_grid_settings code")
+    print("   ✓ Removed duplicate _save_grid_settings code")
+    print("   ✓ Removed duplicate _on_column_resized handler")
+    print("   ✓ Removed duplicate _on_column_moved handler")
+    print("   ✓ Added setup_quick_search() call")
+    print("   ✓ Added apply_model_and_load_settings() call")
+    print("   ✓ Kept only custom logic (model, signals, column widths)")
+
+    print("\n" + "=" * 80)
+    print("REFACTORING COMPLETE")
+    print("=" * 80)
+    print("\nNext step: Update quick_search.py to remove GreenHeaderView")
+    print("  python scripts\\06-cleanup-quick-search.py")
+
+
+if __name__ == "__main__":
+    refactor_invoice_items_grid()

@@ -2,15 +2,15 @@
   "name": "supplier-invoice-editor",
   "type": "application",
   "location": "apps/supplier-invoice-editor",
-  "generated": "2025-12-06T18:18:39.713850",
+  "generated": "2025-12-06T19:08:29.629964",
   "statistics": {
-    "total_files": 106,
+    "total_files": 109,
     "total_dirs": 28,
     "python_files": 54,
     "powershell_files": 0,
     "test_files": 8,
-    "total_lines": 8142,
-    "total_size": 1735942
+    "total_lines": 7867,
+    "total_size": 1770745
   },
   "structure": {
     "has_src": true,
@@ -548,10 +548,10 @@
     {
       "path": "apps/supplier-invoice-editor/src/ui/widgets/invoice_items_grid.py",
       "name": "invoice_items_grid.py",
-      "size": 13784,
+      "size": 10929,
       "extension": ".py",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-editor/src/ui/widgets/invoice_items_grid.py",
-      "lines": 360,
+      "lines": 304,
       "type": "source"
     },
     {
@@ -567,6 +567,13 @@
       "size": 9843,
       "extension": ".backup2",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-editor/src/ui/widgets/invoice_items_grid.py.backup2"
+    },
+    {
+      "path": "apps/supplier-invoice-editor/src/ui/widgets/invoice_items_grid.py.backup_20251206_190055",
+      "name": "invoice_items_grid.py.backup_20251206_190055",
+      "size": 13784,
+      "extension": ".backup_20251206_190055",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-editor/src/ui/widgets/invoice_items_grid.py.backup_20251206_190055"
     },
     {
       "path": "apps/supplier-invoice-editor/src/ui/widgets/invoice_items_grid.py.backup_init",
@@ -599,10 +606,10 @@
     {
       "path": "apps/supplier-invoice-editor/src/ui/widgets/invoice_list_widget.py",
       "name": "invoice_list_widget.py",
-      "size": 12572,
+      "size": 8144,
       "extension": ".py",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-editor/src/ui/widgets/invoice_list_widget.py",
-      "lines": 335,
+      "lines": 240,
       "type": "source"
     },
     {
@@ -625,6 +632,13 @@
       "size": 6797,
       "extension": ".backup2",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-editor/src/ui/widgets/invoice_list_widget.py.backup2"
+    },
+    {
+      "path": "apps/supplier-invoice-editor/src/ui/widgets/invoice_list_widget.py.backup_20251206_185920",
+      "name": "invoice_list_widget.py.backup_20251206_185920",
+      "size": 12572,
+      "extension": ".backup_20251206_185920",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-editor/src/ui/widgets/invoice_list_widget.py.backup_20251206_185920"
     },
     {
       "path": "apps/supplier-invoice-editor/src/ui/widgets/invoice_list_widget.py.backup_active_column",
@@ -671,10 +685,10 @@
     {
       "path": "apps/supplier-invoice-editor/src/ui/widgets/quick_search.py",
       "name": "quick_search.py",
-      "size": 20593,
+      "size": 15730,
       "extension": ".py",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-editor/src/ui/widgets/quick_search.py",
-      "lines": 593,
+      "lines": 469,
       "type": "source"
     },
     {
@@ -739,6 +753,13 @@
       "size": 19358,
       "extension": ".backup9",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-editor/src/ui/widgets/quick_search.py.backup9"
+    },
+    {
+      "path": "apps/supplier-invoice-editor/src/ui/widgets/quick_search.py.backup_20251206_190304",
+      "name": "quick_search.py.backup_20251206_190304",
+      "size": 20593,
+      "extension": ".backup_20251206_190304",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-editor/src/ui/widgets/quick_search.py.backup_20251206_190304"
     },
     {
       "path": "apps/supplier-invoice-editor/src/utils/__init__.py",

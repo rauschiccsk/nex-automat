@@ -1,24 +1,18 @@
 """
 Invoice List Widget - QTableView for displaying pending invoices
-Refactored to use BaseGrid from nex-shared
 """
 
 import logging
-from pathlib import Path
-from PyQt5.QtWidgets import QHeaderView
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QTableView, QHeaderView, QAbstractItemView
 from PyQt5.QtCore import Qt, QAbstractTableModel, QVariant, pyqtSignal
+from ...utils.constants import WINDOW_MAIN, GRID_INVOICE_LIST
+from ...utils.grid_settings import (
+    load_column_settings, save_column_settings,
+    load_grid_settings, save_grid_settings
+)
 from decimal import Decimal
 
-# Import BaseGrid from nex-shared
-nex_shared_path = Path(__file__).parent.parent.parent.parent.parent / "packages" / "nex-shared"
-import sys
-sys.path.insert(0, str(nex_shared_path))
-from nex_shared.ui import BaseGrid
-
-# Import QuickSearch components from local widgets
-from .quick_search import QuickSearchContainer, QuickSearchController
-
-from ...utils.constants import WINDOW_MAIN, GRID_INVOICE_LIST
+from .quick_search import QuickSearchContainer, QuickSearchController, GreenHeaderView
 
 
 class InvoiceListModel(QAbstractTableModel):
@@ -46,6 +40,7 @@ class InvoiceListModel(QAbstractTableModel):
         self._invoices = invoices
         self.endResetModel()
         self.logger.info(f"Model updated with {len(invoices)} invoices")
+
 
     def update_invoices(self, invoices):
         """Alias for set_invoices() - for compatibility with main_window.py"""
@@ -136,43 +131,47 @@ class InvoiceListModel(QAbstractTableModel):
         self.logger.info(f"Sorted by {column_key}, reverse={reverse}")
 
 
-class InvoiceListWidget(BaseGrid):
-    """Widget for displaying invoice list - uses BaseGrid"""
+class InvoiceListWidget(QWidget):
+    """Widget for displaying invoice list"""
 
     # Signals
     invoice_selected = pyqtSignal(int)  # invoice_id
     invoice_activated = pyqtSignal(int)  # invoice_id (double-click)
 
     def __init__(self, invoice_service, parent=None):
-        # Initialize BaseGrid
-        super().__init__(
-            window_name=WINDOW_MAIN,
-            grid_name=GRID_INVOICE_LIST,
-            parent=parent
-        )
+        super().__init__(parent)
 
         self.invoice_service = invoice_service
+        self.logger = logging.getLogger(__name__)
+
+        self._setup_ui()
+        self._connect_signals()
+
+
+        # Load grid settings
+        self._load_grid_settings()
+    def _setup_ui(self):
+        """Setup widget UI"""
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(5, 5, 5, 5)
+
+        # Create table view
+        self.table_view = QTableView()
+
+        # Replace header with custom green header
+        custom_header = GreenHeaderView(Qt.Horizontal, self.table_view)
+        self.table_view.setHorizontalHeader(custom_header)
+        self.table_view.setAlternatingRowColors(True)
+        self.table_view.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self.table_view.setSelectionMode(QAbstractItemView.SingleSelection)
+        # Sorting will be enabled by QuickSearchController
+        self.table_view.setSortingEnabled(False)
 
         # Create and set model
         self.model = InvoiceListModel(self)
         self.table_view.setModel(self.model)
 
-        # Setup custom UI (column widths, etc.)
-        self._setup_custom_ui()
-
-        # Setup quick search
-        self.setup_quick_search(QuickSearchContainer, QuickSearchController)
-
-        # Connect signals
-        self._connect_signals()
-
-        # Apply model and load settings (AFTER model is set)
-        self.apply_model_and_load_settings()
-
-        self.logger.info("Invoice list widget initialized with BaseGrid")
-
-    def _setup_custom_ui(self):
-        """Setup custom UI (column widths)"""
+        # Configure headers
         header = self.table_view.horizontalHeader()
         header.setStretchLastSection(True)
 
@@ -185,6 +184,21 @@ class InvoiceListWidget(BaseGrid):
         header.resizeSection(5, 100)  # Amount
         header.resizeSection(6, 60)   # Currency
         header.resizeSection(7, 100)  # Status
+
+        layout.addWidget(self.table_view)
+
+        # Add quick search container (positions editor under active column)
+        self.quick_search_container = QuickSearchContainer(self.table_view, self)
+        layout.addWidget(self.quick_search_container)
+
+        # Create quick search controller
+        self.search_controller = QuickSearchController(self.table_view, self.quick_search_container)
+
+        self.logger.info("Invoice list widget UI setup complete (with quick search)")
+
+        # Connect header signals for grid settings
+        header.sectionResized.connect(self._on_column_resized)
+        header.sectionMoved.connect(self._on_column_moved)
 
     def _connect_signals(self):
         """Connect signals"""
@@ -201,10 +215,11 @@ class InvoiceListWidget(BaseGrid):
         self.logger.info(f"Invoice list updated with {len(invoices)} invoices")
 
         # Sort by current search column after data loaded
-        if self.search_controller:
+        if hasattr(self, 'search_controller'):
             current_col = self.search_controller.current_column
             self.search_controller._sort_by_column(current_col)
             self.logger.info(f"Re-sorted by column {current_col} after data load")
+
 
     def update_invoices(self, invoices):
         """Alias for set_invoices() - for compatibility with main_window.py"""
@@ -238,3 +253,83 @@ class InvoiceListWidget(BaseGrid):
         """Get currently selected invoice ID"""
         invoice = self.get_selected_invoice()
         return invoice['id'] if invoice else None
+
+
+    def _load_grid_settings(self):
+        """Načíta a aplikuje uložené nastavenia gridu."""
+        from ...utils.constants import GRID_INVOICE_LIST
+        from ...utils.grid_settings import load_column_settings, load_grid_settings
+
+        # Načítaj column settings
+        column_settings = load_column_settings(WINDOW_MAIN, GRID_INVOICE_LIST)
+
+        if column_settings:
+            header = self.table_view.horizontalHeader()
+
+            # Aplikuj nastavenia pre každý stĺpec
+            for col_idx in range(self.model.columnCount()):
+                col_name = self.model.COLUMNS[col_idx][0]
+                # Nájdi nastavenia pre tento stĺpec
+                col_settings = next((s for s in column_settings if s.get('column_name') == col_name), None)
+                if col_settings:
+
+                    # Šírka stĺpca
+                    if 'width' in col_settings:
+                        header.resizeSection(col_idx, col_settings['width'])
+
+                    # Vizuálny index (poradie)
+                    if 'visual_index' in col_settings:
+                        header.moveSection(header.visualIndex(col_idx), col_settings['visual_index'])
+
+                    # Viditeľnosť
+                    if 'visible' in col_settings:
+                        self.table_view.setColumnHidden(col_idx, not col_settings['visible'])
+
+        # Načítaj grid settings (active column pre quick search)
+        grid_settings = load_grid_settings(WINDOW_MAIN, GRID_INVOICE_LIST)
+
+        if grid_settings and 'active_column_index' in grid_settings:
+            active_col = grid_settings['active_column_index']
+            # Nastav aktívny stĺpec v quick search
+            if hasattr(self, 'search_controller') and self.search_controller:
+                self.search_controller.set_active_column(active_col)
+                self.logger.info(f"Loaded active column: {active_col}")
+
+    def _save_grid_settings(self):
+        """Uloží aktuálne nastavenia gridu."""
+        from ...utils.constants import GRID_INVOICE_LIST
+        from ...utils.grid_settings import save_column_settings, save_grid_settings
+
+        header = self.table_view.horizontalHeader()
+
+        # Zozbieraj column settings
+        column_settings = []
+        for col_idx in range(self.model.columnCount()):
+            col_name = self.model.COLUMNS[col_idx][0]
+            column_settings.append({
+                'column_name': col_name,
+                'width': header.sectionSize(col_idx),
+                'visual_index': header.visualIndex(col_idx),
+                'visible': not self.table_view.isColumnHidden(col_idx)
+            })
+
+        # Ulož column settings
+        save_column_settings(WINDOW_MAIN, GRID_INVOICE_LIST, column_settings)
+
+        # Zozbieraj grid settings (active column)
+        active_column = None
+        if hasattr(self, 'search_controller') and self.search_controller:
+            active_column = self.search_controller.get_active_column()
+            self.logger.info(f"Saving active column: {active_column}")
+
+        # Ulož grid settings (active_column_index ako tretí parameter)
+        if active_column is not None:
+            save_grid_settings(WINDOW_MAIN, GRID_INVOICE_LIST, active_column)
+
+    def _on_column_resized(self, logical_index, old_size, new_size):
+        """Handler pre zmenu šírky stĺpca."""
+        self._save_grid_settings()
+
+    def _on_column_moved(self, logical_index, old_visual_index, new_visual_index):
+        """Handler pre presunutie stĺpca."""
+        self._save_grid_settings()
