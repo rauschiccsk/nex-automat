@@ -1,8 +1,7 @@
 """
-NEX Shared Database Components
+Database components for nex-shared package
 """
-from database.window_settings_db import WindowSettingsDB
 
-__all__ = [
-    'WindowSettingsDB',
-]
+from .window_settings_db import WindowSettingsDB
+
+__all__ = ['WindowSettingsDB']

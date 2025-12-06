@@ -8,8 +8,8 @@ from PyQt5.QtCore import Qt, QAbstractTableModel, QVariant, QModelIndex, pyqtSig
 from decimal import Decimal, InvalidOperation
 
 from .quick_search import QuickSearchContainer, QuickSearchController, GreenHeaderView
-from utils.constants import WINDOW_MAIN, GRID_INVOICE_ITEMS
-from utils.grid_settings import (
+from ...utils.constants import WINDOW_MAIN, GRID_INVOICE_ITEMS
+from ...utils.grid_settings import (
     load_column_settings, save_column_settings,
     load_grid_settings, save_grid_settings
 )

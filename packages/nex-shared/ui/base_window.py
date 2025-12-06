@@ -7,8 +7,8 @@ from typing import Optional, Tuple
 from PyQt5.QtWidgets import QMainWindow
 from PyQt5.QtCore import Qt
 
-from database.window_settings_db import WindowSettingsDB
-from ui.window_persistence import WindowPersistenceManager
+from ..database.window_settings_db import WindowSettingsDB
+from .window_persistence import WindowPersistenceManager
 
 logger = logging.getLogger(__name__)
 
@@ -131,34 +131,37 @@ class BaseWindow(QMainWindow):
                 )
                 logger.info(f"Window '{self._window_name}' saved as maximized")
             else:
-                # Normal window
+                # Normal window - get actual size
                 x, y = self.x(), self.y()
                 width, height = self.width(), self.height()
 
-                # Validate before save
-                if self._persistence.validate_position(x, y, width, height):
-                    self._db.save(
-                        window_name=self._window_name,
-                        x=x,
-                        y=y,
-                        width=width,
-                        height=height,
-                        window_state=0,  # Normal
-                        user_id=self._user_id
-                    )
-                    logger.info(
-                        f"Window '{self._window_name}' saved at "
-                        f"({x}, {y}) [{width}x{height}]"
-                    )
-                else:
+                # Validate and correct position if needed
+                if not self._persistence.validate_position(x, y, width, height):
                     logger.warning(
-                        f"Invalid position not saved for '{self._window_name}': "
-                        f"({x}, {y}) [{width}x{height}]"
+                        f"Invalid position for '{self._window_name}': "
+                        f"({x}, {y}) [{width}x{height}] - correcting"
                     )
+                    # Correct position but keep actual size
+                    x = max(0, min(x, 1920 - width))  # Keep on primary monitor
+                    y = max(0, min(y, 1080 - height))
+
+                # ALWAYS save (with corrected position if needed)
+                self._db.save(
+                    window_name=self._window_name,
+                    x=x,
+                    y=y,
+                    width=width,
+                    height=height,
+                    window_state=0,  # Normal
+                    user_id=self._user_id
+                )
+                logger.info(
+                    f"Window '{self._window_name}' saved at "
+                    f"({x}, {y}) [{width}x{height}]"
+                )
 
         except Exception as e:
             logger.error(f"Error saving window settings for '{self._window_name}': {e}")
-
     def closeEvent(self, event):
         """Override closeEvent to save settings."""
         self._save_settings()

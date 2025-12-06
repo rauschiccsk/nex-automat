@@ -1,10 +1,8 @@
 """
-NEX Shared UI Components
+UI components for nex-shared package
 """
-from ui.base_window import BaseWindow
-from ui.window_persistence import WindowPersistenceManager
 
-__all__ = [
-    'BaseWindow',
-    'WindowPersistenceManager',
-]
+from .base_window import BaseWindow
+from .window_persistence import WindowPersistenceManager
+
+__all__ = ['BaseWindow', 'WindowPersistenceManager']

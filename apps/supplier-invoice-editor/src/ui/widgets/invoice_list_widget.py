@@ -5,8 +5,8 @@ Invoice List Widget - QTableView for displaying pending invoices
 import logging
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QTableView, QHeaderView, QAbstractItemView
 from PyQt5.QtCore import Qt, QAbstractTableModel, QVariant, pyqtSignal
-from utils.constants import WINDOW_MAIN, GRID_INVOICE_LIST
-from utils.grid_settings import (
+from ...utils.constants import WINDOW_MAIN, GRID_INVOICE_LIST
+from ...utils.grid_settings import (
     load_column_settings, save_column_settings,
     load_grid_settings, save_grid_settings
 )
@@ -257,8 +257,8 @@ class InvoiceListWidget(QWidget):
 
     def _load_grid_settings(self):
         """Načíta a aplikuje uložené nastavenia gridu."""
-        from utils.constants import GRID_INVOICE_LIST
-        from utils.grid_settings import load_column_settings, load_grid_settings
+        from ...utils.constants import GRID_INVOICE_LIST
+        from ...utils.grid_settings import load_column_settings, load_grid_settings
 
         # Načítaj column settings
         column_settings = load_column_settings(WINDOW_MAIN, GRID_INVOICE_LIST)
@@ -297,8 +297,8 @@ class InvoiceListWidget(QWidget):
 
     def _save_grid_settings(self):
         """Uloží aktuálne nastavenia gridu."""
-        from utils.constants import GRID_INVOICE_LIST
-        from utils.grid_settings import save_column_settings, save_grid_settings
+        from ...utils.constants import GRID_INVOICE_LIST
+        from ...utils.grid_settings import save_column_settings, save_grid_settings
 
         header = self.table_view.horizontalHeader()
 

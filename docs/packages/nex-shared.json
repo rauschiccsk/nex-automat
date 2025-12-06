@@ -2,14 +2,14 @@
   "name": "nex-shared",
   "type": "package",
   "location": "packages/nex-shared",
-  "generated": "2025-12-06T01:33:33.329441",
+  "generated": "2025-12-06T12:32:22.236959",
   "statistics": {
-    "total_files": 8,
-    "total_dirs": 3,
-    "python_files": 8,
+    "total_files": 14,
+    "total_dirs": 4,
+    "python_files": 9,
     "test_files": 0,
-    "total_lines": 614,
-    "total_size": 19556
+    "total_lines": 668,
+    "total_size": 22371
   },
   "dependencies": {
     "main": [],
@@ -29,10 +29,10 @@
     {
       "path": "packages/nex-shared/database/__init__.py",
       "name": "__init__.py",
-      "size": 143,
+      "size": 140,
       "extension": ".py",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/packages/nex-shared/database/__init__.py",
-      "lines": 8,
+      "lines": 7,
       "type": "source"
     },
     {
@@ -45,21 +45,65 @@
       "type": "source"
     },
     {
+      "path": "packages/nex-shared/nex_shared.egg-info/PKG-INFO",
+      "name": "PKG-INFO",
+      "size": 856,
+      "extension": "",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/packages/nex-shared/nex_shared.egg-info/PKG-INFO"
+    },
+    {
+      "path": "packages/nex-shared/nex_shared.egg-info/SOURCES.txt",
+      "name": "SOURCES.txt",
+      "size": 297,
+      "extension": ".txt",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/packages/nex-shared/nex_shared.egg-info/SOURCES.txt"
+    },
+    {
+      "path": "packages/nex-shared/nex_shared.egg-info/dependency_links.txt",
+      "name": "dependency_links.txt",
+      "size": 1,
+      "extension": ".txt",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/packages/nex-shared/nex_shared.egg-info/dependency_links.txt"
+    },
+    {
+      "path": "packages/nex-shared/nex_shared.egg-info/requires.txt",
+      "name": "requires.txt",
+      "size": 52,
+      "extension": ".txt",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/packages/nex-shared/nex_shared.egg-info/requires.txt"
+    },
+    {
+      "path": "packages/nex-shared/nex_shared.egg-info/top_level.txt",
+      "name": "top_level.txt",
+      "size": 11,
+      "extension": ".txt",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/packages/nex-shared/nex_shared.egg-info/top_level.txt"
+    },
+    {
+      "path": "packages/nex-shared/setup.py",
+      "name": "setup.py",
+      "size": 1372,
+      "extension": ".py",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/packages/nex-shared/setup.py",
+      "lines": 54,
+      "type": "source"
+    },
+    {
       "path": "packages/nex-shared/ui/__init__.py",
       "name": "__init__.py",
-      "size": 205,
+      "size": 201,
       "extension": ".py",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/packages/nex-shared/ui/__init__.py",
-      "lines": 10,
+      "lines": 8,
       "type": "source"
     },
     {
       "path": "packages/nex-shared/ui/base_window.py",
       "name": "base_window.py",
-      "size": 6975,
+      "size": 7208,
       "extension": ".py",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/packages/nex-shared/ui/base_window.py",
-      "lines": 200,
+      "lines": 203,
       "type": "source"
     },
     {

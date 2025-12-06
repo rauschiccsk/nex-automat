@@ -12,8 +12,8 @@ import sys
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from btrieve.btrieve_client import BtrieveClient
-from models.gscat import GSCATRecord
-from models.barcode import BarcodeRecord
+from ..models.gscat import GSCATRecord
+from ..models.barcode import BarcodeRecord
 
 
 class NexLookupService:

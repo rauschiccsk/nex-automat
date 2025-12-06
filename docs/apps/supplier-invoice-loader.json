@@ -2,14 +2,14 @@
   "name": "supplier-invoice-loader",
   "type": "application",
   "location": "apps/supplier-invoice-loader",
-  "generated": "2025-12-06T01:33:33.164073",
+  "generated": "2025-12-06T12:32:22.043861",
   "statistics": {
-    "total_files": 135,
+    "total_files": 136,
     "total_dirs": 34,
     "python_files": 53,
     "test_files": 15,
     "total_lines": 10302,
-    "total_size": 9164304
+    "total_size": 9168621
   },
   "structure": {
     "has_src": true,
@@ -55,7 +55,7 @@
     {
       "path": "apps/supplier-invoice-loader/backups/backup.log",
       "name": "backup.log",
-      "size": 10058,
+      "size": 10698,
       "extension": ".log",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-loader/backups/backup.log"
     },
@@ -414,6 +414,13 @@
       "size": 3677,
       "extension": ".log",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-loader/logs/backup_daily_20251205.log"
+    },
+    {
+      "path": "apps/supplier-invoice-loader/logs/backup_daily_20251206.log",
+      "name": "backup_daily_20251206.log",
+      "size": 3677,
+      "extension": ".log",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-loader/logs/backup_daily_20251206.log"
     },
     {
       "path": "apps/supplier-invoice-loader/logs/backup_weekly_20251124.log",

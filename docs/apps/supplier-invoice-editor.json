@@ -2,14 +2,14 @@
   "name": "supplier-invoice-editor",
   "type": "application",
   "location": "apps/supplier-invoice-editor",
-  "generated": "2025-12-06T01:33:33.017486",
+  "generated": "2025-12-06T12:32:21.866918",
   "statistics": {
-    "total_files": 105,
+    "total_files": 106,
     "total_dirs": 28,
-    "python_files": 53,
+    "python_files": 54,
     "test_files": 8,
-    "total_lines": 8191,
-    "total_size": 1737542
+    "total_lines": 8117,
+    "total_size": 1734961
   },
   "structure": {
     "has_src": true,
@@ -169,10 +169,10 @@
     {
       "path": "apps/supplier-invoice-editor/main.py",
       "name": "main.py",
-      "size": 2656,
+      "size": 587,
       "extension": ".py",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-editor/main.py",
-      "lines": 98,
+      "lines": 28,
       "type": "source"
     },
     {
@@ -368,10 +368,10 @@
     {
       "path": "apps/supplier-invoice-editor/src/business/invoice_service.py",
       "name": "invoice_service.py",
-      "size": 12432,
+      "size": 12428,
       "extension": ".py",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-editor/src/business/invoice_service.py",
-      "lines": 341,
+      "lines": 339,
       "type": "source"
     },
     {
@@ -391,10 +391,19 @@
     {
       "path": "apps/supplier-invoice-editor/src/business/nex_lookup_service.py",
       "name": "nex_lookup_service.py",
-      "size": 6253,
+      "size": 6257,
       "extension": ".py",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-editor/src/business/nex_lookup_service.py",
       "lines": 182,
+      "type": "source"
+    },
+    {
+      "path": "apps/supplier-invoice-editor/src/config.py",
+      "name": "config.py",
+      "size": 1563,
+      "extension": ".py",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-editor/src/config.py",
+      "lines": 56,
       "type": "source"
     },
     {
@@ -472,10 +481,10 @@
     {
       "path": "apps/supplier-invoice-editor/src/ui/__init__.py",
       "name": "__init__.py",
-      "size": 348,
+      "size": 116,
       "extension": ".py",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-editor/src/ui/__init__.py",
-      "lines": 12,
+      "lines": 7,
       "type": "source"
     },
     {
@@ -499,10 +508,10 @@
     {
       "path": "apps/supplier-invoice-editor/src/ui/main_window.py",
       "name": "main_window.py",
-      "size": 10455,
+      "size": 8585,
       "extension": ".py",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-editor/src/ui/main_window.py",
-      "lines": 301,
+      "lines": 248,
       "type": "source"
     },
     {
@@ -538,7 +547,7 @@
     {
       "path": "apps/supplier-invoice-editor/src/ui/widgets/invoice_items_grid.py",
       "name": "invoice_items_grid.py",
-      "size": 13774,
+      "size": 13780,
       "extension": ".py",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-editor/src/ui/widgets/invoice_items_grid.py",
       "lines": 360,
@@ -589,7 +598,7 @@
     {
       "path": "apps/supplier-invoice-editor/src/ui/widgets/invoice_list_widget.py",
       "name": "invoice_list_widget.py",
-      "size": 12554,
+      "size": 12572,
       "extension": ".py",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-editor/src/ui/widgets/invoice_list_widget.py",
       "lines": 335,
@@ -661,7 +670,7 @@
     {
       "path": "apps/supplier-invoice-editor/src/ui/widgets/quick_search.py",
       "name": "quick_search.py",
-      "size": 20590,
+      "size": 20593,
       "extension": ".py",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-editor/src/ui/widgets/quick_search.py",
       "lines": 593,

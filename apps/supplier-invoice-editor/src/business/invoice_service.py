@@ -14,11 +14,9 @@ class InvoiceService:
     def __init__(self, config):
         self.config = config
         self.logger = logging.getLogger(__name__)
-
         # Try to initialize PostgreSQL client
         self.db_client = None
         self._init_database()
-
     def _init_database(self):
         """Initialize database connection"""
         try:

@@ -2,14 +2,10 @@
 Main Window - Invoice Editor
 Qt5 main application window with menu, toolbar, and invoice list
 """
-import sys
 from pathlib import Path
 
 # Add nex-shared to path
 nex_shared_path = Path(__file__).parent.parent.parent.parent.parent / "packages" / "nex-shared"
-if str(nex_shared_path) not in sys.path:
-    sys.path.insert(0, str(nex_shared_path))
-
 
 import logging
 from PyQt5.QtWidgets import (
@@ -17,13 +13,12 @@ from PyQt5.QtWidgets import (
     QMenuBar, QMenu, QAction, QToolBar, QMessageBox
 )
 from PyQt5.QtCore import Qt, QTimer
-from ui.base_window import BaseWindow
+from nex_shared.ui import BaseWindow
 from PyQt5.QtGui import QIcon, QKeySequence
 
 from .widgets.invoice_list_widget import InvoiceListWidget
-from business.invoice_service import InvoiceService
-from utils.constants import WINDOW_MAIN
-
+from ..business.invoice_service import InvoiceService
+from ..utils.constants import WINDOW_MAIN
 
 class MainWindow(BaseWindow):
     """Main application window"""
@@ -34,7 +29,6 @@ class MainWindow(BaseWindow):
             default_size=(1400, 900),
             default_pos=(100, 100)
         )
-
         self.config = config
         self.logger = logging.getLogger(__name__)
         self.invoice_service = InvoiceService(config)
@@ -188,7 +182,6 @@ class MainWindow(BaseWindow):
                 "Chyba",
                 f"Nepodarilo sa načítať faktúry:\n\n{str(e)}"
             )
-
     def _on_refresh(self):
         """Refresh invoice list"""
         self.logger.info("Refresh triggered")
@@ -229,7 +222,6 @@ class MainWindow(BaseWindow):
         self.logger.info(f"Invoice {invoice_id} saved, refreshing list")
         self._load_invoices()
 
-
     def _on_about(self):
         """Show about dialog"""
         QMessageBox.about(
@@ -254,48 +246,3 @@ class MainWindow(BaseWindow):
         
         # Pass other keys to parent
         super().keyPressEvent(event)
-
-    def closeEvent(self, event):
-        """Handle window close event"""
-        self.logger.info("Application closing")
-
-        # Ak je maximalizované, ulož normalGeometry (pozícia pred maximalizáciou)
-        if self.isMaximized():
-            norm_geom = self.normalGeometry()
-            save_window_settings(
-                window_name=WINDOW_MAIN,
-                x=norm_geom.x(), y=norm_geom.y(),
-                width=norm_geom.width(), height=norm_geom.height(),
-                window_state=2  # Maximalized
-            )
-            self.logger.info(f"Window settings saved: maximized on monitor at ({norm_geom.x()}, {norm_geom.y()})")
-        else:
-            # Normálne okno - validuj a ulož súradnice
-            x, y = self.x(), self.y()
-            width, height = self.width(), self.height()
-
-            # Validačné limity
-            MIN_X, MIN_Y = -3840, 0  # Dual 4K monitor support
-            MIN_WIDTH, MIN_HEIGHT = 400, 300
-            MAX_WIDTH, MAX_HEIGHT = 3840, 2160
-
-            # Kontrola validity
-            is_valid = (
-                x >= MIN_X and y >= MIN_Y and
-                MIN_WIDTH <= width <= MAX_WIDTH and
-                MIN_HEIGHT <= height <= MAX_HEIGHT
-            )
-
-            if is_valid:
-                save_window_settings(
-                    window_name=WINDOW_MAIN,
-                    x=x, y=y,
-                    width=width, height=height,
-                    window_state=0  # Normal
-                )
-                self.logger.info(f"Window settings saved: ({x}, {y}) [{width}x{height}] normal")
-            else:
-                self.logger.warning(f"Invalid position not saved: ({x}, {y}) [{width}x{height}]")
-
-        event.accept()
-

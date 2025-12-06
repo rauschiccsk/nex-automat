@@ -8,7 +8,7 @@ from PyQt5.QtWidgets import QLineEdit, QApplication, QWidget
 from PyQt5.QtCore import Qt, pyqtSignal, QTimer, QEvent, QObject
 from PyQt5.QtGui import QPalette, QColor
 
-from utils.text_utils import normalize_for_search, is_numeric, normalize_numeric
+from ...utils.text_utils import normalize_for_search, is_numeric, normalize_numeric
 from PyQt5.QtWidgets import QHeaderView
 from PyQt5.QtCore import Qt, QRect
 from PyQt5.QtGui import QPainter, QColor, QPen
