@@ -10,12 +10,6 @@ from .constants import (
     GRID_INVOICE_LIST,
     GRID_INVOICE_ITEMS
 )
-from .window_settings import (
-    load_window_settings,
-    save_window_settings,
-    get_current_user_id,
-    init_settings_db
-)
 from .grid_settings import (
     load_column_settings,
     save_column_settings,
@@ -27,7 +21,7 @@ from .grid_settings import (
 __all__ = [
     # text_utils
     'normalize_for_search',
-    'remove_diacritics', 
+    'remove_diacritics',
     'is_numeric',
     'normalize_numeric',
     # constants - windows
@@ -39,11 +33,6 @@ __all__ = [
     # constants - grids
     'GRID_INVOICE_LIST',
     'GRID_INVOICE_ITEMS',
-    # window_settings
-    'load_window_settings',
-    'save_window_settings',
-    'get_current_user_id',
-    'init_settings_db',
     # grid_settings
     'load_column_settings',
     'save_column_settings',

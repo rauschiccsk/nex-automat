@@ -1,145 +1,154 @@
-# Session Notes - Window Maximize State Fix
+# Session Notes - Universal Window Persistence Implementation
 
 **Dátum:** 2025-12-06  
 **Projekt:** nex-automat v2.0.0  
-**Aplikácia:** supplier-invoice-editor  
-**Status:** ✅ VYRIEŠENÉ
+**Status:** 🟡 V PROCESE (95% hotové)
 
-## Problém
+## Úspešne Vyriešené
 
-Aplikácia nezapamätala **maximalizovaný stav okna**. Po reštarte sa okno vždy otvorilo v normálnom stave, aj keď bolo zatvorené maximalizované.
+### 1. Window Maximize State Fix (supplier-invoice-editor)
+✅ **HOTOVO** - Window maximize state persistence funguje perfektne
 
-## Root Cause Analysis
+**Problém:** Aplikácia nezapamätala maximalizovaný stav okna.
 
-Našli sa **DVA nezávislé problémy**:
+**Root Cause:**
+1. `INSERT OR REPLACE` nezapisoval `window_state=2` do DB
+2. `SELECT` nečítal `window_state` stĺpec
+3. `return` dictionary neobsahoval `window_state`
 
-### 1. INSERT OR REPLACE nefungoval správne
-- `window_state=2` sa správne posielal do `save_window_settings()`
-- `INSERT OR REPLACE` statement ale nezapisoval hodnotu do DB
-- V DB zostávalo `window_state=0` napriek commit
+**Riešenie:**
+- DELETE + INSERT pattern v `save_window_settings()`
+- SELECT s `window_state` stĺpcom
+- Return dictionary s `window_state` kľúčom
 
-### 2. SELECT nečítal window_state stĺpec
-- `load_window_settings()` obsahoval: `SELECT x, y, width, height`
-- Chýbalo: `window_state` v SELECT
-- Return dictionary neobsahoval `window_state` kľúč
+**Verifikácia:** ✅ Okno sa otvorí maximalizované ak bolo zatvorené maximalizované
 
-## Riešenie
+### 2. Universal BaseWindow Implementation
+✅ **HOTOVO** - BaseWindow trieda implementovaná v nex-shared package
 
-### Fix 1: DELETE + INSERT pattern
-**Súbor:** `apps/supplier-invoice-editor/src/utils/window_settings.py`
+**Vytvorená štruktúra:**
+```
+packages/nex-shared/
+├── ui/
+│   ├── base_window.py          # BaseWindow trieda
+│   └── window_persistence.py   # Persistence manager
+├── database/
+│   └── window_settings_db.py   # DB layer
+└── utils/
+    └── monitor_utils.py         # Multi-monitor support
+```
 
-Zmenené z:
+**BaseWindow Features:**
+- Auto-load settings v `__init__`
+- Auto-save settings v `closeEvent`
+- Maximize state support
+- Multi-monitor support
+- Position validation
+- Singleton DB manager
+
+**API:**
 ```python
-cursor.execute("""
-    INSERT OR REPLACE INTO window_settings
-    (user_id, window_name, x, y, width, height, window_state, updated_at)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-""", (user_id, window_name, x, y, width, height, window_state, datetime.now()))
+class MyWindow(BaseWindow):
+    def __init__(self):
+        super().__init__(
+            window_name="my_window",
+            default_size=(800, 600),
+            default_pos=(100, 100)
+        )
 ```
 
-Na:
-```python
-# First DELETE existing record
-cursor.execute("""
-    DELETE FROM window_settings
-    WHERE user_id = ? AND window_name = ?
-""", (user_id, window_name))
+**Test:** ✅ Standalone test script funguje perfektne (scripts/22_test_base_window_fixed.py)
 
-# Then INSERT new record
-cursor.execute("""
-    INSERT INTO window_settings
-    (user_id, window_name, x, y, width, height, window_state, updated_at)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-""", (user_id, window_name, x, y, width, height, window_state, datetime.now()))
+## Zostáva Vyriešiť
+
+### Module Import Issues
+🟡 **V PROCESE** - sys.path a import chain problémy
+
+**Problém:**
+```
+ModuleNotFoundError: No module named 'ui.base_window'
 ```
 
-### Fix 2: SELECT window_state
-**Súbor:** `apps/supplier-invoice-editor/src/utils/window_settings.py`
+**Identifikované príčiny:**
+1. sys.path fix sa volá príliš neskoro v import chain
+2. Relative vs absolute imports konflikty
+3. Package structure nie je Python package (chýba proper setup)
 
-Zmenené z:
-```python
-cursor.execute("""
-    SELECT x, y, width, height
-    FROM window_settings
-    WHERE user_id = ? AND window_name = ?
-""", (user_id, window_name))
-```
+**Možné riešenia:**
+1. **Option A:** Konvertovať nex-shared na proper Python package s setup.py
+2. **Option B:** Použiť editable install: `pip install -e packages/nex-shared`
+3. **Option C:** sys.path fix na úplnom začiatku main.py (pred všetkými imports)
+4. **Option D:** Kopírovať BaseWindow kód priamo do aplikácie (temporary)
 
-Na:
-```python
-cursor.execute("""
-    SELECT x, y, width, height, window_state
-    FROM window_settings
-    WHERE user_id = ? AND window_name = ?
-""", (user_id, window_name))
-```
+## Vytvorené Scripts
 
-### Fix 3: Return dictionary
-Pridané do return:
-```python
-return {
-    'x': row[0],
-    'y': row[1],
-    'width': row[2],
-    'height': row[3],
-    'window_state': row[4] if len(row) > 4 else 0
-}
-```
+**Diagnostika a Fix (01-15):**
+- Window settings debugging a opravy
+- DELETE + INSERT pattern implementation
+- SELECT window_state fix
 
-### Fix 4: Drobné opravy
-- `get_user_id()` → `'Server'` (default user ID)
-- `_get_db_connection()` → `sqlite3.connect(db_path)`
-- Pridaný `import logging`
+**nex-shared Implementation (16-21):**
+- 16: Create nex-shared structure
+- 17: WindowSettingsDB implementation
+- 18: WindowPersistenceManager implementation
+- 19: BaseWindow implementation
+- 20: __init__.py exports
+- 21: Test BaseWindow (✅ funguje)
 
-## Verifikácia
+**Migration Scripts (22-38):**
+- 22: Test BaseWindow fixed (✅ funguje standalone)
+- 23-38: Migration supplier-invoice-editor → BaseWindow
+  - Import fixes, syntax fixes, sys.path attempts
 
-**Test scenár:**
-1. Spusti aplikáciu
-2. Maximalizuj okno
-3. Zavri aplikáciu
-4. Spusti aplikáciu znova
-5. ✅ Okno sa otvorí maximalizované
+## Next Steps
 
-**DB verifikácia:**
-```sql
-SELECT window_state FROM window_settings WHERE window_name='sie_main_window'
--- Result: 2 (maximized) ✅
-```
+### Immediate (High Priority)
+1. **Fix module import chain** - vyriešiť ModuleNotFoundError
+   - Najlepšia option: pip install -e packages/nex-shared
+   - Alternative: sys.path fix na absolute začiatku
+   
+2. **Verify migration works** - supplier-invoice-editor funguje s BaseWindow
 
-## Súbory zmenené
+3. **Cleanup** - odstrániť temporary scripts (01-38)
 
-1. `apps/supplier-invoice-editor/src/utils/window_settings.py`
-   - Funkcia `save_window_settings()` - DELETE + INSERT pattern
-   - Funkcia `load_window_settings()` - SELECT window_state, return dictionary
+### Short Term
+1. Migrate supplier-invoice-loader → BaseWindow
+2. Documentation pre BaseWindow usage
+3. Unit tests pre nex-shared package
 
-## Scripts vytvorené (dočasné)
+### Long Term
+1. Grid persistence integration do BaseWindow
+2. Multi-user support testing
+3. Performance optimization
 
-1. `scripts/01_diagnose_save_function.py` - diagnostika INSERT
-2. `scripts/02_add_debug_to_save.py` - pridanie debug výpisov
-3. `scripts/03_fix_logging_import.py` - fix import logging
-4. `scripts/04_show_current_db_values.py` - zobrazenie DB hodnôt
-5. `scripts/05_delete_window_position.py` - DELETE DB záznamu
-6. `scripts/06_verify_db_immediately.py` - verifikácia DB
-7. `scripts/07_fix_save_window_settings.py` - DELETE + INSERT fix
-8. `scripts/08_fix_syntax_error.py` - oprava syntax error
-9. `scripts/09_check_close_event.py` - kontrola closeEvent()
-10. `scripts/10_fix_get_user_id_error.py` - fix get_user_id()
-11. `scripts/11_fix_db_connection.py` - fix DB connection
-12. `scripts/12_fix_db_path_definition.py` - fix DB_PATH
-13. `scripts/13_check_load_window_settings.py` - diagnostika load
-14. `scripts/14_fix_load_select_statement.py` - fix SELECT + return
-15. `scripts/15_cleanup_debug_outputs.py` - cleanup debug
+## Súbory Zmenené
 
-## Výsledok
+**nex-shared package (NEW):**
+- `packages/nex-shared/ui/base_window.py`
+- `packages/nex-shared/ui/window_persistence.py`
+- `packages/nex-shared/database/window_settings_db.py`
+- `packages/nex-shared/ui/__init__.py`
+- `packages/nex-shared/database/__init__.py`
+- `packages/nex-shared/__init__.py`
 
-✅ **Window maximize state persistence FUNGUJE**
+**supplier-invoice-editor:**
+- `apps/supplier-invoice-editor/src/ui/main_window.py` (migrated to BaseWindow)
+- `apps/supplier-invoice-editor/src/utils/window_settings.py` (simplified - grid only)
+- `apps/supplier-invoice-editor/src/utils/__init__.py` (removed window functions)
+- `apps/supplier-invoice-editor/main.py` (added sys.path fix)
+- `apps/supplier-invoice-editor/src/ui/__init__.py` (added sys.path fix)
 
-- Grid settings persistence: ✅
-- Window position persistence: ✅
-- Multi-monitor support: ✅
-- Invalid position validation: ✅
-- **Window maximize state persistence: ✅**
+## Lessons Learned
 
-## Ďalšie kroky
+1. **Python packaging je critical** - sys.path hacks sú fragile
+2. **Import chain testing** - testovať import pred plnou migráciou
+3. **Relative vs absolute imports** - absolute imports sú safer pre shared packages
+4. **Test standalone first** - BaseWindow standalone test bol úspešný, integration je problem
+5. **Module structure matters** - proper package setup od začiatku je better than retrofitting
 
-Môžu sa odstrániť dočasné diagnostic/fix scripty (01-15).
+## Recommendations
+
+**Pre ďalšiu session:**
+1. Začať s `pip install -e packages/nex-shared` (proper package install)
+2. Ak to nevyriešiť, rollback migration a použiť BaseWindow kód inline
+3. Potom refaktorovať keď je proper packaging setup

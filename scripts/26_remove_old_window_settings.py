@@ -1,4 +1,20 @@
 """
+Odstráni staré window_settings funkcie (už sú v nex-shared)
+"""
+from pathlib import Path
+
+WINDOW_SETTINGS_PATH = Path("apps/supplier-invoice-editor/src/utils/window_settings.py")
+
+
+def main():
+    print("=" * 80)
+    print("ODSTRÁNENIE: starý window_settings.py")
+    print("=" * 80)
+
+    # window_settings.py už nie je potrebný - BaseWindow má všetko
+    # Nahradíme ho len constants a grid settings persistence
+
+    new_content = '''"""
 Window and Grid Settings Persistence
 Grid settings functions (active column) - window persistence je v BaseWindow.
 """
@@ -10,7 +26,7 @@ from typing import Optional
 logger = logging.getLogger(__name__)
 
 # Database path
-DB_PATH = Path(r"C:\NEX\YEARACT\SYSTEM\SQLITE\window_settings.db")
+DB_PATH = Path(r"C:\\NEX\\YEARACT\\SYSTEM\\SQLITE\\window_settings.db")
 
 
 def save_grid_settings(window_name: str, grid_name: str, active_column: int, 
@@ -105,3 +121,28 @@ def load_grid_settings(window_name: str, grid_name: str,
     except Exception as e:
         logger.error(f"Error loading grid settings: {e}")
         return None
+'''
+
+    # Zapíš nový súbor
+    with open(WINDOW_SETTINGS_PATH, 'w', encoding='utf-8') as f:
+        f.write(new_content)
+
+    print(f"✅ Prepísaný: {WINDOW_SETTINGS_PATH}")
+    print("\nPonechané funkcie:")
+    print("  ✅ save_grid_settings() - pre active column")
+    print("  ✅ load_grid_settings() - pre active column")
+
+    print("\nOdstránené funkcie:")
+    print("  ❌ save_window_settings() → BaseWindow")
+    print("  ❌ load_window_settings() → BaseWindow")
+
+    print("\n" + "=" * 80)
+    print("TEST:")
+    print("=" * 80)
+    print("cd apps\\supplier-invoice-editor")
+    print("python main.py")
+    print("=" * 80)
+
+
+if __name__ == '__main__':
+    main()

@@ -2,6 +2,14 @@
 Main Window - Invoice Editor
 Qt5 main application window with menu, toolbar, and invoice list
 """
+import sys
+from pathlib import Path
+
+# Add nex-shared to path
+nex_shared_path = Path(__file__).parent.parent.parent.parent.parent / "packages" / "nex-shared"
+if str(nex_shared_path) not in sys.path:
+    sys.path.insert(0, str(nex_shared_path))
+
 
 import logging
 from PyQt5.QtWidgets import (
@@ -9,19 +17,23 @@ from PyQt5.QtWidgets import (
     QMenuBar, QMenu, QAction, QToolBar, QMessageBox
 )
 from PyQt5.QtCore import Qt, QTimer
+from ui.base_window import BaseWindow
 from PyQt5.QtGui import QIcon, QKeySequence
 
 from .widgets.invoice_list_widget import InvoiceListWidget
 from business.invoice_service import InvoiceService
 from utils.constants import WINDOW_MAIN
-from utils.window_settings import load_window_settings, save_window_settings
 
 
-class MainWindow(QMainWindow):
+class MainWindow(BaseWindow):
     """Main application window"""
 
     def __init__(self, config, parent=None):
-        super().__init__(parent)
+        super().__init__(
+            window_name=WINDOW_MAIN,
+            default_size=(1400, 900),
+            default_pos=(100, 100)
+        )
 
         self.config = config
         self.logger = logging.getLogger(__name__)
@@ -35,35 +47,6 @@ class MainWindow(QMainWindow):
 
         # Load initial data
         QTimer.singleShot(0, self._load_invoices)
-        self._load_geometry()
-
-    def _load_geometry(self):
-        """Načíta a aplikuje uloženú pozíciu a veľkosť okna."""
-        settings = load_window_settings(window_name=WINDOW_MAIN)
-        if settings:
-            self.logger.info(f"DEBUG: load_window_settings returned: {settings}")
-
-            # Vždy aplikuj geometriu (ak je validná) - určuje monitor
-            if settings.get('x') is not None and settings.get('width'):
-                self.setGeometry(
-                    settings['x'],
-                    settings['y'],
-                    settings['width'],
-                    settings['height']
-                )
-
-            # Potom maximalizuj ak je to potrebné
-            if settings.get('window_state', 0) == 2:  # Qt.WindowMaximized = 2
-                self.setWindowState(Qt.WindowMaximized)
-                self.logger.info(f"Window maximized on monitor with position ({settings.get('x', 0)}, {settings.get('y', 0)})")
-            else:
-                self.logger.info(f"Loaded window position: ({settings['x']}, {settings['y']}) [{settings['width']}x{settings['height']}]")
-        else:
-            # Žiadny uložený záznam - použiť bezpečnú default pozíciu
-            default_x, default_y = 100, 100
-            default_width, default_height = 1400, 900
-            self.setGeometry(default_x, default_y, default_width, default_height)
-            self.logger.info(f"Using default position: ({default_x}, {default_y}) [{default_width}x{default_height}]")
 
     def _setup_ui(self):
         """Setup main window UI"""

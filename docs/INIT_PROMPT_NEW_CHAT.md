@@ -1,193 +1,186 @@
-# Init Prompt - Dokončenie Window Maximize State
+# Init Prompt - BaseWindow Module Import Fix
 
-## Aktuálny stav
+## Current Status
 
-**Vyriešené:**
-- ✅ Grid settings persistence (active column)
-- ✅ Window position persistence (normal window)
-- ✅ Multi-monitor support
-- ✅ Invalid position validation
+**Achieved:**
+- ✅ BaseWindow trieda implementovaná v `packages/nex-shared/`
+- ✅ WindowSettingsDB, WindowPersistenceManager hotové
+- ✅ Standalone test funguje (scripts/22_test_base_window_fixed.py)
+- ✅ supplier-invoice-editor migrovaný na BaseWindow syntax
 
-**Zostáva vyriešiť:**
-- ❌ Window maximize state persistence
-
----
-
-## Problém: Window Maximize State
-
-### Symptóm
-Aplikácia nezapamätá maximalizovaný stav okna. Po reštarte sa okno otvorí v normálnom stave aj keď bolo zatvorené maximalizované.
-
-### Root Cause (predpoklad)
-`window_state=2` sa **NEUKLADÁ do databázy** aj keď:
-- closeEvent() detekuje `isMaximized()=True` ✅
-- closeEvent() volá `save_window_settings(..., window_state=2)` ✅
-- Log hovorí "Window settings saved: ... maximized" ✅
-- Ale SQL query ukazuje `window_state=0` v DB ❌
-
-**Podozrenie:** Problém v `save_window_settings()` funkcii alebo INSERT statement.
-
-### Aktuálna implementácia
-
-**Databáza:**
-```sql
--- C:\NEX\YEARACT\SYSTEM\SQLITE\window_settings.db
-CREATE TABLE window_settings (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id TEXT NOT NULL,
-    window_name TEXT NOT NULL,
-    x INTEGER,
-    y INTEGER,
-    width INTEGER,
-    height INTEGER,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    window_state INTEGER DEFAULT 0,
-    UNIQUE(user_id, window_name)
-)
-```
-
-**closeEvent() - main_window.py (riadok ~272):**
-```python
-def closeEvent(self, event):
-    if self.isMaximized():
-        norm_geom = self.normalGeometry()
-        save_window_settings(
-            window_name=WINDOW_MAIN,
-            x=norm_geom.x(), y=norm_geom.y(),
-            width=norm_geom.width(), height=norm_geom.height(),
-            window_state=2  # Maximalized
-        )
-        self.logger.info(f"Window settings saved: maximized on monitor at ...")
-    else:
-        # Normal window
-        save_window_settings(..., window_state=0)
-```
-
-**save_window_settings() - window_settings.py (riadok ~138):**
-```python
-def save_window_settings(window_name: str, x: int, y: int, width: int, height: int,
-                        window_state: int = 0, user_id: Optional[str] = None) -> bool:
-    cursor.execute("""
-        INSERT OR REPLACE INTO window_settings
-        (user_id, window_name, x, y, width, height, window_state, updated_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-    """, (user_id, window_name, x, y, width, height, window_state, datetime.now()))
-```
-
-**load_geometry() - main_window.py (riadok ~40):**
-```python
-def _load_geometry(self):
-    settings = load_window_settings(window_name=WINDOW_MAIN)
-    if settings:
-        # Vždy aplikuj geometriu (určuje monitor)
-        if settings.get('x') is not None and settings.get('width'):
-            self.setGeometry(settings['x'], settings['y'], 
-                           settings['width'], settings['height'])
-        
-        # Potom maximalizuj ak treba
-        if settings.get('window_state', 0) == 2:
-            self.setWindowState(Qt.WindowMaximized)
-            self.logger.info(f"Window maximized on monitor ...")
-```
+**Blocking Issue:**
+- ❌ ModuleNotFoundError: No module named 'ui.base_window'
+- ❌ sys.path fixes nefungujú (príliš neskoro v import chain)
 
 ---
 
-## Diagnostické kroky
+## Problem Details
 
-### Krok 1: Overiť INSERT statement
+### Error
+```
+ModuleNotFoundError: No module named 'ui.base_window'
+```
+
+### Import Chain
+```
+main.py
+  → ui/__init__.py (added sys.path fix)
+    → main_window.py (added sys.path fix)
+      → from ui.base_window import BaseWindow  ❌ FAILS
+```
+
+### Root Cause
+**packages/nex-shared** NIE JE proper Python package:
+- Chýba `setup.py` / `pyproject.toml`
+- Nie je installed cez pip
+- sys.path hacks sú fragile a fail v import chain
+
+---
+
+## Recommended Solutions (Priority Order)
+
+### Option 1: Proper Package Install (BEST)
+Konvertovať nex-shared na proper package a install editable:
+
 ```powershell
-python -c "with open('apps/supplier-invoice-editor/src/utils/window_settings.py', 'r') as f: lines = f.readlines(); start = next(i for i, l in enumerate(lines) if 'INSERT OR REPLACE' in l); print(''.join(lines[start:start+5]))"
+# Vytvoriť setup.py alebo pyproject.toml
+# Potom:
+pip install -e packages/nex-shared
 ```
 
-### Krok 2: Pridať debug do save_window_settings()
-Pred `cursor.execute()`:
-```python
-self.logger.info(f"DEBUG save: window_state={window_state}, VALUES={values}")
-```
+**Výhody:**
+- Clean imports: `from nex_shared.ui import BaseWindow`
+- Works everywhere v projekte
+- Professional solution
+- Future-proof
 
-### Krok 3: Overiť DB po save
+**Kroky:**
+1. Vytvoriť `packages/nex-shared/setup.py`
+2. `pip install -e packages/nex-shared`
+3. Zmeniť imports v main_window.py: `from nex_shared.ui import BaseWindow`
+4. Odstrániť všetky sys.path hacks
+
+### Option 2: PYTHONPATH Environment Variable
+Nastaviť PYTHONPATH globálne:
+
 ```powershell
-python -c "import sqlite3; conn = sqlite3.connect(r'C:\NEX\YEARACT\SYSTEM\SQLITE\window_settings.db'); print(conn.execute('SELECT window_state, updated_at FROM window_settings WHERE window_name=\"sie_main_window\" ORDER BY updated_at DESC LIMIT 1').fetchone())"
+$env:PYTHONPATH = "C:\Development\nex-automat\packages\nex-shared"
 ```
 
-### Krok 4: Test UNIQUE constraint
-Možno `INSERT OR REPLACE` nefunguje správne? Skúsiť:
-1. DELETE pred INSERT
-2. Alebo UPDATE WHERE EXISTS
+**Výhody:**
+- Jednoduchý fix
+- Funguje pre všetky aplikácie
+
+**Nevýhody:**
+- Environment-specific
+- Nestačí pre deployment
+
+### Option 3: sys.path Fix v main.py (Absolute Start)
+sys.path fix na ÚPLNOM začiatku main.py PRED akýmikoľvek imports:
+
+```python
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent / "packages" / "nex-shared"))
+
+# POTOM ostatné imports
+from ui.main_window import MainWindow
+```
+
+**Výhody:**
+- Quick fix
+- No package setup needed
+
+**Nevýhody:**
+- Hack, nie clean solution
+- Treba v každej aplikácii
+
+### Option 4: Copy BaseWindow Code (Temporary)
+Skopírovať BaseWindow kód priamo do aplikácie:
+
+```
+apps/supplier-invoice-editor/src/ui/
+  ├── base_window.py  (copied)
+  └── main_window.py
+```
+
+**Výhody:**
+- Guaranteed works
+- Quick unblock
+
+**Nevýhody:**
+- Duplicita kódu
+- Nie univerzálne
+- Proti pôvodnému cieľu
 
 ---
 
-## Možné riešenia
+## Files Location
 
-### Riešenie A: Debug a fix save chain
-1. Pridať debug output do `save_window_settings()`
-2. Overiť že parameter `window_state=2` prichádza správne
-3. Overiť že INSERT statement je správny
-4. Overiť že commit prebehol
-5. Fix ak nájdeme chybu
+**nex-shared package:**
+- `packages/nex-shared/ui/base_window.py`
+- `packages/nex-shared/ui/window_persistence.py`
+- `packages/nex-shared/database/window_settings_db.py`
+- `packages/nex-shared/ui/__init__.py`
+- `packages/nex-shared/database/__init__.py`
 
-### Riešenie B: Alternatívny prístup
-Ak save reťazec nefunguje, zvážiť:
-1. Separátna tabuľka len pre window_state?
-2. Použiť config file namiesto DB?
-3. Qt QSettings API?
+**Migrated app:**
+- `apps/supplier-invoice-editor/src/ui/main_window.py`
+- `apps/supplier-invoice-editor/main.py`
 
-### Riešenie C: Zjednodušenie
-Možno problém je že `normalGeometry()` vráti iné hodnoty a UNIQUE constraint vyberie starý záznam?
-- Skúsiť DELETE + INSERT namiesto INSERT OR REPLACE
-
----
-
-## Súbory na kontrolu
-
-**Python súbory:**
-- `apps/supplier-invoice-editor/src/utils/window_settings.py` (save funkcia)
-- `apps/supplier-invoice-editor/src/ui/main_window.py` (close & load)
-
-**Databáza:**
-- `C:\NEX\YEARACT\SYSTEM\SQLITE\window_settings.db`
-
-**Utility scripts:**
-- `scripts/clean_invalid_window_positions.py`
-- `scripts/03_diagnose_window_settings.py`
+**Test script (WORKS):**
+- `scripts/22_test_base_window_fixed.py` ✅
 
 ---
 
 ## Quick Start Commands
 
 ```powershell
-# 1. Diagnostika DB
-python scripts\03_diagnose_window_settings.py
+# Verify nex-shared structure
+ls packages\nex-shared\ui\
 
-# 2. Vyčistenie DB
-python scripts\clean_invalid_window_positions.py
+# Test standalone (works)
+python scripts\22_test_base_window_fixed.py
 
-# 3. Test aplikácie
+# Current failure
 cd apps\supplier-invoice-editor
-python main.py
+python main.py  # ❌ ModuleNotFoundError
 
-# 4. SQL query - overenie window_state
-python -c "import sqlite3; conn = sqlite3.connect(r'C:\NEX\YEARACT\SYSTEM\SQLITE\window_settings.db'); print(conn.execute('SELECT * FROM window_settings WHERE window_name=\"sie_main_window\"').fetchone())"
+# Option 1: Package install
+cd packages\nex-shared
+# (create setup.py first)
+pip install -e .
+
+# Option 2: PYTHONPATH
+$env:PYTHONPATH = "C:\Development\nex-automat\packages\nex-shared"
 ```
 
 ---
 
 ## Expected Workflow
 
-1. **Diagnostika** - overiť aktuálny stav DB
-2. **Debug** - pridať výpisy do save_window_settings()
-3. **Test** - maximize, close, check DB
-4. **Fix** - opraviť identifikovaný problém
-5. **Verify** - test celého cyklu
-6. **Cleanup** - odstrániť debug, cleanup scripts
-7. **Commit** - git commit všetkých zmien
+1. **Choose solution** (recommend Option 1: proper package)
+2. **Implement** chosen solution
+3. **Test** supplier-invoice-editor spustenie
+4. **Verify** maximize state persistence works
+5. **Cleanup** remove temporary scripts (01-38)
+6. **Document** BaseWindow usage guide
+7. **Commit** all changes
 
 ---
 
-## Notes pre Claude
+## Success Criteria
 
-- Používaj krok-po-kroku approach
-- Jeden fix = jeden script
-- Debug output je CRITICAL
-- Overuj DB VŽDY SQL query
-- Nerobať predpoklady - overuj!
+✅ `python main.py` spustí aplikáciu  
+✅ Maximize + Close + Run again → opens MAXIMIZED  
+✅ Clean imports (no sys.path hacks)  
+✅ BaseWindow reusable pre všetky aplikácie  
+
+---
+
+## Notes
+
+- BaseWindow kód je kvalitný a kompletný ✅
+- Standalone test dokazuje že BaseWindow funguje ✅
+- Problem je PURELY v module import/packaging ✅
+- Solution je technical, nie design issue ✅
