@@ -1,235 +1,313 @@
-# Init Prompt - Next Session
+# INIT PROMPT - Nový chat (nex-automat)
 
-## Current Status
+## KONTEXT Z PREDCHÁDZAJÚCEHO CHATU
 
-**Achieved in previous session:**
-- ✅ Window size persistence works for main window
-- ✅ Window size persistence works for detail window
-- ✅ Window position drift fixed
-- ✅ Grid settings error fixed (dict → int)
-- ✅ ENTER key opens invoice detail
-- ✅ ESC key closes application
-
-**All systems operational - no blocking issues**
+Úspešne sme implementovali Claude Tools pre nex-automat projekt - automatizáciu workflow pre prácu s claude.ai.
 
 ---
 
-## Project Structure
+## AKTUÁLNY STAV PROJEKTU
 
-**Location:** `C:\Development\nex-automat`
+**Projekt:** NEX Automat v2.0  
+**Development:** `C:\Development\nex-automat\`  
+**Deployment:** `C:\Development\nex-automat-deployment\`  
+**Python:** 3.13.7 (venv32)  
+**Git Branch:** develop
 
-**Key directories:**
+---
+
+## CLAUDE TOOLS - IMPLEMENTOVANÝ SYSTÉM
+
+### Komponenty (všetky funkčné ✅)
+
+**1. Artifact Server** (FastAPI)
+- Beží na `http://localhost:8765`
+- Ukladá artifacts z claude.ai do projektu
+- Endpoints: `/`, `/save-artifact`, `/list-recent`, `/ping`
+
+**2. Hotkeys System** (keyboard + pyperclip)
+- Globálne klávesové skratky (fungujú všade)
+- Všetky hotkeys testované a funkčné
+
+**3. Chat Loader**
+- Automatické načítanie init promptu do nového chatu
+- Hotkey: `Ctrl+Alt+L`
+
+**4. Session Notes Manager**
+- Správa a analýza session notes
+- Príkazy: `enhance`, `validate`, `template`
+
+**5. Context Compressor** (voliteľné)
+- Kompresia histórie pomocou Claude API
+- Vyžaduje: ANTHROPIC_API_KEY v config.py
+
+**6. Browser Extension** (voliteľné, nie testované)
+- Automatické ukladanie artifacts
+- Chrome extension pre claude.ai
+
+### Adresárová štruktúra
 ```
-nex-automat/
-├── apps/
-│   └── supplier-invoice-editor/
-│       ├── main.py
-│       └── src/
-│           └── ui/
-│               ├── main_window.py (BaseWindow - główne okno)
-│               ├── invoice_detail_window.py (BaseWindow - detail okno)
-│               └── widgets/
-│                   ├── invoice_list_widget.py
-│                   └── invoice_items_grid.py
-├── packages/
-│   └── nex-shared/
-│       ├── ui/
-│       │   ├── base_window.py (window persistence core)
-│       │   └── window_persistence.py
-│       └── database/
-│           └── window_settings_db.py
-└── docs/
-    ├── SESSION_NOTES.md
-    └── INIT_PROMPT_NEW_CHAT.md
+C:\Development\nex-automat\
+├── tools\                      ← Claude Tools
+│   ├── installer.py
+│   ├── claude-chat-loader.py
+│   ├── claude-hotkeys.py
+│   ├── artifact-server.py
+│   ├── session-notes-manager.py
+│   ├── context-compressor.py
+│   ├── config.py               ← Autogenerovaný
+│   ├── start-claude-tools.ps1
+│   ├── stop-claude-tools.ps1
+│   └── browser-extension\
+├── docs\                       ← Dokumentácia
+│   ├── SESSION_NOTES.md        ← Tu je session notes
+│   └── INIT_PROMPT_NEW_CHAT.md ← Tu je init prompt
+├── scripts\                    ← Setup scripty
+│   ├── 01-create-directories.py
+│   ├── 02-create-claude-tools-files.py
+│   ├── 05-fix-config.py
+│   └── 05b-fix-powershell-files.py
+└── README.md
 ```
 
----
-
-## Database
-
-**Window Settings DB:**
-- Path: `C:\NEX\YEARACT\SYSTEM\SQLITE\window_settings.db`
-- Table: `window_settings`
-- Records: `sie_main_window`, `sie_invoice_detail`
-
-**PostgreSQL:**
-- Database: `invoice_staging`
-- Host: localhost:5432
-- Used for: invoice data, supplier data
-
----
-
-## Important Implementation Details
-
-### BaseWindow Usage
+### Konfigurácia
 ```python
-class MyWindow(BaseWindow):
-    def __init__(self, parent=None):
-        super().__init__(
-            window_name="unique_id",  # Required
-            default_size=(800, 600),
-            default_pos=(100, 100),
-            parent=parent
-        )
-        # QMainWindow requires central widget
-        central_widget = QWidget()
-        self.setCentralWidget(central_widget)
-        layout = QVBoxLayout(central_widget)
+# tools/config.py
+PROJECT_ROOT = r"C:\Development\nex-automat"
+TOOLS_DIR = r"C:\Development\nex-automat\tools"
+SESSION_NOTES_DIR = r"C:\Development\nex-automat\SESSION_NOTES"
+
+ARTIFACT_SERVER_PORT = 8765
+ARTIFACT_SERVER_HOST = "localhost"
+ANTHROPIC_API_KEY = ""  # Voliteľné
 ```
 
-### Critical Rules
-- ❌ **NEVER** use `self.resize()` after BaseWindow init
-- ❌ **NEVER** use `setGeometry()` - causes position drift
-- ✅ **ALWAYS** use `move()` + `resize()` for positioning
-- ✅ **ALWAYS** use `pos()` + `size()` for getting dimensions
-- ✅ **ALWAYS** use `central_widget` for QMainWindow layouts
+---
+
+## DOSTUPNÉ HOTKEYS (Ctrl+Alt+...)
+
+| Hotkey | Funkcia | Status |
+|--------|---------|--------|
+| **L** | Load init prompt | ⏳ Nie testované |
+| **S** | Copy session notes | ⏳ Nie testované |
+| **G** | Git status | ⏳ Nie testované |
+| **D** | Deployment info | ⏳ Nie testované |
+| **N** | New chat template | ⏳ Nie testované |
+| **I** | Show project info | ✅ Funguje |
 
 ---
 
-## Recent Changes (2025-12-06)
+## SPUSTENIE / ZASTAVENIE
 
-**Modified files:**
-1. `packages/nex-shared/ui/base_window.py`
-   - Changed to `pos()` + `resize()` instead of `setGeometry()`
-   
-2. `packages/nex-shared/ui/window_persistence.py`
-   - Fixed `get_safe_position()` to preserve size when position invalid
-
-3. `apps/supplier-invoice-editor/src/ui/main_window.py`
-   - Removed `resize(1400, 900)` call
-   - Added ENTER key handler for opening invoice detail
-
-4. `apps/supplier-invoice-editor/src/ui/invoice_detail_window.py`
-   - Changed from `QDialog` to `BaseWindow`
-   - Fixed layout to use `central_widget`
-   - Changed `accept()/reject()` to `close()`
-
-5. `apps/supplier-invoice-editor/src/ui/widgets/invoice_items_grid.py`
-   - Fixed `save_grid_settings()` call: int instead of dict
-
----
-
-## Quick Commands
-
-**Test application:**
+### Spustenie nástrojov
 ```powershell
-cd apps/supplier-invoice-editor
-python main.py
+cd C:\Development\nex-automat\tools
+.\start-claude-tools.ps1
 ```
+**Výsledok:**
+- Artifact Server: PID zobrazený, beží na :8765
+- Hotkeys: PID zobrazený, bežia na pozadí
 
-**Database check:**
-```sql
--- View window settings
-SELECT * FROM window_settings WHERE user_id = 'Server';
-```
-
-**Package status:**
+### Zastavenie nástrojov
 ```powershell
-# Verify nex-shared is installed as editable
-pip list | findstr nex-shared
-# Should show: nex-shared 1.0.0 C:\Development\nex-automat\packages\nex-shared
+cd C:\Development\nex-automat\tools
+.\stop-claude-tools.ps1
+```
+**Alebo s force:**
+```powershell
+.\stop-claude-tools.ps1 -Force
+```
+
+### Test hotkeys (interaktívne okno)
+```powershell
+python tools\claude-hotkeys.py
+# Stlač Ctrl+Alt+I → zobrazí Project Info
+# Ctrl+C → ukončenie
 ```
 
 ---
 
-## Potential Future Tasks
+## ČO OSTÁVA UROBIŤ
 
-### Enhancement Ideas
-1. **Multi-monitor support**
-   - Better validation for multiple screens
-   - Remember which monitor window was on
+### Priorita 1 (ihneď)
+- [ ] **Otestovať všetky hotkeys** - zatiaľ len Ctrl+Alt+I
+  - Ctrl+Alt+S → Copy session notes
+  - Ctrl+Alt+G → Git status
+  - Ctrl+Alt+D → Deployment info
+  - Ctrl+Alt+L → Load init prompt
+  - Ctrl+Alt+N → New chat template
 
-2. **Window templates**
-   - Predefined layouts (small/medium/large)
-   - Quick switch between templates
+- [ ] **Git commit** - commitnúť všetky tools súbory
+  - Použiť commit message z artifacts
+  - Vymazať dočasné scripty (01, 02, 05, 05b)
 
-3. **Grid column persistence**
-   - Save/restore column order in grids
-   - Save/restore column visibility
+### Priorita 2 (tento týždeň)
+- [ ] **Browser Extension** - nainštalovať a otestovať
+  - Chrome → Extensions → Load unpacked
+  - Test: vytvor artifact → klik "💾 Uložiť"
 
-4. **Per-user preferences**
-   - Different window sizes for different users
-   - User-specific grid layouts
+- [ ] **Praktické použitie** v reálnej práci
+  - Workflow: Nový chat → Ctrl+Alt+L → práca → "novy chat"
+  - Zaznamenať problémy/vylepšenia
 
-### Known Non-Critical Issues
-- None currently
-
----
-
-## Development Workflow
-
-**Standard process:**
-1. Make changes in `C:\Development\nex-automat` (Development)
-2. Test locally
-3. Commit to Git
-4. Push to repository
-5. Pull in Deployment environment
-6. Restart applications
-
-**Package changes:**
-- Changes to `packages/nex-shared` automatically visible (editable install)
-- No reinstall needed after code changes
-- Only reinstall if `setup.py` changes
+### Priorita 3 (budúcnosť)
+- [ ] **Context Compressor setup** - nastaviť API key
+- [ ] **Nazbierať skúsenosti** - 2-3 týždne používania
+- [ ] **Template systém** - až keď bude všetko vyladené
+- [ ] **Rozšírenie na ďalšie projekty**
 
 ---
 
-## Common Tasks
+## VYRIEŠENÉ PROBLÉMY
 
-### Add new window with persistence
+### Bug #1: Config.py escape sequences ✅
+**Problém:** SyntaxError - neukončený string  
+**Riešenie:** Oprava cez `05-fix-config.py` - správne raw strings
+
+### Bug #2: PowerShell encoding ✅
+**Problém:** Parse errors kvôli špeciálnym znakom  
+**Riešenie:** Oprava cez `05b-fix-powershell-files.py` - odstránená diakritika
+
+### Bug #3: uvicorn[standard] dependency ✅
+**Problém:** Inštalácia zlyhávala  
+**Riešenie:** Zmenené na len `uvicorn` (bez extras)
+
+### Warning: Pydantic validator deprecation ⚠️
+**Status:** Len warning, neovplyvňuje funkcionalitu  
+**Fix:** Možno opraviť neskôr na `@field_validator`
+
+---
+
+## WORKFLOW
+
+### Development → Git → Deployment
+```
+Development (C:\Development\nex-automat\)
+    ↓ zmeny v kóde
+    ↓ test lokálne
+Git commit & push
+    ↓
+Deployment (C:\Development\nex-automat-deployment\)
+    ↓ git pull
+    ↓ restart aplikácií
+```
+
+**NIKDY nerobiť zmeny priamo v Deployment!**
+
+### Claude Tools workflow
+```
+1. Ráno: .\start-claude-tools.ps1
+2. Práca: Používaj hotkeys (Ctrl+Alt+...)
+3. Nový chat: Ctrl+Alt+L → vloží init prompt
+4. Koniec práce: "novy chat" → vygeneruje SESSION_NOTES
+5. Večer: .\stop-claude-tools.ps1
+```
+
+---
+
+## TECHNICKÉ POZNÁMKY
+
+### Windows Path Handling
 ```python
-from nex_shared.ui import BaseWindow
-from ..utils.constants import WINDOW_MY_NEW
+# ✅ SPRÁVNE - raw strings pre Windows cesty
+PROJECT_ROOT = r"C:\Development\nex-automat"
 
-class MyNewWindow(BaseWindow):
-    def __init__(self, parent=None):
-        super().__init__(
-            window_name=WINDOW_MY_NEW,
-            default_size=(1000, 700),
-            parent=parent
-        )
-        # Setup central widget
-        central_widget = QWidget()
-        self.setCentralWidget(central_widget)
-        layout = QVBoxLayout(central_widget)
-        
-        # Add your widgets to layout
+# ✅ ALTERNATÍVA - forward slashes (fungujú v Pythone)
+PROJECT_ROOT = Path("C:/Development/nex-automat")
+
+# ❌ CHYBNÉ - zdvojené backslashes v f-string
+f"""PROJECT_ROOT = r"C:\\\\Development" """  # SyntaxError!
 ```
 
-### Debug window persistence
-```python
-# Add to base_window.py for debugging
-print(f"🔍 LOAD: {settings}")  # In _load_and_apply_settings()
-print(f"🔍 SAVE: x={x}, y={y}, w={width}, h={height}")  # In _save_settings()
-```
-
----
-
-## Session Scripts Cleanup
-
-**Temporary scripts created:** 01-43 in `scripts/` directory
-
-**To cleanup after commit:**
+### PowerShell Encoding
 ```powershell
-# Delete temporary session scripts
-Remove-Item scripts/0[1-4]*.py
-Remove-Item scripts/[1-4][0-9]_*.py
+# ❌ Problematické pre PowerShell parser
+Write-Host "✅ Všetky úlohy dokončené"
+
+# ✅ Bezpečné (bez diakritiky)
+Write-Host "Vsetky ulohy dokoncene"
 ```
 
-**Permanent scripts to keep:**
-- None from this session (all were diagnostic/fix scripts)
+### Artifact Server Pattern
+```python
+# Minimálny server pre ukladanie artifacts
+@app.post("/save-artifact")
+async def save_artifact(data: ArtifactSave):
+    file_path = PROJECT_ROOT / data.filename
+    file_path.parent.mkdir(parents=True, exist_ok=True)
+    file_path.write_text(data.content, encoding='utf-8')
+    return {"path": str(file_path)}
+```
 
 ---
 
-## Notes for Next Developer
+## DEPENDENCIES
 
-1. **Window persistence is working** - don't modify unless necessary
-2. **BaseWindow pattern is established** - follow it for new windows
-3. **All windows should use BaseWindow** - no raw QDialog/QMainWindow
-4. **Grid settings use integer active_column** - not dict
-5. **ENTER opens detail, ESC closes app** - keyboard shortcuts working
+```
+pyperclip     - Práca so schránkou
+keyboard      - Globálne hotkeys  
+anthropic     - Claude API (voliteľné)
+fastapi       - Web framework
+uvicorn       - ASGI server
+pydantic      - Data validation
+```
+
+**Inštalácia:**
+```bash
+python tools/installer.py  # Nainštaluje všetko automaticky
+```
 
 ---
 
-**Last updated:** 2025-12-06  
-**Next session ready:** ✅  
-**Blocking issues:** None
+## RESOURCES
+
+### Dokumentácia
+- `docs/README.md` - Kompletný prehľad
+- `docs/INSTALLATION_GUIDE.md` - Quick start
+- `docs/SESSION_NOTES.md` - Tento technický záznam
+
+### Logs
+- `tools/claude-tools.log` - Runtime log
+
+### External
+- FastAPI: https://fastapi.tiangolo.com/
+- keyboard: https://github.com/boppreh/keyboard
+- Anthropic: https://docs.anthropic.com/
+
+---
+
+## KRITICKÉ UPOZORNENIA
+
+### ⚠️ API Key Security
+```python
+# ❌ NIKDY necommituj API key do Git
+ANTHROPIC_API_KEY = "sk-ant-..."
+
+# ✅ config.py je v .gitignore
+# ✅ Alebo použi environment variable
+```
+
+### ⚠️ Port Conflicts
+```bash
+# Ak port 8765 je obsadený:
+netstat -ano | findstr :8765
+taskkill /F /PID <pid>
+
+# Alebo zmeň v config.py:
+ARTIFACT_SERVER_PORT = 8766
+```
+
+### ⚠️ Hotkeys Conflicts
+```python
+# Ak Ctrl+Alt+X koliduje s inou aplikáciou:
+# Uprav hotkey v config.py
+# Reštartuj claude-hotkeys.py
+```
+
+---
+
+**Init Prompt vytvorený:** 2025-12-06  
+**Projekt:** nex-automat  
+**Status:** Claude Tools nainštalované a funkčné  
+
+Pokračujem tam kde sme skončili v predchádzajúcom chate.

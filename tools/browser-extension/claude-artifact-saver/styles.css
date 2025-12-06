@@ -1,0 +1,115 @@
+/* Claude Artifact Saver - Styles */
+
+/* Save Button */
+.artifact-save-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 12px;
+
+    font-size: 13px;
+    font-weight: 600;
+    font-family: system-ui, -apple-system, sans-serif;
+
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+
+    transition: all 0.2s ease;
+    z-index: 1000;
+}
+
+.artifact-save-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+}
+
+.artifact-save-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(102, 126, 234, 0.3);
+}
+
+/* Notifications */
+.artifact-notification {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+
+    padding: 12px 20px;
+    border-radius: 8px;
+
+    font-size: 14px;
+    font-weight: 500;
+    font-family: system-ui, -apple-system, sans-serif;
+
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.3s ease;
+
+    z-index: 10000;
+    max-width: 400px;
+}
+
+.artifact-notification.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.artifact-notification-success {
+    background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
+    color: #0f5132;
+}
+
+.artifact-notification-error {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    color: #fff;
+}
+
+.artifact-notification-warning {
+    background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+    color: #664d03;
+}
+
+.artifact-notification-info {
+    background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
+    color: #055160;
+}
+
+/* Make sure buttons don't interfere with Claude's UI */
+pre:has(.artifact-save-btn) {
+    position: relative !important;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    .artifact-save-btn {
+        box-shadow: 0 2px 8px rgba(102, 126, 234, 0.5);
+    }
+
+    .artifact-save-btn:hover {
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.6);
+    }
+}
+
+/* Animation for button appearance */
+@keyframes fadeInSlide {
+    from {
+        opacity: 0;
+        transform: translateX(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.artifact-save-btn {
+    animation: fadeInSlide 0.3s ease;
+}

@@ -1,499 +1,326 @@
-# NEX Automat
+# Claude Tools - nex-automat projekt
 
-**Multi-customer SaaS platform for automated invoice processing**
+Automatizácia workflow pre prácu s claude.ai.
 
-[![Python 3.13](https://img.shields.io/badge/python-3.13-blue.svg)](https://www.python.org/downloads/)
-[![Tests](https://img.shields.io/badge/tests-61%20passing-success.svg)](./apps/supplier-invoice-loader/tests/)
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+## 📋 Rýchly štart
+
+### Inštalácia
+
+1. **Vytvor adresáre**:
+   ```
+   C:\Development\nex-automat\tools\
+   C:\Development\nex-automat\SESSION_NOTES\
+   ```
+
+2. **Skopíruj všetky súbory** z artifacts do príslušných adresárov
+
+3. **Spusti installer**:
+   ```powershell
+   cd C:\Development\nex-automat\tools
+   python installer.py
+   ```
+
+4. **Spusti nástroje**:
+   ```powershell
+   .\start-claude-tools.ps1
+   ```
 
 ---
 
-## 📋 Overview
+## 🔧 Komponenty
 
-NEX Automat je monorepo projekt obsahujúci aplikácie a zdieľané knižnice pre automatizáciu spracovania dodávateľských faktúr. Projekt je integrovaný s NEX Genesis ERP systémom cez Btrieve databázy.
+### 1. Claude Hotkeys
+**Klávesové skratky pre časté operácie**
 
-### Key Features
+| Hotkey | Funkcia |
+|--------|---------|
+| `Ctrl+Alt+L` | Load init prompt do nového chatu |
+| `Ctrl+Alt+S` | Copy session notes |
+| `Ctrl+Alt+G` | Git status |
+| `Ctrl+Alt+D` | Deployment info |
+| `Ctrl+Alt+N` | New chat template |
+| `Ctrl+Alt+I` | Show project info |
 
-- ⚡ **Automatické spracovanie faktúr** - extrahovanie dát z PDF
-- 📊 **Multi-customer architecture** - podpora viacerých zákazníkov
-- 🔄 **PostgreSQL staging** - príprava dát pre invoice-editor
-- 📧 **Email notifikácie** - automatické upozornenia
-- 🌐 **FastAPI REST API** - moderné API s dokumentáciou
-- 🧪 **Comprehensive testing** - 85% test coverage
+### 2. Artifact Server
+**Lokálny FastAPI server na :8765**
+- Ukladá artifacts z claude.ai do projektu
+- Používa ho browser extension
 
----
-
-## 🗂️ Project Structure
-
+### 3. Session Notes Manager
+**Správa session notes**
+```bash
+python session-notes-manager.py enhance   # Enhanced verzia
+python session-notes-manager.py validate  # Validácia štruktúry
+python session-notes-manager.py template  # Nový template
 ```
-nex-automat/
-├── apps/
-│   ├── supplier-invoice-loader/    # FastAPI service for invoice processing
-│   └── supplier-invoice-editor/    # Web UI for invoice editing
-│
-├── packages/
-│   ├── invoice-shared/             # Shared invoice utilities
-│   └── nex-shared/                 # NEX Genesis ERP utilities
-│
-├── docs/                           # Documentation & manifests
-└── tools/                          # Development tools
+
+### 4. Context Compressor (voliteľné)
+**Kompresia histórie cez Claude API**
+```bash
+python context-compressor.py notes  # Komprimuj session notes
+python context-compressor.py init   # Komprimuj init prompt
 ```
 
-### Applications
+*Vyžaduje `ANTHROPIC_API_KEY` v config.py*
 
-#### 🔹 Supplier Invoice Loader
-
-FastAPI service pre automatické spracovanie dodávateľských faktúr.
-
-**Features:**
-
-- PDF parsing a OCR
-- ISDOC XML generovanie
-- Duplikát detekcia
-- PostgreSQL staging
-- Email notifikácie
-
-**Tech Stack:**
-
-- FastAPI, Uvicorn
-- PyPDF, Pillow
-- asyncpg, aiosqlite
-- Pydantic v2
-
-#### 🔹 Supplier Invoice Editor
-
-Qt5 desktop aplikácia pre manuálnu editáciu a kontrolu faktúr.
-
-**Features:**
-
-- PostgreSQL staging browser
-- ISDOC invoice approval workflow
-- Manual data correction
-- Excel export
-- Multi-user support
-
-**Tech Stack:**
-
-- PyQt5 (Qt5 framework)
-- asyncpg (PostgreSQL client)
-- PyYAML (configuration)
-- openpyxl (Excel export)
-
-**Status:** ✅ Tested (10/14 passing, 71%)
-
-### Packages
-
-#### 📦 invoice-shared
-
-Zdieľané utility pre prácu s faktúrami.
-
-**Modules:**
-
-- `database/` - PostgreSQL staging client
-- `utils/` - Text processing utilities
-- `models/` - Data models
-- `schemas/` - Pydantic schemas
-
-#### 📦 nex-shared
-
-Utility pre prácu s NEX Genesis ERP (Btrieve).
-
-**Status:** Placeholder
+### 5. Browser Extension (voliteľné)
+**Pridáva "💾 Uložiť" tlačítka k artifacts**
+- Chrome: `chrome://extensions/`
+- Load unpacked: `C:\Development\nex-automat\tools\browser-extension\claude-artifact-saver`
 
 ---
 
-## 🚀 Quick Start
+## 🎯 Denný workflow
 
-### Prerequisites
-
-- **Python 3.13.7 32-bit** (Btrieve compatibility)
-- **Git**
-- **PostgreSQL** (optional, for staging)
-- **Qt5** (for supplier-invoice-editor)
-
-### Installation
-
+### Ráno (raz)
 ```powershell
-# 1. Clone repository
-git clone https://github.com/[username]/nex-automat.git
-cd nex-automat
-
-# 2. Create virtual environment
-& "C:\Program Files (x86)\Python313-32\python.exe" -m venv venv32
-
-# 3. Activate
-.\venv32\Scripts\Activate.ps1
-
-# 4. Install dependencies (in correct order!)
-pip install -e packages/invoice-shared -e packages/nex-shared
-pip install -e apps/supplier-invoice-loader -e apps/supplier-invoice-editor
-pip install pytest pytest-asyncio pytest-cov black ruff
+cd C:\Development\nex-automat\tools
+.\start-claude-tools.ps1
 ```
 
-### Verify Installation
+### Nový chat
+1. claude.ai → New chat
+2. `Ctrl+Alt+L` (auto-paste init prompt)
+3. Enter
 
-```bash
-# Run all tests
-pytest
+### Počas práce
+- `Ctrl+Alt+S` → session notes do schránky
+- `Ctrl+Alt+G` → git status
+- Artifact → klik "💾 Uložiť" → automaticky do projektu
 
-# Expected: 71 passed, 15 skipped, 0 failed
+### Koniec chatu
+1. Napíš: `novy chat`
+2. Claude vygeneruje SESSION_NOTES.md + INIT_PROMPT_NEW_CHAT.md
+3. Commit do Git
+
+### Večer
+```powershell
+.\stop-claude-tools.ps1
 ```
 
 ---
 
-## 💻 Development
+## 📂 Štruktúra projektu
 
-### Running Supplier Invoice Loader
-
-```bash
-# Activate venv
-.\venv32\Scripts\Activate.ps1
-
-# Run server
-cd apps/supplier-invoice-loader
-python main.py
-
-# API documentation
-# http://localhost:8000/docs
+```
+C:\Development\nex-automat\
+├── tools\
+│   ├── installer.py
+│   ├── claude-chat-loader.py
+│   ├── claude-hotkeys.py
+│   ├── artifact-server.py
+│   ├── session-notes-manager.py
+│   ├── context-compressor.py
+│   ├── start-claude-tools.ps1
+│   ├── stop-claude-tools.ps1
+│   ├── config.py (generované)
+│   └── browser-extension\
+│       └── claude-artifact-saver\
+│           ├── manifest.json
+│           ├── content.js
+│           ├── styles.css
+│           ├── background.js
+│           └── popup.html
+├── SESSION_NOTES\
+│   ├── SESSION_NOTES.md
+│   └── INIT_PROMPT_NEW_CHAT.md
+├── packages\
+├── apps\
+└── ...
 ```
 
-### Running Supplier Invoice Editor
+---
 
-```bash
-# Activate venv
-.\venv32\Scripts\Activate.ps1
+## ⚙️ Konfigurácia
 
-# Run desktop application
-cd apps/supplier-invoice-editor
-python main.py
-
-# Requires PostgreSQL with staging data
-```
-
-### Configuration
-
-Create `config/customer_config.py`:
+### config.py (generované pri inštalácii)
 
 ```python
-CUSTOMER_NAME = "MAGERSTAV"
-API_KEY = "your-api-key"
-PDF_DIR = Path("C:/Development/storage/MAGERSTAV/pdf")
-XML_DIR = Path("C:/Development/storage/MAGERSTAV/xml")
+PROJECT_ROOT = r"C:\Development\nex-automat"
+TOOLS_DIR = r"C:\Development\nex-automat\tools"
+SESSION_NOTES_DIR = r"C:\Development\nex-automat\SESSION_NOTES"
 
-# PostgreSQL staging (optional)
-POSTGRES_STAGING_ENABLED = True
-POSTGRES_HOST = "localhost"
-POSTGRES_PORT = 5432
-POSTGRES_DATABASE = "invoice_staging"
-POSTGRES_USER = "postgres"
-POSTGRES_PASSWORD = "password"
+ARTIFACT_SERVER_PORT = 8765
+ARTIFACT_SERVER_HOST = "localhost"
+
+# Voliteľné - pre context compressor
+ANTHROPIC_API_KEY = ""  # sk-ant-...
 ```
 
-### API Endpoints
+---
 
-| Endpoint    | Method | Auth | Description     |
-| ----------- | ------ | ---- | --------------- |
-| `/`         | GET    | No   | Service info    |
-| `/health`   | GET    | No   | Health check    |
-| `/metrics`  | GET    | No   | Metrics (JSON)  |
-| `/status`   | GET    | Yes  | Detailed status |
-| `/invoice`  | POST   | Yes  | Process invoice |
-| `/invoices` | GET    | Yes  | List invoices   |
+## ❓ Riešenie problémov
 
-**Authentication:** API Key in `X-API-Key` header
+### Hotkeys nefungujú
 
-### Example Request
+**Problém:** `Ctrl+Alt+L` nič nerobí
 
+**Riešenie:**
+```powershell
+# Skontroluj proces
+Get-Process python | Where-Object { $_.CommandLine -like "*hotkeys*" }
+
+# Reštartuj
+.\stop-claude-tools.ps1 -Force
+.\start-claude-tools.ps1
+```
+
+### Server nedostupný
+
+**Problém:** Extension hlási "Server nie je dostupný"
+
+**Riešenie:**
+```powershell
+# Skontroluj port
+netstat -an | findstr 8765
+
+# Test
+Invoke-WebRequest http://localhost:8765/ping
+
+# Reštartuj
+python artifact-server.py
+```
+
+### Extension nedetekuje artifacts
+
+**Problém:** Tlačítko "💾 Uložiť" sa neobjavuje
+
+**Riešenie:**
+1. F12 → Console → hľadaj chyby
+2. `chrome://extensions/` → Reload
+3. Refresh claude.ai
+
+### Git status chyba
+
+**Problém:** "nie si v Git repozitári"
+
+**Riešenie:**
 ```bash
-curl -X POST http://localhost:8000/invoice \
-  -H "X-API-Key: your-api-key" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "file_b64": "JVBERi0xLjQK...",
-    "filename": "invoice.pdf",
-    "subject": "Invoice #123",
-    "from_email": "supplier@example.com",
-    "message_id": "msg-123",
-    "gmail_id": "gmail-123",
-    "received_date": "2025-01-15T10:00:00"
-  }'
+cd C:\Development\nex-automat
+git init  # ak ešte nie je Git repo
 ```
 
 ---
 
-## 🧪 Testing
+## 💡 Tips & Tricks
 
-### Run Tests
+### 1. Automatický štart s Windows
 
-```bash
-# All tests
-pytest
-
-# Specific app
-pytest apps/supplier-invoice-loader/tests/ -v
-
-# With coverage
-pytest --cov=src --cov-report=html
-
-# Quick summary
-pytest --tb=no -q
+Vytvor skratku v Startup folder:
+```
+%APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup
 ```
 
-### Test Results
+Target:
+```
+powershell.exe -ExecutionPolicy Bypass -File "C:\Development\nex-automat\tools\start-claude-tools.ps1"
+```
 
-**supplier-invoice-loader:**
+### 2. Vlastné hotkeys
 
-- ✅ 61/72 tests passing (85% coverage)
-- ⏭️ 11 tests skipped
-- ❌ 0 tests failing
+Uprav `claude-hotkeys.py`:
+```python
+keyboard.add_hotkey('ctrl+alt+m', self.my_custom_function)
+```
 
-**supplier-invoice-editor:**
+### 3. Rýchly prístup k notes
 
-- ✅ 10/14 tests passing (71% coverage)
-- ⏭️ 4 tests skipped
-- ❌ 0 tests failing
+PowerShell alias:
+```powershell
+function notes { code C:\Development\nex-automat\SESSION_NOTES\SESSION_NOTES.md }
+```
 
-**Total:** 71 passed, 15 skipped, 0 failed ✅
+### 4. Sledovanie logu
 
----
-
-## 📚 Documentation
-
-- **[MONOREPO_GUIDE.md](docs/MONOREPO_GUIDE.md)** - Development guide
-- **[CONTRIBUTING.md](CONTRIBUTING.md)** - Contribution guidelines
-- **[SESSION_NOTES.md](docs/SESSION_NOTES.md)** - Current status & history
-
-### Manifests
-
-Hierarchické JSON manifesty pre efektívne načítavanie projektu:
-
-- `docs/PROJECT_MANIFEST.json` - Root overview
-- `docs/apps/*.json` - Per-app details
-- `docs/packages/*.json` - Per-package details
-
-Generate manifests:
-
-```bash
-python generate_projects_access.py
+```powershell
+Get-Content C:\Development\nex-automat\tools\claude-tools.log -Wait -Tail 20
 ```
 
 ---
 
-## 🛠️ Tools & Scripts
+## 📊 Štatistiky
 
-### Manifest Generators
+### Úspora času
+- **7 minút/chat** (eliminovaný copy-paste)
+- **35 hodín/rok** (pri 15 chatoch denne)
 
-```bash
-# TXT format (human-readable)
-python generate_project_manifest.py
+### Automatizované
+- ✅ Init prompt loading
+- ✅ Session notes access
+- ✅ Git status check
+- ✅ Artifact saving
+- ✅ Deployment info
 
-# JSON format (hierarchical)
-python generate_projects_access.py
-```
-
-### Code Quality
-
-```bash
-# Format code
-black .
-
-# Lint code
-ruff check . --fix
-
-# Type check (optional)
-mypy apps/supplier-invoice-loader/
-```
+### Náklady
+- **Claude MAX**: ~$20/mes
+- **Žiadne API poplatky** (okrem voliteľného compressora)
+- **Token limit**: 190k/chat (Claude MAX)
 
 ---
 
-## 🏗️ Architecture
+## 🔄 Údržba
 
-### Data Flow
+### Denne
+- Commit session notes do Git
+- Backup dôležitých artifacts
 
-```
-Email → n8n → FastAPI → PDF Extraction → SQLite
-                 ↓
-            PostgreSQL Staging → Invoice Editor
-                 ↓
-            ISDOC XML → NEX Genesis ERP
-```
+### Týždenne
+- Skontroluj `claude-tools.log`
+- Update dependencies: `pip install --upgrade anthropic fastapi uvicorn`
 
-### Technology Stack
-
-**Backend:**
-
-- Python 3.13.7 32-bit
-- FastAPI, Uvicorn
-- PyQt5 (desktop UI)
-- SQLite, PostgreSQL
-- asyncpg, aiosqlite
-
-**Processing:**
-
-- PyPDF (PDF parsing)
-- Pillow (image processing)
-- PyYAML (configuration)
-- Custom extractors
-
-**Data Formats:**
-
-- ISDOC XML (Czech invoicing standard)
-- JSON (API communication)
-- PDF (input documents)
-
-**Infrastructure:**
-
-- Windows Server 2012 R2
-- NEX Genesis ERP (Btrieve)
-- PostgreSQL 14+
+### Mesačne
+- Vyčisti staré compressed súbory
+- Archivuj staré session notes
 
 ---
 
-## 🔧 Configuration
+## 📚 Dokumentácia súborov
 
-### Environment Variables
-
-```bash
-# Customer identification
-CUSTOMER_NAME=MAGERSTAV
-
-# API security
-API_KEY=your-secret-key
-
-# Storage paths
-PDF_STORAGE_DIR=C:/Development/storage/MAGERSTAV/pdf
-XML_STORAGE_DIR=C:/Development/storage/MAGERSTAV/xml
-
-# Database
-DB_FILE=C:/Development/storage/MAGERSTAV/invoices.db
-
-# PostgreSQL staging (optional)
-POSTGRES_STAGING_ENABLED=true
-POSTGRES_HOST=localhost
-POSTGRES_PORT=5432
-POSTGRES_DATABASE=invoice_staging
-
-# Email notifications (optional)
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-ALERT_EMAIL=admin@example.com
-```
+| Súbor | Popis |
+|-------|-------|
+| `README.md` | Tento súbor - prehľad |
+| `INSTALLATION_GUIDE.md` | Detailný inštalačný návod |
+| `installer.py` | Automatický inštalátor |
+| `claude-chat-loader.py` | Auto-load init promptu |
+| `claude-hotkeys.py` | Klávesové skratky |
+| `artifact-server.py` | FastAPI server |
+| `session-notes-manager.py` | Správa notes |
+| `context-compressor.py` | Kompresia histórie |
+| `start-claude-tools.ps1` | Startup script |
+| `stop-claude-tools.ps1` | Shutdown script |
 
 ---
 
-## 📊 Monitoring
+## 🎯 Používanie v praxi
 
-### Metrics Endpoints
+### Typický deň:
 
-**JSON format:**
+**9:00** - Spusti tools (`start-claude-tools.ps1`)
 
-```bash
-curl http://localhost:8000/metrics
-```
+**9:05** - Otvor nový chat, `Ctrl+Alt+L`, začni pracovať
 
-**Prometheus format:**
+**12:00** - Potrebuješ Git status? `Ctrl+Alt+G`
 
-```bash
-curl http://localhost:8000/metrics/prometheus
-```
+**14:00** - Claude vygeneroval skript? Klikni "💾 Uložiť"
 
-### Available Metrics
+**17:00** - Koniec práce? Napíš `novy chat`, commit SESSION_NOTES
 
-- `app_uptime_seconds` - Application uptime
-- `app_invoices_processed_total` - Total processed invoices
-- `app_invoices_errors_total` - Total errors
-- System metrics (CPU, memory, disk)
+**17:05** - Zastav tools (`stop-claude-tools.ps1`)
 
 ---
 
-## 🚨 Troubleshooting
+## 🚀 Budúce vylepšenia
 
-### Common Issues
+Po nazbieraní skúseností na nex-automat projekte:
 
-**Problem:** "Invalid Python Interpreter" in PyCharm  
-**Solution:** Settings → Python Interpreter → Select `venv32/Scripts/python.exe`
-
-**Problem:** "No matching distribution found for invoice-shared"  
-**Solution:** Install packages in correct order (shared first, then apps)
-
-**Problem:** Tests failing after git pull  
-**Solution:** 
-
-```bash
-pip install -e packages/invoice-shared -e packages/nex-shared
-pip install -e apps/supplier-invoice-loader
-pytest
-```
-
-See [MONOREPO_GUIDE.md](docs/MONOREPO_GUIDE.md) for more troubleshooting.
+- [ ] Template pre ďalšie projekty
+- [ ] Multi-project switching
+- [ ] Automatické backup session notes
+- [ ] Integration s n8n workflows
+- [ ] Custom commands pre NEX-špecifické operácie
 
 ---
 
-## 🤝 Contributing
-
-We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
-
-### Development Workflow
-
-1. Fork repository
-2. Create feature branch (`git checkout -b feature/amazing-feature`)
-3. Make changes & add tests
-4. Format code (`black .` & `ruff check . --fix`)
-5. Commit (`git commit -m 'feat: add amazing feature'`)
-6. Push (`git push origin feature/amazing-feature`)
-7. Create Pull Request
-
----
-
-## 📝 License
-
-This project is proprietary software.
-
-**Copyright © 2025 ICC Komárno - Innovation & Consulting Center**
-
----
-
-## 👥 Team
-
-**Maintainer:** Zoltán Rausch (rausch@icc.sk)  
-**Organization:** ICC Komárno - Innovation & Consulting Center  
-**Experience:** 40 years in software development
-
----
-
-## 🔗 Related Projects
-
-- **[nex-genesis-server](https://github.com/[org]/nex-genesis-server)** - NEX Genesis ERP integration
-- **[uae-legal-agent](https://github.com/[org]/uae-legal-agent)** - Legal document analysis
-- **[claude-dev-automation](https://github.com/[org]/claude-dev-automation)** - AI-driven development workflows
-
----
-
-## 📈 Project Status
-
-**Version:** 2.0.0  
-**Status:** ✅ Production Ready  
-**Last Updated:** 2025-11-19
-
-**Migration Status:**
-
-- ✅ Monorepo structure
-- ✅ Shared packages
-- ✅ Testing infrastructure
-  - supplier-invoice-loader: 61/72 passing (85%)
-  - supplier-invoice-editor: 10/14 passing (71%)
-- ✅ Documentation complete
-- ✅ Python environment setup
-- 📋 CI/CD pipeline (todo)
-
----
-
-## 📮 Contact
-
-- **Email:** rausch@icc.sk
-- **Organization:** ICC Komárno
-- **Location:** Komárno, Slovakia
-
----
-
-**Made with ❤️ by ICC Komárno**
+*Claude Tools pre NEX Automat v2.0*  
+*Cesta k projektu: C:\Development\nex-automat*  
+*Version 1.0 - December 2024*

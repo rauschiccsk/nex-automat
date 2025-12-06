@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claude Artifact Saver</title>
+    <style>
+        body {
+            width: 300px;
+            padding: 16px;
+            font-family: system-ui, -apple-system, sans-serif;
+            margin: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        h1 {
+            font-size: 18px;
+            margin: 0 0 12px 0;
+            font-weight: 600;
+        }
+
+        .status {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+        }
+
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+
+        .status-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .badge {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .badge.success {
+            background: #10b981;
+        }
+
+        .badge.error {
+            background: #ef4444;
+        }
+
+        .info {
+            font-size: 12px;
+            opacity: 0.9;
+            line-height: 1.5;
+        }
+
+        .footer {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            font-size: 11px;
+            opacity: 0.8;
+            text-align: center;
+        }
+
+        button {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 8px;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+
+        button:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <h1>💾 Claude Artifact Saver</h1>
+
+    <div class="status">
+        <div class="status-item">
+            <span>Extension:</span>
+            <span class="badge success">Aktívna</span>
+        </div>
+        <div class="status-item">
+            <span>Server:</span>
+            <span class="badge" id="server-status">Kontrolujem...</span>
+        </div>
+        <div class="status-item">
+            <span>Verzia:</span>
+            <span class="badge">1.0.0</span>
+        </div>
+    </div>
+
+    <div class="info">
+        <p><strong>Ako to funguje:</strong></p>
+        <ul style="margin: 8px 0; padding-left: 20px; font-size: 12px;">
+            <li>Otvori claude.ai</li>
+            <li>Vytvor artifact (kód)</li>
+            <li>Klikni "💾 Uložiť"</li>
+            <li>Zadaj cestu k súboru</li>
+        </ul>
+    </div>
+
+    <button id="test-server">Test Server</button>
+
+    <div class="footer">
+        Claude Tools - NEX Automat v2.0
+    </div>
+
+    <script>
+        // Kontrola servera
+        async function checkServer() {
+            const badge = document.getElementById('server-status');
+
+            try {
+                const response = await fetch('http://localhost:8765/ping');
+
+                if (response.ok) {
+                    badge.textContent = 'Dostupný';
+                    badge.classList.add('success');
+                    badge.classList.remove('error');
+                } else {
+                    throw new Error('Server error');
+                }
+            } catch (error) {
+                badge.textContent = 'Nedostupný';
+                badge.classList.add('error');
+                badge.classList.remove('success');
+            }
+        }
+
+        // Test server button
+        document.getElementById('test-server').addEventListener('click', () => {
+            checkServer();
+        });
+
+        // Check on load
+        checkServer();
+    </script>
+</body>
+</html>
