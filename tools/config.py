@@ -12,7 +12,7 @@ ARTIFACT_SERVER_HOST = "localhost"
 # Claude API (voliteľné - pre context compressor)
 ANTHROPIC_API_KEY = ""  # Vlož sem svoj API key ak chceš použiť compressor
 
-# Hotkeys (Ctrl+Alt+...)
+# Hotkeys (Ctrl+Win+...)
 HOTKEY_LOAD_INIT = "l"
 HOTKEY_COPY_NOTES = "s"
 HOTKEY_GIT_STATUS = "g"

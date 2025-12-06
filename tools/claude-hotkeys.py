@@ -25,17 +25,17 @@ class ClaudeHotkeys:
         """Registruj všetky hotkeys"""
 
         hotkeys = [
-            ('ctrl+alt+s', self.copy_session_notes, "Copy Session Notes"),
-            ('ctrl+alt+g', self.show_git_status, "Git Status"),
-            ('ctrl+alt+d', self.show_deployment_info, "Deployment Info"),
-            ('ctrl+alt+n', self.new_chat_template, "New Chat Template"),
-            ('ctrl+alt+i', self.show_info, "Show Info"),
+            ('ctrl+windows+s', self.copy_session_notes, "Copy Session Notes"),
+            ('ctrl+windows+g', self.show_git_status, "Git Status"),
+            ('ctrl+windows+d', self.show_deployment_info, "Deployment Info"),
+            ('ctrl+windows+n', self.new_chat_template, "New Chat Template"),
+            ('ctrl+windows+i', self.show_info, "Show Info"),
         ]
 
         print("\n" + "="*60)
         print("⌨️  CLAUDE HOTKEYS - nex-automat")
         print("="*60)
-        print("\nDostupné skratky (Ctrl+Alt+...):")
+        print("\nDostupné skratky (Ctrl+Win+...):")
 
         for hotkey, func, desc in hotkeys:
             keyboard.add_hotkey(hotkey, func)
@@ -125,8 +125,8 @@ Deployment:   {self.deployment_root}
 - Deployment je read-only kópia
 
 📋 QUICK ACTIONS:
-- Git status: Ctrl+Alt+G
-- Session notes: Ctrl+Alt+S
+- Git status: Ctrl+Win+G
+- Session notes: Ctrl+Win+S
 """
 
         pyperclip.copy(info)
@@ -193,7 +193,7 @@ PROJECT INFO - nex-automat - {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
 📝 SESSION NOTES:
    {notes_info}
 
-⌨️  HOTKEYS (Ctrl+Alt+...):
+⌨️  HOTKEYS (Ctrl+Win+...):
    S - Copy Session Notes
    G - Git Status
    D - Deployment Info

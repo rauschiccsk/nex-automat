@@ -2,7 +2,7 @@
   "name": "claude-tools",
   "type": "tools",
   "location": "tools",
-  "generated": "2025-12-06T16:15:48.357224",
+  "generated": "2025-12-06T18:18:40.116110",
   "description": "Claude Tools - Automatizacia workflow pre claude.ai",
   "statistics": {
     "total_files": 29,
@@ -11,7 +11,7 @@
     "powershell_files": 2,
     "test_files": 1,
     "total_lines": 4328,
-    "total_size": 152156
+    "total_size": 152176
   },
   "structure": {
     "has_browser_extension": true,
@@ -133,7 +133,7 @@
     {
       "path": "tools/claude-hotkeys.py",
       "name": "claude-hotkeys.py",
-      "size": 6938,
+      "size": 6958,
       "extension": ".py",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/tools/claude-hotkeys.py",
       "lines": 229,

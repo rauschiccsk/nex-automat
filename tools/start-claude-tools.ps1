@@ -140,11 +140,11 @@ if (-not $NoHotkeys) {
             }
 
             Write-Log "Hotkeys spustene (PID: $($HotkeyProcess.Id))" "SUCCESS"
-            Write-Log "   Ctrl+Alt+S - Copy Session Notes" "INFO"
-            Write-Log "   Ctrl+Alt+G - Git Status" "INFO"
-            Write-Log "   Ctrl+Alt+D - Deployment Info" "INFO"
-            Write-Log "   Ctrl+Alt+N - New Chat Template" "INFO"
-            Write-Log "   Ctrl+Alt+I - Show Info" "INFO"
+            Write-Log "   Ctrl+Win+S - Copy Session Notes" "INFO"
+            Write-Log "   Ctrl+Win+G - Git Status" "INFO"
+            Write-Log "   Ctrl+Win+D - Deployment Info" "INFO"
+            Write-Log "   Ctrl+Win+N - New Chat Template" "INFO"
+            Write-Log "   Ctrl+Win+I - Show Info" "INFO"
         }
     } catch {
         Write-Log "Chyba pri spustani hotkeys: $_" "ERROR"

@@ -2,7 +2,7 @@
 
 ## KONTEXT Z PREDCHÁDZAJÚCEHO CHATU
 
-Úspešne sme implementovali Claude Tools pre nex-automat projekt - automatizáciu workflow pre prácu s claude.ai.
+Úspešne sme otestovali Claude Tools pre nex-automat projekt - 5 z 6 hotkeys funguje správne.
 
 ---
 
@@ -16,22 +16,24 @@
 
 ---
 
-## CLAUDE TOOLS - IMPLEMENTOVANÝ SYSTÉM
+## CLAUDE TOOLS - FUNKČNÝ SYSTÉM
 
-### Komponenty (všetky funkčné ✅)
+### Komponenty (otestované)
 
 **1. Artifact Server** (FastAPI)
 - Beží na `http://localhost:8765`
 - Ukladá artifacts z claude.ai do projektu
 - Endpoints: `/`, `/save-artifact`, `/list-recent`, `/ping`
+- Status: ✅ Funguje
 
 **2. Hotkeys System** (keyboard + pyperclip)
-- Globálne klávesové skratky (fungujú všade)
-- Všetky hotkeys testované a funkčné
+- Globálne klávesové skratky
+- **5 z 6 hotkeys funkčných**
 
 **3. Chat Loader**
 - Automatické načítanie init promptu do nového chatu
-- Hotkey: `Ctrl+Alt+L`
+- Hotkey: `Ctrl+Win+P` ❌ (koliduje s Windows Project mode)
+- Workaround: Manuálne skopírovať INIT_PROMPT_NEW_CHAT.md
 
 **4. Session Notes Manager**
 - Správa a analýza session notes
@@ -59,14 +61,14 @@ C:\Development\nex-automat\
 │   ├── start-claude-tools.ps1
 │   ├── stop-claude-tools.ps1
 │   └── browser-extension\
-├── docs\                       ← Dokumentácia
+├── SESSION_NOTES\              ← Dokumentácia
 │   ├── SESSION_NOTES.md        ← Tu je session notes
 │   └── INIT_PROMPT_NEW_CHAT.md ← Tu je init prompt
-├── scripts\                    ← Setup scripty
-│   ├── 01-create-directories.py
-│   ├── 02-create-claude-tools-files.py
-│   ├── 05-fix-config.py
-│   └── 05b-fix-powershell-files.py
+├── scripts\                    ← Fix scripty
+│   ├── 06-fix-hotkey-L-to-P.py
+│   ├── 07-fix-all-hotkeys-to-ctrl-shift.py
+│   ├── 08-fix-hotkeys-to-ctrl-win.py
+│   └── 09-fix-win-to-windows.py
 └── README.md
 ```
 
@@ -85,16 +87,18 @@ ANTHROPIC_API_KEY = ""  # Voliteľné
 
 ---
 
-## DOSTUPNÉ HOTKEYS (Ctrl+Alt+...)
+## DOSTUPNÉ HOTKEYS (Ctrl+Win+...)
 
 | Hotkey | Funkcia | Status |
 |--------|---------|--------|
-| **L** | Load init prompt | ⏳ Nie testované |
-| **S** | Copy session notes | ⏳ Nie testované |
-| **G** | Git status | ⏳ Nie testované |
-| **D** | Deployment info | ⏳ Nie testované |
-| **N** | New chat template | ⏳ Nie testované |
 | **I** | Show project info | ✅ Funguje |
+| **S** | Copy session notes | ✅ Funguje |
+| **G** | Git status | ✅ Funguje |
+| **D** | Deployment info | ✅ Funguje |
+| **N** | New chat template ("nový chat") | ✅ Funguje |
+| **P** | Load init prompt | ❌ Koliduje s Windows |
+
+**Poznámka:** `Ctrl+Win+P` koliduje s Windows Project mode (pripojenie projektora). Pre načítanie init promptu použiť manuálne kopírovanie.
 
 ---
 
@@ -119,10 +123,15 @@ cd C:\Development\nex-automat\tools
 .\stop-claude-tools.ps1 -Force
 ```
 
+**Známy problém:** Stop script niekedy nedetekuje procesy správne. Pre manuálne zastavenie:
+```powershell
+Get-WmiObject Win32_Process | Where-Object {$_.CommandLine -like "*artifact-server*" -or $_.CommandLine -like "*claude-hotkeys*"} | ForEach-Object { Stop-Process -Id $_.ProcessId -Force }
+```
+
 ### Test hotkeys (interaktívne okno)
 ```powershell
 python tools\claude-hotkeys.py
-# Stlač Ctrl+Alt+I → zobrazí Project Info
+# Stlač Ctrl+Win+I → zobrazí Project Info
 # Ctrl+C → ukončenie
 ```
 
@@ -130,25 +139,18 @@ python tools\claude-hotkeys.py
 
 ## ČO OSTÁVA UROBIŤ
 
-### Priorita 1 (ihneď)
-- [ ] **Otestovať všetky hotkeys** - zatiaľ len Ctrl+Alt+I
-  - Ctrl+Alt+S → Copy session notes
-  - Ctrl+Alt+G → Git status
-  - Ctrl+Alt+D → Deployment info
-  - Ctrl+Alt+L → Load init prompt
-  - Ctrl+Alt+N → New chat template
+### Priorita 1 (voliteľné)
+- [ ] **Opraviť Ctrl+Win+P hotkey** - zmeniť na iné písmeno (L, O, alebo úplne iná kombinácia)
+- [ ] **Git commit** - commitnúť všetky tools súbory a fix scripty
+- [ ] **Vymazať dočasné scripty** - ponechať len potrebné
 
-- [ ] **Git commit** - commitnúť všetky tools súbory
-  - Použiť commit message z artifacts
-  - Vymazať dočasné scripty (01, 02, 05, 05b)
-
-### Priorita 2 (tento týždeň)
+### Priorita 2 (tento týždeň/mesiac)
 - [ ] **Browser Extension** - nainštalovať a otestovať
   - Chrome → Extensions → Load unpacked
   - Test: vytvor artifact → klik "💾 Uložiť"
 
-- [ ] **Praktické použitie** v reálnej práci
-  - Workflow: Nový chat → Ctrl+Alt+L → práca → "novy chat"
+- [ ] **Praktické používanie** v reálnej práci
+  - Workflow: Nový chat → (manuálne načítaj prompt) → práca → "nový chat"
   - Zaznamenať problémy/vylepšenia
 
 ### Priorita 3 (budúcnosť)
@@ -172,6 +174,22 @@ python tools\claude-hotkeys.py
 ### Bug #3: uvicorn[standard] dependency ✅
 **Problém:** Inštalácia zlyhávala  
 **Riešenie:** Zmenené na len `uvicorn` (bez extras)
+
+### Bug #4: Kolízia so slovenskou klávesnicou ✅
+**Problém:** `Ctrl+Alt+...` = AltGr na SK klávesnici → generuje špeciálne znaky  
+**Riešenie:** Zmena na `Ctrl+Win+...` cez fix scripty 06-09
+
+### Bug #5: Kolízia s browser shortcuts ✅
+**Problém:** `Ctrl+Shift+I` = DevTools, `Ctrl+Shift+N` = Incognito  
+**Riešenie:** Zmena na `Ctrl+Win+...`
+
+### Bug #6: Nesprávna syntax Windows key ✅
+**Problém:** keyboard modul požaduje `'windows'` nie `'win'`  
+**Riešenie:** Oprava cez `09-fix-win-to-windows.py`
+
+### Bug #7: Windows Project mode ⚠️
+**Problém:** `Ctrl+Win+P` koliduje s Windows (pripojenie projektora)  
+**Riešenie:** Zatiaľ nevyriešené - použiť manuálne kopírovanie init promptu
 
 ### Warning: Pydantic validator deprecation ⚠️
 **Status:** Len warning, neovplyvňuje funkcionalitu  
@@ -198,15 +216,24 @@ Deployment (C:\Development\nex-automat-deployment\)
 ### Claude Tools workflow
 ```
 1. Ráno: .\start-claude-tools.ps1
-2. Práca: Používaj hotkeys (Ctrl+Alt+...)
-3. Nový chat: Ctrl+Alt+L → vloží init prompt
-4. Koniec práce: "novy chat" → vygeneruje SESSION_NOTES
+2. Práca: Používaj hotkeys (Ctrl+Win+...)
+3. Nový chat: Manuálne skopíruj init prompt (Ctrl+Win+P nefunguje)
+4. Koniec práce: "nový chat" → vygeneruje SESSION_NOTES
 5. Večer: .\stop-claude-tools.ps1
 ```
 
 ---
 
 ## TECHNICKÉ POZNÁMKY
+
+### Hotkey kolízie - zhrnutie
+
+| Kombinácia | Problém | Status |
+|------------|---------|--------|
+| `Ctrl+Alt+...` | AltGr na SK klávesnici | ❌ Nefunguje |
+| `Ctrl+Shift+...` | Browser DevTools/Incognito | ❌ Koliduje |
+| `Ctrl+Win+...` | Väčšinou OK | ✅ Funguje |
+| `Ctrl+Win+P` | Windows Project mode | ❌ Koliduje |
 
 ### Windows Path Handling
 ```python
@@ -263,9 +290,9 @@ python tools/installer.py  # Nainštaluje všetko automaticky
 ## RESOURCES
 
 ### Dokumentácia
-- `docs/README.md` - Kompletný prehľad
-- `docs/INSTALLATION_GUIDE.md` - Quick start
-- `docs/SESSION_NOTES.md` - Tento technický záznam
+- `SESSION_NOTES/README.md` - Kompletný prehľad
+- `SESSION_NOTES/INSTALLATION_GUIDE.md` - Quick start
+- `SESSION_NOTES/SESSION_NOTES.md` - Tento technický záznam
 
 ### Logs
 - `tools/claude-tools.log` - Runtime log
@@ -298,17 +325,19 @@ taskkill /F /PID <pid>
 ARTIFACT_SERVER_PORT = 8766
 ```
 
-### ⚠️ Hotkeys Conflicts
-```python
-# Ak Ctrl+Alt+X koliduje s inou aplikáciou:
-# Uprav hotkey v config.py
-# Reštartuj claude-hotkeys.py
+### ⚠️ N8n Workflow na pozadí
+```powershell
+# NIKDY nezabíjaj všetky Python procesy!
+# Na serveri bežia n8n workflows (supplier-invoice-loader)
+
+# ✅ Správne - kontroluj command line
+Get-WmiObject Win32_Process | Where-Object {$_.CommandLine -like "*artifact-server*"}
 ```
 
 ---
 
 **Init Prompt vytvorený:** 2025-12-06  
 **Projekt:** nex-automat  
-**Status:** Claude Tools nainštalované a funkčné  
+**Status:** Claude Tools funkčné (5/6 hotkeys OK)  
 
 Pokračujem tam kde sme skončili v predchádzajúcom chate.
