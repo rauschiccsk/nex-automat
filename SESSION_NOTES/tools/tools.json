@@ -1,0 +1,334 @@
+{
+  "name": "claude-tools",
+  "type": "tools",
+  "location": "tools",
+  "generated": "2025-12-06T16:15:48.357224",
+  "description": "Claude Tools - Automatizacia workflow pre claude.ai",
+  "statistics": {
+    "total_files": 29,
+    "total_dirs": 6,
+    "python_files": 20,
+    "powershell_files": 2,
+    "test_files": 1,
+    "total_lines": 4328,
+    "total_size": 152156
+  },
+  "structure": {
+    "has_browser_extension": true,
+    "has_config": true,
+    "has_log": true
+  },
+  "components": {
+    "installer": {
+      "file": "installer.py",
+      "description": "Automatická inštalácia dependencies a setup"
+    },
+    "chat_loader": {
+      "file": "claude-chat-loader.py",
+      "description": "Auto-load init promptu (Ctrl+Alt+L)",
+      "hotkey": "Ctrl+Alt+L"
+    },
+    "hotkeys": {
+      "file": "claude-hotkeys.py",
+      "description": "Globálne klávesové skratky",
+      "hotkeys": {
+        "Ctrl+Alt+L": "Load init prompt",
+        "Ctrl+Alt+S": "Copy session notes",
+        "Ctrl+Alt+G": "Git status",
+        "Ctrl+Alt+D": "Deployment info",
+        "Ctrl+Alt+N": "New chat template",
+        "Ctrl+Alt+I": "Show project info"
+      }
+    },
+    "artifact_server": {
+      "file": "artifact-server.py",
+      "description": "FastAPI server pre artifacts",
+      "port": 8765,
+      "url": "http://localhost:8765"
+    },
+    "session_notes_manager": {
+      "file": "session-notes-manager.py",
+      "description": "Správa session notes",
+      "commands": [
+        "enhance",
+        "validate",
+        "template"
+      ]
+    },
+    "context_compressor": {
+      "file": "context-compressor.py",
+      "description": "Kompresia histórie cez Claude API",
+      "requires": "ANTHROPIC_API_KEY"
+    }
+  },
+  "scripts": {
+    "startup": "start-claude-tools.ps1",
+    "shutdown": "stop-claude-tools.ps1"
+  },
+  "browser_extension": {
+    "available": true,
+    "manifest": "browser-extension/claude-artifact-saver/manifest.json"
+  },
+  "files": [
+    {
+      "path": "tools/INSTALLATION_GUIDE.md",
+      "name": "INSTALLATION_GUIDE.md",
+      "size": 6993,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/tools/INSTALLATION_GUIDE.md"
+    },
+    {
+      "path": "tools/artifact-server.py",
+      "name": "artifact-server.py",
+      "size": 5303,
+      "extension": ".py",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/tools/artifact-server.py",
+      "lines": 189,
+      "type": "source"
+    },
+    {
+      "path": "tools/browser-extension/claude-artifact-saver/background.js",
+      "name": "background.js",
+      "size": 798,
+      "extension": ".js",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/tools/browser-extension/claude-artifact-saver/background.js"
+    },
+    {
+      "path": "tools/browser-extension/claude-artifact-saver/content.js",
+      "name": "content.js",
+      "size": 7662,
+      "extension": ".js",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/tools/browser-extension/claude-artifact-saver/content.js"
+    },
+    {
+      "path": "tools/browser-extension/claude-artifact-saver/manifest.json",
+      "name": "manifest.json",
+      "size": 948,
+      "extension": ".json",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/tools/browser-extension/claude-artifact-saver/manifest.json"
+    },
+    {
+      "path": "tools/browser-extension/claude-artifact-saver/popup.html",
+      "name": "popup.html",
+      "size": 4216,
+      "extension": ".html",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/tools/browser-extension/claude-artifact-saver/popup.html"
+    },
+    {
+      "path": "tools/browser-extension/claude-artifact-saver/styles.css",
+      "name": "styles.css",
+      "size": 2548,
+      "extension": ".css",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/tools/browser-extension/claude-artifact-saver/styles.css"
+    },
+    {
+      "path": "tools/claude-chat-loader.py",
+      "name": "claude-chat-loader.py",
+      "size": 5204,
+      "extension": ".py",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/tools/claude-chat-loader.py",
+      "lines": 162,
+      "type": "source"
+    },
+    {
+      "path": "tools/claude-hotkeys.py",
+      "name": "claude-hotkeys.py",
+      "size": 6938,
+      "extension": ".py",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/tools/claude-hotkeys.py",
+      "lines": 229,
+      "type": "source"
+    },
+    {
+      "path": "tools/claude-tools.log",
+      "name": "claude-tools.log",
+      "size": 1702,
+      "extension": ".log",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/tools/claude-tools.log"
+    },
+    {
+      "path": "tools/config.py",
+      "name": "config.py",
+      "size": 611,
+      "extension": ".py",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/tools/config.py",
+      "lines": 20,
+      "type": "source"
+    },
+    {
+      "path": "tools/context-compressor.py",
+      "name": "context-compressor.py",
+      "size": 7988,
+      "extension": ".py",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/tools/context-compressor.py",
+      "lines": 245,
+      "type": "source"
+    },
+    {
+      "path": "tools/installer.py",
+      "name": "installer.py",
+      "size": 7170,
+      "extension": ".py",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/tools/installer.py",
+      "lines": 214,
+      "type": "source"
+    },
+    {
+      "path": "tools/session-notes-manager.py",
+      "name": "session-notes-manager.py",
+      "size": 9160,
+      "extension": ".py",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/tools/session-notes-manager.py",
+      "lines": 304,
+      "type": "source"
+    },
+    {
+      "path": "tools/session_scripts_archive/20251121_221122/auto_deploy_service_scripts.py",
+      "name": "auto_deploy_service_scripts.py",
+      "size": 7124,
+      "extension": ".py",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/tools/session_scripts_archive/20251121_221122/auto_deploy_service_scripts.py",
+      "lines": 275,
+      "type": "source"
+    },
+    {
+      "path": "tools/session_scripts_archive/20251121_221122/cleanup_session_scripts.py",
+      "name": "cleanup_session_scripts.py",
+      "size": 4266,
+      "extension": ".py",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/tools/session_scripts_archive/20251121_221122/cleanup_session_scripts.py",
+      "lines": 143,
+      "type": "source"
+    },
+    {
+      "path": "tools/session_scripts_archive/20251121_221122/complete_deploy_to_production.py",
+      "name": "complete_deploy_to_production.py",
+      "size": 7561,
+      "extension": ".py",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/tools/session_scripts_archive/20251121_221122/complete_deploy_to_production.py",
+      "lines": 274,
+      "type": "source"
+    },
+    {
+      "path": "tools/session_scripts_archive/20251121_221122/create_test_config.py",
+      "name": "create_test_config.py",
+      "size": 5370,
+      "extension": ".py",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/tools/session_scripts_archive/20251121_221122/create_test_config.py",
+      "lines": 195,
+      "type": "test"
+    },
+    {
+      "path": "tools/session_scripts_archive/20251121_221122/deploy_config_tools.py",
+      "name": "deploy_config_tools.py",
+      "size": 31728,
+      "extension": ".py",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/tools/session_scripts_archive/20251121_221122/deploy_config_tools.py",
+      "lines": 1020,
+      "type": "source"
+    },
+    {
+      "path": "tools/session_scripts_archive/20251121_221122/final_config_fix.py",
+      "name": "final_config_fix.py",
+      "size": 2490,
+      "extension": ".py",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/tools/session_scripts_archive/20251121_221122/final_config_fix.py",
+      "lines": 82,
+      "type": "source"
+    },
+    {
+      "path": "tools/session_scripts_archive/20251121_221122/fix_all_config_scripts.py",
+      "name": "fix_all_config_scripts.py",
+      "size": 1941,
+      "extension": ".py",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/tools/session_scripts_archive/20251121_221122/fix_all_config_scripts.py",
+      "lines": 73,
+      "type": "source"
+    },
+    {
+      "path": "tools/session_scripts_archive/20251121_221122/fix_config_errors.py",
+      "name": "fix_config_errors.py",
+      "size": 2003,
+      "extension": ".py",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/tools/session_scripts_archive/20251121_221122/fix_config_errors.py",
+      "lines": 75,
+      "type": "source"
+    },
+    {
+      "path": "tools/session_scripts_archive/20251121_221122/fix_env_vars_in_config.py",
+      "name": "fix_env_vars_in_config.py",
+      "size": 2515,
+      "extension": ".py",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/tools/session_scripts_archive/20251121_221122/fix_env_vars_in_config.py",
+      "lines": 85,
+      "type": "source"
+    },
+    {
+      "path": "tools/session_scripts_archive/20251121_221122/fix_missing_os_import.py",
+      "name": "fix_missing_os_import.py",
+      "size": 1446,
+      "extension": ".py",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/tools/session_scripts_archive/20251121_221122/fix_missing_os_import.py",
+      "lines": 64,
+      "type": "source"
+    },
+    {
+      "path": "tools/session_scripts_archive/20251121_221122/fix_validator_env_vars.py",
+      "name": "fix_validator_env_vars.py",
+      "size": 2396,
+      "extension": ".py",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/tools/session_scripts_archive/20251121_221122/fix_validator_env_vars.py",
+      "lines": 76,
+      "type": "source"
+    },
+    {
+      "path": "tools/session_scripts_archive/20251121_221122/update_gitignore.py",
+      "name": "update_gitignore.py",
+      "size": 2191,
+      "extension": ".py",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/tools/session_scripts_archive/20251121_221122/update_gitignore.py",
+      "lines": 117,
+      "type": "source"
+    },
+    {
+      "path": "tools/session_scripts_archive/20251121_221122/update_production_paths.py",
+      "name": "update_production_paths.py",
+      "size": 5227,
+      "extension": ".py",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/tools/session_scripts_archive/20251121_221122/update_production_paths.py",
+      "lines": 189,
+      "type": "source"
+    },
+    {
+      "path": "tools/start-claude-tools.ps1",
+      "name": "start-claude-tools.ps1",
+      "size": 5511,
+      "extension": ".ps1",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/tools/start-claude-tools.ps1",
+      "lines": 178,
+      "type": "script"
+    },
+    {
+      "path": "tools/stop-claude-tools.ps1",
+      "name": "stop-claude-tools.ps1",
+      "size": 3146,
+      "extension": ".ps1",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/tools/stop-claude-tools.ps1",
+      "lines": 119,
+      "type": "script"
+    }
+  ],
+  "key_files": [
+    "tools/artifact-server.py",
+    "tools/claude-chat-loader.py",
+    "tools/claude-hotkeys.py",
+    "tools/config.py",
+    "tools/context-compressor.py",
+    "tools/installer.py",
+    "tools/session-notes-manager.py",
+    "tools/start-claude-tools.ps1",
+    "tools/stop-claude-tools.ps1",
+    "tools/config.py",
+    "tools/INSTALLATION_GUIDE.md"
+  ]
+}

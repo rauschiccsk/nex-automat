@@ -4,10 +4,11 @@
 Generate Projects Access - NEX Automat Monorepo
 Location: C:/Development/nex-automat/scripts/generate_projects_access.py
 
-Vytvárí hierarchické JSON manifesty:
-- docs/PROJECT_MANIFEST.json - root overview
-- docs/apps/{app_name}.json - per-app manifests
-- docs/packages/{package_name}.json - per-package manifests
+Vytvára hierarchické JSON manifesty:
+- SESSION_NOTES/PROJECT_MANIFEST.json - root overview
+- SESSION_NOTES/apps/{app_name}.json - per-app manifests
+- SESSION_NOTES/packages/{package_name}.json - per-package manifests
+- SESSION_NOTES/tools/tools.json - Claude Tools manifest
 
 Pre efektívne lazy loading v Claude sessions.
 """
@@ -17,13 +18,14 @@ from datetime import datetime
 import json
 
 MONOREPO_ROOT = Path("C:/Development/nex-automat")
-DOCS_DIR = MONOREPO_ROOT / "docs"
-APPS_MANIFEST_DIR = DOCS_DIR / "apps"
-PACKAGES_MANIFEST_DIR = DOCS_DIR / "packages"
+SESSION_NOTES_DIR = MONOREPO_ROOT / "SESSION_NOTES"  # Changed from docs to SESSION_NOTES
+APPS_MANIFEST_DIR = SESSION_NOTES_DIR / "apps"
+PACKAGES_MANIFEST_DIR = SESSION_NOTES_DIR / "packages"
+TOOLS_MANIFEST_DIR = SESSION_NOTES_DIR / "tools"  # New: tools manifests
 
 # GitHub Configuration
 GITHUB_REPO = "rauschiccsk/nex-automat"
-GITHUB_BRANCH = "develop"  # Changed from "main" to "develop"
+GITHUB_BRANCH = "develop"
 
 # Exclude patterns
 EXCLUDE_DIRS = {
@@ -85,6 +87,11 @@ def scan_files(root: Path, relative_to: Path = None) -> list[dict]:
                 file_info["lines"] = count_lines(item)
                 file_info["type"] = "test" if "test" in item.name else "source"
 
+            # PowerShell-specific info
+            if item.suffix == '.ps1':
+                file_info["lines"] = count_lines(item)
+                file_info["type"] = "script"
+
             files.append(file_info)
 
     except PermissionError:
@@ -99,6 +106,7 @@ def get_directory_stats(root: Path) -> dict:
         'total_files': 0,
         'total_dirs': 0,
         'python_files': 0,
+        'powershell_files': 0,
         'test_files': 0,
         'total_lines': 0,
         'total_size': 0
@@ -121,6 +129,10 @@ def get_directory_stats(root: Path) -> dict:
 
                     if 'test' in item.name:
                         stats['test_files'] += 1
+
+                if item.suffix == '.ps1':
+                    stats['powershell_files'] += 1
+                    stats['total_lines'] += count_lines(item)
 
     except PermissionError:
         pass
@@ -261,43 +273,133 @@ def generate_package_manifest(package_dir: Path) -> dict:
     return manifest
 
 
+def generate_tools_manifest(tools_dir: Path) -> dict:
+    """Generate manifest for Claude Tools"""
+    print(f"   🔧 Generating manifest for: Claude Tools")
 
-def get_documentation_files() -> dict:
-    """Get key documentation files from docs/"""
-    docs = {}
-
-    # Session notes - najdôležitejší súbor
-    session_notes = DOCS_DIR / "SESSION_NOTES.md"
-    if session_notes.exists():
-        docs["session_notes"] = {
-            "path": "docs/SESSION_NOTES.md",
-            "exists": True,
-            "size": session_notes.stat().st_size,
-            "github_raw": f"https://raw.githubusercontent.com/{GITHUB_REPO}/{GITHUB_BRANCH}/docs/SESSION_NOTES.md"
-        }
-
-    # Ostatné kľúčové dokumenty
-    key_docs = {
-        "guides/MONOREPO_GUIDE.md": "Monorepo development guide",
-        "guides/CONTRIBUTING.md": "Contribution guidelines",
-        "guides/TESTING_GUIDE.md": "Testing guide"
+    manifest = {
+        "name": "claude-tools",
+        "type": "tools",
+        "location": str(tools_dir.relative_to(MONOREPO_ROOT)).replace('\\', '/'),
+        "generated": datetime.now().isoformat(),
+        "description": "Claude Tools - Automatizacia workflow pre claude.ai",
+        "statistics": get_directory_stats(tools_dir),
+        "structure": {
+            "has_browser_extension": (tools_dir / "browser-extension").exists(),
+            "has_config": (tools_dir / "config.py").exists(),
+            "has_log": (tools_dir / "claude-tools.log").exists()
+        },
+        "components": {
+            "installer": {
+                "file": "installer.py",
+                "description": "Automatická inštalácia dependencies a setup"
+            },
+            "chat_loader": {
+                "file": "claude-chat-loader.py",
+                "description": "Auto-load init promptu (Ctrl+Alt+L)",
+                "hotkey": "Ctrl+Alt+L"
+            },
+            "hotkeys": {
+                "file": "claude-hotkeys.py",
+                "description": "Globálne klávesové skratky",
+                "hotkeys": {
+                    "Ctrl+Alt+L": "Load init prompt",
+                    "Ctrl+Alt+S": "Copy session notes",
+                    "Ctrl+Alt+G": "Git status",
+                    "Ctrl+Alt+D": "Deployment info",
+                    "Ctrl+Alt+N": "New chat template",
+                    "Ctrl+Alt+I": "Show project info"
+                }
+            },
+            "artifact_server": {
+                "file": "artifact-server.py",
+                "description": "FastAPI server pre artifacts",
+                "port": 8765,
+                "url": "http://localhost:8765"
+            },
+            "session_notes_manager": {
+                "file": "session-notes-manager.py",
+                "description": "Správa session notes",
+                "commands": ["enhance", "validate", "template"]
+            },
+            "context_compressor": {
+                "file": "context-compressor.py",
+                "description": "Kompresia histórie cez Claude API",
+                "requires": "ANTHROPIC_API_KEY"
+            }
+        },
+        "scripts": {
+            "startup": "start-claude-tools.ps1",
+            "shutdown": "stop-claude-tools.ps1"
+        },
+        "browser_extension": {
+            "available": (tools_dir / "browser-extension" / "claude-artifact-saver").exists(),
+            "manifest": "browser-extension/claude-artifact-saver/manifest.json"
+        },
+        "files": scan_files(tools_dir, MONOREPO_ROOT)
     }
 
-    for doc_path, description in key_docs.items():
-        full_path = DOCS_DIR / doc_path
-        if full_path.exists():
-            docs[doc_path.replace('/', '_').replace('.md', '')] = {
-                "path": f"docs/{doc_path}",
-                "description": description,
-                "exists": True,
-                "github_raw": f"https://raw.githubusercontent.com/{GITHUB_REPO}/{GITHUB_BRANCH}/docs/{doc_path}"
-            }
+    # Key files
+    key_files = []
+    for pattern in ["*.py", "*.ps1", "config.py", "*.md"]:
+        for file in tools_dir.glob(pattern):
+            if not should_exclude(file):
+                key_files.append(str(file.relative_to(MONOREPO_ROOT)).replace('\\', '/'))
+    manifest["key_files"] = key_files
+
+    return manifest
+
+
+def get_documentation_files() -> dict:
+    """Get key documentation files"""
+    docs = {}
+    docs_dir = MONOREPO_ROOT / "docs"
+
+    # Session notes - najdôležitejší súbor
+    session_notes = SESSION_NOTES_DIR / "SESSION_NOTES.md"
+    if session_notes.exists():
+        docs["session_notes"] = {
+            "path": "SESSION_NOTES/SESSION_NOTES.md",
+            "exists": True,
+            "size": session_notes.stat().st_size,
+            "github_raw": f"https://raw.githubusercontent.com/{GITHUB_REPO}/{GITHUB_BRANCH}/SESSION_NOTES/SESSION_NOTES.md"
+        }
+
+    # Init prompt
+    init_prompt = SESSION_NOTES_DIR / "INIT_PROMPT_NEW_CHAT.md"
+    if init_prompt.exists():
+        docs["init_prompt"] = {
+            "path": "SESSION_NOTES/INIT_PROMPT_NEW_CHAT.md",
+            "exists": True,
+            "size": init_prompt.stat().st_size,
+            "github_raw": f"https://raw.githubusercontent.com/{GITHUB_REPO}/{GITHUB_BRANCH}/SESSION_NOTES/INIT_PROMPT_NEW_CHAT.md"
+        }
+
+    # Ostatné kľúčové dokumenty z docs/
+    if docs_dir.exists():
+        key_docs = {
+            "README.md": "Main project README",
+            "guides/MONOREPO_GUIDE.md": "Monorepo development guide",
+            "guides/CONTRIBUTING.md": "Contribution guidelines",
+            "guides/TESTING_GUIDE.md": "Testing guide"
+        }
+
+        for doc_path, description in key_docs.items():
+            full_path = docs_dir / doc_path
+            if full_path.exists():
+                docs[doc_path.replace('/', '_').replace('.md', '')] = {
+                    "path": f"docs/{doc_path}",
+                    "description": description,
+                    "exists": True,
+                    "github_raw": f"https://raw.githubusercontent.com/{GITHUB_REPO}/{GITHUB_BRANCH}/docs/{doc_path}"
+                }
 
     return docs
 
+
 def generate_root_manifest() -> dict:
     """Generate root manifest with overview"""
-    print("🔨 Generating root manifest...")
+    print("📋 Generating root manifest...")
 
     # Get all apps
     apps_dir = MONOREPO_ROOT / "apps"
@@ -312,7 +414,7 @@ def generate_root_manifest() -> dict:
                 apps_list.append({
                     "name": app.name,
                     "location": f"apps/{app.name}",
-                    "manifest": f"docs/apps/{app.name}.json",
+                    "manifest": f"SESSION_NOTES/apps/{app.name}.json",
                     "python_files": stats["python_files"],
                     "test_files": tests["test_files"],
                     "dependencies_count": len(deps["main"])
@@ -330,10 +432,24 @@ def generate_root_manifest() -> dict:
                 packages_list.append({
                     "name": package.name,
                     "location": f"packages/{package.name}",
-                    "manifest": f"docs/packages/{package.name}.json",
+                    "manifest": f"SESSION_NOTES/packages/{package.name}.json",
                     "python_files": stats["python_files"],
                     "dependencies_count": len(deps["main"])
                 })
+
+    # Get tools info
+    tools_dir = MONOREPO_ROOT / "tools"
+    tools_info = None
+    if tools_dir.exists():
+        stats = get_directory_stats(tools_dir)
+        tools_info = {
+            "name": "claude-tools",
+            "location": "tools",
+            "manifest": "SESSION_NOTES/tools/tools.json",
+            "python_files": stats["python_files"],
+            "powershell_files": stats["powershell_files"],
+            "type": "automation"
+        }
 
     # Collect all dependencies
     all_deps = set()
@@ -358,12 +474,13 @@ def generate_root_manifest() -> dict:
         "structure": {
             "apps": len(apps_list),
             "packages": len(packages_list),
-            "docs": (DOCS_DIR).exists(),
-            "tools": (MONOREPO_ROOT / "tools").exists()
+            "tools": tools_info is not None,
+            "docs": (MONOREPO_ROOT / "docs").exists()
         },
         "statistics": get_directory_stats(MONOREPO_ROOT),
         "applications": apps_list,
         "packages": packages_list,
+        "tools": tools_info,
         "dependencies": {
             "unique_count": len(all_deps),
             "list": sorted(list(all_deps))
@@ -378,8 +495,14 @@ def generate_root_manifest() -> dict:
             "phase_7_documentation": "in_progress",
             "phase_8_git": "todo"
         },
+        "claude_tools_status": {
+            "installed": tools_info is not None,
+            "artifact_server": "running on :8765",
+            "hotkeys": "active",
+            "browser_extension": "available (optional)"
+        },
         "documentation": docs_files,
-                "test_status": {
+        "test_status": {
             "supplier_invoice_loader": {
                 "total": 72,
                 "passed": 61,
@@ -403,12 +526,14 @@ def main():
     print("=" * 70)
     print()
     print(f"Monorepo: {MONOREPO_ROOT}")
+    print(f"Output:   {SESSION_NOTES_DIR}")
     print(f"GitHub:   {GITHUB_REPO} (branch: {GITHUB_BRANCH})")
     print()
 
     # Create manifest directories
     APPS_MANIFEST_DIR.mkdir(parents=True, exist_ok=True)
     PACKAGES_MANIFEST_DIR.mkdir(parents=True, exist_ok=True)
+    TOOLS_MANIFEST_DIR.mkdir(parents=True, exist_ok=True)
     print(f"✅ Created manifest directories")
     print()
 
@@ -454,12 +579,31 @@ def main():
     print(f"   Generated {package_count} package manifests")
     print()
 
-    # 3. Generate root manifest
-    print("3️⃣ Generating root manifest...")
+    # 3. Generate tools manifest
+    print("3️⃣ Generating tools manifest...")
+    tools_dir = MONOREPO_ROOT / "tools"
+    tools_count = 0
+
+    if tools_dir.exists():
+        tools_manifest = generate_tools_manifest(tools_dir)
+
+        # Save to JSON
+        manifest_file = TOOLS_MANIFEST_DIR / "tools.json"
+        with open(manifest_file, 'w', encoding='utf-8') as f:
+            json.dump(tools_manifest, f, indent=2, ensure_ascii=False)
+
+        tools_count = 1
+        print(f"      ✅ {manifest_file.relative_to(MONOREPO_ROOT)}")
+
+    print(f"   Generated {tools_count} tools manifest")
+    print()
+
+    # 4. Generate root manifest
+    print("4️⃣ Generating root manifest...")
     root_manifest = generate_root_manifest()
 
     # Save to JSON
-    root_manifest_file = DOCS_DIR / "PROJECT_MANIFEST.json"
+    root_manifest_file = SESSION_NOTES_DIR / "PROJECT_MANIFEST.json"
     with open(root_manifest_file, 'w', encoding='utf-8') as f:
         json.dump(root_manifest, f, indent=2, ensure_ascii=False)
 
@@ -473,11 +617,13 @@ def main():
     print()
     print(f"📊 Generated manifests:")
     print(f"   Root:     {root_manifest_file}")
-    print(f"   Apps:     {app_count} manifests in docs/apps/")
-    print(f"   Packages: {package_count} manifests in docs/packages/")
+    print(f"   Apps:     {app_count} manifests in SESSION_NOTES/apps/")
+    print(f"   Packages: {package_count} manifests in SESSION_NOTES/packages/")
+    print(f"   Tools:    {tools_count} manifest in SESSION_NOTES/tools/")
     print()
     print(f"📁 Total files tracked: {root_manifest['statistics']['total_files']}")
     print(f"🐍 Python files: {root_manifest['statistics']['python_files']}")
+    print(f"📜 PowerShell files: {root_manifest['statistics']['powershell_files']}")
     print(f"📝 Total lines: {root_manifest['statistics']['total_lines']:,}")
     print()
     print(f"🌿 Branch: {GITHUB_BRANCH}")
@@ -486,10 +632,16 @@ def main():
     print("USAGE IN CLAUDE:")
     print("=" * 70)
     print("# Load root manifest:")
-    print(f"web_fetch('https://raw.githubusercontent.com/{GITHUB_REPO}/{GITHUB_BRANCH}/docs/PROJECT_MANIFEST.json')")
+    print(
+        f"web_fetch('https://raw.githubusercontent.com/{GITHUB_REPO}/{GITHUB_BRANCH}/SESSION_NOTES/PROJECT_MANIFEST.json')")
     print()
     print("# Load specific app:")
-    print(f"web_fetch('https://raw.githubusercontent.com/{GITHUB_REPO}/{GITHUB_BRANCH}/docs/apps/supplier-invoice-loader.json')")
+    print(
+        f"web_fetch('https://raw.githubusercontent.com/{GITHUB_REPO}/{GITHUB_BRANCH}/SESSION_NOTES/apps/supplier-invoice-loader.json')")
+    print()
+    print("# Load Claude Tools manifest:")
+    print(
+        f"web_fetch('https://raw.githubusercontent.com/{GITHUB_REPO}/{GITHUB_BRANCH}/SESSION_NOTES/tools/tools.json')")
     print()
     print("=" * 70)
 

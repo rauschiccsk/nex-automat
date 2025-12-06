@@ -573,7 +573,7 @@ Update SESSION_NOTES.md for significant changes.
 
 ## Related Documentation
 
-- [SESSION_NOTES.md](../SESSION_NOTES.md) - Current status and history
+- [SESSION_NOTES.md](../../SESSION_NOTES/SESSION_NOTES.md) - Current status and history
 - [CONTRIBUTING.md](CONTRIBUTING.md) - Contribution guidelines
 - [README.md](../../README.md) - Project overview
 

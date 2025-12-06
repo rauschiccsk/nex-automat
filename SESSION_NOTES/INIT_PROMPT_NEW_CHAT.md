@@ -71,11 +71,12 @@ C:\Development\nex-automat\
 ```
 
 ### Konfigurácia
+
 ```python
 # tools/config.py
 PROJECT_ROOT = r"C:\Development\nex-automat"
-TOOLS_DIR = r"C:\Development\nex-automat\tools"
-SESSION_NOTES_DIR = r"C:\Development\nex-automat\SESSION_NOTES"
+TOOLS_DIR = r"/tools"
+SESSION_NOTES_DIR = r"/SESSION_NOTES"
 
 ARTIFACT_SERVER_PORT = 8765
 ARTIFACT_SERVER_HOST = "localhost"

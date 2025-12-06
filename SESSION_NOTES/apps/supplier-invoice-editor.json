@@ -2,11 +2,12 @@
   "name": "supplier-invoice-editor",
   "type": "application",
   "location": "apps/supplier-invoice-editor",
-  "generated": "2025-12-06T16:04:36.137125",
+  "generated": "2025-12-06T16:15:47.950742",
   "statistics": {
     "total_files": 106,
     "total_dirs": 28,
     "python_files": 54,
+    "powershell_files": 0,
     "test_files": 8,
     "total_lines": 8142,
     "total_size": 1735942

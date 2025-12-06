@@ -2,13 +2,14 @@
   "name": "supplier-invoice-loader",
   "type": "application",
   "location": "apps/supplier-invoice-loader",
-  "generated": "2025-12-06T16:04:36.282678",
+  "generated": "2025-12-06T16:15:48.107896",
   "statistics": {
     "total_files": 136,
     "total_dirs": 34,
     "python_files": 53,
+    "powershell_files": 2,
     "test_files": 15,
-    "total_lines": 10302,
+    "total_lines": 10698,
     "total_size": 9168621
   },
   "structure": {
@@ -161,7 +162,9 @@
       "name": "test-deployment.ps1",
       "size": 10777,
       "extension": ".ps1",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-loader/deploy/test-deployment.ps1"
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-loader/deploy/test-deployment.ps1",
+      "lines": 257,
+      "type": "script"
     },
     {
       "path": "apps/supplier-invoice-loader/deploy/upgrade_dependencies.bat",
@@ -603,7 +606,9 @@
       "name": "setup_task_scheduler.ps1",
       "size": 4856,
       "extension": ".ps1",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-loader/scripts/setup_task_scheduler.ps1"
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-loader/scripts/setup_task_scheduler.ps1",
+      "lines": 139,
+      "type": "script"
     },
     {
       "path": "apps/supplier-invoice-loader/scripts/test_invoice_integration.py",

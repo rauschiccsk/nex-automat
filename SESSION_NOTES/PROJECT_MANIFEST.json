@@ -4,26 +4,27 @@
   "version": "2.0.0",
   "description": "Multi-customer SaaS for automated invoice processing",
   "location": "C:\\Development\\nex-automat",
-  "generated": "2025-12-06T16:04:36.885459",
+  "generated": "2025-12-06T16:15:48.813765",
   "structure": {
     "apps": 2,
     "packages": 2,
-    "docs": true,
-    "tools": true
+    "tools": true,
+    "docs": true
   },
   "statistics": {
-    "total_files": 6143,
-    "total_dirs": 650,
-    "python_files": 2793,
+    "total_files": 6141,
+    "total_dirs": 653,
+    "python_files": 2787,
+    "powershell_files": 7,
     "test_files": 84,
-    "total_lines": 826544,
-    "total_size": 109820692
+    "total_lines": 826958,
+    "total_size": 109910347
   },
   "applications": [
     {
       "name": "supplier-invoice-editor",
       "location": "apps/supplier-invoice-editor",
-      "manifest": "docs/apps/supplier-invoice-editor.json",
+      "manifest": "SESSION_NOTES/apps/supplier-invoice-editor.json",
       "python_files": 54,
       "test_files": 4,
       "dependencies_count": 5
@@ -31,7 +32,7 @@
     {
       "name": "supplier-invoice-loader",
       "location": "apps/supplier-invoice-loader",
-      "manifest": "docs/apps/supplier-invoice-loader.json",
+      "manifest": "SESSION_NOTES/apps/supplier-invoice-loader.json",
       "python_files": 53,
       "test_files": 9,
       "dependencies_count": 10
@@ -41,18 +42,26 @@
     {
       "name": "nex-shared",
       "location": "packages/nex-shared",
-      "manifest": "docs/packages/nex-shared.json",
+      "manifest": "SESSION_NOTES/packages/nex-shared.json",
       "python_files": 9,
       "dependencies_count": 0
     },
     {
       "name": "nexdata",
       "location": "packages/nexdata",
-      "manifest": "docs/packages/nexdata.json",
+      "manifest": "SESSION_NOTES/packages/nexdata.json",
       "python_files": 22,
       "dependencies_count": 1
     }
   ],
+  "tools": {
+    "name": "claude-tools",
+    "location": "tools",
+    "manifest": "SESSION_NOTES/tools/tools.json",
+    "python_files": 20,
+    "powershell_files": 2,
+    "type": "automation"
+  },
   "dependencies": {
     "unique_count": 14,
     "list": [
@@ -82,12 +91,24 @@
     "phase_7_documentation": "in_progress",
     "phase_8_git": "todo"
   },
+  "claude_tools_status": {
+    "installed": true,
+    "artifact_server": "running on :8765",
+    "hotkeys": "active",
+    "browser_extension": "available (optional)"
+  },
   "documentation": {
     "session_notes": {
-      "path": "docs/SESSION_NOTES.md",
+      "path": "SESSION_NOTES/SESSION_NOTES.md",
       "exists": true,
-      "size": 15455,
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/SESSION_NOTES.md"
+      "size": 15404,
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/SESSION_NOTES/SESSION_NOTES.md"
+    },
+    "init_prompt": {
+      "path": "SESSION_NOTES/INIT_PROMPT_NEW_CHAT.md",
+      "exists": true,
+      "size": 8098,
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/SESSION_NOTES/INIT_PROMPT_NEW_CHAT.md"
     }
   },
   "test_status": {
