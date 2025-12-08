@@ -2,7 +2,7 @@
   "name": "nex-shared",
   "type": "package",
   "location": "packages/nex-shared",
-  "generated": "2025-12-08T15:07:35.438028",
+  "generated": "2025-12-08T15:23:00.923514",
   "statistics": {
     "total_files": 18,
     "total_dirs": 4,
@@ -10,7 +10,7 @@
     "powershell_files": 0,
     "test_files": 0,
     "total_lines": 1598,
-    "total_size": 53008
+    "total_size": 52690
   },
   "dependencies": {
     "main": [],
@@ -30,7 +30,7 @@
     {
       "path": "packages/nex-shared/database/__init__.py",
       "name": "__init__.py",
-      "size": 199,
+      "size": 194,
       "extension": ".py",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/packages/nex-shared/database/__init__.py",
       "lines": 5,
@@ -39,7 +39,7 @@
     {
       "path": "packages/nex-shared/database/postgres_staging.py",
       "name": "postgres_staging.py",
-      "size": 8579,
+      "size": 8320,
       "extension": ".py",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/packages/nex-shared/database/postgres_staging.py",
       "lines": 259,
@@ -137,7 +137,7 @@
     {
       "path": "packages/nex-shared/utils/__init__.py",
       "name": "__init__.py",
-      "size": 536,
+      "size": 514,
       "extension": ".py",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/packages/nex-shared/utils/__init__.py",
       "lines": 22,
@@ -164,7 +164,7 @@
     {
       "path": "packages/nex-shared/utils/text_utils.py",
       "name": "text_utils.py",
-      "size": 822,
+      "size": 790,
       "extension": ".py",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/packages/nex-shared/utils/text_utils.py",
       "lines": 32,

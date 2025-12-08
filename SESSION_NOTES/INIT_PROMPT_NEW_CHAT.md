@@ -1,78 +1,72 @@
-# INIT PROMPT - Nový chat (supplier-invoice-loader migrácia v2.3)
-
-## KONTEXT Z PREDCHÁDZAJÚCEHO CHATU
-
-**Deployment v2.2 FAILED** - Rollback na v2.0.0 ✅
-
-**Dôvod:** supplier-invoice-loader nie je kompatibilný s v2.2 (používa vymazaný `invoice-shared` package)
-
----
+# INIT PROMPT - Nový chat (nex-automat v2.3)
 
 ## AKTUÁLNY STAV PROJEKTU
 
 **Projekt:** nex-automat (NEX Automat v2.0)  
 **Development:** `C:\Development\nex-automat`  
+**Deployment:** `C:\Deployment\nex-automat`  
 **Python:** 3.13.7 (venv32)  
 **Git Branch:** develop  
-**Aktuálna verzia:** v2.2 (len editor), v2.0.0 (loader)
-
-**Magerstav Deployment:**
-- Lokácia: `C:\Deployment\nex-automat`
-- Verzia: v2.0.0 (rollback z v2.2)
-- Služba: NEXAutomat beží ✅
+**Aktuálna verzia:** v2.3 ✅
 
 ---
 
-## ČO JE PROBLÉM
+## PRODUCTION STATUS (Magerstav)
 
-### supplier-invoice-loader používa invoice-shared
-
-**invoice-shared bol vymazaný v v2.2**, ale supplier-invoice-loader stále používa:
-
-1. **clean_string** z `invoice_shared.utils.text_utils`
-2. **PostgresStagingClient** z `invoice_shared.database.postgres_staging`
-
-**Súbory s problémom:**
-```
-apps/supplier-invoice-loader/main.py (2 importy)
-apps/supplier-invoice-loader/tests/test_invoice_integration.py (2 importy)
-```
+**Verzia:** v2.3 ✅  
+**Lokácia:** `C:\Deployment\nex-automat`  
+**Service:** NEXAutomat (Running) ✅  
+**API:** http://localhost:8000  
+**Health:** http://localhost:8000/health → 200 OK ✅
 
 ---
 
-## CIEĽ v2.3
+## ČO JE HOTOVÉ
 
-**Migrovať supplier-invoice-loader z invoice-shared na nex-shared**
+### v2.3 - Migration Complete ✅
+**Problem Solved:**
+- supplier-invoice-loader používal vymazaný `invoice-shared` package
+- v2.2 deployment FAILED → rollback na v2.0.0
+- v2.3 migrácia → SUCCESS ✅
 
-**Kroky:**
-1. ✅ Nájsť/vytvoriť `clean_string` funkciu
-2. ✅ Nájsť/presunúť `PostgresStagingClient` class
-3. ✅ Update importov v loader aplikácii
-4. ✅ Test lokálne
-5. ✅ Git commit & tag v2.3
-6. ✅ Deployment na Magerstav
+**Migrated to nex-shared:**
+- `clean_string` → `nex-shared/utils/text_utils.py`
+- `PostgresStagingClient` → `nex-shared/database/postgres_staging.py`
+
+**Files Created:**
+- `packages/nex-shared/utils/text_utils.py`
+- `packages/nex-shared/database/postgres_staging.py`
+- `scripts/01_migrate_invoice_shared_v2.3.py`
+- `scripts/02_fix_utils_init.py`
+
+**Testing:**
+- ✅ Development: API na port 8001
+- ✅ Production: API na port 8000
+- ✅ Imports verified
+- ✅ Service running
 
 ---
 
-## ČO JE HOTOVÉ (v2.2)
+### v2.2 - BaseGrid Pattern ✅
+**Features:**
+- Universal BaseGrid pattern v nex-shared
+- Grid persistence (column widths, active column)
+- QuickSearch integration
+- Cleanup backup files
 
-### BaseGrid Pattern - Production Ready
-- **Vytvorené v nex-shared:**
-  - `packages/nex-shared/ui/base_grid.py` - Univerzálna base trieda
-  - `packages/nex-shared/utils/grid_settings.py` - Persistence do SQLite
-  - `packages/nex-shared/ui/__init__.py` - Export
+**Known Issue:**
+- Deployment FAILED pre loader → Fixed in v2.3 ✅
 
-- **Funkcionalita:**
-  - ✅ Automatická QTableView + GreenHeaderView
-  - ✅ Automatická grid persistence (column widths, active column)
-  - ✅ QuickSearch integration
-  - ✅ Auto-load/save settings
-  - ✅ Debug printy odstránené (v2.2)
+---
 
-### Refaktorované gridy v supplier-invoice-editor
-- `invoice_list_widget.py` - používa BaseGrid ✅
-- `invoice_items_grid.py` - používa BaseGrid ✅
-- `quick_search.py` - signal pre active column ✅
+### v2.0.0 - Initial Release ✅
+**Applications:**
+- supplier-invoice-editor (PyQt5)
+- supplier-invoice-loader (FastAPI)
+
+**Packages:**
+- nex-shared (UI components)
+- nexdata (Btrieve access)
 
 ---
 
@@ -81,37 +75,50 @@ apps/supplier-invoice-loader/tests/test_invoice_integration.py (2 importy)
 ```
 nex-automat/
 ├── apps/
-│   ├── supplier-invoice-editor/    ← v2.2 ✅ FUNGUJE
-│   │   └── src/
-│   │       ├── ui/widgets/
-│   │       │   ├── invoice_list_widget.py    (BaseGrid)
-│   │       │   ├── invoice_items_grid.py     (BaseGrid)
-│   │       │   └── quick_search.py
-│   │       └── utils/
-│   │           └── text_utils.py             (remove_diacritics, normalize_for_search)
+│   ├── supplier-invoice-editor/    # v2.2 (uses BaseGrid)
+│   │   ├── src/
+│   │   │   ├── ui/widgets/
+│   │   │   │   ├── invoice_list_widget.py    (BaseGrid)
+│   │   │   │   ├── invoice_items_grid.py     (BaseGrid)
+│   │   │   │   └── quick_search.py
+│   │   │   ├── business/
+│   │   │   ├── database/
+│   │   │   │   └── postgres_client.py
+│   │   │   └── utils/
+│   │   └── tests/
 │   │
-│   └── supplier-invoice-loader/    ← v2.0.0, TREBA MIGROVAŤ
-│       ├── main.py                 ← 2x invoice_shared import
+│   └── supplier-invoice-loader/    # v2.3 (uses nex-shared)
+│       ├── main.py                 # Updated imports ✅
 │       ├── src/
-│       │   └── database/
-│       │       └── database.py
-│       └── tests/
-│           └── test_invoice_integration.py   ← 2x invoice_shared import
+│       │   ├── api/
+│       │   ├── business/
+│       │   ├── database/
+│       │   │   └── database.py     # SQLite operations
+│       │   ├── extractors/
+│       │   └── utils/
+│       └── scripts/
+│           └── test_invoice_integration.py  # Updated imports ✅
 │
-└── packages/
-    ├── nex-shared/                 ← v2.2 ✅ FUNGUJE
-    │   ├── ui/
-    │   │   ├── base_grid.py
-    │   │   ├── base_window.py
-    │   │   └── __init__.py
-    │   ├── utils/
-    │   │   ├── grid_settings.py
-    │   │   └── __init__.py
-    │   └── database/               ← Sem presunúť PostgresStagingClient?
-    │       └── window_settings_db.py
-    │
-    └── nexdata/                    ← Btrieve/NEX Genesis prístup
-        └── ...
+├── packages/
+│   ├── nex-shared/                 # v1.0.0 with v2.3 additions
+│   │   ├── ui/
+│   │   │   ├── base_grid.py       # Universal BaseGrid
+│   │   │   └── base_window.py
+│   │   ├── utils/
+│   │   │   ├── grid_settings.py   # Grid persistence
+│   │   │   └── text_utils.py      # clean_string (NEW v2.3) ✅
+│   │   └── database/
+│   │       ├── window_settings_db.py
+│   │       └── postgres_staging.py  # PostgresStagingClient (NEW v2.3) ✅
+│   │
+│   └── nexdata/                    # Btrieve access
+│       └── ...
+│
+└── scripts/                        # Numbered migration scripts
+    ├── 01_migrate_invoice_shared_v2.3.py
+    ├── 02_fix_utils_init.py
+    ├── 03_deploy_v2.3_magerstav.ps1
+    └── cleanup_backup_files.py
 ```
 
 ---
@@ -121,67 +128,55 @@ nex-automat/
 ### Workflow
 1. **Development → Git → Deployment**
 2. **NIKDY nerobiť zmeny priamo v Deployment!**
-3. Všetky zmeny cez numbered scripts
+3. Všetky zmeny cez numbered scripts v `scripts/`
 
 ### Package štruktúra
 - **nex-shared** - FLAT štruktúra (nex-shared appears ONLY ONCE in path)
 - Po zmenách v nex-shared: `pip install -e .` v packages/nex-shared
 
-### Migrácia best practices
+### Import Pattern (v2.3)
+```python
+# SPRÁVNE (v2.3+)
+from nex_shared.utils import clean_string
+from nex_shared.database import PostgresStagingClient
+
+# NESPRÁVNE (deprecated v2.2)
+from invoice_shared.utils.text_utils import clean_string
+from invoice_shared.database.postgres_staging import PostgresStagingClient
+```
+
+### Migration Best Practices
 1. Najprv nájdi originálne implementácie
 2. Skopíruj/presun do vhodného package
-3. Update importov
-4. Test lokálne pred commitom
-5. Git tag pre každú release verziu
+3. Update __init__.py exports
+4. Update importov v aplikáciách
+5. Test lokálne pred commitom
+6. Git tag pre každú release verziu
 
 ---
 
-## ĎALŠIE KROKY PRE NOVÝ CHAT
+## PERSISTENCE LOCATIONS
 
-### 1. PRIESKUM (PRVÁ ÚLOHA)
-```powershell
-cd C:\Development\nex-automat
-
-# Nájdi clean_string
-Get-ChildItem -Path . -Include *.py -Recurse | Select-String "def clean_string"
-
-# Nájdi PostgresStagingClient
-Get-ChildItem -Path . -Include *.py -Recurse | Select-String "class PostgresStagingClient"
-
-# Pozri použitie v main.py
-Get-Content apps\supplier-invoice-loader\main.py | Select-String -Context 5,5 "clean_string"
-Get-Content apps\supplier-invoice-loader\main.py | Select-String -Context 5,5 "PostgresStagingClient"
+### SQLite Databases
+```
+Window settings: C:\NEX\YEARACT\SYSTEM\SQLITE\window_settings.db
+Grid settings:   C:\NEX\YEARACT\SYSTEM\SQLITE\grid_settings.db
 ```
 
-### 2. IMPLEMENTÁCIA
-Na základe nájdených implementácií:
-- Vytvor/presun `clean_string`
-- Vytvor/presun `PostgresStagingClient`
-- Update importov v loader
-- Vytvor migračný script
-
-### 3. TESTOVANIE
-```powershell
-# Test loader
-cd apps\supplier-invoice-loader
-python main.py
-
-# API health check
-Invoke-WebRequest -Uri "http://localhost:8000/health"
+### PostgreSQL Staging
 ```
+Database: invoice_staging
+Host: localhost:5432
+User: postgres
 
-### 4. GIT & DEPLOYMENT
-- Tag v2.3
-- Merge do main
-- Deployment na Magerstav
-
----
-
-## ZNÁME LIMITÁCIE
-
-### Magerstav Služby
-- **NEXAutomat** - supplier-invoice-loader API (port 8000) ✅ POUŽÍVA SA
-- **SupplierInvoiceLoader** - duplicitná služba ❌ NEPOUŽÍVA SA
+Tables:
+  - invoices_pending
+  - invoice_items_pending  
+  - invoice_log
+  - categories_cache
+  - products_staging
+  - barcodes_staging
+```
 
 ### Deployment Paths
 ```
@@ -192,21 +187,106 @@ Persistence: C:\NEX\YEARACT\SYSTEM\SQLITE\
 
 ---
 
-## PERSISTENCE LOCATIONS
+## SERVICES (Magerstav)
 
+### Active Services
+- **NEXAutomat** - supplier-invoice-loader API ✅  
+  - Port: 8000
+  - Status: Running
+  - Health: http://localhost:8000/health
+
+### Inactive Services  
+- **SupplierInvoiceLoader** - duplicitná služba ❌ NEPOUŽÍVA SA
+
+---
+
+## TESTING
+
+### Development Testing
+```powershell
+# 1. Test nex-shared imports
+cd C:\Development\nex-automat
+python -c "from nex_shared.utils import clean_string; from nex_shared.database import PostgresStagingClient; print('OK')"
+
+# 2. Test loader
+cd apps\supplier-invoice-loader
+python main.py
+# API: http://localhost:8001
+# Health: http://localhost:8001/health
+
+# 3. Test editor
+cd ..\supplier-invoice-editor
+python main.py
 ```
-Window settings: C:\NEX\YEARACT\SYSTEM\SQLITE\window_settings.db
-Grid settings:   C:\NEX\YEARACT\SYSTEM\SQLITE\grid_settings.db
+
+### Production Testing
+```powershell
+# 1. Service status
+Get-Service NEXAutomat
+
+# 2. API health
+Invoke-WebRequest -Uri "http://localhost:8000/health"
+
+# 3. Verify imports
+cd C:\Deployment\nex-automat\apps\supplier-invoice-loader
+python -c "from nex_shared.utils import clean_string; from nex_shared.database import PostgresStagingClient; print('OK')"
+```
+
+---
+
+## DEPLOYMENT PROCESS
+
+### 1. Development
+```powershell
+cd C:\Development\nex-automat
+
+# Make changes
+# Create migration script if needed
+# Test locally
+
+# Git operations
+git add .
+git commit -m "message"
+git tag vX.X
+git checkout main
+git merge develop
+git push origin develop main --tags
+git checkout develop
+```
+
+### 2. Deployment (Magerstav)
+```powershell
+cd C:\Deployment\nex-automat
+
+# Stop service
+Stop-Service NEXAutomat
+
+# Pull latest
+git checkout main
+git pull origin main
+git fetch --tags
+
+# Reinstall packages if needed
+cd packages\nex-shared
+pip install -e .
+
+# Start service
+Start-Service NEXAutomat
+
+# Verify
+Invoke-WebRequest -Uri "http://localhost:8000/health"
 ```
 
 ---
 
 ## DEBUG TOOLS
 
-**Na Development:**
+### Development
 ```powershell
+cd C:\Development\nex-automat
+
 # Check imports
-Get-ChildItem -Path apps\supplier-invoice-loader -Include *.py -Recurse | Select-String "from invoice_shared"
+Get-ChildItem -Path . -Include *.py -Recurse | Select-String "from invoice_shared"
 
 # Test loader
 cd apps\supplier-invoice-loader
@@ -215,37 +295,98 @@ python main.py
 # Check Git status
 git status
 git log --oneline -5
+git describe --tags
 ```
 
-**Na Deployment:**
+### Deployment
 ```powershell
+cd C:\Deployment\nex-automat
+
 # Check verziu
-git log --oneline -1
+git describe --tags
 
 # Check služby
 Get-Service | Where-Object {$_.DisplayName -like "*Invoice*"}
 
 # Check API
 Invoke-WebRequest -Uri "http://localhost:8000/health"
+
+# Check logs
+Get-Content apps\supplier-invoice-loader\logs\app.log -Tail 50
 ```
 
 ---
 
-## MOŽNÉ UMIESTNENIA FUNKCIÍ
+## ZNÁME LIMITÁCIE
 
-### clean_string
-**Možnosť 1:** `packages/nex-shared/utils/text_utils.py`  
-**Možnosť 2:** `apps/supplier-invoice-loader/src/utils/text_utils.py`
+### Services
+- **NEXAutomat** - supplier-invoice-loader API (port 8000) ✅ POUŽÍVA SA
+- **SupplierInvoiceLoader** - duplicitná služba ❌ NEPOUŽÍVA SA
 
-### PostgresStagingClient
-**Možnosť 1:** `packages/nex-shared/database/postgres_staging.py`  
-**Možnosť 2:** `apps/supplier-invoice-loader/src/database/postgres_staging.py`
+### PostgreSQL Connection
+- Development: localhost:5432 (optional)
+- Production: localhost:5432 (enabled)
 
-**Odporúčanie:** Ak sa používa len v loader → nechať v loader/src  
-Ak sa bude používať aj v editor → presunúť do nex-shared
+---
+
+## DEPENDENCIES
+
+### Core
+```
+PyQt5>=5.15.0          # Desktop UI
+fastapi                # API framework
+uvicorn                # ASGI server
+asyncpg                # PostgreSQL async
+pydantic               # Data validation
+nexdata                # Btrieve access
+pg8000                 # PostgreSQL pure Python (v2.3)
+```
+
+### Development
+```
+pytest                 # Testing
+black                  # Code formatting
+```
+
+---
+
+## QUICK REFERENCE
+
+### Common Tasks
+
+**Check version:**
+```powershell
+git describe --tags
+```
+
+**Update nex-shared:**
+```powershell
+cd packages\nex-shared
+pip install -e .
+```
+
+**Restart service:**
+```powershell
+Restart-Service NEXAutomat
+```
+
+**Test health:**
+```powershell
+Invoke-WebRequest -Uri "http://localhost:8000/health"
+```
+
+---
+
+## VERSION HISTORY SUMMARY
+
+| Version | Date | Status | Key Changes |
+|---------|------|--------|-------------|
+| v2.3 | 2025-12-08 | ✅ Deployed | Migration to nex-shared |
+| v2.2 | 2025-12-06 | ❌ Failed | BaseGrid pattern, cleanup |
+| v2.0.0 | 2025-11-12 | ✅ Deployed | Initial release |
 
 ---
 
 **Init Prompt Created:** 2025-12-08  
-**Status:** Pripravený na migráciu v2.3  
-**Ready for:** Prieskum implementácií a migrácia supplier-invoice-loader
+**Status:** Ready for work on v2.3  
+**Next:** Monitor production, plan future features
