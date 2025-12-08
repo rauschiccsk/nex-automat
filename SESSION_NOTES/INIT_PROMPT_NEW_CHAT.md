@@ -1,81 +1,78 @@
-# INIT PROMPT - Nový chat (supplier-invoice-editor)
+# INIT PROMPT - Nový chat (supplier-invoice-loader migrácia v2.3)
 
 ## KONTEXT Z PREDCHÁDZAJÚCEHO CHATU
 
-Úspešne implementovaný **BaseGrid pattern** s plnou persistence funkčnosťou (column widths + active column).
+**Deployment v2.2 FAILED** - Rollback na v2.0.0 ✅
+
+**Dôvod:** supplier-invoice-loader nie je kompatibilný s v2.2 (používa vymazaný `invoice-shared` package)
 
 ---
 
 ## AKTUÁLNY STAV PROJEKTU
 
-**Projekt:** supplier-invoice-editor (NEX Automat v2.0)  
-**Development:** `C:\Development\nex-automat\apps\supplier-invoice-editor\`  
+**Projekt:** nex-automat (NEX Automat v2.0)  
+**Development:** `C:\Development\nex-automat`  
 **Python:** 3.13.7 (venv32)  
-**Git Branch:** develop
+**Git Branch:** develop  
+**Aktuálna verzia:** v2.2 (len editor), v2.0.0 (loader)
+
+**Magerstav Deployment:**
+- Lokácia: `C:\Deployment\nex-automat`
+- Verzia: v2.0.0 (rollback z v2.2)
+- Služba: NEXAutomat beží ✅
 
 ---
 
-## ČO JE NOVÉ
+## ČO JE PROBLÉM
 
-### BaseGrid Pattern - KOMPLETNÉ
+### supplier-invoice-loader používa invoice-shared
 
-**Vytvorené v nex-shared:**
-- `packages/nex-shared/ui/base_grid.py` - Univerzálna base trieda
-- `packages/nex-shared/utils/grid_settings.py` - Persistence do SQLite
-- `packages/nex-shared/utils/__init__.py` - Export funkcií
+**invoice-shared bol vymazaný v v2.2**, ale supplier-invoice-loader stále používa:
 
-**Funkcionalita:**
-- ✅ Automatická QTableView + GreenHeaderView
-- ✅ Automatická grid persistence (column widths, active column)
-- ✅ QuickSearch integration
-- ✅ Auto-load/save settings
-- ✅ Disconnect/reconnect signals počas load (no recursive save)
-- ✅ Active column signal v QuickSearchController
+1. **clean_string** z `invoice_shared.utils.text_utils`
+2. **PostgresStagingClient** z `invoice_shared.database.postgres_staging`
 
-**Použitie:**
-```python
-from nex_shared.ui import BaseGrid
-from .quick_search import QuickSearchContainer, QuickSearchController
-
-class MyGrid(BaseGrid):
-    def __init__(self, parent=None):
-        super().__init__(
-            window_name=WINDOW_MAIN,
-            grid_name=GRID_MY_GRID,
-            parent=parent
-        )
-
-        # Model
-        self.model = MyModel()
-        self.table_view.setModel(self.model)
-
-        # Quick search
-        self.setup_quick_search(QuickSearchContainer, QuickSearchController)
-
-        # Load settings (MUST be after model and quick search!)
-        self.apply_model_and_load_settings()
+**Súbory s problémom:**
+```
+apps/supplier-invoice-loader/main.py (2 importy)
+apps/supplier-invoice-loader/tests/test_invoice_integration.py (2 importy)
 ```
 
 ---
 
-### Refaktorované Gridy
+## CIEĽ v2.3
 
-**invoice_list_widget.py:**
-- Base: QWidget → BaseGrid
-- Odstránený _setup_custom_ui() (hardcoded widths)
-- Zachované: Model, API, signals
-- Persistence: ✅ FUNGUJE
+**Migrovať supplier-invoice-loader z invoice-shared na nex-shared**
 
-**invoice_items_grid.py:**
-- Base: QWidget → BaseGrid
-- Odstránený _setup_custom_ui() (hardcoded widths)
-- Zachované: Model, editing logic, API
-- Persistence: ✅ FUNGUJE
+**Kroky:**
+1. ✅ Nájsť/vytvoriť `clean_string` funkciu
+2. ✅ Nájsť/presunúť `PostgresStagingClient` class
+3. ✅ Update importov v loader aplikácii
+4. ✅ Test lokálne
+5. ✅ Git commit & tag v2.3
+6. ✅ Deployment na Magerstav
 
-**quick_search.py:**
-- Pridaný signal: `active_column_changed = pyqtSignal(int)`
-- Emit v `_change_column()` pre save pri šípkach
-- GreenHeaderView presunutý do base_grid.py
+---
+
+## ČO JE HOTOVÉ (v2.2)
+
+### BaseGrid Pattern - Production Ready
+- **Vytvorené v nex-shared:**
+  - `packages/nex-shared/ui/base_grid.py` - Univerzálna base trieda
+  - `packages/nex-shared/utils/grid_settings.py` - Persistence do SQLite
+  - `packages/nex-shared/ui/__init__.py` - Export
+
+- **Funkcionalita:**
+  - ✅ Automatická QTableView + GreenHeaderView
+  - ✅ Automatická grid persistence (column widths, active column)
+  - ✅ QuickSearch integration
+  - ✅ Auto-load/save settings
+  - ✅ Debug printy odstránené (v2.2)
+
+### Refaktorované gridy v supplier-invoice-editor
+- `invoice_list_widget.py` - používa BaseGrid ✅
+- `invoice_items_grid.py` - používa BaseGrid ✅
+- `quick_search.py` - signal pre active column ✅
 
 ---
 
@@ -83,51 +80,115 @@ class MyGrid(BaseGrid):
 
 ```
 nex-automat/
-├── packages/
-│   └── nex-shared/
-│       ├── ui/
-│       │   ├── base_window.py      ← Window persistence
-│       │   ├── base_grid.py        ← Grid persistence ✅ NEW
-│       │   └── __init__.py
-│       └── utils/
-│           ├── grid_settings.py    ← SQLite persistence ✅ NEW
-│           └── __init__.py         ✅ NEW
-└── apps/
-    └── supplier-invoice-editor/
-        └── src/
-            └── ui/
-                └── widgets/
-                    ├── invoice_list_widget.py    ← Uses BaseGrid ✅
-                    ├── invoice_items_grid.py     ← Uses BaseGrid ✅
-                    └── quick_search.py           ← Updated signal ✅
+├── apps/
+│   ├── supplier-invoice-editor/    ← v2.2 ✅ FUNGUJE
+│   │   └── src/
+│   │       ├── ui/widgets/
+│   │       │   ├── invoice_list_widget.py    (BaseGrid)
+│   │       │   ├── invoice_items_grid.py     (BaseGrid)
+│   │       │   └── quick_search.py
+│   │       └── utils/
+│   │           └── text_utils.py             (remove_diacritics, normalize_for_search)
+│   │
+│   └── supplier-invoice-loader/    ← v2.0.0, TREBA MIGROVAŤ
+│       ├── main.py                 ← 2x invoice_shared import
+│       ├── src/
+│       │   └── database/
+│       │       └── database.py
+│       └── tests/
+│           └── test_invoice_integration.py   ← 2x invoice_shared import
+│
+└── packages/
+    ├── nex-shared/                 ← v2.2 ✅ FUNGUJE
+    │   ├── ui/
+    │   │   ├── base_grid.py
+    │   │   ├── base_window.py
+    │   │   └── __init__.py
+    │   ├── utils/
+    │   │   ├── grid_settings.py
+    │   │   └── __init__.py
+    │   └── database/               ← Sem presunúť PostgresStagingClient?
+    │       └── window_settings_db.py
+    │
+    └── nexdata/                    ← Btrieve/NEX Genesis prístup
+        └── ...
 ```
 
 ---
 
 ## KRITICKÉ PRAVIDLÁ
 
-### BaseGrid Použitie
+### Workflow
+1. **Development → Git → Deployment**
+2. **NIKDY nerobiť zmeny priamo v Deployment!**
+3. Všetky zmeny cez numbered scripts
 
-**Poradie inicializácie (DÔLEŽITÉ!):**
-```python
-# 1. Init BaseGrid
-super().__init__(window_name=..., grid_name=..., parent=...)
+### Package štruktúra
+- **nex-shared** - FLAT štruktúra (nex-shared appears ONLY ONCE in path)
+- Po zmenách v nex-shared: `pip install -e .` v packages/nex-shared
 
-# 2. Set model
-self.model = MyModel()
-self.table_view.setModel(self.model)
+### Migrácia best practices
+1. Najprv nájdi originálne implementácie
+2. Skopíruj/presun do vhodného package
+3. Update importov
+4. Test lokálne pred commitom
+5. Git tag pre každú release verziu
 
-# 3. Setup quick search
-self.setup_quick_search(QuickSearchContainer, QuickSearchController)
+---
 
-# 4. Load settings (MUST BE LAST!)
-self.apply_model_and_load_settings()
+## ĎALŠIE KROKY PRE NOVÝ CHAT
+
+### 1. PRIESKUM (PRVÁ ÚLOHA)
+```powershell
+cd C:\Development\nex-automat
+
+# Nájdi clean_string
+Get-ChildItem -Path . -Include *.py -Recurse | Select-String "def clean_string"
+
+# Nájdi PostgresStagingClient
+Get-ChildItem -Path . -Include *.py -Recurse | Select-String "class PostgresStagingClient"
+
+# Pozri použitie v main.py
+Get-Content apps\supplier-invoice-loader\main.py | Select-String -Context 5,5 "clean_string"
+Get-Content apps\supplier-invoice-loader\main.py | Select-String -Context 5,5 "PostgresStagingClient"
 ```
 
-**NIKDY:**
-- ❌ Nevolať `_setup_custom_ui()` s hardcoded widths
-- ❌ Nevolať `apply_model_and_load_settings()` pred setup_quick_search()
-- ❌ Meniť header signals manuálne (BaseGrid ich riadi)
+### 2. IMPLEMENTÁCIA
+Na základe nájdených implementácií:
+- Vytvor/presun `clean_string`
+- Vytvor/presun `PostgresStagingClient`
+- Update importov v loader
+- Vytvor migračný script
+
+### 3. TESTOVANIE
+```powershell
+# Test loader
+cd apps\supplier-invoice-loader
+python main.py
+
+# API health check
+Invoke-WebRequest -Uri "http://localhost:8000/health"
+```
+
+### 4. GIT & DEPLOYMENT
+- Tag v2.3
+- Merge do main
+- Deployment na Magerstav
+
+---
+
+## ZNÁME LIMITÁCIE
+
+### Magerstav Služby
+- **NEXAutomat** - supplier-invoice-loader API (port 8000) ✅ POUŽÍVA SA
+- **SupplierInvoiceLoader** - duplicitná služba ❌ NEPOUŽÍVA SA
+
+### Deployment Paths
+```
+Development: C:\Development\nex-automat
+Deployment:  C:\Deployment\nex-automat
+Persistence: C:\NEX\YEARACT\SYSTEM\SQLITE\
+```
 
 ---
 
@@ -138,120 +199,53 @@ Window settings: C:\NEX\YEARACT\SYSTEM\SQLITE\window_settings.db
 Grid settings:   C:\NEX\YEARACT\SYSTEM\SQLITE\grid_settings.db
 ```
 
-**Databázové tabuľky:**
-- `grid_column_settings` - column_name, width, visual_index, visible
-- `grid_settings` - active_column_index
-
----
-
-## WORKFLOW
-
-### Development → Git → Deployment
-```
-1. Zmeny v Development
-2. Test lokálne
-3. Git commit & push
-4. Pull v Deployment
-5. Restart aplikácie
-```
-
-**NIKDY nerobiť zmeny priamo v Deployment!**
-
 ---
 
 ## DEBUG TOOLS
 
-**Debug výpisy v console:**
-- `[LOAD]` - načítavanie settings z DB
-- `[DEBUG]` - ukladanie settings do DB
-- `[ACTIVE]` - zmena active column
-
-**Diagnostický script:**
+**Na Development:**
 ```powershell
-python scripts\06_diagnose_grid_settings.py
+# Check imports
+Get-ChildItem -Path apps\supplier-invoice-loader -Include *.py -Recurse | Select-String "from invoice_shared"
+
+# Test loader
+cd apps\supplier-invoice-loader
+python main.py
+
+# Check Git status
+git status
+git log --oneline -5
+```
+
+**Na Deployment:**
+```powershell
+# Check verziu
+git log --oneline -1
+
+# Check služby
+Get-Service | Where-Object {$_.DisplayName -like "*Invoice*"}
+
+# Check API
+Invoke-WebRequest -Uri "http://localhost:8000/health"
 ```
 
 ---
 
-## TESTING CHECKLIST
+## MOŽNÉ UMIESTNENIA FUNKCIÍ
 
-Pri testovaní novej funkcionality:
-- [ ] Spustiť aplikáciu bez errors
-- [ ] Grid zobrazuje dáta správne
-- [ ] Quick search funguje (zelený header)
-- [ ] Column widths persistence (resize → restart → check)
-- [ ] Active column persistence (šípky → restart → check)
-- [ ] Sorting funguje
-- [ ] Editácia funguje (ak applicable)
+### clean_string
+**Možnosť 1:** `packages/nex-shared/utils/text_utils.py`  
+**Možnosť 2:** `apps/supplier-invoice-loader/src/utils/text_utils.py`
 
----
+### PostgresStagingClient
+**Možnosť 1:** `packages/nex-shared/database/postgres_staging.py`  
+**Možnosť 2:** `apps/supplier-invoice-loader/src/database/postgres_staging.py`
 
-## ZNÁME LIMITÁCIE
-
-**nex-shared package:**
-- Používa FLAT štruktúru (nex-shared appears ONLY ONCE in path)
-- Po zmenách v nex-shared: `pip install -e .` v packages/nex-shared
-
-**Grid persistence:**
-- Settings sú per user (default: "Server")
-- Last-write-wins pri concurrent updates
-- Vymazať DB pre reset: `del C:\NEX\YEARACT\SYSTEM\SQLITE\grid_settings.db`
+**Odporúčanie:** Ak sa používa len v loader → nechať v loader/src  
+Ak sa bude používať aj v editor → presunúť do nex-shared
 
 ---
 
-## MOŽNÉ BUDÚCE ÚLOHY
-
-1. **Aplikovať BaseGrid na ďalšie gridy** v systéme
-2. **Odstrániť debug print statements** (nahradiť logger calls)
-3. **Pridať context menu** pre grid (reset settings, export/import)
-4. **Multi-user testing** (rôzne user_id values)
-5. **Unit testy** pre BaseGrid
-6. **Dokumentácia** pre vývojárov
-
----
-
-## PRÍKLADY POUŽITIA
-
-### Jednoduchý Read-Only Grid
-```python
-class SimpleGrid(BaseGrid):
-    def __init__(self, parent=None):
-        super().__init__(
-            window_name="my_window",
-            grid_name="simple_grid",
-            parent=parent
-        )
-        
-        self.model = SimpleModel()
-        self.table_view.setModel(self.model)
-        self.setup_quick_search(QuickSearchContainer, QuickSearchController)
-        self.apply_model_and_load_settings()
-```
-
-### Editable Grid
-```python
-class EditableGrid(BaseGrid):
-    items_changed = pyqtSignal()
-    
-    def __init__(self, parent=None):
-        super().__init__(
-            window_name="my_window",
-            grid_name="editable_grid",
-            parent=parent
-        )
-        
-        self.model = EditableModel()
-        self.table_view.setModel(self.model)
-        self.setup_quick_search(QuickSearchContainer, QuickSearchController)
-        
-        # Connect model signals
-        self.model.dataChanged.connect(self.items_changed.emit)
-        
-        self.apply_model_and_load_settings()
-```
-
----
-
-**Init Prompt Created:** 2025-12-06  
-**Status:** BaseGrid plne funkčný  
-**Ready for:** Production deployment a ďalší vývoj
+**Init Prompt Created:** 2025-12-08  
+**Status:** Pripravený na migráciu v2.3  
+**Ready for:** Prieskum implementácií a migrácia supplier-invoice-loader

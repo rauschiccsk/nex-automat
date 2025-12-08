@@ -2,7 +2,7 @@
   "name": "claude-tools",
   "type": "tools",
   "location": "tools",
-  "generated": "2025-12-06T20:48:44.485450",
+  "generated": "2025-12-08T11:19:04.404800",
   "description": "Claude Tools - Automatizacia workflow pre claude.ai",
   "statistics": {
     "total_files": 29,
@@ -11,7 +11,7 @@
     "powershell_files": 2,
     "test_files": 1,
     "total_lines": 4328,
-    "total_size": 152176
+    "total_size": 150515
   },
   "structure": {
     "has_browser_extension": true,
@@ -73,14 +73,14 @@
     {
       "path": "tools/INSTALLATION_GUIDE.md",
       "name": "INSTALLATION_GUIDE.md",
-      "size": 6993,
+      "size": 6689,
       "extension": ".md",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/tools/INSTALLATION_GUIDE.md"
     },
     {
       "path": "tools/artifact-server.py",
       "name": "artifact-server.py",
-      "size": 5303,
+      "size": 5115,
       "extension": ".py",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/tools/artifact-server.py",
       "lines": 189,
@@ -124,7 +124,7 @@
     {
       "path": "tools/claude-chat-loader.py",
       "name": "claude-chat-loader.py",
-      "size": 5204,
+      "size": 5043,
       "extension": ".py",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/tools/claude-chat-loader.py",
       "lines": 162,
@@ -133,7 +133,7 @@
     {
       "path": "tools/claude-hotkeys.py",
       "name": "claude-hotkeys.py",
-      "size": 6958,
+      "size": 6730,
       "extension": ".py",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/tools/claude-hotkeys.py",
       "lines": 229,
@@ -149,7 +149,7 @@
     {
       "path": "tools/config.py",
       "name": "config.py",
-      "size": 611,
+      "size": 591,
       "extension": ".py",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/tools/config.py",
       "lines": 20,
@@ -158,7 +158,7 @@
     {
       "path": "tools/context-compressor.py",
       "name": "context-compressor.py",
-      "size": 7988,
+      "size": 7744,
       "extension": ".py",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/tools/context-compressor.py",
       "lines": 245,
@@ -167,7 +167,7 @@
     {
       "path": "tools/installer.py",
       "name": "installer.py",
-      "size": 7170,
+      "size": 6957,
       "extension": ".py",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/tools/installer.py",
       "lines": 214,
@@ -176,7 +176,7 @@
     {
       "path": "tools/session-notes-manager.py",
       "name": "session-notes-manager.py",
-      "size": 9160,
+      "size": 8857,
       "extension": ".py",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/tools/session-notes-manager.py",
       "lines": 304,

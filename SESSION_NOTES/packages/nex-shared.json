@@ -2,7 +2,7 @@
   "name": "nex-shared",
   "type": "package",
   "location": "packages/nex-shared",
-  "generated": "2025-12-06T20:48:44.418979",
+  "generated": "2025-12-08T11:19:04.321564",
   "statistics": {
     "total_files": 16,
     "total_dirs": 4,
@@ -10,7 +10,7 @@
     "powershell_files": 0,
     "test_files": 0,
     "total_lines": 1310,
-    "total_size": 44056
+    "total_size": 43354
   },
   "dependencies": {
     "main": [],
@@ -21,7 +21,7 @@
     {
       "path": "packages/nex-shared/__init__.py",
       "name": "__init__.py",
-      "size": 292,
+      "size": 278,
       "extension": ".py",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/packages/nex-shared/__init__.py",
       "lines": 14,
@@ -30,7 +30,7 @@
     {
       "path": "packages/nex-shared/database/__init__.py",
       "name": "__init__.py",
-      "size": 140,
+      "size": 133,
       "extension": ".py",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/packages/nex-shared/database/__init__.py",
       "lines": 7,
@@ -39,7 +39,7 @@
     {
       "path": "packages/nex-shared/database/window_settings_db.py",
       "name": "window_settings_db.py",
-      "size": 5939,
+      "size": 5751,
       "extension": ".py",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/packages/nex-shared/database/window_settings_db.py",
       "lines": 188,
@@ -83,7 +83,7 @@
     {
       "path": "packages/nex-shared/setup.py",
       "name": "setup.py",
-      "size": 1440,
+      "size": 1384,
       "extension": ".py",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/packages/nex-shared/setup.py",
       "lines": 56,
@@ -92,7 +92,7 @@
     {
       "path": "packages/nex-shared/ui/__init__.py",
       "name": "__init__.py",
-      "size": 251,
+      "size": 242,
       "extension": ".py",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/packages/nex-shared/ui/__init__.py",
       "lines": 9,
@@ -110,7 +110,7 @@
     {
       "path": "packages/nex-shared/ui/base_window.py",
       "name": "base_window.py",
-      "size": 7189,
+      "size": 6993,
       "extension": ".py",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/packages/nex-shared/ui/base_window.py",
       "lines": 196,
@@ -119,7 +119,7 @@
     {
       "path": "packages/nex-shared/ui/window_persistence.py",
       "name": "window_persistence.py",
-      "size": 6668,
+      "size": 6459,
       "extension": ".py",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/packages/nex-shared/ui/window_persistence.py",
       "lines": 209,
@@ -128,7 +128,7 @@
     {
       "path": "packages/nex-shared/utils/__init__.py",
       "name": "__init__.py",
-      "size": 554,
+      "size": 531,
       "extension": ".py",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/packages/nex-shared/utils/__init__.py",
       "lines": 23,
