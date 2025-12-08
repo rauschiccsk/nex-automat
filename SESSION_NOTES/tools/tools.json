@@ -2,7 +2,7 @@
   "name": "claude-tools",
   "type": "tools",
   "location": "tools",
-  "generated": "2025-12-08T11:39:49.139272",
+  "generated": "2025-12-08T15:07:35.510206",
   "description": "Claude Tools - Automatizacia workflow pre claude.ai",
   "statistics": {
     "total_files": 29,

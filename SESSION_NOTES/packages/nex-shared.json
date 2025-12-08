@@ -2,15 +2,15 @@
   "name": "nex-shared",
   "type": "package",
   "location": "packages/nex-shared",
-  "generated": "2025-12-08T11:39:49.068146",
+  "generated": "2025-12-08T15:07:35.438028",
   "statistics": {
-    "total_files": 16,
+    "total_files": 18,
     "total_dirs": 4,
-    "python_files": 11,
+    "python_files": 13,
     "powershell_files": 0,
     "test_files": 0,
-    "total_lines": 1310,
-    "total_size": 43354
+    "total_lines": 1598,
+    "total_size": 53008
   },
   "dependencies": {
     "main": [],
@@ -30,10 +30,19 @@
     {
       "path": "packages/nex-shared/database/__init__.py",
       "name": "__init__.py",
-      "size": 133,
+      "size": 199,
       "extension": ".py",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/packages/nex-shared/database/__init__.py",
-      "lines": 7,
+      "lines": 5,
+      "type": "source"
+    },
+    {
+      "path": "packages/nex-shared/database/postgres_staging.py",
+      "name": "postgres_staging.py",
+      "size": 8579,
+      "extension": ".py",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/packages/nex-shared/database/postgres_staging.py",
+      "lines": 259,
       "type": "source"
     },
     {
@@ -55,7 +64,7 @@
     {
       "path": "packages/nex-shared/nex_shared.egg-info/SOURCES.txt",
       "name": "SOURCES.txt",
-      "size": 495,
+      "size": 677,
       "extension": ".txt",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/packages/nex-shared/nex_shared.egg-info/SOURCES.txt"
     },
@@ -128,10 +137,10 @@
     {
       "path": "packages/nex-shared/utils/__init__.py",
       "name": "__init__.py",
-      "size": 531,
+      "size": 536,
       "extension": ".py",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/packages/nex-shared/utils/__init__.py",
-      "lines": 23,
+      "lines": 22,
       "type": "source"
     },
     {
@@ -150,6 +159,15 @@
       "extension": ".py",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/packages/nex-shared/utils/monitor_utils.py",
       "lines": 0,
+      "type": "source"
+    },
+    {
+      "path": "packages/nex-shared/utils/text_utils.py",
+      "name": "text_utils.py",
+      "size": 822,
+      "extension": ".py",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/packages/nex-shared/utils/text_utils.py",
+      "lines": 32,
       "type": "source"
     }
   ],
