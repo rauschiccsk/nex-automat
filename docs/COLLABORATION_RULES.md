@@ -3,8 +3,8 @@
 **Project:** NEX Automat & Related Projects  
 **Owner:** Zoltán  
 **Assistant:** Claude (Anthropic)  
-**Last Updated:** 2025-12-06  
-**Version:** 1.1
+**Last Updated:** 2025-12-08  
+**Version:** 1.2
 
 ---
 
@@ -34,7 +34,7 @@
 
 **10. Systematic Error Resolution**
 - When error occurs, Claude finds and fixes root cause systematically, never jumps to alternative solutions
-- Pri chybe nájdi root cause, neskáč na alternatívy
+- Pri chybe nájdi root cause, neskoč na alternatívy
 
 **11. Quality Over Speed**
 - Claude prioritizes quality and professional solutions over speed, takes time to analyze properly
@@ -104,9 +104,9 @@
 - No need to write manifest generation instructions, user generates manifests himself
 - Nepíš manifest inštrukcie, používateľ generuje sám
 
-**20. Session Closure (NEW)**
-- When user says "novy chat": Generate 3 artifacts IMMEDIATELY: SESSION_NOTES.md, INIT_PROMPT_NEW_CHAT.md, commit-message.txt. Artifacts FIRST, then brief confirmation only.
-- Pri "novy chat": Vygeneruj 3 artifacts OKAMŽITE (najprv!), potom len krátke potvrdenie.
+**20. Session Closure (UPDATED v1.2)**
+- When user says "novy chat": Generate 4 artifacts IMMEDIATELY: PROJECT_ARCHIVE_SESSION.md (detailed session for append), SESSION_NOTES.md (fresh template), INIT_PROMPT_NEW_CHAT.md (forward-looking), commit-message.txt. Artifacts FIRST.
+- Pri "novy chat": Vygeneruj 4 artifacts OKAMŽITE (najprv!), potom len krátke potvrdenie.
 
 ---
 
@@ -140,7 +140,7 @@
    - Len JEDNO najlepšie riešenie (pokiaľ nie je výslovne inak)
 
 10. **When error occurs, Claude finds and fixes root cause systematically, never jumps to alternative solutions**
-    - Pri chybe nájdi root cause, neskáč na alternatívy
+    - Pri chybe nájdi root cause, neskoč na alternatívy
 
 11. **Claude prioritizes quality and professional solutions over speed, takes time to analyze properly**
     - Priorita na profesionálne riešenia, nie rýchlosť
@@ -169,8 +169,8 @@
 19. **Session scripts numbered from 01 sequentially. Only temporary scripts numbered, permanent scripts not.**
     - Session scripty od 01 plynule. Len dočasné číslované, trvalé nie.
 
-20. **When user says "novy chat": Generate 3 artifacts IMMEDIATELY: SESSION_NOTES.md, INIT_PROMPT_NEW_CHAT.md, commit-message.txt. Artifacts FIRST, then brief confirmation only.**
-    - Pri "novy chat": Vygeneruj 3 artifacts OKAMŽITE (najprv!), potom len krátke potvrdenie.
+20. **When user says "novy chat": Generate 4 artifacts IMMEDIATELY: PROJECT_ARCHIVE_SESSION.md (detailed section for append), SESSION_NOTES.md (fresh template), INIT_PROMPT_NEW_CHAT.md (forward-looking), commit-message.txt. Artifacts FIRST.**
+    - Pri "novy chat": Vygeneruj 4 artifacts OKAMŽITE (najprv!), potom len krátke potvrdenie.
 
 ---
 
@@ -185,6 +185,7 @@
 ✅ Session notes (SESSION_NOTES.md)
 ✅ Init prompts (INIT_PROMPT_NEW_CHAT.md)
 ✅ Commit messages (commit-message.txt)
+✅ Project archive sections (PROJECT_ARCHIVE_SESSION.md)
 ✅ Documents longer than 10 lines
 ✅ Code examples longer than 5 lines
 ✅ Any script or configuration
@@ -197,33 +198,83 @@
 ❌ Long documents in response
 ❌ Session notes in response
 ❌ Init prompts in response
+❌ Archive sections in response
 ```
 
 **Self-verification checklist (before EVERY response):**
 ```
-□ Am I generating code? → Artifact!
-□ Am I generating a document? → Artifact!
-□ Am I generating a config? → Artifact!
-□ Did user say "novy chat"? → 3 artifacts FIRST!
-□ Is response >10 lines of non-conversational text? → Artifact!
+☐ Am I generating code? → Artifact!
+☐ Am I generating a document? → Artifact!
+☐ Am I generating a config? → Artifact!
+☐ Did user say "novy chat"? → 4 artifacts FIRST!
+☐ Is response >10 lines of non-conversational text? → Artifact!
 ```
 
-### Session Closure Workflow (Rule 20 - NEW)
+### Session Closure Workflow (Rule 20 - UPDATED v1.2)
 
 **When user says "novy chat":**
 
 **MANDATORY sequence:**
-1. ✅ Create SESSION_NOTES.md artifact (FIRST!)
-2. ✅ Create INIT_PROMPT_NEW_CHAT.md artifact
-3. ✅ Create commit-message.txt artifact
-4. ✅ Brief confirmation: "✅ Vygenerované 3 artifacts"
+1. ✅ Create PROJECT_ARCHIVE_SESSION.md artifact (FIRST!)
+   - Detailed session section with all work done
+   - User will manually append to PROJECT_ARCHIVE.md
+2. ✅ Create SESSION_NOTES.md artifact (SECOND!)
+   - Fresh lightweight template
+   - Current Work structure ready for new session
+3. ✅ Create INIT_PROMPT_NEW_CHAT.md artifact (THIRD!)
+   - Forward-looking primer
+   - "Here we are NOW, do THIS next"
+4. ✅ Create commit-message.txt artifact (FOURTH!)
+   - Describe all changes made
+5. ✅ Brief confirmation: "✅ Vygenerované 4 artifacts"
+
+**PROJECT_ARCHIVE_SESSION.md structure:**
+```markdown
+## Session YYYY-MM-DD: Brief Title
+
+**Trvanie:** X hodín  
+**Cieľ:** Main objective  
+**Status:** ✅/⚠️/❌ + description
+
+### Summary
+Brief overview of what was accomplished
+
+### Completed Work
+Detailed breakdown of all work done
+
+### Modified Files
+Complete list of changed files
+
+### Scripts Created
+List of scripts with descriptions
+
+### Testing Results
+What was tested and results
+
+### Known Issues
+Current problems or blockers
+
+### Lessons Learned
+What went well/badly
+
+### Next Steps
+What to do in next session
+```
 
 **FORBIDDEN:**
 ```
+❌ Writing archive section in plain text
 ❌ Writing session notes in plain text
 ❌ Explaining before creating artifacts
-❌ Creating only 1 or 2 artifacts
+❌ Creating only 1, 2, or 3 artifacts
 ❌ Long response before artifacts
+```
+
+**Documentation Structure:**
+```
+PROJECT_ARCHIVE.md = Complete project history (append-only)
+SESSION_NOTES.md = Current work notes (resets each session)
+INIT_PROMPT_NEW_CHAT.md = Quick start for new chat (prepíšateľný)
 ```
 
 ### Script Numbering Example (Rule 19)
@@ -262,14 +313,28 @@ Never: Deployment → direct fix (creates inconsistency)
 - ✅ Updated Rule #7: Added CRITICAL enforcement and explicit triggers
 - ✅ Added Rule #20: Mandatory artifacts-first workflow for "novy chat"
 
+**Solution Enhanced (2025-12-08):**
+- ✅ Updated Rule #20: Changed from 3 to 4 artifacts
+- ✅ Added PROJECT_ARCHIVE_SESSION.md to workflow
+- ✅ Restructured documentation (PROJECT_ARCHIVE, SESSION_NOTES, INIT_PROMPT)
+
 ### Enforcement Mechanism
 1. **Memory rules** - Explicit CRITICAL markers
 2. **Self-verification** - Checklist before every response
-3. **Fixed workflow** - "novy chat" always produces 3 artifacts first
+3. **Fixed workflow** - "novy chat" always produces 4 artifacts first
+4. **Documentation structure** - Clear separation of concerns
 
 ---
 
 ## Version History / História Verzií
+
+- **v1.2** (2025-12-08): Enhanced session closure workflow
+  - **UPDATED Rule #20**: Changed from 3 to 4 artifacts
+  - Added PROJECT_ARCHIVE_SESSION.md to mandatory artifacts
+  - Restructured documentation approach (PROJECT_ARCHIVE, SESSION_NOTES, INIT_PROMPT)
+  - Added detailed PROJECT_ARCHIVE_SESSION.md structure template
+  - Enhanced "Session Closure Workflow" usage notes
+  - Added "Documentation Structure" explanation
 
 - **v1.1** (2025-12-06): Enhanced artifacts enforcement
   - **UPDATED Rule #7**: Added CRITICAL marker and explicit triggers
@@ -287,4 +352,5 @@ Never: Deployment → direct fix (creates inconsistency)
 **Total Rules:** 20  
 **Status:** Active & Enforced  
 **Maintained By:** Zoltán & Claude  
-**Critical Focus:** Artifacts enforcement (Rules #7 and #20)
+**Critical Focus:** Artifacts enforcement (Rules #7 and #20)  
+**Current Version:** 1.2 (2025-12-08)
