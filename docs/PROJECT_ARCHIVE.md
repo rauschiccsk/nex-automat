@@ -1646,3 +1646,466 @@ MIGRATED TO NEX-SHARED:
 **Session End:** 2025-12-08  
 **Final Status:** ✅ SUCCESS  
 **Next Session:** TBD (Monitor production, plan future features)
+
+# PROJECT ARCHIVE SESSION - 2025-12-08
+
+## SESSION OVERVIEW
+
+**Dátum:** 2025-12-08  
+**Projekt:** nex-automat v2.3  
+**Cieľ:** Analýza supplier-invoice-loader a návrh enrichment features v2.4  
+**Status:** ✅ Analýza dokončená, implementation plan pripravený
+
+---
+
+## VYKONANÉ PRÁCE
+
+### 1. Načítanie projektu ✅
+- Načítané INIT_PROMPT_NEW_CHAT.md (v2.3)
+- Načítané PROJECT_MANIFEST.json
+- Načítané supplier-invoice-loader.json manifest
+- Načítané nexdata.json manifest
+- Načítané nex-shared.json manifest
+
+### 2. Analýza kódu ✅
+
+#### Analyzované súbory:
+```
+apps/supplier-invoice-loader/
+├── main.py (533 lines)
+│   ├── FastAPI endpoints
+│   ├── POST /invoice (processing workflow)
+│   └── PostgresStagingClient integration
+│
+├── src/database/database.py (535 lines)
+│   ├── SQLite operations
+│   ├── Multi-customer support
+│   └── NEX Genesis sync tracking
+│
+packages/nexdata/
+├── models/
+│   ├── gscat.py (298 lines) - Produktový katalóg
+│   └── barcode.py (214 lines) - Čiarové kódy
+│
+├── repositories/
+│   ├── gscat_repository.py (58 lines)
+│   └── barcode_repository.py (57 lines)
+│
+packages/nex-shared/
+└── database/
+    └── postgres_staging.py (259 lines)
+        ├── PostgresStagingClient
+        ├── check_duplicate_invoice()
+        └── insert_invoice_with_items()
+```
+
+### 3. Zistená PostgreSQL schéma ✅
+
+**Tabuľka:** invoice_items_pending
+
+```sql
+-- ORIGINAL DATA (from PDF)
+original_name VARCHAR
+original_quantity NUMERIC
+original_unit VARCHAR
+original_price_per_unit NUMERIC
+original_ean VARCHAR
+original_vat_rate NUMERIC
+
+-- EDITED DATA (manual corrections)
+edited_name VARCHAR
+edited_mglst_code INTEGER
+edited_price_buy NUMERIC
+edited_price_sell NUMERIC
+edited_discount_percent NUMERIC
+edited_ean VARCHAR
+edited_at TIMESTAMP
+was_edited BOOLEAN
+
+-- FINAL DATA (computed)
+final_price_buy NUMERIC
+final_price_sell NUMERIC
+
+-- NEX GENESIS ENRICHMENT (EMPTY NOW)
+nex_gs_code INTEGER           -- Product code
+nex_plu INTEGER              -- Alternative code
+nex_name VARCHAR             -- Product name
+nex_category INTEGER         -- Category
+nex_barcode_created BOOLEAN  -- Flag
+in_nex BOOLEAN              -- Exists in NEX
+
+-- VALIDATION
+validation_status VARCHAR
+validation_message TEXT
+```
+
+### 4. Vytvorené dokumenty ✅
+
+#### 4.1 Analýza supplier-invoice-loader
+- Inventarizácia existujúcich features
+- Gap analysis
+- Workflow mapping
+
+#### 4.2 Implementation Plan v2.4
+- Phase 1: Database layer (4h)
+- Phase 2: ProductMatcher (11h)
+- Phase 3: API endpoints (8h)
+- Phase 4: Deployment (4h)
+- **TOTAL: 27h = 4 pracovné dni**
+
+---
+
+## KĽÚČOVÉ ZISTENIA
+
+### ✅ ČO MÁME
+
+1. **Fáza 1-2 HOTOVÉ**
+   - Email PDF → XML → PostgreSQL staging
+   - PostgresStagingClient funguje
+   - Dáta sa ukladajú do invoice_items_pending
+
+2. **NEX Genesis prístup READY**
+   - nexdata package s Btrieve wrapperom
+   - GSCATRecord, BarcodeRecord models
+   - GSCATRepository, BARCODERepository
+
+3. **PostgreSQL schéma READY**
+   - Tabuľka má NEX enrichment stĺpce
+   - Workflow fields (validation_status, in_nex)
+
+### ❌ ČO CHÝBA
+
+1. **Business Logic Layer**
+   - ProductMatcher class (matching produktov)
+   - EAN matching logic
+   - Fuzzy name matching
+
+2. **PostgreSQL Methods**
+   - get_pending_enrichment_items()
+   - update_nex_enrichment()
+   - mark_no_match()
+   - get_enrichment_stats()
+
+3. **API Endpoints**
+   - POST /enrich/invoice/{id}
+   - GET /enrich/stats/{id}
+   - GET /pending/items
+
+4. **Dependencies**
+   - rapidfuzz (fuzzy matching)
+   - unidecode (remove diacritics)
+
+---
+
+## WORKFLOW DIAGRAM
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│ PHASE 1-2: Email → PostgreSQL (HOTOVÉ) ✅                   │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  Email PDF → Extract → PostgreSQL invoice_items_pending    │
+│                                                             │
+│  Vytvorené fields:                                          │
+│    ✅ original_name, original_ean, original_quantity       │
+│    ✅ edited_* (copy of original)                          │
+│    ❌ nex_* (NULL)                                         │
+│    ❌ in_nex (NULL)                                        │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+                            ↓
+┌─────────────────────────────────────────────────────────────┐
+│ PHASE 3: NEX Genesis Enrichment (CHÝBA) ❌                  │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  ProductMatcher:                                            │
+│    1. Try EAN match (BARCODE → GSCAT)                      │
+│    2. Try Name match (fuzzy → GSCAT)                       │
+│    3. Manual selection (fallback)                           │
+│                                                             │
+│  Update fields:                                             │
+│    ✅ nex_gs_code = GSCAT.gs_code                          │
+│    ✅ nex_name = GSCAT.gs_name                             │
+│    ✅ nex_category = GSCAT.mglst_code                      │
+│    ✅ in_nex = TRUE                                        │
+│    ✅ validation_status = 'matched'                        │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## IMPLEMENTATION PRIORITIES
+
+### Priority 1: Database Methods (KRITICKÉ)
+```python
+# packages/nex-shared/database/postgres_staging.py
+def get_pending_enrichment_items(...)
+def update_nex_enrichment(...)
+def mark_no_match(...)
+def get_enrichment_stats(...)
+```
+
+### Priority 2: ProductMatcher (CORE)
+```python
+# apps/supplier-invoice-loader/src/business/product_matcher.py
+class ProductMatcher:
+    def match_item(...)           # Main entry point
+    def _match_by_ean(...)        # EAN matching
+    def _match_by_name(...)       # Fuzzy matching
+    def _normalize_text(...)      # Text preprocessing
+    def _calculate_similarity(...) # Similarity scoring
+```
+
+### Priority 3: API Endpoints (INTERFACE)
+```python
+# apps/supplier-invoice-loader/main.py
+@app.post("/enrich/invoice/{invoice_id}")
+@app.get("/enrich/stats/{invoice_id}")
+@app.get("/pending/items")
+```
+
+---
+
+## TECHNICAL DECISIONS
+
+### Matching Strategy
+1. **EAN Match** (confidence 0.95)
+   - BARCODE.bar_code → BARCODE.gs_code → GSCAT
+   - Highest confidence, exact match
+
+2. **Name Match** (confidence 0.6-0.9)
+   - Fuzzy matching using rapidfuzz
+   - Text normalization (unidecode, lowercase)
+   - Token set ratio for word order independence
+
+3. **Manual** (fallback)
+   - User selects from alternatives
+   - confidence < 0.6 triggers manual review
+
+### Performance Optimization
+- **In-memory cache** of products (GSCAT)
+- **In-memory cache** of barcodes (BARCODE → gs_code mapping)
+- Load on startup, refresh on demand
+
+### Error Handling
+- Low confidence (0.5-0.7) → needs_review
+- No match → in_nex = FALSE
+- Errors → validation_status = 'error'
+
+---
+
+## TESTING STRATEGY
+
+### Unit Tests
+```python
+# ProductMatcher
+test_match_by_ean_found()
+test_match_by_ean_not_found()
+test_match_by_name_exact()
+test_match_by_name_fuzzy()
+test_normalize_text()
+test_calculate_similarity()
+
+# PostgreSQL
+test_get_pending_enrichment_items()
+test_update_nex_enrichment()
+test_mark_no_match()
+test_get_enrichment_stats()
+```
+
+### Integration Tests
+```python
+test_enrich_invoice_full_flow()
+test_enrich_with_ean_matches()
+test_enrich_with_name_matches()
+test_enrich_with_no_matches()
+```
+
+### Manual Testing
+```bash
+# 1. Upload invoice → verify items created
+# 2. GET /pending/items → verify pending items
+# 3. POST /enrich/invoice/{id} → trigger enrichment
+# 4. GET /enrich/stats/{id} → verify statistics
+# 5. Check PostgreSQL → verify nex_* fields populated
+```
+
+---
+
+## DEPLOYMENT PLAN
+
+### Pre-deployment
+```bash
+# Install dependencies
+pip install rapidfuzz>=3.0.0 unidecode>=1.3.0
+
+# Update nex-shared
+cd packages/nex-shared
+pip install -e .
+
+# Verify Btrieve access
+python -c "from nexdata import BtrieveClient; print('OK')"
+```
+
+### Deployment Script
+```python
+# scripts/04_deploy_enrichment_v2.4.py
+1. Install dependencies
+2. Update nex-shared
+3. Test imports
+4. Verify config
+5. Restart service
+```
+
+### Post-deployment
+```bash
+# Restart service
+Restart-Service NEXAutomat
+
+# Health check
+Invoke-WebRequest http://localhost:8000/health
+
+# Test enrichment
+curl -X POST http://localhost:8000/enrich/invoice/123 \
+  -H "X-API-Key: xxx"
+```
+
+---
+
+## RISK ASSESSMENT
+
+### Technical Risks
+
+**1. Fuzzy Matching Accuracy** ⚠️ MEDIUM
+- **Mitigation:** Confidence threshold 0.7+, manual review 0.5-0.7
+
+**2. Btrieve Performance** ⚠️ MEDIUM
+- **Mitigation:** In-memory cache, batch processing
+
+**3. Data Quality** ⚠️ HIGH
+- **Mitigation:** Manual review workflow, logging
+
+---
+
+## DEPENDENCIES
+
+```txt
+# New dependencies for v2.4
+rapidfuzz>=3.0.0          # Fuzzy string matching
+unidecode>=1.3.0          # Remove diacritics
+```
+
+---
+
+## ESTIMATED EFFORT
+
+| Phase | Task | Hours | Days |
+|-------|------|-------|------|
+| 1 | PostgreSQL methods + tests | 6h | 1 |
+| 2 | ProductMatcher + tests | 11h | 1.5 |
+| 3 | API endpoints + tests | 6h | 1 |
+| 4 | Config & deployment | 4h | 0.5 |
+| **TOTAL** | | **27h** | **4 dni** |
+
+---
+
+## SUCCESS METRICS
+
+### Phase 1 Completion ✅
+- [ ] PostgreSQL methods implemented
+- [ ] Unit tests passing
+- [ ] Can query pending items
+
+### Phase 2 Completion ✅
+- [ ] ProductMatcher implemented
+- [ ] EAN matching works
+- [ ] Fuzzy name matching works
+- [ ] Unit tests passing
+
+### Phase 3 Completion ✅
+- [ ] API endpoints implemented
+- [ ] Integration tests passing
+- [ ] Can enrich via API
+
+### Production Ready ✅
+- [ ] Deployed to Magerstav
+- [ ] Service running
+- [ ] Test invoice enriched
+- [ ] No errors in logs
+- [ ] Match rate > 70%
+
+---
+
+## NEXT SESSION ACTIONS
+
+1. **Start Phase 1** - PostgreSQL methods
+   - Implement get_pending_enrichment_items()
+   - Implement update_nex_enrichment()
+   - Implement mark_no_match()
+   - Implement get_enrichment_stats()
+   - Write unit tests
+
+2. **Continue Phase 2** - ProductMatcher
+   - Create product_matcher.py
+   - Implement matching logic
+   - Add fuzzy matching
+   - Write unit tests
+
+3. **Complete Phase 3** - API endpoints
+   - Add enrichment endpoint
+   - Add stats endpoint
+   - Write integration tests
+
+4. **Deploy Phase 4**
+   - Create deployment script
+   - Deploy to production
+   - Test and verify
+
+---
+
+## REFERENCES
+
+### Key Files
+```
+apps/supplier-invoice-loader/
+├── main.py (current: v2.3)
+├── src/
+│   ├── business/
+│   │   └── product_matcher.py (NEW in v2.4)
+│   └── database/
+│       └── database.py (existing)
+│
+packages/nex-shared/
+└── database/
+    └── postgres_staging.py (UPDATE in v2.4)
+│
+packages/nexdata/
+├── models/
+│   ├── gscat.py (ready)
+│   └── barcode.py (ready)
+└── repositories/
+    ├── gscat_repository.py (ready)
+    └── barcode_repository.py (ready)
+```
+
+### Documentation
+- Implementation Plan v2.4 (artifact: schema_analysis)
+- Analýza supplier-invoice-loader (artifact: loader_analysis)
+- SESSION_NOTES.md (to be created)
+
+---
+
+## SESSION STATISTICS
+
+- **Tokens použité:** ~86,000 / 190,000
+- **Dokumenty vytvorené:** 2 artifacts
+- **Súbory analyzované:** 8 kľúčových súborov
+- **Plán vytvorený:** ✅ Phase 1-4 detailed
+- **Ready for implementation:** ✅ YES
+
+---
+
+**Session archived:** 2025-12-08  
+**Next session:** Implementation Phase 1  
+**Status:** ✅ Analysis complete, ready to code
