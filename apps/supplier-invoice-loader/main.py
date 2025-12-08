@@ -19,9 +19,9 @@ from pydantic import BaseModel
 
 from src.api import models
 from src.utils import config, monitoring, notifications
-from invoice_shared.utils.text_utils import clean_string
+from nex_shared.utils import clean_string
 from src.database import database
-from invoice_shared.database.postgres_staging import PostgresStagingClient
+from nex_shared.database import PostgresStagingClient
 from src.extractors.ls_extractor import extract_invoice_data
 from src.business.isdoc_service import generate_isdoc_xml
 

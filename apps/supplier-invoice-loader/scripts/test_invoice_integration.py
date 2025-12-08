@@ -104,7 +104,7 @@ def check_postgresql_connection():
 
     try:
         # Import PostgreSQL client
-        from invoice_shared.database.postgres_staging import PostgresStagingClient
+        from nex_shared.database import PostgresStagingClient
         from src.utils import config
 
         # Prepare config
@@ -245,7 +245,7 @@ def verify_postgresql_data(invoice_number):
     print_step(6, "Verifikácia dát v PostgreSQL")
 
     try:
-        from invoice_shared.database.postgres_staging import PostgresStagingClient
+        from nex_shared.database import PostgresStagingClient
         from src.utils import config
 
         pg_config = {
