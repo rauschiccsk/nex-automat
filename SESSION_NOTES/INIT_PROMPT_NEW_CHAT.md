@@ -1,4 +1,4 @@
-# INIT PROMPT - NEX Automat v2.4
+# INIT PROMPT - NEX Automat v2.4 Column Mapping Fix
 
 ## PROJECT CONTEXT
 
@@ -8,166 +8,117 @@
 **Deployment:** `C:\Deployment\nex-automat`  
 **Python:** 3.13.7 (venv32)  
 **Git Branch:** develop  
-**Current Version:** v2.4 Phase 4 - COMPLETE
+**Current Version:** v2.4 - DEPLOYED with Column Mapping Issue
 
 ---
 
-## CURRENT STATUS ✅
+## ⚠️ CRITICAL ISSUE - MUST FIX FIRST
 
-### Phase 4: NEX Genesis Product Enrichment - COMPLETE
+### Problem: Invoice Editor Column Names Incorrect
 
-**What Works:**
-- ✅ Complete GSCAT model with BarCode @ offset 60
-- ✅ EAN matching: 81.2% (target >65%)
-- ✅ Re-processing: 168/207 items matched
-- ✅ Unit tests: 108/108 passing
-- ✅ Git: All changes committed and pushed
-- ✅ Production (Mágerstav): NSSM service running perfectly
+**Current State (WRONG):**
+| Column Header | Contains | Should Contain |
+|---------------|----------|----------------|
+| PLU | GsCode (3786) | GsCode (3786) ✅ |
+| ??? | MISSING | Barcode (8594002536213) ❌ |
+| NEX Kód | EMPTY | ??? |
+| NEX Názov | EMPTY | Product name from GSCAT |
 
-**Progress:** 6/6 criteria (100%)
+**Expected State (CORRECT):**
+| Column Header | Contains | Source |
+|---------------|----------|--------|
+| Čiarový kód | 8594002536213 | From invoice PDF/XML (IMMUTABLE) |
+| PLU | 3786 | GSCAT.GsCode (NEX Genesis) |
+| NEX Názov | AT GRUND 3kg koncentrát | GSCAT.NAZ |
+| NEX Kat. | 0 | GSCAT.Kategória |
+| Match | ean | matched_by (ean/name/manual) |
 
----
+**Root Cause:**
+- Re-processing overwrites `plu_code` with `GsCode`
+- Original barcode from invoice is **lost**
+- Column mapping in Invoice Editor is incorrect
 
-## DEPLOYMENT CONFIGURATIONS
-
-### Production (Mágerstav) - NSSM Service ✅
-
-```
-Service: NEX-Automat-Loader
-Method: NSSM Windows Service
-Account: LocalSystem
-Path: C:\Deployment\nex-automat
-Status: RUNNING - No issues
-```
-
-**Management:**
-```powershell
-net start/stop "NEX-Automat-Loader"
-sc query "NEX-Automat-Loader"
-```
-
-### Test Server - Task Scheduler ⚠️
-
-```
-Task: NEX-Automat-Loader
-Method: Windows Task Scheduler
-User: DESKTOP-6AU0066\Server
-Trigger: At system startup
-Status: FUNCTIONAL (with limitations)
-```
-
-**Limitations:**
-- Server has Winsock issues after attempted reset
-- W3DBSMGR.EXE must be started manually before NEX Automat
-- Server MUST NOT be rebooted (breaks Pervasive)
-
-**Management:**
-```powershell
-# Start sequence
-Start-Process "C:\PVSW\bin\W3DBSMGR.EXE"
-Start-ScheduledTask -TaskName "NEX-Automat-Loader"
-
-# Stop
-Stop-ScheduledTask -TaskName "NEX-Automat-Loader"
-```
+**Impact:**
+- ⚠️ User cannot verify which invoice item was matched
+- ⚠️ Original barcode data is lost
+- ⚠️ Cannot re-match if needed
 
 ---
 
-## RECENT CHANGES
+## CURRENT STATUS - v2.4 DEPLOYED
 
-### Code Fixed (2025-12-09)
-
-**BtrieveClient (btrieve_client.py):**
-- PATH-based DLL loading prioritized
-- Unicode emojis removed (Windows console compatibility)
-- Debug output: [DEBUG], [SUCCESS], [ERROR]
-
-**main.py:**
-- Unicode emojis removed
-- Replaced: ✅→[OK], ❌→[ERROR]
-
-**Commit:**
+### Production (Mágerstav) ✅
 ```
-"Fix: BtrieveClient DLL loading and Unicode encoding issues"
-Status: Committed and pushed to develop
+Service: NEXAutomat (NSSM)
+Status: Running
+Version: v2.4 (Git tag: v2.4)
+API: http://localhost:8001
+Health: ✅ {"status":"healthy"}
+NEX Enrichment: ✅ Active (77.4% match rate)
+Column Mapping: ❌ INCORRECT (needs fix)
 ```
+
+**Recent Deployment (2025-12-09):**
+- ✅ Git: merged develop → main, tagged v2.4
+- ✅ Dependencies: rapidfuzz, unidecode installed
+- ✅ Config: NEX_GENESIS_ENABLED = True
+- ✅ Btrieve: GSCAT.BTR accessible
+- ✅ PostgreSQL: matched_by column added (Migration 22)
+- ✅ Re-processing: 278/359 items matched (77.4%)
+- ❌ Column mapping: BROKEN (plu_code overwritten)
 
 ---
 
-## CRITICAL KNOWLEDGE
+## IMMEDIATE TASKS
 
-### Issue: WinError 10106 (Test Server Only)
+### Priority 1: Fix Column Mapping (URGENT)
 
-**Problem:**
-```
-OSError: [WinError 10106] The requested service provider 
-could not be loaded or initialized
-```
+**Files to Check:**
+1. **PostgreSQL Schema:**
+   - `packages/nex-shared/database/postgres_staging.py`
+   - Check: Which field stores barcode vs GsCode?
+   - Current: `plu_code` gets overwritten (WRONG)
 
-**Cause:**
-- Windows service accounts (LocalSystem/NetworkService) have issues with asyncio `_overlapped` module on this specific test server
-- NOT a code issue - server-specific problem
-- Works perfectly on Mágerstav production
+2. **ProductMatcher:**
+   - `apps/supplier-invoice-loader/src/business/product_matcher.py`
+   - Check: `match_item()` method
+   - Problem: Likely overwrites plu_code with GsCode
 
-**Solution:**
-- Test server: Use Task Scheduler instead of NSSM
-- Production: Use NSSM (preferred method)
+3. **Re-processing Script:**
+   - `scripts/reprocess_nex_enrichment.py`
+   - Check: UPDATE query
+   - Problem: Updates plu_code instead of nex_gs_code
 
-### Issue: Winsock/Pervasive (Test Server Only)
+4. **Invoice Editor Grid:**
+   - `apps/supplier-invoice-editor/src/ui/widgets/invoice_items_grid.py`
+   - Check: Column definitions
+   - Problem: May have wrong column names/mapping
 
-**What Happened:**
-- Attempted `netsh winsock reset` to fix WinError 10106
-- **This broke Pervasive SRDE engine** (Error 8520)
-- System Restore was disabled - no rollback possible
+**Required Fix:**
+```python
+# WRONG (current):
+UPDATE invoice_items_pending SET
+    plu_code = {gscat.GsCode},  # ❌ Overwrites barcode!
+    nex_name = {gscat.NAZ}
+WHERE id = ...
 
-**Current State:**
-- Pervasive works when manually started
-- Breaks after server reboot
-- Requires manual W3DBSMGR.EXE startup
-
-**DO NOT:**
-- ❌ Reboot test server
-- ❌ Run Winsock reset anywhere
-- ❌ Modify network configuration without testing
-
----
-
-## QUICK START COMMANDS
-
-### Development Testing
-```powershell
-cd C:\Development\nex-automat
-python -m pytest packages/nexdata/tests/ -v
+# CORRECT (needed):
+UPDATE invoice_items_pending SET
+    nex_gs_code = {gscat.GsCode},  # ✅ Separate field!
+    nex_name = {gscat.NAZ},
+    matched_by = 'ean'
+WHERE id = ...
+-- plu_code stays UNCHANGED (original barcode)
 ```
 
-### Start NEX Automat (Production)
-```powershell
-net start "NEX-Automat-Loader"
-```
-
-### Start NEX Automat (Test Server)
-```powershell
-Start-Process "C:\PVSW\bin\W3DBSMGR.EXE"
-Start-Sleep -Seconds 5
-Start-ScheduledTask -TaskName "NEX-Automat-Loader"
-```
-
-### Check Status
-```powershell
-# Port test
-Test-NetConnection -ComputerName localhost -Port 8001
-
-# API
-Start-Process "http://localhost:8001/docs"
-
-# Health check
-curl http://localhost:8001/health
-```
-
-### View Logs
-```powershell
-type C:\Deployment\nex-automat\logs\service-stderr.log | Select-Object -Last 50
-```
+**Steps:**
+1. [ ] Analyze current column mapping
+2. [ ] Identify where plu_code gets overwritten
+3. [ ] Fix ProductMatcher to use nex_gs_code
+4. [ ] Fix reprocess script
+5. [ ] Fix Invoice Editor column headers
+6. [ ] Test with invoice 32509318
+7. [ ] Verify barcodes preserved
 
 ---
 
@@ -177,17 +128,50 @@ type C:\Deployment\nex-automat\logs\service-stderr.log | Select-Object -Last 50
 nex-automat/
 ├── apps/
 │   ├── supplier-invoice-editor/      # PyQt5 desktop app
+│   │   └── src/ui/widgets/
+│   │       └── invoice_items_grid.py # ⚠️ CHECK: Column names
 │   └── supplier-invoice-loader/      # FastAPI service (port 8001)
+│       └── src/business/
+│           └── product_matcher.py    # ⚠️ CHECK: Match logic
 ├── packages/
 │   ├── nex-shared/                   # Shared models (FLAT structure)
+│   │   └── database/
+│   │       └── postgres_staging.py   # ⚠️ CHECK: Schema
 │   └── nexdata/                      # Btrieve access layer
-├── scripts/                          # Utility scripts
-└── tools/                            # Claude Tools automation
+└── scripts/
+    ├── reprocess_nex_enrichment.py   # ⚠️ CHECK: UPDATE query
+    └── 22_migrate_postgres_phase4.py # Migration (already run)
 ```
 
-**CRITICAL:** nex-shared uses FLAT structure:
-- ✅ `packages/nex-shared/models/`
-- ❌ NOT `packages/nex-shared/nex_shared/models/`
+---
+
+## POSTGRESQL SCHEMA
+
+### invoice_items_pending (Current Schema)
+
+**Current Columns:**
+```sql
+-- Original columns
+id SERIAL PRIMARY KEY
+invoice_id INTEGER
+plu_code VARCHAR(50)           -- ⚠️ CURRENTLY: Gets overwritten with GsCode
+item_name VARCHAR(255)
+quantity DECIMAL(10,3)
+unit_price DECIMAL(10,2)
+...
+
+-- NEX Enrichment columns (Phase 3+4)
+nex_gs_code INTEGER            -- GsCode from GSCAT (SHOULD be used!)
+nex_name VARCHAR(255)          -- Product name from GSCAT
+in_nex BOOLEAN                 -- Found in NEX Genesis
+matched_by VARCHAR(20)         -- 'ean' | 'name' | 'manual' (Phase 4)
+validation_status VARCHAR(20)  -- 'pending' | 'valid' | 'warning' | 'error'
+```
+
+**Problem:**
+- `plu_code` should contain **barcode from invoice** (IMMUTABLE)
+- `nex_gs_code` should contain **GsCode from GSCAT** (from matching)
+- Currently: `plu_code` gets **overwritten** with `nex_gs_code` value
 
 ---
 
@@ -205,7 +189,7 @@ nex-automat/
 **Git:**
 ```powershell
 git add .
-git commit -m "message"
+git commit -m "Fix: Preserve barcode in plu_code, use nex_gs_code for GsCode"
 git push
 ```
 
@@ -213,96 +197,48 @@ git push
 ```powershell
 cd C:\Deployment\nex-automat
 git pull
+Stop-Service -Name "NEXAutomat" -Force
+Start-Service -Name "NEXAutomat"
 ```
 
 ---
 
-## TESTING
+## TESTING CHECKLIST
 
-### Unit Tests
-```bash
-python -m pytest packages/nexdata/tests/ -v
-```
-**Status:** 108/108 passing
-
-### EAN Matching
-```bash
-python scripts/test_ean_lookup.py
-```
-**Result:** 81.2% (target: >65%)
-
-### API Endpoints
-```
-http://localhost:8001/docs       # Swagger UI
-http://localhost:8001/health     # Health check
-```
-
----
-
-## COMMON TASKS
-
-### Add New Script
-```python
-# scripts/XX_description.py
-# Temporary scripts: numbered 01-99
-# Permanent scripts: not numbered
-```
-
-### Update Dependencies
-```powershell
-cd C:\Development\nex-automat
-pip install -r requirements.txt
-```
-
-### Regenerate Manifests
-```powershell
-python scripts/generate_manifests.py
-```
+### After Fix is Applied
+- [ ] Re-process invoice 32509318
+- [ ] Open in Invoice Editor
+- [ ] Verify columns:
+  - [ ] **Čiarový kód**: Shows 8594002536213 (barcode)
+  - [ ] **PLU**: Shows 3786 (GsCode)
+  - [ ] **NEX Názov**: Shows "AT GRUND 3kg koncentrát"
+  - [ ] **Match**: Shows "ean"
+- [ ] Check PostgreSQL:
+  ```sql
+  SELECT plu_code, nex_gs_code, nex_name, matched_by
+  FROM invoice_items_pending
+  WHERE invoice_id = ...
+  LIMIT 10;
+  ```
+- [ ] Verify: plu_code = barcode, nex_gs_code = GsCode
 
 ---
 
-## NEXT STEPS
+## COMMON ISSUES
 
-### Immediate
-- [ ] Monitor production stability (Mágerstav)
-- [ ] Test Mágerstav verification workflow
-- [ ] Document any production issues
+### Column Mapping
+**Q:** Why is plu_code overwritten?  
+**A:** ProductMatcher or reprocess script updates wrong field
 
-### Short-term
-- [ ] Test server: Create W3DBSMGR auto-start script
-- [ ] Consider Phase 5 features (if planned)
+**Q:** Where should GsCode be stored?  
+**A:** In `nex_gs_code` field (already exists!)
 
-### Long-term  
-- [ ] Test server: Contact IT administrator
-- [ ] Test server: Fix Winsock/Pervasive permanently
-- [ ] Test server: Enable System Restore
+**Q:** What is plu_code?  
+**A:** Should be barcode from invoice XML/PDF (original data)
 
----
-
-## IMPORTANT REMINDERS
-
-### Communication
-- All communication in Slovak language
-- Project names: Exact terminology (nex-automat, NEX Genesis)
-- One solution at a time, wait for confirmation
-
-### Code Standards
-- ALL code/configs/docs in artifacts (ALWAYS)
-- Python files, configs, docs >10 lines → artifacts
-- Scripts numbered 01-99 (temporary only)
-- Flat structure in nex-shared package
-
-### Deployment
-- Development → Git → Deployment workflow
-- Never fix directly in Deployment
-- Always commit before deployment
-- Test after every deployment
-
-### Critical Rules
-- NEVER start work if GitHub files fail to load
-- NEVER use localStorage/sessionStorage in artifacts
-- NEVER reboot test server (Pervasive breaks)
-- NEVER do Winsock reset on any server
+### Re-processing
+**Q:** Can we re-process without losing barcodes?  
+**A:** Yes, after fixing UPDATE query to use nex_gs_code
 
 ---
 
@@ -310,56 +246,82 @@ python scripts/generate_manifests.py
 
 **Production Server (Mágerstav):**
 - OS: Windows Server
-- Python: 3.13.7 32-bit
-- Database: PostgreSQL + Btrieve
-- Service: NSSM (working perfectly)
+- Python: 3.13.7 32-bit (venv32)
+- Database: PostgreSQL (invoice_staging) + Btrieve (NEX Genesis)
+- Service: NEXAutomat (NSSM)
+- Status: ✅ Running
+- Version: v2.4
 
-**Test Server:**
-- OS: Windows Server
-- Python: 3.13.7 32-bit
-- Database: PostgreSQL + Btrieve (manual start)
-- Method: Task Scheduler (workaround)
-- Issues: Winsock broken, Pervasive unstable
-
-**Development:**
-- Location: C:\Development\nex-automat
-- Python: venv32 (3.13.7 32-bit)
-- Git: develop branch
+**Configuration:**
+```python
+# config_customer.py (not in Git!)
+NEX_GENESIS_ENABLED = True
+NEX_DATA_PATH = r"C:\NEX\YEARACT\STORES"
+CUSTOMER_CODE = "MAGERSTAV"
+```
 
 ---
 
-## SUPPORT & TROUBLESHOOTING
+## KEY REMINDERS
 
-### Service Won't Start
-1. Check logs: `C:\Deployment\nex-automat\logs\`
-2. Verify port 8001 not in use
-3. Test as console app first
-4. Check Pervasive/Btrieve status
+### Communication
+- All communication in Slovak language
+- One solution at a time, wait for confirmation
+- End response with token usage
 
-### Btrieve Errors
-1. Verify W3DBSMGR.EXE is running
-2. Check DLL: `C:\PVSW\bin\w3btrv7.dll`
-3. Test NEX Genesis access
-4. If test server: Avoid reboot
+### Code Standards
+- ALL code/configs/docs in artifacts (ALWAYS)
+- Development → Git → Deployment workflow
+- Never fix directly in Deployment
+- Test after every change
 
-### API Not Responding
-1. Check if service/task is running
-2. Test port: `Test-NetConnection localhost -Port 8001`
-3. View logs for errors
-4. Restart service/task
+### Critical Rules
+- NEVER start work if GitHub files fail to load
+- NEVER reboot test server (Pervasive breaks)
+- ALWAYS preserve original invoice data
+- NEVER overwrite immutable fields (like barcode)
 
 ---
 
-## KEY CONTACTS
+## QUICK COMMANDS
+
+### Development Testing
+```powershell
+cd C:\Development\nex-automat
+python -m pytest packages/nexdata/tests/ -v
+```
+
+### Deployment Service
+```powershell
+# Restart
+Stop-Service -Name "NEXAutomat" -Force
+Start-Service -Name "NEXAutomat"
+
+# Status
+Get-Service -Name "NEXAutomat"
+Test-NetConnection localhost -Port 8001
+curl http://localhost:8001/health
+```
+
+### View Logs
+```powershell
+Get-Content C:\Deployment\nex-automat\logs\service-stderr.log -Tail 50
+```
+
+---
+
+## SUPPORT INFO
 
 **Developer:** Zoltán  
 **Company:** ICC Komárno  
 **Customer:** Mágerstav s.r.o.  
-**Environment:** Production + Test servers
+**Deployment Date:** 2025-12-09  
+**Current Issue:** Column mapping incorrect  
+**Priority:** URGENT FIX NEEDED
 
 ---
 
-**Init Prompt Created:** 2025-12-09 16:00  
-**Version:** v2.4 Phase 4 - COMPLETE  
-**Status:** ✅ Production Ready (Mágerstav)  
-**Next:** Continue monitoring or start Phase 5
+**Init Prompt Created:** 2025-12-09 20:30  
+**Version:** v2.4 - DEPLOYED (Column Fix Needed)  
+**Status:** ⚠️ Fix column mapping before new features  
+**Next:** Analyze and fix plu_code overwrite issue

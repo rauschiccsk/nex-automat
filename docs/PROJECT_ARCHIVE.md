@@ -3376,3 +3376,215 @@ Test server má **systémové problémy** nesúvisiace s kódom:
 
 **Session Archived:** 2025-12-09 16:00  
 **Next Session:** Continue with Phase 5 or address test server issues
+
+# SESSION ARCHIVE - Deployment v2.4 Production (Mágerstav)
+
+**Date:** 2025-12-09 19:30 - 20:30  
+**Session:** Deployment v2.4 Phase 4 - NEX Genesis Product Enrichment  
+**Status:** ✅ DEPLOYED (s problémom názvov stĺpcov)
+
+---
+
+## SESSION SUMMARY
+
+### Cieľ
+Nasadiť NEX Automat v2.4 (Phase 4: NEX Genesis Product Enrichment) na Mágerstav production server.
+
+### Kľúčové úlohy vykonané
+
+#### 1. Git Operations
+- ✅ Merge develop → main v Development
+- ✅ Tag v2.4 vytvorený a pushnutý
+- ✅ Pull v2.4 do Deployment (Mágerstav)
+
+#### 2. Riešenie závislostí
+**Problém:** Chýbajúce Python balíky v Deployment
+- ✅ `pip install rapidfuzz` (ProductMatcher dependency)
+- ✅ `pip install unidecode` (text normalization)
+- ✅ `pip install -e packages/nexdata` (lokálny balík)
+- ✅ `pip install -e packages/nex-shared` (lokálny balík)
+
+#### 3. Konfigurácia
+**Problém:** config_customer.py nemal NEX_GENESIS nastavenia
+**Riešenie:** Manuálne pridané:
+```python
+NEX_GENESIS_ENABLED = True
+NEX_DATA_PATH = r"C:\NEX\YEARACT\STORES"
+```
+
+#### 4. Btrieve Integration
+**Problém:** Btrieve error 11 - File Not Found
+**Príčina:** Chýbal súbor GSCAT.BTR na Mágerstav serveri
+**Riešenie:** 
+- Skopírovaný GSCAT.BTR z NEX Genesis do C:\NEX\YEARACT\STORES
+- BtrieveClient správne konštruuje cestu: `{database_path}/{table.upper()}.BTR`
+
+#### 5. PostgreSQL Migrácia
+**Problém:** `column "matched_by" of relation "invoice_items_pending" does not exist`
+**Analýza:** 
+- Použitý nový chat na analýzu PROJECT_ARCHIVE.md
+- Identifikované chýbajúce stĺpce z Phase 4
+
+**Riešenie:**
+- Vytvorené skripty:
+  - `scripts/22_migrate_postgres_phase4.py`
+  - `scripts/22_migrate_postgres_phase4.sql`
+- Development → Git → Deployment workflow
+- Migrácia úspešná:
+  - ✅ Pridaný stĺpec `matched_by VARCHAR(20)`
+  - ✅ Opravený constraint `validation_status`
+  - ✅ Verifikované NEX stĺpce (nex_gs_code, nex_name, in_nex)
+  - ✅ Vytvorený index na matched_by
+
+#### 6. Re-processing NEX Enrichment
+**Spustenie:** `python scripts/reprocess_nex_enrichment.py`
+**Výsledky:**
+```
+Total items:     359
+Matched:         278 (77.4%)
+  - EAN matches: 278 (77.4%)
+  - Name matches: 0 (0.0%)
+Not matched:     81 (22.6%)
+Errors:          0 (0.0%)
+
+✅ ALL TARGETS MET
+✅ Match rate: 77.4% >= 70%
+✅ EAN rate: 77.4% >= 65%
+✅ Error rate: 0.0% < 1%
+```
+
+#### 7. Service Deployment
+**Služba:** NEXAutomat (NSSM Windows Service)
+**Status:** ✅ Running
+**API:** http://localhost:8001
+**Health:** ✅ {"status":"healthy"}
+
+---
+
+## KRITICKÝ PROBLÉM ZISTENÝ
+
+### Problém s názvami stĺpcov v Invoice Editore
+
+**Aktuálny stav (NESPRÁVNE):**
+- Stĺpec **PLU** obsahuje **GsCode** (napr. 3786) po NEX enrichmente
+- Originálny **čiarový kód** (napr. 8594002536213) sa **stratil/prepísal**
+- Stĺpec **NEX Kód** je prázdny
+
+**Správny stav (OČAKÁVANÝ):**
+| Stĺpec | Obsah | Zdroj |
+|--------|-------|-------|
+| **Čiarový kód** | 8594002536213 | Z faktúry (NESMIE sa meniť!) |
+| **PLU** | 3786 | GSCAT.GsCode (NEX Genesis) |
+| **NEX Názov** | AT GRUND 3kg koncentrát | GSCAT.NAZ |
+| **NEX Kat.** | 0 | GSCAT.Kategória |
+| **Match** | ean | Matched by (EAN/name/manual) |
+
+**Príčina:**
+- `reprocess_nex_enrichment.py` alebo `ProductMatcher` prepíše `plu_code` namiesto len doplniť `nex_gs_code`
+- Invoice Editor možno nesprávne mapuje stĺpce
+
+**Dopad:**
+- ⚠️ Strata originálnych čiarových kódov z faktúry
+- ⚠️ Používateľ nemôže overiť, ktorý produkt na faktúre bol matchnutý
+
+---
+
+## DEPLOYMENT STATUS
+
+### Production (Mágerstav)
+- **Server:** Windows Server
+- **Service:** NEXAutomat (NSSM)
+- **Status:** ✅ Running
+- **Version:** v2.4 (tag pushed)
+- **API:** http://localhost:8001
+- **Health:** ✅ Healthy
+- **Python:** 3.13.7 32-bit (venv32)
+- **Database:** 
+  - PostgreSQL (invoice_staging) ✅
+  - Btrieve (C:\NEX\YEARACT\STORES) ✅
+
+### Features Active
+- ✅ Supplier Invoice Loader API
+- ✅ PostgreSQL Staging
+- ✅ NEX Genesis Product Enrichment (Phase 4)
+- ✅ ProductMatcher (77.4% EAN matching)
+- ✅ Btrieve GSCAT/BARCODE integration
+
+---
+
+## FILES CREATED/MODIFIED
+
+### Scripts Created
+1. `scripts/22_migrate_postgres_phase4.py` - PostgreSQL migrácia
+2. `scripts/22_migrate_postgres_phase4.sql` - SQL migračný skript
+
+### Config Modified
+- `apps/supplier-invoice-loader/config/config_customer.py`:
+  - Added: `NEX_GENESIS_ENABLED = True`
+  - Added: `NEX_DATA_PATH = r"C:\NEX\YEARACT\STORES"`
+
+### Dependencies Added
+- rapidfuzz==3.14.3
+- unidecode==1.4.0
+
+---
+
+## LESSONS LEARNED
+
+### 1. Config Files nie sú v Git
+- `config_customer.py` je customer-specific a nie je commitnutý
+- Pri deployment musí byť manuálne upravený
+- **Riešenie:** Dokumentovať všetky zmeny v INIT_PROMPT
+
+### 2. Development ≠ Deployment Servery
+- Nemôžeme robiť `fc` porovnania medzi servermi
+- Nemôžeme kopírovať súbory medzi servermi
+- **Riešenie:** Všetko cez Git alebo manuálne scripty
+
+### 3. PostgreSQL Migrácie
+- Schema zmeny musia byť dokumentované v PROJECT_ARCHIVE.md
+- Použiť **idempotentné** migrácie (IF NOT EXISTS)
+- Vždy vytvoriť Python wrapper s verifikáciou
+
+### 4. Btrieve File Extensions
+- NEX Genesis používa **.BTR** nie **.DAT**
+- BtrieveClient musí správne konštruovať cesty
+- Overiť existenciu súborov pred deployment
+
+---
+
+## NEXT SESSION TASKS
+
+### KRITICKÉ - Oprava názvov stĺpcov
+1. **Analyzovať:** Prečo sa prepíše plu_code namiesto nex_gs_code
+2. **Opraviť:** 
+   - Invoice Editor: Stĺpce mapovanie
+   - ProductMatcher: Nesmie prepísať plu_code
+   - PostgreSQL: Overiť správne stĺpce
+3. **Testovať:** Re-processing s opravenými názvami
+4. **Dokumentovať:** Správne mapovanie stĺpcov
+
+### Stredná priorita
+- Monitoring production stability (Mágerstav)
+- Test Mágerstav verification workflow
+- Document production issues
+
+### Nízka priorita
+- Consider Phase 5 features (ak plánované)
+- Test server: Fix Winsock/Pervasive permanently
+
+---
+
+## CONTACT & ENVIRONMENT
+
+**Developer:** Zoltán  
+**Company:** ICC Komárno  
+**Customer:** Mágerstav s.r.o.  
+**Deployment:** 2025-12-09  
+**Version:** v2.4 Phase 4 - DEPLOYED (s issue)
+
+---
+
+**Session End:** 2025-12-09 20:30  
+**Duration:** ~60 minút  
+**Result:** ✅ Deployment úspešný, ⚠️ Fix názvov stĺpcov needed

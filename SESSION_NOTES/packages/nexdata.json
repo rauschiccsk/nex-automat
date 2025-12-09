@@ -2,7 +2,7 @@
   "name": "nexdata",
   "type": "package",
   "location": "packages/nexdata",
-  "generated": "2025-12-09T18:58:21.021761",
+  "generated": "2025-12-09T20:37:51.685940",
   "statistics": {
     "total_files": 24,
     "total_dirs": 8,
@@ -10,7 +10,7 @@
     "powershell_files": 0,
     "test_files": 0,
     "total_lines": 2505,
-    "total_size": 84220
+    "total_size": 83942
   },
   "dependencies": {
     "main": [
@@ -93,7 +93,7 @@
     {
       "path": "packages/nexdata/nexdata/models/gscat.py",
       "name": "gscat.py",
-      "size": 3303,
+      "size": 3196,
       "extension": ".py",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/packages/nexdata/nexdata/models/gscat.py",
       "lines": 107,
@@ -156,7 +156,7 @@
     {
       "path": "packages/nexdata/nexdata/repositories/barcode_repository.py",
       "name": "barcode_repository.py",
-      "size": 2529,
+      "size": 2441,
       "extension": ".py",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/packages/nexdata/nexdata/repositories/barcode_repository.py",
       "lines": 88,
@@ -174,7 +174,7 @@
     {
       "path": "packages/nexdata/nexdata/repositories/gscat_repository.py",
       "name": "gscat_repository.py",
-      "size": 2364,
+      "size": 2281,
       "extension": ".py",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/packages/nexdata/nexdata/repositories/gscat_repository.py",
       "lines": 83,

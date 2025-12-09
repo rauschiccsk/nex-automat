@@ -2,7 +2,7 @@
   "name": "supplier-invoice-editor",
   "type": "application",
   "location": "apps/supplier-invoice-editor",
-  "generated": "2025-12-09T18:58:20.560607",
+  "generated": "2025-12-09T20:37:51.287601",
   "statistics": {
     "total_files": 74,
     "total_dirs": 28,
@@ -10,7 +10,7 @@
     "powershell_files": 0,
     "test_files": 8,
     "total_lines": 7867,
-    "total_size": 1412339
+    "total_size": 1412031
   },
   "structure": {
     "has_src": true,
@@ -513,7 +513,7 @@
     {
       "path": "apps/supplier-invoice-editor/src/ui/widgets/invoice_items_grid.py",
       "name": "invoice_items_grid.py",
-      "size": 11221,
+      "size": 10913,
       "extension": ".py",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-editor/src/ui/widgets/invoice_items_grid.py",
       "lines": 308,
