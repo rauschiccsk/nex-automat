@@ -1,4 +1,26 @@
-"""
+# Create correct GSCAT model based on actual Btrieve structure
+
+from pathlib import Path
+import shutil
+from datetime import datetime
+
+DEV_ROOT = Path(r"C:\Development\nex-automat")
+GSCAT_MODEL = DEV_ROOT / "packages" / "nexdata" / "nexdata" / "models" / "gscat.py"
+BACKUP_DIR = DEV_ROOT / "backups" / "gscat_model"
+
+print("=" * 70)
+print("CREATING CORRECT GSCAT MODEL")
+print("=" * 70)
+
+# Backup
+BACKUP_DIR.mkdir(parents=True, exist_ok=True)
+timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+backup_file = BACKUP_DIR / f"gscat_backup_{timestamp}.py"
+shutil.copy2(GSCAT_MODEL, backup_file)
+print(f"Backup: {backup_file}\n")
+
+# Correct model based on actual analysis
+correct_model = '''"""
 GSCAT.BTR Model - Correct Structure (705 bytes)
 ===============================================
 
@@ -7,7 +29,7 @@ Correct model based on actual Btrieve record analysis.
 CRITICAL: BarCode field starts at offset 60, not 64!
 
 File: GSCAT.BTR
-Location: C:\\NEX\\YEARACT\\STORES\\GSCAT.BTR
+Location: C:\\\\NEX\\\\YEARACT\\\\STORES\\\\GSCAT.BTR
 Record Size: 705 bytes
 Encoding: cp852
 """
@@ -43,7 +65,7 @@ class GSCATRecord:
         # Remove NULL bytes and strip whitespace from all string fields
         for field_name, field_value in self.__dict__.items():
             if isinstance(field_value, str):
-                cleaned = field_value.replace('\x00', '').strip()
+                cleaned = field_value.replace('\\x00', '').strip()
                 setattr(self, field_name, cleaned)
 
     @classmethod
@@ -62,7 +84,7 @@ class GSCATRecord:
 
         # Helper function to read string
         def read_str(offset: int, length: int) -> str:
-            return data[offset:offset+length].decode(encoding, errors='replace').rstrip('\x00 ')
+            return data[offset:offset+length].decode(encoding, errors='replace').rstrip('\\x00 ')
 
         # Helper function to read int32
         def read_int32(offset: int) -> int:
@@ -105,3 +127,30 @@ class GSCATRecord:
     def mg_code(self) -> str:
         """Alias for MgCode field (for backward compatibility)"""
         return self.MgCode
+'''
+
+# Write correct model
+GSCAT_MODEL.write_text(correct_model, encoding='utf-8')
+
+print("=" * 70)
+print("CORRECT MODEL DEPLOYED")
+print("=" * 70)
+print(f"Location: {GSCAT_MODEL}")
+print(f"\nKEY CHANGES:")
+print("  - BarCode offset: 64 → 60 (CRITICAL FIX!)")
+print("  - Record size: 1232 → 705 bytes")
+print("  - Simplified to verified fields only")
+print("  - Added RawData for future expansion")
+print("\nVERIFIED OFFSETS:")
+print("  GsCode:       0-3   (Int32)")
+print("  GsName:       4-63  (Str60)")
+print("  BarCode:      60-74 (Str15) ← EAN field")
+print("  SupplierCode: 75-80 (Str6)")
+print("  MgCode:       92-93 (Str2)")
+print("\n" + "=" * 70)
+print("NEXT STEP:")
+print("=" * 70)
+print("python scripts/test_ean_lookup.py")
+print("\nExpected:")
+print("  - 3/3 verified EAN codes found")
+print("  - Overall success rate >15%")

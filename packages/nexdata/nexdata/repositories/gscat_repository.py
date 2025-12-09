@@ -72,7 +72,7 @@ class GSCATRepository(BaseRepository[GSCATRecord]):
         try:
             # Search all products for matching barcode
             for product in self.get_all():
-                if product.barcode and product.barcode.strip() == barcode:
+                if product.BarCode and product.BarCode.strip() == barcode:
                     return product
 
             return None
