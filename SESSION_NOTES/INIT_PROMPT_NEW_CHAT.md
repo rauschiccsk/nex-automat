@@ -1,4 +1,4 @@
-# INIT PROMPT - NEX Automat v2.4 Phase 4 Deployment
+# INIT PROMPT - NEX Automat v2.4 Service Startup Fix
 
 ## PROJECT CONTEXT
 
@@ -8,287 +8,279 @@
 **Deployment:** `C:\Deployment\nex-automat`  
 **Python:** 3.13.7 (venv32)  
 **Git Branch:** develop  
-**Current Version:** v2.4 Phase 4 - DEPLOYMENT READY
+**Current Version:** v2.4 Phase 4 - SERVICE STARTUP BLOCKED
 
 ---
 
-## CURRENT STATUS 🔧
+## CURRENT STATUS 🔴
 
 ### Phase 4: NEX Genesis Product Enrichment
-**Status:** DEPLOYMENT PENDING - Critical fix required
+**Status:** CODE COMPLETE - SERVICE STARTUP BLOCKED
 
 **What Works:**
-- ✅ PostgreSQL enrichment methods
-- ✅ Re-processing script tested (5% match rate)
-- ✅ ProductMatcher initialized with Btrieve
-- ✅ supplier-invoice-editor displays NEX columns
+- ✅ Complete GSCAT model with BarCode @ offset 60
+- ✅ EAN matching: 81.2% (target >65%)
+- ✅ Re-processing: 168/207 items matched
+- ✅ Unit tests: 108/108 passing
+- ✅ Git: All changes committed and pushed
+- ✅ Deployment: Code pulled to C:\Deployment\nex-automat
+- ✅ NSSM: Configured with correct PATH and AppDirectory
 
-**What's Broken:**
-- ⚠️ **CRITICAL:** BarCode field missing in GSCATRecord model
-- ⚠️ EAN matching 0% (should be >65%)
-- ⚠️ Overall match rate 5% (target >70%)
+**What's Blocked:**
+- 🔴 **CRITICAL:** Service fails to start with WinError 10106
+- 🔴 Asyncio _overlapped module cannot initialize
+- 🔴 Winsock Service Provider initialization failure
+- 🔴 Service starts then immediately pauses
 
 **Root Cause:**
-GSCATRecord model incomplete - missing 40+ fields from Btrieve including **BarCode** (EAN field)
+Python asyncio cannot initialize under LocalSystem service account due to Winsock Service Provider issue (WinError 10106).
 
 ---
 
 ## IMMEDIATE PRIORITY 🎯
 
-### Deploy Complete GSCAT Model
+### Test as Console Application FIRST
 
-**Problem:**
-```python
-# Current model (INCOMPLETE):
-@dataclass
-class GSCATRecord:
-    gs_code: int
-    gs_name: str  # Only ~20 fields
-    # ... BarCode field MISSING!
+**Why:** 
+- Verify code works (it should - works in Development)
+- Isolate if problem is service-specific or code-specific
+- Fastest way to unblock Mágerstav Go-Live
+
+**Test Procedure:**
+```powershell
+# Stop service
+net stop "NEX-Automat-Loader"
+
+# Run as console app
+cd C:\Deployment\nex-automat\apps\supplier-invoice-loader
+C:\Deployment\nex-automat\venv32\Scripts\python.exe main.py
+
+# Expected: FastAPI starts on port 8001
+# Test: http://localhost:8001/health
 ```
 
-**Solution:**
-Complete model with ALL 60+ fields created in artifact `04_create_complete_gscat_model.py`
+**If Console Works:**
+→ Problem: Service configuration / LocalSystem account  
+→ Solutions: Change service account OR fix Winsock
 
-**Deployment Steps:**
-1. Backup current `packages/nexdata/nexdata/models/gscat.py`
-2. Replace with complete model from artifact
-3. Fix `GSCATRepository.find_by_barcode()` to use `product.BarCode`
-4. Test EAN lookup (expect 3/20 matches)
-5. Re-run re-processing (expect >70% match rate)
+**If Console Fails:**
+→ Problem: Environment / system issue  
+→ Solutions: Check Python, venv32, network stack
 
 ---
 
-## KEY FILES
+## KEY ERROR
 
-### Models
+**From service-stderr.log:**
 ```
-packages/nexdata/nexdata/models/
-└── gscat.py  ← NEEDS REPLACEMENT (missing BarCode!)
-```
-
-### Repositories
-```
-packages/nexdata/nexdata/repositories/
-└── gscat_repository.py  ← Fix find_by_barcode() method
-```
-
-### Business Logic
-```
-apps/supplier-invoice-loader/src/business/
-└── product_matcher.py  ← May need field name updates
+Traceback (most recent call last):
+  File "C:\Deployment\nex-automat\apps\supplier-invoice-loader\main.py", line 16
+    from fastapi import FastAPI...
+  ...
+  File "C:\Program Files (x86)\Python313-32\Lib\asyncio\windows_events.py", line 8
+    import _overlapped
+OSError: [WinError 10106] The requested service provider could not be loaded or initialized
 ```
 
-### Scripts
-```
-scripts/
-├── 02_reprocess_nex_enrichment.py  # Re-test after fix
-└── 03_test_ean_lookup.py           # Verify EAN matching works
-```
+**Meaning:** 
+- Asyncio needs Windows Sockets (_overlapped module)
+- Winsock Service Provider cannot load under current service context
+- This is NOT a permissions issue (SYSTEM has Full Control everywhere)
+- This is NOT a path issue (Btrieve DLL found and accessible)
 
 ---
 
-## VERIFIED EAN CODES
+## VERIFIED CONFIGURATIONS
 
-These 3 EAN codes ARE in NEX Genesis (manually verified):
-- 8715743018251
-- 5203473211316
-- 3838847028515
-
-After deploying complete GSCAT model, these should match successfully.
-
----
-
-## TECHNICAL DETAILS
-
-### BarCode Field Specification
+### File System ✅
 ```
-Field:    BarCode
-Type:     Str15 (15 bytes, fixed width)
-Offset:   57 (after FgCode)
-Encoding: cp852
-Content:  EAN barcode code
-Index:    IND BarCode=BarCode (Btrieve indexed)
+C:\PVSW\bin\w3btrv7.dll          → EXISTS, ACCESSIBLE
+C:\NEX\YEARACT\STORES\GSCAT.BTR  → EXISTS, ACCESSIBLE
+C:\Deployment\nex-automat        → EXISTS, SYSTEM has Full Control
 ```
 
-### Field Mapping (Btrieve → Python)
-```python
-# Complete model uses Btrieve field names:
-GsCode    → GsCode    (not gs_code)
-GsName    → GsName    (not gs_name)
-MgCode    → MgCode    (not mglst_code)
-BarCode   → BarCode   ← NEW! (EAN field)
+### NSSM Configuration ✅
+```
+Application:         C:\Deployment\nex-automat\venv32\Scripts\python.exe
+AppDirectory:        C:\Deployment\nex-automat\apps\supplier-invoice-loader
+AppParameters:       ...main.py
+AppEnvironment:      PYTHONIOENCODING=utf-8
+AppEnvironmentExtra: +PATH=C:\PVSW\bin
+ObjectName:          LocalSystem
 ```
 
-### Required Changes
-
-**1. GSCATRepository.find_by_barcode():**
-```python
-# OLD (broken):
-if product.barcode and product.barcode.strip() == barcode:
-    
-# NEW (correct):
-if product.BarCode and product.BarCode.strip() == barcode:
+### Code ✅
 ```
-
-**2. ProductMatcher (if needed):**
-```python
-# Check all references to GSCATRecord fields
-# Use: product.GsCode, product.GsName, product.BarCode
+✅ GSCAT model with BarCode @ offset 60
+✅ GSCATRepository.find_by_barcode() fixed
+✅ All unit tests passing (108/108)
+✅ EAN matching: 81.2%
+✅ Zero errors in Development
 ```
 
 ---
 
-## EXPECTED RESULTS AFTER FIX
+## SOLUTIONS TO TRY
 
-### EAN Lookup Test
-```bash
-python scripts/03_test_ean_lookup.py
+### Solution 1: Console App (Testing) - IMMEDIATE
+```powershell
+cd C:\Deployment\nex-automat\apps\supplier-invoice-loader
+C:\Deployment\nex-automat\venv32\Scripts\python.exe main.py
 ```
-**Expected:**
-- 3/20 EAN codes found (15% success rate)
-- All 3 matches via GSCAT.BarCode
-- No BARCODE.BTR fallback needed
+**If works:** Code is fine, service config needs fix
 
-### Re-processing Test
-```bash
-python scripts/02_reprocess_nex_enrichment.py
+### Solution 2: Fix Winsock (Requires Reboot)
+```powershell
+# Run as Administrator
+netsh winsock reset
+netsh int ip reset
+# Reboot server
+# Restart service
 ```
-**Expected:**
-- Match rate: >70%
-- EAN matches: >65% (via BarCode field)
-- Name matches: <5% (fuzzy fallback)
-- Errors: <1%
+**If works:** Winsock stack was corrupted
+
+### Solution 3: Change Service Account
+```powershell
+# Option A: NetworkService
+sc config "NEX-Automat-Loader" obj= "NT AUTHORITY\NetworkService"
+
+# Option B: Dedicated user (requires user creation + permissions)
+sc config "NEX-Automat-Loader" obj= "DOMAIN\nexservice" password= "***"
+```
+**If works:** LocalSystem has limitations with asyncio
+
+### Solution 4: Different Service Manager
+- Try Windows Task Scheduler instead of NSSM
+- Try direct sc.exe service creation
+- Try running under IIS with reverse proxy
+
+---
+
+## TECHNICAL BACKGROUND
+
+### WinError 10106 Explanation
+
+**Error Code:** WSASYSNOTREADY (10091) or WSAVERNOTSUPPORTED (10092)  
+**Meaning:** Windows Sockets implementation cannot function at this time
+
+**Common Causes:**
+1. Winsock LSP (Layered Service Provider) corruption
+2. Service runs without proper desktop/session context
+3. Antivirus/firewall blocking socket initialization
+4. Missing/corrupted Winsock2 DLL
+
+**Why LocalSystem Affected:**
+- LocalSystem runs without interactive desktop
+- Some Winsock features require user context
+- Asyncio _overlapped uses advanced socket features
+- May not be available in system service context
 
 ---
 
 ## DEPLOYMENT WORKFLOW
 
 ```
-1. Development Changes
-   ├── Deploy complete GSCAT model
-   ├── Fix GSCATRepository
-   └── Update ProductMatcher (if needed)
+Current State:
+✅ Development → Git → Deployment
+✅ Code deployed and verified
+✅ NSSM configured correctly
+🔴 Service cannot start (WinError 10106)
 
-2. Testing
-   ├── Run 03_test_ean_lookup.py
-   ├── Run 02_reprocess_nex_enrichment.py
-   └── Verify >70% match rate
-
-3. Git Operations (user does)
-   ├── git add .
-   ├── git commit -m "..."
-   └── git push origin develop
-
-4. Production Deployment (later)
-   ├── SQL migration (matched_by column)
-   ├── Deploy code changes
-   └── Restart NEX-Automat-Loader service
+Next Steps:
+1. Test as console app (verify code works)
+2. If console works:
+   - Try NetworkService account
+   - OR fix Winsock (netsh reset + reboot)
+   - OR use Task Scheduler instead of NSSM
+3. Once service runs:
+   - Resume service (sc continue)
+   - Verify port 8001
+   - Test Mágerstav verification
+4. Document solution for future deployments
 ```
-
----
-
-## SCRIPTS AVAILABLE
-
-### Deployment Scripts (Create)
-```python
-# 05_deploy_gscat_model.py       # Deploy complete model
-# 06_fix_gscat_repository.py     # Fix find_by_barcode()
-# 07_verify_field_names.py       # Check ProductMatcher
-```
-
-### Testing Scripts (Existing)
-```python
-scripts/03_test_ean_lookup.py          # Test EAN matching
-scripts/02_reprocess_nex_enrichment.py # Full re-processing
-```
-
----
-
-## CRITICAL RULES
-
-### Workflow
-1. **Development → Git → Deployment** (never modify Deployment directly)
-2. **One script at a time** - wait for confirmation
-3. **ALL code MUST be artifacts** - never plain text
-4. **Test after each change** - especially Btrieve model changes
-
-### Code Generation
-- Scripts numbered sequentially (05, 06, 07...)
-- Always create backup before modifying existing files
-- Use artifacts for all Python files >5 lines
-
----
-
-## KNOWN ISSUES
-
-### Issue #1: Missing BarCode Field (CRITICAL) 🔴
-**Impact:** 0% EAN match rate  
-**Status:** Fix ready in artifact, deployment pending  
-**Priority:** P0 - blocks Phase 4 completion
-
-### Issue #2: NULL Bytes in Strings ✅
-**Impact:** PostgreSQL INSERT failures  
-**Status:** FIXED in re-processing script  
-**Solution:** .replace('\x00', '').strip()
-
-### Issue #3: Invalid validation_status ✅
-**Impact:** Check constraint violations  
-**Status:** FIXED in re-processing script  
-**Solution:** Use 'warning' not 'needs_review'
 
 ---
 
 ## SUCCESS CRITERIA
 
 **Phase 4 Complete When:**
-- [ ] Complete GSCAT model deployed
-- [ ] EAN lookup test: >15% success rate
-- [ ] Re-processing test: >70% match rate
-- [ ] All 36 unit tests passing
-- [ ] Production deployment successful
-- [ ] Mágerstav verification complete
+- [x] Complete GSCAT model deployed
+- [x] EAN lookup: >15% success (achieved 100%)
+- [x] Re-processing: >70% match rate (achieved 81.2%)
+- [x] Unit tests passing (108/108)
+- [ ] **Service starts successfully** ← BLOCKED HERE
+- [ ] **Mágerstav verification** ← Waiting for service
+
+**Progress:** 4/6 criteria (67%)
 
 ---
 
-## ARTIFACTS REFERENCE
+## CRITICAL RULES
 
-### Complete GSCAT Model
-**Artifact:** `04_create_complete_gscat_model.py`
-- Contains complete GSCATRecord with all 60+ fields
-- BarCode field at offset 57
-- All field names match Btrieve definition
-- Ready for deployment
-
-### Archive
-**Artifact:** `PROJECT_ARCHIVE_SESSION.md`
-- Session work summary
-- Technical findings
-- Metrics and next steps
+1. **DO NOT modify code** - it works correctly
+2. **Test console app FIRST** - fastest diagnostic
+3. **Document solution** - for future reference
+4. **One solution at a time** - systematic approach
+5. **If console works, problem is service-specific** - focus on service config
 
 ---
 
-## ENVIRONMENT
+## ENVIRONMENT DETAILS
 
-**Development:**
-- Path: C:\Development\nex-automat
-- Python: 3.13.7 (venv32)
-- Branch: develop
-- Status: Ready for deployment
+**Production Server:**
+- OS: Windows Server (specific version unknown)
+- Python: 3.13.7 32-bit
+- Location: C:\Deployment\nex-automat
+- Service: NEX-Automat-Loader (NSSM managed)
+- Account: LocalSystem
 
-**Production (Mágerstav):**
-- Path: C:\Deployment\nex-automat
-- Service: NEX-Automat-Loader (manual start)
-- Port: 8001
-- Status: Awaiting deployment
-
-**Databases:**
+**Database:**
 - PostgreSQL: localhost:5432/invoice_staging
 - NEX Genesis: C:\NEX\YEARACT\STORES (Btrieve)
+- Btrieve DLL: C:\PVSW\bin\w3btrv7.dll
+
+**Network:**
+- Service Port: 8001
+- API: FastAPI + Uvicorn
+- Asyncio: Required for FastAPI
 
 ---
 
-**Init Prompt Created:** 2025-12-09  
-**Version:** v2.4 Phase 4 Deployment  
-**Status:** 🔧 Ready to deploy complete GSCAT model  
-**Next Action:** Create deployment script for complete GSCAT model
+## SCRIPTS AVAILABLE
+
+### Testing
+- `scripts/test_ean_lookup.py` - Test EAN matching
+- `scripts/reprocess_nex_enrichment.py` - Re-process enrichment
+- `scripts/27_check_service_logs.py` - Check service logs
+
+### Diagnostics
+- `scripts/28_check_deployment_config.py` - Verify config
+- `scripts/29_check_permissions.py` - Check file permissions
+- `scripts/30_check_nssm_config.py` - NSSM configuration
+
+### Service Control
+- `scripts/22_restart_service.py` - Restart service
+- `scripts/26_resume_service.py` - Resume paused service
+
+---
+
+## NOTES
+
+**DO NOT:**
+- Modify GSCAT model (it's correct now)
+- Modify repository code (it's correct now)
+- Assume permissions issue (already verified)
+- Skip console test (crucial step)
+
+**DO:**
+- Test console app immediately
+- Document what works / doesn't work
+- Try solutions systematically
+- Keep logs of each attempt
+
+---
+
+**Init Prompt Created:** 2025-12-09 14:30  
+**Version:** v2.4 Phase 4 - Service Startup Fix  
+**Status:** 🔴 Blocked by WinError 10106  
+**Next Action:** Test as console application to isolate issue

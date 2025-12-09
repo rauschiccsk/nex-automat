@@ -2,15 +2,15 @@
   "name": "nexdata",
   "type": "package",
   "location": "packages/nexdata",
-  "generated": "2025-12-09T12:03:19.189742",
+  "generated": "2025-12-09T14:28:54.784115",
   "statistics": {
     "total_files": 24,
     "total_dirs": 8,
     "python_files": 22,
     "powershell_files": 0,
     "test_files": 0,
-    "total_lines": 2646,
-    "total_size": 90417
+    "total_lines": 2455,
+    "total_size": 82352
   },
   "dependencies": {
     "main": [
@@ -93,10 +93,10 @@
     {
       "path": "packages/nexdata/nexdata/models/gscat.py",
       "name": "gscat.py",
-      "size": 11368,
+      "size": 3303,
       "extension": ".py",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/packages/nexdata/nexdata/models/gscat.py",
-      "lines": 298,
+      "lines": 107,
       "type": "source"
     },
     {
@@ -247,7 +247,7 @@
     {
       "name": "gscat",
       "path": "models/gscat.py",
-      "lines": 298
+      "lines": 107
     },
     {
       "name": "mglst",

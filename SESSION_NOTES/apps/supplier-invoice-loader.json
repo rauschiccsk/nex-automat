@@ -2,15 +2,15 @@
   "name": "supplier-invoice-loader",
   "type": "application",
   "location": "apps/supplier-invoice-loader",
-  "generated": "2025-12-09T12:03:18.933685",
+  "generated": "2025-12-09T14:28:54.531058",
   "statistics": {
-    "total_files": 137,
+    "total_files": 138,
     "total_dirs": 34,
     "python_files": 54,
     "powershell_files": 2,
     "test_files": 15,
     "total_lines": 11092,
-    "total_size": 9143208
+    "total_size": 9188264
   },
   "structure": {
     "has_src": true,
@@ -105,6 +105,13 @@
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-loader/config/config_template.py",
       "lines": 434,
       "type": "source"
+    },
+    {
+      "path": "apps/supplier-invoice-loader/config/invoices.db",
+      "name": "invoices.db",
+      "size": 45056,
+      "extension": ".db",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-loader/config/invoices.db"
     },
     {
       "path": "apps/supplier-invoice-loader/database/schemas/README.md",
