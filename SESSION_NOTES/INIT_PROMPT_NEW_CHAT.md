@@ -1,4 +1,4 @@
-# INIT PROMPT - NEX Automat v2.4 Phase 4
+# INIT PROMPT - NEX Automat v2.4 Post-Deployment
 
 ## PROJECT CONTEXT
 
@@ -8,160 +8,152 @@
 **Deployment:** `C:\Deployment\nex-automat`  
 **Python:** 3.13.7 (venv32)  
 **Git Branch:** develop  
-**Current Version:** v2.3 (production) → v2.4 (in development)
+**Current Version:** v2.4 Phase 4 ✅ DEPLOYED
 
 ---
 
 ## CURRENT STATUS
 
-### Production (Mágerstav)
-- **Version:** v2.3 ✅ Deployed
-- **Service:** NEXAutomat (Running)
-- **API:** http://localhost:8000
-- **Health:** http://localhost:8000/health → 200 OK
+### Production (Mágerstav) ✅ LIVE
+- **Version:** v2.4 Phase 4 DEPLOYED
+- **Service:** NEX-Automat-Loader (Ready to start as Windows Service)
+- **Currently:** Running in debug mode (manual python main.py)
+- **API:** http://localhost:8001
+- **ProductMatcher:** ✅ INITIALIZED
+- **Btrieve:** ✅ CONNECTED to C:\NEX\YEARACT\STORES
 
-### Development  
-- **Version:** v2.4 🚀 Phase 1-3 Complete, Phase 4 Ready
+**Startup Log:**
+```
+✅ Loaded Btrieve DLL: w3btrv7.dll from C:\PVSW\bin
+✅ ProductMatcher initialized: C:\NEX\YEARACT\STORES
+INFO: Uvicorn running on http://0.0.0.0:8001
+```
+
+### Development
+- **Version:** v2.4 Phase 4 Complete
 - **Branch:** develop
-- **Status:** ProductMatcher implemented with LIVE queries
+- **Status:** Ready for testing and Git operations
 
 ---
 
-## COMPLETED WORK (Phases 1-3)
+## COMPLETED WORK
 
-### ✅ Phase 1: Database Layer
-**File:** `packages/nex-shared/database/postgres_staging.py`
+### ✅ Phase 1: Database Layer (Completed)
+- PostgreSQL enrichment methods in postgres_staging.py
+- 12 unit tests passing
 
-**Methods:**
-```python
-get_pending_enrichment_items(invoice_id, limit)  # Get items to enrich
-update_nex_enrichment(item_id, gscat_record, matched_by)  # Save NEX data
-mark_no_match(item_id, reason)  # Mark as not found
-get_enrichment_stats(invoice_id)  # Get statistics
-```
+### ✅ Phase 2: ProductMatcher (Completed)
+- LIVE Btrieve queries (no cache)
+- EAN matching (GSCAT.BTR → BARCODE.BTR)
+- Name fuzzy matching (rapidfuzz + unidecode)
+- 24 unit tests passing
 
-**Tests:** 12 unit tests ✅
+### ✅ Phase 3: Repository Methods (Completed)
+- GSCATRepository with find_by_barcode, search_by_name
+- BARCODERepository with find_by_barcode
+- LIVE test successful
 
----
+### ✅ Phase 4: Integration & Deployment (Completed Today)
 
-### ✅ Phase 2: ProductMatcher
-**File:** `apps/supplier-invoice-loader/src/business/product_matcher.py`
+**supplier-invoice-loader:**
+- ProductMatcher integrated into /invoice endpoint
+- Automatic enrichment after PDF extraction
+- Config properly set (NEX_GENESIS_ENABLED=True)
+- Dependencies installed (rapidfuzz, unidecode)
 
-**Key Features:**
-- **LIVE Btrieve queries** (no cache - živá databáza!)
-- **EAN matching:** GSCAT.BTR → BARCODE.BTR (optimized 95%/5%)
-- **Name fuzzy matching:** rapidfuzz + unidecode
-- **Confidence scoring:** 0.0 - 1.0
+**supplier-invoice-editor:**
+- Grid shows 4 NEX columns (NEX Kód, NEX Názov, NEX Kat., Match)
+- Color-coded rows:
+  - Green = matched (in_nex = TRUE)
+  - Red = no match (in_nex = FALSE)
+  - Yellow = pending (in_nex = NULL)
+- Tooltips show match method (EAN/Name)
+- PostgreSQL loads all NEX fields
 
-**Usage:**
-```python
-matcher = ProductMatcher("C:\\NEX\\YEARACT\\STORES")
-result = matcher.match_item(item_data, min_confidence=0.6)
-
-if result.is_match:
-    print(f"Product: {result.product.gs_name}")
-    print(f"Confidence: {result.confidence}")
-    print(f"Method: {result.method}")  # 'ean' or 'name'
-```
-
-**Tests:** 24 unit tests ✅
-
----
-
-### ✅ Phase 3: Repository Methods
-**Files:** `packages/nexdata/nexdata/repositories/`
-
-**GSCATRepository:**
-- `find_by_barcode(barcode)` - Primary EAN lookup
-- `get_by_code(gs_code)` - Get product by ID
-- `search_by_name(search_term, limit)` - Fuzzy search
-
-**BARCODERepository:**
-- `find_by_barcode(barcode)` - Secondary EAN lookup
-
-**LIVE Test:** ✅ Success with real NEX Genesis database
+**Deployment:**
+- Backup created: C:\Deployment\nex-automat\BACKUP_2025-12-09_09-18-30
+- All files deployed from Development
+- Service verified functional
+- 20 deployment scripts created
 
 ---
 
-## PHASE 4: INTEGRATION (TODO)
+## IMMEDIATE NEXT STEPS
 
-### Úloha
-Integrovať ProductMatcher do supplier-invoice-loader processing pipeline
+### 🎯 Priority 1: Start Windows Service
 
-### Implementation Plan
+Currently supplier-invoice-loader runs in debug mode (manual). Need to:
 
-**1. Add Enrichment to /invoice Endpoint**
+1. **Stop debug mode** (CTRL+C in current terminal)
 
-**File:** `apps/supplier-invoice-loader/main.py`
-
-```python
-from src.business.product_matcher import ProductMatcher
-
-# Global matcher
-product_matcher: Optional[ProductMatcher] = None
-
-@app.on_event("startup")
-async def startup_event():
-    global product_matcher
-    if config.NEX_GENESIS_ENABLED:
-        product_matcher = ProductMatcher(config.NEX_DATA_PATH)
-
-@app.post("/invoice")
-async def process_invoice(...):
-    # Existing: PDF extraction + INSERT PostgreSQL
-    ...
-    
-    # NEW: Automatic enrichment
-    if product_matcher and invoice_id:
-        await enrich_invoice_items(invoice_id)
-    
-    return invoice_data
-
-async def enrich_invoice_items(invoice_id: int):
-    """Auto-enrich invoice items with NEX Genesis data"""
-    pg_client = PostgresStagingClient(pg_config)
-    
-    items = pg_client.get_pending_enrichment_items(invoice_id)
-    
-    for item in items:
-        result = product_matcher.match_item(item, min_confidence=0.6)
-        
-        if result.is_match:
-            pg_client.update_nex_enrichment(
-                item['id'], 
-                result.product, 
-                result.method
-            )
-        else:
-            pg_client.mark_no_match(item['id'])
+2. **Start Windows Service:**
+```powershell
+Start-Service NEX-Automat-Loader
+Get-Service NEX-Automat-Loader  # Verify Running
 ```
 
-**2. Configuration**
-
-**File:** `apps/supplier-invoice-loader/src/utils/config.py`
-
-```python
-NEX_GENESIS_ENABLED = os.getenv('NEX_GENESIS_ENABLED', 'true').lower() == 'true'
-NEX_DATA_PATH = os.getenv('NEX_DATA_PATH', 'C:/NEX/YEARACT/STORES')
+3. **Verify health:**
+```powershell
+curl http://localhost:8001/health
 ```
 
-**3. Testing**
-- Upload test PDF invoice
-- Verify automatic enrichment
-- Check match rates
-- Test error scenarios
+4. **Check logs** for ProductMatcher initialization
 
-**4. Deployment**
-- Update nex-shared package
-- Deploy to production
-- Monitor performance
-- Verify service health
+---
+
+### Priority 2: End-to-End Testing
+
+1. **Upload test PDF** via n8n workflow
+2. **Check PostgreSQL** for enrichment:
+```sql
+SELECT 
+  original_name, 
+  nex_name, 
+  nex_gs_code, 
+  in_nex, 
+  matched_by 
+FROM invoice_items_pending 
+ORDER BY id DESC LIMIT 10;
+```
+
+3. **Open supplier-invoice-editor** and verify:
+   - NEX columns visible
+   - Color coding works
+   - Tooltips display correctly
+
+---
+
+### Priority 3: Git Operations
+
+```bash
+cd C:\Development\nex-automat
+git status
+git add .
+git commit -m "Phase 4: NEX Genesis Product Enrichment Integration
+
+- ProductMatcher integrated into supplier-invoice-loader
+- Automatic enrichment on /invoice endpoint
+- supplier-invoice-editor displays NEX data with color coding
+- PostgreSQL enrichment methods implemented
+- 36 unit tests passing
+- Deployed to production (Mágerstav)"
+
+git push origin develop
+```
+
+After successful testing:
+```bash
+git checkout main
+git merge develop
+git tag v2.4
+git push origin main --tags
+```
 
 ---
 
 ## TECHNICAL ARCHITECTURE
 
-### Workflow
+### Enrichment Workflow
 ```
 POST /invoice (PDF)
   ↓
@@ -173,138 +165,122 @@ ProductMatcher.match_item() [LIVE Btrieve queries]
   ↓
 PostgreSQL UPDATE (nex_* fields)
   ↓
-Return enriched invoice
+supplier-invoice-editor displays with color coding
 ```
 
-### EAN Matching Strategy
+### Files Structure
 ```
-1. Search GSCAT.BTR (primary barcode) - 95% hit rate, FAST
-2. Search BARCODE.BTR (additional barcodes) - 5% fallback
-```
+apps/
+  supplier-invoice-loader/
+    main.py - ProductMatcher integration
+    config/config_customer.py - NEX_GENESIS_ENABLED=True
+    src/business/product_matcher.py - NEW
+    src/utils/config.py - _Config wrapper
+  
+  supplier-invoice-editor/
+    src/ui/widgets/invoice_items_grid.py - NEX columns + colors
+    src/business/invoice_service.py - NEX fields in query
 
-### Name Matching
-```
-1. Normalize text (unidecode, lowercase, remove special chars)
-2. Calculate similarity (rapidfuzz token_set_ratio)
-3. Return best match if confidence >= threshold
-4. Include top 5 alternatives
-```
-
----
-
-## KEY DECISIONS & LEARNINGS
-
-### 1. LIVE Queries, No Cache
-**Reason:** NEX Genesis je živá databáza  
-- 50 000+ produktov
-- Pracovníci menia data počas dňa
-- Cache by bol zastaraný po minútach
-
-### 2. No API Endpoints
-**Reason:** Všetko beží na jednom serveri  
-- supplier-invoice-loader robí enrichment priamo
-- ProductMatcher je súčasť business logiky
-- Jednoduchšie a rýchlejšie
-
-### 3. Two-Stage EAN Search
-**Reason:** Optimalizácia výkonu  
-- 95% produktov: 1 EAN v GSCAT.BTR
-- 5% produktov: viacero EAN v BARCODE.BTR
-
----
-
-## DATABASE SCHEMA
-
-### PostgreSQL - invoice_items_pending
-
-```sql
--- FROM PDF ✅
-original_name, original_ean, original_quantity, ...
-
--- MANUAL EDITS ✅
-edited_name, edited_ean, was_edited, ...
-
--- NEX GENESIS 🎯 TARGET
-nex_gs_code INTEGER,      -- Product ID
-nex_plu INTEGER,          -- Same as gs_code
-nex_name VARCHAR,         -- Product name
-nex_category INTEGER,     -- Category (mglst_code)
-nex_barcode_created BOOLEAN,
-in_nex BOOLEAN,          -- TRUE = found, FALSE = not found, NULL = pending
-
--- VALIDATION ✅
-validation_status VARCHAR,  -- 'matched', 'needs_review'
-validation_message TEXT     -- 'Auto-matched by ean'
+packages/
+  nex-shared/
+    database/postgres_staging.py - enrichment methods
+    database/__init__.py - exports
+  
+  nexdata/
+    repositories/gscat_repository.py
+    repositories/barcode_repository.py
+    btrieve/btrieve_client.py
 ```
 
 ---
 
-## BTRIEVE FILES
+## CONFIGURATION
 
-### NEX Genesis Structure
-- **Location:** `C:\NEX\YEARACT\STORES\`
-- **Files:** 699 .BTR files
-- **GSCAT.BTR:** 14.46 MB (produkty)
-- **BARCODE.BTR:** 0.10 MB (čiarové kódy)
-
-### BtrieveClient Configuration
+### NEX Genesis (Mágerstav)
 ```python
-btrieve_config = {
-    'database_path': 'C:\\NEX\\YEARACT\\STORES'
-}
-client = BtrieveClient(config_or_path=btrieve_config)
+NEX_GENESIS_ENABLED = True
+NEX_DATA_PATH = r"C:\NEX\YEARACT\STORES"
+```
+
+### PostgreSQL
+```python
+POSTGRES_HOST = "localhost"
+POSTGRES_PORT = 5432
+POSTGRES_DATABASE = "invoice_staging"
+```
+
+### API
+```
+Port: 8001
+Health: http://localhost:8001/health
+Docs: http://localhost:8001/docs
 ```
 
 ---
 
-## TESTING
+## DEPLOYMENT BACKUP
 
-### Unit Tests (36 total)
-- `test_postgres_staging_enrichment.py`: 12 tests ✅
-- `test_product_matcher.py`: 24 tests ✅
+**Location:** `C:\Deployment\nex-automat\BACKUP_2025-12-09_09-18-30`
 
-### LIVE Test Results
-```
-✅ BtrieveClient loaded: w3btrv7.dll from C:\PVSW\bin
-✅ Name matching: "Coca Cola" → 100% confidence (gs_code=9511)
-⚠️  EAN matching: Test EAN not in database (expected)
-```
+**Backed up files:**
+- loader_main.py
+- loader_config_customer.py
+- loader_config.py
+- editor_invoice_items_grid.py
+- editor_invoice_service.py
 
-### Run Tests
-```bash
-cd C:\Development\nex-automat
-
-# Unit tests
-python -m pytest tests/unit/test_postgres_staging_enrichment.py -v
-python -m pytest tests/unit/test_product_matcher.py -v
-
-# LIVE test
-python scripts\12_test_product_matcher_live.py
-```
+**Rollback if needed:**
+1. Stop service
+2. Restore files from backup
+3. Restart service
 
 ---
 
-## DEPENDENCIES
+## TESTING STATUS
 
-**Installed:**
-```
-rapidfuzz>=3.0.0
-unidecode>=1.3.0
-```
+### Unit Tests
+- postgres_staging_enrichment: 12/12 ✅
+- product_matcher: 24/24 ✅
+- Total: 36/36 ✅
 
-**Existing:**
-```
-FastAPI, PostgreSQL, nexdata, PyQt5, ...
-```
+### Integration Test
+- Imports: ✅
+- Configuration: ✅
+- ProductMatcher Init: ✅
+- Product Matching: ✅
+- PostgreSQL Methods: ✅
+
+### Production Verification
+- Service starts: ✅
+- ProductMatcher initializes: ✅
+- Btrieve connects: ✅
+- Health endpoint: ✅
 
 ---
 
-## PERFORMANCE EXPECTATIONS
+## SUCCESS METRICS
 
-- **EAN matching:** < 100ms
-- **Name matching:** 1-2s (iterates 50k products)
-- **Enrichment per invoice:** 5-10s
-- **Match rate target:** > 70%
+**Phase 4 Targets:**
+- [x] Integration working in /invoice endpoint
+- [x] ProductMatcher initialized with Btrieve
+- [x] Grid displays NEX columns with color coding
+- [x] PostgreSQL loads all NEX fields
+- [x] Production deployment successful
+- [ ] Match rate > 70% (needs testing with real data)
+- [ ] Performance < 5s per invoice (needs testing)
+
+---
+
+## KNOWN ISSUES
+
+**None currently** - All deployment issues resolved
+
+Previous issues (fixed):
+- ✅ Config structure (fixed with _Config wrapper)
+- ✅ Missing imports (cleaned)
+- ✅ Dependencies (installed)
+- ✅ ProductMatcher initialization (added properly)
+- ✅ Port conflicts (NEX-Automat-Loader service)
 
 ---
 
@@ -312,9 +288,9 @@ FastAPI, PostgreSQL, nexdata, PyQt5, ...
 
 ### Workflow
 1. **Development → Git → Deployment**
-2. **NIKDY nerobiť zmeny priamo v Deployment**
-3. Všetky zmeny cez numbered scripts
-4. Scripts po jednom, krok za krokom
+2. **NEVER modify Deployment directly**
+3. All changes via numbered scripts
+4. Scripts one at a time, wait for confirmation
 
 ### Git Operations
 ```bash
@@ -322,73 +298,28 @@ FastAPI, PostgreSQL, nexdata, PyQt5, ...
 git add .
 git commit -m "..."
 git push origin develop
-
-# After Phase 4:
-git checkout main
-git merge develop
-git tag v2.4
-git push origin main --tags
 ```
 
 ### Code Generation
 - **CRITICAL:** ALL code/configs/documents MUST be artifacts
 - Scripts numbered from 01 sequentially
-- Only temporary scripts numbered
 - One script at a time, wait for confirmation
 
 ---
 
-## SUCCESS METRICS
+## MONITORING
 
-### Phase 4 Targets
-- [x] Enrichment working in /invoice endpoint
-- [x] Match rate > 70%
-- [x] Performance < 5s per invoice
-- [x] Error handling robust
-- [x] Logging comprehensive
-- [x] Production deployment successful
+### Daily Checks
+- Service status: `Get-Service NEX-Automat-Loader`
+- Logs review
+- Match rates in PostgreSQL
+- Error monitoring
 
----
-
-## NEXT IMMEDIATE ACTION
-
-**Start Phase 4:**
-
-1. Create integration script
-2. Add ProductMatcher to /invoice endpoint
-3. Test with real invoice
-4. Verify enrichment in PostgreSQL
-5. Check performance metrics
-
----
-
-## FILES REFERENCE
-
-### Production Code
-```
-apps/supplier-invoice-loader/
-  main.py (TO MODIFY)
-  src/business/product_matcher.py (NEW ✅)
-  src/utils/config.py (TO MODIFY)
-
-packages/nex-shared/
-  database/postgres_staging.py (MODIFIED ✅)
-
-packages/nexdata/nexdata/
-  repositories/gscat_repository.py (MODIFIED ✅)
-  repositories/barcode_repository.py (MODIFIED ✅)
-  btrieve/btrieve_client.py (MODIFIED ✅)
-```
-
-### Tests
-```
-tests/unit/
-  test_postgres_staging_enrichment.py (NEW ✅)
-  test_product_matcher.py (NEW ✅)
-
-scripts/
-  12_test_product_matcher_live.py (NEW ✅)
-```
+### Performance Metrics
+- Enrichment time per invoice
+- Match rate percentage
+- Database query performance
+- Memory usage
 
 ---
 
@@ -396,13 +327,14 @@ scripts/
 
 **Customer:** Mágerstav s.r.o.  
 **Deployment:** C:\Deployment\nex-automat  
-**Service:** NEXAutomat (Windows Service)  
+**Service:** NEX-Automat-Loader (Windows Service)  
+**Port:** 8001  
 **PostgreSQL:** localhost:5432/invoice_staging  
-**NEX Genesis:** C:\NEX\YEARACT\STORES\
+**NEX Genesis:** C:\NEX\YEARACT\STORES  
 
 ---
 
 **Init Prompt Created:** 2025-12-09  
-**Version:** v2.4 Phase 4 Ready  
-**Status:** 🚀 Ready to integrate ProductMatcher into pipeline  
-**Estimated Time:** 4h
+**Version:** v2.4 Phase 4 DEPLOYED  
+**Status:** 🎉 Ready for Windows Service start & E2E testing  
+**Next Action:** Start NEX-Automat-Loader service

@@ -33,7 +33,12 @@ class InvoiceItemsModel(QAbstractTableModel):
         ('Cena', 'unit_price', True),         # Editable
         ('Rabat %', 'rabat_percent', True),   # Editable
         ('Po rabate', 'price_after_rabat', False),  # Calculated
-        ('Suma', 'total_price', False)        # Calculated
+        ('Suma', 'total_price', False),       # Calculated
+        # NEX Genesis enrichment columns
+        ('NEX Kód', 'nex_gs_code', False),    # From enrichment
+        ('NEX Názov', 'nex_name', False),     # From enrichment
+        ('NEX Kat.', 'nex_category', False),  # From enrichment
+        ('Match', 'in_nex', False)            # Match status
     ]
 
     # Signal when items changed
@@ -95,11 +100,24 @@ class InvoiceItemsModel(QAbstractTableModel):
             return Qt.AlignLeft | Qt.AlignVCenter
 
         elif role == Qt.BackgroundRole:
-            # Highlight calculated columns
+            from PyQt5.QtGui import QColor
             column_key = self.COLUMNS[index.column()][1]
+
+            # Highlight calculated columns
             if column_key in ('price_after_rabat', 'total_price'):
-                from PyQt5.QtGui import QColor
                 return QColor(240, 240, 240)
+
+            # Color rows based on NEX match status
+            in_nex = item.get('in_nex')
+            if in_nex is True:
+                # Matched - light green
+                return QColor(200, 255, 200)
+            elif in_nex is False:
+                # No match - light red
+                return QColor(255, 200, 200)
+            elif in_nex is None:
+                # Pending - light yellow
+                return QColor(255, 255, 200)
 
         return QVariant()
 

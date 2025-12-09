@@ -18,8 +18,8 @@ from fastapi.responses import PlainTextResponse
 from pydantic import BaseModel
 
 from src.api import models
+from src.business.product_matcher import ProductMatcher
 from src.utils import config, monitoring, notifications
-from nex_shared.utils import clean_string
 from src.database import database
 from nex_shared.database import PostgresStagingClient
 from src.extractors.ls_extractor import extract_invoice_data
@@ -34,6 +34,9 @@ app = FastAPI(
     description="Automated invoice processing system",
     version="2.0.0"
 )
+
+# Global ProductMatcher instance
+product_matcher: Optional[ProductMatcher] = None
 
 
 # ============================================================================
@@ -251,6 +254,70 @@ async def list_invoices(
             "invoices": [],
             "error": str(e)
         }
+
+
+
+
+async def enrich_invoice_items(invoice_id: int):
+    """
+    Automatic enrichment of invoice items with NEX Genesis data
+
+    Args:
+        invoice_id: ID of invoice to enrich
+    """
+    if not product_matcher:
+        logger.warning(f"ProductMatcher not available for invoice {invoice_id}")
+        return
+
+    try:
+        pg_client = PostgresStagingClient(config.POSTGRES)
+        items = pg_client.get_pending_enrichment_items(invoice_id, limit=100)
+
+        logger.info(f"🔍 Enriching {len(items)} items for invoice {invoice_id}")
+
+        matched_count = 0
+        no_match_count = 0
+
+        for item in items:
+            try:
+                # Prepare item data for matching
+                item_data = {
+                    'name': item.get('edited_name') or item.get('original_name'),
+                    'ean': item.get('edited_ean') or item.get('original_ean')
+                }
+
+                # Match with NEX Genesis
+                result = product_matcher.match_item(item_data, min_confidence=0.6)
+
+                if result.is_match:
+                    # Save match to database
+                    pg_client.update_nex_enrichment(
+                        item_id=item['id'],
+                        gscat_record=result.product,
+                        matched_by=result.method
+                    )
+                    matched_count += 1
+                    logger.debug(f"  ✅ Item {item['id']}: {result.product.gs_name} (confidence: {result.confidence:.2f})")
+                else:
+                    # Mark as no match
+                    pg_client.mark_no_match(
+                        item_id=item['id'],
+                        reason=f"No match found (min confidence: 0.6)"
+                    )
+                    no_match_count += 1
+                    logger.debug(f"  ⚠️  Item {item['id']}: No match")
+
+            except Exception as e:
+                logger.error(f"  ❌ Error enriching item {item['id']}: {e}")
+                continue
+
+        # Log statistics
+        stats = pg_client.get_enrichment_stats(invoice_id)
+        logger.info(f"✅ Enrichment complete: {matched_count} matched, {no_match_count} no match")
+        logger.info(f"📊 Stats - Total: {stats['total']}, Matched: {stats['matched']}, Pending: {stats['pending']}")
+
+    except Exception as e:
+        logger.error(f"❌ Failed to enrich invoice {invoice_id}: {e}")
 
 
 @app.post("/invoice")
@@ -500,6 +567,18 @@ async def startup_event():
     if config.POSTGRES_STAGING_ENABLED:
         print(f"PostgreSQL: {config.POSTGRES_HOST}:{config.POSTGRES_PORT}/{config.POSTGRES_DATABASE}")
     print("=" * 60)
+
+    # Initialize ProductMatcher if NEX Genesis is enabled
+    global product_matcher
+    if config.NEX_GENESIS_ENABLED:
+        try:
+            product_matcher = ProductMatcher(config.NEX_DATA_PATH)
+            print(f"✅ ProductMatcher initialized: {config.NEX_DATA_PATH}")
+        except Exception as e:
+            print(f"❌ Failed to initialize ProductMatcher: {e}")
+            product_matcher = None
+    else:
+        print("⚠️  NEX Genesis enrichment disabled")
 
 
 @app.on_event("shutdown")
