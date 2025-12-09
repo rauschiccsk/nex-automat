@@ -573,9 +573,9 @@ async def startup_event():
     if config.NEX_GENESIS_ENABLED:
         try:
             product_matcher = ProductMatcher(config.NEX_DATA_PATH)
-            print(f"✅ ProductMatcher initialized: {config.NEX_DATA_PATH}")
+            print(f"[OK] ProductMatcher initialized: {config.NEX_DATA_PATH}")
         except Exception as e:
-            print(f"❌ Failed to initialize ProductMatcher: {e}")
+            print(f"[ERROR] Failed to initialize ProductMatcher: {e}")
             product_matcher = None
     else:
         print("⚠️  NEX Genesis enrichment disabled")

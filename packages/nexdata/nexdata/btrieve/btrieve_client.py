@@ -123,7 +123,7 @@ class BtrieveClient:
         return table_name_or_path
 
     def _load_dll(self) -> None:
-        """Načítaj Btrieve DLL a nastav BTRCALL funkciu - FIXED SIGNATURE"""
+        """Načítaj Btrieve DLL a nastav BTRCALL funkciu - NO EMOJIS"""
 
         # DLL priority list
         dll_names = [
@@ -131,7 +131,51 @@ class BtrieveClient:
             'wbtrv32.dll',  # Fallback - 32-bit Btrieve API
         ]
 
-        # Search paths (in priority order)
+        # FIRST: Try loading from PATH (no absolute path)
+        # This allows DLL to be found when C:\PVSW\bin is in PATH
+        print("[DEBUG] Attempting to load Btrieve DLL from PATH...")
+        for dll_name in dll_names:
+            try:
+                print(f"[DEBUG] Trying {dll_name} from PATH...")
+                # Load DLL from PATH
+                self.dll = ctypes.WinDLL(dll_name)
+                print(f"[DEBUG] DLL loaded: {dll_name}")
+
+                # Get BTRCALL function
+                try:
+                    self.btrcall = self.dll.BTRCALL
+                    print(f"[DEBUG] BTRCALL function found (uppercase)")
+                except AttributeError:
+                    # Try lowercase
+                    try:
+                        self.btrcall = self.dll.btrcall
+                        print(f"[DEBUG] btrcall function found (lowercase)")
+                    except AttributeError:
+                        print(f"[DEBUG] No BTRCALL/btrcall function in {dll_name}")
+                        continue
+
+                # Configure BTRCALL signature
+                self.btrcall.argtypes = [
+                    ctypes.c_uint16,  # operation (WORD)
+                    ctypes.POINTER(ctypes.c_char),  # posBlock (VAR)
+                    ctypes.POINTER(ctypes.c_char),  # dataBuffer (VAR)
+                    ctypes.POINTER(ctypes.c_uint32),  # dataLen (longInt = 4 bytes!)
+                    ctypes.POINTER(ctypes.c_char),  # keyBuffer (VAR)
+                    ctypes.c_uint8,  # keyLen (BYTE)
+                    ctypes.c_uint8  # keyNum (BYTE, unsigned!)
+                ]
+                self.btrcall.restype = ctypes.c_int16  # Status code (SMALLINT)
+
+                print(f"[SUCCESS] Loaded Btrieve DLL from PATH: {dll_name}")
+                return
+
+            except Exception as e:
+                print(f"[DEBUG] Failed to load {dll_name} from PATH: {e}")
+                continue
+
+        # FALLBACK: Try absolute paths
+        print("[DEBUG] PATH loading failed, trying absolute paths...")
+
         search_paths = [
             # 1. Pervasive PSQL installation (v11.30)
             Path(r"C:\Program Files (x86)\Pervasive Software\PSQL\bin"),
@@ -149,7 +193,10 @@ class BtrieveClient:
         # Try each path and DLL combination
         for search_path in search_paths:
             if not search_path.exists():
+                print(f"[DEBUG] Skipping (not exists): {search_path}")
                 continue
+
+            print(f"[DEBUG] Checking: {search_path}")
 
             for dll_name in dll_names:
                 dll_path = search_path / dll_name
@@ -158,8 +205,10 @@ class BtrieveClient:
                     continue
 
                 try:
+                    print(f"[DEBUG] Trying {dll_name}...")
                     # Load DLL
                     self.dll = ctypes.WinDLL(str(dll_path))
+                    print(f"[DEBUG] DLL loaded: {dll_path}")
 
                     # Get BTRCALL function
                     try:
@@ -169,29 +218,30 @@ class BtrieveClient:
                         try:
                             self.btrcall = self.dll.btrcall
                         except AttributeError:
+                            print(f"[DEBUG] No BTRCALL function")
                             continue
 
-                    # Configure BTRCALL signature - FIXED according to btrapi32.pas!
+                    # Configure BTRCALL signature
                     self.btrcall.argtypes = [
                         ctypes.c_uint16,  # operation (WORD)
                         ctypes.POINTER(ctypes.c_char),  # posBlock (VAR)
                         ctypes.POINTER(ctypes.c_char),  # dataBuffer (VAR)
-                        ctypes.POINTER(ctypes.c_uint32),  # dataLen (longInt = 4 bytes!) ← FIXED!
+                        ctypes.POINTER(ctypes.c_uint32),  # dataLen (longInt = 4 bytes!)
                         ctypes.POINTER(ctypes.c_char),  # keyBuffer (VAR)
                         ctypes.c_uint8,  # keyLen (BYTE)
-                        ctypes.c_uint8  # keyNum (BYTE, unsigned!) ← FIXED!
+                        ctypes.c_uint8  # keyNum (BYTE, unsigned!)
                     ]
                     self.btrcall.restype = ctypes.c_int16  # Status code (SMALLINT)
 
-                    print(f"✅ Loaded Btrieve DLL: {dll_name} from {search_path}")
+                    print(f"[SUCCESS] Loaded Btrieve DLL: {dll_name} from {search_path}")
                     return
 
                 except Exception as e:
-                    # Silent fail, try next DLL
+                    print(f"[DEBUG] Failed: {e}")
                     continue
 
         raise RuntimeError(
-            "❌ Could not load any Btrieve DLL from any location.\n"
+            "[ERROR] Could not load any Btrieve DLL from any location.\n"
             "Searched paths:\n" +
             "\n".join(f"  - {p}" for p in search_paths if p.exists())
         )
