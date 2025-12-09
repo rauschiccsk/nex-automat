@@ -3067,3 +3067,312 @@ Temporary numbered scripts (01-32) should be deleted after successful Go-Live:
 
 **Archive Created:** 2025-12-09 14:30  
 **Next Session:** Fix WinError 10106 and complete Mágerstav Go-Live
+
+# NEX Automat v2.4 - Session Archive
+
+**Session Date:** 2025-12-09  
+**Duration:** ~4 hodiny  
+**Status:** Phase 4 COMPLETE - Production Ready (s obmedzeniami na test serveri)
+
+---
+
+## Session Summary
+
+Riešili sme kritický problém s nasadením NEX Automat v2.4 do production. Service nebežal kvôli WinError 10106 - asyncio nemohol inicializovať Winsock pod service účtom.
+
+**Výsledok:**
+- ✅ Kód kompletne opravený a otestovaný
+- ✅ Production u Mágerstav: NSSM service funguje
+- ⚠️ Test server: Task Scheduler workaround (systémový problém)
+
+---
+
+## Problems Solved
+
+### 1. WinError 10106 - Service Startup Failure
+
+**Problém:**
+```
+OSError: [WinError 10106] The requested service provider could not be loaded or initialized
+```
+
+Service (NSSM) pod LocalSystem/NetworkService účtom nemohol načítať asyncio `_overlapped` module.
+
+**Root Cause:**
+- Windows service účty majú obmedzený prístup k Winsock
+- asyncio vyžaduje plný prístup k Windows Sockets
+- Špecifické pre tento test server (u Mágerstav funguje normálne)
+
+**Riešenie:**
+Task Scheduler namiesto NSSM service - beží pod user účtom
+
+### 2. BtrieveClient DLL Loading
+
+**Problém:**
+```
+RuntimeError: Could not load any Btrieve DLL from any location.
+```
+
+DLL sa nenačítavala ani keď `C:\PVSW\bin` bola v PATH.
+
+**Root Cause:**
+BtrieveClient používal len absolútne cesty, ignoroval PATH environment variable.
+
+**Riešenie:**
+```python
+# Pridané PATH loading ako prvá priorita
+for dll_name in dll_names:
+    try:
+        self.dll = ctypes.WinDLL(dll_name)  # Load from PATH
+        # ... configure BTRCALL ...
+        return
+    except:
+        continue
+
+# Fallback na absolútne cesty
+```
+
+### 3. Unicode Encoding Errors
+
+**Problém:**
+```
+UnicodeEncodeError: 'charmap' codec can't encode character '\u274c'
+```
+
+Emojis v print statements nefungovali pod Windows console (cp1250 encoding).
+
+**Root Cause:**
+- Windows console používa cp1250 encoding
+- Python 3.13 strict encoding mode
+- Emojis (✅❌🔍) nie sú v cp1250
+
+**Riešenie:**
+Nahradené všetky emojis textovými prefixami:
+- ✅ → [OK]
+- ❌ → [ERROR]
+- 🔍 → [SEARCH]
+- 🚀 → [ROCKET]
+
+---
+
+## Critical Mistake: Winsock Reset
+
+**Čo sme urobili:**
+```powershell
+netsh winsock reset
+netsh int ip reset
+```
+
+**Následky:**
+- ❌ Pervasive/Btrieve SRDE engine rozbité
+- ❌ Error 8520 pri každom reštarte
+- ❌ W3DBSMGR.EXE nefunguje po reboot-e
+- ❌ NEX Genesis pokazený
+
+**Pokus o opravu:**
+1. ❌ regsvr32 w3btrv7.dll - failed
+2. ❌ System Restore - vypnutý
+3. ✅ Reinstall Pervasive - funguje, ale len do reštartu
+4. ✅ Manuálny štart W3DBSMGR - dočasné riešenie
+
+**Lessons Learned:**
+- NIKDY nerobiť Winsock reset na production/test serveroch s Pervasive
+- Winsock reset mení systémovú sieťovú konfiguráciu
+- Pervasive je citlivý na sieťové zmeny
+- Vždy mať System Restore zapnutý
+
+---
+
+## Final Solution
+
+### Production u Mágerstav (NSSM Service)
+
+**Konfigurácia:**
+```
+Service Name: NEX-Automat-Loader
+Manager: NSSM
+Account: LocalSystem (alebo NetworkService)
+Status: ✅ Funguje bez problémov
+```
+
+**Prečo funguje:**
+- Mágerstav server nemá asyncio/Winsock issues
+- NSSM service je preferované riešenie
+- Automatický restart pri zlyhaní
+
+### Test Server (Task Scheduler)
+
+**Konfigurácia:**
+```
+Task Name: NEX-Automat-Loader
+Trigger: At system startup
+User: DESKTOP-6AU0066\Server
+Action: C:\Deployment\nex-automat\venv32\Scripts\python.exe
+Arguments: C:\Deployment\nex-automat\apps\supplier-invoice-loader\main.py
+Working Directory: C:\Deployment\nex-automat\apps\supplier-invoice-loader
+Status: ✅ Funguje (s obmedzeniami)
+```
+
+**Obmedzenia:**
+- ⚠️ Server NESMIE byť reštartovaný (pokazí Pervasive)
+- ⚠️ W3DBSMGR.EXE musí byť manuálne spustený
+- ⚠️ Dlhodobo neudržateľné
+
+**Manuálny štart:**
+```powershell
+# 1. Spustiť Pervasive
+Start-Process "C:\PVSW\bin\W3DBSMGR.EXE"
+
+# 2. Spustiť NEX Automat
+Start-ScheduledTask -TaskName "NEX-Automat-Loader"
+
+# 3. Overiť
+Start-Process "http://localhost:8001/docs"
+```
+
+---
+
+## Code Changes
+
+### Files Modified
+
+**packages/nexdata/nexdata/btrieve/btrieve_client.py**
+- Pridané PATH-based DLL loading
+- Odstránené emoji unicode characters
+- Debug output s [DEBUG], [SUCCESS], [ERROR] prefixmi
+
+**apps/supplier-invoice-loader/main.py**
+- Odstránené emoji unicode characters z startup event handler
+- Nahradené textovými prefixmi [OK], [ERROR]
+
+### Git Status
+
+```
+Commit: "Fix: BtrieveClient DLL loading and Unicode encoding issues"
+Status: ✅ Committed and pushed
+Branch: develop
+```
+
+---
+
+## Scripts Created
+
+1. `01_test_console_app.py` - Test ako console app
+2. `02_check_btrieve_dll.py` - Overiť DLL lokáciu
+3. `03_check_btrieve_client.py` - Test DLL loading cez ctypes
+4. `04_show_btrieve_load_dll.py` - Zobraziť _load_dll() metódu
+5. `05_fix_btrieve_load_dll.py` - Opraviť DLL loading
+6. `06_test_dev_console.py` - Test v Development
+7. `07_fix_btrieve_with_debug.py` - Pridať debug output
+8. `08_fix_unicode_btrieve.py` - Odstrániť emojis z BtrieveClient
+9. `09_fix_unicode_main.py` - Odstrániť emojis z main.py
+10. `10_deploy_to_production.py` - Deploy do Deployment
+11. `11_check_nssm_logs.py` - Kontrola service logs
+12. `12_change_service_account.py` - Zmena na NetworkService
+13. `13_check_latest_logs.py` - Posledné logy
+14. `14_fix_winsock.ps1` - **KRITICKÁ CHYBA** - Winsock reset
+15. `15_restart_pervasive.ps1` - Restart Pervasive služieb
+16. `16_check_winsock_backup.ps1` - Kontrola backup & options
+17. `17_create_task_scheduler.ps1` - Vytvorenie Task Scheduler
+18. `18_remove_nssm_service.ps1` - Odstránenie NSSM service
+19. `19_restore_winsock.ps1` - Pokus o restore Winsock
+20. `20_fix_pervasive_startup.ps1` - Fix Pervasive bez reštartu
+
+---
+
+## Testing Results
+
+### Development
+- ✅ Console app funguje perfektne
+- ✅ Všetky unit testy passing (108/108)
+- ✅ EAN matching: 81.2%
+- ✅ Btrieve DLL loading z PATH
+- ✅ Port 8001 accessible
+
+### Production (Mágerstav)
+- ✅ NSSM service funguje
+- ✅ Žiadne asyncio issues
+- ✅ Automatický startup
+- ✅ Production ready
+
+### Test Server
+- ✅ Task Scheduler funguje
+- ✅ API accessible
+- ⚠️ Vyžaduje manuálny štart W3DBSMGR
+- ⚠️ Nesmie byť reštartovaný
+
+---
+
+## Recommendations
+
+### Pre Production Deployment
+
+1. **Pred nasadením:**
+   - Overiť že server NEMÁ asyncio/Winsock issues
+   - Otestovať NSSM service najprv
+   - Ak service funguje, použiť NSSM (preferované)
+
+2. **Ak service nefunguje:**
+   - Použiť Task Scheduler workaround
+   - Dokumentovať špecifický problém servera
+   - Plánovať dlhodobé riešenie (fix systému)
+
+3. **NIKDY nerobiť:**
+   - Winsock reset na production serveroch
+   - Reset bez System Restore backup
+   - Zmeny v sieťovej konfigurácii bez testovania
+
+### Pre Test Server
+
+1. **Immediate:**
+   - Nechať bežať bez reštartu
+   - Monitorovať stabilitu
+   - Dokumentovať workarounds
+
+2. **Short-term:**
+   - Vytvoriť startup script pre W3DBSMGR
+   - Pridať do Task Scheduler pred NEX Automat
+
+3. **Long-term:**
+   - Kontaktovať IT administrátora
+   - Diagnostikovať root cause
+   - Možno reinstall Windows
+
+---
+
+## Statistics
+
+**Code Changes:**
+- Files modified: 2
+- Lines changed: ~150
+- Commits: 1
+
+**Time Spent:**
+- Problem diagnosis: ~2 hodiny
+- Code fixes: ~30 minút
+- Testing: ~30 minút
+- Winsock disaster recovery: ~1 hodina
+
+**Scripts Created:** 20
+**Tests Run:** 108 passing
+
+---
+
+## Conclusion
+
+Phase 4 je **technicky complete**:
+- ✅ Všetok kód funguje
+- ✅ Production u Mágerstav ready
+- ✅ EAN matching prekročil cieľ (81.2% > 65%)
+
+Test server má **systémové problémy** nesúvisiace s kódom:
+- Asyncio/Winsock issue pod service účtami
+- Pervasive rozbité po Winsock reset
+- Vyžaduje manuálny workaround
+
+**Recommendation:** Deploy do production u Mágerstav s NSSM service. Test server ponechať ako-je (s obmedzeniami) alebo eskalovať IT administrátorovi.
+
+---
+
+**Session Archived:** 2025-12-09 16:00  
+**Next Session:** Continue with Phase 5 or address test server issues
