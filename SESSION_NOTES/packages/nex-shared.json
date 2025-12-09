@@ -2,15 +2,15 @@
   "name": "nex-shared",
   "type": "package",
   "location": "packages/nex-shared",
-  "generated": "2025-12-08T17:34:45.118272",
+  "generated": "2025-12-09T08:22:36.139939",
   "statistics": {
     "total_files": 18,
     "total_dirs": 4,
     "python_files": 13,
     "powershell_files": 0,
     "test_files": 0,
-    "total_lines": 1598,
-    "total_size": 52690
+    "total_lines": 1781,
+    "total_size": 58622
   },
   "dependencies": {
     "main": [],
@@ -39,10 +39,10 @@
     {
       "path": "packages/nex-shared/database/postgres_staging.py",
       "name": "postgres_staging.py",
-      "size": 8320,
+      "size": 14252,
       "extension": ".py",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/packages/nex-shared/database/postgres_staging.py",
-      "lines": 259,
+      "lines": 442,
       "type": "source"
     },
     {

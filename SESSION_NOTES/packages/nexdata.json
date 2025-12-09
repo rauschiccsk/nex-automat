@@ -2,15 +2,15 @@
   "name": "nexdata",
   "type": "package",
   "location": "packages/nexdata",
-  "generated": "2025-12-08T17:34:45.141293",
+  "generated": "2025-12-09T08:22:36.166715",
   "statistics": {
     "total_files": 24,
     "total_dirs": 8,
     "python_files": 22,
     "powershell_files": 0,
     "test_files": 0,
-    "total_lines": 2583,
-    "total_size": 87926
+    "total_lines": 2646,
+    "total_size": 90417
   },
   "dependencies": {
     "main": [
@@ -57,10 +57,10 @@
     {
       "path": "packages/nexdata/nexdata/btrieve/btrieve_client.py",
       "name": "btrieve_client.py",
-      "size": 12110,
+      "size": 12839,
       "extension": ".py",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/packages/nexdata/nexdata/btrieve/btrieve_client.py",
-      "lines": 381,
+      "lines": 388,
       "type": "source"
     },
     {
@@ -156,10 +156,10 @@
     {
       "path": "packages/nexdata/nexdata/repositories/barcode_repository.py",
       "name": "barcode_repository.py",
-      "size": 1582,
+      "size": 2529,
       "extension": ".py",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/packages/nexdata/nexdata/repositories/barcode_repository.py",
-      "lines": 57,
+      "lines": 88,
       "type": "source"
     },
     {
@@ -174,10 +174,10 @@
     {
       "path": "packages/nexdata/nexdata/repositories/gscat_repository.py",
       "name": "gscat_repository.py",
-      "size": 1549,
+      "size": 2364,
       "extension": ".py",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/packages/nexdata/nexdata/repositories/gscat_repository.py",
-      "lines": 58,
+      "lines": 83,
       "type": "source"
     },
     {
@@ -237,7 +237,7 @@
     {
       "name": "btrieve_client",
       "path": "btrieve/btrieve_client.py",
-      "lines": 381
+      "lines": 388
     },
     {
       "name": "barcode",
@@ -272,7 +272,7 @@
     {
       "name": "barcode_repository",
       "path": "repositories/barcode_repository.py",
-      "lines": 57
+      "lines": 88
     },
     {
       "name": "base_repository",
@@ -282,7 +282,7 @@
     {
       "name": "gscat_repository",
       "path": "repositories/gscat_repository.py",
-      "lines": 58
+      "lines": 83
     },
     {
       "name": "mglst_repository",

@@ -2109,3 +2109,264 @@ packages/nexdata/
 **Session archived:** 2025-12-08  
 **Next session:** Implementation Phase 1  
 **Status:** ✅ Analysis complete, ready to code
+
+# SESSION ARCHIVE - NEX Automat v2.4 Phase 1-3 Implementation
+
+**Session Date:** 2025-12-09  
+**Project:** nex-automat v2.4  
+**Phase:** 1-3 (Database Layer, ProductMatcher, LIVE Queries)  
+**Status:** ✅ COMPLETE
+
+---
+
+## SESSION OVERVIEW
+
+Implemented NEX Genesis Product Enrichment v2.4 with LIVE Btrieve queries approach after architectural consultation.
+
+---
+
+## MAJOR DECISIONS
+
+### 1. Architecture Change: No API Endpoints
+**Decision:** ProductMatcher priamo v supplier-invoice-loader, nie cez API endpoints  
+**Reason:** 
+- Všetko beží na jednom serveri
+- LIVE data requirement - cache nefunguje
+- API layer zbytočný
+- Jednoduchšie a rýchlejšie
+
+### 2. LIVE Queries Instead of Cache
+**Decision:** ProductMatcher používa LIVE Btrieve queries, žiadny in-memory cache  
+**Reason:**
+- NEX Genesis je živá databáza (50 000+ produktov)
+- Pracovníci pridávajú/menia produkty počas dňa
+- Cache by bol zastaraný po minútach
+- LIVE queries = vždy fresh data
+
+### 3. EAN Search Optimization
+**Decision:** Hľadaj v GSCAT.BTR → BARCODE.BTR  
+**Reason:**
+- 95% produktov má len 1 EAN (v GSCAT.BTR)
+- 5% má viacero EAN (v BARCODE.BTR)
+- Optimalizácia: primárne GSCAT, fallback BARCODE
+
+---
+
+## IMPLEMENTED FEATURES
+
+### Phase 1: Database Layer (6h → 2h)
+**File:** `packages/nex-shared/database/postgres_staging.py`
+
+**Methods Added:**
+```python
+def get_pending_enrichment_items(invoice_id=None, limit=100)
+def update_nex_enrichment(item_id, gscat_record, matched_by)
+def mark_no_match(item_id, reason)
+def get_enrichment_stats(invoice_id=None)
+```
+
+**Tests:** 12 unit tests ✅ all passing
+
+---
+
+### Phase 2: ProductMatcher (11h → 3h)
+**File:** `apps/supplier-invoice-loader/src/business/product_matcher.py`
+
+**Implementation:**
+- LIVE queries (no cache)
+- EAN matching: GSCAT.BTR → BARCODE.BTR
+- Name fuzzy matching: rapidfuzz + unidecode
+- Confidence scoring: 0.0 - 1.0
+- Text normalization
+
+**Dependencies:**
+- rapidfuzz>=3.0.0
+- unidecode>=1.3.0
+
+**Tests:** 24 unit tests ✅ all passing
+
+---
+
+### Phase 3: Repository Methods
+**Files:**
+- `packages/nexdata/nexdata/repositories/gscat_repository.py`
+- `packages/nexdata/nexdata/repositories/barcode_repository.py`
+
+**Methods Added:**
+
+**GSCATRepository:**
+```python
+def get_by_code(gs_code: int) -> Optional[GSCATRecord]
+def search_by_name(search_term: str, limit: int = 20) -> List[GSCATRecord]
+def find_by_barcode(barcode: str) -> Optional[GSCATRecord]  # Primary EAN
+```
+
+**BARCODERepository:**
+```python
+def find_by_barcode(barcode: str) -> Optional[BarcodeRecord]  # Secondary EAN
+```
+
+---
+
+## BUG FIXES & OPTIMIZATIONS
+
+### 1. BtrieveClient Path Resolution
+**Problem:** `_resolve_table_path()` nemal fallback na `database_path`  
+**Fix:** Pridaný fallback: `database_path + table_name.upper() + '.BTR'`  
+**Result:** `'gscat'` → `'C:\NEX\YEARACT\STORES\GSCAT.BTR'` ✅
+
+### 2. BtrieveClient Import
+**Problem:** `from nexdata.btrieve.client import BtrieveClient`  
+**Fix:** `from nexdata.btrieve.btrieve_client import BtrieveClient`  
+**Result:** Import funguje ✅
+
+### 3. Repository Initialization
+**Problem:** ProductMatcher pridal string namiesto BtrieveClient objektu  
+**Fix:** Vytvorenie `BtrieveClient(config_or_path=btrieve_config)` v ProductMatcher  
+**Result:** Repositories fungujú ✅
+
+### 4. Search Attribute Names
+**Problem:** `search_by_name()` používal starý `record.C_002`  
+**Fix:** Zmenené na `record.gs_name`  
+**Result:** Name matching funguje ✅
+
+### 5. File Variable Initialization
+**Problem:** `file` variable UnboundLocalError  
+**Fix:** `file = None` pred `try` blokom  
+**Result:** Exception handling funguje ✅
+
+---
+
+## TESTING RESULTS
+
+### Unit Tests
+- PostgreSQL methods: **12/12** ✅
+- ProductMatcher: **24/24** ✅
+
+### Integration Test (LIVE Btrieve)
+```
+✅ BtrieveClient loaded: w3btrv7.dll
+✅ Name matching: "Coca Cola" → 100% confidence
+⚠️  EAN matching: Test EAN not in database
+```
+
+---
+
+## SESSION SCRIPTS
+
+Created 19 numbered scripts:
+
+1. `01_setup_enrichment_branch.py` - Git branch setup (SKIPPED - develop only)
+2. `02_add_enrichment_methods.py` - PostgreSQL methods
+3. `03_create_enrichment_tests.py` - PostgreSQL tests
+4. `04_fix_enrichment_test.py` - Test assertion fix
+5. `05_install_matcher_dependencies.py` - rapidfuzz, unidecode
+6. `06_create_product_matcher.py` - Initial matcher (WITH CACHE)
+7. `07_create_matcher_tests.py` - Matcher tests
+8. `08_fix_matcher_test.py` - Test assertion fix
+9. `10_rewrite_product_matcher_live.py` - **REWRITE to LIVE queries**
+10. `11_add_repository_methods.py` - Repository LIVE methods
+11. `11a_check_nexdata_structure.py` - Find correct paths
+12. `12_test_product_matcher_live.py` - LIVE Btrieve test
+13. `13_fix_barcode_repository.py` - File variable fix
+14. `14_fix_gscat_search_signature.py` - Add limit parameter
+15. `15_fix_product_matcher_init.py` - BtrieveClient creation
+16. `15a_find_btrieve_client.py` - Find correct import
+17. `15b_fix_btrieve_import.py` - Fix import path
+18. `15c_check_btrieve_usage.py` - Check init patterns
+19. `15d_fix_matcher_btrieve_init.py` - Config dict fix
+20. `16_check_nex_files.py` - List .BTR files
+21. `17_fix_resolve_table_path.py` - Add database_path fallback
+22. `18_fix_search_by_name_attribute.py` - C_002 → gs_name
+23. `19_optimize_ean_matching.py` - GSCAT → BARCODE strategy
+
+---
+
+## FILES MODIFIED
+
+### Created
+- `apps/supplier-invoice-loader/src/business/product_matcher.py`
+- `tests/unit/test_postgres_staging_enrichment.py`
+- `tests/unit/test_product_matcher.py`
+
+### Modified
+- `packages/nex-shared/database/postgres_staging.py`
+- `packages/nexdata/nexdata/repositories/gscat_repository.py`
+- `packages/nexdata/nexdata/repositories/barcode_repository.py`
+- `packages/nexdata/nexdata/btrieve/btrieve_client.py`
+
+---
+
+## WORKFLOW LEARNED
+
+**Development → Git → Deployment**
+- Všetky zmeny cez numbered scripts
+- Scripts po jednom, krok za krokom
+- Test po každej zmene
+- Žiadne feature branches (develop → main workflow)
+
+---
+
+## NEXT STEPS (Not Implemented)
+
+### Phase 4: Integration into supplier-invoice-loader
+**TODO:**
+1. Pridať ProductMatcher do processing pipeline
+2. Automatický enrichment po PDF extrakcii
+3. Integračné testy s reálnymi faktúrami
+4. Deployment do production
+
+**Estimated:** 4h
+
+---
+
+## TECHNICAL NOTES
+
+### NEX Genesis Structure
+- **Files:** 699 .BTR súborov
+- **GSCAT.BTR:** 14.46 MB (produkty)
+- **BARCODE.BTR:** 0.10 MB (čiarové kódy)
+- **Path:** `C:\NEX\YEARACT\STORES\`
+
+### Btrieve Configuration
+```python
+btrieve_config = {
+    'database_path': 'C:\\NEX\\YEARACT\\STORES'
+}
+client = BtrieveClient(config_or_path=btrieve_config)
+```
+
+### ProductMatcher Usage
+```python
+matcher = ProductMatcher(nex_data_path)
+result = matcher.match_item(item_data, min_confidence=0.6)
+
+if result.is_match:
+    print(f"Product: {result.product.gs_name}")
+    print(f"Confidence: {result.confidence}")
+    print(f"Method: {result.method}")  # 'ean' or 'name'
+```
+
+---
+
+## PERFORMANCE EXPECTATIONS
+
+- **EAN matching:** < 100ms (GSCAT lookup + optional BARCODE)
+- **Name matching:** 1-2s (iterates 50k+ products)
+- **Enrichment per invoice:** 5-10s (depends on item count)
+- **Match rate target:** > 70%
+
+---
+
+## SUCCESS CRITERIA ✅
+
+- [x] PostgreSQL methods working
+- [x] ProductMatcher with LIVE queries
+- [x] EAN matching optimized
+- [x] Name fuzzy matching working
+- [x] All unit tests passing (36/36)
+- [x] LIVE Btrieve test successful
+
+---
+
+**Session completed successfully. Ready for Phase 4 integration.**

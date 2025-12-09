@@ -55,3 +55,34 @@ class BARCODERepository(BaseRepository[BarcodeRecord]):
                 results.append(record)
 
         return results
+    def find_by_barcode(self, barcode: str) -> Optional[BarcodeRecord]:
+        """
+        Find barcode record by barcode string - LIVE query
+        
+        Args:
+            barcode: Barcode string to search for
+            
+        Returns:
+            BarcodeRecord if found, None otherwise
+        """
+        file = None
+        try:
+            # Open BARCODE file
+            file = self.btrieve.open(self.barcode_file)
+            
+            # Search by barcode (BAR_CODE field)
+            result = file.get_equal(barcode.encode('cp852'))
+            
+            if result:
+                return self._parse_record(result)
+            
+            return None
+            
+        except Exception as e:
+            # Record not found or other error
+            return None
+        finally:
+            if file:
+                file.close()
+
+

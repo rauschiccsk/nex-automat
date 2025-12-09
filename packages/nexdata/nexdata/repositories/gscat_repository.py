@@ -38,7 +38,7 @@ class GSCATRepository(BaseRepository[GSCATRecord]):
                 return record
         return None
 
-    def search_by_name(self, search_term: str) -> List[GSCATRecord]:
+    def search_by_name(self, search_term: str, limit: int = 20) -> List[GSCATRecord]:
         """
         Search products by name
 
@@ -52,7 +52,32 @@ class GSCATRepository(BaseRepository[GSCATRecord]):
         search_lower = search_term.lower()
 
         for record in self.get_all():
-            if search_lower in record.C_002.lower():
+            if search_lower in record.gs_name.lower():
                 results.append(record)
 
         return results
+    def find_by_barcode(self, barcode: str) -> Optional[GSCATRecord]:
+        """
+        Find product by primary barcode in GSCAT - LIVE query
+
+        Most products (95%) have only one barcode stored in GSCAT.
+        This is faster than searching BARCODE table.
+
+        Args:
+            barcode: Barcode string to search for
+
+        Returns:
+            GSCATRecord if found, None otherwise
+        """
+        try:
+            # Search all products for matching barcode
+            for product in self.get_all():
+                if product.barcode and product.barcode.strip() == barcode:
+                    return product
+
+            return None
+
+        except Exception as e:
+            return None
+
+

@@ -257,3 +257,186 @@ class PostgresStagingClient:
         except Exception as e:
             self.logger.exception("Failed to insert invoice with items")
             raise
+
+    def get_pending_enrichment_items(
+        self, 
+        invoice_id: Optional[int] = None,
+        limit: int = 100
+    ) -> List[Dict]:
+        """
+        Get items WHERE in_nex IS NULL OR in_nex = FALSE
+
+        Args:
+            invoice_id: Optional invoice ID to filter by
+            limit: Maximum number of items to return
+
+        Returns:
+            List of items with original and edited data
+        """
+        cursor = self._conn.cursor()
+
+        if invoice_id:
+            cursor.execute("""
+                SELECT 
+                    id, invoice_id, line_number,
+                    original_name, original_ean,
+                    original_quantity, original_unit,
+                    original_price_per_unit, original_vat_rate,
+                    edited_name, edited_ean,
+                    was_edited,
+                    nex_gs_code, in_nex
+                FROM invoice_items_pending
+                WHERE invoice_id = %s
+                  AND (in_nex IS NULL OR in_nex = FALSE)
+                ORDER BY line_number
+                LIMIT %s
+            """, (invoice_id, limit))
+        else:
+            cursor.execute("""
+                SELECT 
+                    id, invoice_id, line_number,
+                    original_name, original_ean,
+                    original_quantity, original_unit,
+                    original_price_per_unit, original_vat_rate,
+                    edited_name, edited_ean,
+                    was_edited,
+                    nex_gs_code, in_nex
+                FROM invoice_items_pending
+                WHERE in_nex IS NULL OR in_nex = FALSE
+                ORDER BY invoice_id, line_number
+                LIMIT %s
+            """, (limit,))
+
+        rows = cursor.fetchall()
+        cursor.close()
+
+        columns = [
+            'id', 'invoice_id', 'line_number',
+            'original_name', 'original_ean',
+            'original_quantity', 'original_unit',
+            'original_price_per_unit', 'original_vat_rate',
+            'edited_name', 'edited_ean',
+            'was_edited',
+            'nex_gs_code', 'in_nex'
+        ]
+
+        return [dict(zip(columns, row)) for row in rows]
+
+    def update_nex_enrichment(
+        self,
+        item_id: int,
+        gscat_record,
+        matched_by: str = 'ean'
+    ) -> bool:
+        """
+        Update item with NEX Genesis data
+
+        Args:
+            item_id: Item ID to update
+            gscat_record: GSCATRecord from nexdata with product data
+            matched_by: Method used for matching ('ean', 'name', 'manual')
+
+        Returns:
+            True if update successful
+        """
+        cursor = self._conn.cursor()
+
+        cursor.execute("""
+            UPDATE invoice_items_pending SET
+                nex_gs_code = %s,
+                nex_plu = %s,
+                nex_name = %s,
+                nex_category = %s,
+                in_nex = TRUE,
+                nex_barcode_created = FALSE,
+                validation_status = %s,
+                validation_message = %s
+            WHERE id = %s
+        """, (
+            gscat_record.gs_code,
+            gscat_record.gs_code,
+            gscat_record.gs_name,
+            gscat_record.mglst_code,
+            'matched',
+            f'Auto-matched by {matched_by}',
+            item_id
+        ))
+
+        success = cursor.rowcount > 0
+        cursor.close()
+        return success
+
+    def mark_no_match(
+        self,
+        item_id: int,
+        reason: str = 'No matching product found'
+    ) -> bool:
+        """
+        Mark item as not found in NEX Genesis
+
+        Args:
+            item_id: Item ID to mark
+            reason: Reason for no match
+
+        Returns:
+            True if update successful
+        """
+        cursor = self._conn.cursor()
+
+        cursor.execute("""
+            UPDATE invoice_items_pending SET
+                in_nex = FALSE,
+                validation_status = 'needs_review',
+                validation_message = %s
+            WHERE id = %s
+        """, (reason, item_id))
+
+        success = cursor.rowcount > 0
+        cursor.close()
+        return success
+
+    def get_enrichment_stats(
+        self,
+        invoice_id: Optional[int] = None
+    ) -> Dict:
+        """
+        Get enrichment statistics
+
+        Args:
+            invoice_id: Optional invoice ID to filter by
+
+        Returns:
+            Dictionary with enrichment statistics
+        """
+        cursor = self._conn.cursor()
+
+        if invoice_id:
+            cursor.execute("""
+                SELECT 
+                    COUNT(*) FILTER (WHERE in_nex = TRUE) as enriched,
+                    COUNT(*) FILTER (WHERE in_nex = FALSE) as not_found,
+                    COUNT(*) FILTER (WHERE in_nex IS NULL) as pending,
+                    COUNT(*) as total
+                FROM invoice_items_pending
+                WHERE invoice_id = %s
+            """, (invoice_id,))
+        else:
+            cursor.execute("""
+                SELECT 
+                    COUNT(*) FILTER (WHERE in_nex = TRUE) as enriched,
+                    COUNT(*) FILTER (WHERE in_nex = FALSE) as not_found,
+                    COUNT(*) FILTER (WHERE in_nex IS NULL) as pending,
+                    COUNT(*) as total
+                FROM invoice_items_pending
+            """)
+
+        row = cursor.fetchone()
+        cursor.close()
+
+        return {
+            'enriched': row[0] or 0,
+            'not_found': row[1] or 0,
+            'pending': row[2] or 0,
+            'total': row[3] or 0
+        }
+

@@ -112,6 +112,13 @@ class BtrieveClient:
                         # Replace {book_id} placeholder
                         return path_template.replace('{book_id}', book_id)
 
+        # Fallback: if we have database_path, construct path
+        if self.config and 'database_path' in self.config:
+            db_path = self.config['database_path']
+            # table_name to uppercase + .BTR extension
+            table_file = f"{table_name_or_path.upper()}.BTR"
+            return os.path.join(db_path, table_file)
+
         # It's already a path, or no config - use as-is
         return table_name_or_path
 
