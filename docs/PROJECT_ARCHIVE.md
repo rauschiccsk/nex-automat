@@ -2643,3 +2643,142 @@ packages/nex-shared/
 **Status:** Phase 4 Integration COMPLETE ✅  
 **Production:** LIVE on Mágerstav server  
 **Next Session:** Testing & Monitoring
+
+# PROJECT ARCHIVE SESSION - 2025-12-09
+
+## SESSION OVERVIEW
+**Date:** 2025-12-09  
+**Duration:** ~3 hours  
+**Focus:** NEX Automat v2.4 Phase 4 - Testing & Diagnostics  
+**Status:** ✅ Completed - Ready for deployment
+
+---
+
+## COMPLETED WORK
+
+### 1. PostgreSQL Migration ✅
+- Added `matched_by VARCHAR(20)` column to `invoice_items_pending`
+- Fixed `validation_status` check constraint
+- Migration script: `01_add_matched_by_column.sql`
+
+### 2. Re-processing Script ✅
+- Created `02_reprocess_nex_enrichment.py`
+- Integrated ProductMatcher with PostgresStagingClient
+- Tested on 20 items from v2.3 data
+- Handles NULL bytes from Btrieve strings
+
+### 3. First Successful Match ✅
+**Item ID: 87 - Jupol Classic 15l**
+- EAN: 3831000243596
+- NEX Code: 6036
+- Method: name (fuzzy matching)
+- Confidence: 1.00 (high)
+
+### 4. EAN Problem Diagnosis ✅
+**Root Cause Found:**
+- `GSCATRecord` model missing `BarCode` field
+- `find_by_barcode()` searching for non-existent `product.barcode`
+- EAN codes ARE in NEX Genesis database (manually verified)
+- 0% match rate due to missing BarCode field
+
+### 5. Complete GSCAT Model ✅
+- Created model with ALL 60+ fields from gscat.bdf
+- **BarCode field** (Str15) properly mapped at offset 57
+- Precise offsets calculated from Btrieve definition
+- All field names match Btrieve names
+
+---
+
+## FILES CREATED
+
+### Scripts
+```
+scripts/
+├── 01_add_matched_by_column.sql       # PostgreSQL migration
+├── 02_reprocess_nex_enrichment.py     # Re-processing with ProductMatcher
+├── 03_test_ean_lookup.py              # EAN code diagnostics
+└── 04_create_complete_gscat_model.py  # Complete model generator
+```
+
+### Documentation
+- Complete GSCATRecord model in artifact
+- SQL queries for NEX enrichment verification
+- Check constraint definition
+
+---
+
+## KEY FINDINGS
+
+### BarCode Field in GSCAT.BTR
+- **Position:** Offset 57 (after FgCode)
+- **Type:** Str15 (15 bytes, fixed width)
+- **Encoding:** cp852 (Slovak/Czech)
+- **Content:** EAN barcode
+- **Index:** `IND BarCode=BarCode` (indexed in Btrieve)
+
+### Current Metrics (before fix)
+- Match rate: **5%** (1/20)
+- EAN matches: **0%** (0/20)
+- Name matches: **5%** (1/20)
+- Errors: 0
+
+### Expected Metrics (after fix)
+- Match rate: **>70%** (Phase 4 goal)
+- EAN matches: **>65%** (primary method)
+- Name matches: **<5%** (fallback)
+
+---
+
+## NEXT SESSION PRIORITIES
+
+### Priority 1: Deploy New GSCAT Model
+**File:** `packages/nexdata/nexdata/models/gscat.py`
+- Backup old model
+- Replace with new complete model
+- Add `to_bytes()` method if missing
+
+### Priority 2: Fix GSCATRepository.find_by_barcode()
+**File:** `packages/nexdata/nexdata/repositories/gscat_repository.py`
+- Change `product.barcode` to `product.BarCode`
+
+### Priority 3: Update ProductMatcher
+**File:** `apps/supplier-invoice-loader/src/business/product_matcher.py`
+- Use `result.product.BarCode` instead of `result.product.barcode`
+- Verify field mapping
+
+### Priority 4: Re-test EAN Lookup
+**Script:** `03_test_ean_lookup.py`
+- Expected: 3/20 EAN codes found
+- Verified EANs: 8715743018251, 5203473211316, 3838847028515
+
+### Priority 5: Re-run Re-processing
+**Script:** `02_reprocess_nex_enrichment.py`
+- Expected match rate: >15%
+- Most matches via `method='ean'`
+
+---
+
+## TECHNICAL NOTES
+
+### NULL Bytes Problem
+- Btrieve fixed-width strings padded with `\x00`
+- PostgreSQL UTF-8 rejects NULL bytes
+- Solution: `.replace('\x00', '').strip()` before INSERT
+
+### Validation Status
+- Allowed values: `pending`, `valid`, `warning`, `error`
+- NOT allowed: `needs_review` (check constraint violation)
+- Fixed in re-processing script
+
+---
+
+## SESSION END STATUS
+
+**✅ READY FOR DEPLOYMENT**
+
+All diagnostic work complete. New GSCAT model ready. Next session will deploy fixes and verify >70% match rate.
+
+---
+
+**Archived:** 2025-12-09  
+**Next Session:** Deployment + Re-testing

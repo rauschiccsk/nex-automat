@@ -4,7 +4,7 @@
   "version": "2.0.0",
   "description": "Multi-customer SaaS for automated invoice processing",
   "location": "C:\\Development\\nex-automat",
-  "generated": "2025-12-09T10:07:32.190610",
+  "generated": "2025-12-09T12:03:19.680284",
   "structure": {
     "apps": 2,
     "packages": 2,
@@ -12,13 +12,13 @@
     "docs": true
   },
   "statistics": {
-    "total_files": 6401,
+    "total_files": 6386,
     "total_dirs": 661,
-    "python_files": 3045,
+    "python_files": 3029,
     "powershell_files": 7,
     "test_files": 88,
-    "total_lines": 887277,
-    "total_size": 110948998
+    "total_lines": 886640,
+    "total_size": 110941213
   },
   "applications": [
     {
@@ -101,13 +101,13 @@
     "session_notes": {
       "path": "SESSION_NOTES/SESSION_NOTES.md",
       "exists": true,
-      "size": 4262,
+      "size": 4586,
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/SESSION_NOTES/SESSION_NOTES.md"
     },
     "init_prompt": {
       "path": "SESSION_NOTES/INIT_PROMPT_NEW_CHAT.md",
       "exists": true,
-      "size": 9447,
+      "size": 7011,
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/SESSION_NOTES/INIT_PROMPT_NEW_CHAT.md"
     }
   },

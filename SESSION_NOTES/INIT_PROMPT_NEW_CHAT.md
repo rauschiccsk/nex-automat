@@ -1,4 +1,4 @@
-# INIT PROMPT - NEX Automat v2.4 Post-Deployment
+# INIT PROMPT - NEX Automat v2.4 Phase 4 Deployment
 
 ## PROJECT CONTEXT
 
@@ -8,333 +8,287 @@
 **Deployment:** `C:\Deployment\nex-automat`  
 **Python:** 3.13.7 (venv32)  
 **Git Branch:** develop  
-**Current Version:** v2.4 Phase 4 ✅ DEPLOYED
+**Current Version:** v2.4 Phase 4 - DEPLOYMENT READY
 
 ---
 
-## CURRENT STATUS
+## CURRENT STATUS 🔧
 
-### Production (Mágerstav) ✅ LIVE
-- **Version:** v2.4 Phase 4 DEPLOYED
-- **Service:** NEX-Automat-Loader (Ready to start as Windows Service)
-- **Currently:** Running in debug mode (manual python main.py)
-- **API:** http://localhost:8001
-- **ProductMatcher:** ✅ INITIALIZED
-- **Btrieve:** ✅ CONNECTED to C:\NEX\YEARACT\STORES
+### Phase 4: NEX Genesis Product Enrichment
+**Status:** DEPLOYMENT PENDING - Critical fix required
 
-**Startup Log:**
-```
-✅ Loaded Btrieve DLL: w3btrv7.dll from C:\PVSW\bin
-✅ ProductMatcher initialized: C:\NEX\YEARACT\STORES
-INFO: Uvicorn running on http://0.0.0.0:8001
-```
+**What Works:**
+- ✅ PostgreSQL enrichment methods
+- ✅ Re-processing script tested (5% match rate)
+- ✅ ProductMatcher initialized with Btrieve
+- ✅ supplier-invoice-editor displays NEX columns
 
-### Development
-- **Version:** v2.4 Phase 4 Complete
-- **Branch:** develop
-- **Status:** Ready for testing and Git operations
+**What's Broken:**
+- ⚠️ **CRITICAL:** BarCode field missing in GSCATRecord model
+- ⚠️ EAN matching 0% (should be >65%)
+- ⚠️ Overall match rate 5% (target >70%)
+
+**Root Cause:**
+GSCATRecord model incomplete - missing 40+ fields from Btrieve including **BarCode** (EAN field)
 
 ---
 
-## COMPLETED WORK
+## IMMEDIATE PRIORITY 🎯
 
-### ✅ Phase 1: Database Layer (Completed)
-- PostgreSQL enrichment methods in postgres_staging.py
-- 12 unit tests passing
+### Deploy Complete GSCAT Model
 
-### ✅ Phase 2: ProductMatcher (Completed)
-- LIVE Btrieve queries (no cache)
-- EAN matching (GSCAT.BTR → BARCODE.BTR)
-- Name fuzzy matching (rapidfuzz + unidecode)
-- 24 unit tests passing
-
-### ✅ Phase 3: Repository Methods (Completed)
-- GSCATRepository with find_by_barcode, search_by_name
-- BARCODERepository with find_by_barcode
-- LIVE test successful
-
-### ✅ Phase 4: Integration & Deployment (Completed Today)
-
-**supplier-invoice-loader:**
-- ProductMatcher integrated into /invoice endpoint
-- Automatic enrichment after PDF extraction
-- Config properly set (NEX_GENESIS_ENABLED=True)
-- Dependencies installed (rapidfuzz, unidecode)
-
-**supplier-invoice-editor:**
-- Grid shows 4 NEX columns (NEX Kód, NEX Názov, NEX Kat., Match)
-- Color-coded rows:
-  - Green = matched (in_nex = TRUE)
-  - Red = no match (in_nex = FALSE)
-  - Yellow = pending (in_nex = NULL)
-- Tooltips show match method (EAN/Name)
-- PostgreSQL loads all NEX fields
-
-**Deployment:**
-- Backup created: C:\Deployment\nex-automat\BACKUP_2025-12-09_09-18-30
-- All files deployed from Development
-- Service verified functional
-- 20 deployment scripts created
-
----
-
-## IMMEDIATE NEXT STEPS
-
-### 🎯 Priority 1: Start Windows Service
-
-Currently supplier-invoice-loader runs in debug mode (manual). Need to:
-
-1. **Stop debug mode** (CTRL+C in current terminal)
-
-2. **Start Windows Service:**
-```powershell
-Start-Service NEX-Automat-Loader
-Get-Service NEX-Automat-Loader  # Verify Running
-```
-
-3. **Verify health:**
-```powershell
-curl http://localhost:8001/health
-```
-
-4. **Check logs** for ProductMatcher initialization
-
----
-
-### Priority 2: End-to-End Testing
-
-1. **Upload test PDF** via n8n workflow
-2. **Check PostgreSQL** for enrichment:
-```sql
-SELECT 
-  original_name, 
-  nex_name, 
-  nex_gs_code, 
-  in_nex, 
-  matched_by 
-FROM invoice_items_pending 
-ORDER BY id DESC LIMIT 10;
-```
-
-3. **Open supplier-invoice-editor** and verify:
-   - NEX columns visible
-   - Color coding works
-   - Tooltips display correctly
-
----
-
-### Priority 3: Git Operations
-
-```bash
-cd C:\Development\nex-automat
-git status
-git add .
-git commit -m "Phase 4: NEX Genesis Product Enrichment Integration
-
-- ProductMatcher integrated into supplier-invoice-loader
-- Automatic enrichment on /invoice endpoint
-- supplier-invoice-editor displays NEX data with color coding
-- PostgreSQL enrichment methods implemented
-- 36 unit tests passing
-- Deployed to production (Mágerstav)"
-
-git push origin develop
-```
-
-After successful testing:
-```bash
-git checkout main
-git merge develop
-git tag v2.4
-git push origin main --tags
-```
-
----
-
-## TECHNICAL ARCHITECTURE
-
-### Enrichment Workflow
-```
-POST /invoice (PDF)
-  ↓
-Extract PDF → PostgreSQL (original_* fields)
-  ↓
-ProductMatcher.match_item() [LIVE Btrieve queries]
-  ├─ Try EAN: GSCAT.BTR (95%) → BARCODE.BTR (5%)
-  └─ Try Name: fuzzy search (confidence 0.6-1.0)
-  ↓
-PostgreSQL UPDATE (nex_* fields)
-  ↓
-supplier-invoice-editor displays with color coding
-```
-
-### Files Structure
-```
-apps/
-  supplier-invoice-loader/
-    main.py - ProductMatcher integration
-    config/config_customer.py - NEX_GENESIS_ENABLED=True
-    src/business/product_matcher.py - NEW
-    src/utils/config.py - _Config wrapper
-  
-  supplier-invoice-editor/
-    src/ui/widgets/invoice_items_grid.py - NEX columns + colors
-    src/business/invoice_service.py - NEX fields in query
-
-packages/
-  nex-shared/
-    database/postgres_staging.py - enrichment methods
-    database/__init__.py - exports
-  
-  nexdata/
-    repositories/gscat_repository.py
-    repositories/barcode_repository.py
-    btrieve/btrieve_client.py
-```
-
----
-
-## CONFIGURATION
-
-### NEX Genesis (Mágerstav)
+**Problem:**
 ```python
-NEX_GENESIS_ENABLED = True
-NEX_DATA_PATH = r"C:\NEX\YEARACT\STORES"
+# Current model (INCOMPLETE):
+@dataclass
+class GSCATRecord:
+    gs_code: int
+    gs_name: str  # Only ~20 fields
+    # ... BarCode field MISSING!
 ```
 
-### PostgreSQL
+**Solution:**
+Complete model with ALL 60+ fields created in artifact `04_create_complete_gscat_model.py`
+
+**Deployment Steps:**
+1. Backup current `packages/nexdata/nexdata/models/gscat.py`
+2. Replace with complete model from artifact
+3. Fix `GSCATRepository.find_by_barcode()` to use `product.BarCode`
+4. Test EAN lookup (expect 3/20 matches)
+5. Re-run re-processing (expect >70% match rate)
+
+---
+
+## KEY FILES
+
+### Models
+```
+packages/nexdata/nexdata/models/
+└── gscat.py  ← NEEDS REPLACEMENT (missing BarCode!)
+```
+
+### Repositories
+```
+packages/nexdata/nexdata/repositories/
+└── gscat_repository.py  ← Fix find_by_barcode() method
+```
+
+### Business Logic
+```
+apps/supplier-invoice-loader/src/business/
+└── product_matcher.py  ← May need field name updates
+```
+
+### Scripts
+```
+scripts/
+├── 02_reprocess_nex_enrichment.py  # Re-test after fix
+└── 03_test_ean_lookup.py           # Verify EAN matching works
+```
+
+---
+
+## VERIFIED EAN CODES
+
+These 3 EAN codes ARE in NEX Genesis (manually verified):
+- 8715743018251
+- 5203473211316
+- 3838847028515
+
+After deploying complete GSCAT model, these should match successfully.
+
+---
+
+## TECHNICAL DETAILS
+
+### BarCode Field Specification
+```
+Field:    BarCode
+Type:     Str15 (15 bytes, fixed width)
+Offset:   57 (after FgCode)
+Encoding: cp852
+Content:  EAN barcode code
+Index:    IND BarCode=BarCode (Btrieve indexed)
+```
+
+### Field Mapping (Btrieve → Python)
 ```python
-POSTGRES_HOST = "localhost"
-POSTGRES_PORT = 5432
-POSTGRES_DATABASE = "invoice_staging"
+# Complete model uses Btrieve field names:
+GsCode    → GsCode    (not gs_code)
+GsName    → GsName    (not gs_name)
+MgCode    → MgCode    (not mglst_code)
+BarCode   → BarCode   ← NEW! (EAN field)
 ```
 
-### API
+### Required Changes
+
+**1. GSCATRepository.find_by_barcode():**
+```python
+# OLD (broken):
+if product.barcode and product.barcode.strip() == barcode:
+    
+# NEW (correct):
+if product.BarCode and product.BarCode.strip() == barcode:
 ```
-Port: 8001
-Health: http://localhost:8001/health
-Docs: http://localhost:8001/docs
+
+**2. ProductMatcher (if needed):**
+```python
+# Check all references to GSCATRecord fields
+# Use: product.GsCode, product.GsName, product.BarCode
 ```
 
 ---
 
-## DEPLOYMENT BACKUP
+## EXPECTED RESULTS AFTER FIX
 
-**Location:** `C:\Deployment\nex-automat\BACKUP_2025-12-09_09-18-30`
+### EAN Lookup Test
+```bash
+python scripts/03_test_ean_lookup.py
+```
+**Expected:**
+- 3/20 EAN codes found (15% success rate)
+- All 3 matches via GSCAT.BarCode
+- No BARCODE.BTR fallback needed
 
-**Backed up files:**
-- loader_main.py
-- loader_config_customer.py
-- loader_config.py
-- editor_invoice_items_grid.py
-- editor_invoice_service.py
-
-**Rollback if needed:**
-1. Stop service
-2. Restore files from backup
-3. Restart service
-
----
-
-## TESTING STATUS
-
-### Unit Tests
-- postgres_staging_enrichment: 12/12 ✅
-- product_matcher: 24/24 ✅
-- Total: 36/36 ✅
-
-### Integration Test
-- Imports: ✅
-- Configuration: ✅
-- ProductMatcher Init: ✅
-- Product Matching: ✅
-- PostgreSQL Methods: ✅
-
-### Production Verification
-- Service starts: ✅
-- ProductMatcher initializes: ✅
-- Btrieve connects: ✅
-- Health endpoint: ✅
+### Re-processing Test
+```bash
+python scripts/02_reprocess_nex_enrichment.py
+```
+**Expected:**
+- Match rate: >70%
+- EAN matches: >65% (via BarCode field)
+- Name matches: <5% (fuzzy fallback)
+- Errors: <1%
 
 ---
 
-## SUCCESS METRICS
+## DEPLOYMENT WORKFLOW
 
-**Phase 4 Targets:**
-- [x] Integration working in /invoice endpoint
-- [x] ProductMatcher initialized with Btrieve
-- [x] Grid displays NEX columns with color coding
-- [x] PostgreSQL loads all NEX fields
-- [x] Production deployment successful
-- [ ] Match rate > 70% (needs testing with real data)
-- [ ] Performance < 5s per invoice (needs testing)
+```
+1. Development Changes
+   ├── Deploy complete GSCAT model
+   ├── Fix GSCATRepository
+   └── Update ProductMatcher (if needed)
+
+2. Testing
+   ├── Run 03_test_ean_lookup.py
+   ├── Run 02_reprocess_nex_enrichment.py
+   └── Verify >70% match rate
+
+3. Git Operations (user does)
+   ├── git add .
+   ├── git commit -m "..."
+   └── git push origin develop
+
+4. Production Deployment (later)
+   ├── SQL migration (matched_by column)
+   ├── Deploy code changes
+   └── Restart NEX-Automat-Loader service
+```
 
 ---
 
-## KNOWN ISSUES
+## SCRIPTS AVAILABLE
 
-**None currently** - All deployment issues resolved
+### Deployment Scripts (Create)
+```python
+# 05_deploy_gscat_model.py       # Deploy complete model
+# 06_fix_gscat_repository.py     # Fix find_by_barcode()
+# 07_verify_field_names.py       # Check ProductMatcher
+```
 
-Previous issues (fixed):
-- ✅ Config structure (fixed with _Config wrapper)
-- ✅ Missing imports (cleaned)
-- ✅ Dependencies (installed)
-- ✅ ProductMatcher initialization (added properly)
-- ✅ Port conflicts (NEX-Automat-Loader service)
+### Testing Scripts (Existing)
+```python
+scripts/03_test_ean_lookup.py          # Test EAN matching
+scripts/02_reprocess_nex_enrichment.py # Full re-processing
+```
 
 ---
 
 ## CRITICAL RULES
 
 ### Workflow
-1. **Development → Git → Deployment**
-2. **NEVER modify Deployment directly**
-3. All changes via numbered scripts
-4. Scripts one at a time, wait for confirmation
-
-### Git Operations
-```bash
-# User does Git operations himself
-git add .
-git commit -m "..."
-git push origin develop
-```
+1. **Development → Git → Deployment** (never modify Deployment directly)
+2. **One script at a time** - wait for confirmation
+3. **ALL code MUST be artifacts** - never plain text
+4. **Test after each change** - especially Btrieve model changes
 
 ### Code Generation
-- **CRITICAL:** ALL code/configs/documents MUST be artifacts
-- Scripts numbered from 01 sequentially
-- One script at a time, wait for confirmation
+- Scripts numbered sequentially (05, 06, 07...)
+- Always create backup before modifying existing files
+- Use artifacts for all Python files >5 lines
 
 ---
 
-## MONITORING
+## KNOWN ISSUES
 
-### Daily Checks
-- Service status: `Get-Service NEX-Automat-Loader`
-- Logs review
-- Match rates in PostgreSQL
-- Error monitoring
+### Issue #1: Missing BarCode Field (CRITICAL) 🔴
+**Impact:** 0% EAN match rate  
+**Status:** Fix ready in artifact, deployment pending  
+**Priority:** P0 - blocks Phase 4 completion
 
-### Performance Metrics
-- Enrichment time per invoice
-- Match rate percentage
-- Database query performance
-- Memory usage
+### Issue #2: NULL Bytes in Strings ✅
+**Impact:** PostgreSQL INSERT failures  
+**Status:** FIXED in re-processing script  
+**Solution:** .replace('\x00', '').strip()
+
+### Issue #3: Invalid validation_status ✅
+**Impact:** Check constraint violations  
+**Status:** FIXED in re-processing script  
+**Solution:** Use 'warning' not 'needs_review'
 
 ---
 
-## SUPPORT INFORMATION
+## SUCCESS CRITERIA
 
-**Customer:** Mágerstav s.r.o.  
-**Deployment:** C:\Deployment\nex-automat  
-**Service:** NEX-Automat-Loader (Windows Service)  
-**Port:** 8001  
-**PostgreSQL:** localhost:5432/invoice_staging  
-**NEX Genesis:** C:\NEX\YEARACT\STORES  
+**Phase 4 Complete When:**
+- [ ] Complete GSCAT model deployed
+- [ ] EAN lookup test: >15% success rate
+- [ ] Re-processing test: >70% match rate
+- [ ] All 36 unit tests passing
+- [ ] Production deployment successful
+- [ ] Mágerstav verification complete
+
+---
+
+## ARTIFACTS REFERENCE
+
+### Complete GSCAT Model
+**Artifact:** `04_create_complete_gscat_model.py`
+- Contains complete GSCATRecord with all 60+ fields
+- BarCode field at offset 57
+- All field names match Btrieve definition
+- Ready for deployment
+
+### Archive
+**Artifact:** `PROJECT_ARCHIVE_SESSION.md`
+- Session work summary
+- Technical findings
+- Metrics and next steps
+
+---
+
+## ENVIRONMENT
+
+**Development:**
+- Path: C:\Development\nex-automat
+- Python: 3.13.7 (venv32)
+- Branch: develop
+- Status: Ready for deployment
+
+**Production (Mágerstav):**
+- Path: C:\Deployment\nex-automat
+- Service: NEX-Automat-Loader (manual start)
+- Port: 8001
+- Status: Awaiting deployment
+
+**Databases:**
+- PostgreSQL: localhost:5432/invoice_staging
+- NEX Genesis: C:\NEX\YEARACT\STORES (Btrieve)
 
 ---
 
 **Init Prompt Created:** 2025-12-09  
-**Version:** v2.4 Phase 4 DEPLOYED  
-**Status:** 🎉 Ready for Windows Service start & E2E testing  
-**Next Action:** Start NEX-Automat-Loader service
+**Version:** v2.4 Phase 4 Deployment  
+**Status:** 🔧 Ready to deploy complete GSCAT model  
+**Next Action:** Create deployment script for complete GSCAT model
