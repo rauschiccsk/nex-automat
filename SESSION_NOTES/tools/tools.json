@@ -2,15 +2,16 @@
   "name": "claude-tools",
   "type": "tools",
   "location": "tools",
-  "generated": "2025-12-09T20:37:51.733277",
+  "generated": "2025-12-13T22:09:45.862817",
   "description": "Claude Tools - Automatizacia workflow pre claude.ai",
   "statistics": {
     "total_files": 29,
     "total_dirs": 6,
     "python_files": 20,
     "powershell_files": 2,
+    "markdown_files": 1,
     "test_files": 1,
-    "total_lines": 4328,
+    "total_lines": 4633,
     "total_size": 150515
   },
   "structure": {
@@ -75,7 +76,9 @@
       "name": "INSTALLATION_GUIDE.md",
       "size": 6689,
       "extension": ".md",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/tools/INSTALLATION_GUIDE.md"
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/tools/INSTALLATION_GUIDE.md",
+      "lines": 305,
+      "type": "documentation"
     },
     {
       "path": "tools/artifact-server.py",

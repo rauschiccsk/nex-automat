@@ -1,0 +1,1157 @@
+{
+  "name": "documentation",
+  "type": "docs",
+  "location": "docs",
+  "generated": "2025-12-13T22:09:45.920654",
+  "description": "Komplexná dokumentácia NEX Automat projektu",
+  "statistics": {
+    "total_files": 68,
+    "total_dirs": 23,
+    "python_files": 0,
+    "powershell_files": 0,
+    "markdown_files": 64,
+    "test_files": 0,
+    "total_lines": 41979,
+    "total_size": 1229159
+  },
+  "files": [
+    {
+      "path": "docs/COLLABORATION_RULES.md",
+      "name": "COLLABORATION_RULES.md",
+      "size": 14066,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/COLLABORATION_RULES.md",
+      "lines": 356,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/GIT_GUIDE.md",
+      "name": "GIT_GUIDE.md",
+      "size": 4901,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/GIT_GUIDE.md",
+      "lines": 247,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/PROJECT_ARCHIVE.md",
+      "name": "PROJECT_ARCHIVE.md",
+      "size": 104619,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/PROJECT_ARCHIVE.md",
+      "lines": 3590,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/PROJECT_STATUS.md",
+      "name": "PROJECT_STATUS.md",
+      "size": 15953,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/PROJECT_STATUS.md",
+      "lines": 638,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/WORKFLOW_QUICK_REFERENCE.md",
+      "name": "WORKFLOW_QUICK_REFERENCE.md",
+      "size": 4667,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/WORKFLOW_QUICK_REFERENCE.md",
+      "lines": 234,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/architecture/database/COMMON_DOCUMENT_PRINCIPLES.md",
+      "name": "COMMON_DOCUMENT_PRINCIPLES.md",
+      "size": 42767,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/COMMON_DOCUMENT_PRINCIPLES.md",
+      "lines": 1607,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/architecture/database/DATABASE_RELATIONSHIPS.md",
+      "name": "DATABASE_RELATIONSHIPS.md",
+      "size": 24061,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/DATABASE_RELATIONSHIPS.md",
+      "lines": 700,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/architecture/database/DATA_DICTIONARY.md",
+      "name": "DATA_DICTIONARY.md",
+      "size": 22688,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/DATA_DICTIONARY.md",
+      "lines": 650,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/architecture/database/INDEX.md",
+      "name": "INDEX.md",
+      "size": 6013,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/INDEX.md",
+      "lines": 245,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/architecture/database/accounting/tables/ISH-supplier_invoice_heads.md",
+      "name": "ISH-supplier_invoice_heads.md",
+      "size": 34778,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/accounting/tables/ISH-supplier_invoice_heads.md",
+      "lines": 1085,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/architecture/database/accounting/tables/ISI-supplier_invoice_items.md",
+      "name": "ISI-supplier_invoice_items.md",
+      "size": 29640,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/accounting/tables/ISI-supplier_invoice_items.md",
+      "lines": 929,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/architecture/database/accounting/tables/PAYJRN-payment_journal.md",
+      "name": "PAYJRN-payment_journal.md",
+      "size": 25833,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/accounting/tables/PAYJRN-payment_journal.md",
+      "lines": 810,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/architecture/database/catalogs/INDEX.md",
+      "name": "INDEX.md",
+      "size": 6730,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/catalogs/INDEX.md",
+      "lines": 241,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/architecture/database/catalogs/partners/INDEX.md",
+      "name": "INDEX.md",
+      "size": 7531,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/catalogs/partners/INDEX.md",
+      "lines": 268,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/architecture/database/catalogs/partners/tables/BANKLST-bank_catalog.md",
+      "name": "BANKLST-bank_catalog.md",
+      "size": 10681,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/catalogs/partners/tables/BANKLST-bank_catalog.md",
+      "lines": 386,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/architecture/database/catalogs/partners/tables/PAB-partner_catalog.md",
+      "name": "PAB-partner_catalog.md",
+      "size": 39869,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/catalogs/partners/tables/PAB-partner_catalog.md",
+      "lines": 1135,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/architecture/database/catalogs/partners/tables/PABACC-partner_catalog_bank_accounts.md",
+      "name": "PABACC-partner_catalog_bank_accounts.md",
+      "size": 12639,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/catalogs/partners/tables/PABACC-partner_catalog_bank_accounts.md",
+      "lines": 452,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/architecture/database/catalogs/partners/tables/PACNCT-partner_catalog_contacts.md",
+      "name": "PACNCT-partner_catalog_contacts.md",
+      "size": 22821,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/catalogs/partners/tables/PACNCT-partner_catalog_contacts.md",
+      "lines": 705,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/architecture/database/catalogs/partners/tables/PAGLST-partner_categories.md",
+      "name": "PAGLST-partner_categories.md",
+      "size": 14939,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/catalogs/partners/tables/PAGLST-partner_categories.md",
+      "lines": 499,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/architecture/database/catalogs/partners/tables/PANOTI-partner_catalog_texts.md",
+      "name": "PANOTI-partner_catalog_texts.md",
+      "size": 15369,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/catalogs/partners/tables/PANOTI-partner_catalog_texts.md",
+      "lines": 534,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/architecture/database/catalogs/partners/tables/PASUBC-partner_catalog_facilities.md",
+      "name": "PASUBC-partner_catalog_facilities.md",
+      "size": 18025,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/catalogs/partners/tables/PASUBC-partner_catalog_facilities.md",
+      "lines": 616,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/architecture/database/catalogs/partners/tables/PAYLST-payment_methods.md",
+      "name": "PAYLST-payment_methods.md",
+      "size": 8313,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/catalogs/partners/tables/PAYLST-payment_methods.md",
+      "lines": 304,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/architecture/database/catalogs/partners/tables/TRPLST-transport_methods.md",
+      "name": "TRPLST-transport_methods.md",
+      "size": 8585,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/catalogs/partners/tables/TRPLST-transport_methods.md",
+      "lines": 304,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/architecture/database/catalogs/products/INDEX.md",
+      "name": "INDEX.md",
+      "size": 5721,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/catalogs/products/INDEX.md",
+      "lines": 207,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/architecture/database/catalogs/products/tables/BARCODE-product_catalog_identifiers.md",
+      "name": "BARCODE-product_catalog_identifiers.md",
+      "size": 24158,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/catalogs/products/tables/BARCODE-product_catalog_identifiers.md",
+      "lines": 748,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/architecture/database/catalogs/products/tables/FGLST-product_categories.md",
+      "name": "FGLST-product_categories.md",
+      "size": 16126,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/catalogs/products/tables/FGLST-product_categories.md",
+      "lines": 483,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/architecture/database/catalogs/products/tables/GSCAT-product_catalog.md",
+      "name": "GSCAT-product_catalog.md",
+      "size": 20651,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/catalogs/products/tables/GSCAT-product_catalog.md",
+      "lines": 504,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/architecture/database/catalogs/products/tables/MGLST-product_categories.md",
+      "name": "MGLST-product_categories.md",
+      "size": 17381,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/catalogs/products/tables/MGLST-product_categories.md",
+      "lines": 519,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/architecture/database/catalogs/products/tables/SGLST-product_categories.md",
+      "name": "SGLST-product_categories.md",
+      "size": 20101,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/catalogs/products/tables/SGLST-product_categories.md",
+      "lines": 587,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/architecture/database/sales/INDEX.md",
+      "name": "INDEX.md",
+      "size": 8132,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/sales/INDEX.md",
+      "lines": 302,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/architecture/database/sales/tables/PLSnnnnn-price_list_items.md",
+      "name": "PLSnnnnn-price_list_items.md",
+      "size": 20479,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/sales/tables/PLSnnnnn-price_list_items.md",
+      "lines": 640,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/architecture/database/stock/INDEX.md",
+      "name": "INDEX.md",
+      "size": 0,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/stock/INDEX.md",
+      "lines": 0,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/architecture/database/stock/cards/INDEX.md",
+      "name": "INDEX.md",
+      "size": 20381,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/stock/cards/INDEX.md",
+      "lines": 579,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/architecture/database/stock/cards/tables/FIF-stock_card_fifos.md",
+      "name": "FIF-stock_card_fifos.md",
+      "size": 28483,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/stock/cards/tables/FIF-stock_card_fifos.md",
+      "lines": 874,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/architecture/database/stock/cards/tables/STK-stock_cards.md",
+      "name": "STK-stock_cards.md",
+      "size": 38507,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/stock/cards/tables/STK-stock_cards.md",
+      "lines": 1081,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/architecture/database/stock/cards/tables/STKLST-stocks.md",
+      "name": "STKLST-stocks.md",
+      "size": 20405,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/stock/cards/tables/STKLST-stocks.md",
+      "lines": 693,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/architecture/database/stock/cards/tables/STM-stock_card_movements.md",
+      "name": "STM-stock_card_movements.md",
+      "size": 35590,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/stock/cards/tables/STM-stock_card_movements.md",
+      "lines": 1130,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/architecture/database/stock/cards/tables/WRILST-facilities.md",
+      "name": "WRILST-facilities.md",
+      "size": 17909,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/stock/cards/tables/WRILST-facilities.md",
+      "lines": 594,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/architecture/database/stock/documents/tables/TSH-supplier_delivery_heads.md",
+      "name": "TSH-supplier_delivery_heads.md",
+      "size": 25448,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/stock/documents/tables/TSH-supplier_delivery_heads.md",
+      "lines": 783,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/architecture/database/stock/documents/tables/TSI-supplier_delivery_items.md",
+      "name": "TSI-supplier_delivery_items.md",
+      "size": 29676,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/stock/documents/tables/TSI-supplier_delivery_items.md",
+      "lines": 910,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/deployment/DEPLOYMENT_GUIDE.md",
+      "name": "DEPLOYMENT_GUIDE.md",
+      "size": 13763,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/deployment/DEPLOYMENT_GUIDE.md",
+      "lines": 634,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/deployment/GO_LIVE_CHECKLIST.md",
+      "name": "GO_LIVE_CHECKLIST.md",
+      "size": 6297,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/deployment/GO_LIVE_CHECKLIST.md",
+      "lines": 282,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/deployment/KNOWN_ISSUES.md",
+      "name": "KNOWN_ISSUES.md",
+      "size": 1421,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/deployment/KNOWN_ISSUES.md",
+      "lines": 57,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/deployment/MAGERSTAV_DEPLOYMET_SUMMARY.md",
+      "name": "MAGERSTAV_DEPLOYMET_SUMMARY.md",
+      "size": 4496,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/deployment/MAGERSTAV_DEPLOYMET_SUMMARY.md",
+      "lines": 205,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/deployment/MAGERSTAV_ONBOARDING_GUIDE.md",
+      "name": "MAGERSTAV_ONBOARDING_GUIDE.md",
+      "size": 11447,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/deployment/MAGERSTAV_ONBOARDING_GUIDE.md",
+      "lines": 388,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/deployment/OPERATIONS_GUIDE.md",
+      "name": "OPERATIONS_GUIDE.md",
+      "size": 8084,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/deployment/OPERATIONS_GUIDE.md",
+      "lines": 366,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/deployment/PRE_DEPLOYMENT_CHECKLIST.md",
+      "name": "PRE_DEPLOYMENT_CHECKLIST.md",
+      "size": 6440,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/deployment/PRE_DEPLOYMENT_CHECKLIST.md",
+      "lines": 285,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/deployment/RECOVERY_GUIDE.md",
+      "name": "RECOVERY_GUIDE.md",
+      "size": 13570,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/deployment/RECOVERY_GUIDE.md",
+      "lines": 610,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/deployment/RECOVERY_PROCEDURES.md",
+      "name": "RECOVERY_PROCEDURES.md",
+      "size": 9779,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/deployment/RECOVERY_PROCEDURES.md",
+      "lines": 441,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/deployment/SERVICE_MANAGEMENT.md",
+      "name": "SERVICE_MANAGEMENT.md",
+      "size": 7711,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/deployment/SERVICE_MANAGEMENT.md",
+      "lines": 456,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/deployment/TRAINING_GUIDE.md",
+      "name": "TRAINING_GUIDE.md",
+      "size": 9098,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/deployment/TRAINING_GUIDE.md",
+      "lines": 399,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/deployment/TROUBLESHOOTING.md",
+      "name": "TROUBLESHOOTING.md",
+      "size": 9592,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/deployment/TROUBLESHOOTING.md",
+      "lines": 567,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/giudes/CONTRIBUTING.md",
+      "name": "CONTRIBUTING.md",
+      "size": 12494,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/giudes/CONTRIBUTING.md",
+      "lines": 626,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/giudes/MONOREPO_GUIDE.md",
+      "name": "MONOREPO_GUIDE.md",
+      "size": 11440,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/giudes/MONOREPO_GUIDE.md",
+      "lines": 584,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/packages/invoice-shared.json",
+      "name": "invoice-shared.json",
+      "size": 3763,
+      "extension": ".json",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/packages/invoice-shared.json"
+    },
+    {
+      "path": "docs/packages/nex-shared.json",
+      "name": "nex-shared.json",
+      "size": 4881,
+      "extension": ".json",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/packages/nex-shared.json"
+    },
+    {
+      "path": "docs/packages/nexdata.json",
+      "name": "nexdata.json",
+      "size": 9972,
+      "extension": ".json",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/packages/nexdata.json"
+    },
+    {
+      "path": "docs/strategy/AI_ML_TOOLS_TECHNOLOGY_GUIDE.md",
+      "name": "AI_ML_TOOLS_TECHNOLOGY_GUIDE.md",
+      "size": 24729,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/strategy/AI_ML_TOOLS_TECHNOLOGY_GUIDE.md",
+      "lines": 830,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/strategy/ARCHITECTURE.md",
+      "name": "ARCHITECTURE.md",
+      "size": 9632,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/strategy/ARCHITECTURE.md",
+      "lines": 422,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/strategy/CURRENT_STATE.md",
+      "name": "CURRENT_STATE.md",
+      "size": 14439,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/strategy/CURRENT_STATE.md",
+      "lines": 523,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/strategy/NEX_GENESIS_MODULES.txt",
+      "name": "NEX_GENESIS_MODULES.txt",
+      "size": 1663,
+      "extension": ".txt",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/strategy/NEX_GENESIS_MODULES.txt"
+    },
+    {
+      "path": "docs/strategy/PROJECT_BLUEPRINT_SUPPLIER_CLASSIFIER.md",
+      "name": "PROJECT_BLUEPRINT_SUPPLIER_CLASSIFIER.md",
+      "size": 51402,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/strategy/PROJECT_BLUEPRINT_SUPPLIER_CLASSIFIER.md",
+      "lines": 1976,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/strategy/QUICK_WINS_TECHNOLOGY_GUIDE.md",
+      "name": "QUICK_WINS_TECHNOLOGY_GUIDE.md",
+      "size": 18959,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/strategy/QUICK_WINS_TECHNOLOGY_GUIDE.md",
+      "lines": 610,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/strategy/REQUIREMENTS.md",
+      "name": "REQUIREMENTS.md",
+      "size": 9385,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/strategy/REQUIREMENTS.md",
+      "lines": 318,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/strategy/RESEARCH_ANALYSIS_TECHNOLOGY_LANDSCAPE.md",
+      "name": "RESEARCH_ANALYSIS_TECHNOLOGY_LANDSCAPE.md",
+      "size": 84521,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/strategy/RESEARCH_ANALYSIS_TECHNOLOGY_LANDSCAPE.md",
+      "lines": 3440,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/strategy/ROADMAP.md",
+      "name": "ROADMAP.md",
+      "size": 8936,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/strategy/ROADMAP.md",
+      "lines": 346,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/strategy/TERMINOLOGY.md",
+      "name": "TERMINOLOGY.md",
+      "size": 12206,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/strategy/TERMINOLOGY.md",
+      "lines": 255,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/strategy/VISION.md",
+      "name": "VISION.md",
+      "size": 4403,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/strategy/VISION.md",
+      "lines": 190,
+      "type": "documentation"
+    }
+  ],
+  "categories": {
+    "guides": [
+      {
+        "name": "GIT_GUIDE.md",
+        "path": "GIT_GUIDE.md",
+        "full_path": "docs/GIT_GUIDE.md",
+        "size": 4901,
+        "lines": 247,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/GIT_GUIDE.md"
+      },
+      {
+        "name": "DEPLOYMENT_GUIDE.md",
+        "path": "deployment/DEPLOYMENT_GUIDE.md",
+        "full_path": "docs/deployment/DEPLOYMENT_GUIDE.md",
+        "size": 13763,
+        "lines": 634,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/deployment/DEPLOYMENT_GUIDE.md"
+      },
+      {
+        "name": "MAGERSTAV_ONBOARDING_GUIDE.md",
+        "path": "deployment/MAGERSTAV_ONBOARDING_GUIDE.md",
+        "full_path": "docs/deployment/MAGERSTAV_ONBOARDING_GUIDE.md",
+        "size": 11447,
+        "lines": 388,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/deployment/MAGERSTAV_ONBOARDING_GUIDE.md"
+      },
+      {
+        "name": "OPERATIONS_GUIDE.md",
+        "path": "deployment/OPERATIONS_GUIDE.md",
+        "full_path": "docs/deployment/OPERATIONS_GUIDE.md",
+        "size": 8084,
+        "lines": 366,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/deployment/OPERATIONS_GUIDE.md"
+      },
+      {
+        "name": "RECOVERY_GUIDE.md",
+        "path": "deployment/RECOVERY_GUIDE.md",
+        "full_path": "docs/deployment/RECOVERY_GUIDE.md",
+        "size": 13570,
+        "lines": 610,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/deployment/RECOVERY_GUIDE.md"
+      },
+      {
+        "name": "TRAINING_GUIDE.md",
+        "path": "deployment/TRAINING_GUIDE.md",
+        "full_path": "docs/deployment/TRAINING_GUIDE.md",
+        "size": 9098,
+        "lines": 399,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/deployment/TRAINING_GUIDE.md"
+      },
+      {
+        "name": "MONOREPO_GUIDE.md",
+        "path": "giudes/MONOREPO_GUIDE.md",
+        "full_path": "docs/giudes/MONOREPO_GUIDE.md",
+        "size": 11440,
+        "lines": 584,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/giudes/MONOREPO_GUIDE.md"
+      },
+      {
+        "name": "AI_ML_TOOLS_TECHNOLOGY_GUIDE.md",
+        "path": "strategy/AI_ML_TOOLS_TECHNOLOGY_GUIDE.md",
+        "full_path": "docs/strategy/AI_ML_TOOLS_TECHNOLOGY_GUIDE.md",
+        "size": 24729,
+        "lines": 830,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/strategy/AI_ML_TOOLS_TECHNOLOGY_GUIDE.md"
+      },
+      {
+        "name": "QUICK_WINS_TECHNOLOGY_GUIDE.md",
+        "path": "strategy/QUICK_WINS_TECHNOLOGY_GUIDE.md",
+        "full_path": "docs/strategy/QUICK_WINS_TECHNOLOGY_GUIDE.md",
+        "size": 18959,
+        "lines": 610,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/strategy/QUICK_WINS_TECHNOLOGY_GUIDE.md"
+      }
+    ],
+    "database": [
+      {
+        "name": "COMMON_DOCUMENT_PRINCIPLES.md",
+        "path": "architecture/database/COMMON_DOCUMENT_PRINCIPLES.md",
+        "full_path": "docs/architecture/database/COMMON_DOCUMENT_PRINCIPLES.md",
+        "size": 42767,
+        "lines": 1607,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/COMMON_DOCUMENT_PRINCIPLES.md"
+      },
+      {
+        "name": "DATABASE_RELATIONSHIPS.md",
+        "path": "architecture/database/DATABASE_RELATIONSHIPS.md",
+        "full_path": "docs/architecture/database/DATABASE_RELATIONSHIPS.md",
+        "size": 24061,
+        "lines": 700,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/DATABASE_RELATIONSHIPS.md"
+      },
+      {
+        "name": "DATA_DICTIONARY.md",
+        "path": "architecture/database/DATA_DICTIONARY.md",
+        "full_path": "docs/architecture/database/DATA_DICTIONARY.md",
+        "size": 22688,
+        "lines": 650,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/DATA_DICTIONARY.md"
+      },
+      {
+        "name": "INDEX.md",
+        "path": "architecture/database/INDEX.md",
+        "full_path": "docs/architecture/database/INDEX.md",
+        "size": 6013,
+        "lines": 245,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/INDEX.md"
+      },
+      {
+        "name": "INDEX.md",
+        "path": "architecture/database/catalogs/INDEX.md",
+        "full_path": "docs/architecture/database/catalogs/INDEX.md",
+        "size": 6730,
+        "lines": 241,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/catalogs/INDEX.md"
+      },
+      {
+        "name": "INDEX.md",
+        "path": "architecture/database/sales/INDEX.md",
+        "full_path": "docs/architecture/database/sales/INDEX.md",
+        "size": 8132,
+        "lines": 302,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/sales/INDEX.md"
+      },
+      {
+        "name": "INDEX.md",
+        "path": "architecture/database/stock/INDEX.md",
+        "full_path": "docs/architecture/database/stock/INDEX.md",
+        "size": 0,
+        "lines": 0,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/stock/INDEX.md"
+      },
+      {
+        "name": "INDEX.md",
+        "path": "architecture/database/stock/cards/INDEX.md",
+        "full_path": "docs/architecture/database/stock/cards/INDEX.md",
+        "size": 20381,
+        "lines": 579,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/stock/cards/INDEX.md"
+      },
+      {
+        "name": "TSH-supplier_delivery_heads.md",
+        "path": "architecture/database/stock/documents/tables/TSH-supplier_delivery_heads.md",
+        "full_path": "docs/architecture/database/stock/documents/tables/TSH-supplier_delivery_heads.md",
+        "size": 25448,
+        "lines": 783,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/stock/documents/tables/TSH-supplier_delivery_heads.md"
+      },
+      {
+        "name": "TSI-supplier_delivery_items.md",
+        "path": "architecture/database/stock/documents/tables/TSI-supplier_delivery_items.md",
+        "full_path": "docs/architecture/database/stock/documents/tables/TSI-supplier_delivery_items.md",
+        "size": 29676,
+        "lines": 910,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/stock/documents/tables/TSI-supplier_delivery_items.md"
+      },
+      {
+        "name": "FIF-stock_card_fifos.md",
+        "path": "architecture/database/stock/cards/tables/FIF-stock_card_fifos.md",
+        "full_path": "docs/architecture/database/stock/cards/tables/FIF-stock_card_fifos.md",
+        "size": 28483,
+        "lines": 874,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/stock/cards/tables/FIF-stock_card_fifos.md"
+      },
+      {
+        "name": "STK-stock_cards.md",
+        "path": "architecture/database/stock/cards/tables/STK-stock_cards.md",
+        "full_path": "docs/architecture/database/stock/cards/tables/STK-stock_cards.md",
+        "size": 38507,
+        "lines": 1081,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/stock/cards/tables/STK-stock_cards.md"
+      },
+      {
+        "name": "STKLST-stocks.md",
+        "path": "architecture/database/stock/cards/tables/STKLST-stocks.md",
+        "full_path": "docs/architecture/database/stock/cards/tables/STKLST-stocks.md",
+        "size": 20405,
+        "lines": 693,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/stock/cards/tables/STKLST-stocks.md"
+      },
+      {
+        "name": "STM-stock_card_movements.md",
+        "path": "architecture/database/stock/cards/tables/STM-stock_card_movements.md",
+        "full_path": "docs/architecture/database/stock/cards/tables/STM-stock_card_movements.md",
+        "size": 35590,
+        "lines": 1130,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/stock/cards/tables/STM-stock_card_movements.md"
+      },
+      {
+        "name": "WRILST-facilities.md",
+        "path": "architecture/database/stock/cards/tables/WRILST-facilities.md",
+        "full_path": "docs/architecture/database/stock/cards/tables/WRILST-facilities.md",
+        "size": 17909,
+        "lines": 594,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/stock/cards/tables/WRILST-facilities.md"
+      },
+      {
+        "name": "PLSnnnnn-price_list_items.md",
+        "path": "architecture/database/sales/tables/PLSnnnnn-price_list_items.md",
+        "full_path": "docs/architecture/database/sales/tables/PLSnnnnn-price_list_items.md",
+        "size": 20479,
+        "lines": 640,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/sales/tables/PLSnnnnn-price_list_items.md"
+      },
+      {
+        "name": "INDEX.md",
+        "path": "architecture/database/catalogs/partners/INDEX.md",
+        "full_path": "docs/architecture/database/catalogs/partners/INDEX.md",
+        "size": 7531,
+        "lines": 268,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/catalogs/partners/INDEX.md"
+      },
+      {
+        "name": "INDEX.md",
+        "path": "architecture/database/catalogs/products/INDEX.md",
+        "full_path": "docs/architecture/database/catalogs/products/INDEX.md",
+        "size": 5721,
+        "lines": 207,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/catalogs/products/INDEX.md"
+      },
+      {
+        "name": "BARCODE-product_catalog_identifiers.md",
+        "path": "architecture/database/catalogs/products/tables/BARCODE-product_catalog_identifiers.md",
+        "full_path": "docs/architecture/database/catalogs/products/tables/BARCODE-product_catalog_identifiers.md",
+        "size": 24158,
+        "lines": 748,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/catalogs/products/tables/BARCODE-product_catalog_identifiers.md"
+      },
+      {
+        "name": "FGLST-product_categories.md",
+        "path": "architecture/database/catalogs/products/tables/FGLST-product_categories.md",
+        "full_path": "docs/architecture/database/catalogs/products/tables/FGLST-product_categories.md",
+        "size": 16126,
+        "lines": 483,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/catalogs/products/tables/FGLST-product_categories.md"
+      },
+      {
+        "name": "GSCAT-product_catalog.md",
+        "path": "architecture/database/catalogs/products/tables/GSCAT-product_catalog.md",
+        "full_path": "docs/architecture/database/catalogs/products/tables/GSCAT-product_catalog.md",
+        "size": 20651,
+        "lines": 504,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/catalogs/products/tables/GSCAT-product_catalog.md"
+      },
+      {
+        "name": "MGLST-product_categories.md",
+        "path": "architecture/database/catalogs/products/tables/MGLST-product_categories.md",
+        "full_path": "docs/architecture/database/catalogs/products/tables/MGLST-product_categories.md",
+        "size": 17381,
+        "lines": 519,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/catalogs/products/tables/MGLST-product_categories.md"
+      },
+      {
+        "name": "SGLST-product_categories.md",
+        "path": "architecture/database/catalogs/products/tables/SGLST-product_categories.md",
+        "full_path": "docs/architecture/database/catalogs/products/tables/SGLST-product_categories.md",
+        "size": 20101,
+        "lines": 587,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/catalogs/products/tables/SGLST-product_categories.md"
+      },
+      {
+        "name": "BANKLST-bank_catalog.md",
+        "path": "architecture/database/catalogs/partners/tables/BANKLST-bank_catalog.md",
+        "full_path": "docs/architecture/database/catalogs/partners/tables/BANKLST-bank_catalog.md",
+        "size": 10681,
+        "lines": 386,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/catalogs/partners/tables/BANKLST-bank_catalog.md"
+      },
+      {
+        "name": "PAB-partner_catalog.md",
+        "path": "architecture/database/catalogs/partners/tables/PAB-partner_catalog.md",
+        "full_path": "docs/architecture/database/catalogs/partners/tables/PAB-partner_catalog.md",
+        "size": 39869,
+        "lines": 1135,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/catalogs/partners/tables/PAB-partner_catalog.md"
+      },
+      {
+        "name": "PABACC-partner_catalog_bank_accounts.md",
+        "path": "architecture/database/catalogs/partners/tables/PABACC-partner_catalog_bank_accounts.md",
+        "full_path": "docs/architecture/database/catalogs/partners/tables/PABACC-partner_catalog_bank_accounts.md",
+        "size": 12639,
+        "lines": 452,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/catalogs/partners/tables/PABACC-partner_catalog_bank_accounts.md"
+      },
+      {
+        "name": "PACNCT-partner_catalog_contacts.md",
+        "path": "architecture/database/catalogs/partners/tables/PACNCT-partner_catalog_contacts.md",
+        "full_path": "docs/architecture/database/catalogs/partners/tables/PACNCT-partner_catalog_contacts.md",
+        "size": 22821,
+        "lines": 705,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/catalogs/partners/tables/PACNCT-partner_catalog_contacts.md"
+      },
+      {
+        "name": "PAGLST-partner_categories.md",
+        "path": "architecture/database/catalogs/partners/tables/PAGLST-partner_categories.md",
+        "full_path": "docs/architecture/database/catalogs/partners/tables/PAGLST-partner_categories.md",
+        "size": 14939,
+        "lines": 499,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/catalogs/partners/tables/PAGLST-partner_categories.md"
+      },
+      {
+        "name": "PANOTI-partner_catalog_texts.md",
+        "path": "architecture/database/catalogs/partners/tables/PANOTI-partner_catalog_texts.md",
+        "full_path": "docs/architecture/database/catalogs/partners/tables/PANOTI-partner_catalog_texts.md",
+        "size": 15369,
+        "lines": 534,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/catalogs/partners/tables/PANOTI-partner_catalog_texts.md"
+      },
+      {
+        "name": "PASUBC-partner_catalog_facilities.md",
+        "path": "architecture/database/catalogs/partners/tables/PASUBC-partner_catalog_facilities.md",
+        "full_path": "docs/architecture/database/catalogs/partners/tables/PASUBC-partner_catalog_facilities.md",
+        "size": 18025,
+        "lines": 616,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/catalogs/partners/tables/PASUBC-partner_catalog_facilities.md"
+      },
+      {
+        "name": "PAYLST-payment_methods.md",
+        "path": "architecture/database/catalogs/partners/tables/PAYLST-payment_methods.md",
+        "full_path": "docs/architecture/database/catalogs/partners/tables/PAYLST-payment_methods.md",
+        "size": 8313,
+        "lines": 304,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/catalogs/partners/tables/PAYLST-payment_methods.md"
+      },
+      {
+        "name": "TRPLST-transport_methods.md",
+        "path": "architecture/database/catalogs/partners/tables/TRPLST-transport_methods.md",
+        "full_path": "docs/architecture/database/catalogs/partners/tables/TRPLST-transport_methods.md",
+        "size": 8585,
+        "lines": 304,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/catalogs/partners/tables/TRPLST-transport_methods.md"
+      },
+      {
+        "name": "ISH-supplier_invoice_heads.md",
+        "path": "architecture/database/accounting/tables/ISH-supplier_invoice_heads.md",
+        "full_path": "docs/architecture/database/accounting/tables/ISH-supplier_invoice_heads.md",
+        "size": 34778,
+        "lines": 1085,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/accounting/tables/ISH-supplier_invoice_heads.md"
+      },
+      {
+        "name": "ISI-supplier_invoice_items.md",
+        "path": "architecture/database/accounting/tables/ISI-supplier_invoice_items.md",
+        "full_path": "docs/architecture/database/accounting/tables/ISI-supplier_invoice_items.md",
+        "size": 29640,
+        "lines": 929,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/accounting/tables/ISI-supplier_invoice_items.md"
+      },
+      {
+        "name": "PAYJRN-payment_journal.md",
+        "path": "architecture/database/accounting/tables/PAYJRN-payment_journal.md",
+        "full_path": "docs/architecture/database/accounting/tables/PAYJRN-payment_journal.md",
+        "size": 25833,
+        "lines": 810,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/accounting/tables/PAYJRN-payment_journal.md"
+      }
+    ],
+    "migration": [],
+    "api": [],
+    "testing": [],
+    "deployment": [
+      {
+        "name": "GO_LIVE_CHECKLIST.md",
+        "path": "deployment/GO_LIVE_CHECKLIST.md",
+        "full_path": "docs/deployment/GO_LIVE_CHECKLIST.md",
+        "size": 6297,
+        "lines": 282,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/deployment/GO_LIVE_CHECKLIST.md"
+      },
+      {
+        "name": "KNOWN_ISSUES.md",
+        "path": "deployment/KNOWN_ISSUES.md",
+        "full_path": "docs/deployment/KNOWN_ISSUES.md",
+        "size": 1421,
+        "lines": 57,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/deployment/KNOWN_ISSUES.md"
+      },
+      {
+        "name": "MAGERSTAV_DEPLOYMET_SUMMARY.md",
+        "path": "deployment/MAGERSTAV_DEPLOYMET_SUMMARY.md",
+        "full_path": "docs/deployment/MAGERSTAV_DEPLOYMET_SUMMARY.md",
+        "size": 4496,
+        "lines": 205,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/deployment/MAGERSTAV_DEPLOYMET_SUMMARY.md"
+      },
+      {
+        "name": "PRE_DEPLOYMENT_CHECKLIST.md",
+        "path": "deployment/PRE_DEPLOYMENT_CHECKLIST.md",
+        "full_path": "docs/deployment/PRE_DEPLOYMENT_CHECKLIST.md",
+        "size": 6440,
+        "lines": 285,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/deployment/PRE_DEPLOYMENT_CHECKLIST.md"
+      },
+      {
+        "name": "RECOVERY_PROCEDURES.md",
+        "path": "deployment/RECOVERY_PROCEDURES.md",
+        "full_path": "docs/deployment/RECOVERY_PROCEDURES.md",
+        "size": 9779,
+        "lines": 441,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/deployment/RECOVERY_PROCEDURES.md"
+      },
+      {
+        "name": "SERVICE_MANAGEMENT.md",
+        "path": "deployment/SERVICE_MANAGEMENT.md",
+        "full_path": "docs/deployment/SERVICE_MANAGEMENT.md",
+        "size": 7711,
+        "lines": 456,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/deployment/SERVICE_MANAGEMENT.md"
+      },
+      {
+        "name": "TROUBLESHOOTING.md",
+        "path": "deployment/TROUBLESHOOTING.md",
+        "full_path": "docs/deployment/TROUBLESHOOTING.md",
+        "size": 9592,
+        "lines": 567,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/deployment/TROUBLESHOOTING.md"
+      }
+    ],
+    "other": [
+      {
+        "name": "COLLABORATION_RULES.md",
+        "path": "COLLABORATION_RULES.md",
+        "full_path": "docs/COLLABORATION_RULES.md",
+        "size": 14066,
+        "lines": 356,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/COLLABORATION_RULES.md"
+      },
+      {
+        "name": "PROJECT_ARCHIVE.md",
+        "path": "PROJECT_ARCHIVE.md",
+        "full_path": "docs/PROJECT_ARCHIVE.md",
+        "size": 104619,
+        "lines": 3590,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/PROJECT_ARCHIVE.md"
+      },
+      {
+        "name": "PROJECT_STATUS.md",
+        "path": "PROJECT_STATUS.md",
+        "full_path": "docs/PROJECT_STATUS.md",
+        "size": 15953,
+        "lines": 638,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/PROJECT_STATUS.md"
+      },
+      {
+        "name": "WORKFLOW_QUICK_REFERENCE.md",
+        "path": "WORKFLOW_QUICK_REFERENCE.md",
+        "full_path": "docs/WORKFLOW_QUICK_REFERENCE.md",
+        "size": 4667,
+        "lines": 234,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/WORKFLOW_QUICK_REFERENCE.md"
+      },
+      {
+        "name": "CONTRIBUTING.md",
+        "path": "giudes/CONTRIBUTING.md",
+        "full_path": "docs/giudes/CONTRIBUTING.md",
+        "size": 12494,
+        "lines": 626,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/giudes/CONTRIBUTING.md"
+      },
+      {
+        "name": "ARCHITECTURE.md",
+        "path": "strategy/ARCHITECTURE.md",
+        "full_path": "docs/strategy/ARCHITECTURE.md",
+        "size": 9632,
+        "lines": 422,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/strategy/ARCHITECTURE.md"
+      },
+      {
+        "name": "CURRENT_STATE.md",
+        "path": "strategy/CURRENT_STATE.md",
+        "full_path": "docs/strategy/CURRENT_STATE.md",
+        "size": 14439,
+        "lines": 523,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/strategy/CURRENT_STATE.md"
+      },
+      {
+        "name": "PROJECT_BLUEPRINT_SUPPLIER_CLASSIFIER.md",
+        "path": "strategy/PROJECT_BLUEPRINT_SUPPLIER_CLASSIFIER.md",
+        "full_path": "docs/strategy/PROJECT_BLUEPRINT_SUPPLIER_CLASSIFIER.md",
+        "size": 51402,
+        "lines": 1976,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/strategy/PROJECT_BLUEPRINT_SUPPLIER_CLASSIFIER.md"
+      },
+      {
+        "name": "REQUIREMENTS.md",
+        "path": "strategy/REQUIREMENTS.md",
+        "full_path": "docs/strategy/REQUIREMENTS.md",
+        "size": 9385,
+        "lines": 318,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/strategy/REQUIREMENTS.md"
+      },
+      {
+        "name": "RESEARCH_ANALYSIS_TECHNOLOGY_LANDSCAPE.md",
+        "path": "strategy/RESEARCH_ANALYSIS_TECHNOLOGY_LANDSCAPE.md",
+        "full_path": "docs/strategy/RESEARCH_ANALYSIS_TECHNOLOGY_LANDSCAPE.md",
+        "size": 84521,
+        "lines": 3440,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/strategy/RESEARCH_ANALYSIS_TECHNOLOGY_LANDSCAPE.md"
+      },
+      {
+        "name": "ROADMAP.md",
+        "path": "strategy/ROADMAP.md",
+        "full_path": "docs/strategy/ROADMAP.md",
+        "size": 8936,
+        "lines": 346,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/strategy/ROADMAP.md"
+      },
+      {
+        "name": "TERMINOLOGY.md",
+        "path": "strategy/TERMINOLOGY.md",
+        "full_path": "docs/strategy/TERMINOLOGY.md",
+        "size": 12206,
+        "lines": 255,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/strategy/TERMINOLOGY.md"
+      },
+      {
+        "name": "VISION.md",
+        "path": "strategy/VISION.md",
+        "full_path": "docs/strategy/VISION.md",
+        "size": 4403,
+        "lines": 190,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/strategy/VISION.md"
+      }
+    ]
+  },
+  "key_files": {},
+  "structure": {
+    "has_guides": true,
+    "has_database_docs": true,
+    "has_migration_docs": false,
+    "has_api_docs": false,
+    "has_testing_docs": false,
+    "has_deployment_docs": true
+  }
+}

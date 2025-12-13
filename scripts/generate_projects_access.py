@@ -9,6 +9,7 @@ Vytvára hierarchické JSON manifesty:
 - SESSION_NOTES/apps/{app_name}.json - per-app manifests
 - SESSION_NOTES/packages/{package_name}.json - per-package manifests
 - SESSION_NOTES/tools/tools.json - Claude Tools manifest
+- SESSION_NOTES/docs/docs.json - Documentation manifest
 
 Pre efektívne lazy loading v Claude sessions.
 """
@@ -18,10 +19,11 @@ from datetime import datetime
 import json
 
 MONOREPO_ROOT = Path("C:/Development/nex-automat")
-SESSION_NOTES_DIR = MONOREPO_ROOT / "SESSION_NOTES"  # Changed from docs to SESSION_NOTES
+SESSION_NOTES_DIR = MONOREPO_ROOT / "SESSION_NOTES"
 APPS_MANIFEST_DIR = SESSION_NOTES_DIR / "apps"
 PACKAGES_MANIFEST_DIR = SESSION_NOTES_DIR / "packages"
-TOOLS_MANIFEST_DIR = SESSION_NOTES_DIR / "tools"  # New: tools manifests
+TOOLS_MANIFEST_DIR = SESSION_NOTES_DIR / "tools"
+DOCS_MANIFEST_DIR = SESSION_NOTES_DIR / "docs"  # NEW: docs manifests
 
 # GitHub Configuration
 GITHUB_REPO = "rauschiccsk/nex-automat"
@@ -92,6 +94,11 @@ def scan_files(root: Path, relative_to: Path = None) -> list[dict]:
                 file_info["lines"] = count_lines(item)
                 file_info["type"] = "script"
 
+            # Markdown-specific info
+            if item.suffix == '.md':
+                file_info["lines"] = count_lines(item)
+                file_info["type"] = "documentation"
+
             files.append(file_info)
 
     except PermissionError:
@@ -107,6 +114,7 @@ def get_directory_stats(root: Path) -> dict:
         'total_dirs': 0,
         'python_files': 0,
         'powershell_files': 0,
+        'markdown_files': 0,
         'test_files': 0,
         'total_lines': 0,
         'total_size': 0
@@ -132,6 +140,10 @@ def get_directory_stats(root: Path) -> dict:
 
                 if item.suffix == '.ps1':
                     stats['powershell_files'] += 1
+                    stats['total_lines'] += count_lines(item)
+
+                if item.suffix == '.md':
+                    stats['markdown_files'] += 1
                     stats['total_lines'] += count_lines(item)
 
     except PermissionError:
@@ -350,51 +362,129 @@ def generate_tools_manifest(tools_dir: Path) -> dict:
     return manifest
 
 
-def get_documentation_files() -> dict:
-    """Get key documentation files"""
-    docs = {}
+def generate_docs_manifest(docs_dir: Path) -> dict:
+    """Generate manifest for Documentation"""
+    print(f"   📖 Generating manifest for: Documentation")
+
+    manifest = {
+        "name": "documentation",
+        "type": "docs",
+        "location": str(docs_dir.relative_to(MONOREPO_ROOT)).replace('\\', '/'),
+        "generated": datetime.now().isoformat(),
+        "description": "Komplexná dokumentácia NEX Automat projektu",
+        "statistics": get_directory_stats(docs_dir),
+        "files": scan_files(docs_dir, MONOREPO_ROOT)
+    }
+
+    # Organize docs by category
+    categories = {
+        "guides": [],
+        "database": [],
+        "migration": [],
+        "api": [],
+        "testing": [],
+        "deployment": [],
+        "other": []
+    }
+
+    # Scan all markdown files and categorize
+    for md_file in docs_dir.rglob("*.md"):
+        if should_exclude(md_file):
+            continue
+
+        rel_path = str(md_file.relative_to(docs_dir)).replace('\\', '/')
+        doc_info = {
+            "name": md_file.name,
+            "path": rel_path,
+            "full_path": str(md_file.relative_to(MONOREPO_ROOT)).replace('\\', '/'),
+            "size": md_file.stat().st_size,
+            "lines": count_lines(md_file),
+            "github_raw": f"https://raw.githubusercontent.com/{GITHUB_REPO}/{GITHUB_BRANCH}/{str(md_file.relative_to(MONOREPO_ROOT)).replace(chr(92), '/')}"
+        }
+
+        # Categorize by path or name
+        path_lower = rel_path.lower()
+        if 'guide' in path_lower or md_file.parent.name == 'guides':
+            categories["guides"].append(doc_info)
+        elif 'database' in path_lower or 'schema' in path_lower or md_file.parent.name == 'database':
+            categories["database"].append(doc_info)
+        elif 'migration' in path_lower or md_file.parent.name == 'migration':
+            categories["migration"].append(doc_info)
+        elif 'api' in path_lower or md_file.parent.name == 'api':
+            categories["api"].append(doc_info)
+        elif 'test' in path_lower or md_file.parent.name == 'testing':
+            categories["testing"].append(doc_info)
+        elif 'deploy' in path_lower or md_file.parent.name == 'deployment':
+            categories["deployment"].append(doc_info)
+        else:
+            categories["other"].append(doc_info)
+
+    manifest["categories"] = categories
+
+    # Find key documentation files
+    key_docs = {}
+
+    # README files
+    for readme in docs_dir.rglob("README.md"):
+        if not should_exclude(readme):
+            rel_path = str(readme.relative_to(docs_dir)).replace('\\', '/')
+            key_name = "main_readme" if rel_path == "README.md" else f"readme_{readme.parent.name}"
+            key_docs[key_name] = {
+                "path": str(readme.relative_to(MONOREPO_ROOT)).replace('\\', '/'),
+                "github_raw": f"https://raw.githubusercontent.com/{GITHUB_REPO}/{GITHUB_BRANCH}/{str(readme.relative_to(MONOREPO_ROOT)).replace(chr(92), '/')}"
+            }
+
+    manifest["key_files"] = key_docs
+
+    # Document structure
+    structure = {
+        "has_guides": len(categories["guides"]) > 0,
+        "has_database_docs": len(categories["database"]) > 0,
+        "has_migration_docs": len(categories["migration"]) > 0,
+        "has_api_docs": len(categories["api"]) > 0,
+        "has_testing_docs": len(categories["testing"]) > 0,
+        "has_deployment_docs": len(categories["deployment"]) > 0
+    }
+
+    manifest["structure"] = structure
+
+    return manifest
+
+
+def get_documentation_summary() -> dict:
+    """Get summary of documentation for root manifest"""
     docs_dir = MONOREPO_ROOT / "docs"
 
-    # Session notes - najdôležitejší súbor
+    summary = {
+        "manifest": "SESSION_NOTES/docs/docs.json",
+        "exists": docs_dir.exists()
+    }
+
+    if docs_dir.exists():
+        stats = get_directory_stats(docs_dir)
+        summary["markdown_files"] = stats["markdown_files"]
+        summary["total_lines"] = stats["total_lines"]
+
+    # Key documentation files (SESSION_NOTES)
     session_notes = SESSION_NOTES_DIR / "SESSION_NOTES.md"
     if session_notes.exists():
-        docs["session_notes"] = {
+        summary["session_notes"] = {
             "path": "SESSION_NOTES/SESSION_NOTES.md",
             "exists": True,
             "size": session_notes.stat().st_size,
             "github_raw": f"https://raw.githubusercontent.com/{GITHUB_REPO}/{GITHUB_BRANCH}/SESSION_NOTES/SESSION_NOTES.md"
         }
 
-    # Init prompt
     init_prompt = SESSION_NOTES_DIR / "INIT_PROMPT_NEW_CHAT.md"
     if init_prompt.exists():
-        docs["init_prompt"] = {
+        summary["init_prompt"] = {
             "path": "SESSION_NOTES/INIT_PROMPT_NEW_CHAT.md",
             "exists": True,
             "size": init_prompt.stat().st_size,
             "github_raw": f"https://raw.githubusercontent.com/{GITHUB_REPO}/{GITHUB_BRANCH}/SESSION_NOTES/INIT_PROMPT_NEW_CHAT.md"
         }
 
-    # Ostatné kľúčové dokumenty z docs/
-    if docs_dir.exists():
-        key_docs = {
-            "README.md": "Main project README",
-            "guides/MONOREPO_GUIDE.md": "Monorepo development guide",
-            "guides/CONTRIBUTING.md": "Contribution guidelines",
-            "guides/TESTING_GUIDE.md": "Testing guide"
-        }
-
-        for doc_path, description in key_docs.items():
-            full_path = docs_dir / doc_path
-            if full_path.exists():
-                docs[doc_path.replace('/', '_').replace('.md', '')] = {
-                    "path": f"docs/{doc_path}",
-                    "description": description,
-                    "exists": True,
-                    "github_raw": f"https://raw.githubusercontent.com/{GITHUB_REPO}/{GITHUB_BRANCH}/docs/{doc_path}"
-                }
-
-    return docs
+    return summary
 
 
 def generate_root_manifest() -> dict:
@@ -451,6 +541,9 @@ def generate_root_manifest() -> dict:
             "type": "automation"
         }
 
+    # Get documentation summary
+    docs_summary = get_documentation_summary()
+
     # Collect all dependencies
     all_deps = set()
     for pyproject_file in MONOREPO_ROOT.rglob("pyproject.toml"):
@@ -459,9 +552,6 @@ def generate_root_manifest() -> dict:
         deps = read_pyproject_dependencies(pyproject_file)
         for dep in deps.get('main', []):
             all_deps.add(dep.split('>=')[0].split('==')[0].split('[')[0])
-
-    # Get documentation files
-    docs_files = get_documentation_files()
 
     # Root manifest
     manifest = {
@@ -475,12 +565,13 @@ def generate_root_manifest() -> dict:
             "apps": len(apps_list),
             "packages": len(packages_list),
             "tools": tools_info is not None,
-            "docs": (MONOREPO_ROOT / "docs").exists()
+            "docs": docs_summary["exists"]
         },
         "statistics": get_directory_stats(MONOREPO_ROOT),
         "applications": apps_list,
         "packages": packages_list,
         "tools": tools_info,
+        "documentation": docs_summary,
         "dependencies": {
             "unique_count": len(all_deps),
             "list": sorted(list(all_deps))
@@ -501,7 +592,6 @@ def generate_root_manifest() -> dict:
             "hotkeys": "active",
             "browser_extension": "available (optional)"
         },
-        "documentation": docs_files,
         "test_status": {
             "supplier_invoice_loader": {
                 "total": 72,
@@ -534,6 +624,7 @@ def main():
     APPS_MANIFEST_DIR.mkdir(parents=True, exist_ok=True)
     PACKAGES_MANIFEST_DIR.mkdir(parents=True, exist_ok=True)
     TOOLS_MANIFEST_DIR.mkdir(parents=True, exist_ok=True)
+    DOCS_MANIFEST_DIR.mkdir(parents=True, exist_ok=True)
     print(f"✅ Created manifest directories")
     print()
 
@@ -598,8 +689,27 @@ def main():
     print(f"   Generated {tools_count} tools manifest")
     print()
 
-    # 4. Generate root manifest
-    print("4️⃣ Generating root manifest...")
+    # 4. Generate docs manifest
+    print("4️⃣ Generating documentation manifest...")
+    docs_dir = MONOREPO_ROOT / "docs"
+    docs_count = 0
+
+    if docs_dir.exists():
+        docs_manifest = generate_docs_manifest(docs_dir)
+
+        # Save to JSON
+        manifest_file = DOCS_MANIFEST_DIR / "docs.json"
+        with open(manifest_file, 'w', encoding='utf-8') as f:
+            json.dump(docs_manifest, f, indent=2, ensure_ascii=False)
+
+        docs_count = 1
+        print(f"      ✅ {manifest_file.relative_to(MONOREPO_ROOT)}")
+
+    print(f"   Generated {docs_count} documentation manifest")
+    print()
+
+    # 5. Generate root manifest
+    print("5️⃣ Generating root manifest...")
     root_manifest = generate_root_manifest()
 
     # Save to JSON
@@ -620,11 +730,13 @@ def main():
     print(f"   Apps:     {app_count} manifests in SESSION_NOTES/apps/")
     print(f"   Packages: {package_count} manifests in SESSION_NOTES/packages/")
     print(f"   Tools:    {tools_count} manifest in SESSION_NOTES/tools/")
+    print(f"   Docs:     {docs_count} manifest in SESSION_NOTES/docs/")
     print()
-    print(f"📁 Total files tracked: {root_manifest['statistics']['total_files']}")
-    print(f"🐍 Python files: {root_manifest['statistics']['python_files']}")
+    print(f"🐍 Total files tracked: {root_manifest['statistics']['total_files']}")
+    print(f"📝 Python files: {root_manifest['statistics']['python_files']}")
     print(f"📜 PowerShell files: {root_manifest['statistics']['powershell_files']}")
-    print(f"📝 Total lines: {root_manifest['statistics']['total_lines']:,}")
+    print(f"📖 Markdown files: {root_manifest['statistics']['markdown_files']}")
+    print(f"📏 Total lines: {root_manifest['statistics']['total_lines']:,}")
     print()
     print(f"🌿 Branch: {GITHUB_BRANCH}")
     print()
@@ -638,6 +750,9 @@ def main():
     print("# Load specific app:")
     print(
         f"web_fetch('https://raw.githubusercontent.com/{GITHUB_REPO}/{GITHUB_BRANCH}/SESSION_NOTES/apps/supplier-invoice-loader.json')")
+    print()
+    print("# Load documentation:")
+    print(f"web_fetch('https://raw.githubusercontent.com/{GITHUB_REPO}/{GITHUB_BRANCH}/SESSION_NOTES/docs/docs.json')")
     print()
     print("# Load Claude Tools manifest:")
     print(
