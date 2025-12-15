@@ -2,17 +2,17 @@
   "name": "documentation",
   "type": "docs",
   "location": "docs",
-  "generated": "2025-12-15T15:52:18.122094",
+  "generated": "2025-12-15T18:34:28.868224",
   "description": "Komplexná dokumentácia NEX Automat projektu",
   "statistics": {
-    "total_files": 126,
+    "total_files": 129,
     "total_dirs": 40,
     "python_files": 0,
     "powershell_files": 0,
-    "markdown_files": 82,
+    "markdown_files": 90,
     "test_files": 0,
-    "total_lines": 19597,
-    "total_size": 1417211
+    "total_lines": 24170,
+    "total_size": 1438442
   },
   "files": [
     {
@@ -140,27 +140,6 @@
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/applications/supplier-invoice-staging/WORKFLOWS.md",
       "lines": 15,
       "type": "documentation"
-    },
-    {
-      "path": "docs/architecture/database/COMMON_DOCUMENT_PRINCIPLES.md-old",
-      "name": "COMMON_DOCUMENT_PRINCIPLES.md-old",
-      "size": 42767,
-      "extension": ".md-old",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/COMMON_DOCUMENT_PRINCIPLES.md-old"
-    },
-    {
-      "path": "docs/architecture/database/DATABASE_RELATIONSHIPS.md-old",
-      "name": "DATABASE_RELATIONSHIPS.md-old",
-      "size": 24061,
-      "extension": ".md-old",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/DATABASE_RELATIONSHIPS.md-old"
-    },
-    {
-      "path": "docs/architecture/database/DATA_DICTIONARY.md-old",
-      "name": "DATA_DICTIONARY.md-old",
-      "size": 22688,
-      "extension": ".md-old",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/DATA_DICTIONARY.md-old"
     },
     {
       "path": "docs/architecture/database/INDEX.md-old",
@@ -389,10 +368,10 @@
     {
       "path": "docs/archive/00_ARCHIVE_INDEX.md",
       "name": "00_ARCHIVE_INDEX.md",
-      "size": 3150,
+      "size": 3480,
       "extension": ".md",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/00_ARCHIVE_INDEX.md",
-      "lines": 77,
+      "lines": 81,
       "type": "documentation"
     },
     {
@@ -477,12 +456,30 @@
       "type": "documentation"
     },
     {
+      "path": "docs/archive/deployments/TRAINING_GUIDE_MAGERSTAV_2025-11-27.md",
+      "name": "TRAINING_GUIDE_MAGERSTAV_2025-11-27.md",
+      "size": 9098,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/deployments/TRAINING_GUIDE_MAGERSTAV_2025-11-27.md",
+      "lines": 399,
+      "type": "documentation"
+    },
+    {
       "path": "docs/archive/deployments/TROUBLESHOOTING_MAGERSTAV_2025-11-21.md",
       "name": "TROUBLESHOOTING_MAGERSTAV_2025-11-21.md",
       "size": 9592,
       "extension": ".md",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/deployments/TROUBLESHOOTING_MAGERSTAV_2025-11-21.md",
       "lines": 567,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/archive/deployments/USER_GUIDE_MAGERSTAV_2025-12-02.md",
+      "name": "USER_GUIDE_MAGERSTAV_2025-12-02.md",
+      "size": 11447,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/deployments/USER_GUIDE_MAGERSTAV_2025-12-02.md",
+      "lines": 388,
       "type": "documentation"
     },
     {
@@ -567,6 +564,15 @@
       "type": "documentation"
     },
     {
+      "path": "docs/archive/sessions/SESSION_2025-12-15_documentation-migration-batch4.md",
+      "name": "SESSION_2025-12-15_documentation-migration-batch4.md",
+      "size": 8252,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/sessions/SESSION_2025-12-15_documentation-migration-batch4.md",
+      "lines": 299,
+      "type": "documentation"
+    },
+    {
       "path": "docs/database/00_DATABASE_INDEX.md",
       "name": "00_DATABASE_INDEX.md",
       "size": 3771,
@@ -582,6 +588,33 @@
       "extension": ".md",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/database/DATABASE_INDEX.md",
       "lines": 11,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/database/DATABASE_PRINCIPLES.md",
+      "name": "DATABASE_PRINCIPLES.md",
+      "size": 24238,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/database/DATABASE_PRINCIPLES.md",
+      "lines": 985,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/database/MIGRATION_MAPPING.md",
+      "name": "MIGRATION_MAPPING.md",
+      "size": 22800,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/database/MIGRATION_MAPPING.md",
+      "lines": 657,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/database/RELATIONSHIPS.md",
+      "name": "RELATIONSHIPS.md",
+      "size": 24157,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/database/RELATIONSHIPS.md",
+      "lines": 707,
       "type": "documentation"
     },
     {
@@ -610,13 +643,6 @@
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/deployment/GO_LIVE_CHECKLIST.md",
       "lines": 282,
       "type": "documentation"
-    },
-    {
-      "path": "docs/deployment/MAGERSTAV_ONBOARDING_GUIDE.md-old",
-      "name": "MAGERSTAV_ONBOARDING_GUIDE.md-old",
-      "size": 11447,
-      "extension": ".md-old",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/deployment/MAGERSTAV_ONBOARDING_GUIDE.md-old"
     },
     {
       "path": "docs/deployment/OPERATIONS_GUIDE.md",
@@ -655,11 +681,13 @@
       "type": "documentation"
     },
     {
-      "path": "docs/deployment/TRAINING_GUIDE.md-old",
-      "name": "TRAINING_GUIDE.md-old",
-      "size": 9098,
-      "extension": ".md-old",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/deployment/TRAINING_GUIDE.md-old"
+      "path": "docs/deployment/TRAINING_GUIDE_TEMPLATE.md",
+      "name": "TRAINING_GUIDE_TEMPLATE.md",
+      "size": 2829,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/deployment/TRAINING_GUIDE_TEMPLATE.md",
+      "lines": 135,
+      "type": "documentation"
     },
     {
       "path": "docs/deployment/TROUBLESHOOTING.md",
@@ -668,6 +696,15 @@
       "extension": ".md",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/deployment/TROUBLESHOOTING.md",
       "lines": 350,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/deployment/USER_GUIDE_TEMPLATE.md",
+      "name": "USER_GUIDE_TEMPLATE.md",
+      "size": 10519,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/deployment/USER_GUIDE_TEMPLATE.md",
+      "lines": 388,
       "type": "documentation"
     },
     {
@@ -727,19 +764,19 @@
     {
       "path": "docs/documents/DOCUMENT_TYPES.md",
       "name": "DOCUMENT_TYPES.md",
-      "size": 142,
+      "size": 2949,
       "extension": ".md",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/documents/DOCUMENT_TYPES.md",
-      "lines": 11,
+      "lines": 95,
       "type": "documentation"
     },
     {
       "path": "docs/documents/NUMBERING.md",
       "name": "NUMBERING.md",
-      "size": 137,
+      "size": 14952,
       "extension": ".md",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/documents/NUMBERING.md",
-      "lines": 11,
+      "lines": 538,
       "type": "documentation"
     },
     {
@@ -1089,6 +1126,22 @@
         "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/deployment/RECOVERY_GUIDE.md"
       },
       {
+        "name": "TRAINING_GUIDE_TEMPLATE.md",
+        "path": "deployment/TRAINING_GUIDE_TEMPLATE.md",
+        "full_path": "docs/deployment/TRAINING_GUIDE_TEMPLATE.md",
+        "size": 2829,
+        "lines": 135,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/deployment/TRAINING_GUIDE_TEMPLATE.md"
+      },
+      {
+        "name": "USER_GUIDE_TEMPLATE.md",
+        "path": "deployment/USER_GUIDE_TEMPLATE.md",
+        "full_path": "docs/deployment/USER_GUIDE_TEMPLATE.md",
+        "size": 10519,
+        "lines": 388,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/deployment/USER_GUIDE_TEMPLATE.md"
+      },
+      {
         "name": "SETUP_GUIDE.md",
         "path": "development/SETUP_GUIDE.md",
         "full_path": "docs/development/SETUP_GUIDE.md",
@@ -1127,6 +1180,22 @@
         "size": 13570,
         "lines": 610,
         "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/deployments/RECOVERY_GUIDE_MAGERSTAV_2025-11-21.md"
+      },
+      {
+        "name": "TRAINING_GUIDE_MAGERSTAV_2025-11-27.md",
+        "path": "archive/deployments/TRAINING_GUIDE_MAGERSTAV_2025-11-27.md",
+        "full_path": "docs/archive/deployments/TRAINING_GUIDE_MAGERSTAV_2025-11-27.md",
+        "size": 9098,
+        "lines": 399,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/deployments/TRAINING_GUIDE_MAGERSTAV_2025-11-27.md"
+      },
+      {
+        "name": "USER_GUIDE_MAGERSTAV_2025-12-02.md",
+        "path": "archive/deployments/USER_GUIDE_MAGERSTAV_2025-12-02.md",
+        "full_path": "docs/archive/deployments/USER_GUIDE_MAGERSTAV_2025-12-02.md",
+        "size": 11447,
+        "lines": 388,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/deployments/USER_GUIDE_MAGERSTAV_2025-12-02.md"
       }
     ],
     "database": [
@@ -1145,6 +1214,30 @@
         "size": 142,
         "lines": 11,
         "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/database/DATABASE_INDEX.md"
+      },
+      {
+        "name": "DATABASE_PRINCIPLES.md",
+        "path": "database/DATABASE_PRINCIPLES.md",
+        "full_path": "docs/database/DATABASE_PRINCIPLES.md",
+        "size": 24238,
+        "lines": 985,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/database/DATABASE_PRINCIPLES.md"
+      },
+      {
+        "name": "MIGRATION_MAPPING.md",
+        "path": "database/MIGRATION_MAPPING.md",
+        "full_path": "docs/database/MIGRATION_MAPPING.md",
+        "size": 22800,
+        "lines": 657,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/database/MIGRATION_MAPPING.md"
+      },
+      {
+        "name": "RELATIONSHIPS.md",
+        "path": "database/RELATIONSHIPS.md",
+        "full_path": "docs/database/RELATIONSHIPS.md",
+        "size": 24157,
+        "lines": 707,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/database/RELATIONSHIPS.md"
       },
       {
         "name": "DATABASE_MIGRATION.md",
@@ -1203,6 +1296,14 @@
         "size": 9273,
         "lines": 324,
         "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/sessions/SESSION_2025-12-15_documentation-migration-batch3.md"
+      },
+      {
+        "name": "SESSION_2025-12-15_documentation-migration-batch4.md",
+        "path": "archive/sessions/SESSION_2025-12-15_documentation-migration-batch4.md",
+        "full_path": "docs/archive/sessions/SESSION_2025-12-15_documentation-migration-batch4.md",
+        "size": 8252,
+        "lines": 299,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/sessions/SESSION_2025-12-15_documentation-migration-batch4.md"
       }
     ],
     "api": [
@@ -1376,8 +1477,8 @@
         "name": "00_ARCHIVE_INDEX.md",
         "path": "archive/00_ARCHIVE_INDEX.md",
         "full_path": "docs/archive/00_ARCHIVE_INDEX.md",
-        "size": 3150,
-        "lines": 77,
+        "size": 3480,
+        "lines": 81,
         "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/00_ARCHIVE_INDEX.md"
       },
       {
@@ -1424,16 +1525,16 @@
         "name": "DOCUMENT_TYPES.md",
         "path": "documents/DOCUMENT_TYPES.md",
         "full_path": "docs/documents/DOCUMENT_TYPES.md",
-        "size": 142,
-        "lines": 11,
+        "size": 2949,
+        "lines": 95,
         "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/documents/DOCUMENT_TYPES.md"
       },
       {
         "name": "NUMBERING.md",
         "path": "documents/NUMBERING.md",
         "full_path": "docs/documents/NUMBERING.md",
-        "size": 137,
-        "lines": 11,
+        "size": 14952,
+        "lines": 538,
         "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/documents/NUMBERING.md"
       },
       {

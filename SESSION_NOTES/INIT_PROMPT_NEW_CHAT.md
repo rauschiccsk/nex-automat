@@ -1,17 +1,17 @@
-# INIT PROMPT - NEX Automat: .md-old Migration (Batch 4)
+# INIT PROMPT - NEX Automat: .md-old Migration (Batch 5)
 
 **Projekt:** nex-automat  
 **Úloha:** Pokračovanie systematickej migrácie .md-old súborov  
 **Developer:** Zoltán (40 rokov skúseností)  
 **Jazyk:** Slovenčina  
 **Previous Session:** https://claude.ai/chat/[CURRENT_CHAT_URI]  
-**Status:** ✅ Batch 3 complete (20/60 súborov), pokračujeme
+**Status:** ✅ Batch 4 complete (25/60 súborov), pokračujeme
 
 ---
 
 ## ⚠️ KRITICKÉ: COLLABORATION RULES
 
-**MUSÍŠ dodržiavať 21 pravidiel z memory_user_edits!**
+**MUSÍŠ dodržiavať 22 pravidiel z memory_user_edits!**
 
 Kľúčové pravidlá pre túto session:
 - **Rule #7:** CRITICAL artifacts pre všetky dokumenty/kód
@@ -22,44 +22,55 @@ Kľúčové pravidlá pre túto session:
 
 ---
 
-## 📋 ČO SME DOKONČILI V PREVIOUS SESSION (Batch 3)
+## 📋 ČO SME DOKONČILI V PREVIOUS SESSION (Batch 4)
 
-### ✅ Migrované Dokumenty (9)
+### ✅ Migrované Dokumenty (5 → 8)
 
-**Deployment Documents:**
+**1. MAGERSTAV_ONBOARDING_GUIDE.md-old (11.4 KB)**
+- Action: EXTRACT TEMPLATE + ARCHIVE
+- Result: USER_GUIDE_TEMPLATE.md + archive
+- Script: 20_extract_user_guide_template.py
 
-1. **MAGERSTAV_DEPLOYMET_SUMMARY.md-old** → ARCHIVED
-2. **GO_LIVE_CHECKLIST.md-old** → Template + Archive
-3. **PRE_DEPLOYMENT_CHECKLIST.md-old** → Template + Archive
-4. **SERVICE_MANAGEMENT.md-old** → NEW (generic)
-5. **DEPLOYMENT_GUIDE.md-old** → Template + Archive
-6. **OPERATIONS_GUIDE.md-old** → Template + Archive (Slovak)
-7. **RECOVERY_GUIDE.md-old** → Template + Archive
-8. **RECOVERY_PROCEDURES.md-old** → ARCHIVED (duplicate)
-9. **TROUBLESHOOTING.md-old** → Template + Archive
+**2. TRAINING_GUIDE.md-old (9.1 KB)**
+- Action: EXTRACT TEMPLATE + ARCHIVE
+- Result: TRAINING_GUIDE_TEMPLATE.md + archive
+- Script: 21_extract_training_template.py
 
-**Results:**
-- ✅ 8 reusable templates created
-- ✅ 9 Mágerstav-specific archives
-- ✅ New directory: `docs/archive/deployments/`
-- ✅ All indexes updated
+**3. COMMON_DOCUMENT_PRINCIPLES.md-old (42.8 KB)**
+- Action: SPLIT (3 dokumenty)
+- Result: DOCUMENT_TYPES.md, NUMBERING.md, DATABASE_PRINCIPLES.md
+- Script: 22_split_common_principles.py
 
-### 📜 Scripts Vytvorené (9)
+**4. DATABASE_RELATIONSHIPS.md-old (24.1 KB)**
+- Action: RELOCATE
+- Result: docs/database/RELATIONSHIPS.md
+- Script: 23_relocate_relationships.py
 
-- `11_archive_magerstav_deployment.py`
-- `12_extract_golive_checklist_template.py`
-- `13_extract_predeployment_checklist.py`
-- `14_migrate_service_management.py`
-- `15_extract_deployment_guide.py`
-- `16_extract_operations_guide.py`
-- `17_extract_recovery_guide.py`
-- `18_archive_recovery_procedures.py`
-- `19_extract_troubleshooting_guide.py`
+**5. DATA_DICTIONARY.md-old (22.7 KB)**
+- Action: RELOCATE
+- Result: docs/database/MIGRATION_MAPPING.md
+- Script: 24_relocate_data_dictionary.py
+
+### 📜 Scripts Vytvorené (5)
+
+- `20_extract_user_guide_template.py`
+- `21_extract_training_template.py`
+- `22_split_common_principles.py`
+- `23_relocate_relationships.py`
+- `24_relocate_data_dictionary.py`
 
 ### 📊 Progress
 
-**Dokončené:** 20/60 súborov (33.3%)  
-**Zostáva:** 40 súborov
+**Dokončené:** 25/60 súborov (41.7%)  
+**Zostáva:** 35 súborov
+
+**By Category:**
+- ✅ Deployment: 11/11 (100%) - **COMPLETE**
+- ✅ Database General: 4/4 (100%) - **COMPLETE**
+- ⏳ Database Tables: 0/28 (0%) - **NEXT**
+- ⏳ Strategic: 0/2 (0%)
+- ⏳ Development: 0/1 (0%)
+- ⏳ Other: 0/4 (0%)
 
 ---
 
@@ -68,59 +79,59 @@ Kľúčové pravidlá pre túto session:
 ### Priority 1: Git Commit (PRVÉ!)
 
 ```powershell
-# Commit batch 3 changes
+# Commit batch 4 changes
 git add docs/ SESSION_NOTES/ scripts/
-git commit -m "docs: Migrate .md-old batch 3 - deployment templates + archives"
+git commit -m "docs: Migrate .md-old batch 4 - deployment templates + database docs"
 git push origin develop
 ```
 
-### Priority 2: Pokračovať Migráciu (Batch 4)
+### Priority 2: Pokračovať Migráciu (Batch 5)
 
-**Zostáva:** 40 .md-old súborov
+**Immediate Next:** INDEX.md-old (6 KB) - DELETE
 
----
-
-## 📂 DOSTUPNÉ .md-old SÚBORY (zostáva 40)
-
-### Deployment (2 zostáva) ⭐ ODPORÚČAM ZAČAŤ TU
-
-1. **MAGERSTAV_ONBOARDING_GUIDE.md-old** (11.4 KB)
-   - Customer onboarding process
-   - Likely: EXTRACT TEMPLATE + ARCHIVE
-
-2. **TRAINING_GUIDE.md-old** (9.1 KB)
-   - User training documentation
-   - Likely: EXTRACT TEMPLATE + ARCHIVE
-
-**Strategy:** Dokončiť deployment kategóriu pred prechodom na database docs
+**Strategy:** Individuálna analýza každého súboru
 
 ---
 
-### Database Architecture (32 súborov)
+## 📂 DOSTUPNÉ .md-old SÚBORY (zostáva 35)
 
-**Všeobecné dokumenty (4):**
+### Database - Index Files (7 súborov) ⭐ ODPORÚČAM ZAČAŤ TU
 
-1. **COMMON_DOCUMENT_PRINCIPLES.md-old** (42.8 KB) ⚠️ LARGE
-   - Common patterns across documents
-   - Likely: ARCHIVE as reference
+1. **INDEX.md-old** (6.0 KB) - docs/architecture/database/
+   - Old database docs index
+   - Likely: DELETE (replaced by new index)
 
-2. **DATABASE_RELATIONSHIPS.md-old** (24.1 KB)
-   - Database schema relationships
-   - Likely: MERGE into new DB docs or ARCHIVE
+2. **catalogs/INDEX.md-old** (6.7 KB)
+   - Old catalogs index
+   - Likely: DELETE or MERGE
 
-3. **DATA_DICTIONARY.md-old** (22.7 KB)
-   - Field definitions
-   - Likely: MERGE or ARCHIVE
+3. **catalogs/partners/INDEX.md-old** (7.5 KB)
+   - Old partners catalog index
+   - Analyze individually
 
-4. **INDEX.md-old** (6.0 KB)
-   - Database docs index
-   - Likely: DELETE (replaced by new structure)
+4. **catalogs/products/INDEX.md-old** (5.7 KB)
+   - Old products catalog index
+   - Analyze individually
 
-**Table Documentation (28 súborov):**
+5. **sales/INDEX.md-old** (8.1 KB)
+   - Old sales index
+   - Analyze individually
 
-**Catalogs - Partners (8):**
+6. **stock/INDEX.md-old** (0 KB - empty!)
+   - Empty file
+   - DELETE
+
+7. **stock/cards/INDEX.md-old** (20.4 KB)
+   - Stock cards index
+   - Analyze individually
+
+---
+
+### Database Tables (28 súborov) ⏳ AFTER INDEXES
+
+**Catalogs - Partners (9):**
 - BANKLST-bank_catalog.md-old (10.7 KB)
-- PAB-partner_catalog.md-old (39.9 KB)
+- PAB-partner_catalog.md-old (39.9 KB) ⚠️ LARGE
 - PABACC-partner_catalog_bank_accounts.md-old (12.6 KB)
 - PACNCT-partner_catalog_contacts.md-old (22.8 KB)
 - PAGLST-partner_categories.md-old (14.9 KB)
@@ -136,14 +147,12 @@ git push origin develop
 - MGLST-product_categories.md-old (17.4 KB)
 - SGLST-product_categories.md-old (20.1 KB)
 
-**Stock Management (5):**
+**Stock Management (7):**
 - FIF-stock_card_fifos.md-old (28.5 KB)
-- STK-stock_cards.md-old (38.5 KB)
+- STK-stock_cards.md-old (38.5 KB) ⚠️ LARGE
 - STKLST-stocks.md-old (20.4 KB)
-- STM-stock_card_movements.md-old (35.6 KB)
+- STM-stock_card_movements.md-old (35.6 KB) ⚠️ LARGE
 - WRILST-facilities.md-old (17.9 KB)
-
-**Documents (2):**
 - TSH-supplier_delivery_heads.md-old (25.4 KB)
 - TSI-supplier_delivery_items.md-old (29.7 KB)
 
@@ -154,14 +163,6 @@ git push origin develop
 
 **Sales (1):**
 - PLSnnnnn-price_list_items.md-old (20.5 KB)
-
-**Other (2):**
-- catalogs/INDEX.md-old (6.7 KB)
-- catalogs/partners/INDEX.md-old (7.5 KB)
-- catalogs/products/INDEX.md-old (5.7 KB)
-- sales/INDEX.md-old (8.1 KB)
-- stock/INDEX.md-old (0 KB - empty!)
-- stock/cards/INDEX.md-old (20.4 KB)
 
 ---
 
@@ -177,11 +178,11 @@ git push origin develop
 
 ---
 
-### Other (4 súborov)
+### Development (1 súbor)
 
 1. **CONTRIBUTING.md-old** (12.5 KB) in `docs/giudes/` [typo!]
    - Development contribution guide
-   - Strategy: FIX directory typo, migrate to `docs/development/`
+   - Strategy: FIX directory typo, RELOCATE to `docs/development/`
 
 ---
 
@@ -198,16 +199,18 @@ web_fetch: https://raw.githubusercontent.com/.../[filename].md-old
 - Typ dokumentu
 - Kvalita obsahu (⭐1-5)
 - Relevancia (High/Medium/Low)
-- Rozhodnutie (ARCHIVE/NEW/EXTRACT/DELETE)
+- Rozhodnutie (ARCHIVE/NEW/EXTRACT/DELETE/SPLIT/RELOCATE)
 
 **3. Rozhodnutie**
-- **ARCHIVE:** Historický/customer-specific
-- **NEW:** Generický dokument
-- **EXTRACT TEMPLATE + ARCHIVE:** Generic process + customer data
-- **DELETE:** Obsolete (rare, s potvrdením)
+- **SPLIT:** Veľký dokument s viacerými témami → viacero súborov
+- **RELOCATE:** Aktívny dokument, presunúť na správne miesto
+- **EXTRACT TEMPLATE:** Generic process + customer data → template + archive
+- **ARCHIVE:** Historický/customer-specific → archive
+- **DELETE:** Obsolete, replaced (zriedkavé, s potvrdením)
+- **MERGE:** Pridať do existujúceho dokumentu
 
 **4. Spracovanie**
-- Vytvor numbered script (20, 21, 22...)
+- Vytvor numbered script (25, 26, 27...)
 - Artifact FIRST, potom čakaj na potvrdenie
 - User spustí script lokálne
 - User potvrdí success
@@ -235,10 +238,10 @@ https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/[path]
 ```markdown
 # [Document Title]
 
-**Kategória:** [Strategic/System/Database/...]  
+**Category:** [Strategic/System/Database/...]  
 **Status:** 🟢 Complete / 🟡 In Progress / 🔴 Draft  
-**Vytvorené:** YYYY-MM-DD  
-**Aktualizované:** YYYY-MM-DD  
+**Created:** YYYY-MM-DD  
+**Updated:** YYYY-MM-DD  
 **Related:** [Links]
 
 ---
@@ -261,20 +264,36 @@ https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/[path]
 - Strategic docs sú VERY LARGE (>50 KB)
 - Pri veľkých súboroch analyzuj hlavičku PRED načítaním celého obsahu
 
-### Migration Decisions Learned
-- **Templates** pre reusable processes (checklists, guides)
-- **Archive** pre customer-specific (Mágerstav dates, contacts)
-- **Generic docs** kde nie sú customer specifics
-- **Duplicates** - archive s poznámkou
+### Migration Decisions Learned (Batch 4)
 
-### Database Docs Strategy (TBD)
-- Možno BATCH archive všetkých 28 table docs
-- Možno CREATE database doc generator
-- DISCUSS s Zoltánom stratégiu pred spracovaním
+**SPLIT:**
+- Veľké dokumenty (>40 KB) s viacerými témami
+- Example: COMMON_DOCUMENT_PRINCIPLES → 3 docs
+
+**RELOCATE:**
+- Aktívne dokumenty, nie legacy
+- Správna kategória v docs/
+- Example: DATABASE_RELATIONSHIPS → docs/database/
+
+**EXTRACT TEMPLATE:**
+- Obsahuje generic process + customer specifics
+- Create template + archive customer version
+- Example: USER_GUIDE, TRAINING_GUIDE
+
+**DELETE:**
+- Obsolete indexes replaced by new structure
+- Always confirm with user first
+
+### .md-old Meaning (CRITICAL!)
+
+**.md-old** = Waiting for systematic integration  
+**.md** = Already in new systematic structure
+
+**NOT** "old = archive" but "old = needs processing"
 
 ### Index Updates
 - `docs/00_DOCUMENTATION_INDEX.md` - main index
-- `docs/archive/00_ARCHIVE_INDEX.md` - archive index
+- Category indexes (00_DATABASE_INDEX.md, etc.)
 - Update PO KAŽDOM successful migration
 
 ---
@@ -282,9 +301,9 @@ https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/[path]
 ## 📈 SUCCESS METRICS
 
 **Pre túto session očakávame:**
-- ✅ Git commit batch 3 dokončený (PRVÉ!)
-- ✅ 2 deployment docs zmigrované (MAGERSTAV_ONBOARDING, TRAINING)
-- ✅ Možno začať database docs (ak čas)
+- ✅ Git commit batch 4 dokončený (PRVÉ!)
+- ✅ 5-10 index súborov zmigrovaných (DELETE alebo MERGE)
+- ✅ Možno začať database table docs (ak čas)
 - ✅ Indexy aktualizované
 - ✅ Tokens < 80% pred koncom session
 
@@ -294,20 +313,20 @@ https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/[path]
 
 **Prvý krok po načítaní tohto promptu:**
 
-1. Skontroluj memory_user_edits (21 pravidiel) ✅
-2. Opýtaj sa: "Spustil si už git commit z Batch 3?"
+1. Skontroluj memory_user_edits (22 pravidiel) ✅
+2. Opýtaj sa: "Spustil si už git commit z Batch 4?"
 3. Ak ÁNO → "Ktorý .md-old súbor chceš spracovať ďalej?"
 4. Ak NIE → "Mám ti pomôcť s git commit?"
 
 **Odporúčaný workflow:**
-1. **Git commit batch 3 FIRST** (ak ešte nie)
-2. **Start:** MAGERSTAV_ONBOARDING_GUIDE.md-old (11.4 KB)
-3. **Then:** TRAINING_GUIDE.md-old (9.1 KB)
-4. **Assess:** Database docs strategy discussion
+1. **Git commit batch 4 FIRST** (ak ešte nie)
+2. **Start:** INDEX.md-old (6 KB) - DELETE recommended
+3. **Then:** 6 ďalších index súborov
+4. **Assess:** Database table docs strategy
 
 ---
 
-## 🎯 WORKFLOW BEST PRACTICES (from Batch 3)
+## 🎯 WORKFLOW BEST PRACTICES (from Batch 4)
 
 ### What Works Perfectly
 
@@ -316,8 +335,8 @@ https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/[path]
 ✅ **Artifacts FIRST, discussions minimal**  
 ✅ **Clear script names with numbers**  
 ✅ **Update indexes immediately**  
-✅ **Template extraction for reusable docs**  
-✅ **Archive customer-specific versions**
+✅ **Individual analysis (NO batch operations)**  
+✅ **Proper categorization per file type**
 
 ### Communication Style
 
@@ -328,16 +347,46 @@ https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/[path]
 
 ---
 
-## 📝 DECISION FRAMEWORK QUICK REFERENCE
+## 📋 DECISION FRAMEWORK QUICK REFERENCE
 
 | Typ dokumentu | Rozhodnutie | Príklad |
 |---------------|-------------|---------|
-| Deployment checklist | EXTRACT TEMPLATE + ARCHIVE | GO_LIVE_CHECKLIST |
-| Customer-specific summary | ARCHIVE | MAGERSTAV_DEPLOYMENT |
-| Generic operations guide | NEW or EXTRACT | SERVICE_MANAGEMENT |
-| Duplicate content | ARCHIVE s poznámkou | RECOVERY_PROCEDURES |
-| Table documentation | TBD - discuss strategy | Database tables |
-| Strategic research | ARCHIVE | Technology landscape |
+| Old index (replaced) | DELETE | INDEX.md-old |
+| Empty file | DELETE | stock/INDEX.md-old (0 KB) |
+| Large multi-topic doc | SPLIT | COMMON_DOCUMENT_PRINCIPLES |
+| Active design doc | RELOCATE | DATABASE_RELATIONSHIPS |
+| Generic + customer | EXTRACT TEMPLATE | USER_GUIDE, TRAINING |
+| Pure Btrieve legacy | ARCHIVE | Table docs (TBD) |
+| Historical research | ARCHIVE | Strategic docs |
+| Duplicate content | MERGE | Category indexes (maybe) |
+
+---
+
+## 🔧 CRITICAL REMINDERS
+
+### Before Each File
+
+1. Load with web_fetch
+2. Analyze content type and quality
+3. Check if replaced by new docs
+4. Make clear recommendation
+5. Create script artifact
+6. Wait for execution
+
+### Script Creation
+
+- Use numbered sequence (25, 26, 27...)
+- Use pathlib for Windows paths
+- Use raw strings (r"C:\...")
+- Include error handling
+- Clear progress output
+
+### After Execution
+
+- Wait for user confirmation
+- Check for errors
+- Note for index updates
+- Continue to next file
 
 ---
 
@@ -351,19 +400,19 @@ https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/[path]
 
 ---
 
-## 🔧 QUICK COMMANDS FOR REFERENCE
+## 📧 QUICK COMMANDS FOR REFERENCE
 
 ```powershell
 # Check docs.json
 cat SESSION_NOTES/docs.json | jq '.statistics'
 
 # Run script
-python scripts/20_script_name.py
+python scripts/25_script_name.py
 
 # Git workflow
 git status
 git add docs/ SESSION_NOTES/ scripts/
-git commit -m "docs: Migrate .md-old batch 4 - [description]"
+git commit -m "docs: Migrate .md-old batch 5 - [description]"
 git push origin develop
 
 # Generate manifests (if needed)

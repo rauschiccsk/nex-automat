@@ -1,9 +1,16 @@
-# Database Relationships - Cross-System
+# Database Relationships
 
-**Dokument:** DATABASE_RELATIONSHIPS.md  
-**Vytvorené:** 2025-12-10  
-**Účel:** Dokumentácia všetkých vzťahov medzi tabuľkami naprieč systémami  
-**Status:** ✅ V práci
+**Category:** Database  
+**Status:** 🟢 Complete  
+**Created:** 2024-12-10  
+**Updated:** 2025-12-15  
+**Related:** [DATABASE_PRINCIPLES.md](DATABASE_PRINCIPLES.md)
+
+---
+
+## Overview
+
+Cross-system database relationships, foreign key constraints, cascading rules, and business logic.
 
 ---
 

@@ -1,199 +1,207 @@
-# Session Summary: Definitívna Dokumentačná Štruktúra
+# NEX Automat - Session Notes
 
-**Dátum:** 2025-12-15  
-**Session:** Documentation Structure Finalization  
-**Status:** ✅ Kompletné
-
----
-
-## 🎯 Cieľ Session
-
-Vytvoriť definitívnu dokumentačnú štruktúru pre NEX Automat projekt, ktorá:
-- Rieši token limit problémy (max 15k per dokument)
-- Pripravuje na hybridný prístup (Markdown + RAG)
-- Zachováva existujúcu prácu
-- Poskytuje systematický základ pre ďalší rozvoj
+**Project:** nex-automat  
+**Current Task:** .md-old Documentation Migration  
+**Status:** ⏳ In Progress (Batch 4 Complete)  
+**Last Updated:** 2025-12-15
 
 ---
 
-## ✅ Čo Bolo Dokončené
+## 🎯 Current Status
 
-### 1. Analýza Situácie
-- ✅ Preštudovaný existujúci script (01-create-documentation-structure.py)
-- ✅ Identifikovaná existujúca štruktúra (strategic, system, database, documents, applications, archive)
-- ✅ Zistené že dosť dokumentov už bolo spracovaných do tejto štruktúry
+**Migration Progress:** 25/60 files (41.7%)
 
-### 2. Návrh Hybridného Prístupu
-- ✅ Diskutovaná stratégia Markdown (master) + RAG (enhancement)
-- ✅ Odsúhlasený hybridný systém
-- ✅ Vytvorený refactoring plan s novou štruktúrou
-
-### 3. Merge Existujúcej + Novej Štruktúry
-- ✅ Analyzovaný konflikt medzi existujúcou a navrhovanou štruktúrou
-- ✅ Vytvorená definitívna štruktúra ktorá:
-  - Zachováva existujúce adresáre s obsahom
-  - Pridáva chýbajúce moduly (packages, development, migration, reference)
-  - Rozširuje applications/ o supplier-invoice-loader a supplier-invoice-staging
-  - Štandardizuje na 00_*_INDEX.md pattern
-
-### 4. Implementácia
-- ✅ Vytvorený nový script: 02-update-documentation-structure.py
-- ✅ Script zachováva existujúce súbory (neprepíše ich)
-- ✅ Vytvorí len chýbajúce adresáre a súbory
-- ✅ Generuje štandardné markdown headers pre nové dokumenty
-- ✅ Aktualizuje hlavný 00_DOCUMENTATION_INDEX.md
+**Active Task:** Database documentation migration  
+**Next File:** INDEX.md-old (6 KB) - DELETE recommended
 
 ---
 
-## 📊 Výsledná Štruktúra
+## 📊 Progress by Category
 
-### Hlavné Kategórie (10)
-1. **strategic/** - Strategické plánovanie, roadmap, tech decisions
-2. **system/** - High-level architektúra, monorepo, GUI framework, standards
-3. **database/** - DB schémy, catalogs, documents, migrations
-4. **documents/** - Dokladové typy, číslovanie, workflows
-5. **applications/** - supplier-invoice-loader, supplier-invoice-staging
-6. **packages/** - nex-shared, nexdata dokumentácia
-7. **development/** - Setup, testing, deployment guides
-8. **migration/** - PySide6 migration, database migration
-9. **reference/** - Glossary, API reference, collaboration rules
-10. **archive/** - Session history, archív
-
-### Štatistika
-- **Master Indexov:** 11 (00_*_INDEX.md)
-- **Tech Dokumentov:** ~32
-- **Total Dokumentov:** ~45
-- **Token Budget:** Max 15k per dokument
-- **Estimated Total:** ~450k tokens (rozpočítané)
+| Category | Done | Total | % | Status |
+|----------|------|-------|---|--------|
+| Deployment | 11 | 11 | 100% | ✅ COMPLETE |
+| Database General | 4 | 4 | 100% | ✅ COMPLETE |
+| Database Tables | 0 | 28 | 0% | ⏳ Next |
+| Strategic | 0 | 2 | 0% | ⏳ Pending |
+| Development | 0 | 1 | 0% | ⏳ Pending |
+| Other | 0 | 4 | 0% | ⏳ Pending |
+| **TOTAL** | **25** | **60** | **41.7%** | **⏳ In Progress** |
 
 ---
 
-## 🔑 Kľúčové Rozhodnutia
+## 🔄 Recent Session Summary
 
-### 1. Hybridný Prístup (Markdown + RAG)
-**Rozhodnutie:** Použiť Markdown ako "single source of truth" a RAG ako search enhancement  
-**Dôvod:** 
-- Markdown = human readable, Git friendly, strukturované
-- RAG = search optimization, token efficient
-- Oboje sa dopĺňajú, nie nahrádzajú
+### Session 2025-12-15 (Batch 4)
 
-### 2. Zachovať Existujúcu Štruktúru
-**Rozhodnutie:** Merge existujúcej so novou namiesto kompletného rewritu  
-**Dôvod:**
-- Dosť práce už bolo urobené
-- Existujúce dokumenty už majú obsah
-- Minimalizácia disruption
+**Completed:**
+- ✅ Script 20: USER_GUIDE_TEMPLATE extraction
+- ✅ Script 21: TRAINING_GUIDE_TEMPLATE extraction
+- ✅ Script 22: COMMON_PRINCIPLES split (3 docs)
+- ✅ Script 23: DATABASE_RELATIONSHIPS relocate
+- ✅ Script 24: DATA_DICTIONARY relocate
 
-### 3. Štandardizovať na 00_*_INDEX.md Pattern
-**Rozhodnutie:** Všetky master indexy používajú 00_ prefix  
-**Dôvod:**
-- Jasné označenie indexových dokumentov
-- Sorting advantage (vždy prvé v zozname)
-- Konzistencia naprieč projektom
+**Files Processed:** 5 (.md-old) → 8 documents created
 
-### 4. Token Limit 15k per Dokument
-**Rozhodnutie:** Maximum 15k tokens pre jeden .md súbor  
-**Dôvod:**
-- Rieši token limit problémy v chatoch
-- Umožňuje načítanie 2-3 dokumentov naraz
-- RAG-friendly (každý dokument = chunk)
+**Key Decisions:**
+- Individual file analysis (NOT batch operations)
+- SPLIT strategy for large multi-topic documents
+- Active database docs get RELOCATE (not ARCHIVE)
 
 ---
 
-## 📋 Deliverables
+## 📋 Next Steps
 
-### Artifacts Vytvorené
-1. **final_docs_structure** - Kompletný popis definitívnej štruktúry
-2. **updated_doc_structure_script** - Python script pre implementáciu
-3. **commit_message_doc_structure** - Pripravený commit message
-4. **session_summary_doc_structure** - Tento sumár
+### Immediate (Next Session)
 
-### Súbory pre Commit
-- `scripts/02-update-documentation-structure.py` - Nový script
-- `docs/` - Aktualizovaná štruktúra (po spustení scriptu)
+1. **Script 25:** DELETE INDEX.md-old (obsolete)
+2. **Analyze:** 7 category index files individually
+3. **Start:** Database table docs (28 files, one-by-one)
 
----
+### Strategy for Database Tables
 
-## 🚀 Next Steps
+**Approach:** Individual analysis required
+- Each file 10-40 KB
+- Mix of ARCHIVE vs RELOCATE expected
+- Some may need MERGE into existing docs
 
-### Immediate (Tento Týždeň)
-1. **Spustiť script** - Vytvoriť novú štruktúru
-   ```bash
-   python scripts/02-update-documentation-structure.py
-   ```
-
-2. **Git commit** - Commitnúť novú štruktúru
-   ```bash
-   git add docs/ scripts/
-   git commit -F commit-message.txt
-   ```
-
-3. **Začať migráciu .md-old** - Session-by-session spracovanie
-   - Jeden .md-old per session
-   - Analýza → Kategorizácia → Spracovanie → Uloženie
-
-### Short Term (Budúci Týždeň)
-4. **Doplniť draft dokumenty** - Postupne dopĺňať obsah
-   - Začať s kritickými (applications/, packages/)
-   - Potom system/, development/
-
-5. **Vytvoriť glossary** - Centrálny slovník termínov
-   - NEX Genesis terminológia
-   - Project-specific skratky
-
-### Long Term (Tento Mesiac)
-6. **Implementovať RAG** - Phase 2 hybridného systému
-   - ChromaDB setup
-   - Auto-indexing .md súborov
-   - Search API endpoint
-
-7. **Finalizovať dokumentáciu** - Kompletizácia všetkých dokumentov
-   - Testovať cross-links
-   - Validácia markdown
-   - Coverage check
+**Expected Actions:**
+- ARCHIVE: Pure Btrieve legacy (TSH, TSI old format)
+- RELOCATE: Active design docs
+- MERGE: Duplicate/overlapping content
 
 ---
 
-## 💡 Lessons Learned
+## 🗂️ File Locations
 
-### Čo Fungovalo Dobre
-- **Incrementálny prístup** - Nehádzať všetko, merge existujúceho s novým
-- **Analýza pred akciou** - Najprv pochopiť čo existuje, potom meniť
-- **Systematizácia** - 00_*_INDEX.md pattern, štandardné headers
+### Source
+```
+docs/architecture/database/*.md-old (35 remaining)
+docs/deployment/*.md-old (0 - complete)
+docs/strategy/*.md-old (2 remaining)
+docs/giudes/*.md-old (1 - typo directory)
+```
 
-### Čo Zlepšiť
-- **Token monitoring** - Predchádzajúca session spadla na token limit zbytočne skoro
-- **Documentation first** - Pred kódovaním vždy najprv štruktúra docs
-
-### Pre Budúcnosť
-- **RAG ako enhancement** - Nie ako replacement, vždy zachovať Markdown source
-- **Modulárne dokumenty** - Malé súbory lepšie ako veľké monolity
-- **Cross-linking** - Dôležité pre navigáciu, ale nezabudnúť udržiavať
-
----
-
-## 🔍 Technical Notes
-
-### Script Design
-- Rekurzívna štruktúra handling
-- Skipping existujúcich súborov (no overwrite)
-- Štandardizované markdown headers
-- Relative paths v indexoch
-
-### Token Budget Strategy
-- Master indexes: 2-4k tokens
-- Technical docs: 8-15k tokens
-- Total: ~450k rozpočítané cez 45 dokumentov
-- RAG dokáže efektívne vyhľadávať relevantné
-
-### Git Workflow
-- Commit per major phase
-- Clear commit messages s context
-- Separation: structure → content → finalization
+### Target Structure
+```
+docs/
+├── database/           # 5 docs (PRINCIPLES, RELATIONSHIPS, MAPPING, etc.)
+├── documents/          # 2 docs (TYPES, NUMBERING)
+├── deployment/         # 11 docs (all templates + archives)
+├── archive/
+│   ├── deployments/   # Customer-specific versions
+│   └── sessions/      # Session archives
+└── [other categories]
+```
 
 ---
 
-**Session Trvanie:** ~2 hodiny  
-**Tokens Použité:** ~47k / 190k (24.7%)  
-**Artifacts Created:** 4  
-**Status:** ✅ Complete & Ready for Commit
+## 🔧 Scripts Created
+
+### Batch 3 (Previous)
+- Scripts 11-19: Deployment guides & checklists
+
+### Batch 4 (Current)
+- Script 20: extract_user_guide_template.py
+- Script 21: extract_training_template.py
+- Script 22: split_common_principles.py
+- Script 23: relocate_relationships.py
+- Script 24: relocate_data_dictionary.py
+
+### Next
+- Script 25: delete_old_index.py (ready to create)
+
+---
+
+## ⚠️ Important Notes
+
+### Workflow Rules
+
+1. **Individual Analysis:** Each .md-old file analyzed separately
+2. **Artifact First:** Script in artifact, then wait for execution
+3. **Confirmation Required:** Wait for user confirmation before next file
+4. **No Batch Operations:** Rejected - each file has different needs
+
+### Decision Types
+
+- **SPLIT** - Large doc with multiple topics → separate files
+- **RELOCATE** - Move + rename, active content
+- **EXTRACT TEMPLATE** - Generic + customer-specific archive
+- **ARCHIVE** - Historical/customer-specific only
+- **DELETE** - Obsolete, replaced by new docs
+- **MERGE** - Combine into existing doc
+
+### .md-old Meaning
+
+**.md-old** = Waiting for systematic integration  
+**.md** = Already in new systematic structure
+
+**NOT** "old = archive" but "old = needs processing"
+
+---
+
+## 📈 Quality Metrics
+
+### Session Efficiency
+- **Tokens:** 100.8K used, 89.2K remaining (53%)
+- **Files/Hour:** ~2.5 files (including analysis, scripts, execution)
+- **Script Quality:** 5/5 executed successfully
+- **Documentation:** Comprehensive session archive created
+
+### Code Quality
+- ✅ All scripts use pathlib (Windows-safe)
+- ✅ Raw strings for Windows paths
+- ✅ Error handling included
+- ✅ Clear progress output
+- ✅ Proper file encoding (utf-8)
+
+---
+
+## 🎯 Goals for Next Session
+
+### Primary Goals
+1. Delete obsolete INDEX.md-old files (6-7 files)
+2. Start database table migration
+3. Process 5-10 table docs (if time permits)
+
+### Success Criteria
+- ✅ Scripts execute without errors
+- ✅ Proper categorization (ARCHIVE vs RELOCATE)
+- ✅ Indexes updated
+- ✅ Progress: 30-35/60 files (50%+)
+
+---
+
+## 📞 Context for New Chat
+
+### What Claude Should Know
+
+**Project:** Multi-customer SaaS for automated invoice processing  
+**Task:** Migrate .md-old documentation to systematic structure  
+**Method:** Individual file analysis, appropriate action per file  
+**Tools:** Python scripts for migration, manual index updates
+
+**Current Blocker:** None  
+**Last Action:** Completed Batch 4 (5 files)  
+**Next Action:** Script 25 - delete INDEX.md-old
+
+### Key Principles to Remember
+
+1. Analyze each file individually (load with web_fetch)
+2. Make clear recommendation (SPLIT/RELOCATE/EXTRACT/ARCHIVE/DELETE)
+3. Create numbered script artifact
+4. Wait for user execution and confirmation
+5. Continue to next file
+6. Keep communication concise (no verbose output)
+
+### Files Available
+
+- `docs.json` - Documentation manifest (126 files)
+- `PROJECT_MANIFEST.json` - Project structure
+- `INIT_PROMPT_NEW_CHAT.md` - Detailed initialization prompt
+
+---
+
+**Last Session:** 2025-12-15 (Batch 4)  
+**Next Session:** Continue with Script 25  
+**Overall Progress:** 25/60 (41.7%) ⏳ On Track

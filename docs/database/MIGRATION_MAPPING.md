@@ -1,10 +1,17 @@
-# DATA DICTIONARY - NEX Genesis → NEX Automat
+# Migration Mapping - Btrieve to PostgreSQL
 
-**Účel:** Komplexný slovník všetkých databázových polí z Btrieve súborov a ich mapping na PostgreSQL schému.
+**Category:** Database  
+**Status:** 🟢 Complete  
+**Created:** 2024-12-10  
+**Updated:** 2025-12-15  
+**Related:** [DATABASE_PRINCIPLES.md](DATABASE_PRINCIPLES.md), [RELATIONSHIPS.md](RELATIONSHIPS.md)
 
-**Rozsah:** Všetky analyzované Btrieve súbory (13 súborov, 20+ PostgreSQL tabuliek)
+---
 
-**Status:** ✅ Aktualizovaný (Session 5 - opravené nekonzistencie)
+## Overview
+
+Complete field-level mapping from NEX Genesis Btrieve files to NEX Automat PostgreSQL schema.
+Documents naming conventions, data type mappings, and common patterns.
 
 ---
 
