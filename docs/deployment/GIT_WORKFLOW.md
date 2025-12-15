@@ -1,21 +1,40 @@
-# Git Workflow Guide - PyCharm
+# Git Workflow Guide
 
-**Projekt:** NEX Automat v2.0  
+**Kategória:** Development  
+**Status:** 🟢 Complete  
+**Vytvorené:** 2025-11-25  
+**Aktualizované:** 2025-12-15  
+**Related:** [SETUP_GUIDE.md](SETUP_GUIDE.md), [DEPLOYMENT.md](DEPLOYMENT.md)
+
+---
+
+## Obsah
+
+- [Základný Prehľad Branches](#základný-prehľad-branches)
+- [1. Prepínanie medzi Branches](#1-prepínanie-medzi-branches)
+- [2. Commit & Push Workflow](#2-commit--push-workflow)
+- [3. Merge Workflow](#3-merge-workflow)
+- [4. Tagovanie Verzií](#4-tagovanie-verzií)
+- [5. Workflow Scenáre](#5-workflow-scenáre)
+- [6. Dôležité Pravidlá](#6-dôležité-pravidlá)
+- [7. Užitočné Skratky](#7-užitočné-skratky)
+- [8. Riešenie Problémov](#8-riešenie-problémov)
+
+---
+
+## Základný Prehľad Branches
+
 **Branching Strategy:** main / develop / hotfix_v2.0
 
----
-
-## 📌 Základný Prehľad Branches
-
-| Branch        | Účel                        | Push Oprávnenie      |
-| ------------- | --------------------------- | -------------------- |
-| `main`        | Produkcia (tagged releases) | Len cez merge + tag  |
-| `develop`     | Nový vývoj (features)       | Priamy commit & push |
-| `hotfix_v2.0` | Bugfixy pre v2.0.x          | Priamy commit & push |
+| Branch | Účel | Push Oprávnenie |
+|--------|------|----------------|
+| `main` | Produkcia (tagged releases) | Len cez merge + tag |
+| `develop` | Nový vývoj (features) | Priamy commit & push |
+| `hotfix_v2.0` | Bugfixy pre v2.0.x | Priamy commit & push |
 
 ---
 
-## 🔄 1. Prepínanie medzi Branches
+## 1. Prepínanie medzi Branches
 
 ### Metóda 1: Pravý Dolný Roh (odporúčané)
 
@@ -41,7 +60,7 @@ Git → Branches → [vyber branch] → Checkout
 
 ---
 
-## 💾 2. Commit & Push Workflow
+## 2. Commit & Push Workflow
 
 ### Pre Nový Vývoj (Features)
 
@@ -83,7 +102,7 @@ Fixes #issue_number (ak existuje)
 
 ---
 
-## 🔀 3. Merge Workflow
+## 3. Merge Workflow
 
 ### Merge Hotfix do Main (Produkcia)
 
@@ -116,7 +135,7 @@ Fixes #issue_number (ak existuje)
 
 ---
 
-## 🏷️ 4. Tagovanie Verzií
+## 4. Tagovanie Verzií
 
 ### Po Merge do Main - Vytvor Tag
 
@@ -138,7 +157,7 @@ Fixes #issue_number (ak existuje)
 
 ---
 
-## 📋 5. Workflow Scenáre
+## 5. Workflow Scenáre
 
 ### Scenár A: Vyvíjam Nový Feature
 
@@ -174,7 +193,7 @@ Fixes #issue_number (ak existuje)
 
 ---
 
-## 🚨 6. Dôležité Pravidlá
+## 6. Dôležité Pravidlá
 
 ### ❌ NIKDY
 
@@ -191,19 +210,19 @@ Fixes #issue_number (ak existuje)
 
 ---
 
-## 🔍 7. Užitočné Skratky
+## 7. Užitočné Skratky
 
-| Akcia    | Skratka         |
-| -------- | --------------- |
-| Commit   | `Ctrl+K`        |
-| Push     | `Ctrl+Shift+K`  |
-| Pull     | `Ctrl+T`        |
-| Git Log  | `Alt+9` → Git   |
+| Akcia | Skratka |
+|-------|---------|
+| Commit | `Ctrl+K` |
+| Push | `Ctrl+Shift+K` |
+| Pull | `Ctrl+T` |
+| Git Log | `Alt+9` → Git |
 | Branches | Pravý dolný roh |
 
 ---
 
-## 📞 Riešenie Problémov
+## 8. Riešenie Problémov
 
 ### "Cannot checkout - uncommitted changes"
 
@@ -235,7 +254,7 @@ Fixes #issue_number (ak existuje)
 
 ---
 
-## 📚 Ďalšie Zdroje
+## Ďalšie Zdroje
 
 - [Git Feature Branch Workflow](https://www.atlassian.com/git/tutorials/comparing-workflows/feature-branch-workflow)
 - [Semantic Versioning](https://semver.org/)
@@ -243,5 +262,7 @@ Fixes #issue_number (ak existuje)
 
 ---
 
-**Last Updated:** 2025-11-25  
-**Version:** 1.0
+**See Also:**
+- [SETUP_GUIDE.md](SETUP_GUIDE.md) - Nastavenie vývojového prostredia
+- [DEPLOYMENT.md](DEPLOYMENT.md) - Nasadzovanie do produkcie
+- [TESTING_STRATEGY.md](TESTING_STRATEGY.md) - Testovanie pred commitom

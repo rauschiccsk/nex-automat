@@ -17,6 +17,12 @@ Systémová dokumentácia obsahuje high-level architektúru, monorepo štruktúr
 
 ### Kompletné Dokumenty
 
+**[MONOREPO_GUIDE.md](MONOREPO_GUIDE.md)**
+- Kompletný guide pre prácu s monorepo
+- Getting started, workflow, testing, troubleshooting
+- Status: 🟢 Complete
+- Veľkosť: ~11 KB
+
 **[ARCHITECTURE.md](ARCHITECTURE.md)**
 - High-level systémová architektúra NEX Automat
 - Komponenty, integration patterns, deployment
@@ -56,6 +62,7 @@ Systémová dokumentácia obsahuje high-level architektúru, monorepo štruktúr
 ## Quick Links
 
 **Pre vývoj:**
+- [Monorepo Guide](MONOREPO_GUIDE.md) - Práca s monorepo
 - [Architecture](ARCHITECTURE.md) - Systémová architektúra
 - [Coding Standards](CODING_STANDARDS.md) - Code style guide
 - [GUI Framework](GUI_FRAMEWORK.md) - PySide6 guidelines
@@ -71,10 +78,10 @@ Systémová dokumentácia obsahuje high-level architektúru, monorepo štruktúr
 
 ## Štatistika
 
-- **Total dokumentov:** 6
-- **Complete:** 2
+- **Total dokumentov:** 7
+- **Complete:** 3
 - **Draft:** 4
-- **Total veľkosť:** ~48 KB
+- **Total veľkosť:** ~59 KB
 
 ---
 

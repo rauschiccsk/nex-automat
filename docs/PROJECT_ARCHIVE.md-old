@@ -4201,3 +4201,255 @@ Projekt je teraz v excelentnej pozícii pre systematické dopĺňanie dokumentá
 **Status:** ✅ Session Complete
 **Ready for Next:** ✅ Systematic .md-old migration
 **Quality:** ⭐⭐⭐⭐⭐
+
+# SESSION ARCHIVE - .md-old Migration (Batch 1)
+
+**Session Date:** 2025-12-15
+**Session Type:** Documentation Migration
+**Status:** ✅ COMPLETE
+
+---
+
+## Session Overview
+
+Systematická migrácia .md-old dokumentov do novej dokumentačnej štruktúry.
+
+**Dokončené:**
+- 6 dokumentov zmigrovaných
+- 1 dokument deleted (obsolete)
+- 1 dokument archived (historical)
+- Vytvorený update script pre indexy
+- Všetky indexy pripravené na update
+
+---
+
+## Achievements
+
+### Migrované Dokumenty (6)
+
+**Strategic:**
+1. ✅ `QUICK_WINS_TECHNOLOGY_GUIDE.md-old` → `docs/strategic/QUICK_WINS_TECHNOLOGIES.md`
+   - 6 quick wins technológií (Redis, Sentry, Streamlit, Docker, Grafana, GitHub Actions)
+   - Implementačný plán, náklady €0-312/rok
+   - Veľkosť: ~19 KB
+
+**Development:**
+2. ✅ `GIT_GUIDE.md-old` → `docs/development/GIT_WORKFLOW.md`
+   - Git branching strategy, PyCharm operations
+   - Veľkosť: ~5 KB
+
+3. ✅ `CONTRIBUTING.md-old` → `docs/development/CONTRIBUTING.md`
+   - Contributing guidelines, code style, PR process
+   - Veľkosť: ~12 KB
+
+**Reference:**
+4. ✅ `WORKFLOW_QUICK_REFERENCE.md-old` → `docs/reference/WORKFLOW_REFERENCE.md`
+   - Session workflow, file access commands
+   - Veľkosť: ~5 KB
+
+**System:**
+5. ✅ `MONOREPO_GUIDE.md-old` → `docs/system/MONOREPO_GUIDE.md`
+   - Monorepo setup, workflow, testing, troubleshooting
+   - Veľkosť: ~11 KB
+
+**Archive:**
+6. 📦 `CURRENT_STATE.md-old` → `docs/archive/CURRENT_STATE_2025-11-26.md`
+   - Historical snapshot k GO-LIVE dátumu
+   - Veľkosť: ~14 KB
+
+### Deleted Dokumenty (1)
+
+❌ `REQUIREMENTS.md-old` (9.4 KB) - obsolete
+- Outdated informácie (Btrieve done, n8n→Temporal)
+- Aktuálne requirements v iných dokumentoch
+
+### Scripts Vytvorené (1)
+
+**04-update-indexes-after-migration.py**
+- Aktualizuje 6 index súborov
+- Pridáva nové dokumenty
+- Aktualizuje štatistiky
+- Ready to run
+
+---
+
+## Migration Statistics
+
+**Processed:** 8/60 .md-old súborov
+- ✅ Migrované: 6
+- ❌ Deleted: 1
+- 📦 Archived: 1
+
+**Zostáva:** 52 .md-old súborov
+
+**Progress:** 13.3% (8/60)
+
+---
+
+## Files to Delete
+
+```powershell
+# Strategic
+Remove-Item "C:\Development\nex-automat\docs\strategy\QUICK_WINS_TECHNOLOGY_GUIDE.md-old"
+
+# Development
+Remove-Item "C:\Development\nex-automat\docs\GIT_GUIDE.md-old"
+Remove-Item "C:\Development\nex-automat\docs\giudes\CONTRIBUTING.md-old"
+
+# Reference
+Remove-Item "C:\Development\nex-automat\docs\WORKFLOW_QUICK_REFERENCE.md-old"
+
+# System
+Remove-Item "C:\Development\nex-automat\docs\giudes\MONOREPO_GUIDE.md-old"
+
+# Archive
+Remove-Item "C:\Development\nex-automat\docs\strategy\CURRENT_STATE.md-old"
+
+# Deleted (obsolete)
+Remove-Item "C:\Development\nex-automat\docs\strategy\REQUIREMENTS.md-old"
+```
+
+---
+
+## Next Batch Recommendations
+
+### Priority 1: Strategic Documents (3 súbory)
+
+1. **PROJECT_BLUEPRINT_SUPPLIER_CLASSIFIER.md-old** (51 KB)
+   - Strategic document
+   - Môže byť outdated, zvážiť ARCHIVE
+
+2. **RESEARCH_ANALYSIS_TECHNOLOGY_LANDSCAPE.md-old** (84 KB) ⚠️ VEĽKÝ
+   - Technology research
+   - Rozdeliť na časti alebo ARCHIVE
+
+3. **PROJECT_STATUS.md-old** (16 KB)
+   - Current status
+   - Pravdepodobne outdated → ARCHIVE alebo UPDATE
+
+### Priority 2: Deployment Documents (12 súborov)
+
+Všetky v `docs/deployment/`:
+- DEPLOYMENT_GUIDE.md-old (13.8 KB)
+- GO_LIVE_CHECKLIST.md-old (6.3 KB)
+- OPERATIONS_GUIDE.md-old (8.1 KB)
+- RECOVERY_GUIDE.md-old (13.6 KB)
+- SERVICE_MANAGEMENT.md-old (7.7 KB)
+- TROUBLESHOOTING.md-old (9.6 KB)
+- + 6 ďalších
+
+**Strategy:** Merge do `docs/development/DEPLOYMENT.md`
+
+### Priority 3: Database Documents (32 súborov)
+
+Systematická migrácia:
+1. Všeobecné (4): COMMON_DOCUMENT_PRINCIPLES, DATABASE_RELATIONSHIPS, DATA_DICTIONARY, INDEX
+2. Produkty (5): GSCAT, BARCODE, FGLST, MGLST, SGLST
+3. Partneri (9): PAB a súvisiace
+4. Stock (7): STK, STM, TSH, TSI...
+5. Accounting (3): ISH, ISI, PAYJRN
+
+---
+
+## Technical Notes
+
+### Update Script Usage
+
+```powershell
+# Run update script
+python scripts\04-update-indexes-after-migration.py
+
+# Commit updates
+git add docs/
+git commit -m "docs: Update indexes after .md-old migration (batch 1)"
+```
+
+### Migration Pattern Established
+
+1. Load .md-old from GitHub
+2. Analyze content (quality, relevance, size)
+3. Decide action (NEW/MERGE/ARCHIVE/DELETE)
+4. Create artifact with standardized header
+5. User saves → deletes .md-old
+6. Update indexes
+7. Commit
+
+### Token Management
+
+**Session Usage:** 101k/190k tokens (53.2%)
+- Efficient use of artifacts
+- Good progress per token
+
+---
+
+## Lessons Learned
+
+### What Worked Well
+
+✅ Systematic approach (small → large documents)
+✅ Clear decision framework (NEW/ARCHIVE/DELETE)
+✅ Standardized headers for consistency
+✅ User feedback loop (DELETE decision on REQUIREMENTS)
+✅ Progress tracking
+
+### Improvements for Next Session
+
+🔄 Consider batch processing smaller documents
+🔄 Pre-analyze large documents (>40 KB) before migration
+🔄 Create merge strategy for deployment docs
+
+---
+
+## Session Commands Log
+
+```powershell
+# No commands executed in this session
+# All actions were document creation via artifacts
+```
+
+---
+
+## Next Session TODO
+
+**Immediate:**
+1. ✅ Run update script: `python scripts\04-update-indexes-after-migration.py`
+2. ✅ Delete .md-old files (7 súborov)
+3. ✅ Commit changes
+
+**Continue Migration:**
+4. Start with PROJECT_STATUS.md-old (analyze for ARCHIVE vs UPDATE)
+5. Process deployment documents (merge strategy)
+6. Begin database documents (systematic approach)
+
+**Goal:** Process 5-10 documents per session
+
+---
+
+## Files Created This Session
+
+**New Documentation:**
+- `docs/strategic/QUICK_WINS_TECHNOLOGIES.md`
+- `docs/development/GIT_WORKFLOW.md`
+- `docs/development/CONTRIBUTING.md`
+- `docs/reference/WORKFLOW_REFERENCE.md`
+- `docs/system/MONOREPO_GUIDE.md`
+- `docs/archive/CURRENT_STATE_2025-11-26.md`
+
+**Scripts:**
+- `scripts/04-update-indexes-after-migration.py`
+
+**Session Documentation:**
+- `SESSION_NOTES/PROJECT_ARCHIVE_SESSION.md` (this file)
+- `SESSION_NOTES/SESSION_NOTES.md` (fresh)
+- `SESSION_NOTES/INIT_PROMPT_NEW_CHAT.md`
+
+---
+
+**Session completed:** 2025-12-15
+**Duration:** ~2 hours
+**Tokens used:** 101k/190k (53.2%)
+**Quality:** ✅ HIGH - Systematic and thorough
+
+---
+
+**KONIEC SESSION ARCHIVE**

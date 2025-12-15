@@ -1,7 +1,7 @@
 # Reference Documentation Index
 
 **Kategória:** Reference  
-**Status:** 🔴 Draft  
+**Status:** 🟡 In Progress  
 **Vytvorené:** 2025-12-15  
 **Aktualizované:** 2025-12-15
 
@@ -9,11 +9,20 @@
 
 ## Účel
 
-Glossary, API reference, collaboration rules a ostatné referenčné materiály.
+Workflow reference, glossary, API reference, collaboration rules a ostatné referenčné materiály.
 
 ---
 
 ## Dokumenty v Reference
+
+### Kompletné Dokumenty
+
+**[WORKFLOW_REFERENCE.md](WORKFLOW_REFERENCE.md)**
+- Workflow quick reference pre prácu s Claude
+- Session workflow, file access commands
+- Quick decision tree, troubleshooting
+- Status: 🟢 Complete
+- Veľkosť: ~5 KB
 
 ### Draft Dokumenty
 
@@ -43,6 +52,9 @@ Glossary, API reference, collaboration rules a ostatné referenčné materiály.
 
 ## Quick Links
 
+**Workflow:**
+- [Workflow Reference](WORKFLOW_REFERENCE.md) - Quick reference
+
 **Reference:**
 - [Glossary](GLOSSARY.md) - Slovník termínov
 - [API Reference](API_REFERENCE.md) - API quick ref
@@ -54,7 +66,9 @@ Glossary, API reference, collaboration rules a ostatné referenčné materiály.
 
 ## Štatistika
 
-- **Total dokumentov:** 2 (draft) + 1 (existuje mimo)
+- **Total dokumentov:** 3
+- **Complete:** 1
+- **Draft:** 2 + 1 (existuje mimo)
 - **Priority:** Stredná (doplniť postupne)
 
 ---
@@ -62,3 +76,4 @@ Glossary, API reference, collaboration rules a ostatné referenčné materiály.
 **See Also:**
 - [Documentation Index](../00_DOCUMENTATION_INDEX.md) - Hlavný index
 - [System Terminology](../system/TERMINOLOGY.md) - Existing terminology doc
+- [Workflow Reference](WORKFLOW_REFERENCE.md) - Session workflow

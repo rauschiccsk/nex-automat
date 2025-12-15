@@ -1,129 +1,228 @@
-# SESSION NOTES - NEX Automat Development
+# SESSION NOTES - NEX Automat
 
-**Dátum začatia:** [YYYY-MM-DD]  
-**Projekt:** nex-automat  
-**Developer:** Zoltán (40 rokov skúseností)  
-**Session:** [Číslo/Názov]  
-**Status:** 🔄 V práci
+**Last Updated:** 2025-12-15  
+**Current Phase:** Documentation Migration  
+**Status:** 🟡 IN PROGRESS
 
 ---
 
-## 📋 CURRENT STATUS
+## 📌 Current Status
 
-**Čo práve robíme:**
-- [ ] [Hlavná úloha 1]
-- [ ] [Hlavná úloha 2]
+### Documentation Migration Progress
 
-**Aktuálny krok:**
-[Kde sme presne teraz]
+**Completed:** 8/60 .md-old súborov (13.3%)
+- ✅ Migrované: 6 dokumentov
+- ❌ Deleted: 1 dokument (obsolete)
+- 📦 Archived: 1 dokument (historical)
 
----
+**Zostáva:** 52 .md-old súborov
 
-## 🎯 SESSION GOALS
+### Recent Achievements
 
-### Primárne Ciele
-1. [Cieľ 1]
-2. [Cieľ 2]
+**Batch 1 Completed (2025-12-15):**
+- ✅ QUICK_WINS_TECHNOLOGIES.md (strategic)
+- ✅ GIT_WORKFLOW.md (development)
+- ✅ CONTRIBUTING.md (development)
+- ✅ WORKFLOW_REFERENCE.md (reference)
+- ✅ MONOREPO_GUIDE.md (system)
+- 📦 CURRENT_STATE_2025-11-26.md (archive)
 
-### Sekundárne Ciele
-- [Bonus cieľ 1]
-- [Bonus cieľ 2]
-
----
-
-## ✅ COMPLETED TASKS
-
-### [Kategória 1]
-- ✅ **[Úloha]** - [Stručný popis výsledku]
-  - Detail 1
-  - Detail 2
+**Script Created:**
+- 04-update-indexes-after-migration.py (ready to run)
 
 ---
 
-## 🔧 TECHNICAL CHANGES
+## 🎯 Next Steps
 
-### Files Created
-```
-[cesta/k/suboru] - [účel]
+### Immediate Actions
+
+**1. Update Indexes**
+```powershell
+python scripts\04-update-indexes-after-migration.py
 ```
 
-### Files Modified
+**2. Delete Migrated .md-old Files**
+```powershell
+Remove-Item "C:\Development\nex-automat\docs\strategy\QUICK_WINS_TECHNOLOGY_GUIDE.md-old"
+Remove-Item "C:\Development\nex-automat\docs\GIT_GUIDE.md-old"
+Remove-Item "C:\Development\nex-automat\docs\giudes\CONTRIBUTING.md-old"
+Remove-Item "C:\Development\nex-automat\docs\WORKFLOW_QUICK_REFERENCE.md-old"
+Remove-Item "C:\Development\nex-automat\docs\giudes\MONOREPO_GUIDE.md-old"
+Remove-Item "C:\Development\nex-automat\docs\strategy\CURRENT_STATE.md-old"
+Remove-Item "C:\Development\nex-automat\docs\strategy\REQUIREMENTS.md-old"
 ```
-[cesta/k/suboru] - [čo zmenené]
+
+**3. Commit Changes**
+```powershell
+git add docs/ scripts/ SESSION_NOTES/
+git commit -m "docs: Migrate .md-old documents (batch 1) and update indexes"
+git push origin develop
 ```
 
-### Database Changes
-- [Tabuľka/Schéma] - [zmena]
+### Next Migration Batch
+
+**Priority Documents:**
+
+1. **PROJECT_STATUS.md-old** (16 KB) - analyze for ARCHIVE/UPDATE
+2. **Deployment documents** (12 súborov) - merge strategy needed
+3. **Database documents** (začať so všeobecnými)
 
 ---
 
-## 🐛 ISSUES ENCOUNTERED
+## 📊 Migration Statistics
 
-### [Issue #1]
-**Problem:** [Popis]  
-**Cause:** [Príčina]  
-**Solution:** [Riešenie]  
-**Status:** ✅ Vyriešené / 🔄 V práci / ❌ Nevyriešené
+### By Category
 
----
+| Kategória | Celkom | Hotové | Zostáva |
+|-----------|--------|--------|---------|
+| Strategic | 6 | 2 | 4 |
+| System | 2 | 1 | 1 |
+| Development | 5 | 2 | 3 |
+| Reference | 3 | 1 | 2 |
+| Deployment | 12 | 0 | 12 |
+| Database | 32 | 0 | 32 |
+| Archive | 1 | 1 | 0 |
+| **TOTAL** | **61** | **8** | **53** |
 
-## 📝 DECISIONS MADE
+Note: TOTAL includes 1 deleted (REQUIREMENTS.md-old)
 
-### [Rozhodnutie #1]
-**Otázka:** [Čo sme riešili]  
-**Options:** 
-- A: [Možnosť A]
-- B: [Možnosť B]
+### Size Distribution
 
-**Decision:** [Čo sme zvolili]  
-**Reasoning:** [Prečo]
+**Completed:**
+- Small (<10 KB): 4 dokumenty
+- Medium (10-20 KB): 2 dokumenty
+- Large (>20 KB): 0 dokumentov
 
----
-
-## 🔄 NEXT STEPS
-
-### Immediate (Next Session)
-1. [Krok 1]
-2. [Krok 2]
-
-### Short Term (Tento Týždeň)
-- [Úloha]
-
-### Long Term (Tento Mesiac)
-- [Väčšia úloha]
+**Remaining Large Documents (>40 KB):**
+- RESEARCH_ANALYSIS_TECHNOLOGY_LANDSCAPE.md-old (84 KB) ⚠️
+- PROJECT_BLUEPRINT_SUPPLIER_CLASSIFIER.md-old (51 KB)
+- COMMON_DOCUMENT_PRINCIPLES.md-old (42 KB)
 
 ---
 
-## 📚 DOCUMENTATION UPDATES
+## 🔧 Technical Context
 
-### Created
-- `[súbor]` - [účel]
+### Project Structure
 
-### Updated
-- `[súbor]` - [čo zmenené]
+```
+nex-automat/
+├── apps/
+│   ├── supplier-invoice-loader/    # Production (Mágerstav)
+│   ├── supplier-invoice-editor/    # Deprecated (PyQt5)
+│   └── supplier-invoice-staging/   # Development (PySide6)
+├── packages/
+│   ├── nex-shared/                 # GUI components (FLAT structure)
+│   └── nexdata/                    # Btrieve data access
+├── docs/                           # ← ACTIVE MIGRATION
+│   ├── strategic/
+│   ├── system/
+│   ├── database/
+│   ├── development/
+│   ├── reference/
+│   └── archive/
+└── scripts/
+    └── 04-update-indexes-after-migration.py
+```
+
+### Active Technologies
+
+**Current:**
+- Python 3.13.7 32-bit (Btrieve compatibility)
+- FastAPI (supplier-invoice-loader)
+- PySide6 (supplier-invoice-staging - in development)
+- PostgreSQL (staging database)
+- Btrieve (NEX Genesis - legacy)
+
+**Planned Migration:**
+- n8n → Temporal (workflow engine)
+- PyQt5 → PySide6 (GUI framework)
 
 ---
 
-## 🧪 TESTING NOTES
+## 📝 Important Notes
 
-### Tests Performed
-- [Test 1] - ✅ PASS / ❌ FAIL
+### Migration Guidelines
 
-### Tests Pending
-- [Test 1]
+**ALWAYS:**
+- ✅ Štandardný header s kategóriou, status, dátumy
+- ✅ Zachovať celý obsah (ak relevant)
+- ✅ Pridať See Also links
+- ✅ Update príslušný index
+
+**NEVER:**
+- ❌ Delete .md-old bez potvrdenia
+- ❌ Migrate bez analysis
+- ❌ Skip index updates
+
+### Decision Framework
+
+**NEW:** Vytvor nový dokument
+- Kvalitný, aktuálny obsah
+- Jasné umiestnenie v kategórii
+- Samostatný dokument
+
+**ARCHIVE:** Presun do archive/
+- Historický kontext cenný
+- Outdated ale užitočné pre referenciu
+- Snapshot projektu
+
+**DELETE:** Vymaž súbor
+- Kompletne obsolete
+- Duplikát existujúceho
+- Nepoužiteľný obsah
+
+**MERGE:** Zlúč s existujúcim
+- Deployment documents → DEPLOYMENT.md
+- Fragmentované dokumenty
 
 ---
 
-## 💡 NOTES & OBSERVATIONS
+## 🚀 Session Workflow
 
-### Technical Notes
-- [Poznámka]
+### Standard Session Pattern
 
-### Ideas for Future
-- [Nápad]
+1. **Init:** Load INIT_PROMPT_NEW_CHAT.md + PROJECT_MANIFEST.json
+2. **Analyze:** Check SESSION_NOTES.md for next steps
+3. **Execute:** Process 5-10 .md-old files
+4. **Update:** Run index update script
+5. **Commit:** Git commit & push
+6. **Archive:** Create session archive
+
+### Files Per Session
+
+**Target:** 5-10 dokumentov
+- Small (<10 KB): 7-10 súborov
+- Medium (10-20 KB): 5-7 súborov
+- Large (>40 KB): 1-3 súbory (analyze/split first)
 
 ---
 
-**Session Ukončená:** [YYYY-MM-DD HH:MM]  
-**Celkový Čas:** [X hodín]  
-**Tokens Použité:** [X / 190k]
+## 🔗 Quick Links
+
+**Documentation:**
+- [Main Index](../docs/00_DOCUMENTATION_INDEX.md)
+- [Strategic Index](../docs/strategic/00_STRATEGIC_INDEX.md)
+- [System Index](../docs/system/00_SYSTEM_INDEX.md)
+- [Development Index](../docs/development/00_DEVELOPMENT_INDEX.md)
+
+**Scripts:**
+- [Update Indexes](../scripts/04-update-indexes-after-migration.py)
+
+**GitHub:**
+- [Repository](https://github.com/rauschiccsk/nex-automat)
+- [Raw Docs](https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/)
+
+---
+
+## 📞 Contact
+
+**Project:** NEX Automat v2.0  
+**Developer:** Zoltán Rausch  
+**Organization:** ICC Komárno  
+**Email:** rausch@icc.sk
+
+---
+
+**Last session:** 2025-12-15 (.md-old migration batch 1)  
+**Next session:** Continue with batch 2 (strategic/deployment docs)  
+**Status:** Ready to continue ✅

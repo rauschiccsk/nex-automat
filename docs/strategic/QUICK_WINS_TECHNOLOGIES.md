@@ -1,9 +1,28 @@
-# Quick Wins - Technológie s okamžitým prínosom
+# Quick Wins Technologies
 
-**Dokument:** Schválené technológie pre okamžité nasadenie  
-**Projekty:** NEX Automat v2.0, NEX Genesis  
+**Kategória:** Strategic  
+**Status:** 🟢 Complete  
 **Vytvorené:** 2024-12-04  
-**Status:** SCHVÁLENÉ NA IMPLEMENTÁCIU
+**Aktualizované:** 2025-12-15  
+**Related:** [AI_ML_TECHNOLOGIES.md](AI_ML_TECHNOLOGIES.md), [TECHNOLOGY_DECISIONS.md](TECHNOLOGY_DECISIONS.md)
+
+---
+
+## Obsah
+
+- [Úvod](#úvod)
+- [Prehľadová tabuľka](#prehľadová-tabuľka)
+- [1. Redis](#1-redis)
+- [2. Sentry](#2-sentry)
+- [3. Streamlit](#3-streamlit)
+- [4. Docker](#4-docker)
+- [5. Grafana](#5-grafana)
+- [6. GitHub Actions](#6-github-actions)
+- [Implementačný plán](#implementačný-plán)
+- [Celkové náklady](#celkové-náklady)
+- [Očakávané benefity](#očakávané-benefity)
+- [Technické požiadavky servera](#technické-požiadavky-servera)
+- [Záver](#záver)
 
 ---
 
@@ -266,7 +285,7 @@ Docker je ako "prepravný kontajner" pre softvér. Zabalíš aplikáciu s celým
 
 **S Docker:**
 - Raz zabalíš do kontajnera
-- Spustíš všude rovnako
+- Spustíš všade rovnako
 - Funguje garantovane
 
 ### Použitie pre NEX Automat / Genesis
@@ -295,7 +314,7 @@ Docker je ako "prepravný kontajner" pre softvér. Zabalíš aplikáciu s celým
 ### Výhody
 
 ✅ **Obrovské zjednodušenie nasadenia** - z hodín na minúty  
-✅ **Reprodukovateľné prostredie** - funguje rovnako všude  
+✅ **Reprodukovateľné prostredie** - funguje rovnako všade  
 ✅ **Profesionálny štandard** - všetky moderné firmy používajú  
 ✅ **Jednoduchšie testovanie** - rýchlo vytvoríš testové prostredie  
 ✅ **Bezpečnejšie aktualizácie** - vždy môžeš vrátiť späť
@@ -506,23 +525,19 @@ Veľmi užitočné keď projekt rastie. Nie je to KRITICKÉ na začiatku, ale ve
 
 ## Celkové náklady
 
-```
-Technológia          Náklady/mesiac    Náklady/rok
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Redis                FREE              €0
-Sentry (Free tier)   FREE              €0
-Streamlit            FREE              €0
-Docker               FREE              €0
-Grafana              FREE              €0
-GitHub Actions       FREE              €0
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-CELKOM (minimum):                      €0
-
-Voliteľné:
-Sentry (Team)        €26/mesiac        €312/rok
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-CELKOM (maximum):                      €312/rok
-```
+| Technológia | Náklady/mesiac | Náklady/rok |
+|-------------|----------------|-------------|
+| Redis | FREE | €0 |
+| Sentry (Free tier) | FREE | €0 |
+| Streamlit | FREE | €0 |
+| Docker | FREE | €0 |
+| Grafana | FREE | €0 |
+| GitHub Actions | FREE | €0 |
+| **CELKOM (minimum)** | - | **€0** |
+| | | |
+| **Voliteľné:** | | |
+| Sentry (Team) | €26/mesiac | €312/rok |
+| **CELKOM (maximum)** | - | **€312/rok** |
 
 ---
 
@@ -572,22 +587,6 @@ CELKOM (maximum):                      €312/rok
 
 ---
 
-## Ďalšie kroky
-
-Po úspešnej implementácii Quick Wins odporúčam pokračovať na:
-
-**AI/ML Tools**
-- Zlepšenia OCR (PaddleOCR)
-- Automatická extrakcia tabuliek (Camelot)
-- Inteligentná validácia (Claude API)
-
-**Infrastructure**
-- Pokročilé škálovanie (RabbitMQ)
-- Časové rady (TimescaleDB)
-- Úložisko súborov (MinIO)
-
----
-
 ## Záver
 
 Týchto 6 technológií Quick Wins poskytuje:
@@ -601,10 +600,7 @@ Týchto 6 technológií Quick Wins poskytuje:
 
 ---
 
-**Posledná aktualizácia:** 2024-12-04  
-**Status:** FINÁLNA VERZIA  
-**Ďalší dokument:** AI/ML Tools Technology Guide
-
----
-
-**KONIEC DOKUMENTU**
+**See Also:**
+- [AI_ML_TECHNOLOGIES.md](AI_ML_TECHNOLOGIES.md) - Komplexnejšie AI/ML nástroje
+- [TECHNOLOGY_DECISIONS.md](TECHNOLOGY_DECISIONS.md) - Rozhodnutia o technológiách
+- [PROJECT_ROADMAP.md](PROJECT_ROADMAP.md) - Plán implementácie

@@ -1,7 +1,10 @@
 # NEX Automat - Monorepo Guide
 
-**Version:** 2.0.0  
-**Last Updated:** 2025-11-19
+**Kategória:** System  
+**Status:** 🟢 Complete  
+**Vytvorené:** 2025-11-19  
+**Aktualizované:** 2025-12-15  
+**Related:** [MONOREPO_STRUCTURE.md](MONOREPO_STRUCTURE.md), [ARCHITECTURE.md](ARCHITECTURE.md), [SETUP_GUIDE.md](../development/SETUP_GUIDE.md)
 
 ---
 
@@ -16,6 +19,7 @@
 7. [Dependencies Management](#dependencies-management)
 8. [Manifest Generation](#manifest-generation)
 9. [Troubleshooting](#troubleshooting)
+10. [Best Practices](#best-practices)
 
 ---
 
@@ -571,14 +575,8 @@ Update SESSION_NOTES.md for significant changes.
 
 ---
 
-## Related Documentation
-
-- [SESSION_NOTES.md](../../SESSION_NOTES/SESSION_NOTES.md) - Current status and history
-- [CONTRIBUTING.md](CONTRIBUTING.md) - Contribution guidelines
-- [README.md](../../README.md) - Project overview
-
----
-
-**Questions?** Contact: Zoltán Rausch (rausch@icc.sk)  
-**Project:** NEX Automat v2.0.0  
-**Organization:** ICC Komárno - Innovation & Consulting Center
+**See Also:**
+- [MONOREPO_STRUCTURE.md](MONOREPO_STRUCTURE.md) - Detailná štruktúra monorepo
+- [ARCHITECTURE.md](ARCHITECTURE.md) - Systémová architektúra
+- [SETUP_GUIDE.md](../development/SETUP_GUIDE.md) - Setup guide
+- [CONTRIBUTING.md](../development/CONTRIBUTING.md) - Contribution guidelines

@@ -1,9 +1,27 @@
-# NEX Automat v2.0 - Aktuálny stav (Inventory)
+# NEX Automat v2.0 - Aktuálny stav (Historical Snapshot)
 
-**Projekt:** NEX Automat  
-**Verzia:** 2.0.0  
-**Dátum:** 2025-11-26  
-**GO-LIVE:** 2025-11-27 (Preview/Demo pre Mágerstav)  
+**Kategória:** Archive  
+**Status:** 📦 Archived  
+**Snapshot Date:** 2025-11-26  
+**GO-LIVE Date:** 2025-11-27  
+**Note:** Historical document - reflects project state at v2.0 GO-LIVE
+
+---
+
+## ⚠️ ARCHIVAL NOTICE
+
+This document represents the project state as of **2025-11-26**, the day before GO-LIVE for Mágerstav preview/demo.
+
+**Since this snapshot:**
+- n8n workflows → migrated to Temporal
+- Many "⚪ NÁVRH" items → implemented
+- Btrieve WRITE operations → completed
+- Architecture evolved significantly
+
+For current project state, see:
+- [PROJECT_VISION.md](../strategic/PROJECT_VISION.md)
+- [PROJECT_ROADMAP.md](../strategic/PROJECT_ROADMAP.md)
+- [ARCHITECTURE.md](../system/ARCHITECTURE.md)
 
 ---
 
@@ -325,7 +343,7 @@ KROKY:
      * Celková cena
 
 4. Pre položky so zmenenou cenou (ŽLTÉ):
-   - Zapíš do RPC (Požiadavky na zmenu cien):
+   - Zapíš do RPC (Požiadavky na zmeny cien):
      * PLU (GsCode)
      * Nová predajná cena
      * Dátum platnosti
@@ -502,8 +520,6 @@ price_list_number: "00001"  # → PLS00001.BTR, RPC00001.BTR
 
 ## 10. TERMINOLÓGIA
 
-Viď samostatný dokument: `TERMINOLOGY.md`
-
 **Kľúčové pojmy pre tento projekt:**
 - **GSCAT** - Katalóg produktov (Product Catalog)
 - **BARCODE** - Tabuľka EAN kódov
@@ -518,6 +534,7 @@ Viď samostatný dokument: `TERMINOLOGY.md`
 
 ---
 
-**Dokument vytvorený:** 2025-11-26  
-**Autor:** Claude AI + Zoltán Rausch  
-**Verzia:** 1.1 (Fixed per pravidlo 18)
+**See Also:**
+- [PROJECT_VISION.md](../strategic/PROJECT_VISION.md) - Current project vision
+- [PROJECT_ROADMAP.md](../strategic/PROJECT_ROADMAP.md) - Current roadmap
+- [ARCHITECTURE.md](../system/ARCHITECTURE.md) - Current architecture

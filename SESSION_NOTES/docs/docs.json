@@ -2,17 +2,17 @@
   "name": "documentation",
   "type": "docs",
   "location": "docs",
-  "generated": "2025-12-15T12:24:45.687641",
+  "generated": "2025-12-15T14:11:05.228913",
   "description": "Komplexná dokumentácia NEX Automat projektu",
   "statistics": {
     "total_files": 113,
     "total_dirs": 39,
     "python_files": 0,
     "powershell_files": 0,
-    "markdown_files": 51,
+    "markdown_files": 57,
     "test_files": 0,
-    "total_lines": 4546,
-    "total_size": 1315528
+    "total_lines": 7498,
+    "total_size": 1331793
   },
   "files": [
     {
@@ -34,16 +34,9 @@
       "type": "documentation"
     },
     {
-      "path": "docs/GIT_GUIDE.md-old",
-      "name": "GIT_GUIDE.md-old",
-      "size": 4901,
-      "extension": ".md-old",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/GIT_GUIDE.md-old"
-    },
-    {
       "path": "docs/PROJECT_ARCHIVE.md-old",
       "name": "PROJECT_ARCHIVE.md-old",
-      "size": 123110,
+      "size": 129375,
       "extension": ".md-old",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/PROJECT_ARCHIVE.md-old"
     },
@@ -53,13 +46,6 @@
       "size": 15953,
       "extension": ".md-old",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/PROJECT_STATUS.md-old"
-    },
-    {
-      "path": "docs/WORKFLOW_QUICK_REFERENCE.md-old",
-      "name": "WORKFLOW_QUICK_REFERENCE.md-old",
-      "size": 4667,
-      "extension": ".md-old",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/WORKFLOW_QUICK_REFERENCE.md-old"
     },
     {
       "path": "docs/applications/00_APPLICATIONS_INDEX.md",
@@ -417,10 +403,19 @@
     {
       "path": "docs/archive/00_ARCHIVE_INDEX.md",
       "name": "00_ARCHIVE_INDEX.md",
-      "size": 1362,
+      "size": 1861,
       "extension": ".md",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/00_ARCHIVE_INDEX.md",
-      "lines": 66,
+      "lines": 81,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/archive/CURRENT_STATE_2025-11-26.md",
+      "name": "CURRENT_STATE_2025-11-26.md",
+      "size": 15649,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/CURRENT_STATE_2025-11-26.md",
+      "lines": 540,
       "type": "documentation"
     },
     {
@@ -447,6 +442,15 @@
       "size": 13763,
       "extension": ".md-old",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/deployment/DEPLOYMENT_GUIDE.md-old"
+    },
+    {
+      "path": "docs/deployment/GIT_WORKFLOW.md",
+      "name": "GIT_WORKFLOW.md",
+      "size": 5793,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/deployment/GIT_WORKFLOW.md",
+      "lines": 268,
+      "type": "documentation"
     },
     {
       "path": "docs/deployment/GO_LIVE_CHECKLIST.md-old",
@@ -528,10 +532,19 @@
     {
       "path": "docs/development/00_DEVELOPMENT_INDEX.md",
       "name": "00_DEVELOPMENT_INDEX.md",
-      "size": 2070,
+      "size": 2713,
       "extension": ".md",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/development/00_DEVELOPMENT_INDEX.md",
-      "lines": 82,
+      "lines": 104,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/development/CONTRIBUTING.md",
+      "name": "CONTRIBUTING.md",
+      "size": 13087,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/development/CONTRIBUTING.md",
+      "lines": 639,
       "type": "documentation"
     },
     {
@@ -603,13 +616,6 @@
       "size": 12494,
       "extension": ".md-old",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/giudes/CONTRIBUTING.md-old"
-    },
-    {
-      "path": "docs/giudes/MONOREPO_GUIDE.md-old",
-      "name": "MONOREPO_GUIDE.md-old",
-      "size": 11440,
-      "extension": ".md-old",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/giudes/MONOREPO_GUIDE.md-old"
     },
     {
       "path": "docs/migration/00_MIGRATION_INDEX.md",
@@ -734,10 +740,10 @@
     {
       "path": "docs/reference/00_REFERENCE_INDEX.md",
       "name": "00_REFERENCE_INDEX.md",
-      "size": 1501,
+      "size": 1959,
       "extension": ".md",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/reference/00_REFERENCE_INDEX.md",
-      "lines": 64,
+      "lines": 79,
       "type": "documentation"
     },
     {
@@ -759,12 +765,21 @@
       "type": "documentation"
     },
     {
+      "path": "docs/reference/WORKFLOW_REFERENCE.md",
+      "name": "WORKFLOW_REFERENCE.md",
+      "size": 5521,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/reference/WORKFLOW_REFERENCE.md",
+      "lines": 251,
+      "type": "documentation"
+    },
+    {
       "path": "docs/strategic/00_STRATEGIC_INDEX.md",
       "name": "00_STRATEGIC_INDEX.md",
-      "size": 1738,
+      "size": 2072,
       "extension": ".md",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/strategic/00_STRATEGIC_INDEX.md",
-      "lines": 70,
+      "lines": 77,
       "type": "documentation"
     },
     {
@@ -795,6 +810,15 @@
       "type": "documentation"
     },
     {
+      "path": "docs/strategic/QUICK_WINS_TECHNOLOGIES.md",
+      "name": "QUICK_WINS_TECHNOLOGIES.md",
+      "size": 19375,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/strategic/QUICK_WINS_TECHNOLOGIES.md",
+      "lines": 606,
+      "type": "documentation"
+    },
+    {
       "path": "docs/strategic/TECHNOLOGY_DECISIONS.md",
       "name": "TECHNOLOGY_DECISIONS.md",
       "size": 148,
@@ -802,13 +826,6 @@
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/strategic/TECHNOLOGY_DECISIONS.md",
       "lines": 11,
       "type": "documentation"
-    },
-    {
-      "path": "docs/strategy/CURRENT_STATE.md-old",
-      "name": "CURRENT_STATE.md-old",
-      "size": 14439,
-      "extension": ".md-old",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/strategy/CURRENT_STATE.md-old"
     },
     {
       "path": "docs/strategy/NEX_GENESIS_MODULES.txt",
@@ -825,20 +842,6 @@
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/strategy/PROJECT_BLUEPRINT_SUPPLIER_CLASSIFIER.md-old"
     },
     {
-      "path": "docs/strategy/QUICK_WINS_TECHNOLOGY_GUIDE.md-old",
-      "name": "QUICK_WINS_TECHNOLOGY_GUIDE.md-old",
-      "size": 18959,
-      "extension": ".md-old",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/strategy/QUICK_WINS_TECHNOLOGY_GUIDE.md-old"
-    },
-    {
-      "path": "docs/strategy/REQUIREMENTS.md-old",
-      "name": "REQUIREMENTS.md-old",
-      "size": 9385,
-      "extension": ".md-old",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/strategy/REQUIREMENTS.md-old"
-    },
-    {
       "path": "docs/strategy/RESEARCH_ANALYSIS_TECHNOLOGY_LANDSCAPE.md-old",
       "name": "RESEARCH_ANALYSIS_TECHNOLOGY_LANDSCAPE.md-old",
       "size": 84521,
@@ -848,10 +851,10 @@
     {
       "path": "docs/system/00_SYSTEM_INDEX.md",
       "name": "00_SYSTEM_INDEX.md",
-      "size": 2253,
+      "size": 2501,
       "extension": ".md",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/system/00_SYSTEM_INDEX.md",
-      "lines": 84,
+      "lines": 91,
       "type": "documentation"
     },
     {
@@ -891,6 +894,15 @@
       "type": "documentation"
     },
     {
+      "path": "docs/system/MONOREPO_GUIDE.md",
+      "name": "MONOREPO_GUIDE.md",
+      "size": 12184,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/system/MONOREPO_GUIDE.md",
+      "lines": 582,
+      "type": "documentation"
+    },
+    {
       "path": "docs/system/MONOREPO_STRUCTURE.md",
       "name": "MONOREPO_STRUCTURE.md",
       "size": 200,
@@ -918,6 +930,14 @@
         "size": 198,
         "lines": 15,
         "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/development/SETUP_GUIDE.md"
+      },
+      {
+        "name": "MONOREPO_GUIDE.md",
+        "path": "system/MONOREPO_GUIDE.md",
+        "full_path": "docs/system/MONOREPO_GUIDE.md",
+        "size": 12184,
+        "lines": 582,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/system/MONOREPO_GUIDE.md"
       }
     ],
     "database": [
@@ -1002,6 +1022,14 @@
     ],
     "deployment": [
       {
+        "name": "GIT_WORKFLOW.md",
+        "path": "deployment/GIT_WORKFLOW.md",
+        "full_path": "docs/deployment/GIT_WORKFLOW.md",
+        "size": 5793,
+        "lines": 268,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/deployment/GIT_WORKFLOW.md"
+      },
+      {
         "name": "DEPLOYMENT.md",
         "path": "development/DEPLOYMENT.md",
         "full_path": "docs/development/DEPLOYMENT.md",
@@ -1047,17 +1075,33 @@
         "name": "00_ARCHIVE_INDEX.md",
         "path": "archive/00_ARCHIVE_INDEX.md",
         "full_path": "docs/archive/00_ARCHIVE_INDEX.md",
-        "size": 1362,
-        "lines": 66,
+        "size": 1861,
+        "lines": 81,
         "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/00_ARCHIVE_INDEX.md"
+      },
+      {
+        "name": "CURRENT_STATE_2025-11-26.md",
+        "path": "archive/CURRENT_STATE_2025-11-26.md",
+        "full_path": "docs/archive/CURRENT_STATE_2025-11-26.md",
+        "size": 15649,
+        "lines": 540,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/CURRENT_STATE_2025-11-26.md"
       },
       {
         "name": "00_DEVELOPMENT_INDEX.md",
         "path": "development/00_DEVELOPMENT_INDEX.md",
         "full_path": "docs/development/00_DEVELOPMENT_INDEX.md",
-        "size": 2070,
-        "lines": 82,
+        "size": 2713,
+        "lines": 104,
         "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/development/00_DEVELOPMENT_INDEX.md"
+      },
+      {
+        "name": "CONTRIBUTING.md",
+        "path": "development/CONTRIBUTING.md",
+        "full_path": "docs/development/CONTRIBUTING.md",
+        "size": 13087,
+        "lines": 639,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/development/CONTRIBUTING.md"
       },
       {
         "name": "00_DOCUMENTS_INDEX.md",
@@ -1103,8 +1147,8 @@
         "name": "00_REFERENCE_INDEX.md",
         "path": "reference/00_REFERENCE_INDEX.md",
         "full_path": "docs/reference/00_REFERENCE_INDEX.md",
-        "size": 1501,
-        "lines": 64,
+        "size": 1959,
+        "lines": 79,
         "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/reference/00_REFERENCE_INDEX.md"
       },
       {
@@ -1116,11 +1160,19 @@
         "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/reference/GLOSSARY.md"
       },
       {
+        "name": "WORKFLOW_REFERENCE.md",
+        "path": "reference/WORKFLOW_REFERENCE.md",
+        "full_path": "docs/reference/WORKFLOW_REFERENCE.md",
+        "size": 5521,
+        "lines": 251,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/reference/WORKFLOW_REFERENCE.md"
+      },
+      {
         "name": "00_STRATEGIC_INDEX.md",
         "path": "strategic/00_STRATEGIC_INDEX.md",
         "full_path": "docs/strategic/00_STRATEGIC_INDEX.md",
-        "size": 1738,
-        "lines": 70,
+        "size": 2072,
+        "lines": 77,
         "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/strategic/00_STRATEGIC_INDEX.md"
       },
       {
@@ -1148,6 +1200,14 @@
         "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/strategic/PROJECT_VISION.md"
       },
       {
+        "name": "QUICK_WINS_TECHNOLOGIES.md",
+        "path": "strategic/QUICK_WINS_TECHNOLOGIES.md",
+        "full_path": "docs/strategic/QUICK_WINS_TECHNOLOGIES.md",
+        "size": 19375,
+        "lines": 606,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/strategic/QUICK_WINS_TECHNOLOGIES.md"
+      },
+      {
         "name": "TECHNOLOGY_DECISIONS.md",
         "path": "strategic/TECHNOLOGY_DECISIONS.md",
         "full_path": "docs/strategic/TECHNOLOGY_DECISIONS.md",
@@ -1159,8 +1219,8 @@
         "name": "00_SYSTEM_INDEX.md",
         "path": "system/00_SYSTEM_INDEX.md",
         "full_path": "docs/system/00_SYSTEM_INDEX.md",
-        "size": 2253,
-        "lines": 84,
+        "size": 2501,
+        "lines": 91,
         "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/system/00_SYSTEM_INDEX.md"
       },
       {

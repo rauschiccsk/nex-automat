@@ -24,6 +24,19 @@ Obsahuje archivované session dokumenty z development procesu.
 
 ---
 
+## Archivované Dokumenty
+
+### Historical Snapshots
+
+**[CURRENT_STATE_2025-11-26.md](CURRENT_STATE_2025-11-26.md)**
+- Snapshot projektu k GO-LIVE dátumu (2025-11-27)
+- Kompletný inventory v2.0 (architektúra, komponenty, workflow)
+- Status: 📦 Archived
+- Veľkosť: ~14 KB
+- Note: Historical reference, obsahuje outdated info (n8n→Temporal)
+
+---
+
 ## Archívna Stratégia
 
 ### Čo Archivovať
@@ -50,13 +63,14 @@ Obsahuje archivované session dokumenty z development procesu.
 
 **Archive:**
 - [Sessions Directory](sessions/) - Session history
+- [Current State Snapshot](CURRENT_STATE_2025-11-26.md) - GO-LIVE snapshot
 
 ---
 
 ## Štatistika
 
 - **Adresáre:** 1 (sessions/)
-- **Dokumenty:** 0 (pripravené na archívne dokumenty)
+- **Dokumenty:** 1 (historical snapshot)
 - **Status:** Ready for use
 
 ---
@@ -64,3 +78,4 @@ Obsahuje archivované session dokumenty z development procesu.
 **See Also:**
 - [Documentation Index](../00_DOCUMENTATION_INDEX.md) - Hlavný index
 - [SESSION_NOTES](../../SESSION_NOTES/) - Current session tracking
+- [Project Roadmap](../strategic/PROJECT_ROADMAP.md) - Current roadmap

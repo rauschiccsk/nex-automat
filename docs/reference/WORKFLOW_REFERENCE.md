@@ -1,8 +1,23 @@
-# Workflow Quick Reference - NEX Automat
+# Workflow Quick Reference
 
-**Version:** 2.1+  
-**Date:** 2025-12-05  
-**Status:** ⭐ PERMANENT
+**Kategória:** Reference  
+**Status:** 🟢 Complete  
+**Vytvorené:** 2025-12-05  
+**Aktualizované:** 2025-12-15  
+**Related:** [GIT_WORKFLOW.md](../development/GIT_WORKFLOW.md), [SETUP_GUIDE.md](../development/SETUP_GUIDE.md)
+
+---
+
+## Obsah
+
+- [Session Workflow](#session-workflow)
+- [File Access Commands](#file-access-commands)
+- [Quick Decision Tree](#quick-decision-tree)
+- [Common Paths](#common-paths)
+- [Output Format](#output-format)
+- [Benefits](#benefits)
+- [When NOT to use](#when-not-to-use)
+- [Troubleshooting](#troubleshooting)
 
 ---
 
@@ -120,7 +135,7 @@ Potrebujem...
 
 ---
 
-## Common Paths (Copy-Paste Ready)
+## Common Paths
 
 ### Main Application
 ```
@@ -196,7 +211,7 @@ CONTENT:
 
 ---
 
-## When NOT to use?
+## When NOT to use
 
 ❌ **Cross-machine work** - nie si na dev PC  
 ❌ **History review** - potrebuješ vidieť čo sa zmenilo medzi sessionami  
@@ -230,5 +245,7 @@ C:\Development\nex-automat\venv32\Scripts\python.exe scripts\read_project_file.p
 
 ---
 
-**Last Updated:** 2025-12-05  
-**Status:** ACTIVE - Use for all sessions from now on
+**See Also:**
+- [GIT_WORKFLOW.md](../development/GIT_WORKFLOW.md) - Git branching a commit workflow
+- [SETUP_GUIDE.md](../development/SETUP_GUIDE.md) - Nastavenie vývojového prostredia
+- [API_REFERENCE.md](API_REFERENCE.md) - API dokumentácia

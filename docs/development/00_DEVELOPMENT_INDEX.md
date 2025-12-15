@@ -1,7 +1,7 @@
 # Development Documentation Index
 
 **Kategória:** Development  
-**Status:** 🔴 Draft  
+**Status:** 🟡 In Progress  
 **Vytvorené:** 2025-12-15  
 **Aktualizované:** 2025-12-15
 
@@ -9,11 +9,27 @@
 
 ## Účel
 
-Setup guides, testing stratégie, deployment procesy a development best practices.
+Setup guides, Git workflow, contributing guidelines, testing stratégie, deployment procesy a development best practices.
 
 ---
 
 ## Dokumenty v Development
+
+### Kompletné Dokumenty
+
+**[GIT_WORKFLOW.md](GIT_WORKFLOW.md)**
+- Git branching strategy (main/develop/hotfix)
+- PyCharm Git operations
+- Commit/Push/Merge workflows
+- Status: 🟢 Complete
+- Veľkosť: ~5 KB
+
+**[CONTRIBUTING.md](CONTRIBUTING.md)**
+- Contributing guidelines a code of conduct
+- Development workflow, code style, commit messages
+- Testing requirements, PR process
+- Status: 🟢 Complete
+- Veľkosť: ~12 KB
 
 ### Draft Dokumenty
 
@@ -51,11 +67,15 @@ V `docs/deployment/` existuje 12 .md-old súborov s deployment dokumentáciou:
 - TROUBLESHOOTING.md-old (9.6 KB)
 - a ďalšie...
 
-**Akcia:** Tieto súbory treba systematicky zmigrovať do DEPLOYMENT.md
+**Akcia:** Tieto súbory treba systematicky zmigrovat do DEPLOYMENT.md
 
 ---
 
 ## Quick Links
+
+**Workflow:**
+- [Git Workflow](GIT_WORKFLOW.md) - Git branching a operations
+- [Contributing](CONTRIBUTING.md) - Contributing guidelines
 
 **Setup:**
 - [Setup Guide](SETUP_GUIDE.md) - Environment setup
@@ -70,7 +90,9 @@ V `docs/deployment/` existuje 12 .md-old súborov s deployment dokumentáciou:
 
 ## Štatistika
 
-- **Total dokumentov:** 3 (všetky draft)
+- **Total dokumentov:** 5
+- **Complete:** 2
+- **Draft:** 3
 - **.md-old súborov:** 12 (v docs/deployment/)
 - **Priority:** Vysoká (kritická pre development)
 
@@ -79,4 +101,4 @@ V `docs/deployment/` existuje 12 .md-old súborov s deployment dokumentáciou:
 **See Also:**
 - [Documentation Index](../00_DOCUMENTATION_INDEX.md) - Hlavný index
 - [System Architecture](../system/ARCHITECTURE.md) - Architektúra
-- [Applications Index](../applications/00_APPLICATIONS_INDEX.md) - Apps
+- [Monorepo Guide](../system/MONOREPO_GUIDE.md) - Monorepo workflow

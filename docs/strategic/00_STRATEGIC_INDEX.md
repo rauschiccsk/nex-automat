@@ -9,13 +9,19 @@
 
 ## Účel
 
-Strategická dokumentácia obsahuje dlhodobé plány, vízii projektu, technologické rozhodnutia a roadmap.
+Strategická dokumentácia obsahuje dlhodobé plány, vízie projektu, technologické rozhodnutia a roadmap.
 
 ---
 
 ## Dokumenty v Strategic
 
 ### Kompletné Dokumenty
+
+**[QUICK_WINS_TECHNOLOGIES.md](QUICK_WINS_TECHNOLOGIES.md)**
+- Quick wins technológie (Redis, Sentry, Streamlit, Docker, Grafana, GitHub Actions)
+- Implementačný plán, náklady €0-312/rok, benefity
+- Status: 🟢 Complete
+- Veľkosť: ~19 KB
 
 **[AI_ML_TECHNOLOGIES.md](AI_ML_TECHNOLOGIES.md)**
 - Schválené AI/ML technológie (PaddleOCR, Camelot, Claude API, DuckDB)
@@ -51,6 +57,7 @@ Strategická dokumentácia obsahuje dlhodobé plány, vízii projektu, technolog
 - [Project Vision](PROJECT_VISION.md) - Dlhodobá vízia
 
 **Pre technológie:**
+- [Quick Wins Technologies](QUICK_WINS_TECHNOLOGIES.md) - Okamžité benefity
 - [AI/ML Technologies](AI_ML_TECHNOLOGIES.md) - Schválené AI/ML nástroje
 - [Technology Decisions](TECHNOLOGY_DECISIONS.md) - História rozhodnutí
 
@@ -58,10 +65,10 @@ Strategická dokumentácia obsahuje dlhodobé plány, vízii projektu, technolog
 
 ## Štatistika
 
-- **Total dokumentov:** 4
-- **Complete:** 3
+- **Total dokumentov:** 5
+- **Complete:** 4
 - **Draft:** 1
-- **Total veľkosť:** ~52 KB
+- **Total veľkosť:** ~71 KB
 
 ---
 
