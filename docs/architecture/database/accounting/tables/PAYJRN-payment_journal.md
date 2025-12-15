@@ -1,12 +1,13 @@
-# PAYJRN.BTR → payment_journal
+# PAYJRN → payment_journal
 
-**Pre všeobecné zásady pozri:** [COMMON_DOCUMENT_PRINCIPLES.md](../../COMMON_DOCUMENT_PRINCIPLES.md)
-
-Tento dokument popisuje **denník úhrady faktúr** (Payment Journal).
+**Verzia:** 1.1  
+**Dátum:** 2025-12-15  
+**Batch:** 6 (Accounting - dokument 3/3)  
+**Status:** ✅ Pripravené na migráciu
 
 ---
 
-## 1. PREHĽAD
+## PREHĽAD
 
 ### Účel
 Denník úhrady faktúr (Payment Journal) je **univerzálny denník** pre evidenciu úhrad dodávateľských aj odberateľských faktúr. Obsahuje všetky typy platieb:
@@ -15,12 +16,15 @@ Denník úhrady faktúr (Payment Journal) je **univerzálny denník** pre eviden
 - Hotovostné úhrady (podniková pokladňa)
 - Prevodné príkazy
 
-### Btrieve súbory
-**Starý systém (NEX Genesis):**
-```
-PAYJRN.BTR  - Jeden súbor pre všetky platby
-```
+### Btrieve súbor
+- **Názov:** PAYJRN.BTR (single file)
+- **Umiestnenie:** `C:\NEX\YEARACT\LEDGER\PAYJRN.BTR`
+  - Premenná časť: `C:\NEX\` (root path)
+  - Fixná časť: `\YEARACT\LEDGER\`
+- **Účel:** Univerzálny denník úhrad všetkých faktúr
+- **Architektúra:** Single file (nie multi-file ako ISH/ISI)
 
+### PostgreSQL migrácia
 **Nový systém (NEX Automat):**
 ```
 payment_journal - jedna tabuľka pre všetky platby
@@ -56,7 +60,7 @@ payment_journal
 
 ---
 
-## 2. KONCEPT SÚHRNNEJ PLATBY ⭐
+## KONCEPT SÚHRNNEJ PLATBY ⭐
 
 ### Príklad: Špedičná firma
 
@@ -106,127 +110,14 @@ DocNum=BV2500100123, ItmNum=3, CitNum=2  → faktúra OF021 (500 EUR)
 
 ---
 
-## 3. SQL SCHÉMA
-
-```sql
--- =====================================================
--- DENNÍK ÚHRADY FAKTÚR
--- =====================================================
-
-CREATE TABLE payment_journal (
-    -- Technický primárny kľúč
-    payment_id BIGSERIAL PRIMARY KEY,
-    
-    -- ========================================
-    -- PLATOBNÝ DOKLAD
-    -- ========================================
-    
-    payment_document_number VARCHAR(13) NOT NULL,  -- BV2500100123, PP2500100001...
-    line_number INTEGER NOT NULL,                  -- Riadok v dokladе (ItmNum)
-    detail_number INTEGER NOT NULL DEFAULT 0,      -- Detail súhrnnej platby (CitNum)
-                                                    -- 0 = hlavička/riadna platba
-                                                    -- >0 = detail súhrnnej platby
-    
-    -- ========================================
-    -- PLATOBNÉ SYMBOLY
-    -- ========================================
-    
-    variable_symbol VARCHAR(15),
-    specific_symbol VARCHAR(20),
-    constant_symbol VARCHAR(4),
-    
-    -- ========================================
-    -- ZÁKLADNÉ ÚDAJE
-    -- ========================================
-    
-    payment_date DATE NOT NULL,
-    partner_id INTEGER,                            -- Len pre filtrovanie
-    counterparty_iban VARCHAR(25),
-    payment_description VARCHAR(60),
-    
-    -- ========================================
-    -- ÚHRADA (v mene bankového účtu)
-    -- ========================================
-    
-    payment_currency VARCHAR(3) NOT NULL,
-    payment_rate DECIMAL(15,6),                    -- Kurz úhrady
-    rate_date DATE,                                -- Dátum kurzu
-    payment_amount DECIMAL(15,2) NOT NULL,         -- Hodnota v mene účtu
-    posted_amount_ac DECIMAL(15,2),                -- Zaúčtovaná hodnota
-    
-    -- ========================================
-    -- UHRADENÁ FAKTÚRA
-    -- ========================================
-    
-    invoice_number VARCHAR(13),                    -- DF2500000123, OF2500000456
-    invoice_type VARCHAR(1),                       -- S=Supplier, C=Customer
-    invoice_currency VARCHAR(3),                   -- Mena faktúry
-    invoice_amount DECIMAL(15,2),                  -- Hodnota v mene faktúry
-    invoice_rate DECIMAL(15,6),                    -- Kurz faktúry
-    invoice_amount_ac DECIMAL(15,2),               -- Hodnota faktúry v účt. mene
-    
-    -- ========================================
-    -- AUDIT
-    -- Detaily v COMMON_DOCUMENT_PRINCIPLES.md
-    -- ========================================
-    
-    created_by VARCHAR(8) NOT NULL,
-    created_at TIMESTAMP NOT NULL,
-    updated_by VARCHAR(8),
-    updated_at TIMESTAMP,
-    
-    -- ========================================
-    -- CONSTRAINTS
-    -- ========================================
-    
-    CONSTRAINT uq_payment_line_detail UNIQUE (payment_document_number, line_number, detail_number),
-    CONSTRAINT chk_detail_number CHECK (detail_number >= 0),
-    CONSTRAINT chk_invoice_type CHECK (invoice_type IN ('S', 'C') OR invoice_type IS NULL),
-    CONSTRAINT chk_payment_amount CHECK (payment_amount != 0),
-    
-    -- Validácia: CitNum=0 môže mať NULL faktúru (hlavička súhrnnej platby)
-    -- CitNum>0 musí mať faktúru
-    CONSTRAINT chk_detail_invoice CHECK (
-        (detail_number = 0) OR 
-        (detail_number > 0 AND invoice_number IS NOT NULL)
-    )
-);
-
--- ========================================
--- INDEXY
--- ========================================
-
-CREATE INDEX idx_payment_journal_document ON payment_journal(payment_document_number);
-CREATE INDEX idx_payment_journal_invoice ON payment_journal(invoice_number);
-CREATE INDEX idx_payment_journal_partner ON payment_journal(partner_id);
-CREATE INDEX idx_payment_journal_date ON payment_journal(payment_date);
-CREATE INDEX idx_payment_journal_variable_symbol ON payment_journal(variable_symbol);
-CREATE INDEX idx_payment_journal_type ON payment_journal(invoice_type);
-
--- Index pre súhrnné platby
-CREATE INDEX idx_payment_journal_summary ON payment_journal(payment_document_number, line_number, detail_number);
-
--- ========================================
--- TRIGGERY
--- Funkcie definované v COMMON_DOCUMENT_PRINCIPLES.md
--- ========================================
-
-CREATE TRIGGER trg_payment_journal_updated_at
-    BEFORE UPDATE ON payment_journal
-    FOR EACH ROW
-    EXECUTE FUNCTION update_updated_at_column();
-```
-
----
-
-## 4. MAPPING POLÍ
+## MAPPING POLÍ
 
 ### Platobný doklad
 
 | Btrieve | Typ | PostgreSQL | Typ | Poznámka |
 |---------|-----|------------|-----|----------|
 | DocNum | Str12 | payment_document_number | VARCHAR(13) | BV2500100123, PP2500100001... |
-| ItmNum | word | line_number | INTEGER | Riadok v dokladе |
+| ItmNum | word | line_number | INTEGER | Riadok v doklade |
 | CitNum | word | detail_number | INTEGER | 0=hlavička/riadna, >0=detail |
 
 ### Platobné symboly
@@ -245,7 +136,6 @@ CREATE TRIGGER trg_payment_journal_updated_at
 | ParNum | longint | partner_id | INTEGER | Len pre filtrovanie |
 | ParNam, _ParNam | - | - | - | Snapshot, neprenášame |
 | PayIba | Str25 | counterparty_iban | VARCHAR(25) | IBAN protiúčtu |
-| PayCon | Str20 | - | - | Číslo účtu - už sa nepoužíva |
 | PayDes | Str60 | payment_description | VARCHAR(60) | Textový popis |
 
 ### Úhrada
@@ -257,8 +147,6 @@ CREATE TRIGGER trg_payment_journal_updated_at
 | PayCdt | DateType | rate_date | DATE | Dátum kurzu |
 | PayVal | double | payment_amount | DECIMAL(15,2) | Hodnota v mene účtu |
 | PayAcv | double | posted_amount_ac | DECIMAL(15,2) | Zaúčtovaná hodnota |
-| PdvAcv | double | - | - | Zaokrúhlenie - neprenášame |
-| CdvAcv | double | - | - | Kurzový rozdiel - neprenášame |
 
 ### Faktúra
 
@@ -272,7 +160,7 @@ CREATE TRIGGER trg_payment_journal_updated_at
 | InvAcv | double | invoice_amount_ac | DECIMAL(15,2) | Hodnota v účt. mene |
 
 ### Audit
-**Detaily pozri:** COMMON_DOCUMENT_PRINCIPLES.md sekcia 7
+**Pre všeobecné zásady pozri:** COMMON_DOCUMENT_PRINCIPLES.md sekcia 7
 
 | Btrieve | Typ | PostgreSQL | Typ | Poznámka |
 |---------|-----|------------|-----|----------|
@@ -300,7 +188,7 @@ CREATE TRIGGER trg_payment_journal_updated_at
 
 ---
 
-## 5. BIZNIS LOGIKA
+## BIZNIS LOGIKA
 
 ### Typy platieb
 
@@ -435,7 +323,7 @@ doc_type = get_payment_document_type('BV2500100123')
 
 ---
 
-## 6. VZŤAHY S INÝMI TABUĽKAMI
+## VZŤAHY S INÝMI TABUĽKAMI
 
 ### Reference na faktúry
 
@@ -468,133 +356,7 @@ payment_journal (N) ──> (1) partner_catalog
 
 ---
 
-## 7. QUERY PATTERNS
-
-### Všetky úhrady faktúry
-
-```sql
-SELECT 
-    p.payment_date,
-    p.payment_document_number,
-    p.payment_amount,
-    p.invoice_amount,
-    p.payment_description,
-    
-    -- Typ platobného dokladu
-    SUBSTRING(p.payment_document_number, 1, 2) AS payment_type
-    
-FROM payment_journal p
-WHERE p.invoice_number = 'DF2500000123'
-  AND p.invoice_type = 'S'
-  AND p.detail_number > 0  -- Len detaily, nie hlavičky!
-ORDER BY p.payment_date;
-```
-
-### Súhrnná platba (hlavička + detail)
-
-```sql
--- Hlavička
-SELECT 
-    p.payment_date,
-    p.payment_amount AS total_amount,
-    p.payment_description
-FROM payment_journal p
-WHERE p.payment_document_number = 'BV2500100123'
-  AND p.line_number = 1
-  AND p.detail_number = 0;
-
--- Detail
-SELECT 
-    p.detail_number,
-    p.invoice_number,
-    p.invoice_amount,
-    
-    -- Partner z faktúry
-    CASE 
-        WHEN p.invoice_type = 'S' THEN si.supplier_id
-        WHEN p.invoice_type = 'C' THEN ci.customer_id
-    END AS partner_id
-    
-FROM payment_journal p
-LEFT JOIN supplier_invoice_heads si ON si.document_number = p.invoice_number AND p.invoice_type = 'S'
-LEFT JOIN customer_invoice_heads ci ON ci.document_number = p.invoice_number AND p.invoice_type = 'C'
-WHERE p.payment_document_number = 'BV2500100123'
-  AND p.line_number = 1
-  AND p.detail_number > 0
-ORDER BY p.detail_number;
-```
-
-### Platby bankového výpisu
-
-```sql
-SELECT 
-    p.line_number,
-    p.detail_number,
-    p.payment_amount,
-    p.invoice_number,
-    p.invoice_type,
-    p.payment_description,
-    
-    -- Je to súhrnná platba?
-    CASE 
-        WHEN p.detail_number = 0 AND EXISTS (
-            SELECT 1 FROM payment_journal p2
-            WHERE p2.payment_document_number = p.payment_document_number
-              AND p2.line_number = p.line_number
-              AND p2.detail_number > 0
-        ) THEN 'SUMMARY'
-        WHEN p.detail_number = 0 THEN 'REGULAR'
-        ELSE 'DETAIL'
-    END AS payment_status
-    
-FROM payment_journal p
-WHERE p.payment_document_number = 'BV2500100123'
-ORDER BY p.line_number, p.detail_number;
-```
-
-### Neuhradené faktúry (zostatok)
-
-```sql
-SELECT 
-    h.document_number,
-    h.supplier_invoice_number,
-    h.due_date,
-    h.purchase_total_value_ac,
-    COALESCE(SUM(p.invoice_amount_ac), 0) AS total_paid,
-    h.purchase_total_value_ac - COALESCE(SUM(p.invoice_amount_ac), 0) AS remaining
-    
-FROM supplier_invoice_heads h
-LEFT JOIN payment_journal p 
-    ON p.invoice_number = h.document_number 
-    AND p.invoice_type = 'S'
-    AND p.detail_number > 0  -- Len detaily!
-    
-GROUP BY h.document_id, h.document_number, h.supplier_invoice_number, 
-         h.due_date, h.purchase_total_value_ac
-HAVING h.purchase_total_value_ac > COALESCE(SUM(p.invoice_amount_ac), 0)
-ORDER BY h.due_date;
-```
-
-### Platby partnera
-
-```sql
-SELECT 
-    p.payment_date,
-    p.payment_document_number,
-    p.invoice_number,
-    p.invoice_type,
-    p.invoice_amount,
-    p.payment_description
-    
-FROM payment_journal p
-WHERE p.partner_id = 456
-  AND p.detail_number > 0  -- Len detaily
-ORDER BY p.payment_date DESC;
-```
-
----
-
-## 8. PRÍKLAD DÁT
+## PRÍKLAD DÁT
 
 ### Riadna platba
 
@@ -666,7 +428,7 @@ INSERT INTO payment_journal (
 
 ---
 
-## 9. MIGRÁCIA
+## MIGRÁCIA
 
 ### Jednoduchá migrácia
 
@@ -718,10 +480,7 @@ def migrate_payment_journal_record(record):
 
 ```sql
 -- Kontrola počtu záznamov
-SELECT 'Btrieve' AS source, COUNT(*) AS count
-FROM btrieve_payjrn_temp
-UNION ALL
-SELECT 'PostgreSQL' AS source, COUNT(*) AS count
+SELECT COUNT(*) AS total_records
 FROM payment_journal;
 
 -- Kontrola unikátnosti
@@ -739,13 +498,12 @@ SELECT
     SUM(CASE WHEN detail_number = 0 THEN payment_amount ELSE 0 END) - 
     SUM(CASE WHEN detail_number > 0 THEN invoice_amount ELSE 0 END) AS difference
 FROM payment_journal
-WHERE detail_number >= 0
-  AND EXISTS (
-      SELECT 1 FROM payment_journal p2
-      WHERE p2.payment_document_number = payment_journal.payment_document_number
-        AND p2.line_number = payment_journal.line_number
-        AND p2.detail_number > 0
-  )
+WHERE EXISTS (
+    SELECT 1 FROM payment_journal p2
+    WHERE p2.payment_document_number = payment_journal.payment_document_number
+      AND p2.line_number = payment_journal.line_number
+      AND p2.detail_number > 0
+)
 GROUP BY payment_document_number, line_number
 HAVING ABS(
     SUM(CASE WHEN detail_number = 0 THEN payment_amount ELSE 0 END) - 
@@ -756,30 +514,41 @@ HAVING ABS(
 SELECT 
     p.invoice_type,
     COUNT(*) AS total_payments,
-    COUNT(DISTINCT p.invoice_number) AS unique_invoices,
-    SUM(CASE WHEN s.document_id IS NULL AND c.document_id IS NULL THEN 1 ELSE 0 END) AS missing_invoices
+    COUNT(DISTINCT p.invoice_number) AS unique_invoices
 FROM payment_journal p
-LEFT JOIN supplier_invoice_heads s ON s.document_number = p.invoice_number AND p.invoice_type = 'S'
-LEFT JOIN customer_invoice_heads c ON c.document_number = p.invoice_number AND p.invoice_type = 'C'
 WHERE p.detail_number > 0  -- Len detaily
 GROUP BY p.invoice_type;
 ```
 
 ---
 
-## 10. VERZIA A ZMENY
+## POZNÁMKY PRE MIGRÁCIU
 
-### Verzia dokumentu
-**Verzia:** 1.0  
-**Dátum:** 2025-12-13  
-**Autor:** Zoltán + Claude  
-**Session:** 8
+### Kľúčové body
 
-### História zmien
+1. **SPOLOČNÝ DENNÍK:**
+   - Obsahuje platby z rôznych dokladov (BV, PP, PV, PQ)
+   - Obsahuje úhrady dodávateľských aj odberateľských faktúr
 
-| Verzia | Dátum | Zmeny |
-|--------|-------|-------|
-| 1.0 | 2025-12-13 | Vytvorenie prvej verzie |
+2. **Single file architektúra:**
+   - `PAYJRN.BTR` → jedna tabuľka `payment_journal`
+   - Nie multi-file ako ISH/ISI
+
+3. **detail_number = 0:**
+   - Hlavička súhrnnej platby (invoice_number = NULL)
+   - ALEBO riadna platba (invoice_number != NULL)
+
+4. **detail_number > 0:**
+   - Detail súhrnnej platby (konkrétne faktúry)
+
+5. **Validácia súhrnnej platby:**
+   - Suma detailov musí byť rovná sume hlavičky
+
+6. **Aktualizácia faktúr:**
+   - Po vložení platby aktualizovať total_paid_ac v faktúre
+
+7. **Partner:**
+   - Len pre filtrovanie, nie versioning
 
 ### Závislosti
 
@@ -795,16 +564,6 @@ GROUP BY p.invoice_type;
 - `PV-cash_withdrawal_heads.md` - pokladničné výdaje
 - `PQ-payment_order_heads.md` - prevodné príkazy
 
-### Poznámky
-
-1. **SPOLOČNÝ DENNÍK** - obsahuje platby z rôznych dokladov (BV, PP, PV, PQ)
-2. **SPOLOČNÝ DENNÍK** - obsahuje úhrady dodávateľských aj odberateľských faktúr
-3. **detail_number = 0** - hlavička súhrnnej platby ALEBO riadna platba
-4. **detail_number > 0** - detail súhrnnej platby (konkrétne faktúry)
-5. **Validácia súhrnnej platby** - suma detailov musí byť rovná sume hlavičky
-6. **Aktualizácia faktúr** - po vložení platby aktualizovať total_paid_ac v faktúre
-7. **Partner** - len pre filtrovanie, nie versioning
-
 ---
 
-**Koniec dokumentu PAYJRN-payment_journal.md v1.0**
+**Koniec dokumentu PAYJRN-payment_journal.md v1.1**

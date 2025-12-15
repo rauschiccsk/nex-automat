@@ -10,6 +10,15 @@
 ### December 2025
 
 **2025-12-15:**
+- [Database Table Docs Migration - Batch 6 Accounting Complete](sessions/SESSION_2025-12-15_database-table-docs-batch6-accounting-complete.md)
+  - Status: ✅ COMPLETE
+  - Topics: Accounting section complete (ISH, ISI, PAYJRN)
+  - Progress: 23/28 dokumentov (82.1%)
+  - Average reduction: 54.5%
+  - Accounting: 3/3 (100%) ✓
+  - Remaining: 1 document (Sales)
+
+**2025-12-15:**
 - [Database Table Docs Migration - Batch 6 Stock Complete](sessions/SESSION_2025-12-15_database-table-docs-batch6-stock-complete.md)
   - Status: ✅ COMPLETE
   - Topics: Stock Management complete (STM, STK)
@@ -142,10 +151,10 @@
 
 ## STATISTICS
 
-**Total Sessions:** 23  
+**Total Sessions:** 24  
 **Total Deployments:** 10  
-**Active Tasks:** 1 (Database table docs migration)  
-**Completion Rate:** 71.4% (20/28 database table docs)
+**Active Tasks:** 1 (Database table docs migration - FINAL document)  
+**Completion Rate:** 82.1% (23/28 database table docs)
 
 ---
 

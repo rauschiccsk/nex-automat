@@ -1,11 +1,11 @@
-# INIT PROMPT - NEX Automat: Database Table Docs Migration (Batch 6 - Accounting Start)
+# INIT PROMPT - NEX Automat: Database Table Docs Migration (Batch 6 - Sales Final)
 
 **Projekt:** nex-automat  
-**Úloha:** Database table docs migration (batch 6 - Accounting section)  
+**Úloha:** Database table docs migration (batch 6 - Sales section - FINAL)  
 **Developer:** Zoltán (40 rokov skúseností)  
 **Jazyk:** Slovenčina  
 **Previous Session:** https://claude.ai/chat/[LINK_TO_CURRENT_SESSION]  
-**Status:** 20/28 dokumentov dokončených, **8 zostáva**
+**Status:** 23/28 dokumentov dokončených, **1 zostáva**
 
 ---
 
@@ -44,78 +44,58 @@ Kľúčové pravidlá pre túto session:
 4. MGLST-product_categories.md (17.4 KB → 7.5 KB, 56.9%)
 5. SGLST-product_categories.md (20.1 KB → 8.5 KB, 57.7%)
 
-### Stock Management Section - COMPLETE! (7 dokumentov) ⭐
+### Stock Management Section - COMPLETE! (7 dokumentov)
 
-1. **WRILST-facilities.md** (17.9 KB → 7.7 KB, 57%) ✅
-2. **STKLST-stocks.md** (20.4 KB → 8.7 KB, 57%) ✅
-3. **TSH-supplier_delivery_heads.md** (25.4 KB → 11.2 KB, 56%) ✅
-4. **FIF-stock_card_fifos.md** (28.5 KB → 11.8 KB, 59%) ✅
-5. **TSI-supplier_delivery_items.md** (29.7 KB → 12.5 KB, 58%) ✅
-6. **STM-stock_card_movements.md** (35.6 KB → 15.3 KB, 57%) ✅
-7. **STK-stock_cards.md** (38.5 KB → 16.5 KB, 57%) ✅
+1. WRILST-facilities.md (17.9 KB → 7.7 KB, 57%)
+2. STKLST-stocks.md (20.4 KB → 8.7 KB, 57%)
+3. TSH-supplier_delivery_heads.md (25.4 KB → 11.2 KB, 56%)
+4. FIF-stock_card_fifos.md (28.5 KB → 11.8 KB, 59%)
+5. TSI-supplier_delivery_items.md (29.7 KB → 12.5 KB, 58%)
+6. STM-stock_card_movements.md (35.6 KB → 15.3 KB, 57%)
+7. STK-stock_cards.md (38.5 KB → 16.5 KB, 57%)
+
+### Accounting Section - COMPLETE! (3 dokumenty) ⭐
+
+1. **ISH-supplier_invoice_heads.md** (34.8 KB → 15.5 KB, 55.5%) ✅
+2. **ISI-supplier_invoice_items.md** (29.6 KB → 13.5 KB, 54.4%) ✅
+3. **PAYJRN-payment_journal.md** (25.8 KB → 12.0 KB, 53.5%) ✅
 
 ---
 
 ## 📊 PROGRESS
 
-**Dokončené:** 20/28 dokumentov (71.4%)  
-**Zostáva:** 8 database table dokumentov
+**Dokončené:** 23/28 dokumentov (82.1%)  
+**Zostáva:** 1 database table dokument
 
 **By Category:**
 - ✅ **Partners:** 8/8 (100%) - **COMPLETE**
 - ✅ **Products:** 5/5 (100%) - **COMPLETE**
 - ✅ **Stock Management:** 7/7 (100%) - **COMPLETE**
-- ⏳ **Accounting:** 0/3 (0%) ← **START HERE**
-- ⏳ **Sales:** 0/1 (0%)
+- ✅ **Accounting:** 3/3 (100%) - **COMPLETE**
+- ⏳ **Sales:** 0/1 (0%) ← **START HERE - FINAL DOCUMENT**
 
-**Priemerná redukcia:** 57.4% veľkosti
+**Priemerná redukcia:** 55.2% veľkosti
 
 ---
 
 ## 🎯 ČO TREBA UROBIŤ TERAZ
 
-### Priority 1: Accounting Section - Začať (3 dokumenty)
+### Priority 1: Sales Section - FINAL DOCUMENT (1 dokument)
 
-**Odporúčané poradie:**
+**Jediný zostávajúci dokument:**
 
-1. **ISH-supplier_invoice_heads.md-old** (34.8 KB) ⚠️ VEĽKÉ ← **ZAČNI TÝMTO**
-   - Hlavičky dodávateľských faktúr
-   - Prepojenie s TSH (dodacie listy)
-   - Multi-file architektúra? (ISH[YY][NNN].BTR? - overiť pri načítaní)
-
-2. **ISI-supplier_invoice_items.md-old** (29.6 KB) ⚠️ VEĽKÉ
-   - Položky dodávateľských faktúr
-   - Prepojenie s TSI (položky dodacích listov)
-   - Multi-file architektúra? (ISI[YY][NNN].BTR? - overiť pri načítaní)
-
-3. **PAYJRN-payment_journal.md-old** (25.8 KB)
-   - Platobný denník
-   - Prepojenie s ISH (úhrady faktúr)
-   - Pravdepodobne: C:\NEX\YEARACT\ACCOUNTS\
+1. **PLSnnnnn-price_list_items.md-old** (20.5 KB) ← **ZAČNI TÝMTO - POSLEDNÝ!**
+   - Položky cenníkov (Price List Items)
+   - Multi-file architektúra: PLS[nnnnn].BTR (per cenník)
+   - Pravdepodobne: C:\NEX\YEARACT\STORES\
 
 **Pravdepodobné Btrieve adresáre:**
-- ACCOUNTS (faktúry, platby)
-- STORES (ak súvisí s TSH/TSI)
+- STORES (cenníky - pravdepodobne)
+- DIALS (číselníky - menej pravdepodobné)
 
 ---
 
-## 📂 ZOSTÁVAJÚCE DOKUMENTY (8 total)
-
-### Accounting (3 súbory - START HERE)
-
-- **ISH-supplier_invoice_heads.md-old** (34.8 KB) ⚠️ VEĽKÉ
-- **ISI-supplier_invoice_items.md-old** (29.6 KB) ⚠️ VEĽKÉ
-- **PAYJRN-payment_journal.md-old** (25.8 KB)
-
-### Sales (1 súbor)
-
-- PLSnnnnn-price_list_items.md-old (20.5 KB)
-
-### Ostatné (4 súbory - TBD)
-
----
-
-## 🔧 KRITICKÉ TECHNICKÉ INFO
+## 📂 TECHNICKÉ INFO
 
 ### Overený Workflow
 
@@ -123,7 +103,7 @@ Kľúčové pravidlá pre túto session:
 2. **Opýtať sa na Btrieve location** (user poskytne adresár)
 3. **Vytvoriť 1 artifact** - vyčistený dokument
 4. **User skopíruje obsah + zmaže starý súbor** - manuálne
-5. **Pokračuj ďalším dokumentom**
+5. **DONE!** - všetky dokumenty dokončené
 
 ### Zistené Btrieve Locations
 
@@ -137,11 +117,11 @@ Kľúčové pravidlá pre túto session:
 - WRILST.BTR, STKLST.BTR
 - TSH[YY][NNN].BTR, TSI[YY][NNN].BTR
 - FIF[NNNNN].BTR, STM[NNNNN].BTR, STK[NNNNN].BTR
-- **Možno aj:** ISH[YY][NNN].BTR, ISI[YY][NNN].BTR (overiť!)
+- **Pravdepodobne aj:** PLS[nnnnn].BTR (overiť!)
 
-**ACCOUNTS adresár (pravdepodobne):**
-- PAYJRN.BTR (platobný denník)
-- **Možno aj:** ISH[YY][NNN].BTR, ISI[YY][NNN].BTR (overiť!)
+**LEDGER adresár:**
+- ISH[YY][NNN].BTR, ISI[YY][NNN].BTR
+- PAYJRN.BTR
 
 ### Formát Úprav (konzistentný)
 
@@ -157,7 +137,7 @@ Kľúčové pravidlá pre túto session:
   ```
 - Aktualizované metadáta (dátum: 2025-12-15)
 - Status: ✅ Pripravené na migráciu
-- Batch info: "Batch 6 (Accounting - dokument X/Y)"
+- Batch info: "Batch 6 (Sales - dokument 1/1 - FINAL)"
 
 **ODSTRAŇUJEME:**
 - CREATE TABLE statements
@@ -178,11 +158,12 @@ Kľúčové pravidlá pre túto session:
 
 ### Priemerná Redukcia
 
-**57.4% veľkosti** (overené na 20 dokumentoch)
+**Všetky dokončené sekcie:**
 - Partners: 49-58%
 - Products: 49-58%
 - Stock Management: 56-59%
-- Expected pre Accounting: podobné
+- Accounting: 54-56%
+- Expected pre Sales: podobné (~55%)
 
 ---
 
@@ -190,49 +171,35 @@ Kľúčové pravidlá pre túto session:
 
 ### 1. Multi-file Btrieve Architektúra
 
-**Špeciálne prípady v Stock Management (reference):**
+**Špeciálne prípady (reference):**
 
-**TSH/TSI** (Supplier Delivery Documents):
-- Btrieve: TSH25001.BTR, TSH25002.BTR (kniha+rok)
-- PostgreSQL: supplier_delivery_heads (jedna tabuľka)
-- Extrahovať book_num z názvu súboru
-
-**FIF/STM/STK** (FIFO/Movements/Cards):
-- Btrieve: FIF00001.BTR, STM00001.BTR, STK00001.BTR (per sklad)
-- PostgreSQL: jedna tabuľka + stock_id
-- Extrahovať stock_id z názvu súboru
-
-**ISH/ISI** (Supplier Invoices - TBD):
-- Pravdepodobne: ISH[YY][NNN].BTR, ISI[YY][NNN].BTR (kniha+rok?)
-- Alebo: ISH.BTR, ISI.BTR (single file?)
+**PLS[nnnnn]** (Price List Items - TBD):
+- Btrieve: PLS00001.BTR, PLS00002.BTR (per cenník)
+- PostgreSQL: price_list_items (jedna tabuľka)
+- Extrahovať price_list_id z názvu súboru
 - **Overiť pri načítaní dokumentu!**
 
-### 2. Prepojenia Accounting s Stock Management
+### 2. Prepojenia Sales s ostatnými sekciami
 
-**ISH/ISI ↔ TSH/TSI:**
-- Faktúra môže byť vytvorená z dodacieho listu
-- Prepojenie cez document_number alebo delivery_id
-- Poznámka: Detail prepojenia v ISH/ISI dokumentoch
+**PLS → GSCAT:**
+- Položky cenníka odkazujú na produkty
+- Prepojenie cez product_id
+- Poznámka: Detail prepojenia v PLS dokumente
 
-**PAYJRN ↔ ISH:**
-- Úhrady faktúr v platobnom denníku
-- Prepojenie cez invoice_id alebo document_number
-- Poznámka: Detail prepojenia v PAYJRN dokumente
+**PLS → Customer Orders (možno):**
+- Predajné ceny z cenníkov
+- Použitie v objednávkach
+- Poznámka: Detail v dokumente
 
 ### 3. Versioning Systém
 
-**Partners (v documents):**
-- supplier_id + supplier_modify_id
-- History: partner_catalog_history
-- Pri migrácii: modify_id = 0
-
-**Products (v documents):**
+**Products (v cenníkoch):**
 - product_id + product_modify_id
 - History: product_catalog_history
 - Pri migrácii: modify_id = 0
 
-**Accounting documents (TBD):**
-- Pravdepodobne: invoice_id + invoice_modify_id?
+**Cenníky (možno):**
+- price_list_id + price_list_modify_id?
 - **Overiť pri načítaní dokumentu!**
 
 ---
@@ -240,12 +207,13 @@ Kľúčové pravidlá pre túto session:
 ## 📈 SUCCESS METRICS
 
 **Pre túto session očakávame:**
-- ✅ 3 Accounting dokumenty dokončené (ISH, ISI, PAYJRN)
-- ✅ Progress: 23/28 súborov (82.1%)
+- ✅ 1 Sales dokument dokončený (PLSnnnnn)
+- ✅ Progress: 24/28 súborov (85.7%)
 - ✅ Konzistentný štýl s predchádzajúcimi dokumentmi
-- ✅ Priemerná redukcia ~57%
+- ✅ Priemerná redukcia ~55%
+- ✅ **VŠETKY DATABASE TABLE DOKUMENTY DOKONČENÉ!**
 
-**Estimated time:** 90-120 minút (veľké dokumenty!)
+**Estimated time:** 15-20 minút (stredný dokument!)
 
 ---
 
@@ -253,7 +221,7 @@ Kľúčové pravidlá pre túto session:
 
 | Typ dokumentu | Rozhodnutie | Príklad |
 |---------------|-------------|---------|
-| Database table mapping | CLEAN + KEEP | Všetky .md-old v batch 6 |
+| Database table mapping | CLEAN + KEEP | PLSnnnnn.md-old v batch 6 |
 | SQL scripts | REMOVE | CREATE TABLE, INDEX, TRIGGER |
 | Python migration code | REMOVE | Veľké bloky kódu |
 | Mapping tables | KEEP | Btrieve → PostgreSQL |
@@ -263,7 +231,7 @@ Kľúčové pravidlá pre túto session:
 
 ---
 
-## 📝 DOKUMENTAČNÉ ŠTANDARDY
+## 📋 DOKUMENTAČNÉ ŠTANDARDY
 
 ### Documentation Manifest Location
 
@@ -277,12 +245,7 @@ C:\Development\nex-automat\SESSION_NOTES\docs.json
 https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/[path]
 ```
 
-**Accounting paths:**
-```
-docs/architecture/database/accounting/tables/
-```
-
-**Sales paths (pre budúce dokumenty):**
+**Sales paths:**
 ```
 docs/architecture/database/sales/tables/
 ```
@@ -297,7 +260,7 @@ docs/architecture/database/sales/tables/
 2. **Opýtaj sa na Btrieve location** (user poskytne adresár)
 3. **Vytvor upravený dokument** (artifact)
 4. **User skopíruje obsah + zmaže starý súbor**
-5. **Pokračuj ďalším dokumentom**
+5. **DONE - ALL DOCUMENTS COMPLETE!**
 
 ### Komunikácia
 
@@ -313,16 +276,15 @@ docs/architecture/database/sales/tables/
 **Prvý krok po načítaní tohto promptu:**
 
 1. Skontroluj memory_user_edits (22 pravidiel) ✅
-2. Načítaj **ISH-supplier_invoice_heads.md-old** z GitHubu
-3. Opýtaj sa: "V akom adresári sú ISH súbory?"
+2. Načítaj **PLSnnnnn-price_list_items.md-old** z GitHubu
+3. Opýtaj sa: "V akom adresári sú PLS súbory?"
 4. Po odpovedi vytvor artifact s vyčisteným dokumentom
-5. Čakaj na potvrdenie a pokračuj ISI
+5. **ALL DONE!** 🎉
 
-**Odporúčaný workflow pre session:**
-1. **ISH-supplier_invoice_heads.md-old** (34.8 KB) - veľký, hlavičky
-2. **ISI-supplier_invoice_items.md-old** (29.6 KB) - veľký, položky
-3. **PAYJRN-payment_journal.md-old** (25.8 KB) - platby
-4. Ak zostane čas: začni Sales sekciu (PLSnnnnn)
+**Po dokončení:**
+- **VŠETKY** database table dokumenty dokončené (24/28 celkový progress)
+- Aktualizovať docs/archive/00_ARCHIVE_INDEX.md
+- Git commit všetkých zmien
 
 ---
 
@@ -332,7 +294,7 @@ docs/architecture/database/sales/tables/
 # Git workflow
 git status
 git add docs/
-git commit -m "docs: Database table docs batch 6 - accounting section (N docs)"
+git commit -m "docs: Database table docs batch 6 - sales section (FINAL)"
 git push origin develop
 
 # Generate manifests
@@ -344,15 +306,12 @@ python tools/generate_manifests.py
 ## 🔗 SÚVISIACE DOKUMENTY
 
 **Already processed (reference):**
-- docs/architecture/database/stock/cards/tables/STM-stock_card_movements.md
-- docs/architecture/database/stock/cards/tables/STK-stock_cards.md
-- docs/architecture/database/stock/documents/tables/TSH-supplier_delivery_heads.md
-- docs/architecture/database/stock/documents/tables/TSI-supplier_delivery_items.md
+- docs/architecture/database/accounting/tables/ISH-supplier_invoice_heads.md
+- docs/architecture/database/accounting/tables/ISI-supplier_invoice_items.md
+- docs/architecture/database/accounting/tables/PAYJRN-payment_journal.md
 
 **To be processed:**
-- docs/architecture/database/accounting/tables/ISH-supplier_invoice_heads.md-old
-- docs/architecture/database/accounting/tables/ISI-supplier_invoice_items.md-old
-- docs/architecture/database/accounting/tables/PAYJRN-payment_journal.md-old
+- docs/architecture/database/sales/tables/PLSnnnnn-price_list_items.md-old
 
 **Reference documents:**
 - docs/COLLABORATION_RULES.md (22 pravidiel)
@@ -362,69 +321,32 @@ python tools/generate_manifests.py
 
 ## ⚠️ ŠPECIÁLNE UPOZORNENIA
 
-### Pre ISH (Supplier Invoice Heads)
+### Pre PLS (Price List Items)
 
 **Očakávané vlastnosti:**
-- Hlavičky faktúr od dodávateľov
-- Prepojenie s TSH (dodacie listy)
-- Prepojenie s PAB (dodávatelia)
-- Prepojenie s PAYLST/TRPLST (platba/doprava)
-- Multi-file architektúra? (ISH[YY][NNN].BTR? - overiť)
-- Sleduje DPH, úhrady, stav faktúry
-
-**Kľúčové mapping polia (očakávané):**
-- InvNum → invoice_id
-- PaCode → supplier_id (FK na partners)
-- DocNum → document_number
-- InvDate → invoice_date
-- DueDate → due_date
-- TotalVal → total_value
-- VatVal → vat_value
-- PaidVal → paid_value
-- InvStat → invoice_status
-
-### Pre ISI (Supplier Invoice Items)
-
-**Očakávané vlastnosti:**
-- Položky faktúr od dodávateľov
-- Prepojenie s ISH (hlavička faktúry)
-- Prepojenie s TSI (položky dodacích listov)
+- Položky cenníkov (predajné ceny)
 - Prepojenie s GSCAT (produkty)
-- Multi-file architektúra? (ISI[YY][NNN].BTR? - overiť)
-- Sleduje množstvo, cenu, DPH, zľavu
+- Multi-file architektúra? (PLS[nnnnn].BTR? - overiť)
+- Sleduje ceny, zľavy, DPH, platnosť
+- Možno versioning cenníkov?
 
 **Kľúčové mapping polia (očakávané):**
-- InvNum → invoice_id
-- ItmNum → item_line_number
+- PlsNum → price_list_id (FK na price_lists)
 - GsCode → product_id (FK na products)
-- Quantity → quantity
-- UnitPrice → unit_price
+- Price → unit_price
 - VatRate → vat_rate
-- NetVal → net_value
-- VatVal → vat_value
+- ValidFrom → valid_from_date
+- ValidTo → valid_to_date
 
-### Pre PAYJRN (Payment Journal)
-
-**Očakávané vlastnosti:**
-- Platobný denník (všetky úhrady)
-- Prepojenie s ISH (úhrady faktúr)
-- Prepojenie s PAB (dodávatelia/odberatelia)
-- Pravdepodobne single file: PAYJRN.BTR
-- Sleduje typ platby, dátum, hodnotu, stav
-
-**Kľúčové mapping polia (očakávané):**
-- PayNum → payment_id
-- PayDate → payment_date
-- PaCode → partner_id (FK na partners)
-- InvNum → invoice_id (FK na ISH)
-- PayVal → payment_value
-- PayType → payment_type_code
-- PayStat → payment_status
+**DÔLEŽITÉ:**
+- Overiť multi-file architektúru pri načítaní!
+- Overiť versioning systém pri načítaní!
+- Overiť prepojenia s produktami a objednávkami!
 
 ---
 
 **Token Budget:** 190,000  
-**Estimated Session:** 90-120 minút (veľké dokumenty!)  
+**Estimated Session:** 15-20 minút (posledný dokument!)  
 **Ready to Start:** ✅ ÁNO
 
 ---

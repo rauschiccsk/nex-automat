@@ -2,17 +2,17 @@
   "name": "documentation",
   "type": "docs",
   "location": "docs",
-  "generated": "2025-12-15T21:51:19.070438",
+  "generated": "2025-12-15T22:11:27.562773",
   "description": "Komplexná dokumentácia NEX Automat projektu",
   "statistics": {
-    "total_files": 134,
+    "total_files": 135,
     "total_dirs": 40,
     "python_files": 0,
     "powershell_files": 0,
-    "markdown_files": 123,
+    "markdown_files": 127,
     "test_files": 0,
-    "total_lines": 34595,
-    "total_size": 1273463
+    "total_lines": 36865,
+    "total_size": 1254541
   },
   "files": [
     {
@@ -142,25 +142,31 @@
       "type": "documentation"
     },
     {
-      "path": "docs/architecture/database/accounting/tables/ISH-supplier_invoice_heads.md-old",
-      "name": "ISH-supplier_invoice_heads.md-old",
-      "size": 34778,
-      "extension": ".md-old",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/accounting/tables/ISH-supplier_invoice_heads.md-old"
+      "path": "docs/architecture/database/accounting/tables/ISH-supplier_invoice_heads.md",
+      "name": "ISH-supplier_invoice_heads.md",
+      "size": 22236,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/accounting/tables/ISH-supplier_invoice_heads.md",
+      "lines": 662,
+      "type": "documentation"
     },
     {
-      "path": "docs/architecture/database/accounting/tables/ISI-supplier_invoice_items.md-old",
-      "name": "ISI-supplier_invoice_items.md-old",
-      "size": 29640,
-      "extension": ".md-old",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/accounting/tables/ISI-supplier_invoice_items.md-old"
+      "path": "docs/architecture/database/accounting/tables/ISI-supplier_invoice_items.md",
+      "name": "ISI-supplier_invoice_items.md",
+      "size": 20778,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/accounting/tables/ISI-supplier_invoice_items.md",
+      "lines": 659,
+      "type": "documentation"
     },
     {
-      "path": "docs/architecture/database/accounting/tables/PAYJRN-payment_journal.md-old",
-      "name": "PAYJRN-payment_journal.md-old",
-      "size": 25833,
-      "extension": ".md-old",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/accounting/tables/PAYJRN-payment_journal.md-old"
+      "path": "docs/architecture/database/accounting/tables/PAYJRN-payment_journal.md",
+      "name": "PAYJRN-payment_journal.md",
+      "size": 17556,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/accounting/tables/PAYJRN-payment_journal.md",
+      "lines": 569,
+      "type": "documentation"
     },
     {
       "path": "docs/architecture/database/catalogs/partners/tables/BANKLST-bank_catalog.md",
@@ -361,10 +367,10 @@
     {
       "path": "docs/archive/00_ARCHIVE_INDEX.md",
       "name": "00_ARCHIVE_INDEX.md",
-      "size": 5072,
+      "size": 5475,
       "extension": ".md",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/00_ARCHIVE_INDEX.md",
-      "lines": 153,
+      "lines": 162,
       "type": "documentation"
     },
     {
@@ -536,6 +542,15 @@
       "extension": ".md",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/sessions/SESSION_2025-12-09_v24-phase4-deployment.md",
       "lines": 279,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/archive/sessions/SESSION_2025-12-15_database-table-docs-batch6-accounting-complete.md",
+      "name": "SESSION_2025-12-15_database-table-docs-batch6-accounting-complete.md",
+      "size": 10356,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/sessions/SESSION_2025-12-15_database-table-docs-batch6-accounting-complete.md",
+      "lines": 371,
       "type": "documentation"
     },
     {
@@ -1397,6 +1412,14 @@
         "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/migration/DATABASE_MIGRATION.md"
       },
       {
+        "name": "SESSION_2025-12-15_database-table-docs-batch6-accounting-complete.md",
+        "path": "archive/sessions/SESSION_2025-12-15_database-table-docs-batch6-accounting-complete.md",
+        "full_path": "docs/archive/sessions/SESSION_2025-12-15_database-table-docs-batch6-accounting-complete.md",
+        "size": 10356,
+        "lines": 371,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/sessions/SESSION_2025-12-15_database-table-docs-batch6-accounting-complete.md"
+      },
+      {
         "name": "SESSION_2025-12-15_database-table-docs-batch6-partners.md",
         "path": "archive/sessions/SESSION_2025-12-15_database-table-docs-batch6-partners.md",
         "full_path": "docs/archive/sessions/SESSION_2025-12-15_database-table-docs-batch6-partners.md",
@@ -1603,6 +1626,30 @@
         "size": 6308,
         "lines": 226,
         "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/catalogs/partners/tables/TRPLST-transport_methods.md"
+      },
+      {
+        "name": "ISH-supplier_invoice_heads.md",
+        "path": "architecture/database/accounting/tables/ISH-supplier_invoice_heads.md",
+        "full_path": "docs/architecture/database/accounting/tables/ISH-supplier_invoice_heads.md",
+        "size": 22236,
+        "lines": 662,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/accounting/tables/ISH-supplier_invoice_heads.md"
+      },
+      {
+        "name": "ISI-supplier_invoice_items.md",
+        "path": "architecture/database/accounting/tables/ISI-supplier_invoice_items.md",
+        "full_path": "docs/architecture/database/accounting/tables/ISI-supplier_invoice_items.md",
+        "size": 20778,
+        "lines": 659,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/accounting/tables/ISI-supplier_invoice_items.md"
+      },
+      {
+        "name": "PAYJRN-payment_journal.md",
+        "path": "architecture/database/accounting/tables/PAYJRN-payment_journal.md",
+        "full_path": "docs/architecture/database/accounting/tables/PAYJRN-payment_journal.md",
+        "size": 17556,
+        "lines": 569,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/accounting/tables/PAYJRN-payment_journal.md"
       },
       {
         "name": "DATABASE_SCHEMA.md",
@@ -1842,8 +1889,8 @@
         "name": "00_ARCHIVE_INDEX.md",
         "path": "archive/00_ARCHIVE_INDEX.md",
         "full_path": "docs/archive/00_ARCHIVE_INDEX.md",
-        "size": 5072,
-        "lines": 153,
+        "size": 5475,
+        "lines": 162,
         "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/00_ARCHIVE_INDEX.md"
       },
       {

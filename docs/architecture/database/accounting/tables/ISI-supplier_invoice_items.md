@@ -1,28 +1,34 @@
-# ISI.BTR → supplier_invoice_items
+# ISI → supplier_invoice_items
 
-**Pre všeobecné zásady pozri:** [COMMON_DOCUMENT_PRINCIPLES.md](../../COMMON_DOCUMENT_PRINCIPLES.md)
-
-Tento dokument popisuje **ŠPECIFICKÉ vlastnosti** dodávateľských faktúr (položky).
+**Verzia:** 1.1  
+**Dátum:** 2025-12-15  
+**Batch:** 6 (Accounting - dokument 2/3)  
+**Status:** ✅ Pripravené na migráciu
 
 ---
 
-## 1. PREHĽAD
+## PREHĽAD
 
 ### Účel
 Položky dodávateľských faktúr (Supplier Invoice Items) obsahujú detail jednotlivých produktov/služieb na faktúre. Každá položka reprezentuje jeden riadok faktúry s množstvom, cenou a DPH.
 
-### Btrieve súbory
-**Starý systém (NEX Genesis):**
-```
-ISI25001.BTR  - Kniha č. 1, rok 2025
-ISI25002.BTR  - Kniha č. 2, rok 2025
-ISI24001.BTR  - Kniha č. 1, rok 2024
-```
+### Btrieve súbor
+- **Názov:** ISI[YY][NNN].BTR (multi-file architektúra)
+- **Umiestnenie:** `C:\NEX\YEARACT\LEDGER\ISI[YY][NNN].BTR`
+  - Premenná časť: `C:\NEX\` (root path)
+  - Fixná časť: `\YEARACT\LEDGER\`
+  - [YY] = rok (25 = 2025)
+  - [NNN] = číslo knihy (001, 002...)
+- **Účel:** Položky dodávateľských faktúr pre konkrétnu knihu a rok
+- **Príklad:** `ISI25001.BTR` = Kniha 1, rok 2025
 
+### PostgreSQL migrácia
 **Nový systém (NEX Automat):**
 ```
 supplier_invoice_items - jedna tabuľka pre všetky knihy
 ```
+
+**Mapping:** `ISI25001.BTR` → `supplier_invoice_items` WHERE `invoice_head_id` IN (SELECT document_id FROM supplier_invoice_heads WHERE book_num=1 AND year=2025)
 
 ### Vzťahy
 ```
@@ -43,169 +49,7 @@ supplier_invoice_heads (1 hlavička)
 
 ---
 
-## 2. SQL SCHÉMA
-
-```sql
--- =====================================================
--- POLOŽKY DODÁVATEĽSKÝCH FAKTÚR
--- =====================================================
-
-CREATE TABLE supplier_invoice_items (
-    -- Technický primárny kľúč
-    item_id BIGSERIAL PRIMARY KEY,
-    
-    -- ========================================
-    -- HLAVIČKA FAKTÚRY
-    -- ========================================
-    
-    invoice_head_id BIGINT NOT NULL REFERENCES supplier_invoice_heads(document_id) ON DELETE CASCADE,
-    line_number INTEGER NOT NULL,
-    
-    -- ========================================
-    -- PRODUKT (VERSIONING SYSTÉM)
-    -- Detaily v COMMON_DOCUMENT_PRINCIPLES.md
-    -- ========================================
-    
-    product_id INTEGER NOT NULL,
-    product_modify_id INTEGER NOT NULL,
-    product_category_id INTEGER,
-    
-    -- ========================================
-    -- ZÁKLADNÉ ÚDAJE
-    -- ========================================
-    
-    facility_id INTEGER,
-    stock_id INTEGER NOT NULL,
-    unit_of_measure VARCHAR(10),
-    quantity DECIMAL(15,3) NOT NULL,
-    vat_rate DECIMAL(5,2) NOT NULL,
-    discount_percent DECIMAL(5,2) DEFAULT 0,
-    
-    -- ========================================
-    -- CENY V ÚČTOVNEJ MENE (AC)
-    -- Detaily v COMMON_DOCUMENT_PRINCIPLES.md
-    -- ========================================
-    
-    -- Pred zľavou
-    list_unit_price_ac DECIMAL(15,2),
-    list_value_ac DECIMAL(15,2),
-    discount_value_ac DECIMAL(15,2),
-    
-    -- Po zľave (nákupné ceny - NC)
-    purchase_unit_price_ac DECIMAL(15,2),
-    purchase_base_value_ac DECIMAL(15,2),
-    purchase_total_value_ac DECIMAL(15,2),
-    
-    -- Predajné ceny (PC)
-    sales_base_value_ac DECIMAL(15,2),
-    sales_total_value_ac DECIMAL(15,2),
-    
-    -- ========================================
-    -- CENY VO VYÚČTOVACEJ MENE (FC)
-    -- Detaily v COMMON_DOCUMENT_PRINCIPLES.md
-    -- ========================================
-    
-    -- Pred zľavou
-    list_unit_price_fc DECIMAL(15,2),
-    list_value_fc DECIMAL(15,2),
-    discount_value_fc DECIMAL(15,2),
-    
-    -- Po zľave (nákupné ceny - NC)
-    purchase_unit_price_fc DECIMAL(15,2),
-    purchase_base_value_fc DECIMAL(15,2),
-    purchase_total_value_fc DECIMAL(15,2),
-    
-    -- ========================================
-    -- ÚČTOVANIE (ŠPECIFICKÉ PRE FAKTÚRY)
-    -- ========================================
-    
-    synthetic_account VARCHAR(3),
-    analytical_account VARCHAR(6),
-    
-    -- ========================================
-    -- AUDIT
-    -- Detaily v COMMON_DOCUMENT_PRINCIPLES.md
-    -- ========================================
-    
-    created_by VARCHAR(8) NOT NULL,
-    created_at TIMESTAMP NOT NULL,
-    updated_by VARCHAR(8),
-    updated_at TIMESTAMP,
-    
-    -- ========================================
-    -- CONSTRAINTS
-    -- ========================================
-    
-    CONSTRAINT uq_invoice_line UNIQUE (invoice_head_id, line_number),
-    CONSTRAINT chk_quantity CHECK (quantity > 0),
-    CONSTRAINT chk_vat_rate CHECK (vat_rate >= 0 AND vat_rate <= 100),
-    CONSTRAINT chk_discount CHECK (discount_percent >= 0 AND discount_percent <= 100)
-);
-
--- ========================================
--- INDEXY
--- ========================================
-
-CREATE INDEX idx_supplier_invoice_items_invoice ON supplier_invoice_items(invoice_head_id);
-CREATE INDEX idx_supplier_invoice_items_product ON supplier_invoice_items(product_id);
-CREATE INDEX idx_supplier_invoice_items_category ON supplier_invoice_items(product_category_id);
-CREATE INDEX idx_supplier_invoice_items_stock ON supplier_invoice_items(stock_id);
-
--- ========================================
--- TRIGGERY
--- Funkcie definované v COMMON_DOCUMENT_PRINCIPLES.md
--- ========================================
-
-CREATE TRIGGER trg_supplier_invoice_items_updated_at
-    BEFORE UPDATE ON supplier_invoice_items
-    FOR EACH ROW
-    EXECUTE FUNCTION update_updated_at_column();
-
--- Aktualizácia item_count v hlavičke
-CREATE TRIGGER trg_supplier_invoice_items_count
-    AFTER INSERT OR DELETE ON supplier_invoice_items
-    FOR EACH ROW
-    EXECUTE FUNCTION update_invoice_head_item_count();
-
--- =====================================================
--- M:N PÁROVANIE S OBJEDNÁVKAMI (NOVÁ TABUĽKA!)
--- =====================================================
-
-CREATE TABLE supplier_order_invoices (
-    pairing_id SERIAL PRIMARY KEY,
-    order_item_id BIGINT NOT NULL,
-    invoice_item_id BIGINT NOT NULL REFERENCES supplier_invoice_items(item_id) ON DELETE CASCADE,
-    paired_quantity DECIMAL(15,3) NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    created_by VARCHAR(8) NOT NULL,
-    
-    CONSTRAINT uq_order_invoice_pairing UNIQUE (order_item_id, invoice_item_id),
-    CONSTRAINT chk_paired_quantity CHECK (paired_quantity > 0)
-);
-
-CREATE INDEX idx_supplier_order_invoices_order ON supplier_order_invoices(order_item_id);
-CREATE INDEX idx_supplier_order_invoices_invoice ON supplier_order_invoices(invoice_item_id);
-
--- =====================================================
--- M:N PÁROVANIE S DODACÍMI LISTAMI (UŽ EXISTUJE V TSI!)
--- =====================================================
-
--- POZNÁMKA: Tabuľka supplier_delivery_invoices už existuje z TSI Session 7
--- Tu len pripomíname jej použitie:
-
--- supplier_delivery_invoices (
---     pairing_id SERIAL PRIMARY KEY,
---     delivery_item_id BIGINT NOT NULL REFERENCES supplier_delivery_items(item_id),
---     invoice_item_id BIGINT NOT NULL REFERENCES supplier_invoice_items(item_id),
---     paired_quantity DECIMAL(15,3) NOT NULL,
---     created_at TIMESTAMP,
---     created_by VARCHAR(8)
--- );
-```
-
----
-
-## 3. MAPPING POLÍ
+## MAPPING POLÍ
 
 ### Hlavička a číslovanie
 
@@ -215,7 +59,7 @@ CREATE INDEX idx_supplier_order_invoices_invoice ON supplier_order_invoices(invo
 | ItmNum | word | line_number | INTEGER | 1, 2, 3... |
 
 ### Produkt (Versioning)
-**Detaily pozri:** COMMON_DOCUMENT_PRINCIPLES.md sekcia 2
+**Pre všeobecné zásady pozri:** COMMON_DOCUMENT_PRINCIPLES.md sekcia 2
 
 | Btrieve | Typ | PostgreSQL | Typ | Poznámka |
 |---------|-----|------------|-----|----------|
@@ -236,7 +80,7 @@ CREATE INDEX idx_supplier_order_invoices_invoice ON supplier_order_invoices(invo
 | DscPrc | double | discount_percent | DECIMAL(5,2) |
 
 ### Ceny v účtovnej mene (AC)
-**Detaily pozri:** COMMON_DOCUMENT_PRINCIPLES.md sekcia 5
+**Pre všeobecné zásady pozri:** COMMON_DOCUMENT_PRINCIPLES.md sekcia 5
 
 | Btrieve | Typ | PostgreSQL | Typ | Poznámka |
 |---------|-----|------------|-----|----------|
@@ -250,13 +94,12 @@ CREATE INDEX idx_supplier_order_invoices_invoice ON supplier_order_invoices(invo
 | - | - | purchase_unit_price_ac | DECIMAL(15,2) | NC/MJ po zľave (vypočítané) |
 
 ### Ceny vo vyúčtovacej mene (FC)
-**Detaily pozri:** COMMON_DOCUMENT_PRINCIPLES.md sekcia 5
+**Pre všeobecné zásady pozri:** COMMON_DOCUMENT_PRINCIPLES.md sekcia 5
 
 | Btrieve | Typ | PostgreSQL | Typ |
 |---------|-----|------------|-----|
 | FgDPrice | double | list_unit_price_fc | DECIMAL(15,2) |
 | FgCPrice | double | purchase_unit_price_fc | DECIMAL(15,2) |
-| FgEPrice | double | - | - |
 | FgDValue | double | list_value_fc | DECIMAL(15,2) |
 | FgDscVal | double | discount_value_fc | DECIMAL(15,2) |
 | FgCValue | double | purchase_base_value_fc | DECIMAL(15,2) |
@@ -264,22 +107,24 @@ CREATE INDEX idx_supplier_order_invoices_invoice ON supplier_order_invoices(invo
 
 ### Účtovanie (ŠPECIFICKÉ PRE FAKTÚRY)
 
-| Btrieve | Typ | PostgreSQL | Typ |
-|---------|-----|------------|-----|
-| AccSnt | Str3 | synthetic_account | VARCHAR(3) |
-| AccAnl | Str8 | analytical_account | VARCHAR(6) |
+| Btrieve | Typ | PostgreSQL | Typ | Poznámka |
+|---------|-----|------------|-----|----------|
+| AccSnt | Str3 | synthetic_account | VARCHAR(3) | Syntetický účet |
+| AccAnl | Str8 | analytical_account | VARCHAR(6) | Analytický účet |
+
+**POZNÁMKA:** Účtovanie položiek je špecifické pre faktúry (v TSI to nie je).
 
 ### Párovanie (M:N tabuľky)
 
 | Btrieve | Typ | PostgreSQL Tabuľka | Poznámka |
 |---------|-----|-------------------|----------|
-| OsdNum | Str12 | supplier_order_invoices | M:N s objednávkami |
+| OsdNum | Str12 | supplier_order_invoices | M:N s objednávkami (NOVÁ!) |
 | OsdItm | word | supplier_order_invoices | - |
-| TsdNum | Str12 | supplier_delivery_invoices | M:N s dodacími listami |
+| TsdNum | Str12 | supplier_delivery_invoices | M:N s DD (existuje v TSI!) |
 | TsdItm | word | supplier_delivery_invoices | - |
 
 ### Audit
-**Detaily pozri:** COMMON_DOCUMENT_PRINCIPLES.md sekcia 7
+**Pre všeobecné zásady pozri:** COMMON_DOCUMENT_PRINCIPLES.md sekcia 7
 
 | Btrieve | Typ | PostgreSQL | Typ | Poznámka |
 |---------|-----|------------|-----|----------|
@@ -306,7 +151,7 @@ CREATE INDEX idx_supplier_order_invoices_invoice ON supplier_order_invoices(invo
 
 ---
 
-## 4. BIZNIS LOGIKA (ŠPECIFICKÉ PRE ISI)
+## BIZNIS LOGIKA
 
 ### Výpočet cien
 
@@ -340,16 +185,14 @@ Faktúra položka 1 (60 ks)
 Faktúra položka 2 (40 ks)
 ```
 
-**Tabuľka supplier_order_invoices:**
-```sql
-CREATE TABLE supplier_order_invoices (
-    pairing_id SERIAL PRIMARY KEY,
-    order_item_id BIGINT NOT NULL,           -- Položka objednávky
-    invoice_item_id BIGINT NOT NULL,         -- Položka faktúry
-    paired_quantity DECIMAL(15,3) NOT NULL,  -- Vypárované množstvo
-    created_at TIMESTAMP,
-    created_by VARCHAR(8)
-);
+**Tabuľka supplier_order_invoices (NOVÁ!):**
+```
+- pairing_id: SERIAL PRIMARY KEY
+- order_item_id: BIGINT (položka objednávky)
+- invoice_item_id: BIGINT (položka faktúry)
+- paired_quantity: DECIMAL(15,3) (vypárované množstvo)
+- created_at: TIMESTAMP
+- created_by: VARCHAR(8)
 ```
 
 **Pravidlá:**
@@ -378,12 +221,12 @@ def pair_invoice_with_order(
         raise ValueError("Prekročené množstvo faktúry")
     
     # Vytvor párovanie
-    db.execute("""
-        INSERT INTO supplier_order_invoices (
-            order_item_id, invoice_item_id,
-            paired_quantity, created_by
-        ) VALUES (%s, %s, %s, %s)
-    """, [order_item_id, invoice_item_id, paired_quantity, created_by])
+    insert_order_invoice_pairing(
+        order_item_id=order_item_id,
+        invoice_item_id=invoice_item_id,
+        paired_quantity=paired_quantity,
+        created_by=created_by
+    )
     
     # Aktualizuj paired_status v hlavičke (agregovaný)
     update_invoice_paired_status(invoice_item.invoice_head_id)
@@ -402,17 +245,14 @@ Dodací list (60 ks)
 Faktúra položka (60 ks)
 ```
 
-**Tabuľka supplier_delivery_invoices:**
-```sql
--- UŽ EXISTUJE v TSI!
-CREATE TABLE supplier_delivery_invoices (
-    pairing_id SERIAL PRIMARY KEY,
-    delivery_item_id BIGINT NOT NULL,        -- Položka DD
-    invoice_item_id BIGINT NOT NULL,         -- Položka DF
-    paired_quantity DECIMAL(15,3) NOT NULL,  -- Vypárované množstvo
-    created_at TIMESTAMP,
-    created_by VARCHAR(8)
-);
+**Tabuľka supplier_delivery_invoices (UŽ EXISTUJE):**
+```
+- pairing_id: SERIAL PRIMARY KEY
+- delivery_item_id: BIGINT (položka DD)
+- invoice_item_id: BIGINT (položka DF)
+- paired_quantity: DECIMAL(15,3) (vypárované množstvo)
+- created_at: TIMESTAMP
+- created_by: VARCHAR(8)
 ```
 
 **Pravidlá:** Rovnaké ako pri objednávkach.
@@ -481,7 +321,7 @@ ORDER BY i.line_number;
 
 ---
 
-## 5. VZŤAHY S INÝMI TABUĽKAMI
+## VZŤAHY S INÝMI TABUĽKAMI
 
 ### Master-Detail vzťahy
 
@@ -492,7 +332,7 @@ supplier_invoice_heads (1) ──< (N) supplier_invoice_items
 ```
 
 ### Reference na katalógy (Versioning)
-**Detaily pozri:** COMMON_DOCUMENT_PRINCIPLES.md sekcia 2
+**Pre všeobecné zásady pozri:** COMMON_DOCUMENT_PRINCIPLES.md sekcia 2
 
 ```sql
 -- Produkt + Verzia
@@ -516,127 +356,7 @@ supplier_delivery_items (M) ──< supplier_delivery_invoices >── (N) suppl
 
 ---
 
-## 6. QUERY PATTERNS
-
-### Zobrazenie položiek faktúry s produktom
-
-```sql
-SELECT 
-    i.line_number,
-    i.quantity,
-    i.unit_of_measure,
-    i.vat_rate,
-    
-    -- Produkt z history (správna verzia!)
-    ph.code AS product_code,
-    ph.name AS product_name,
-    ph.barcode AS product_barcode,
-    
-    -- Ceny
-    i.purchase_unit_price_ac,
-    i.purchase_base_value_ac,
-    i.purchase_total_value_ac,
-    
-    -- Účtovanie
-    i.synthetic_account,
-    i.analytical_account
-    
-FROM supplier_invoice_items i
-LEFT JOIN product_catalog_history ph
-    ON ph.product_id = i.product_id
-    AND ph.modify_id = i.product_modify_id
-WHERE i.invoice_head_id = $1
-ORDER BY i.line_number;
-```
-
-### Celková hodnota faktúry (agregácia)
-
-```sql
-SELECT 
-    h.document_number,
-    SUM(i.purchase_base_value_ac) AS total_base,
-    SUM(i.purchase_total_value_ac) AS total_with_vat,
-    COUNT(*) AS item_count
-FROM supplier_invoice_heads h
-JOIN supplier_invoice_items i ON i.invoice_head_id = h.document_id
-WHERE h.document_id = $1
-GROUP BY h.document_id, h.document_number;
-```
-
-### Párovanie s dodacími listami
-
-```sql
-SELECT 
-    i.line_number AS invoice_line,
-    ph.name AS product_name,
-    i.quantity AS invoice_quantity,
-    
-    -- Vypárované dodacie listy
-    d.document_number AS delivery_number,
-    di.line_number AS delivery_line,
-    p.paired_quantity
-    
-FROM supplier_invoice_items i
-LEFT JOIN product_catalog_history ph
-    ON ph.product_id = i.product_id
-    AND ph.modify_id = i.product_modify_id
-LEFT JOIN supplier_delivery_invoices p ON p.invoice_item_id = i.item_id
-LEFT JOIN supplier_delivery_items di ON di.item_id = p.delivery_item_id
-LEFT JOIN supplier_delivery_heads d ON d.document_id = di.delivery_head_id
-WHERE i.invoice_head_id = $1
-ORDER BY i.line_number, d.document_number;
-```
-
-### Párovanie s objednávkami
-
-```sql
-SELECT 
-    i.line_number AS invoice_line,
-    ph.name AS product_name,
-    i.quantity AS invoice_quantity,
-    
-    -- Vypárované objednávky
-    o.document_number AS order_number,
-    oi.line_number AS order_line,
-    p.paired_quantity
-    
-FROM supplier_invoice_items i
-LEFT JOIN product_catalog_history ph
-    ON ph.product_id = i.product_id
-    AND ph.modify_id = i.product_modify_id
-LEFT JOIN supplier_order_invoices p ON p.invoice_item_id = i.item_id
-LEFT JOIN supplier_order_items oi ON oi.item_id = p.order_item_id
-LEFT JOIN supplier_order_heads o ON o.document_id = oi.order_head_id
-WHERE i.invoice_head_id = $1
-ORDER BY i.line_number, o.document_number;
-```
-
-### Nevypárované položky faktúr
-
-```sql
-SELECT 
-    h.document_number,
-    h.supplier_invoice_number,
-    i.line_number,
-    ph.name AS product_name,
-    i.quantity,
-    COALESCE(SUM(p.paired_quantity), 0) AS paired_quantity,
-    i.quantity - COALESCE(SUM(p.paired_quantity), 0) AS remaining_quantity
-FROM supplier_invoice_items i
-JOIN supplier_invoice_heads h ON h.document_id = i.invoice_head_id
-LEFT JOIN product_catalog_history ph
-    ON ph.product_id = i.product_id
-    AND ph.modify_id = i.product_modify_id
-LEFT JOIN supplier_delivery_invoices p ON p.invoice_item_id = i.item_id
-GROUP BY h.document_id, h.document_number, h.supplier_invoice_number,
-         i.item_id, i.line_number, ph.name, i.quantity
-HAVING i.quantity > COALESCE(SUM(p.paired_quantity), 0)
-ORDER BY h.document_number, i.line_number;
-```
-
----
-
-## 7. PRÍKLAD DÁT
+## PRÍKLAD DÁT
 
 ### Položky faktúry
 
@@ -705,10 +425,26 @@ INSERT INTO supplier_order_invoices (
 
 ---
 
-## 8. MIGRÁCIA
+## MIGRÁCIA
+
+### Extrahovanie book_num z názvu súboru
+
+```python
+def extract_book_info(filename):
+    """
+    ISI25001.BTR → year=2025, book_num=1
+    ISI24002.BTR → year=2024, book_num=2
+    """
+    match = re.match(r'ISI(\d{2})(\d{3})\.BTR', filename)
+    if match:
+        year = 2000 + int(match.group(1))
+        book_num = int(match.group(2))
+        return year, book_num
+    raise ValueError(f"Invalid filename: {filename}")
+```
 
 ### Versioning pri migrácii
-**Detaily pozri:** COMMON_DOCUMENT_PRINCIPLES.md sekcia 9.2
+**Pre všeobecné zásady pozri:** COMMON_DOCUMENT_PRINCIPLES.md sekcia 9.2
 
 **Pred migráciou položiek:**
 1. Migruj produkty do `product_catalog_history` s `modify_id = 0`
@@ -869,34 +605,37 @@ SELECT
 FROM supplier_invoice_items i
 LEFT JOIN supplier_delivery_invoices p ON p.invoice_item_id = i.item_id
 LEFT JOIN supplier_order_invoices po ON po.invoice_item_id = i.item_id;
-
--- Kontrola množstiev v párovaní
-SELECT 
-    i.item_id,
-    i.quantity AS item_quantity,
-    COALESCE(SUM(p.paired_quantity), 0) AS paired_quantity,
-    i.quantity - COALESCE(SUM(p.paired_quantity), 0) AS difference
-FROM supplier_invoice_items i
-LEFT JOIN supplier_delivery_invoices p ON p.invoice_item_id = i.item_id
-GROUP BY i.item_id, i.quantity
-HAVING i.quantity < COALESCE(SUM(p.paired_quantity), 0);
 ```
 
 ---
 
-## 9. VERZIA A ZMENY
+## POZNÁMKY PRE MIGRÁCIU
 
-### Verzia dokumentu
-**Verzia:** 1.0  
-**Dátum:** 2025-12-13  
-**Autor:** Zoltán + Claude  
-**Session:** 8
+### Kľúčové body
 
-### História zmien
+1. **Multi-file architektúra:**
+   - `ISI25001.BTR` → položky pre `book_num=1, year=2025`
+   - Všetky knihy migrujú do jednej tabuľky
 
-| Verzia | Dátum | Zmeny |
-|--------|-------|-------|
-| 1.0 | 2025-12-13 | Vytvorenie prvej verzie |
+2. **M:N tabuľky:**
+   - `supplier_delivery_invoices` - UŽ EXISTUJE z TSI Session 7
+   - `supplier_order_invoices` - NOVÁ tabuľka
+
+3. **Paired status:**
+   - Párovanie s DD/objednávkami je na úrovni **položiek**
+   - Hlavička má agregovaný stav
+
+4. **Notice → document_texts:**
+   - Notice sa migruje do univerzálnej tabuľky `document_texts`
+   - Nie je ako pole v položke
+
+5. **Účtovanie položiek:**
+   - `synthetic_account`, `analytical_account`
+   - NOVÉ oproti TSI (dodacie listy nemajú)
+
+6. **Versioning systém:**
+   - Pri migrácii: `product_modify_id = 0`
+   - Reference do `product_catalog_history`
 
 ### Závislosti
 
@@ -915,15 +654,6 @@ HAVING i.quantity < COALESCE(SUM(p.paired_quantity), 0);
 - `supplier_delivery_invoices` - párovanie s dodacími listami (existuje v TSI!)
 - `supplier_order_invoices` - párovanie s objednávkami (NOVÁ!)
 
-### Poznámky
-
-1. **supplier_delivery_invoices** už existuje z TSI Session 7!
-2. **supplier_order_invoices** je NOVÁ tabuľka vytvorená v ISI
-3. **paired_status** v hlavičke je agregovaný z položiek
-4. **Notice** ide do `document_texts`, nie ako pole v položke
-5. **Produkt versioning** - product_id + product_modify_id
-6. **Účtovanie položiek** - synthetic_account, analytical_account (NOVÉ oproti TSI)
-
 ---
 
-**Koniec dokumentu ISI-supplier_invoice_items.md v1.0**
+**Koniec dokumentu ISI-supplier_invoice_items.md v1.1**
