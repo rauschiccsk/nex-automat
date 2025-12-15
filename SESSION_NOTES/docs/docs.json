@@ -2,19 +2,28 @@
   "name": "documentation",
   "type": "docs",
   "location": "docs",
-  "generated": "2025-12-15T11:08:59.471120",
+  "generated": "2025-12-15T11:40:46.133568",
   "description": "Komplexná dokumentácia NEX Automat projektu",
   "statistics": {
-    "total_files": 78,
-    "total_dirs": 33,
+    "total_files": 114,
+    "total_dirs": 39,
     "python_files": 0,
     "powershell_files": 0,
-    "markdown_files": 15,
+    "markdown_files": 51,
     "test_files": 0,
-    "total_lines": 2318,
-    "total_size": 1270346
+    "total_lines": 3059,
+    "total_size": 1284684
   },
   "files": [
+    {
+      "path": "docs/00_DOCUMENTATION_INDEX.md",
+      "name": "00_DOCUMENTATION_INDEX.md",
+      "size": 7284,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/00_DOCUMENTATION_INDEX.md",
+      "lines": 216,
+      "type": "documentation"
+    },
     {
       "path": "docs/DOCUMENTATION_INDEX.md",
       "name": "DOCUMENTATION_INDEX.md",
@@ -53,12 +62,111 @@
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/WORKFLOW_QUICK_REFERENCE.md-old"
     },
     {
+      "path": "docs/applications/00_APPLICATIONS_INDEX.md",
+      "name": "00_APPLICATIONS_INDEX.md",
+      "size": 212,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/applications/00_APPLICATIONS_INDEX.md",
+      "lines": 15,
+      "type": "documentation"
+    },
+    {
       "path": "docs/applications/APPLICATIONS_INDEX.md",
       "name": "APPLICATIONS_INDEX.md",
       "size": 146,
       "extension": ".md",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/applications/APPLICATIONS_INDEX.md",
       "lines": 11,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/applications/supplier-invoice-loader/00_LOADER_INDEX.md",
+      "name": "00_LOADER_INDEX.md",
+      "size": 206,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/applications/supplier-invoice-loader/00_LOADER_INDEX.md",
+      "lines": 15,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/applications/supplier-invoice-loader/API_SPECIFICATION.md",
+      "name": "API_SPECIFICATION.md",
+      "size": 205,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/applications/supplier-invoice-loader/API_SPECIFICATION.md",
+      "lines": 15,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/applications/supplier-invoice-loader/CONFIGURATION.md",
+      "name": "CONFIGURATION.md",
+      "size": 201,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/applications/supplier-invoice-loader/CONFIGURATION.md",
+      "lines": 15,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/applications/supplier-invoice-loader/WORKFLOWS.md",
+      "name": "WORKFLOWS.md",
+      "size": 197,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/applications/supplier-invoice-loader/WORKFLOWS.md",
+      "lines": 15,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/applications/supplier-invoice-staging/00_STAGING_INDEX.md",
+      "name": "00_STAGING_INDEX.md",
+      "size": 207,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/applications/supplier-invoice-staging/00_STAGING_INDEX.md",
+      "lines": 15,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/applications/supplier-invoice-staging/CONFIGURATION.md",
+      "name": "CONFIGURATION.md",
+      "size": 201,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/applications/supplier-invoice-staging/CONFIGURATION.md",
+      "lines": 15,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/applications/supplier-invoice-staging/DATABASE_SCHEMA.md",
+      "name": "DATABASE_SCHEMA.md",
+      "size": 203,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/applications/supplier-invoice-staging/DATABASE_SCHEMA.md",
+      "lines": 15,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/applications/supplier-invoice-staging/GUI_STRUCTURE.md",
+      "name": "GUI_STRUCTURE.md",
+      "size": 201,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/applications/supplier-invoice-staging/GUI_STRUCTURE.md",
+      "lines": 15,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/applications/supplier-invoice-staging/NEX_INTEGRATION.md",
+      "name": "NEX_INTEGRATION.md",
+      "size": 203,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/applications/supplier-invoice-staging/NEX_INTEGRATION.md",
+      "lines": 15,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/applications/supplier-invoice-staging/WORKFLOWS.md",
+      "name": "WORKFLOWS.md",
+      "size": 197,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/applications/supplier-invoice-staging/WORKFLOWS.md",
+      "lines": 15,
       "type": "documentation"
     },
     {
@@ -307,12 +415,30 @@
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/stock/documents/tables/TSI-supplier_delivery_items.md-old"
     },
     {
+      "path": "docs/archive/00_ARCHIVE_INDEX.md",
+      "name": "00_ARCHIVE_INDEX.md",
+      "size": 202,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/00_ARCHIVE_INDEX.md",
+      "lines": 15,
+      "type": "documentation"
+    },
+    {
       "path": "docs/archive/ARCHIVE_INDEX.md",
       "name": "ARCHIVE_INDEX.md",
       "size": 141,
       "extension": ".md",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/ARCHIVE_INDEX.md",
       "lines": 11,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/database/00_DATABASE_INDEX.md",
+      "name": "00_DATABASE_INDEX.md",
+      "size": 204,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/database/00_DATABASE_INDEX.md",
+      "lines": 15,
       "type": "documentation"
     },
     {
@@ -409,6 +535,51 @@
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/deployment/TROUBLESHOOTING.md-old"
     },
     {
+      "path": "docs/development/00_DEVELOPMENT_INDEX.md",
+      "name": "00_DEVELOPMENT_INDEX.md",
+      "size": 210,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/development/00_DEVELOPMENT_INDEX.md",
+      "lines": 15,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/development/DEPLOYMENT.md",
+      "name": "DEPLOYMENT.md",
+      "size": 197,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/development/DEPLOYMENT.md",
+      "lines": 15,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/development/SETUP_GUIDE.md",
+      "name": "SETUP_GUIDE.md",
+      "size": 198,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/development/SETUP_GUIDE.md",
+      "lines": 15,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/development/TESTING_STRATEGY.md",
+      "name": "TESTING_STRATEGY.md",
+      "size": 203,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/development/TESTING_STRATEGY.md",
+      "lines": 15,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/documents/00_DOCUMENTS_INDEX.md",
+      "name": "00_DOCUMENTS_INDEX.md",
+      "size": 206,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/documents/00_DOCUMENTS_INDEX.md",
+      "lines": 15,
+      "type": "documentation"
+    },
+    {
       "path": "docs/documents/DOCUMENT_TYPES.md",
       "name": "DOCUMENT_TYPES.md",
       "size": 142,
@@ -450,6 +621,42 @@
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/giudes/MONOREPO_GUIDE.md-old"
     },
     {
+      "path": "docs/migration/00_MIGRATION_INDEX.md",
+      "name": "00_MIGRATION_INDEX.md",
+      "size": 206,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/migration/00_MIGRATION_INDEX.md",
+      "lines": 15,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/migration/DATABASE_MIGRATION.md",
+      "name": "DATABASE_MIGRATION.md",
+      "size": 203,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/migration/DATABASE_MIGRATION.md",
+      "lines": 15,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/migration/PYSIDE6_MIGRATION.md",
+      "name": "PYSIDE6_MIGRATION.md",
+      "size": 202,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/migration/PYSIDE6_MIGRATION.md",
+      "lines": 15,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/packages/00_PACKAGES_INDEX.md",
+      "name": "00_PACKAGES_INDEX.md",
+      "size": 204,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/packages/00_PACKAGES_INDEX.md",
+      "lines": 15,
+      "type": "documentation"
+    },
+    {
       "path": "docs/packages/invoice-shared.json",
       "name": "invoice-shared.json",
       "size": 3763,
@@ -464,11 +671,110 @@
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/packages/nex-shared.json"
     },
     {
+      "path": "docs/packages/nex-shared/00_NEX_SHARED_INDEX.md",
+      "name": "00_NEX_SHARED_INDEX.md",
+      "size": 206,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/packages/nex-shared/00_NEX_SHARED_INDEX.md",
+      "lines": 15,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/packages/nex-shared/BASE_GRID.md",
+      "name": "BASE_GRID.md",
+      "size": 193,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/packages/nex-shared/BASE_GRID.md",
+      "lines": 15,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/packages/nex-shared/BASE_WINDOW.md",
+      "name": "BASE_WINDOW.md",
+      "size": 195,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/packages/nex-shared/BASE_WINDOW.md",
+      "lines": 15,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/packages/nex-shared/UTILITIES.md",
+      "name": "UTILITIES.md",
+      "size": 193,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/packages/nex-shared/UTILITIES.md",
+      "lines": 15,
+      "type": "documentation"
+    },
+    {
       "path": "docs/packages/nexdata.json",
       "name": "nexdata.json",
       "size": 9972,
       "extension": ".json",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/packages/nexdata.json"
+    },
+    {
+      "path": "docs/packages/nexdata/00_NEXDATA_INDEX.md",
+      "name": "00_NEXDATA_INDEX.md",
+      "size": 203,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/packages/nexdata/00_NEXDATA_INDEX.md",
+      "lines": 15,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/packages/nexdata/BTRIEVE_ACCESS.md",
+      "name": "BTRIEVE_ACCESS.md",
+      "size": 198,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/packages/nexdata/BTRIEVE_ACCESS.md",
+      "lines": 15,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/packages/nexdata/DATA_MODELS.md",
+      "name": "DATA_MODELS.md",
+      "size": 195,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/packages/nexdata/DATA_MODELS.md",
+      "lines": 15,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/reference/00_REFERENCE_INDEX.md",
+      "name": "00_REFERENCE_INDEX.md",
+      "size": 206,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/reference/00_REFERENCE_INDEX.md",
+      "lines": 15,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/reference/API_REFERENCE.md",
+      "name": "API_REFERENCE.md",
+      "size": 198,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/reference/API_REFERENCE.md",
+      "lines": 15,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/reference/GLOSSARY.md",
+      "name": "GLOSSARY.md",
+      "size": 193,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/reference/GLOSSARY.md",
+      "lines": 15,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/strategic/00_STRATEGIC_INDEX.md",
+      "name": "00_STRATEGIC_INDEX.md",
+      "size": 206,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/strategic/00_STRATEGIC_INDEX.md",
+      "lines": 15,
+      "type": "documentation"
     },
     {
       "path": "docs/strategic/PROJECT_ROADMAP.md",
@@ -547,6 +853,15 @@
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/strategy/RESEARCH_ANALYSIS_TECHNOLOGY_LANDSCAPE.md-old"
     },
     {
+      "path": "docs/system/00_SYSTEM_INDEX.md",
+      "name": "00_SYSTEM_INDEX.md",
+      "size": 200,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/system/00_SYSTEM_INDEX.md",
+      "lines": 15,
+      "type": "documentation"
+    },
+    {
       "path": "docs/system/ARCHITECTURE.md",
       "name": "ARCHITECTURE.md",
       "size": 32088,
@@ -583,6 +898,15 @@
       "type": "documentation"
     },
     {
+      "path": "docs/system/MONOREPO_STRUCTURE.md",
+      "name": "MONOREPO_STRUCTURE.md",
+      "size": 200,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/system/MONOREPO_STRUCTURE.md",
+      "lines": 15,
+      "type": "documentation"
+    },
+    {
       "path": "docs/system/TERMINOLOGY.md",
       "name": "TERMINOLOGY.md",
       "size": 16273,
@@ -593,8 +917,25 @@
     }
   ],
   "categories": {
-    "guides": [],
+    "guides": [
+      {
+        "name": "SETUP_GUIDE.md",
+        "path": "development/SETUP_GUIDE.md",
+        "full_path": "docs/development/SETUP_GUIDE.md",
+        "size": 198,
+        "lines": 15,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/development/SETUP_GUIDE.md"
+      }
+    ],
     "database": [
+      {
+        "name": "00_DATABASE_INDEX.md",
+        "path": "database/00_DATABASE_INDEX.md",
+        "full_path": "docs/database/00_DATABASE_INDEX.md",
+        "size": 204,
+        "lines": 15,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/database/00_DATABASE_INDEX.md"
+      },
       {
         "name": "DATABASE_INDEX.md",
         "path": "database/DATABASE_INDEX.md",
@@ -602,13 +943,89 @@
         "size": 142,
         "lines": 11,
         "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/database/DATABASE_INDEX.md"
+      },
+      {
+        "name": "DATABASE_MIGRATION.md",
+        "path": "migration/DATABASE_MIGRATION.md",
+        "full_path": "docs/migration/DATABASE_MIGRATION.md",
+        "size": 203,
+        "lines": 15,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/migration/DATABASE_MIGRATION.md"
+      },
+      {
+        "name": "DATABASE_SCHEMA.md",
+        "path": "applications/supplier-invoice-staging/DATABASE_SCHEMA.md",
+        "full_path": "docs/applications/supplier-invoice-staging/DATABASE_SCHEMA.md",
+        "size": 203,
+        "lines": 15,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/applications/supplier-invoice-staging/DATABASE_SCHEMA.md"
       }
     ],
-    "migration": [],
-    "api": [],
-    "testing": [],
-    "deployment": [],
+    "migration": [
+      {
+        "name": "00_MIGRATION_INDEX.md",
+        "path": "migration/00_MIGRATION_INDEX.md",
+        "full_path": "docs/migration/00_MIGRATION_INDEX.md",
+        "size": 206,
+        "lines": 15,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/migration/00_MIGRATION_INDEX.md"
+      },
+      {
+        "name": "PYSIDE6_MIGRATION.md",
+        "path": "migration/PYSIDE6_MIGRATION.md",
+        "full_path": "docs/migration/PYSIDE6_MIGRATION.md",
+        "size": 202,
+        "lines": 15,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/migration/PYSIDE6_MIGRATION.md"
+      }
+    ],
+    "api": [
+      {
+        "name": "API_REFERENCE.md",
+        "path": "reference/API_REFERENCE.md",
+        "full_path": "docs/reference/API_REFERENCE.md",
+        "size": 198,
+        "lines": 15,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/reference/API_REFERENCE.md"
+      },
+      {
+        "name": "API_SPECIFICATION.md",
+        "path": "applications/supplier-invoice-loader/API_SPECIFICATION.md",
+        "full_path": "docs/applications/supplier-invoice-loader/API_SPECIFICATION.md",
+        "size": 205,
+        "lines": 15,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/applications/supplier-invoice-loader/API_SPECIFICATION.md"
+      }
+    ],
+    "testing": [
+      {
+        "name": "TESTING_STRATEGY.md",
+        "path": "development/TESTING_STRATEGY.md",
+        "full_path": "docs/development/TESTING_STRATEGY.md",
+        "size": 203,
+        "lines": 15,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/development/TESTING_STRATEGY.md"
+      }
+    ],
+    "deployment": [
+      {
+        "name": "DEPLOYMENT.md",
+        "path": "development/DEPLOYMENT.md",
+        "full_path": "docs/development/DEPLOYMENT.md",
+        "size": 197,
+        "lines": 15,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/development/DEPLOYMENT.md"
+      }
+    ],
     "other": [
+      {
+        "name": "00_DOCUMENTATION_INDEX.md",
+        "path": "00_DOCUMENTATION_INDEX.md",
+        "full_path": "docs/00_DOCUMENTATION_INDEX.md",
+        "size": 7284,
+        "lines": 216,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/00_DOCUMENTATION_INDEX.md"
+      },
       {
         "name": "DOCUMENTATION_INDEX.md",
         "path": "DOCUMENTATION_INDEX.md",
@@ -616,6 +1033,14 @@
         "size": 3965,
         "lines": 133,
         "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/DOCUMENTATION_INDEX.md"
+      },
+      {
+        "name": "00_APPLICATIONS_INDEX.md",
+        "path": "applications/00_APPLICATIONS_INDEX.md",
+        "full_path": "docs/applications/00_APPLICATIONS_INDEX.md",
+        "size": 212,
+        "lines": 15,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/applications/00_APPLICATIONS_INDEX.md"
       },
       {
         "name": "APPLICATIONS_INDEX.md",
@@ -626,12 +1051,36 @@
         "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/applications/APPLICATIONS_INDEX.md"
       },
       {
+        "name": "00_ARCHIVE_INDEX.md",
+        "path": "archive/00_ARCHIVE_INDEX.md",
+        "full_path": "docs/archive/00_ARCHIVE_INDEX.md",
+        "size": 202,
+        "lines": 15,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/00_ARCHIVE_INDEX.md"
+      },
+      {
         "name": "ARCHIVE_INDEX.md",
         "path": "archive/ARCHIVE_INDEX.md",
         "full_path": "docs/archive/ARCHIVE_INDEX.md",
         "size": 141,
         "lines": 11,
         "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/ARCHIVE_INDEX.md"
+      },
+      {
+        "name": "00_DEVELOPMENT_INDEX.md",
+        "path": "development/00_DEVELOPMENT_INDEX.md",
+        "full_path": "docs/development/00_DEVELOPMENT_INDEX.md",
+        "size": 210,
+        "lines": 15,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/development/00_DEVELOPMENT_INDEX.md"
+      },
+      {
+        "name": "00_DOCUMENTS_INDEX.md",
+        "path": "documents/00_DOCUMENTS_INDEX.md",
+        "full_path": "docs/documents/00_DOCUMENTS_INDEX.md",
+        "size": 206,
+        "lines": 15,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/documents/00_DOCUMENTS_INDEX.md"
       },
       {
         "name": "DOCUMENT_TYPES.md",
@@ -658,6 +1107,38 @@
         "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/documents/WORKFLOWS.md"
       },
       {
+        "name": "00_PACKAGES_INDEX.md",
+        "path": "packages/00_PACKAGES_INDEX.md",
+        "full_path": "docs/packages/00_PACKAGES_INDEX.md",
+        "size": 204,
+        "lines": 15,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/packages/00_PACKAGES_INDEX.md"
+      },
+      {
+        "name": "00_REFERENCE_INDEX.md",
+        "path": "reference/00_REFERENCE_INDEX.md",
+        "full_path": "docs/reference/00_REFERENCE_INDEX.md",
+        "size": 206,
+        "lines": 15,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/reference/00_REFERENCE_INDEX.md"
+      },
+      {
+        "name": "GLOSSARY.md",
+        "path": "reference/GLOSSARY.md",
+        "full_path": "docs/reference/GLOSSARY.md",
+        "size": 193,
+        "lines": 15,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/reference/GLOSSARY.md"
+      },
+      {
+        "name": "00_STRATEGIC_INDEX.md",
+        "path": "strategic/00_STRATEGIC_INDEX.md",
+        "full_path": "docs/strategic/00_STRATEGIC_INDEX.md",
+        "size": 206,
+        "lines": 15,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/strategic/00_STRATEGIC_INDEX.md"
+      },
+      {
         "name": "PROJECT_ROADMAP.md",
         "path": "strategic/PROJECT_ROADMAP.md",
         "full_path": "docs/strategic/PROJECT_ROADMAP.md",
@@ -680,6 +1161,14 @@
         "size": 148,
         "lines": 11,
         "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/strategic/TECHNOLOGY_DECISIONS.md"
+      },
+      {
+        "name": "00_SYSTEM_INDEX.md",
+        "path": "system/00_SYSTEM_INDEX.md",
+        "full_path": "docs/system/00_SYSTEM_INDEX.md",
+        "size": 200,
+        "lines": 15,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/system/00_SYSTEM_INDEX.md"
       },
       {
         "name": "ARCHITECTURE.md",
@@ -714,22 +1203,150 @@
         "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/system/GUI_FRAMEWORK.md"
       },
       {
+        "name": "MONOREPO_STRUCTURE.md",
+        "path": "system/MONOREPO_STRUCTURE.md",
+        "full_path": "docs/system/MONOREPO_STRUCTURE.md",
+        "size": 200,
+        "lines": 15,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/system/MONOREPO_STRUCTURE.md"
+      },
+      {
         "name": "TERMINOLOGY.md",
         "path": "system/TERMINOLOGY.md",
         "full_path": "docs/system/TERMINOLOGY.md",
         "size": 16273,
         "lines": 329,
         "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/system/TERMINOLOGY.md"
+      },
+      {
+        "name": "00_NEX_SHARED_INDEX.md",
+        "path": "packages/nex-shared/00_NEX_SHARED_INDEX.md",
+        "full_path": "docs/packages/nex-shared/00_NEX_SHARED_INDEX.md",
+        "size": 206,
+        "lines": 15,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/packages/nex-shared/00_NEX_SHARED_INDEX.md"
+      },
+      {
+        "name": "BASE_GRID.md",
+        "path": "packages/nex-shared/BASE_GRID.md",
+        "full_path": "docs/packages/nex-shared/BASE_GRID.md",
+        "size": 193,
+        "lines": 15,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/packages/nex-shared/BASE_GRID.md"
+      },
+      {
+        "name": "BASE_WINDOW.md",
+        "path": "packages/nex-shared/BASE_WINDOW.md",
+        "full_path": "docs/packages/nex-shared/BASE_WINDOW.md",
+        "size": 195,
+        "lines": 15,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/packages/nex-shared/BASE_WINDOW.md"
+      },
+      {
+        "name": "UTILITIES.md",
+        "path": "packages/nex-shared/UTILITIES.md",
+        "full_path": "docs/packages/nex-shared/UTILITIES.md",
+        "size": 193,
+        "lines": 15,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/packages/nex-shared/UTILITIES.md"
+      },
+      {
+        "name": "00_NEXDATA_INDEX.md",
+        "path": "packages/nexdata/00_NEXDATA_INDEX.md",
+        "full_path": "docs/packages/nexdata/00_NEXDATA_INDEX.md",
+        "size": 203,
+        "lines": 15,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/packages/nexdata/00_NEXDATA_INDEX.md"
+      },
+      {
+        "name": "BTRIEVE_ACCESS.md",
+        "path": "packages/nexdata/BTRIEVE_ACCESS.md",
+        "full_path": "docs/packages/nexdata/BTRIEVE_ACCESS.md",
+        "size": 198,
+        "lines": 15,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/packages/nexdata/BTRIEVE_ACCESS.md"
+      },
+      {
+        "name": "DATA_MODELS.md",
+        "path": "packages/nexdata/DATA_MODELS.md",
+        "full_path": "docs/packages/nexdata/DATA_MODELS.md",
+        "size": 195,
+        "lines": 15,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/packages/nexdata/DATA_MODELS.md"
+      },
+      {
+        "name": "00_LOADER_INDEX.md",
+        "path": "applications/supplier-invoice-loader/00_LOADER_INDEX.md",
+        "full_path": "docs/applications/supplier-invoice-loader/00_LOADER_INDEX.md",
+        "size": 206,
+        "lines": 15,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/applications/supplier-invoice-loader/00_LOADER_INDEX.md"
+      },
+      {
+        "name": "CONFIGURATION.md",
+        "path": "applications/supplier-invoice-loader/CONFIGURATION.md",
+        "full_path": "docs/applications/supplier-invoice-loader/CONFIGURATION.md",
+        "size": 201,
+        "lines": 15,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/applications/supplier-invoice-loader/CONFIGURATION.md"
+      },
+      {
+        "name": "WORKFLOWS.md",
+        "path": "applications/supplier-invoice-loader/WORKFLOWS.md",
+        "full_path": "docs/applications/supplier-invoice-loader/WORKFLOWS.md",
+        "size": 197,
+        "lines": 15,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/applications/supplier-invoice-loader/WORKFLOWS.md"
+      },
+      {
+        "name": "00_STAGING_INDEX.md",
+        "path": "applications/supplier-invoice-staging/00_STAGING_INDEX.md",
+        "full_path": "docs/applications/supplier-invoice-staging/00_STAGING_INDEX.md",
+        "size": 207,
+        "lines": 15,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/applications/supplier-invoice-staging/00_STAGING_INDEX.md"
+      },
+      {
+        "name": "CONFIGURATION.md",
+        "path": "applications/supplier-invoice-staging/CONFIGURATION.md",
+        "full_path": "docs/applications/supplier-invoice-staging/CONFIGURATION.md",
+        "size": 201,
+        "lines": 15,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/applications/supplier-invoice-staging/CONFIGURATION.md"
+      },
+      {
+        "name": "GUI_STRUCTURE.md",
+        "path": "applications/supplier-invoice-staging/GUI_STRUCTURE.md",
+        "full_path": "docs/applications/supplier-invoice-staging/GUI_STRUCTURE.md",
+        "size": 201,
+        "lines": 15,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/applications/supplier-invoice-staging/GUI_STRUCTURE.md"
+      },
+      {
+        "name": "NEX_INTEGRATION.md",
+        "path": "applications/supplier-invoice-staging/NEX_INTEGRATION.md",
+        "full_path": "docs/applications/supplier-invoice-staging/NEX_INTEGRATION.md",
+        "size": 203,
+        "lines": 15,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/applications/supplier-invoice-staging/NEX_INTEGRATION.md"
+      },
+      {
+        "name": "WORKFLOWS.md",
+        "path": "applications/supplier-invoice-staging/WORKFLOWS.md",
+        "full_path": "docs/applications/supplier-invoice-staging/WORKFLOWS.md",
+        "size": 197,
+        "lines": 15,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/applications/supplier-invoice-staging/WORKFLOWS.md"
       }
     ]
   },
   "key_files": {},
   "structure": {
-    "has_guides": false,
+    "has_guides": true,
     "has_database_docs": true,
-    "has_migration_docs": false,
-    "has_api_docs": false,
-    "has_testing_docs": false,
-    "has_deployment_docs": false
+    "has_migration_docs": true,
+    "has_api_docs": true,
+    "has_testing_docs": true,
+    "has_deployment_docs": true
   }
 }
