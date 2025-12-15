@@ -2,17 +2,17 @@
   "name": "documentation",
   "type": "docs",
   "location": "docs",
-  "generated": "2025-12-15T11:40:46.133568",
+  "generated": "2025-12-15T12:24:45.687641",
   "description": "Komplexná dokumentácia NEX Automat projektu",
   "statistics": {
-    "total_files": 114,
+    "total_files": 113,
     "total_dirs": 39,
     "python_files": 0,
     "powershell_files": 0,
     "markdown_files": 51,
     "test_files": 0,
-    "total_lines": 3059,
-    "total_size": 1284684
+    "total_lines": 4546,
+    "total_size": 1315528
   },
   "files": [
     {
@@ -43,7 +43,7 @@
     {
       "path": "docs/PROJECT_ARCHIVE.md-old",
       "name": "PROJECT_ARCHIVE.md-old",
-      "size": 112668,
+      "size": 123110,
       "extension": ".md-old",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/PROJECT_ARCHIVE.md-old"
     },
@@ -64,10 +64,10 @@
     {
       "path": "docs/applications/00_APPLICATIONS_INDEX.md",
       "name": "00_APPLICATIONS_INDEX.md",
-      "size": 212,
+      "size": 2770,
       "extension": ".md",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/applications/00_APPLICATIONS_INDEX.md",
-      "lines": 15,
+      "lines": 92,
       "type": "documentation"
     },
     {
@@ -417,28 +417,19 @@
     {
       "path": "docs/archive/00_ARCHIVE_INDEX.md",
       "name": "00_ARCHIVE_INDEX.md",
-      "size": 202,
+      "size": 1362,
       "extension": ".md",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/00_ARCHIVE_INDEX.md",
-      "lines": 15,
-      "type": "documentation"
-    },
-    {
-      "path": "docs/archive/ARCHIVE_INDEX.md",
-      "name": "ARCHIVE_INDEX.md",
-      "size": 141,
-      "extension": ".md",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/ARCHIVE_INDEX.md",
-      "lines": 11,
+      "lines": 66,
       "type": "documentation"
     },
     {
       "path": "docs/database/00_DATABASE_INDEX.md",
       "name": "00_DATABASE_INDEX.md",
-      "size": 204,
+      "size": 3771,
       "extension": ".md",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/database/00_DATABASE_INDEX.md",
-      "lines": 15,
+      "lines": 125,
       "type": "documentation"
     },
     {
@@ -537,10 +528,10 @@
     {
       "path": "docs/development/00_DEVELOPMENT_INDEX.md",
       "name": "00_DEVELOPMENT_INDEX.md",
-      "size": 210,
+      "size": 2070,
       "extension": ".md",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/development/00_DEVELOPMENT_INDEX.md",
-      "lines": 15,
+      "lines": 82,
       "type": "documentation"
     },
     {
@@ -573,10 +564,10 @@
     {
       "path": "docs/documents/00_DOCUMENTS_INDEX.md",
       "name": "00_DOCUMENTS_INDEX.md",
-      "size": 206,
+      "size": 1831,
       "extension": ".md",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/documents/00_DOCUMENTS_INDEX.md",
-      "lines": 15,
+      "lines": 71,
       "type": "documentation"
     },
     {
@@ -623,10 +614,10 @@
     {
       "path": "docs/migration/00_MIGRATION_INDEX.md",
       "name": "00_MIGRATION_INDEX.md",
-      "size": 206,
+      "size": 1756,
       "extension": ".md",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/migration/00_MIGRATION_INDEX.md",
-      "lines": 15,
+      "lines": 66,
       "type": "documentation"
     },
     {
@@ -650,10 +641,10 @@
     {
       "path": "docs/packages/00_PACKAGES_INDEX.md",
       "name": "00_PACKAGES_INDEX.md",
-      "size": 204,
+      "size": 2387,
       "extension": ".md",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/packages/00_PACKAGES_INDEX.md",
-      "lines": 15,
+      "lines": 87,
       "type": "documentation"
     },
     {
@@ -743,10 +734,10 @@
     {
       "path": "docs/reference/00_REFERENCE_INDEX.md",
       "name": "00_REFERENCE_INDEX.md",
-      "size": 206,
+      "size": 1501,
       "extension": ".md",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/reference/00_REFERENCE_INDEX.md",
-      "lines": 15,
+      "lines": 64,
       "type": "documentation"
     },
     {
@@ -770,10 +761,19 @@
     {
       "path": "docs/strategic/00_STRATEGIC_INDEX.md",
       "name": "00_STRATEGIC_INDEX.md",
-      "size": 206,
+      "size": 1738,
       "extension": ".md",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/strategic/00_STRATEGIC_INDEX.md",
-      "lines": 15,
+      "lines": 70,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/strategic/AI_ML_TECHNOLOGIES.md",
+      "name": "AI_ML_TECHNOLOGIES.md",
+      "size": 25889,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/strategic/AI_ML_TECHNOLOGIES.md",
+      "lines": 841,
       "type": "documentation"
     },
     {
@@ -802,13 +802,6 @@
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/strategic/TECHNOLOGY_DECISIONS.md",
       "lines": 11,
       "type": "documentation"
-    },
-    {
-      "path": "docs/strategy/AI_ML_TOOLS_TECHNOLOGY_GUIDE.md-old",
-      "name": "AI_ML_TOOLS_TECHNOLOGY_GUIDE.md-old",
-      "size": 24729,
-      "extension": ".md-old",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/strategy/AI_ML_TOOLS_TECHNOLOGY_GUIDE.md-old"
     },
     {
       "path": "docs/strategy/CURRENT_STATE.md-old",
@@ -855,10 +848,10 @@
     {
       "path": "docs/system/00_SYSTEM_INDEX.md",
       "name": "00_SYSTEM_INDEX.md",
-      "size": 200,
+      "size": 2253,
       "extension": ".md",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/system/00_SYSTEM_INDEX.md",
-      "lines": 15,
+      "lines": 84,
       "type": "documentation"
     },
     {
@@ -932,8 +925,8 @@
         "name": "00_DATABASE_INDEX.md",
         "path": "database/00_DATABASE_INDEX.md",
         "full_path": "docs/database/00_DATABASE_INDEX.md",
-        "size": 204,
-        "lines": 15,
+        "size": 3771,
+        "lines": 125,
         "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/database/00_DATABASE_INDEX.md"
       },
       {
@@ -966,8 +959,8 @@
         "name": "00_MIGRATION_INDEX.md",
         "path": "migration/00_MIGRATION_INDEX.md",
         "full_path": "docs/migration/00_MIGRATION_INDEX.md",
-        "size": 206,
-        "lines": 15,
+        "size": 1756,
+        "lines": 66,
         "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/migration/00_MIGRATION_INDEX.md"
       },
       {
@@ -1038,8 +1031,8 @@
         "name": "00_APPLICATIONS_INDEX.md",
         "path": "applications/00_APPLICATIONS_INDEX.md",
         "full_path": "docs/applications/00_APPLICATIONS_INDEX.md",
-        "size": 212,
-        "lines": 15,
+        "size": 2770,
+        "lines": 92,
         "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/applications/00_APPLICATIONS_INDEX.md"
       },
       {
@@ -1054,32 +1047,24 @@
         "name": "00_ARCHIVE_INDEX.md",
         "path": "archive/00_ARCHIVE_INDEX.md",
         "full_path": "docs/archive/00_ARCHIVE_INDEX.md",
-        "size": 202,
-        "lines": 15,
+        "size": 1362,
+        "lines": 66,
         "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/00_ARCHIVE_INDEX.md"
-      },
-      {
-        "name": "ARCHIVE_INDEX.md",
-        "path": "archive/ARCHIVE_INDEX.md",
-        "full_path": "docs/archive/ARCHIVE_INDEX.md",
-        "size": 141,
-        "lines": 11,
-        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/ARCHIVE_INDEX.md"
       },
       {
         "name": "00_DEVELOPMENT_INDEX.md",
         "path": "development/00_DEVELOPMENT_INDEX.md",
         "full_path": "docs/development/00_DEVELOPMENT_INDEX.md",
-        "size": 210,
-        "lines": 15,
+        "size": 2070,
+        "lines": 82,
         "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/development/00_DEVELOPMENT_INDEX.md"
       },
       {
         "name": "00_DOCUMENTS_INDEX.md",
         "path": "documents/00_DOCUMENTS_INDEX.md",
         "full_path": "docs/documents/00_DOCUMENTS_INDEX.md",
-        "size": 206,
-        "lines": 15,
+        "size": 1831,
+        "lines": 71,
         "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/documents/00_DOCUMENTS_INDEX.md"
       },
       {
@@ -1110,16 +1095,16 @@
         "name": "00_PACKAGES_INDEX.md",
         "path": "packages/00_PACKAGES_INDEX.md",
         "full_path": "docs/packages/00_PACKAGES_INDEX.md",
-        "size": 204,
-        "lines": 15,
+        "size": 2387,
+        "lines": 87,
         "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/packages/00_PACKAGES_INDEX.md"
       },
       {
         "name": "00_REFERENCE_INDEX.md",
         "path": "reference/00_REFERENCE_INDEX.md",
         "full_path": "docs/reference/00_REFERENCE_INDEX.md",
-        "size": 206,
-        "lines": 15,
+        "size": 1501,
+        "lines": 64,
         "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/reference/00_REFERENCE_INDEX.md"
       },
       {
@@ -1134,9 +1119,17 @@
         "name": "00_STRATEGIC_INDEX.md",
         "path": "strategic/00_STRATEGIC_INDEX.md",
         "full_path": "docs/strategic/00_STRATEGIC_INDEX.md",
-        "size": 206,
-        "lines": 15,
+        "size": 1738,
+        "lines": 70,
         "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/strategic/00_STRATEGIC_INDEX.md"
+      },
+      {
+        "name": "AI_ML_TECHNOLOGIES.md",
+        "path": "strategic/AI_ML_TECHNOLOGIES.md",
+        "full_path": "docs/strategic/AI_ML_TECHNOLOGIES.md",
+        "size": 25889,
+        "lines": 841,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/strategic/AI_ML_TECHNOLOGIES.md"
       },
       {
         "name": "PROJECT_ROADMAP.md",
@@ -1166,8 +1159,8 @@
         "name": "00_SYSTEM_INDEX.md",
         "path": "system/00_SYSTEM_INDEX.md",
         "full_path": "docs/system/00_SYSTEM_INDEX.md",
-        "size": 200,
-        "lines": 15,
+        "size": 2253,
+        "lines": 84,
         "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/system/00_SYSTEM_INDEX.md"
       },
       {

@@ -1,9 +1,24 @@
-# AI/ML Tools - Technológie pre zlepšenie umelej inteligencie
+# AI/ML Technologies - Schválené Technológie pre NEX Automat
 
-**Dokument:** Schválené AI/ML technológie pre NEX Automat  
-**Projekty:** NEX Automat v2.0, NEX Genesis  
+**Kategória:** Strategic  
+**Status:** 🟢 Complete  
 **Vytvorené:** 2024-12-04  
-**Status:** SCHVÁLENÉ NA IMPLEMENTÁCIU
+**Aktualizované:** 2025-12-15  
+**Related:** [Project Roadmap](PROJECT_ROADMAP.md), [Technology Decisions](TECHNOLOGY_DECISIONS.md)
+
+---
+
+## Obsah
+
+1. [Úvod](#úvod)
+2. [Prehľadová tabuľka](#prehľadová-tabuľka)
+3. [PaddleOCR](#1-paddleocr)
+4. [Camelot](#2-camelot)
+5. [Claude API](#3-claude-api)
+6. [DuckDB](#4-duckdb)
+7. [Implementačný plán](#implementačný-plán)
+8. [Celkové náklady](#celkové-náklady)
+9. [Záver](#záver)
 
 ---
 
@@ -256,7 +271,7 @@ Určite áno. Extrakcia položiek je jedna z najnáročnejších častí spracov
 
 ### Popis
 
-Claude API je programatické rozhraní k Claude AI (presne tento model, s ktorým práve hovoríš). Namiesto toho aby si sa pýtal v chate, tvoja aplikácia sa môže opýtať automaticky z kódu.
+Claude API je programatické rozhranie k Claude AI. Namiesto toho aby si sa pýtal v chate, tvoja aplikácia sa môže opýtať automaticky z kódu.
 
 **Predstav si to takto:**
 
@@ -321,7 +336,7 @@ Operátor: "Prečo systém označil túto faktúru?"
 
 ✅ **Inteligentná vrstva nad ML** - rieši nejasné prípady  
 ✅ **Flexibilné** - dokáže spracovať čokoľvek, netreba trénovať  
-✅ **Vysvetlenia** - nie len výsledok, ale aj PREČO  
+✅ **Vysvetlenia** - nie jen výsledok, ale aj PREČO  
 ✅ **Lacné** - ~€0.005 per faktúra (0.5 centu)  
 ✅ **Continuous improvement** - Anthropic zlepšuje model  
 ✅ **Zero-shot learning** - funguje bez trénovania
@@ -820,11 +835,7 @@ Týchto 4 AI/ML technológií poskytuje:
 
 ---
 
-**Posledná aktualizácia:** 2024-12-04  
-**Status:** FINÁLNA VERZIA  
-**Predchádzajúci dokument:** Quick Wins Technology Guide  
-**Ďalší krok:** Implementácia podľa plánu
-
----
-
-**KONIEC DOKUMENTU**
+**See Also:**
+- [Project Roadmap](PROJECT_ROADMAP.md) - Implementačný plán
+- [Technology Decisions](TECHNOLOGY_DECISIONS.md) - História rozhodnutí
+- [System Architecture](../system/ARCHITECTURE.md) - High-level architektúra

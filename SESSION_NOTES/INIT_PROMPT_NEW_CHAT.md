@@ -1,11 +1,11 @@
-# INIT PROMPT - NEX Automat: Systematic Documentation Continue
+# INIT PROMPT - NEX Automat: Systematická Migrácia .md-old Dokumentov
 
 **Projekt:** nex-automat  
-**Úloha:** Pokračovanie návrhu supplier-invoice-staging aplikácie  
+**Úloha:** Pokračovanie systematickej migrácie .md-old súborov  
 **Developer:** Zoltán (40 rokov skúseností)  
 **Jazyk:** Slovenčina  
-**Previous Session:** https://claude.ai/chat/b64ae513-c5a0-414a-8a0c-4f3b0fd5d09c  
-**Status:** 🔄 Pokračujeme po token limit issue
+**Previous Session:** https://claude.ai/chat/[CURRENT_CHAT_URI]  
+**Status:** ✅ Dokumentačná štruktúra pripravená, začíname migráciu
 
 ---
 
@@ -18,233 +18,300 @@ Kľúčové pravidlá pre túto session:
 - **Rule #8:** Step-by-step, confirmation pred pokračovaním
 - **Rule #20:** "novy chat" = 4 artifacts (ARCHIVE, NOTES, INIT, commit)
 - **Rule #5:** Slovak language, presná terminológia projektov
+- **Rule #22:** Na začiatku každého chatu skontrolovať všetky pravidlá
 
 ---
 
 ## 📋 ČO SME DOKONČILI V PREVIOUS SESSION
 
-### ✅ Definície Aplikácie
-- **Názov:** `supplier-invoice-staging` ✅
-- **Framework:** PySide6 (migration z PyQt5) ✅
-- **Umiestnenie:** `apps/supplier-invoice-staging/` ✅
-- **Dokumentácia:** `apps/supplier-invoice-staging/docs/SUPPLIER_INVOICE_STAGING.md` ✅
+### ✅ Definitívna Dokumentačná Štruktúra (v2.0 FINAL)
 
-### ✅ Databázová Schéma (Hotová)
+**Vytvorené:**
+- Script: `02-update-documentation-structure.py` ✅
+- 10 kategórií dokumentácie
+- 35 nových súborov (draft)
+- 6 nových adresárov
+- Status: Commitnuté
 
-**Tabuľka:** `supplier_invoice_items`
+**Štruktúra:**
+```
+docs/
+├── strategic/ (4 docs)
+├── system/ (6 docs)
+├── database/ (3 adresáre)
+├── documents/ (3 docs)
+├── applications/ (2 apps, 10 docs)
+├── packages/ (2 packages, 7 docs)
+├── development/ (3 docs)
+├── migration/ (2 docs)
+├── reference/ (3 docs)
+└── archive/ (sessions/)
+```
 
-**Kategórie polí:**
-1. **xml_*** (11 polí) - Originálne XML dáta - IMMUTABLE
-2. **nex_*** (6 polí) - NEX Genesis enrichment - AUTO
-3. **user_*** (3 polia) - Manuálne editované - EDITABLE
-4. **Statusové** (2 polia) - match_status, validation_status
+### ✅ Všetky Indexy Aktualizované
 
-**Farebná schéma:**
-- 🟢 Zelená = Spárované (ean_matched | name_matched | manual_matched)
-- 🔴 Červená = Nespárované (unmatched - treba vytvoriť v NEX)
+**Vytvorené:**
+- Script: `03-update-all-indexes.py` ✅
+- 10 index súborov s kompletným obsahom
+- Status: **PENDING COMMIT**
 
-**SQL schéma kompletná** - viď PROJECT_ARCHIVE_SESSION.md sekcia 5
+**Indexy obsahujú:**
+- Zoznam existujúcich .md dokumentov
+- Status dokumentov (Complete/Draft)
+- Quick links, štatistiky
+- See Also cross-references
 
-### ✅ Workflow (9 krokov definovaných)
-1. Zobrazenie pending faktúr
-2. Výber faktúry
-3. Zobrazenie položiek (farebne)
-4. Identifikácia produktov
-5. Vytvorenie nových produktov v NEX
-6. Úprava cien (priame / margin %)
-7. Validácia
-8. Archivovanie
-9. Import do NEX Genesis
+### ✅ Prvá .md-old Migrácia
+
+**Súbor:** `AI_ML_TOOLS_TECHNOLOGY_GUIDE.md-old`  
+**→ Nový:** `docs/strategic/AI_ML_TECHNOLOGIES.md`  
+**Status:** Complete ✅  
+**Akcia:** `.md-old` ready to delete
 
 ---
 
-## 🔄 ČO TREBA DOKONČIŤ TERAZ
+## 🔄 ČO TREBA UROBIŤ TERAZ
 
-### Priority 1: SUPPLIER_INVOICE_STAGING.md
-**Čo máme:**
-- ✅ Sekcia 1: Overview & Purpose (hotové v artifacts)
-- ✅ Sekcia 2: Databázová štruktúra (hotové v artifacts)
-- ❌ Sekcia 3: GUI Štruktúra (CHÝBA)
-- ❌ Sekcia 4: Workflows (CHÝBA)
-- ❌ Sekcia 5: NEX Genesis Integration (CHÝBA)
-- ❌ Sekcia 6: Configuration (CHÝBA)
-- ❌ Sekcia 7: Development & Deployment (CHÝBA)
+### Priority 1: Git Commit (PRVÉ!)
 
-**Akcia:** Dokončiť SUPPLIER_INVOICE_STAGING.md (sekcie 3-7)
-
-### Priority 2: PySide6 Migration Plan
-**Čo treba:**
-- BaseWindow trieda (PySide6)
-- BaseGrid trieda (PySide6)
-- Quick search (PySide6)
-- Grid persistence (PySide6)
-
-**Akcia:** Vytvoriť PYSIDE6_MIGRATION_PLAN.md
-
-### Priority 3: Implementation Plan
-**Následne:**
-- Python kód aplikácie
-- Config súbory
-- Database migrations
-- Testing suite
-
----
-
-## 🎯 SUGGESTED NEXT STEPS
-
-### Krok 1: Dokončiť Dokumentáciu
-```
-1. Otvor artifact "supplier_invoice_staging_doc"
-2. Dopíš sekcie 3-7:
-   - GUI Štruktúra (windows, widgets, layouts)
-   - Workflows (detailný popis 9 krokov)
-   - NEX Genesis Integration (API calls, data sync)
-   - Configuration (config.yaml štruktúra)
-   - Development & Deployment (setup, dependencies)
-3. Ulož do apps/supplier-invoice-staging/docs/SUPPLIER_INVOICE_STAGING.md
+```bash
+git add docs/
+git commit -m "docs: Update all index files with content"
 ```
 
-### Krok 2: PySide6 Migration
-```
-1. Analyzuj existujúce BaseWindow (PyQt5)
-2. Analyzuj existujúce BaseGrid (PyQt5)
-3. Vytvor PYSIDE6_MIGRATION_PLAN.md
-4. Vytvor migračné scripty
-```
+### Priority 2: Pokračovať Migráciu .md-old
 
-### Krok 3: Implementácia
+**Zostáva:** 59 .md-old súborov (z 60 pôvodných)
+
+**Workflow per súbor:**
 ```
-1. Vytvor kostru projektu supplier-invoice-staging
-2. Implementuj BaseWindow (PySide6)
-3. Implementuj BaseGrid (PySide6)
-4. Implementuj hlavné okno aplikácie
+1. Zoltán dá názov .md-old súboru
+2. Claude načíta z GitHub (raw URL z manifestu)
+3. Claude analyzuje obsah:
+   - Typ/kategória
+   - Cieľové umiestnenie v novej štruktúre
+   - Navrhne akciu (merge/new/archive/delete)
+4. Claude spracuje obsah (ak treba)
+5. Claude vytvorí artifact s novým .md
+6. Zoltán potvrdí
+7. Zoltán uložíš nový .md
+8. Zoltán vymaže .md-old
+9. Next súbor
 ```
 
 ---
 
-## 📂 AKTUÁLNA ŠTRUKTÚRA PROJEKTU
+## 📊 DOSTUPNÉ .md-old SÚBORY (z manifestu)
 
-```
-nex-automat/
-├── apps/
-│   ├── supplier-invoice-loader/       # FastAPI (port 8001) - HOTOVÉ ✅
-│   ├── supplier-invoice-editor/       # Stará GUI (PyQt5) - DEPRECATED ❌
-│   └── supplier-invoice-staging/      # Nová GUI (PySide6) - V NÁVRHU 🔄
-│       ├── docs/
-│       │   └── SUPPLIER_INVOICE_STAGING.md  (čiastočne hotové)
-│       ├── src/                       (NEEXISTUJE)
-│       ├── database/                  (NEEXISTUJE)
-│       └── config/                    (NEEXISTUJE)
-├── packages/
-│   ├── nex-shared/
-│   │   ├── gui/                       # BaseWindow, BaseGrid (PyQt5) ❌
-│   │   ├── database/                  # DB utils ✅
-│   │   └── models/                    # Data models ✅
-│   └── nexdata/                       # NEX data access ✅
-└── docs/
-    ├── architecture/
-    │   └── database/                  # Sessions 1-8 dokumentácia ✅
-    └── COLLABORATION_RULES.md v1.2    ✅
-```
+### Root Dokumenty (4 zostáva)
+- GIT_GUIDE.md-old (4.9 KB)
+- PROJECT_ARCHIVE.md-old (112.7 KB) ⚠️ VEĽKÝ
+- PROJECT_STATUS.md-old (16.0 KB)
+- WORKFLOW_QUICK_REFERENCE.md-old (4.7 KB)
+
+### Database Architecture (32 súborov)
+**Všeobecné:**
+- COMMON_DOCUMENT_PRINCIPLES.md-old (42.8 KB)
+- DATABASE_RELATIONSHIPS.md-old (24.1 KB)
+- DATA_DICTIONARY.md-old (22.7 KB)
+- INDEX.md-old (6.0 KB)
+
+**Katalógy - Produkty (5):**
+- GSCAT-product_catalog.md-old (20.7 KB)
+- BARCODE-product_catalog_identifiers.md-old (24.2 KB)
+- FGLST, MGLST, SGLST kategórie (16-20 KB každý)
+
+**Katalógy - Partneri (9):**
+- PAB-partner_catalog.md-old (39.9 KB)
+- PABACC, PACNCT, PAGLST, PANOTI, PASUBC (12-23 KB)
+- BANKLST, PAYLST, TRPLST (8-11 KB)
+
+**Stock (7):**
+- STK, STM, FIF stock cards (28-39 KB)
+- STKLST, WRILST (17-20 KB)
+- TSH, TSI delivery docs (25-30 KB)
+
+**Accounting (3):**
+- ISH, ISI invoice docs (29-35 KB)
+- PAYJRN payment journal (25.8 KB)
+
+### Deployment (12 súborov)
+- DEPLOYMENT_GUIDE.md-old (13.8 KB)
+- GO_LIVE_CHECKLIST.md-old (6.3 KB)
+- OPERATIONS_GUIDE.md-old (8.1 KB)
+- RECOVERY_GUIDE.md-old (13.6 KB)
+- SERVICE_MANAGEMENT.md-old (7.7 KB)
+- TROUBLESHOOTING.md-old (9.6 KB)
+- + 6 ďalších (4-11 KB každý)
+
+### Guides (2 súbory)
+- CONTRIBUTING.md-old (12.5 KB)
+- MONOREPO_GUIDE.md-old (11.4 KB)
+
+### Strategy (5 zostáva)
+- ✅ AI_ML_TOOLS... (DOKONČENÉ)
+- RESEARCH_ANALYSIS_TECHNOLOGY...md-old (84.5 KB) ⚠️ VEĽKÝ
+- PROJECT_BLUEPRINT_SUPPLIER...md-old (51.1 KB)
+- QUICK_WINS_TECHNOLOGY_GUIDE.md-old (19.0 KB)
+- CURRENT_STATE.md-old (14.4 KB)
+- REQUIREMENTS.md-old (9.4 KB)
+
+---
+
+## 🎯 ODPORÚČANÉ PRIORITY
+
+### Začať S (Quick Wins):
+1. **QUICK_WINS_TECHNOLOGY_GUIDE.md-old** (19 KB)
+   - Partner k AI_ML_TECHNOLOGIES
+   - Strategic dokument
+   - Stredná veľkosť
+
+2. **GIT_GUIDE.md-old** (4.9 KB)
+   - Malý, jednoduchý
+   - Development / Reference kategória
+
+3. **WORKFLOW_QUICK_REFERENCE.md-old** (4.7 KB)
+   - Malý, užitočný
+   - Reference kategória
+
+### Potom (Valuable Content):
+4. **Database dokumenty** (začať s GSCAT, PAB)
+   - Kritický content
+   - Veľa práce investovanej
+
+5. **Deployment guides** (12 súborov)
+   - Merge do DEPLOYMENT.md
+   - Production knowledge
 
 ---
 
 ## 🔑 KĽÚČOVÉ TECHNICKÉ INFO
 
-### Database Connection
-```python
-# PostgreSQL invoice_staging
-HOST = "localhost"
-PORT = 5432
-DATABASE = "invoice_staging"
-USER = "postgres"
+### Documentation Manifest Location
+```
+C:\Development\nex-automat\SESSION_NOTES\docs.json
 ```
 
-### NEX Genesis Connection
-```python
-# Btrieve NEX Genesis
-NEX_DATA_PATH = "X:\\NEX\\DATA\\"  # Server path
-GSCAT_FILE = "GSCAT.BTR"           # Product catalog
+### GitHub Raw URL Pattern
+```
+https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/[path]
 ```
 
-### Tech Stack
-- **GUI:** PySide6 (Qt 6.x)
-- **Database:** PostgreSQL 15
-- **ORM:** SQLAlchemy (ak použijeme)
-- **Config:** PyYAML
-- **Data:** Pandas (pre bulk operations)
+### Dokumentačné Štandardy
+
+**Header Template:**
+```markdown
+# [Document Title]
+
+**Kategória:** [Strategic/System/Database/...]  
+**Status:** 🟢 Complete / 🟡 In Progress / 🔴 Draft  
+**Vytvorené:** YYYY-MM-DD  
+**Aktualizované:** YYYY-MM-DD  
+**Related:** [Links]
 
 ---
 
-## 💡 ROZHODNUTIA Z PREVIOUS SESSION
+## Obsah
 
-### 1. PySide6 > PyQt5
-**Dôvod:** LGPL licencia, oficiálny Qt for Python  
-**Dopad:** Potreba migrácie BaseWindow/BaseGrid
-
-### 2. Kategorizácia Polí (xml_*, nex_*, user_*)
-**Dôvod:** Prehľadnosť, jasná separácia concerns  
-**Benefit:** Jednoduchšia údržba, lepšia dokumentácia
-
-### 3. Farebná Schéma (zelená/červená)
-**Dôvod:** Intuitívna pre používateľa  
-**Benefit:** Okamžitá vizuálna identifikácia problémov
-
-### 4. Systematická Dokumentácia
-**Pattern:** Každá app = vlastný docs/ adresár  
-**Benefit:** Modularizácia, ľahké nájdenie info
+[Content]
 
 ---
 
-## ⚠️ KNOWN ISSUES
+**See Also:**
+- [Related document 1]
+- [Related document 2]
+```
 
-### Token Limit Problem
-**Problem:** Previous session sa zablokovala pri ~95k / 190k tokenov  
-**Expected:** Malo byť priestoru na ~95k ešte  
-**Actual:** Predčasné zablokovanie  
-**Hypotéza:** Možný bug Claude.ai alebo skryté limity  
-
-**Ako sa vyhnúť:**
-- Kratšie artifacts
-- Modulárna dokumentácia
-- Častejšie checkpointy
+**Token Limit:** Max 15k per dokument
 
 ---
 
-## 📋 CHECKLIST PRE TÚTO SESSION
+## 💡 WORKFLOW PATTERN
 
-### Before You Start
-- [ ] Prečítaj COLLABORATION_RULES.md pravidlá
-- [ ] Prečítaj PROJECT_ARCHIVE_SESSION.md
-- [ ] Understand databázová schéma (sekcia 5 v ARCHIVE)
-- [ ] Understand workflow (9 krokov)
+### Pre Každý .md-old Súbor:
 
-### During Session
-- [ ] ALWAYS artifacts pre dokumenty/kód
-- [ ] ONE step at a time, WAIT for confirmation
-- [ ] Token usage na konci každej odpovede
-- [ ] Follow Slovak language + English tech terms
+**1. Načítanie**
+```
+web_fetch: https://raw.githubusercontent.com/.../[filename].md-old
+```
 
-### End of Session
-- [ ] Update SESSION_NOTES.md
-- [ ] Create INIT_PROMPT_NEW_CHAT.md (pre ďalšiu session)
-- [ ] Create commit-message.txt (ak sú zmeny)
-- [ ] Append to PROJECT_ARCHIVE.md
+**2. Analýza**
+- Typ dokumentu (Strategic/Technical/Reference/...)
+- Kvalita obsahu (⭐1-5)
+- Relevancia (High/Medium/Low)
+- Cieľová kategória
+
+**3. Rozhodnutie**
+- **New:** Vytvor nový .md v príslušnej kategórii
+- **Merge:** Zlúč s existujúcim dokumentom
+- **Archive:** Presuň do archive/ (ak historický)
+- **Delete:** Vymaž (ak obsolete/duplicate)
+
+**4. Spracovanie**
+- Pridaj štandardný header
+- Vytvor TOC (ak potrebné)
+- Pridaj See Also links
+- Update príslušný index
+
+**5. Artifact**
+- Vytvor artifact s novým .md obsahom
+- Čakaj na potvrdenie od Zoltána
+
+**6. Po Potvrdení**
+- Zoltán uloží nový .md
+- Zoltán vymaže .md-old
+- Update SESSION_NOTES.md
+- Next súbor
 
 ---
 
-## 🎯 IMMEDIATE GOAL
+## ⚠️ KNOWN ISSUES & REMINDERS
 
-**ČO UROBIŤ PRVÉ:**
+### Token Management
+- Pravidelne check token usage
+- Pri ~80% navrhni checkpoint
+- Veľké dokumenty (>40 KB) rozdeliť na časti
 
-Opýtaj sa:
-> "Chceš pokračovať dokončením SUPPLIER_INVOICE_STAGING.md (sekcie 3-7)  
-> alebo radšej začať PySide6 migration plan?"
+### Git Workflow
+- Development → Git → Deployment
+- Never fix directly in Deployment
+- Commit messages: clear & descriptive
 
-**Potom postupuj step-by-step podľa výberu.**
+### .md-old Handling
+- **NEVER** delete bez potvrdenia
+- **ALWAYS** verify migration success
+- Keep track migrovaných vs zostávajúcich
+
+---
+
+## 🚀 IMMEDIATE ACTION
+
+**Prvý krok po načítaní tohto promptu:**
+
+1. Skontroluj memory_user_edits (21 pravidiel)
+2. Load docs.json manifest (ak potrebné)
+3. Opýtaj sa: "Chceš commitnúť index updates ALEBO začať s migráciou?"
+4. Podľa odpovede:
+   - **Commit:** Priprav commit message
+   - **Migrácia:** "Ktorý .md-old súbor chceš spracovať?"
+
+---
+
+## 📈 SUCCESS METRICS
+
+**Pre túto session očakávame:**
+- ✅ Git commit index updates
+- ✅ 3-5 .md-old súborov zmigrovaných
+- ✅ Indexy aktualizované s novými dokumentmi
+- ✅ Žiadne .md-old deleted bez verifikácie
+- ✅ Tokens < 80% pred koncom session
 
 ---
 
 **Token Budget:** 190,000  
-**Estimated Completion:** 2-4 hodiny (závisí od zložitosti)  
+**Estimated Session:** 2-4 hodiny  
 **Ready to Continue:** ✅ ÁNO
+
+---
+
+**KONIEC INIT PROMPTU**
