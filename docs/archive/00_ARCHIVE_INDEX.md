@@ -10,8 +10,21 @@
 ### December 2025
 
 **2025-12-15:**
+- [Database Table Docs Migration - Batch 6 Products](sessions/SESSION_2025-12-15_database-table-docs-batch6-products.md)
+  - Status: ✅ COMPLETE
+  - Topics: Products section (BARCODE, FGLST, GSCAT, MGLST, SGLST)
+  - Progress: 13/28 dokumentov (46.4%)
+  - Average reduction: 53.6%
+
+**2025-12-15:**
+- [Database Table Docs Migration - Batch 6 Partners](sessions/SESSION_2025-12-15_database-table-docs-batch6-partners.md)
+  - Status: ✅ COMPLETE
+  - Topics: Partners section (PAGLST, PAYLST, TRPLST, PANOTI, PASUBC)
+  - Progress: 8/28 dokumentov
+
+**2025-12-15:**
 - [Database Table Docs Migration - Batch 6 Start](sessions/SESSION_2025-12-15_database-table-docs-batch6-start.md)
-  - Status: ⏸️ POZASTAVENÁ (4/28 dokumentov)
+  - Status: ✅ COMPLETE
   - Topics: BANKLST, PAB, PABACC, PACNCT
   - Scripts: 32-35
 
@@ -114,10 +127,10 @@
 
 ## STATISTICS
 
-**Total Sessions:** 19  
+**Total Sessions:** 21  
 **Total Deployments:** 10  
 **Active Tasks:** 1 (Database table docs migration)  
-**Completion Rate:** 58.3% (35/60 .md-old files)
+**Completion Rate:** 46.4% (13/28 database table docs)
 
 ---
 
