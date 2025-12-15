@@ -1,228 +1,210 @@
-# SESSION NOTES - NEX Automat
+# SESSION NOTES - NEX Automat Documentation Migration
 
-**Last Updated:** 2025-12-15  
-**Current Phase:** Documentation Migration  
-**Status:** 🟡 IN PROGRESS
-
----
-
-## 📌 Current Status
-
-### Documentation Migration Progress
-
-**Completed:** 8/60 .md-old súborov (13.3%)
-- ✅ Migrované: 6 dokumentov
-- ❌ Deleted: 1 dokument (obsolete)
-- 📦 Archived: 1 dokument (historical)
-
-**Zostáva:** 52 .md-old súborov
-
-### Recent Achievements
-
-**Batch 1 Completed (2025-12-15):**
-- ✅ QUICK_WINS_TECHNOLOGIES.md (strategic)
-- ✅ GIT_WORKFLOW.md (development)
-- ✅ CONTRIBUTING.md (development)
-- ✅ WORKFLOW_REFERENCE.md (reference)
-- ✅ MONOREPO_GUIDE.md (system)
-- 📦 CURRENT_STATE_2025-11-26.md (archive)
-
-**Script Created:**
-- 04-update-indexes-after-migration.py (ready to run)
+**Current Date:** 2025-12-15  
+**Project:** nex-automat  
+**Phase:** Documentation Migration - Batch 2+  
+**Status:** 🟡 In Progress
 
 ---
 
-## 🎯 Next Steps
+## SESSION ARCHIVE
 
-### Immediate Actions
+**Current session archived to:**
+- `docs/archive/sessions/SESSION_2025-12-15_documentation-migration-batch2.md`
 
-**1. Update Indexes**
+---
+
+## CURRENT STATUS
+
+### Migration Progress
+
+**Completed:** 11/60 files (18.3%)  
+**Remaining:** 49 .md-old files
+
+**Last Session (2025-12-15):**
+- ✅ PROJECT_ARCHIVE.md-old → 7 session files
+- ✅ PROJECT_STATUS.md-old → archived
+- ✅ KNOWN_ISSUES.md-old → deleted
+- ✅ Indexes updated
+
+---
+
+## BLOCKING ISSUES
+
+**None currently** ✅
+
+---
+
+## NEXT STEPS
+
+### Immediate Priority
+
+**1. Git Commit Changes**
 ```powershell
-python scripts\04-update-indexes-after-migration.py
-```
-
-**2. Delete Migrated .md-old Files**
-```powershell
-Remove-Item "C:\Development\nex-automat\docs\strategy\QUICK_WINS_TECHNOLOGY_GUIDE.md-old"
-Remove-Item "C:\Development\nex-automat\docs\GIT_GUIDE.md-old"
-Remove-Item "C:\Development\nex-automat\docs\giudes\CONTRIBUTING.md-old"
-Remove-Item "C:\Development\nex-automat\docs\WORKFLOW_QUICK_REFERENCE.md-old"
-Remove-Item "C:\Development\nex-automat\docs\giudes\MONOREPO_GUIDE.md-old"
-Remove-Item "C:\Development\nex-automat\docs\strategy\CURRENT_STATE.md-old"
-Remove-Item "C:\Development\nex-automat\docs\strategy\REQUIREMENTS.md-old"
-```
-
-**3. Commit Changes**
-```powershell
-git add docs/ scripts/ SESSION_NOTES/
-git commit -m "docs: Migrate .md-old documents (batch 1) and update indexes"
+git add docs/ SESSION_NOTES/ scripts/
+git commit -m "docs: Migrate .md-old batch 2 - PROJECT_ARCHIVE split, indexes updated"
 git push origin develop
 ```
 
-### Next Migration Batch
+**2. Continue Deployment Docs Migration**
 
-**Priority Documents:**
+Start with small files (quick wins):
+- `MAGERSTAV_DEPLOYMET_SUMMARY.md-old` (4.5 KB)
+- `GO_LIVE_CHECKLIST.md-old` (6.3 KB)
+- `PRE_DEPLOYMENT_CHECKLIST.md-old` (6.4 KB)
+- `SERVICE_MANAGEMENT.md-old` (7.7 KB)
 
-1. **PROJECT_STATUS.md-old** (16 KB) - analyze for ARCHIVE/UPDATE
-2. **Deployment documents** (12 súborov) - merge strategy needed
-3. **Database documents** (začať so všeobecnými)
+**Strategy:** Merge into consolidated `docs/deployment/DEPLOYMENT.md`
+
+### Medium Term
+
+**3. Strategic Large Docs**
+- `PROJECT_BLUEPRINT_SUPPLIER_CLASSIFIER.md-old` (51 KB) - ARCHIVE
+- `RESEARCH_ANALYSIS_TECHNOLOGY_LANDSCAPE.md-old` (84 KB) - ARCHIVE
+
+**4. Database Documentation** (32 files)
+- Last phase
+- Technical tables, relationships, schemas
 
 ---
 
-## 📊 Migration Statistics
+## REMAINING .md-old FILES
 
-### By Category
-
-| Kategória | Celkom | Hotové | Zostáva |
-|-----------|--------|--------|---------|
-| Strategic | 6 | 2 | 4 |
-| System | 2 | 1 | 1 |
-| Development | 5 | 2 | 3 |
-| Reference | 3 | 1 | 2 |
-| Deployment | 12 | 0 | 12 |
-| Database | 32 | 0 | 32 |
-| Archive | 1 | 1 | 0 |
-| **TOTAL** | **61** | **8** | **53** |
-
-Note: TOTAL includes 1 deleted (REQUIREMENTS.md-old)
-
-### Size Distribution
-
-**Completed:**
-- Small (<10 KB): 4 dokumenty
-- Medium (10-20 KB): 2 dokumenty
-- Large (>20 KB): 0 dokumentov
-
-**Remaining Large Documents (>40 KB):**
-- RESEARCH_ANALYSIS_TECHNOLOGY_LANDSCAPE.md-old (84 KB) ⚠️
+**Strategic (2):**
 - PROJECT_BLUEPRINT_SUPPLIER_CLASSIFIER.md-old (51 KB)
-- COMMON_DOCUMENT_PRINCIPLES.md-old (42 KB)
+- RESEARCH_ANALYSIS_TECHNOLOGY_LANDSCAPE.md-old (84 KB)
+
+**Deployment (11):**
+- DEPLOYMENT_GUIDE.md-old (13.8 KB)
+- GO_LIVE_CHECKLIST.md-old (6.3 KB)
+- OPERATIONS_GUIDE.md-old (8.1 KB)
+- RECOVERY_GUIDE.md-old (13.6 KB)
+- SERVICE_MANAGEMENT.md-old (7.7 KB)
+- TROUBLESHOOTING.md-old (9.6 KB)
+- MAGERSTAV_DEPLOYMET_SUMMARY.md-old (4.5 KB)
+- MAGERSTAV_ONBOARDING_GUIDE.md-old (11.4 KB)
+- PRE_DEPLOYMENT_CHECKLIST.md-old (6.4 KB)
+- RECOVERY_PROCEDURES.md-old (9.8 KB)
+- TRAINING_GUIDE.md-old (9.1 KB)
+
+**Database (32):**
+- All in `docs/architecture/database/`
 
 ---
 
-## 🔧 Technical Context
+## WORKFLOW PATTERN
 
-### Project Structure
+### For Each .md-old File:
 
+**1. Load**
 ```
-nex-automat/
-├── apps/
-│   ├── supplier-invoice-loader/    # Production (Mágerstav)
-│   ├── supplier-invoice-editor/    # Deprecated (PyQt5)
-│   └── supplier-invoice-staging/   # Development (PySide6)
-├── packages/
-│   ├── nex-shared/                 # GUI components (FLAT structure)
-│   └── nexdata/                    # Btrieve data access
-├── docs/                           # ← ACTIVE MIGRATION
-│   ├── strategic/
-│   ├── system/
-│   ├── database/
-│   ├── development/
-│   ├── reference/
-│   └── archive/
-└── scripts/
-    └── 04-update-indexes-after-migration.py
+web_fetch: https://raw.githubusercontent.com/.../[filename].md-old
 ```
 
-### Active Technologies
+**2. Analyze**
+- Type: Strategic/Technical/Reference
+- Quality: ⭐1-5
+- Relevance: High/Medium/Low
+- Target category
 
-**Current:**
-- Python 3.13.7 32-bit (Btrieve compatibility)
-- FastAPI (supplier-invoice-loader)
-- PySide6 (supplier-invoice-staging - in development)
-- PostgreSQL (staging database)
-- Btrieve (NEX Genesis - legacy)
+**3. Decide**
+- **NEW:** Create new .md in category
+- **MERGE:** Combine with existing doc
+- **ARCHIVE:** Move to archive/ (historical)
+- **DELETE:** Remove (obsolete/duplicate)
 
-**Planned Migration:**
-- n8n → Temporal (workflow engine)
-- PyQt5 → PySide6 (GUI framework)
+**4. Execute**
+- Create script (numbered)
+- Test locally
+- Confirm with user
 
----
-
-## 📝 Important Notes
-
-### Migration Guidelines
-
-**ALWAYS:**
-- ✅ Štandardný header s kategóriou, status, dátumy
-- ✅ Zachovať celý obsah (ak relevant)
-- ✅ Pridať See Also links
-- ✅ Update príslušný index
-
-**NEVER:**
-- ❌ Delete .md-old bez potvrdenia
-- ❌ Migrate bez analysis
-- ❌ Skip index updates
-
-### Decision Framework
-
-**NEW:** Vytvor nový dokument
-- Kvalitný, aktuálny obsah
-- Jasné umiestnenie v kategórii
-- Samostatný dokument
-
-**ARCHIVE:** Presun do archive/
-- Historický kontext cenný
-- Outdated ale užitočné pre referenciu
-- Snapshot projektu
-
-**DELETE:** Vymaž súbor
-- Kompletne obsolete
-- Duplikát existujúceho
-- Nepoužiteľný obsah
-
-**MERGE:** Zlúč s existujúcim
-- Deployment documents → DEPLOYMENT.md
-- Fragmentované dokumenty
+**5. Update**
+- Update indexes
+- Update manifest
+- Git operations
 
 ---
 
-## 🚀 Session Workflow
+## SCRIPTS AVAILABLE
 
-### Standard Session Pattern
+**Recent (05-10):**
+- 05_split_project_archive.py
+- 06_rename_generic_sessions.py
+- 07_fix_session_names.py
+- 08_archive_project_status.py
+- 09_delete_known_issues.py
+- 10_update_documentation_indexes.py
 
-1. **Init:** Load INIT_PROMPT_NEW_CHAT.md + PROJECT_MANIFEST.json
-2. **Analyze:** Check SESSION_NOTES.md for next steps
-3. **Execute:** Process 5-10 .md-old files
-4. **Update:** Run index update script
-5. **Commit:** Git commit & push
-6. **Archive:** Create session archive
-
-### Files Per Session
-
-**Target:** 5-10 dokumentov
-- Small (<10 KB): 7-10 súborov
-- Medium (10-20 KB): 5-7 súborov
-- Large (>40 KB): 1-3 súbory (analyze/split first)
+**From Batch 1 (01-04):**
+- 01_migrate_docs.py (batch 1 migration)
+- 04_update_indexes_after_migration.py (index update)
 
 ---
 
-## 🔗 Quick Links
+## TECHNICAL NOTES
 
-**Documentation:**
-- [Main Index](../docs/00_DOCUMENTATION_INDEX.md)
-- [Strategic Index](../docs/strategic/00_STRATEGIC_INDEX.md)
-- [System Index](../docs/system/00_SYSTEM_INDEX.md)
-- [Development Index](../docs/development/00_DEVELOPMENT_INDEX.md)
+### GitHub Raw URL Pattern
+```
+https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/[path]
+```
 
-**Scripts:**
-- [Update Indexes](../scripts/04-update-indexes-after-migration.py)
+### Documentation Standards
 
-**GitHub:**
-- [Repository](https://github.com/rauschiccsk/nex-automat)
-- [Raw Docs](https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/)
+**Header Template:**
+```markdown
+# [Document Title]
 
----
-
-## 📞 Contact
-
-**Project:** NEX Automat v2.0  
-**Developer:** Zoltán Rausch  
-**Organization:** ICC Komárno  
-**Email:** rausch@icc.sk
+**Category:** [Strategic/System/Database/...]  
+**Status:** 🟢 Complete / 🟡 In Progress / 🔴 Draft  
+**Created:** YYYY-MM-DD  
+**Updated:** YYYY-MM-DD  
+**Related:** [Links]
 
 ---
 
-**Last session:** 2025-12-15 (.md-old migration batch 1)  
-**Next session:** Continue with batch 2 (strategic/deployment docs)  
-**Status:** Ready to continue ✅
+## Content
+
+[TOC if needed]
+
+---
+
+[Main content]
+
+---
+
+**See Also:**
+- [Related doc 1]
+- [Related doc 2]
+```
+
+---
+
+## TOKEN BUDGET
+
+**Session Budget:** 190,000 tokens  
+**Usage Pattern:** ~80-90K per 2-hour session  
+**Checkpoint:** At ~150K (80%)
+
+---
+
+## SUCCESS METRICS
+
+**Target for Batch 2:**
+- ✅ 5-10 .md-old files migrated per session
+- ✅ Indexes updated after each batch
+- ✅ Clear documentation structure
+- ✅ No files deleted without verification
+
+---
+
+## CONTACTS & RESOURCES
+
+**Developer:** Zoltán Rausch (Senior Developer, 40 years experience)  
+**Project:** NEX Automat v2.4+  
+**Repository:** https://github.com/rauschiccsk/nex-automat  
+**Branch:** develop
+
+---
+
+**Last Updated:** 2025-12-15  
+**Next Session:** Continue deployment docs migration

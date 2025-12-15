@@ -2,23 +2,23 @@
   "name": "documentation",
   "type": "docs",
   "location": "docs",
-  "generated": "2025-12-15T14:11:05.228913",
+  "generated": "2025-12-15T15:02:34.467867",
   "description": "Komplexná dokumentácia NEX Automat projektu",
   "statistics": {
-    "total_files": 113,
+    "total_files": 119,
     "total_dirs": 39,
     "python_files": 0,
     "powershell_files": 0,
-    "markdown_files": 57,
+    "markdown_files": 66,
     "test_files": 0,
-    "total_lines": 7498,
-    "total_size": 1331793
+    "total_lines": 12871,
+    "total_size": 1343600
   },
   "files": [
     {
       "path": "docs/00_DOCUMENTATION_INDEX.md",
       "name": "00_DOCUMENTATION_INDEX.md",
-      "size": 7284,
+      "size": 7282,
       "extension": ".md",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/00_DOCUMENTATION_INDEX.md",
       "lines": 216,
@@ -32,20 +32,6 @@
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/DOCUMENTATION_INDEX.md",
       "lines": 133,
       "type": "documentation"
-    },
-    {
-      "path": "docs/PROJECT_ARCHIVE.md-old",
-      "name": "PROJECT_ARCHIVE.md-old",
-      "size": 129375,
-      "extension": ".md-old",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/PROJECT_ARCHIVE.md-old"
-    },
-    {
-      "path": "docs/PROJECT_STATUS.md-old",
-      "name": "PROJECT_STATUS.md-old",
-      "size": 15953,
-      "extension": ".md-old",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/PROJECT_STATUS.md-old"
     },
     {
       "path": "docs/applications/00_APPLICATIONS_INDEX.md",
@@ -403,10 +389,10 @@
     {
       "path": "docs/archive/00_ARCHIVE_INDEX.md",
       "name": "00_ARCHIVE_INDEX.md",
-      "size": 1861,
+      "size": 1721,
       "extension": ".md",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/00_ARCHIVE_INDEX.md",
-      "lines": 81,
+      "lines": 58,
       "type": "documentation"
     },
     {
@@ -416,6 +402,87 @@
       "extension": ".md",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/CURRENT_STATE_2025-11-26.md",
       "lines": 540,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/archive/PROJECT_STATUS_v2.1_2025-12-02.md",
+      "name": "PROJECT_STATUS_v2.1_2025-12-02.md",
+      "size": 17189,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/PROJECT_STATUS_v2.1_2025-12-02.md",
+      "lines": 657,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/archive/sessions/SESSION_2025-12-06_basegrid-persistence-implementation.md",
+      "name": "SESSION_2025-12-06_basegrid-persistence-implementation.md",
+      "size": 4952,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/sessions/SESSION_2025-12-06_basegrid-persistence-implementation.md",
+      "lines": 138,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/archive/sessions/SESSION_2025-12-08_documentation-restructure-v23-planning.md",
+      "name": "SESSION_2025-12-08_documentation-restructure-v23-planning.md",
+      "size": 23196,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/sessions/SESSION_2025-12-08_documentation-restructure-v23-planning.md",
+      "lines": 712,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/archive/sessions/SESSION_2025-12-08_v22-cleanup-mágerstav-deployment-attempt.md",
+      "name": "SESSION_2025-12-08_v22-cleanup-mágerstav-deployment-attempt.md",
+      "size": 12554,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/sessions/SESSION_2025-12-08_v22-cleanup-mágerstav-deployment-attempt.md",
+      "lines": 420,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/archive/sessions/SESSION_2025-12-08_v23-loader-migration.md",
+      "name": "SESSION_2025-12-08_v23-loader-migration.md",
+      "size": 10560,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/sessions/SESSION_2025-12-08_v23-loader-migration.md",
+      "lines": 391,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/archive/sessions/SESSION_2025-12-08_v24-product-enrichment.md",
+      "name": "SESSION_2025-12-08_v24-product-enrichment.md",
+      "size": 21131,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/sessions/SESSION_2025-12-08_v24-product-enrichment.md",
+      "lines": 730,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/archive/sessions/SESSION_2025-12-09_v24-implementation-complete.md",
+      "name": "SESSION_2025-12-09_v24-implementation-complete.md",
+      "size": 53640,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/sessions/SESSION_2025-12-09_v24-implementation-complete.md",
+      "lines": 1816,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/archive/sessions/SESSION_2025-12-09_v24-phase4-deployment.md",
+      "name": "SESSION_2025-12-09_v24-phase4-deployment.md",
+      "size": 8406,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/sessions/SESSION_2025-12-09_v24-phase4-deployment.md",
+      "lines": 279,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/archive/sessions/SESSION_2025-12-15_documentation-migration-batch2.md",
+      "name": "SESSION_2025-12-15_documentation-migration-batch2.md",
+      "size": 7070,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/sessions/SESSION_2025-12-15_documentation-migration-batch2.md",
+      "lines": 253,
       "type": "documentation"
     },
     {
@@ -458,13 +525,6 @@
       "size": 6297,
       "extension": ".md-old",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/deployment/GO_LIVE_CHECKLIST.md-old"
-    },
-    {
-      "path": "docs/deployment/KNOWN_ISSUES.md-old",
-      "name": "KNOWN_ISSUES.md-old",
-      "size": 1421,
-      "extension": ".md-old",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/deployment/KNOWN_ISSUES.md-old"
     },
     {
       "path": "docs/deployment/MAGERSTAV_DEPLOYMET_SUMMARY.md-old",
@@ -990,6 +1050,22 @@
         "size": 202,
         "lines": 15,
         "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/migration/PYSIDE6_MIGRATION.md"
+      },
+      {
+        "name": "SESSION_2025-12-08_v23-loader-migration.md",
+        "path": "archive/sessions/SESSION_2025-12-08_v23-loader-migration.md",
+        "full_path": "docs/archive/sessions/SESSION_2025-12-08_v23-loader-migration.md",
+        "size": 10560,
+        "lines": 391,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/sessions/SESSION_2025-12-08_v23-loader-migration.md"
+      },
+      {
+        "name": "SESSION_2025-12-15_documentation-migration-batch2.md",
+        "path": "archive/sessions/SESSION_2025-12-15_documentation-migration-batch2.md",
+        "full_path": "docs/archive/sessions/SESSION_2025-12-15_documentation-migration-batch2.md",
+        "size": 7070,
+        "lines": 253,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/sessions/SESSION_2025-12-15_documentation-migration-batch2.md"
       }
     ],
     "api": [
@@ -1036,6 +1112,22 @@
         "size": 197,
         "lines": 15,
         "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/development/DEPLOYMENT.md"
+      },
+      {
+        "name": "SESSION_2025-12-08_v22-cleanup-mágerstav-deployment-attempt.md",
+        "path": "archive/sessions/SESSION_2025-12-08_v22-cleanup-mágerstav-deployment-attempt.md",
+        "full_path": "docs/archive/sessions/SESSION_2025-12-08_v22-cleanup-mágerstav-deployment-attempt.md",
+        "size": 12554,
+        "lines": 420,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/sessions/SESSION_2025-12-08_v22-cleanup-mágerstav-deployment-attempt.md"
+      },
+      {
+        "name": "SESSION_2025-12-09_v24-phase4-deployment.md",
+        "path": "archive/sessions/SESSION_2025-12-09_v24-phase4-deployment.md",
+        "full_path": "docs/archive/sessions/SESSION_2025-12-09_v24-phase4-deployment.md",
+        "size": 8406,
+        "lines": 279,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/sessions/SESSION_2025-12-09_v24-phase4-deployment.md"
       }
     ],
     "other": [
@@ -1043,7 +1135,7 @@
         "name": "00_DOCUMENTATION_INDEX.md",
         "path": "00_DOCUMENTATION_INDEX.md",
         "full_path": "docs/00_DOCUMENTATION_INDEX.md",
-        "size": 7284,
+        "size": 7282,
         "lines": 216,
         "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/00_DOCUMENTATION_INDEX.md"
       },
@@ -1075,8 +1167,8 @@
         "name": "00_ARCHIVE_INDEX.md",
         "path": "archive/00_ARCHIVE_INDEX.md",
         "full_path": "docs/archive/00_ARCHIVE_INDEX.md",
-        "size": 1861,
-        "lines": 81,
+        "size": 1721,
+        "lines": 58,
         "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/00_ARCHIVE_INDEX.md"
       },
       {
@@ -1086,6 +1178,14 @@
         "size": 15649,
         "lines": 540,
         "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/CURRENT_STATE_2025-11-26.md"
+      },
+      {
+        "name": "PROJECT_STATUS_v2.1_2025-12-02.md",
+        "path": "archive/PROJECT_STATUS_v2.1_2025-12-02.md",
+        "full_path": "docs/archive/PROJECT_STATUS_v2.1_2025-12-02.md",
+        "size": 17189,
+        "lines": 657,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/PROJECT_STATUS_v2.1_2025-12-02.md"
       },
       {
         "name": "00_DEVELOPMENT_INDEX.md",
@@ -1326,6 +1426,38 @@
         "size": 195,
         "lines": 15,
         "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/packages/nexdata/DATA_MODELS.md"
+      },
+      {
+        "name": "SESSION_2025-12-06_basegrid-persistence-implementation.md",
+        "path": "archive/sessions/SESSION_2025-12-06_basegrid-persistence-implementation.md",
+        "full_path": "docs/archive/sessions/SESSION_2025-12-06_basegrid-persistence-implementation.md",
+        "size": 4952,
+        "lines": 138,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/sessions/SESSION_2025-12-06_basegrid-persistence-implementation.md"
+      },
+      {
+        "name": "SESSION_2025-12-08_documentation-restructure-v23-planning.md",
+        "path": "archive/sessions/SESSION_2025-12-08_documentation-restructure-v23-planning.md",
+        "full_path": "docs/archive/sessions/SESSION_2025-12-08_documentation-restructure-v23-planning.md",
+        "size": 23196,
+        "lines": 712,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/sessions/SESSION_2025-12-08_documentation-restructure-v23-planning.md"
+      },
+      {
+        "name": "SESSION_2025-12-08_v24-product-enrichment.md",
+        "path": "archive/sessions/SESSION_2025-12-08_v24-product-enrichment.md",
+        "full_path": "docs/archive/sessions/SESSION_2025-12-08_v24-product-enrichment.md",
+        "size": 21131,
+        "lines": 730,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/sessions/SESSION_2025-12-08_v24-product-enrichment.md"
+      },
+      {
+        "name": "SESSION_2025-12-09_v24-implementation-complete.md",
+        "path": "archive/sessions/SESSION_2025-12-09_v24-implementation-complete.md",
+        "full_path": "docs/archive/sessions/SESSION_2025-12-09_v24-implementation-complete.md",
+        "size": 53640,
+        "lines": 1816,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/sessions/SESSION_2025-12-09_v24-implementation-complete.md"
       },
       {
         "name": "00_LOADER_INDEX.md",

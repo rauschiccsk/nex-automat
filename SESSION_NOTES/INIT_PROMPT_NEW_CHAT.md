@@ -1,11 +1,11 @@
-# INIT PROMPT - NEX Automat: .md-old Migration (Batch 2)
+# INIT PROMPT - NEX Automat: .md-old Migration (Batch 3)
 
 **Projekt:** nex-automat  
 **Úloha:** Pokračovanie systematickej migrácie .md-old súborov  
 **Developer:** Zoltán (40 rokov skúseností)  
 **Jazyk:** Slovenčina  
 **Previous Session:** https://claude.ai/chat/[CURRENT_CHAT_URI]  
-**Status:** ✅ Batch 1 complete (8/60 súborov), pokračujeme
+**Status:** ✅ Batch 2 complete (11/60 súborov), pokračujeme
 
 ---
 
@@ -22,99 +22,96 @@ Kľúčové pravidlá pre túto session:
 
 ---
 
-## 📋 ČO SME DOKONČILI V PREVIOUS SESSION (Batch 1)
+## 📋 ČO SME DOKONČILI V PREVIOUS SESSION (Batch 2)
 
-### ✅ Migrované Dokumenty (6)
+### ✅ Migrované Dokumenty (3)
 
-**Strategic (1):**
-- ✅ QUICK_WINS_TECHNOLOGIES.md (19 KB) - Quick wins tech (Redis, Sentry, Docker...)
+**1. PROJECT_ARCHIVE.md-old (126 KB) → 7 session files:**
+- SESSION_2025-12-06_basegrid-persistence-implementation.md (4.7 KB)
+- SESSION_2025-12-08_v22-cleanup-mágerstav-deployment-attempt.md (11.8 KB)
+- SESSION_2025-12-08_documentation-restructure-v23-planning.md (21.9 KB)
+- SESSION_2025-12-08_v23-loader-migration.md (10.1 KB)
+- SESSION_2025-12-08_v24-product-enrichment.md (19.0 KB)
+- SESSION_2025-12-09_v24-phase4-deployment.md (8.1 KB)
+- SESSION_2025-12-09_v24-implementation-complete.md (50.0 KB)
 
-**Development (2):**
-- ✅ GIT_WORKFLOW.md (5 KB) - Git branching, PyCharm operations
-- ✅ CONTRIBUTING.md (12 KB) - Contributing guidelines, PR process
+**2. PROJECT_STATUS.md-old (16 KB):**
+- ✅ Archived to: `docs/archive/PROJECT_STATUS_v2.1_2025-12-02.md`
+- Decision: Will create NEW after all .md-old processed
 
-**Reference (1):**
-- ✅ WORKFLOW_REFERENCE.md (5 KB) - Session workflow, file access
+**3. KNOWN_ISSUES.md-old (1.4 KB):**
+- ❌ Deleted (obsolete, all issues fixed)
 
-**System (1):**
-- ✅ MONOREPO_GUIDE.md (11 KB) - Monorepo setup & workflow
+### 📜 Scripts Vytvorené (6)
 
-**Archive (1):**
-- 📦 CURRENT_STATE_2025-11-26.md (14 KB) - Historical GO-LIVE snapshot
+- `05_split_project_archive.py` - Split archive by sessions
+- `06_rename_generic_sessions.py` - Improve filenames
+- `07_fix_session_names.py` - Manual filename fixes
+- `08_archive_project_status.py` - Archive with notice
+- `09_delete_known_issues.py` - Delete obsolete
+- `10_update_documentation_indexes.py` - Update all indexes
 
-### ❌ Deleted Dokumenty (1)
+### 📊 Indexes Updated
 
-- ❌ REQUIREMENTS.md-old (9.4 KB) - obsolete (Btrieve done, n8n→Temporal)
-
-### 📜 Script Vytvorený
-
-- ✅ `04-update-indexes-after-migration.py` - Update indexes with new docs
+- ✅ `docs/archive/00_ARCHIVE_INDEX.md` - 7 sessions indexed
+- ✅ `docs/00_DOCUMENTATION_INDEX.md` - 65 documents
+- ✅ `SESSION_NOTES/docs.json` - Progress: 18.3%
 
 ### 📊 Progress
 
-**Dokončené:** 8/60 súborov (13.3%)  
-**Zostáva:** 52 súborov
+**Dokončené:** 11/60 súborov (18.3%)  
+**Zostáva:** 49 súborov
 
 ---
 
 ## 🔄 ČO TREBA UROBIŤ TERAZ
 
-### Priority 1: Index Update a Cleanup (PRVÉ!)
+### Priority 1: Git Commit (PRVÉ!)
 
 ```powershell
-# 1. Run update script
-python scripts\04-update-indexes-after-migration.py
-
-# 2. Delete migrated .md-old files
-Remove-Item "C:\Development\nex-automat\docs\strategy\QUICK_WINS_TECHNOLOGY_GUIDE.md-old"
-Remove-Item "C:\Development\nex-automat\docs\GIT_GUIDE.md-old"
-Remove-Item "C:\Development\nex-automat\docs\giudes\CONTRIBUTING.md-old"
-Remove-Item "C:\Development\nex-automat\docs\WORKFLOW_QUICK_REFERENCE.md-old"
-Remove-Item "C:\Development\nex-automat\docs\giudes\MONOREPO_GUIDE.md-old"
-Remove-Item "C:\Development\nex-automat\docs\strategy\CURRENT_STATE.md-old"
-Remove-Item "C:\Development\nex-automat\docs\strategy\REQUIREMENTS.md-old"
-
-# 3. Commit
-git add docs/ scripts/ SESSION_NOTES/
-git commit -m "docs: Migrate .md-old documents (batch 1) and update indexes"
+# Commit batch 2 changes
+git add docs/ SESSION_NOTES/ scripts/
+git commit -m "docs: Migrate .md-old batch 2 - PROJECT_ARCHIVE split, indexes updated"
 git push origin develop
 ```
 
-### Priority 2: Pokračovať Migráciu (Batch 2)
+### Priority 2: Pokračovať Migráciu (Batch 3)
 
-**Zostáva:** 52 .md-old súborov
+**Zostáva:** 49 .md-old súborov
+
+**Odporúčané priority:**
+
+**Option A: Deployment Docs (Quick Wins) ⭐ ODPORÚČAM**
+Začať s malými súbormi:
+1. MAGERSTAV_DEPLOYMET_SUMMARY.md-old (4.5 KB)
+2. GO_LIVE_CHECKLIST.md-old (6.3 KB)
+3. PRE_DEPLOYMENT_CHECKLIST.md-old (6.4 KB)
+4. SERVICE_MANAGEMENT.md-old (7.7 KB)
+
+**Strategy:** Merge do `docs/deployment/DEPLOYMENT.md`
+
+**Option B: Continue Large Strategic**
+1. PROJECT_BLUEPRINT_SUPPLIER_CLASSIFIER.md-old (51 KB)
+2. RESEARCH_ANALYSIS_TECHNOLOGY_LANDSCAPE.md-old (84 KB)
+
+**Strategy:** ARCHIVE ako research documents
 
 ---
 
-## 📂 DOSTUPNÉ .md-old SÚBORY (zostáva 52)
+## 📂 DOSTUPNÉ .md-old SÚBORY (zostáva 49)
 
-### Strategic (4 zostáva)
-- ✅ AI_ML_TOOLS... (DONE in previous session)
-- ✅ QUICK_WINS... (DONE this session)
-- ❌ REQUIREMENTS.md-old (DELETED)
+### Strategic (2 zostáva)
 - PROJECT_BLUEPRINT_SUPPLIER_CLASSIFIER.md-old (51 KB) ⚠️ LARGE
 - RESEARCH_ANALYSIS_TECHNOLOGY_LANDSCAPE.md-old (84 KB) ⚠️ VERY LARGE
-- PROJECT_STATUS.md-old (16 KB)
-- CURRENT_STATE.md-old (ARCHIVED)
 
-### Root Documents (3 zostáva)
-- ✅ GIT_GUIDE.md-old (DONE)
-- ✅ WORKFLOW_QUICK_REFERENCE.md-old (DONE)
-- PROJECT_ARCHIVE.md-old (112 KB) ⚠️ VERY LARGE
-
-### Guides (0 zostáva)
-- ✅ CONTRIBUTING.md-old (DONE)
-- ✅ MONOREPO_GUIDE.md-old (DONE)
-
-### Deployment (12 súborov)
+### Deployment (11 súborov)
 - DEPLOYMENT_GUIDE.md-old (13.8 KB)
 - GO_LIVE_CHECKLIST.md-old (6.3 KB)
 - OPERATIONS_GUIDE.md-old (8.1 KB)
 - RECOVERY_GUIDE.md-old (13.6 KB)
 - SERVICE_MANAGEMENT.md-old (7.7 KB)
 - TROUBLESHOOTING.md-old (9.6 KB)
-- KNOWN_ISSUES.md-old (1.4 KB)
-- MAGERSTAV_DEPLOYMENT_SUMMARY.md-old (4.5 KB)
+- MAGERSTAV_DEPLOYMET_SUMMARY.md-old (4.5 KB) ⭐ START HERE
 - MAGERSTAV_ONBOARDING_GUIDE.md-old (11.4 KB)
 - PRE_DEPLOYMENT_CHECKLIST.md-old (6.4 KB)
 - RECOVERY_PROCEDURES.md-old (9.8 KB)
@@ -127,54 +124,7 @@ git push origin develop
 - DATA_DICTIONARY.md-old (22.7 KB)
 - INDEX.md-old (6.0 KB)
 
-**Katalógy - Produkty (5):**
-- GSCAT, BARCODE, FGLST, MGLST, SGLST (16-24 KB každý)
-
-**Katalógy - Partneri (9):**
-- PAB, PABACC, PACNCT, PAGLST, PANOTI, PASUBC, BANKLST, PAYLST, TRPLST
-
-**Stock (7):**
-- STK, STM, FIF, STKLST, WRILST, TSH, TSI
-
-**Accounting (3):**
-- ISH, ISI, PAYJRN
-
----
-
-## 🎯 ODPORÚČANÉ PRIORITY PRE BATCH 2
-
-### Možnosť A: Strategic Documents (3 súbory)
-
-**1. PROJECT_STATUS.md-old (16 KB)**
-- Analyze: ARCHIVE vs UPDATE decision
-- Likely outdated → ARCHIVE ako historical snapshot
-
-**2. PROJECT_BLUEPRINT_SUPPLIER_CLASSIFIER.md-old (51 KB)**
-- LARGE document, analyze first
-- Consider: ARCHIVE (historical blueprint) vs UPDATE
-
-**3. RESEARCH_ANALYSIS_TECHNOLOGY_LANDSCAPE.md-old (84 KB)**
-- VERY LARGE, may require splitting
-- Likely: ARCHIVE as research document
-
-### Možnosť B: Deployment Documents (začať s menšími)
-
-**Quick wins (small documents):**
-1. KNOWN_ISSUES.md-old (1.4 KB)
-2. MAGERSTAV_DEPLOYMENT_SUMMARY.md-old (4.5 KB)
-3. GO_LIVE_CHECKLIST.md-old (6.3 KB)
-4. PRE_DEPLOYMENT_CHECKLIST.md-old (6.4 KB)
-
-**Strategy:** Merge do `docs/development/DEPLOYMENT.md`
-
-### Možnosť C: Database Documents (začať s INDEX)
-
-**Start small:**
-1. INDEX.md-old (6.0 KB) - Overview database documentation
-2. DATA_DICTIONARY.md-old (22.7 KB) - Data dictionary
-3. DATABASE_RELATIONSHIPS.md-old (24.1 KB) - Relationships
-
-**Then:** COMMON_DOCUMENT_PRINCIPLES.md-old (42.8 KB)
+**Katalógy, Stock, Accounting...** (28 súborov)
 
 ---
 
@@ -200,17 +150,12 @@ web_fetch: https://raw.githubusercontent.com/.../[filename].md-old
 - **DELETE:** Vymaž (ak obsolete/duplicate)
 
 **4. Spracovanie**
-- Pridaj štandardný header
-- Vytvor TOC (ak potrebné)
-- Pridaj See Also links
-
-**5. Artifact**
-- Vytvor artifact s novým .md obsahom
+- Vytvor numbered script
+- Test locally
 - Čakaj na potvrdenie od Zoltána
 
-**6. Po Potvrdení**
-- Zoltán uloží nový .md
-- Zoltán vymaže .md-old (Remove-Item command)
+**5. Po Potvrdení**
+- Zoltán spustí script
 - Next súbor
 
 ---
@@ -281,21 +226,22 @@ https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/[path]
 **Prvý krok po načítaní tohto promptu:**
 
 1. Skontroluj memory_user_edits (21 pravidiel)
-2. Opýtaj sa: "Spustil si už cleanup a commit z Batch 1?"
+2. Opýtaj sa: "Spustil si už git commit z Batch 2?"
 3. Ak ÁNO → "Ktorý .md-old súbor chceš spracovať ďalej?"
-4. Ak NIE → "Mám ti pomôcť s cleanup commands?"
+4. Ak NIE → "Mám ti pomôcť s git commit?"
 
 **Odporúčaný workflow:**
-1. Cleanup batch 1 FIRST (ak ešte nie)
-2. Začni s PROJECT_STATUS.md-old (analyze ARCHIVE vs UPDATE)
-3. Potom deployment documents (small ones first)
+1. Git commit batch 2 FIRST (ak ešte nie)
+2. Začni MAGERSTAV_DEPLOYMET_SUMMARY.md-old (4.5 KB)
+3. Potom GO_LIVE_CHECKLIST.md-old (6.3 KB)
+4. Pokračuj ďalšími malými deployment docs
 
 ---
 
 ## 📈 SUCCESS METRICS
 
 **Pre túto session očakávame:**
-- ✅ Cleanup batch 1 dokončený
+- ✅ Git commit batch 2 dokončený
 - ✅ 5-10 .md-old súborov zmigrovaných
 - ✅ Indexy aktualizované
 - ✅ Žiadne .md-old deleted bez verifikácie

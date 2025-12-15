@@ -1,81 +1,58 @@
-# Archive Documentation Index
+# Archive Index
 
-**Kategória:** Archive  
-**Status:** 🟢 Complete  
-**Vytvorené:** 2025-12-15  
-**Aktualizované:** 2025-12-15
+**Category:** Archive  
+**Last Updated:** 2025-12-15
 
 ---
 
-## Účel
+## Overview
 
-História vývoja projektu, dokumentácia sessions a archivované dokumenty.
-
----
-
-## Štruktúra
-
-### [sessions/](sessions/)
-**Session History**
-
-Obsahuje archivované session dokumenty z development procesu.
-
-**Status:** Adresár vytvorený, pripravený na session archívy
+This directory contains archived documentation and historical snapshots of the NEX Automat project.
 
 ---
 
-## Archivované Dokumenty
+## Session History
 
-### Historical Snapshots
+Complete chronological archive of development sessions. Each session documents work completed, decisions made, and lessons learned.
 
-**[CURRENT_STATE_2025-11-26.md](CURRENT_STATE_2025-11-26.md)**
-- Snapshot projektu k GO-LIVE dátumu (2025-11-27)
-- Kompletný inventory v2.0 (architektúra, komponenty, workflow)
-- Status: 📦 Archived
-- Veľkosť: ~14 KB
-- Note: Historical reference, obsahuje outdated info (n8n→Temporal)
+**Total Sessions:** 7
 
----
+### By Date
 
-## Archívna Stratégia
+**2025-12-09:**
 
-### Čo Archivovať
+- [V24 Implementation Complete](sessions/SESSION_2025-12-09_v24-implementation-complete.md)
+- [V24 Phase4 Deployment](sessions/SESSION_2025-12-09_v24-phase4-deployment.md)
 
-**Session dokumenty:**
-- Detailné záznamy významných sessions
-- Major milestones, rozhodnutia
-- Problem-solving sessions
+**2025-12-08:**
 
-**Historické dokumenty:**
-- Staré verzie dokumentácie
-- Deprecated features
-- Lessons learned
+- [Documentation Restructure V23 Planning](sessions/SESSION_2025-12-08_documentation-restructure-v23-planning.md)
+- [V22 Cleanup Mágerstav Deployment Attempt](sessions/SESSION_2025-12-08_v22-cleanup-mágerstav-deployment-attempt.md)
+- [V23 Loader Migration](sessions/SESSION_2025-12-08_v23-loader-migration.md)
+- [V24 Product Enrichment](sessions/SESSION_2025-12-08_v24-product-enrichment.md)
 
-### Čo NEARCHIVOVAŤ
+**2025-12-06:**
 
-❌ Draft dokumenty (patria do príslušných kategórií)  
-❌ Aktuálna dokumentácia (zostáva v primary locations)  
-❌ .md-old súbory (migrujú sa do nových dokumentov)
+- [Basegrid Persistence Implementation](sessions/SESSION_2025-12-06_basegrid-persistence-implementation.md)
 
 ---
 
-## Quick Links
+## Archived Documents
 
-**Archive:**
-- [Sessions Directory](sessions/) - Session history
-- [Current State Snapshot](CURRENT_STATE_2025-11-26.md) - GO-LIVE snapshot
+Historical snapshots of project documentation.
 
----
+### Project Status
 
-## Štatistika
-
-- **Adresáre:** 1 (sessions/)
-- **Dokumenty:** 1 (historical snapshot)
-- **Status:** Ready for use
+- [PROJECT_STATUS_v2.1_2025-12-02.md](PROJECT_STATUS_v2.1_2025-12-02.md) - Project status as of v2.1 (OUTDATED, archived)
 
 ---
 
-**See Also:**
-- [Documentation Index](../00_DOCUMENTATION_INDEX.md) - Hlavný index
-- [SESSION_NOTES](../../SESSION_NOTES/) - Current session tracking
-- [Project Roadmap](../strategic/PROJECT_ROADMAP.md) - Current roadmap
+## See Also
+
+- [Documentation Index](../00_DOCUMENTATION_INDEX.md) - Current documentation
+- [Session Notes](../../SESSION_NOTES/SESSION_NOTES.md) - Active work
+- [Project Archive](PROJECT_ARCHIVE.md-old.backup) - Original archive backup (if exists)
+
+---
+
+**Note:** This index is automatically generated. Do not edit manually.

@@ -1,0 +1,22 @@
+{
+  "name": "documentation",
+  "type": "docs",
+  "location": "docs",
+  "generated": "2025-12-15T14:40:04.338412",
+  "description": "Komplexná dokumentácia NEX Automat projektu",
+  "statistics": {
+    "total_files": 157,
+    "markdown_files": 65,
+    "md_old_remaining": 49,
+    "total_lines": 12618
+  },
+  "migration_status": {
+    "completed": [
+      "PROJECT_ARCHIVE.md-old → 7 session files",
+      "PROJECT_STATUS.md-old → archived",
+      "KNOWN_ISSUES.md-old → deleted"
+    ],
+    "remaining": 49,
+    "progress": "18.3%"
+  }
+}

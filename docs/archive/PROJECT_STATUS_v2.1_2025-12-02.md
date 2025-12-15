@@ -1,4 +1,23 @@
 # NEX Automat v2.0 - Project Status Overview
+---
+**⚠️ ARCHIVED DOCUMENT**
+
+This document represents the project status as of **v2.1 (2025-12-02)**.
+
+**This document is OUTDATED:**
+- Does not include v2.2 (BaseGrid cleanup)
+- Does not include v2.3 (invoice-shared migration)
+- Does not include v2.4 (NEX Genesis enrichment - marked "PLANNED" but actually COMPLETE)
+
+**For current status, see:**
+- `docs/strategic/PROJECT_STATUS.md` (will be created after .md-old migration)
+- `docs/PROJECT_ARCHIVE.md` or `docs/archive/sessions/` (detailed history)
+
+**Archived:** 2025-12-15  
+**Reason:** Historical snapshot (v2.1)
+
+---
+
 
 **Aktuálna verzia:** v2.1  
 **Status:** ✅ Production (1 zákazník)  
