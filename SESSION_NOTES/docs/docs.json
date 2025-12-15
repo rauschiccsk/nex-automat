@@ -2,17 +2,17 @@
   "name": "documentation",
   "type": "docs",
   "location": "docs",
-  "generated": "2025-12-15T21:34:03.712003",
+  "generated": "2025-12-15T21:51:19.070438",
   "description": "Komplexná dokumentácia NEX Automat projektu",
   "statistics": {
-    "total_files": 133,
+    "total_files": 134,
     "total_dirs": 40,
     "python_files": 0,
     "powershell_files": 0,
-    "markdown_files": 120,
+    "markdown_files": 123,
     "test_files": 0,
-    "total_lines": 33273,
-    "total_size": 1304018
+    "total_lines": 34595,
+    "total_size": 1273463
   },
   "files": [
     {
@@ -305,11 +305,13 @@
       "type": "documentation"
     },
     {
-      "path": "docs/architecture/database/stock/cards/tables/STK-stock_cards.md-old",
-      "name": "STK-stock_cards.md-old",
-      "size": 38507,
-      "extension": ".md-old",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/stock/cards/tables/STK-stock_cards.md-old"
+      "path": "docs/architecture/database/stock/cards/tables/STK-stock_cards.md",
+      "name": "STK-stock_cards.md",
+      "size": 19062,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/stock/cards/tables/STK-stock_cards.md",
+      "lines": 518,
+      "type": "documentation"
     },
     {
       "path": "docs/architecture/database/stock/cards/tables/STKLST-stocks.md",
@@ -321,11 +323,13 @@
       "type": "documentation"
     },
     {
-      "path": "docs/architecture/database/stock/cards/tables/STM-stock_card_movements.md-old",
-      "name": "STM-stock_card_movements.md-old",
-      "size": 35590,
-      "extension": ".md-old",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/stock/cards/tables/STM-stock_card_movements.md-old"
+      "path": "docs/architecture/database/stock/cards/tables/STM-stock_card_movements.md",
+      "name": "STM-stock_card_movements.md",
+      "size": 15193,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/stock/cards/tables/STM-stock_card_movements.md",
+      "lines": 475,
+      "type": "documentation"
     },
     {
       "path": "docs/architecture/database/stock/cards/tables/WRILST-facilities.md",
@@ -357,10 +361,10 @@
     {
       "path": "docs/archive/00_ARCHIVE_INDEX.md",
       "name": "00_ARCHIVE_INDEX.md",
-      "size": 4412,
+      "size": 5072,
       "extension": ".md",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/00_ARCHIVE_INDEX.md",
-      "lines": 138,
+      "lines": 153,
       "type": "documentation"
     },
     {
@@ -559,6 +563,15 @@
       "extension": ".md",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/sessions/SESSION_2025-12-15_database-table-docs-batch6-start.md",
       "lines": 311,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/archive/sessions/SESSION_2025-12-15_database-table-docs-batch6-stock-complete.md",
+      "name": "SESSION_2025-12-15_database-table-docs-batch6-stock-complete.md",
+      "size": 8627,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/sessions/SESSION_2025-12-15_database-table-docs-batch6-stock-complete.md",
+      "lines": 314,
       "type": "documentation"
     },
     {
@@ -1408,6 +1421,14 @@
         "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/sessions/SESSION_2025-12-15_database-table-docs-batch6-start.md"
       },
       {
+        "name": "SESSION_2025-12-15_database-table-docs-batch6-stock-complete.md",
+        "path": "archive/sessions/SESSION_2025-12-15_database-table-docs-batch6-stock-complete.md",
+        "full_path": "docs/archive/sessions/SESSION_2025-12-15_database-table-docs-batch6-stock-complete.md",
+        "size": 8627,
+        "lines": 314,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/sessions/SESSION_2025-12-15_database-table-docs-batch6-stock-complete.md"
+      },
+      {
         "name": "SESSION_2025-12-15_database-table-docs-batch6-stock-management.md",
         "path": "archive/sessions/SESSION_2025-12-15_database-table-docs-batch6-stock-management.md",
         "full_path": "docs/archive/sessions/SESSION_2025-12-15_database-table-docs-batch6-stock-management.md",
@@ -1440,12 +1461,28 @@
         "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/stock/cards/tables/FIF-stock_card_fifos.md"
       },
       {
+        "name": "STK-stock_cards.md",
+        "path": "architecture/database/stock/cards/tables/STK-stock_cards.md",
+        "full_path": "docs/architecture/database/stock/cards/tables/STK-stock_cards.md",
+        "size": 19062,
+        "lines": 518,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/stock/cards/tables/STK-stock_cards.md"
+      },
+      {
         "name": "STKLST-stocks.md",
         "path": "architecture/database/stock/cards/tables/STKLST-stocks.md",
         "full_path": "docs/architecture/database/stock/cards/tables/STKLST-stocks.md",
         "size": 8764,
         "lines": 271,
         "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/stock/cards/tables/STKLST-stocks.md"
+      },
+      {
+        "name": "STM-stock_card_movements.md",
+        "path": "architecture/database/stock/cards/tables/STM-stock_card_movements.md",
+        "full_path": "docs/architecture/database/stock/cards/tables/STM-stock_card_movements.md",
+        "size": 15193,
+        "lines": 475,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/stock/cards/tables/STM-stock_card_movements.md"
       },
       {
         "name": "WRILST-facilities.md",
@@ -1805,8 +1842,8 @@
         "name": "00_ARCHIVE_INDEX.md",
         "path": "archive/00_ARCHIVE_INDEX.md",
         "full_path": "docs/archive/00_ARCHIVE_INDEX.md",
-        "size": 4412,
-        "lines": 138,
+        "size": 5072,
+        "lines": 153,
         "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/00_ARCHIVE_INDEX.md"
       },
       {
