@@ -3,8 +3,8 @@
 **Project:** NEX Automat & Related Projects  
 **Owner:** Zoltán  
 **Assistant:** Claude (Anthropic)  
-**Last Updated:** 2025-12-08  
-**Version:** 1.2
+**Last Updated:** 2025-12-13  
+**Version:** 1.3
 
 ---
 
@@ -51,6 +51,10 @@
 **17. Documentation Format**
 - In docs use standard Markdown tables only, never ASCII box-drawing chars (┌─│└). Keep ASCII tree structures for file/folder listings.
 - Štandardné Markdown tabuľky, NIE ASCII box-drawing. ASCII tree OK pre súbory/adresáre
+
+**21. Initialization Protocol**
+- User requires following initialization prompt rules for NEX Automat project - avoid verbose analysis output, confirm only successful loading
+- Pri inicializácii projektu: Žiadny verbose output, len potvrdenie úspešného načítania
 
 ---
 
@@ -110,7 +114,7 @@
 
 ---
 
-## Complete List / Plynulý Zoznam (1-20)
+## Complete List / Plynulý Zoznam (1-21)
 
 1. **Provide single recommended solution only, no alternatives unless requested**
    - Poskytni jediné odporúčané riešenie, žiadne alternatívy pokiaľ nie sú výslovne požadované
@@ -172,6 +176,9 @@
 20. **When user says "novy chat": Generate 4 artifacts IMMEDIATELY: PROJECT_ARCHIVE_SESSION.md (detailed section for append), SESSION_NOTES.md (fresh template), INIT_PROMPT_NEW_CHAT.md (forward-looking), commit-message.txt. Artifacts FIRST.**
     - Pri "novy chat": Vygeneruj 4 artifacts OKAMŽITE (najprv!), potom len krátke potvrdenie.
 
+21. **User requires following initialization prompt rules for NEX Automat project - avoid verbose analysis output, confirm only successful loading**
+    - Pri inicializácii projektu: Žiadny verbose output, len potvrdenie úspešného načítania
+
 ---
 
 ## Usage Notes / Poznámky k Použitiu
@@ -208,6 +215,40 @@
 ☐ Am I generating a config? → Artifact!
 ☐ Did user say "novy chat"? → 4 artifacts FIRST!
 ☐ Is response >10 lines of non-conversational text? → Artifact!
+```
+
+### Initialization Protocol (Rule 21 - NEW v1.3)
+
+**When loading init prompt:**
+
+**MANDATORY behavior:**
+```
+✅ Load INIT_PROMPT_NEW_CHAT.md silently
+✅ Load PROJECT_MANIFEST.json silently
+✅ Respond ONLY: "✅ Všetko načítané správne"
+❌ NO analysis of loaded content
+❌ NO verbose output about status
+❌ NO listing of problems/tasks
+```
+
+**Example correct response:**
+```
+✅ Všetko načítané správne
+```
+
+**Example WRONG responses:**
+```
+❌ "Načítané:
+    - INIT_PROMPT_NEW_CHAT.md (v2.4)
+    - PROJECT_MANIFEST.json
+    
+    Kritický problém identifikovaný:
+    - Column Mapping..."
+    
+❌ "✅ Inicializačný prompt načítaný úspešne
+    
+    **Načítané:**
+    - ✅ INIT_PROMPT..."
 ```
 
 ### Session Closure Workflow (Rule 20 - UPDATED v1.2)
@@ -274,7 +315,7 @@ What to do in next session
 ```
 PROJECT_ARCHIVE.md = Complete project history (append-only)
 SESSION_NOTES.md = Current work notes (resets each session)
-INIT_PROMPT_NEW_CHAT.md = Quick start for new chat (prepíšateľný)
+INIT_PROMPT_NEW_CHAT.md = Quick start for new chat (prepísateľný)
 ```
 
 ### Script Numbering Example (Rule 19)
@@ -292,7 +333,8 @@ Session 2: (starts from 01 again)
 
 ### Token Usage Format (Rule 3)
 ```
-Tokeny: 12345/190000, Zostáva: 177655, 6.5%, ✅ OK
+Used/Total, Remaining, %, Status
+19618/190000, Remaining: 170382, 10.3% ✅
 ```
 
 ### Git Workflow (Rule 16)
@@ -318,15 +360,27 @@ Never: Deployment → direct fix (creates inconsistency)
 - ✅ Added PROJECT_ARCHIVE_SESSION.md to workflow
 - ✅ Restructured documentation (PROJECT_ARCHIVE, SESSION_NOTES, INIT_PROMPT)
 
+**Solution Enhanced (2025-12-13):**
+- ✅ Added Rule #21: Initialization protocol
+- ✅ Strict "confirm only" behavior when loading init prompts
+- ✅ Prevents verbose analysis output during initialization
+
 ### Enforcement Mechanism
 1. **Memory rules** - Explicit CRITICAL markers
 2. **Self-verification** - Checklist before every response
 3. **Fixed workflow** - "novy chat" always produces 4 artifacts first
 4. **Documentation structure** - Clear separation of concerns
+5. **Initialization protocol** - Silent loading with confirmation only
 
 ---
 
 ## Version History / História Verzií
+
+- **v1.3** (2025-12-13): Added initialization protocol
+  - **NEW Rule #21**: Initialization protocol enforcement
+  - Added "Initialization Protocol" usage notes section
+  - Strict "confirm only" behavior for init prompt loading
+  - Prevents verbose analysis during initialization
 
 - **v1.2** (2025-12-08): Enhanced session closure workflow
   - **UPDATED Rule #20**: Changed from 3 to 4 artifacts
@@ -349,8 +403,8 @@ Never: Deployment → direct fix (creates inconsistency)
 
 ---
 
-**Total Rules:** 20  
+**Total Rules:** 21  
 **Status:** Active & Enforced  
 **Maintained By:** Zoltán & Claude  
-**Critical Focus:** Artifacts enforcement (Rules #7 and #20)  
-**Current Version:** 1.2 (2025-12-08)
+**Critical Focus:** Artifacts enforcement (Rules #7 and #20) + Initialization protocol (Rule #21)  
+**Current Version:** 1.3 (2025-12-13)
