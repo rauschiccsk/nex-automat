@@ -1,11 +1,11 @@
 # INIT PROMPT - NEX Automat: Database Table Docs Migration (Batch 6 Continue)
 
 **Projekt:** nex-automat  
-**Úloha:** Database table docs migration (batch 6 continuation)  
+**Úloha:** Database table docs migration (batch 6 continuation - Products section)  
 **Developer:** Zoltán (40 rokov skúseností)  
 **Jazyk:** Slovenčina  
 **Previous Session:** https://claude.ai/chat/[CURRENT_CHAT_URI]  
-**Status:** 4/28 dokumentov dokončených, **24 zostáva**
+**Status:** 8/28 dokumentov dokončených, **20 zostáva**
 
 ---
 
@@ -16,98 +16,80 @@
 Kľúčové pravidlá pre túto session:
 - **Rule #7:** CRITICAL artifacts pre všetky dokumenty/kód
 - **Rule #8:** Step-by-step, confirmation pred pokračovaním
-- **Rule #20:** "novy chat" = 4 artifacts (ARCHIVE, NOTES, INIT, commit)
+- **Rule #20:** "novy chat" = **3 artifacts** (ARCHIVE, INIT, commit) - **SESSION_NOTES.md ZRUŠENÝ!**
 - **Rule #5:** Slovak language, presná terminológia projektov
 - **Rule #22:** Na začiatku každého chatu skontrolovať všetky pravidlá
 
 ---
 
-## 📋 ČO SME DOKONČILI V PREVIOUS SESSION
+## ✅ ČO SME DOKONČILI V PREVIOUS SESSION
 
-### ✅ Migrované Dokumenty (4/28)
+### Partners Section - COMPLETE! (8 dokumentov)
 
-**Catalogs - Partners (4 dokumenty):**
+1. **PAGLST-partner_categories.md** (14.9 KB → 7.0 KB, 53%)
+2. **PAYLST-payment_methods.md** (8.3 KB → 4.2 KB, 49%)
+3. **TRPLST-transport_methods.md** (8.6 KB → 4.3 KB, 50%)
+4. **PANOTI-partner_catalog_texts.md** (15.4 KB → 6.5 KB, 58%)
+5. **PASUBC-partner_catalog_facilities.md** (18.0 KB → 7.5 KB, 58%)
 
-1. **BANKLST-bank_catalog.md** (10.7 KB → 6 KB)
-   - Location: DIALS
-   - Script: 32_update_BANKLST_doc.py
-   - Redukcia: 44%
+**Plus predchádzajúce:**
+- BANKLST-bank_catalog.md (script #32)
+- PAB-partner_catalog.md (script #33)
+- PABACC-partner_catalog_bank_accounts.md (script #34)
+- PACNCT-partner_catalog_contacts.md (script #35)
 
-2. **PAB-partner_catalog.md** (39.9 KB → 18 KB) ⚠️ VEĽKÝ
-   - Location: DIALS
-   - 8 tabuliek partner systému
-   - Script: 33_update_PAB_doc.py
-   - Redukcia: 55%
+### Products Section - Started
 
-3. **PABACC-partner_catalog_bank_accounts.md** (12.6 KB → 7 KB)
-   - Location: DIALS
-   - Script: 34_update_PABACC_doc.py
-   - **KRITICKÉ:** bank_code je textová hodnota, NIE FK!
-   - Redukcia: 45%
+**BARCODE-product_catalog_identifiers.md-old:**
+- Size: 24.2 KB
+- Location: STORES (BARCODE.BTR + GSCAT.BTR)
+- Status: Načítaný, ready for cleanup
 
-4. **PACNCT-partner_catalog_contacts.md** (22.8 KB → 10 KB)
-   - Location: DIALS
-   - Script: 35_update_PACNCT_doc.py
-   - **KRITICKÉ:** FirstName/LastName SWAP pri migrácii!
-   - Redukcia: 56%
+---
 
-### 📊 Progress
+## 📊 PROGRESS
 
-**Dokončené:** 35/60 súborov (58.3%)  
-**Batch 6:** 4/28 dokumentov (14.3%)  
-**Zostáva:** 24 database table dokumentov
+**Dokončené:** 8/28 dokumentov (28.6%)  
+**Zostáva:** 20 database table dokumentov
 
 **By Category:**
-- ✅ Deployment: 11/11 (100%) - **COMPLETE**
-- ✅ Database General: 4/4 (100%) - **COMPLETE**
-- ✅ Database Indexes: 7/7 (100%) - **COMPLETE**
-- ⏳ Database Tables: 4/28 (14.3%) - **IN PROGRESS**
-- ⏳ Strategic: 0/2 (0%)
-- ⏳ Development: 0/1 (0%)
-- ⏳ Other: 0/4 (0%)
+- ✅ **Partners:** 8/8 (100%) - **COMPLETE**
+- ⏳ **Products:** 0/5 (0%) - BARCODE loaded
+- ⏳ **Stock Management:** 0/7 (0%)
+- ⏳ **Accounting:** 0/3 (0%)
+- ⏳ **Sales:** 0/1 (0%)
 
 ---
 
 ## 🎯 ČO TREBA UROBIŤ TERAZ
 
-### Priority 1: Git Commit (PRVÉ!)
+### Priority 1: Cleanup BARCODE (PRVÉ!)
 
-```powershell
-# Commit batch 6 partial progress
-git add docs/ scripts/
-git commit -m "docs: Database table docs migration batch 6 - partners (4 docs)"
-git push origin develop
-```
+**BARCODE-product_catalog_identifiers.md-old** (24.2 KB):
+- Location: STORES (BARCODE.BTR + GSCAT.BTR)
+- Očakávaná redukcia: ~58% (cca 10 KB)
+- **User má už dokument načítaný z predchádzajúcej session**
 
-### Priority 2: Pokračovať Batch 6 - Partners Sekcia
+### Priority 2: Pokračovať Products Section
 
-**Zostávajúce Partners dokumenty (5):**
+**Zostávajúce Products dokumenty (4):**
 
-1. **PAGLST-partner_categories.md-old** (14.9 KB)
-2. **PAYLST-payment_methods.md-old** (8.3 KB)
-3. **TRPLST-transport_methods.md-old** (8.6 KB)
-4. **PANOTI-partner_catalog_texts.md-old** (15.4 KB)
-5. **PASUBC-partner_catalog_facilities.md-old** (18.0 KB)
+1. **FGLST-product_categories.md-old** (16.1 KB)
+2. **GSCAT-product_catalog.md-old** (20.7 KB) ⚠️ VEĽKÝ
+3. **MGLST-product_categories.md-old** (17.4 KB)
+4. **SGLST-product_categories.md-old** (20.1 KB)
 
-**Všetky pravdepodobne v adresári DIALS** (overiť pri každom).
+**Všetky pravdepodobne v adresári STORES** (overiť pri každom).
 
 ---
 
-## 📂 ZOSTÁVAJÚCE DOKUMENTY (24 total)
-
-### Catalogs - Partners (5 súborov)
-
-- PAGLST-partner_categories.md-old (14.9 KB)
-- PAYLST-payment_methods.md-old (8.3 KB)
-- TRPLST-transport_methods.md-old (8.6 KB)
-- PANOTI-partner_catalog_texts.md-old (15.4 KB)
-- PASUBC-partner_catalog_facilities.md-old (18.0 KB)
+## 📂 ZOSTÁVAJÚCE DOKUMENTY (20 total)
 
 ### Catalogs - Products (5 súborov)
 
-- BARCODE-product_catalog_identifiers.md-old (24.2 KB)
+- BARCODE-product_catalog_identifiers.md-old (24.2 KB) ← **TERAZ**
 - FGLST-product_categories.md-old (16.1 KB)
-- GSCAT-product_catalog.md-old (20.7 KB)
+- GSCAT-product_catalog.md-old (20.7 KB) ⚠️ VEĽKÝ
 - MGLST-product_categories.md-old (17.4 KB)
 - SGLST-product_categories.md-old (20.1 KB)
 
@@ -138,12 +120,15 @@ git push origin develop
 ### Btrieve Locations (zistené)
 
 **DIALS adresár:**
-- BANKLST.BTR
-- PAB.BTR
-- PABACC.BTR
-- PACNCT.BTR
+- BANKLST.BTR, PAB.BTR, PABACC.BTR, PACNCT.BTR
+- PAGLST.BTR, PAYLST.BTR, TRPLST.BTR
+- PANOTI.BTR, PASUBC.BTR
 
-**Očakávané:** Väčšina súborov pravdepodobne v DIALS, ale vždy sa opýtať!
+**STORES adresár:**
+- BARCODE.BTR
+- GSCAT.BTR
+
+**Očakávané:** Väčšina Products súborov pravdepodobne v STORES, ale vždy sa opýtať!
 
 ### Formát Úprav
 
@@ -178,7 +163,7 @@ git push origin develop
 
 ### Priemerná Redukcia
 
-**50-60% veľkosti** (overené na 4 dokumentoch)
+**49-58% veľkosti** (overené na 8 dokumentoch)
 
 ---
 
@@ -189,7 +174,6 @@ git push origin develop
 **V partner_catalog_bank_accounts:**
 - `bank_code` je textová hodnota
 - NIE FK constraint na bank_catalog
-- User vyberie z číselníka → systém predvyplní → user môže zmeniť
 - Dôvod: denormalizácia, flexibility
 
 ### 2. FirstName/LastName SWAP!
@@ -198,26 +182,45 @@ git push origin develop
 - Btrieve FirstName = priezvisko
 - Btrieve LastName = meno
 - Pri migrácii MUSÍME swapovať!
-- PostgreSQL first_name = meno, last_name = priezvisko
 
 ### 3. GDPR Compliance
 
 **PACNCT.BTR - NEPRENÁŠAME:**
 - Adresa trvalého pobytu
-- Doklady totožnosti (IdnType, IdnCard)
-- Dátum a miesto narodenia (BrtDate, BrtPlac)
-- Občianstvo (Citizen)
+- Doklady totožnosti
+- Dátum a miesto narodenia
+- Občianstvo
 
-### 4. Manuálny Krok Pre Veľké Dokumenty
+### 4. Mapping Dictionary Pattern
 
-**Pre dokumenty >15 KB:**
-- Artifact content → user copy to file
-- Script len zmaže .md-old
-- Dôvod: token/content size limits
+**Pre číselníky (PAGLST, PAYLST, TRPLST):**
+- Najprv migrovať číselník
+- Vytvoriť mapping dictionary (Code → ID)
+- Použiť pri migrácii PAB.BTR
 
 ---
 
-## 📝 DOKUMENTAČNÉ ŠTANDARDY
+## 📝 WORKFLOW CHANGES
+
+### Simplified Workflow (Adopted in Previous Session)
+
+1. **Claude vytvorí 1 artifact** - vyčistený .md obsah
+2. **User skopíruje obsah** do súboru
+3. **User zmaže starý .md-old** manuálne
+4. **Žiadne scripty** (boli zbytočné)
+
+### "novy chat" Workflow Change
+
+**STARÝ workflow (zrušený):**
+- 4 artifacts: SESSION_YYYY-MM-DD, SESSION_NOTES, INIT, commit
+
+**NOVÝ workflow (platný od teraz):**
+- **3 artifacts:** SESSION_YYYY-MM-DD, INIT, commit
+- **SESSION_NOTES.md ZRUŠENÝ** - duplicitný, máme podrobné session archívy
+
+---
+
+## 📍 DOKUMENTAČNÉ ŠTANDARDY
 
 ### Documentation Manifest Location
 
@@ -231,31 +234,30 @@ C:\Development\nex-automat\SESSION_NOTES\docs.json
 https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/[path]
 ```
 
-### Script Naming
+### Script Naming (Historical)
 
 ```
 [NUMBER]_update_[TABLE]_doc.py
 ```
 
-**Aktuálny number:** 36 (ďalší script)
+**Note:** Scripts sú teraz deprecated, ale numbering pattern zostáva pre históriu.
 
 ---
 
-## ⚠️ WORKFLOW BEST PRACTICES
+## ⚡ WORKFLOW BEST PRACTICES
 
 ### Overený Proces
 
 1. **Načítaj dokument** (web_fetch)
 2. **Opýtaj sa na Btrieve location** (user poskytne adresár)
 3. **Vytvor upravený dokument** (artifact)
-4. **Vytvor script** (artifact)
-5. **User skopíruje obsah + spustí script**
-6. **Pokračuj ďalším dokumentom**
+4. **User skopíruje obsah + zmaže starý súbor**
+5. **Pokračuj ďalším dokumentom**
 
 ### Komunikácia
 
-✅ **StruÄne** - žiadny verbose output  
-✅ **Akcie** - artifacts, scripts, konkrétne kroky  
+✅ **Stručne** - žiadny verbose output  
+✅ **Akcie** - artifacts, konkrétne kroky  
 ✅ **Čakanie** - po každom artifacte čakať na potvrdenie  
 ✅ **Progress** - token stats na konci každej odpovede
 
@@ -266,27 +268,26 @@ https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/[path]
 **Prvý krok po načítaní tohto promptu:**
 
 1. Skontroluj memory_user_edits (22 pravidiel) ✅
-2. Opýtaj sa: "Spustil si už git commit pre batch 6 partial?"
-3. Ak ÁNO → "Pokračujem s ďalším dokumentom? (PAGLST-partner_categories.md-old)"
-4. Ak NIE → "Mám ti pomôcť s git commit?"
+2. Opýtaj sa: "Skopíroval si už BARCODE dokument do súboru a zmazal .md-old?"
+3. Ak ÁNO → "Pokračujem s ďalším dokumentom? (FGLST-product_categories.md-old)"
+4. Ak NIE → "Vytvorím artifact pre BARCODE cleanup"
 
 **Odporúčaný workflow:**
-1. **Git commit FIRST** (ak ešte nie)
-2. **Načítaj PAGLST-partner_categories.md-old**
-3. **Opýtaj sa na adresár**
-4. **Vytvor 2 artifacts** (cleaned doc + script)
-5. **User skopíruje + spustí**
-6. **Pokračuj ďalším**
+1. **Dokončiť BARCODE** (ak ešte nie)
+2. **Načítať FGLST-product_categories.md-old**
+3. **Opýtať sa na adresár**
+4. **Vytvoriť 1 artifact** (cleaned doc)
+5. **User skopíruje + zmaže**
+6. **Pokračovať ďalším**
 
 ---
 
 ## 📈 SUCCESS METRICS
 
 **Pre túto session očakávame:**
-- ✅ Git commit batch 6 partial (ak ešte nie)
-- ✅ 5 Partners dokumentov dokončených
-- ✅ Progress: 39/60 súborov (65%)
-- ✅ Scripts 36-40 vytvorené
+- ✅ BARCODE cleanup dokončený (ak ešte nie)
+- ✅ 4-5 Products dokumentov dokončených
+- ✅ Progress: 12-13/28 súborov (43-46%)
 
 **Estimated time:** 90-120 minút
 
@@ -311,15 +312,12 @@ https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/[path]
 ```powershell
 # Git workflow
 git status
-git add docs/ scripts/
-git commit -m "docs: Database table docs batch 6 - partners (N docs)"
+git add docs/
+git commit -m "docs: Database table docs batch 6 - products (N docs)"
 git push origin develop
 
 # Generate manifests
 python tools/generate_manifests.py
-
-# Run script
-python scripts/[NUMBER]_update_[TABLE]_doc.py
 ```
 
 ---

@@ -2,17 +2,17 @@
   "name": "documentation",
   "type": "docs",
   "location": "docs",
-  "generated": "2025-12-15T20:06:30.443023",
+  "generated": "2025-12-15T20:38:01.889312",
   "description": "Komplexná dokumentácia NEX Automat projektu",
   "statistics": {
-    "total_files": 130,
+    "total_files": 131,
     "total_dirs": 40,
     "python_files": 0,
     "powershell_files": 0,
-    "markdown_files": 102,
+    "markdown_files": 108,
     "test_files": 0,
-    "total_lines": 28046,
-    "total_size": 1418221
+    "total_lines": 29390,
+    "total_size": 1391539
   },
   "files": [
     {
@@ -199,39 +199,49 @@
       "type": "documentation"
     },
     {
-      "path": "docs/architecture/database/catalogs/partners/tables/PAGLST-partner_categories.md-old",
-      "name": "PAGLST-partner_categories.md-old",
-      "size": 14939,
-      "extension": ".md-old",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/catalogs/partners/tables/PAGLST-partner_categories.md-old"
+      "path": "docs/architecture/database/catalogs/partners/tables/PAGLST-partner_categories.md",
+      "name": "PAGLST-partner_categories.md",
+      "size": 6743,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/catalogs/partners/tables/PAGLST-partner_categories.md",
+      "lines": 232,
+      "type": "documentation"
     },
     {
-      "path": "docs/architecture/database/catalogs/partners/tables/PANOTI-partner_catalog_texts.md-old",
-      "name": "PANOTI-partner_catalog_texts.md-old",
-      "size": 15369,
-      "extension": ".md-old",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/catalogs/partners/tables/PANOTI-partner_catalog_texts.md-old"
+      "path": "docs/architecture/database/catalogs/partners/tables/PANOTI-partner_catalog_texts.md",
+      "name": "PANOTI-partner_catalog_texts.md",
+      "size": 7425,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/catalogs/partners/tables/PANOTI-partner_catalog_texts.md",
+      "lines": 264,
+      "type": "documentation"
     },
     {
-      "path": "docs/architecture/database/catalogs/partners/tables/PASUBC-partner_catalog_facilities.md-old",
-      "name": "PASUBC-partner_catalog_facilities.md-old",
-      "size": 18025,
-      "extension": ".md-old",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/catalogs/partners/tables/PASUBC-partner_catalog_facilities.md-old"
+      "path": "docs/architecture/database/catalogs/partners/tables/PASUBC-partner_catalog_facilities.md",
+      "name": "PASUBC-partner_catalog_facilities.md",
+      "size": 7741,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/catalogs/partners/tables/PASUBC-partner_catalog_facilities.md",
+      "lines": 254,
+      "type": "documentation"
     },
     {
-      "path": "docs/architecture/database/catalogs/partners/tables/PAYLST-payment_methods.md-old",
-      "name": "PAYLST-payment_methods.md-old",
-      "size": 8313,
-      "extension": ".md-old",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/catalogs/partners/tables/PAYLST-payment_methods.md-old"
+      "path": "docs/architecture/database/catalogs/partners/tables/PAYLST-payment_methods.md",
+      "name": "PAYLST-payment_methods.md",
+      "size": 6097,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/catalogs/partners/tables/PAYLST-payment_methods.md",
+      "lines": 222,
+      "type": "documentation"
     },
     {
-      "path": "docs/architecture/database/catalogs/partners/tables/TRPLST-transport_methods.md-old",
-      "name": "TRPLST-transport_methods.md-old",
-      "size": 8585,
-      "extension": ".md-old",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/catalogs/partners/tables/TRPLST-transport_methods.md-old"
+      "path": "docs/architecture/database/catalogs/partners/tables/TRPLST-transport_methods.md",
+      "name": "TRPLST-transport_methods.md",
+      "size": 6308,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/catalogs/partners/tables/TRPLST-transport_methods.md",
+      "lines": 226,
+      "type": "documentation"
     },
     {
       "path": "docs/architecture/database/catalogs/products/tables/BARCODE-product_catalog_identifiers.md-old",
@@ -502,6 +512,15 @@
       "extension": ".md",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/sessions/SESSION_2025-12-09_v24-phase4-deployment.md",
       "lines": 279,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/archive/sessions/SESSION_2025-12-15_database-table-docs-batch6-partners.md",
+      "name": "SESSION_2025-12-15_database-table-docs-batch6-partners.md",
+      "size": 4235,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/sessions/SESSION_2025-12-15_database-table-docs-batch6-partners.md",
+      "lines": 146,
       "type": "documentation"
     },
     {
@@ -1327,6 +1346,14 @@
         "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/migration/DATABASE_MIGRATION.md"
       },
       {
+        "name": "SESSION_2025-12-15_database-table-docs-batch6-partners.md",
+        "path": "archive/sessions/SESSION_2025-12-15_database-table-docs-batch6-partners.md",
+        "full_path": "docs/archive/sessions/SESSION_2025-12-15_database-table-docs-batch6-partners.md",
+        "size": 4235,
+        "lines": 146,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/sessions/SESSION_2025-12-15_database-table-docs-batch6-partners.md"
+      },
+      {
         "name": "SESSION_2025-12-15_database-table-docs-batch6-start.md",
         "path": "archive/sessions/SESSION_2025-12-15_database-table-docs-batch6-start.md",
         "full_path": "docs/archive/sessions/SESSION_2025-12-15_database-table-docs-batch6-start.md",
@@ -1365,6 +1392,46 @@
         "size": 13424,
         "lines": 394,
         "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/catalogs/partners/tables/PACNCT-partner_catalog_contacts.md"
+      },
+      {
+        "name": "PAGLST-partner_categories.md",
+        "path": "architecture/database/catalogs/partners/tables/PAGLST-partner_categories.md",
+        "full_path": "docs/architecture/database/catalogs/partners/tables/PAGLST-partner_categories.md",
+        "size": 6743,
+        "lines": 232,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/catalogs/partners/tables/PAGLST-partner_categories.md"
+      },
+      {
+        "name": "PANOTI-partner_catalog_texts.md",
+        "path": "architecture/database/catalogs/partners/tables/PANOTI-partner_catalog_texts.md",
+        "full_path": "docs/architecture/database/catalogs/partners/tables/PANOTI-partner_catalog_texts.md",
+        "size": 7425,
+        "lines": 264,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/catalogs/partners/tables/PANOTI-partner_catalog_texts.md"
+      },
+      {
+        "name": "PASUBC-partner_catalog_facilities.md",
+        "path": "architecture/database/catalogs/partners/tables/PASUBC-partner_catalog_facilities.md",
+        "full_path": "docs/architecture/database/catalogs/partners/tables/PASUBC-partner_catalog_facilities.md",
+        "size": 7741,
+        "lines": 254,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/catalogs/partners/tables/PASUBC-partner_catalog_facilities.md"
+      },
+      {
+        "name": "PAYLST-payment_methods.md",
+        "path": "architecture/database/catalogs/partners/tables/PAYLST-payment_methods.md",
+        "full_path": "docs/architecture/database/catalogs/partners/tables/PAYLST-payment_methods.md",
+        "size": 6097,
+        "lines": 222,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/catalogs/partners/tables/PAYLST-payment_methods.md"
+      },
+      {
+        "name": "TRPLST-transport_methods.md",
+        "path": "architecture/database/catalogs/partners/tables/TRPLST-transport_methods.md",
+        "full_path": "docs/architecture/database/catalogs/partners/tables/TRPLST-transport_methods.md",
+        "size": 6308,
+        "lines": 226,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/catalogs/partners/tables/TRPLST-transport_methods.md"
       },
       {
         "name": "DATABASE_SCHEMA.md",
