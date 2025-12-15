@@ -2,17 +2,17 @@
   "name": "documentation",
   "type": "docs",
   "location": "docs",
-  "generated": "2025-12-15T20:38:01.889312",
+  "generated": "2025-12-15T21:09:06.601674",
   "description": "Komplexná dokumentácia NEX Automat projektu",
   "statistics": {
-    "total_files": 131,
+    "total_files": 132,
     "total_dirs": 40,
     "python_files": 0,
     "powershell_files": 0,
-    "markdown_files": 108,
+    "markdown_files": 114,
     "test_files": 0,
-    "total_lines": 29390,
-    "total_size": 1391539
+    "total_lines": 31132,
+    "total_size": 1355139
   },
   "files": [
     {
@@ -27,10 +27,10 @@
     {
       "path": "docs/COLLABORATION_RULES.md",
       "name": "COLLABORATION_RULES.md",
-      "size": 18607,
+      "size": 18498,
       "extension": ".md",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/COLLABORATION_RULES.md",
-      "lines": 486,
+      "lines": 456,
       "type": "documentation"
     },
     {
@@ -244,39 +244,49 @@
       "type": "documentation"
     },
     {
-      "path": "docs/architecture/database/catalogs/products/tables/BARCODE-product_catalog_identifiers.md-old",
-      "name": "BARCODE-product_catalog_identifiers.md-old",
-      "size": 24158,
-      "extension": ".md-old",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/catalogs/products/tables/BARCODE-product_catalog_identifiers.md-old"
+      "path": "docs/architecture/database/catalogs/products/tables/BARCODE-product_catalog_identifiers.md",
+      "name": "BARCODE-product_catalog_identifiers.md",
+      "size": 10658,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/catalogs/products/tables/BARCODE-product_catalog_identifiers.md",
+      "lines": 322,
+      "type": "documentation"
     },
     {
-      "path": "docs/architecture/database/catalogs/products/tables/FGLST-product_categories.md-old",
-      "name": "FGLST-product_categories.md-old",
-      "size": 16126,
-      "extension": ".md-old",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/catalogs/products/tables/FGLST-product_categories.md-old"
+      "path": "docs/architecture/database/catalogs/products/tables/FGLST-product_categories.md",
+      "name": "FGLST-product_categories.md",
+      "size": 7746,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/catalogs/products/tables/FGLST-product_categories.md",
+      "lines": 233,
+      "type": "documentation"
     },
     {
-      "path": "docs/architecture/database/catalogs/products/tables/GSCAT-product_catalog.md-old",
-      "name": "GSCAT-product_catalog.md-old",
-      "size": 20651,
-      "extension": ".md-old",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/catalogs/products/tables/GSCAT-product_catalog.md-old"
+      "path": "docs/architecture/database/catalogs/products/tables/GSCAT-product_catalog.md",
+      "name": "GSCAT-product_catalog.md",
+      "size": 15189,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/catalogs/products/tables/GSCAT-product_catalog.md",
+      "lines": 371,
+      "type": "documentation"
     },
     {
-      "path": "docs/architecture/database/catalogs/products/tables/MGLST-product_categories.md-old",
-      "name": "MGLST-product_categories.md-old",
-      "size": 17381,
-      "extension": ".md-old",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/catalogs/products/tables/MGLST-product_categories.md-old"
+      "path": "docs/architecture/database/catalogs/products/tables/MGLST-product_categories.md",
+      "name": "MGLST-product_categories.md",
+      "size": 9862,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/catalogs/products/tables/MGLST-product_categories.md",
+      "lines": 266,
+      "type": "documentation"
     },
     {
-      "path": "docs/architecture/database/catalogs/products/tables/SGLST-product_categories.md-old",
-      "name": "SGLST-product_categories.md-old",
-      "size": 20101,
-      "extension": ".md-old",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/catalogs/products/tables/SGLST-product_categories.md-old"
+      "path": "docs/architecture/database/catalogs/products/tables/SGLST-product_categories.md",
+      "name": "SGLST-product_categories.md",
+      "size": 11778,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/catalogs/products/tables/SGLST-product_categories.md",
+      "lines": 335,
+      "type": "documentation"
     },
     {
       "path": "docs/architecture/database/sales/tables/PLSnnnnn-price_list_items.md-old",
@@ -521,6 +531,15 @@
       "extension": ".md",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/sessions/SESSION_2025-12-15_database-table-docs-batch6-partners.md",
       "lines": 146,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/archive/sessions/SESSION_2025-12-15_database-table-docs-batch6-products.md",
+      "name": "SESSION_2025-12-15_database-table-docs-batch6-products.md",
+      "size": 6893,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/sessions/SESSION_2025-12-15_database-table-docs-batch6-products.md",
+      "lines": 245,
       "type": "documentation"
     },
     {
@@ -1354,12 +1373,60 @@
         "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/sessions/SESSION_2025-12-15_database-table-docs-batch6-partners.md"
       },
       {
+        "name": "SESSION_2025-12-15_database-table-docs-batch6-products.md",
+        "path": "archive/sessions/SESSION_2025-12-15_database-table-docs-batch6-products.md",
+        "full_path": "docs/archive/sessions/SESSION_2025-12-15_database-table-docs-batch6-products.md",
+        "size": 6893,
+        "lines": 245,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/sessions/SESSION_2025-12-15_database-table-docs-batch6-products.md"
+      },
+      {
         "name": "SESSION_2025-12-15_database-table-docs-batch6-start.md",
         "path": "archive/sessions/SESSION_2025-12-15_database-table-docs-batch6-start.md",
         "full_path": "docs/archive/sessions/SESSION_2025-12-15_database-table-docs-batch6-start.md",
         "size": 8295,
         "lines": 311,
         "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/sessions/SESSION_2025-12-15_database-table-docs-batch6-start.md"
+      },
+      {
+        "name": "BARCODE-product_catalog_identifiers.md",
+        "path": "architecture/database/catalogs/products/tables/BARCODE-product_catalog_identifiers.md",
+        "full_path": "docs/architecture/database/catalogs/products/tables/BARCODE-product_catalog_identifiers.md",
+        "size": 10658,
+        "lines": 322,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/catalogs/products/tables/BARCODE-product_catalog_identifiers.md"
+      },
+      {
+        "name": "FGLST-product_categories.md",
+        "path": "architecture/database/catalogs/products/tables/FGLST-product_categories.md",
+        "full_path": "docs/architecture/database/catalogs/products/tables/FGLST-product_categories.md",
+        "size": 7746,
+        "lines": 233,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/catalogs/products/tables/FGLST-product_categories.md"
+      },
+      {
+        "name": "GSCAT-product_catalog.md",
+        "path": "architecture/database/catalogs/products/tables/GSCAT-product_catalog.md",
+        "full_path": "docs/architecture/database/catalogs/products/tables/GSCAT-product_catalog.md",
+        "size": 15189,
+        "lines": 371,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/catalogs/products/tables/GSCAT-product_catalog.md"
+      },
+      {
+        "name": "MGLST-product_categories.md",
+        "path": "architecture/database/catalogs/products/tables/MGLST-product_categories.md",
+        "full_path": "docs/architecture/database/catalogs/products/tables/MGLST-product_categories.md",
+        "size": 9862,
+        "lines": 266,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/catalogs/products/tables/MGLST-product_categories.md"
+      },
+      {
+        "name": "SGLST-product_categories.md",
+        "path": "architecture/database/catalogs/products/tables/SGLST-product_categories.md",
+        "full_path": "docs/architecture/database/catalogs/products/tables/SGLST-product_categories.md",
+        "size": 11778,
+        "lines": 335,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/catalogs/products/tables/SGLST-product_categories.md"
       },
       {
         "name": "BANKLST-bank_catalog.md",
@@ -1647,8 +1714,8 @@
         "name": "COLLABORATION_RULES.md",
         "path": "COLLABORATION_RULES.md",
         "full_path": "docs/COLLABORATION_RULES.md",
-        "size": 18607,
-        "lines": 486,
+        "size": 18498,
+        "lines": 456,
         "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/COLLABORATION_RULES.md"
       },
       {

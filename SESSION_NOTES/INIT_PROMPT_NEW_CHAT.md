@@ -1,11 +1,11 @@
 # INIT PROMPT - NEX Automat: Database Table Docs Migration (Batch 6 Continue)
 
 **Projekt:** nex-automat  
-**Úloha:** Database table docs migration (batch 6 continuation - Products section)  
+**Úloha:** Database table docs migration (batch 6 continuation - Stock Management section)  
 **Developer:** Zoltán (40 rokov skúseností)  
 **Jazyk:** Slovenčina  
-**Previous Session:** https://claude.ai/chat/[CURRENT_CHAT_URI]  
-**Status:** 8/28 dokumentov dokončených, **20 zostáva**
+**Previous Session:** https://claude.ai/chat/[PREVIOUS_CHAT_URI]  
+**Status:** 13/28 dokumentov dokončených, **15 zostáva**
 
 ---
 
@@ -16,45 +16,44 @@
 Kľúčové pravidlá pre túto session:
 - **Rule #7:** CRITICAL artifacts pre všetky dokumenty/kód
 - **Rule #8:** Step-by-step, confirmation pred pokračovaním
-- **Rule #20:** "novy chat" = **3 artifacts** (ARCHIVE, INIT, commit) - **SESSION_NOTES.md ZRUŠENÝ!**
+- **Rule #20:** "novy chat" = **3 artifacts** (SESSION_ARCHIVE, INIT, commit)
 - **Rule #5:** Slovak language, presná terminológia projektov
 - **Rule #22:** Na začiatku každého chatu skontrolovať všetky pravidlá
 
 ---
 
-## ✅ ČO SME DOKONČILI V PREVIOUS SESSION
+## ✅ ČO SME DOKONČILI V PREVIOUS SESSIONS
 
 ### Partners Section - COMPLETE! (8 dokumentov)
 
-1. **PAGLST-partner_categories.md** (14.9 KB → 7.0 KB, 53%)
-2. **PAYLST-payment_methods.md** (8.3 KB → 4.2 KB, 49%)
-3. **TRPLST-transport_methods.md** (8.6 KB → 4.3 KB, 50%)
-4. **PANOTI-partner_catalog_texts.md** (15.4 KB → 6.5 KB, 58%)
-5. **PASUBC-partner_catalog_facilities.md** (18.0 KB → 7.5 KB, 58%)
+1. **BANKLST-bank_catalog.md** (script #32)
+2. **PAB-partner_catalog.md** (script #33)
+3. **PABACC-partner_catalog_bank_accounts.md** (script #34)
+4. **PACNCT-partner_catalog_contacts.md** (script #35)
+5. **PAGLST-partner_categories.md** (14.9 KB → 7.0 KB, 53%)
+6. **PAYLST-payment_methods.md** (8.3 KB → 4.2 KB, 49%)
+7. **TRPLST-transport_methods.md** (8.6 KB → 4.3 KB, 50%)
+8. **PANOTI-partner_catalog_texts.md** (15.4 KB → 6.5 KB, 58%)
+9. **PASUBC-partner_catalog_facilities.md** (18.0 KB → 7.5 KB, 58%)
 
-**Plus predchádzajúce:**
-- BANKLST-bank_catalog.md (script #32)
-- PAB-partner_catalog.md (script #33)
-- PABACC-partner_catalog_bank_accounts.md (script #34)
-- PACNCT-partner_catalog_contacts.md (script #35)
+### Products Section - COMPLETE! (5 dokumentov)
 
-### Products Section - Started
-
-**BARCODE-product_catalog_identifiers.md-old:**
-- Size: 24.2 KB
-- Location: STORES (BARCODE.BTR + GSCAT.BTR)
-- Status: Načítaný, ready for cleanup
+1. **BARCODE-product_catalog_identifiers.md** (24.2 KB → 10.5 KB, 56.6%)
+2. **FGLST-product_categories.md** (16.1 KB → 7.0 KB, 56.5%)
+3. **GSCAT-product_catalog.md** (20.7 KB → 10.5 KB, 49.3%)
+4. **MGLST-product_categories.md** (17.4 KB → 7.5 KB, 56.9%)
+5. **SGLST-product_categories.md** (20.1 KB → 8.5 KB, 57.7%)
 
 ---
 
 ## 📊 PROGRESS
 
-**Dokončené:** 8/28 dokumentov (28.6%)  
-**Zostáva:** 20 database table dokumentov
+**Dokončené:** 13/28 dokumentov (46.4%)  
+**Zostáva:** 15 database table dokumentov
 
 **By Category:**
 - ✅ **Partners:** 8/8 (100%) - **COMPLETE**
-- ⏳ **Products:** 0/5 (0%) - BARCODE loaded
+- ✅ **Products:** 5/5 (100%) - **COMPLETE**
 - ⏳ **Stock Management:** 0/7 (0%)
 - ⏳ **Accounting:** 0/3 (0%)
 - ⏳ **Sales:** 0/1 (0%)
@@ -63,45 +62,33 @@ Kľúčové pravidlá pre túto session:
 
 ## 🎯 ČO TREBA UROBIŤ TERAZ
 
-### Priority 1: Cleanup BARCODE (PRVÉ!)
+### Priority 1: Stock Management Section (START HERE!)
 
-**BARCODE-product_catalog_identifiers.md-old** (24.2 KB):
-- Location: STORES (BARCODE.BTR + GSCAT.BTR)
-- Očakávaná redukcia: ~58% (cca 10 KB)
-- **User má už dokument načítaný z predchádzajúcej session**
+**Odporúčané poradie (menšie → väčšie):**
 
-### Priority 2: Pokračovať Products Section
-
-**Zostávajúce Products dokumenty (4):**
-
-1. **FGLST-product_categories.md-old** (16.1 KB)
-2. **GSCAT-product_catalog.md-old** (20.7 KB) ⚠️ VEĽKÝ
-3. **MGLST-product_categories.md-old** (17.4 KB)
-4. **SGLST-product_categories.md-old** (20.1 KB)
+1. **WRILST-facilities.md-old** (17.9 KB) ← **ZAČNI TÝMTO**
+2. **STKLST-stocks.md-old** (20.4 KB)
+3. **TSH-supplier_delivery_heads.md-old** (25.4 KB)
+4. **FIF-stock_card_fifos.md-old** (28.5 KB)
+5. **TSI-supplier_delivery_items.md-old** (29.7 KB)
+6. **STM-stock_card_movements.md-old** (35.6 KB) ⚠️ VEĽKÝ
+7. **STK-stock_cards.md-old** (38.5 KB) ⚠️ VEĽKÝ
 
 **Všetky pravdepodobne v adresári STORES** (overiť pri každom).
 
 ---
 
-## 📂 ZOSTÁVAJÚCE DOKUMENTY (20 total)
-
-### Catalogs - Products (5 súborov)
-
-- BARCODE-product_catalog_identifiers.md-old (24.2 KB) ← **TERAZ**
-- FGLST-product_categories.md-old (16.1 KB)
-- GSCAT-product_catalog.md-old (20.7 KB) ⚠️ VEĽKÝ
-- MGLST-product_categories.md-old (17.4 KB)
-- SGLST-product_categories.md-old (20.1 KB)
+## 📂 ZOSTÁVAJÚCE DOKUMENTY (15 total)
 
 ### Stock Management (7 súborov)
 
-- FIF-stock_card_fifos.md-old (28.5 KB)
-- STK-stock_cards.md-old (38.5 KB) ⚠️ VEĽKÝ
-- STKLST-stocks.md-old (20.4 KB)
-- STM-stock_card_movements.md-old (35.6 KB) ⚠️ VEĽKÝ
 - WRILST-facilities.md-old (17.9 KB)
+- STKLST-stocks.md-old (20.4 KB)
 - TSH-supplier_delivery_heads.md-old (25.4 KB)
+- FIF-stock_card_fifos.md-old (28.5 KB)
 - TSI-supplier_delivery_items.md-old (29.7 KB)
+- STM-stock_card_movements.md-old (35.6 KB) ⚠️ VEĽKÝ
+- STK-stock_cards.md-old (38.5 KB) ⚠️ VEĽKÝ
 
 ### Accounting (3 súbory)
 
@@ -117,7 +104,15 @@ Kľúčové pravidlá pre túto session:
 
 ## 🔧 KRITICKÉ TECHNICKÉ INFO
 
-### Btrieve Locations (zistené)
+### Overený Workflow
+
+1. **web_fetch** - načítať .md-old z GitHubu
+2. **Opýtať sa na Btrieve location** (user poskytne adresár)
+3. **Vytvoriť 1 artifact** - vyčistený dokument
+4. **User skopíruje obsah + zmaže starý súbor** - manuálne
+5. **Pokračuj ďalším dokumentom**
+
+### Btrieve Locations (zistené doteraz)
 
 **DIALS adresár:**
 - BANKLST.BTR, PAB.BTR, PABACC.BTR, PACNCT.BTR
@@ -125,15 +120,13 @@ Kľúčové pravidlá pre túto session:
 - PANOTI.BTR, PASUBC.BTR
 
 **STORES adresár:**
-- BARCODE.BTR
-- GSCAT.BTR
+- BARCODE.BTR, FGLST.BTR, GSCAT.BTR, MGLST.BTR, SGLST.BTR
+- Pravdepodobne aj všetky Stock Management súbory (overiť!)
 
-**Očakávané:** Väčšina Products súborov pravdepodobne v STORES, ale vždy sa opýtať!
-
-### Formát Úprav
+### Formát Úprav (konzistentný)
 
 **Pridávame:**
-- Popis Btrieve súboru:
+- Btrieve súbor info:
   ```markdown
   ### Btrieve súbor
   - **Názov:** [FILE].BTR
@@ -143,13 +136,14 @@ Kľúčové pravidlá pre túto session:
   - **Účel:** [popis]
   ```
 - Aktualizované metadáta (dátum: 2025-12-15)
+- Status: ✅ Pripravené na migráciu
 
 **Odstraňujeme:**
 - CREATE TABLE statements
 - CREATE INDEX statements
 - CREATE TRIGGER statements
 - CREATE FUNCTION statements
-- Query patterns (SQL bloky)
+- Query patterns (veľké SQL bloky)
 - Python migration code
 - Veľké INSERT príklady
 
@@ -163,64 +157,51 @@ Kľúčové pravidlá pre túto session:
 
 ### Priemerná Redukcia
 
-**49-58% veľkosti** (overené na 8 dokumentoch)
+**53.6% veľkosti** (overené na 13 dokumentoch)
+- Partners: 49-58%
+- Products: 49-58%
+- Expected pre Stock Management: podobné
 
 ---
 
 ## 💡 KRITICKÉ POZNÁMKY PRE MIGRÁCIU
 
-### 1. bank_code NIE je FK!
+### 1. Audit Polia Pattern (štandard všade)
 
-**V partner_catalog_bank_accounts:**
-- `bank_code` je textová hodnota
-- NIE FK constraint na bank_catalog
-- Dôvod: denormalizácia, flexibility
+**created_by/created_at:**
+- Kto a kedy vytvoril záznam (nemenné)
+- Pri migrácii: CrtUser/CrtDate/CrtTime
+- Ak neexistuje: 'MIGRATION' + CURRENT_TIMESTAMP
 
-### 2. FirstName/LastName SWAP!
+**updated_by/updated_at:**
+- Kto a kedy naposledy modifikoval (aktualizuje sa pri zmene)
+- Pri migrácii: ModUser/ModDate/ModTime
+- Ak neexistuje: použiť CrtUser alebo 'MIGRATION'
 
-**V PACNCT.BTR (partner_catalog_contacts):**
-- Btrieve FirstName = priezvisko
-- Btrieve LastName = meno
-- Pri migrácii MUSÍME swapovať!
+### 2. Mapping Dictionary Pattern (pre číselníky)
 
-### 3. GDPR Compliance
+Pri migrácii závislých tabuliek:
+1. Najprv migrovať číselník
+2. Vytvoriť mapping dictionary (Code → ID)
+3. Použiť pri migrácii hlavnej tabuľky
 
-**PACNCT.BTR - NEPRENÁŠAME:**
-- Adresa trvalého pobytu
-- Doklady totožnosti
-- Dátum a miesto narodenia
-- Občianstvo
+### 3. Stock Management Specific Notes
 
-### 4. Mapping Dictionary Pattern
+**FIFO záznamy (FIF):**
+- Sledovanie prijatých šarží produktov
+- Väzba na stock cards (STK)
 
-**Pre číselníky (PAGLST, PAYLST, TRPLST):**
-- Najprv migrovať číselník
-- Vytvoriť mapping dictionary (Code → ID)
-- Použiť pri migrácii PAB.BTR
+**Stock Movements (STM):**
+- Veľký počet záznamov (všetky pohyby)
+- Potrebné indexy pre performance
 
----
-
-## 📝 WORKFLOW CHANGES
-
-### Simplified Workflow (Adopted in Previous Session)
-
-1. **Claude vytvorí 1 artifact** - vyčistený .md obsah
-2. **User skopíruje obsah** do súboru
-3. **User zmaže starý .md-old** manuálne
-4. **Žiadne scripty** (boli zbytočné)
-
-### "novy chat" Workflow Change
-
-**STARÝ workflow (zrušený):**
-- 4 artifacts: SESSION_YYYY-MM-DD, SESSION_NOTES, INIT, commit
-
-**NOVÝ workflow (platný od teraz):**
-- **3 artifacts:** SESSION_YYYY-MM-DD, INIT, commit
-- **SESSION_NOTES.md ZRUŠENÝ** - duplicitný, máme podrobné session archívy
+**Facilities (WRILST):**
+- Číselník skladov/oddelení
+- Base table pre STKLST
 
 ---
 
-## 📍 DOKUMENTAČNÉ ŠTANDARDY
+## 📁 DOKUMENTAČNÉ ŠTANDARDY
 
 ### Documentation Manifest Location
 
@@ -231,22 +212,20 @@ C:\Development\nex-automat\SESSION_NOTES\docs.json
 ### GitHub Raw URL Pattern
 
 ```
-https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/[path]
+https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/[path]
 ```
 
-### Script Naming (Historical)
-
+**Stock Management paths:**
 ```
-[NUMBER]_update_[TABLE]_doc.py
+docs/architecture/database/stock/cards/tables/
+docs/architecture/database/stock/documents/tables/
 ```
-
-**Note:** Scripts sú teraz deprecated, ale numbering pattern zostáva pre históriu.
 
 ---
 
 ## ⚡ WORKFLOW BEST PRACTICES
 
-### Overený Proces
+### Overený Proces (funguje dobre)
 
 1. **Načítaj dokument** (web_fetch)
 2. **Opýtaj sa na Btrieve location** (user poskytne adresár)
@@ -268,26 +247,25 @@ https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/[path]
 **Prvý krok po načítaní tohto promptu:**
 
 1. Skontroluj memory_user_edits (22 pravidiel) ✅
-2. Opýtaj sa: "Skopíroval si už BARCODE dokument do súboru a zmazal .md-old?"
-3. Ak ÁNO → "Pokračujem s ďalším dokumentom? (FGLST-product_categories.md-old)"
-4. Ak NIE → "Vytvorím artifact pre BARCODE cleanup"
+2. Načítaj **WRILST-facilities.md-old** z GitHubu
+3. Opýtaj sa: "V akom adresári je WRILST.BTR?"
+4. Po odpovedi vytvor artifact s vyčisteným dokumentom
+5. Čakaj na potvrdenie a pokračuj STKLST
 
-**Odporúčaný workflow:**
-1. **Dokončiť BARCODE** (ak ešte nie)
-2. **Načítať FGLST-product_categories.md-old**
-3. **Opýtať sa na adresár**
-4. **Vytvoriť 1 artifact** (cleaned doc)
-5. **User skopíruje + zmaže**
-6. **Pokračovať ďalším**
+**Odporúčaný workflow pre session:**
+1. **WRILST-facilities.md-old** (17.9 KB) - menší, dobrý na rozbeh
+2. **STKLST-stocks.md-old** (20.4 KB)
+3. **TSH-supplier_delivery_heads.md-old** (25.4 KB)
+4. Podľa času a tokenov pokračovať ďalšími
 
 ---
 
 ## 📈 SUCCESS METRICS
 
 **Pre túto session očakávame:**
-- ✅ BARCODE cleanup dokončený (ak ešte nie)
-- ✅ 4-5 Products dokumentov dokončených
-- ✅ Progress: 12-13/28 súborov (43-46%)
+- ✅ 3-5 Stock Management dokumentov dokončených
+- ✅ Progress: 16-18/28 súborov (57-64%)
+- ✅ Konzistentný štýl s predchádzajúcimi dokumentmi
 
 **Estimated time:** 90-120 minút
 
@@ -307,13 +285,13 @@ https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/[path]
 
 ---
 
-## 🔧 QUICK COMMANDS FOR REFERENCE
+## 📝 GIT WORKFLOW (user robí manuálne)
 
 ```powershell
 # Git workflow
 git status
 git add docs/
-git commit -m "docs: Database table docs batch 6 - products (N docs)"
+git commit -m "docs: Database table docs batch 6 - stock management (N docs)"
 git push origin develop
 
 # Generate manifests

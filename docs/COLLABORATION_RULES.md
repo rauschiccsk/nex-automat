@@ -4,7 +4,7 @@
 **Owner:** Zoltán  
 **Assistant:** Claude (Anthropic)  
 **Last Updated:** 2025-12-15  
-**Version:** 1.4
+**Version:** 1.5
 
 ---
 
@@ -108,9 +108,9 @@
 - No need to write manifest generation instructions, user generates manifests himself
 - Nepíš manifest inštrukcie, používateľ generuje sám
 
-**20. Session Closure (UPDATED v1.4)**
-- When user says "novy chat": Generate 4 artifacts IMMEDIATELY + update archive index: SESSION_YYYY-MM-DD_descriptive-name.md (to docs/archive/sessions/), SESSION_NOTES.md (fresh template), INIT_PROMPT_NEW_CHAT.md (forward-looking), commit-message.txt. Then update docs/archive/00_ARCHIVE_INDEX.md. Artifacts FIRST.
-- Pri "novy chat": Vygeneruj 4 artifacts OKAMŽITE + updatni archive index (najprv!), potom len krátke potvrdenie.
+**20. Session Closure (UPDATED v1.5)**
+- When user says "novy chat": Generate 3 artifacts IMMEDIATELY + update archive index: SESSION_YYYY-MM-DD_descriptive-name.md (to docs/archive/sessions/), INIT_PROMPT_NEW_CHAT.md (forward-looking), commit-message.txt. Then update docs/archive/00_ARCHIVE_INDEX.md. Artifacts FIRST. SESSION_NOTES.md is NO LONGER CREATED (redundant).
+- Pri "novy chat": Vygeneruj 3 artifacts OKAMŽITE + updatni archive index (najprv!), potom len krátke potvrdenie. SESSION_NOTES.md sa UŽ NEVYTVÁRA (duplicitný).
 
 ---
 
@@ -173,8 +173,8 @@
 19. **Session scripts numbered from 01 sequentially. Only temporary scripts numbered, permanent scripts not.**
     - Session scripty od 01 plynule. Len dočasné číslované, trvalé nie.
 
-20. **When user says "novy chat": Generate 4 artifacts IMMEDIATELY + update archive index: SESSION_YYYY-MM-DD_descriptive-name.md (to docs/archive/sessions/), SESSION_NOTES.md (fresh template), INIT_PROMPT_NEW_CHAT.md (forward-looking), commit-message.txt. Then update docs/archive/00_ARCHIVE_INDEX.md. Artifacts FIRST.**
-    - Pri "novy chat": Vygeneruj 4 artifacts OKAMŽITE + updatni archive index (najprv!), potom len krátke potvrdenie.
+20. **When user says "novy chat": Generate 3 artifacts IMMEDIATELY + update archive index: SESSION_YYYY-MM-DD_descriptive-name.md (to docs/archive/sessions/), INIT_PROMPT_NEW_CHAT.md (forward-looking), commit-message.txt. Then update docs/archive/00_ARCHIVE_INDEX.md. Artifacts FIRST. SESSION_NOTES.md is NO LONGER CREATED (redundant).**
+    - Pri "novy chat": Vygeneruj 3 artifacts OKAMŽITE + updatni archive index (najprv!), potom len krátke potvrdenie. SESSION_NOTES.md sa UŽ NEVYTVÁRA (duplicitný).
 
 21. **User requires following initialization prompt rules for NEX Automat project - avoid verbose analysis output, confirm only successful loading**
     - Pri inicializácii projektu: Žiadny verbose output, len potvrdenie úspešného načítania
@@ -192,7 +192,6 @@
 ```
 ✅ Python files (.py)
 ✅ Config files (.json, .yaml, .py, .txt, .ini, .toml)
-✅ Session notes (SESSION_NOTES.md)
 ✅ Init prompts (INIT_PROMPT_NEW_CHAT.md)
 ✅ Commit messages (commit-message.txt)
 ✅ Session archives (SESSION_YYYY-MM-DD_*.md)
@@ -206,7 +205,6 @@
 ❌ Python code in response
 ❌ Config content in response
 ❌ Long documents in response
-❌ Session notes in response
 ❌ Init prompts in response
 ❌ Archive sections in response
 ```
@@ -216,7 +214,7 @@
 ☐ Am I generating code? → Artifact!
 ☐ Am I generating a document? → Artifact!
 ☐ Am I generating a config? → Artifact!
-☐ Did user say "novy chat"? → 4 artifacts FIRST!
+☐ Did user say "novy chat"? → 3 artifacts FIRST!
 ☐ Is response >10 lines of non-conversational text? → Artifact!
 ```
 
@@ -254,7 +252,7 @@
     - ✅ INIT_PROMPT..."
 ```
 
-### Session Closure Workflow (Rule 20 - UPDATED v1.4)
+### Session Closure Workflow (Rule 20 - UPDATED v1.5)
 
 **When user says "novy chat":**
 
@@ -263,105 +261,65 @@
    - Save to: `docs/archive/sessions/`
    - Naming: `SESSION_2025-12-15_documentation-migration-batch2.md`
    - Detailed session with all work done
-2. ✅ Create SESSION_NOTES.md artifact (SECOND!)
-   - Fresh lightweight template
-   - Current Work structure ready for new session
-3. ✅ Create INIT_PROMPT_NEW_CHAT.md artifact (THIRD!)
+2. ✅ Create INIT_PROMPT_NEW_CHAT.md artifact (SECOND!)
    - Forward-looking primer
    - "Here we are NOW, do THIS next"
-4. ✅ Create commit-message.txt artifact (FOURTH!)
+3. ✅ Create commit-message.txt artifact (THIRD!)
    - Describe all changes made
-5. ✅ Update docs/archive/00_ARCHIVE_INDEX.md
+4. ✅ Update docs/archive/00_ARCHIVE_INDEX.md
    - Add new session to index
    - Group by date
    - Can be done via script or manually
-6. ✅ Brief confirmation: "✅ Vygenerované 4 artifacts + archive index info"
+5. ✅ Brief confirmation: "✅ Vygenerované 3 artifacts + archive index info"
 
 **SESSION_YYYY-MM-DD_*.md structure:**
 ```markdown
-# PROJECT ARCHIVE SESSION - YYYY-MM-DD
+# SESSION: Descriptive Name
 
-**Date:** YYYY-MM-DD  
-**Project:** nex-automat  
-**Phase:** Current phase  
-**Duration:** ~X hours  
+**Dátum:** YYYY-MM-DD  
+**Projekt:** nex-automat  
+**Úloha:** Task description
+**Developer:** Zoltán  
 **Status:** ✅/⚠️/❌
 
 ---
 
-## SESSION OBJECTIVE
-Main objective of the session
+## ✅ DOKONČENÉ V TEJTO SESSION
+What was completed
 
 ---
 
-## COMPLETED WORK
-Detailed breakdown of all work done
-
-### 1. Feature/Task Name ✅
-Details...
+## 📊 PROGRESS METRICS
+Progress statistics
 
 ---
 
-## SCRIPTS CREATED
-Total: X scripts
-
-| Script | Purpose | Lines | Status |
-|--------|---------|-------|--------|
-| XX_name.py | Description | 100 | ✅ |
+## 🔧 WORKFLOW IMPROVEMENTS
+Any workflow changes
 
 ---
 
-## FILES CHANGED
-### Created
-- List of new files
-
-### Modified
-- List of modified files
-
-### Deleted
-- List of deleted files
+## 💡 KEY INSIGHTS
+Important discoveries
 
 ---
 
-## KEY DECISIONS
-Important architectural/design decisions made
+## 🎯 NEXT SESSION PRIORITIES
+What to do next
 
 ---
 
-## LESSONS LEARNED
-### What Worked Well
-- Item 1
-- Item 2
-
-### Challenges
-- Challenge 1
-- Challenge 2
-
----
-
-## REMAINING WORK
-What still needs to be done
-
----
-
-## NEXT SESSION PRIORITIES
-What to do in next session
-
----
-
-**Session End:** YYYY-MM-DD  
-**Status:** ✅ Objectives met  
-**Ready for:** Next phase
+**Token Budget:** X/190,000  
+**Status:** Success/Partial/Failed
 ```
 
 **FORBIDDEN:**
 ```
 ❌ Writing archive section in plain text
-❌ Writing session notes in plain text
+❌ Creating SESSION_NOTES.md (redundant!)
 ❌ Explaining before creating artifacts
-❌ Creating only 1, 2, or 3 artifacts
+❌ Creating only 1 or 2 artifacts
 ❌ Long response before artifacts
-❌ Using PROJECT_ARCHIVE_SESSION.md (old naming)
 ❌ Not updating archive index
 ```
 
@@ -375,7 +333,6 @@ docs/archive/sessions/
 docs/archive/00_ARCHIVE_INDEX.md  ← MUST be updated
 
 SESSION_NOTES/
-├── SESSION_NOTES.md           ← Current work (resets)
 └── INIT_PROMPT_NEW_CHAT.md    ← Quick start (prepísateľný)
 ```
 
@@ -426,16 +383,22 @@ Never: Deployment → direct fix (creates inconsistency)
 - ✅ Strict "confirm only" behavior when loading init prompts
 - ✅ Prevents verbose analysis output during initialization
 
-**Solution Enhanced (2025-12-15):**
+**Solution Enhanced (2025-12-15 v1.4):**
 - ✅ Updated Rule #20: Fixed session archive naming (SESSION_YYYY-MM-DD_*.md)
 - ✅ Added Rule #22: Memory rules check at start of chat
 - ✅ Added archive index update requirement
 - ✅ Specified correct file location (docs/archive/sessions/)
 
+**Solution Enhanced (2025-12-15 v1.5):**
+- ✅ Updated Rule #20: Removed SESSION_NOTES.md (redundant)
+- ✅ Workflow now creates 3 artifacts (was 4)
+- ✅ SESSION_NOTES.md is no longer maintained
+- ✅ Session archives are comprehensive enough
+
 ### Enforcement Mechanism
 1. **Memory rules** - Explicit CRITICAL markers
 2. **Self-verification** - Checklist before every response
-3. **Fixed workflow** - "novy chat" always produces 4 artifacts first
+3. **Fixed workflow** - "novy chat" always produces 3 artifacts first
 4. **Documentation structure** - Clear separation of concerns
 5. **Initialization protocol** - Silent loading with confirmation only
 6. **Archive organization** - Consistent naming and indexing
@@ -443,6 +406,13 @@ Never: Deployment → direct fix (creates inconsistency)
 ---
 
 ## Version History / História Verzií
+
+- **v1.5** (2025-12-15): Removed SESSION_NOTES.md (redundant)
+  - **UPDATED Rule #20**: Changed from 4 to 3 artifacts
+  - SESSION_NOTES.md is NO LONGER CREATED
+  - Reason: Session archives (SESSION_YYYY-MM-DD_*.md) are comprehensive
+  - Simplified workflow: SESSION archive + INIT + commit message
+  - Updated "Session Closure Workflow" usage notes
 
 - **v1.4** (2025-12-15): Fixed session archive workflow
   - **UPDATED Rule #20**: Changed PROJECT_ARCHIVE_SESSION.md → SESSION_YYYY-MM-DD_descriptive-name.md
@@ -483,4 +453,4 @@ Never: Deployment → direct fix (creates inconsistency)
 **Status:** Active & Enforced  
 **Maintained By:** Zoltán & Claude  
 **Critical Focus:** Artifacts enforcement (Rules #7, #20) + Initialization protocol (Rule #21) + Memory check (Rule #22)  
-**Current Version:** 1.4 (2025-12-15)
+**Current Version:** 1.5 (2025-12-15)
