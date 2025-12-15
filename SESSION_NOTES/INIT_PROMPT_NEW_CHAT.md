@@ -1,327 +1,250 @@
-# INIT PROMPT - NEX Automat v2.4 Column Mapping Fix
-
-## PROJECT CONTEXT
+# INIT PROMPT - NEX Automat: Systematic Documentation Continue
 
 **Projekt:** nex-automat  
-**Typ:** Monorepo - Multi-customer SaaS for automated invoice processing  
-**Development:** `C:\Development\nex-automat`  
-**Deployment:** `C:\Deployment\nex-automat`  
-**Python:** 3.13.7 (venv32)  
-**Git Branch:** develop  
-**Current Version:** v2.4 - DEPLOYED with Column Mapping Issue
+**Úloha:** Pokračovanie návrhu supplier-invoice-staging aplikácie  
+**Developer:** Zoltán (40 rokov skúseností)  
+**Jazyk:** Slovenčina  
+**Previous Session:** https://claude.ai/chat/b64ae513-c5a0-414a-8a0c-4f3b0fd5d09c  
+**Status:** 🔄 Pokračujeme po token limit issue
 
 ---
 
-## ⚠️ CRITICAL ISSUE - MUST FIX FIRST
+## ⚠️ KRITICKÉ: COLLABORATION RULES
 
-### Problem: Invoice Editor Column Names Incorrect
+**MUSÍŠ dodržiavať 21 pravidiel z memory_user_edits!**
 
-**Current State (WRONG):**
-| Column Header | Contains | Should Contain |
-|---------------|----------|----------------|
-| PLU | GsCode (3786) | GsCode (3786) ✅ |
-| ??? | MISSING | Barcode (8594002536213) ❌ |
-| NEX Kód | EMPTY | ??? |
-| NEX Názov | EMPTY | Product name from GSCAT |
-
-**Expected State (CORRECT):**
-| Column Header | Contains | Source |
-|---------------|----------|--------|
-| Čiarový kód | 8594002536213 | From invoice PDF/XML (IMMUTABLE) |
-| PLU | 3786 | GSCAT.GsCode (NEX Genesis) |
-| NEX Názov | AT GRUND 3kg koncentrát | GSCAT.NAZ |
-| NEX Kat. | 0 | GSCAT.Kategória |
-| Match | ean | matched_by (ean/name/manual) |
-
-**Root Cause:**
-- Re-processing overwrites `plu_code` with `GsCode`
-- Original barcode from invoice is **lost**
-- Column mapping in Invoice Editor is incorrect
-
-**Impact:**
-- ⚠️ User cannot verify which invoice item was matched
-- ⚠️ Original barcode data is lost
-- ⚠️ Cannot re-match if needed
+Kľúčové pravidlá pre túto session:
+- **Rule #7:** CRITICAL artifacts pre všetky dokumenty/kód
+- **Rule #8:** Step-by-step, confirmation pred pokračovaním
+- **Rule #20:** "novy chat" = 4 artifacts (ARCHIVE, NOTES, INIT, commit)
+- **Rule #5:** Slovak language, presná terminológia projektov
 
 ---
 
-## CURRENT STATUS - v2.4 DEPLOYED
+## 📋 ČO SME DOKONČILI V PREVIOUS SESSION
 
-### Production (Mágerstav) ✅
+### ✅ Definície Aplikácie
+- **Názov:** `supplier-invoice-staging` ✅
+- **Framework:** PySide6 (migration z PyQt5) ✅
+- **Umiestnenie:** `apps/supplier-invoice-staging/` ✅
+- **Dokumentácia:** `apps/supplier-invoice-staging/docs/SUPPLIER_INVOICE_STAGING.md` ✅
+
+### ✅ Databázová Schéma (Hotová)
+
+**Tabuľka:** `supplier_invoice_items`
+
+**Kategórie polí:**
+1. **xml_*** (11 polí) - Originálne XML dáta - IMMUTABLE
+2. **nex_*** (6 polí) - NEX Genesis enrichment - AUTO
+3. **user_*** (3 polia) - Manuálne editované - EDITABLE
+4. **Statusové** (2 polia) - match_status, validation_status
+
+**Farebná schéma:**
+- 🟢 Zelená = Spárované (ean_matched | name_matched | manual_matched)
+- 🔴 Červená = Nespárované (unmatched - treba vytvoriť v NEX)
+
+**SQL schéma kompletná** - viď PROJECT_ARCHIVE_SESSION.md sekcia 5
+
+### ✅ Workflow (9 krokov definovaných)
+1. Zobrazenie pending faktúr
+2. Výber faktúry
+3. Zobrazenie položiek (farebne)
+4. Identifikácia produktov
+5. Vytvorenie nových produktov v NEX
+6. Úprava cien (priame / margin %)
+7. Validácia
+8. Archivovanie
+9. Import do NEX Genesis
+
+---
+
+## 🔄 ČO TREBA DOKONČIŤ TERAZ
+
+### Priority 1: SUPPLIER_INVOICE_STAGING.md
+**Čo máme:**
+- ✅ Sekcia 1: Overview & Purpose (hotové v artifacts)
+- ✅ Sekcia 2: Databázová štruktúra (hotové v artifacts)
+- ❌ Sekcia 3: GUI Štruktúra (CHÝBA)
+- ❌ Sekcia 4: Workflows (CHÝBA)
+- ❌ Sekcia 5: NEX Genesis Integration (CHÝBA)
+- ❌ Sekcia 6: Configuration (CHÝBA)
+- ❌ Sekcia 7: Development & Deployment (CHÝBA)
+
+**Akcia:** Dokončiť SUPPLIER_INVOICE_STAGING.md (sekcie 3-7)
+
+### Priority 2: PySide6 Migration Plan
+**Čo treba:**
+- BaseWindow trieda (PySide6)
+- BaseGrid trieda (PySide6)
+- Quick search (PySide6)
+- Grid persistence (PySide6)
+
+**Akcia:** Vytvoriť PYSIDE6_MIGRATION_PLAN.md
+
+### Priority 3: Implementation Plan
+**Následne:**
+- Python kód aplikácie
+- Config súbory
+- Database migrations
+- Testing suite
+
+---
+
+## 🎯 SUGGESTED NEXT STEPS
+
+### Krok 1: Dokončiť Dokumentáciu
 ```
-Service: NEXAutomat (NSSM)
-Status: Running
-Version: v2.4 (Git tag: v2.4)
-API: http://localhost:8001
-Health: ✅ {"status":"healthy"}
-NEX Enrichment: ✅ Active (77.4% match rate)
-Column Mapping: ❌ INCORRECT (needs fix)
-```
-
-**Recent Deployment (2025-12-09):**
-- ✅ Git: merged develop → main, tagged v2.4
-- ✅ Dependencies: rapidfuzz, unidecode installed
-- ✅ Config: NEX_GENESIS_ENABLED = True
-- ✅ Btrieve: GSCAT.BTR accessible
-- ✅ PostgreSQL: matched_by column added (Migration 22)
-- ✅ Re-processing: 278/359 items matched (77.4%)
-- ❌ Column mapping: BROKEN (plu_code overwritten)
-
----
-
-## IMMEDIATE TASKS
-
-### Priority 1: Fix Column Mapping (URGENT)
-
-**Files to Check:**
-1. **PostgreSQL Schema:**
-   - `packages/nex-shared/database/postgres_staging.py`
-   - Check: Which field stores barcode vs GsCode?
-   - Current: `plu_code` gets overwritten (WRONG)
-
-2. **ProductMatcher:**
-   - `apps/supplier-invoice-loader/src/business/product_matcher.py`
-   - Check: `match_item()` method
-   - Problem: Likely overwrites plu_code with GsCode
-
-3. **Re-processing Script:**
-   - `scripts/reprocess_nex_enrichment.py`
-   - Check: UPDATE query
-   - Problem: Updates plu_code instead of nex_gs_code
-
-4. **Invoice Editor Grid:**
-   - `apps/supplier-invoice-editor/src/ui/widgets/invoice_items_grid.py`
-   - Check: Column definitions
-   - Problem: May have wrong column names/mapping
-
-**Required Fix:**
-```python
-# WRONG (current):
-UPDATE invoice_items_pending SET
-    plu_code = {gscat.GsCode},  # ❌ Overwrites barcode!
-    nex_name = {gscat.NAZ}
-WHERE id = ...
-
-# CORRECT (needed):
-UPDATE invoice_items_pending SET
-    nex_gs_code = {gscat.GsCode},  # ✅ Separate field!
-    nex_name = {gscat.NAZ},
-    matched_by = 'ean'
-WHERE id = ...
--- plu_code stays UNCHANGED (original barcode)
+1. Otvor artifact "supplier_invoice_staging_doc"
+2. Dopíš sekcie 3-7:
+   - GUI Štruktúra (windows, widgets, layouts)
+   - Workflows (detailný popis 9 krokov)
+   - NEX Genesis Integration (API calls, data sync)
+   - Configuration (config.yaml štruktúra)
+   - Development & Deployment (setup, dependencies)
+3. Ulož do apps/supplier-invoice-staging/docs/SUPPLIER_INVOICE_STAGING.md
 ```
 
-**Steps:**
-1. [ ] Analyze current column mapping
-2. [ ] Identify where plu_code gets overwritten
-3. [ ] Fix ProductMatcher to use nex_gs_code
-4. [ ] Fix reprocess script
-5. [ ] Fix Invoice Editor column headers
-6. [ ] Test with invoice 32509318
-7. [ ] Verify barcodes preserved
+### Krok 2: PySide6 Migration
+```
+1. Analyzuj existujúce BaseWindow (PyQt5)
+2. Analyzuj existujúce BaseGrid (PyQt5)
+3. Vytvor PYSIDE6_MIGRATION_PLAN.md
+4. Vytvor migračné scripty
+```
+
+### Krok 3: Implementácia
+```
+1. Vytvor kostru projektu supplier-invoice-staging
+2. Implementuj BaseWindow (PySide6)
+3. Implementuj BaseGrid (PySide6)
+4. Implementuj hlavné okno aplikácie
+```
 
 ---
 
-## PROJECT STRUCTURE
+## 📂 AKTUÁLNA ŠTRUKTÚRA PROJEKTU
 
 ```
 nex-automat/
 ├── apps/
-│   ├── supplier-invoice-editor/      # PyQt5 desktop app
-│   │   └── src/ui/widgets/
-│   │       └── invoice_items_grid.py # ⚠️ CHECK: Column names
-│   └── supplier-invoice-loader/      # FastAPI service (port 8001)
-│       └── src/business/
-│           └── product_matcher.py    # ⚠️ CHECK: Match logic
+│   ├── supplier-invoice-loader/       # FastAPI (port 8001) - HOTOVÉ ✅
+│   ├── supplier-invoice-editor/       # Stará GUI (PyQt5) - DEPRECATED ❌
+│   └── supplier-invoice-staging/      # Nová GUI (PySide6) - V NÁVRHU 🔄
+│       ├── docs/
+│       │   └── SUPPLIER_INVOICE_STAGING.md  (čiastočne hotové)
+│       ├── src/                       (NEEXISTUJE)
+│       ├── database/                  (NEEXISTUJE)
+│       └── config/                    (NEEXISTUJE)
 ├── packages/
-│   ├── nex-shared/                   # Shared models (FLAT structure)
-│   │   └── database/
-│   │       └── postgres_staging.py   # ⚠️ CHECK: Schema
-│   └── nexdata/                      # Btrieve access layer
-└── scripts/
-    ├── reprocess_nex_enrichment.py   # ⚠️ CHECK: UPDATE query
-    └── 22_migrate_postgres_phase4.py # Migration (already run)
+│   ├── nex-shared/
+│   │   ├── gui/                       # BaseWindow, BaseGrid (PyQt5) ❌
+│   │   ├── database/                  # DB utils ✅
+│   │   └── models/                    # Data models ✅
+│   └── nexdata/                       # NEX data access ✅
+└── docs/
+    ├── architecture/
+    │   └── database/                  # Sessions 1-8 dokumentácia ✅
+    └── COLLABORATION_RULES.md v1.2    ✅
 ```
 
 ---
 
-## POSTGRESQL SCHEMA
+## 🔑 KĽÚČOVÉ TECHNICKÉ INFO
 
-### invoice_items_pending (Current Schema)
-
-**Current Columns:**
-```sql
--- Original columns
-id SERIAL PRIMARY KEY
-invoice_id INTEGER
-plu_code VARCHAR(50)           -- ⚠️ CURRENTLY: Gets overwritten with GsCode
-item_name VARCHAR(255)
-quantity DECIMAL(10,3)
-unit_price DECIMAL(10,2)
-...
-
--- NEX Enrichment columns (Phase 3+4)
-nex_gs_code INTEGER            -- GsCode from GSCAT (SHOULD be used!)
-nex_name VARCHAR(255)          -- Product name from GSCAT
-in_nex BOOLEAN                 -- Found in NEX Genesis
-matched_by VARCHAR(20)         -- 'ean' | 'name' | 'manual' (Phase 4)
-validation_status VARCHAR(20)  -- 'pending' | 'valid' | 'warning' | 'error'
-```
-
-**Problem:**
-- `plu_code` should contain **barcode from invoice** (IMMUTABLE)
-- `nex_gs_code` should contain **GsCode from GSCAT** (from matching)
-- Currently: `plu_code` gets **overwritten** with `nex_gs_code` value
-
----
-
-## DEVELOPMENT WORKFLOW
-
-```
-1. Development → Git → Deployment
-2. All fixes via Development first
-3. Test locally
-4. Commit and push
-5. Pull in Deployment
-6. Restart service/task
-```
-
-**Git:**
-```powershell
-git add .
-git commit -m "Fix: Preserve barcode in plu_code, use nex_gs_code for GsCode"
-git push
-```
-
-**Deployment:**
-```powershell
-cd C:\Deployment\nex-automat
-git pull
-Stop-Service -Name "NEXAutomat" -Force
-Start-Service -Name "NEXAutomat"
-```
-
----
-
-## TESTING CHECKLIST
-
-### After Fix is Applied
-- [ ] Re-process invoice 32509318
-- [ ] Open in Invoice Editor
-- [ ] Verify columns:
-  - [ ] **Čiarový kód**: Shows 8594002536213 (barcode)
-  - [ ] **PLU**: Shows 3786 (GsCode)
-  - [ ] **NEX Názov**: Shows "AT GRUND 3kg koncentrát"
-  - [ ] **Match**: Shows "ean"
-- [ ] Check PostgreSQL:
-  ```sql
-  SELECT plu_code, nex_gs_code, nex_name, matched_by
-  FROM invoice_items_pending
-  WHERE invoice_id = ...
-  LIMIT 10;
-  ```
-- [ ] Verify: plu_code = barcode, nex_gs_code = GsCode
-
----
-
-## COMMON ISSUES
-
-### Column Mapping
-**Q:** Why is plu_code overwritten?  
-**A:** ProductMatcher or reprocess script updates wrong field
-
-**Q:** Where should GsCode be stored?  
-**A:** In `nex_gs_code` field (already exists!)
-
-**Q:** What is plu_code?  
-**A:** Should be barcode from invoice XML/PDF (original data)
-
-### Re-processing
-**Q:** Can we re-process without losing barcodes?  
-**A:** Yes, after fixing UPDATE query to use nex_gs_code
-
----
-
-## ENVIRONMENT DETAILS
-
-**Production Server (Mágerstav):**
-- OS: Windows Server
-- Python: 3.13.7 32-bit (venv32)
-- Database: PostgreSQL (invoice_staging) + Btrieve (NEX Genesis)
-- Service: NEXAutomat (NSSM)
-- Status: ✅ Running
-- Version: v2.4
-
-**Configuration:**
+### Database Connection
 ```python
-# config_customer.py (not in Git!)
-NEX_GENESIS_ENABLED = True
-NEX_DATA_PATH = r"C:\NEX\YEARACT\STORES"
-CUSTOMER_CODE = "MAGERSTAV"
+# PostgreSQL invoice_staging
+HOST = "localhost"
+PORT = 5432
+DATABASE = "invoice_staging"
+USER = "postgres"
 ```
+
+### NEX Genesis Connection
+```python
+# Btrieve NEX Genesis
+NEX_DATA_PATH = "X:\\NEX\\DATA\\"  # Server path
+GSCAT_FILE = "GSCAT.BTR"           # Product catalog
+```
+
+### Tech Stack
+- **GUI:** PySide6 (Qt 6.x)
+- **Database:** PostgreSQL 15
+- **ORM:** SQLAlchemy (ak použijeme)
+- **Config:** PyYAML
+- **Data:** Pandas (pre bulk operations)
 
 ---
 
-## KEY REMINDERS
+## 💡 ROZHODNUTIA Z PREVIOUS SESSION
 
-### Communication
-- All communication in Slovak language
-- One solution at a time, wait for confirmation
-- End response with token usage
+### 1. PySide6 > PyQt5
+**Dôvod:** LGPL licencia, oficiálny Qt for Python  
+**Dopad:** Potreba migrácie BaseWindow/BaseGrid
 
-### Code Standards
-- ALL code/configs/docs in artifacts (ALWAYS)
-- Development → Git → Deployment workflow
-- Never fix directly in Deployment
-- Test after every change
+### 2. Kategorizácia Polí (xml_*, nex_*, user_*)
+**Dôvod:** Prehľadnosť, jasná separácia concerns  
+**Benefit:** Jednoduchšia údržba, lepšia dokumentácia
 
-### Critical Rules
-- NEVER start work if GitHub files fail to load
-- NEVER reboot test server (Pervasive breaks)
-- ALWAYS preserve original invoice data
-- NEVER overwrite immutable fields (like barcode)
+### 3. Farebná Schéma (zelená/červená)
+**Dôvod:** Intuitívna pre používateľa  
+**Benefit:** Okamžitá vizuálna identifikácia problémov
 
----
-
-## QUICK COMMANDS
-
-### Development Testing
-```powershell
-cd C:\Development\nex-automat
-python -m pytest packages/nexdata/tests/ -v
-```
-
-### Deployment Service
-```powershell
-# Restart
-Stop-Service -Name "NEXAutomat" -Force
-Start-Service -Name "NEXAutomat"
-
-# Status
-Get-Service -Name "NEXAutomat"
-Test-NetConnection localhost -Port 8001
-curl http://localhost:8001/health
-```
-
-### View Logs
-```powershell
-Get-Content C:\Deployment\nex-automat\logs\service-stderr.log -Tail 50
-```
+### 4. Systematická Dokumentácia
+**Pattern:** Každá app = vlastný docs/ adresár  
+**Benefit:** Modularizácia, ľahké nájdenie info
 
 ---
 
-## SUPPORT INFO
+## ⚠️ KNOWN ISSUES
 
-**Developer:** Zoltán  
-**Company:** ICC Komárno  
-**Customer:** Mágerstav s.r.o.  
-**Deployment Date:** 2025-12-09  
-**Current Issue:** Column mapping incorrect  
-**Priority:** URGENT FIX NEEDED
+### Token Limit Problem
+**Problem:** Previous session sa zablokovala pri ~95k / 190k tokenov  
+**Expected:** Malo byť priestoru na ~95k ešte  
+**Actual:** Predčasné zablokovanie  
+**Hypotéza:** Možný bug Claude.ai alebo skryté limity  
+
+**Ako sa vyhnúť:**
+- Kratšie artifacts
+- Modulárna dokumentácia
+- Častejšie checkpointy
 
 ---
 
-**Init Prompt Created:** 2025-12-09 20:30  
-**Version:** v2.4 - DEPLOYED (Column Fix Needed)  
-**Status:** ⚠️ Fix column mapping before new features  
-**Next:** Analyze and fix plu_code overwrite issue
+## 📋 CHECKLIST PRE TÚTO SESSION
+
+### Before You Start
+- [ ] Prečítaj COLLABORATION_RULES.md pravidlá
+- [ ] Prečítaj PROJECT_ARCHIVE_SESSION.md
+- [ ] Understand databázová schéma (sekcia 5 v ARCHIVE)
+- [ ] Understand workflow (9 krokov)
+
+### During Session
+- [ ] ALWAYS artifacts pre dokumenty/kód
+- [ ] ONE step at a time, WAIT for confirmation
+- [ ] Token usage na konci každej odpovede
+- [ ] Follow Slovak language + English tech terms
+
+### End of Session
+- [ ] Update SESSION_NOTES.md
+- [ ] Create INIT_PROMPT_NEW_CHAT.md (pre ďalšiu session)
+- [ ] Create commit-message.txt (ak sú zmeny)
+- [ ] Append to PROJECT_ARCHIVE.md
+
+---
+
+## 🎯 IMMEDIATE GOAL
+
+**ČO UROBIŤ PRVÉ:**
+
+Opýtaj sa:
+> "Chceš pokračovať dokončením SUPPLIER_INVOICE_STAGING.md (sekcie 3-7)  
+> alebo radšej začať PySide6 migration plan?"
+
+**Potom postupuj step-by-step podľa výberu.**
+
+---
+
+**Token Budget:** 190,000  
+**Estimated Completion:** 2-4 hodiny (závisí od zložitosti)  
+**Ready to Continue:** ✅ ÁNO

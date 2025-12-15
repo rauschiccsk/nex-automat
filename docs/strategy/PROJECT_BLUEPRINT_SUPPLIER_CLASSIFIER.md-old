@@ -1,9 +1,9 @@
 # Supplier Classifier - Project Blueprint
 
-**Projekt:** Automatická klasifikácia dodávateľov z PDF faktúr pomocou Machine Learning  
-**Časový horizont:** 2-4 týždne  
-**Priorita:** VYSOKÁ (Quick Win projekt)  
-**Status:** READY TO START  
+**Projekt:** Automatická klasifikácia dodávateľov z PDF faktúr pomocou Machine Learning
+**Časový horizont:** 2-4 týždne
+**Priorita:** VYSOKÁ (Quick Win projekt)
+**Status:** READY TO START
 **Vytvorené:** 2024-12-04
 
 ---
@@ -348,7 +348,7 @@ nex-automat/
 **SQL query pre export faktúr z NEX Genesis:**
 ```sql
 -- Top 20 dodávateľov podľa počtu faktúr
-SELECT 
+SELECT
     supplier_id,
     supplier_name,
     COUNT(*) as invoice_count
@@ -373,28 +373,28 @@ from pathlib import Path
 def export_supplier_invoices(supplier_ids, min_count=50):
     """
     Export faktúr z NEX Genesis pre training.
-    
+
     Args:
         supplier_ids: List top 20 supplier IDs
         min_count: Minimum faktúr per dodávateľ
     """
-    
+
     # 1. Connect to database (Btrieve/PostgreSQL)
     # 2. Query invoices for each supplier
     # 3. Copy PDF files to training_data/raw/
     # 4. Create metadata.csv
-    
+
     metadata = []
-    
+
     for supplier_id in supplier_ids:
         invoices = query_invoices(supplier_id, limit=min_count)
-        
+
         for invoice in invoices:
             # Copy PDF
             src = invoice['pdf_path']
             dst = f"training/data/raw/{invoice['invoice_id']}.pdf"
             shutil.copy(src, dst)
-            
+
             # Add to metadata
             metadata.append({
                 'invoice_id': invoice['invoice_id'],
@@ -404,11 +404,11 @@ def export_supplier_invoices(supplier_ids, min_count=50):
                 'amount': invoice['amount'],
                 'pdf_path': dst
             })
-    
+
     # Save metadata
     df = pd.DataFrame(metadata)
     df.to_csv('training/data/metadata.csv', index=False)
-    
+
     print(f"Exported {len(metadata)} invoices from {len(supplier_ids)} suppliers")
     return df
 
@@ -451,17 +451,17 @@ from tqdm import tqdm
 def ocr_invoice(pdf_path):
     """
     Extract text from PDF using Tesseract OCR.
-    
+
     Returns:
         str: Extracted text
     """
     try:
         # Convert PDF to images (první strana stačí pro většinu faktur)
         images = convert_from_path(pdf_path, first_page=1, last_page=1)
-        
+
         # OCR first page
         text = pytesseract.image_to_string(images[0], lang='eng+slk')
-        
+
         return text
     except Exception as e:
         print(f"Error processing {pdf_path}: {e}")
@@ -469,35 +469,35 @@ def ocr_invoice(pdf_path):
 
 def batch_ocr_processing():
     """Process all invoices and save OCR text."""
-    
+
     df = pd.read_csv('training/data/metadata.csv')
-    
+
     ocr_texts = []
-    
+
     for idx, row in tqdm(df.iterrows(), total=len(df)):
         pdf_path = row['pdf_path']
         invoice_id = row['invoice_id']
-        
+
         # OCR
         text = ocr_invoice(pdf_path)
-        
+
         # Save text file
         text_path = f"training/data/processed/{invoice_id}.txt"
         Path(text_path).write_text(text, encoding='utf-8')
-        
+
         ocr_texts.append({
             'invoice_id': invoice_id,
             'text': text,
             'text_length': len(text)
         })
-    
+
     # Save OCR results
     ocr_df = pd.DataFrame(ocr_texts)
     ocr_df.to_csv('training/data/ocr_results.csv', index=False)
-    
+
     print(f"OCR completed for {len(ocr_df)} invoices")
     print(f"Average text length: {ocr_df['text_length'].mean():.0f} chars")
-    
+
     return ocr_df
 
 # Usage:
@@ -792,10 +792,10 @@ async def health_check():
 async def classify_supplier(file: UploadFile = File(...)):
     """
     Classify supplier from invoice PDF.
-    
+
     Args:
         file: PDF file (multipart/form-data)
-    
+
     Returns:
         {
             "supplier_id": str,
@@ -805,21 +805,21 @@ async def classify_supplier(file: UploadFile = File(...)):
             "needs_review": bool
         }
     """
-    
+
     if not file.filename.endswith('.pdf'):
         raise HTTPException(status_code=400, detail="Only PDF files are supported")
-    
+
     start_time = time.time()
-    
+
     try:
         # Read PDF file
         pdf_content = await file.read()
-        
+
         # Classify
         result = classifier.predict(pdf_content)
-        
+
         processing_time = int((time.time() - start_time) * 1000)
-        
+
         return {
             "supplier_id": result['supplier_id'],
             "supplier_name": result['supplier_name'],
@@ -827,7 +827,7 @@ async def classify_supplier(file: UploadFile = File(...)):
             "processing_time_ms": processing_time,
             "needs_review": result['confidence'] < settings.CONFIDENCE_THRESHOLD
         }
-        
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Classification error: {str(e)}")
 
@@ -840,12 +840,12 @@ async def supplier_feedback(
 ):
     """
     Log user corrections for model retraining.
-    
+
     This creates a feedback loop for continuous improvement.
     """
-    
+
     # TODO: Save to PostgreSQL ml_training_data.supplier_corrections
-    
+
     return {
         "status": "feedback_recorded",
         "invoice_id": invoice_id,
@@ -868,35 +868,35 @@ import numpy as np
 
 class SupplierClassifier:
     """Supplier classification from invoice PDF."""
-    
+
     def __init__(self, model_path: str, vectorizer_path: str):
         """
         Initialize classifier with trained models.
-        
+
         Args:
             model_path: Path to supplier_classifier.pkl
             vectorizer_path: Path to vectorizer.pkl
         """
         self.model = joblib.load(model_path)
         self.vectorizer = joblib.load(vectorizer_path)
-        
+
         # Load supplier mapping
         import json
         metadata_path = Path(model_path).parent / 'model_metadata.json'
         with open(metadata_path) as f:
             metadata = json.load(f)
             self.supplier_mapping = {
-                s['supplier_id']: s['supplier_name'] 
+                s['supplier_id']: s['supplier_name']
                 for s in metadata['supplier_mapping']
             }
-    
+
     def predict(self, pdf_content: bytes) -> dict:
         """
         Predict supplier from PDF content.
-        
+
         Args:
             pdf_content: PDF file as bytes
-            
+
         Returns:
             {
                 'supplier_id': str,
@@ -906,20 +906,20 @@ class SupplierClassifier:
         """
         # 1. Convert PDF to image
         images = convert_from_bytes(pdf_content, first_page=1, last_page=1)
-        
+
         # 2. OCR
         text = pytesseract.image_to_string(images[0], lang='eng+slk')
-        
+
         # 3. Extract features
         features = self.vectorizer.transform([text])
-        
+
         # 4. Predict
         supplier_id = self.model.predict(features)[0]
         confidence = self.model.predict_proba(features).max()
-        
+
         # 5. Map to supplier name
         supplier_name = self.supplier_mapping.get(supplier_id, "UNKNOWN")
-        
+
         return {
             'supplier_id': str(supplier_id),
             'supplier_name': supplier_name,
@@ -938,10 +938,10 @@ class Settings:
     BASE_DIR = Path(__file__).parent.parent
     MODEL_PATH = BASE_DIR / "ml_models" / "supplier_classifier.pkl"
     VECTORIZER_PATH = BASE_DIR / "ml_models" / "vectorizer.pkl"
-    
+
     # Thresholds
     CONFIDENCE_THRESHOLD = 0.85  # Predictions below this need manual review
-    
+
     # API
     API_HOST = "0.0.0.0"
     API_PORT = 8001

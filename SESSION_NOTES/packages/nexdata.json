@@ -2,15 +2,15 @@
   "name": "nexdata",
   "type": "package",
   "location": "packages/nexdata",
-  "generated": "2025-12-13T22:09:45.798841",
+  "generated": "2025-12-15T11:08:59.176099",
   "statistics": {
     "total_files": 24,
     "total_dirs": 8,
     "python_files": 22,
     "powershell_files": 0,
-    "markdown_files": 1,
+    "markdown_files": 0,
     "test_files": 0,
-    "total_lines": 2551,
+    "total_lines": 2505,
     "total_size": 83942
   },
   "dependencies": {
@@ -22,13 +22,11 @@
   },
   "files": [
     {
-      "path": "packages/nexdata/README.md",
-      "name": "README.md",
+      "path": "packages/nexdata/README.md-old",
+      "name": "README.md-old",
       "size": 983,
-      "extension": ".md",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/packages/nexdata/README.md",
-      "lines": 46,
-      "type": "documentation"
+      "extension": ".md-old",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/packages/nexdata/README.md-old"
     },
     {
       "path": "packages/nexdata/nexdata/__init__.py",

@@ -2,15 +2,15 @@
   "name": "supplier-invoice-editor",
   "type": "application",
   "location": "apps/supplier-invoice-editor",
-  "generated": "2025-12-13T22:09:45.297862",
+  "generated": "2025-12-15T11:08:58.351281",
   "statistics": {
     "total_files": 74,
     "total_dirs": 28,
     "python_files": 54,
     "powershell_files": 0,
-    "markdown_files": 10,
+    "markdown_files": 2,
     "test_files": 8,
-    "total_lines": 9696,
+    "total_lines": 9011,
     "total_size": 1412031
   },
   "structure": {
@@ -46,13 +46,11 @@
   },
   "files": [
     {
-      "path": "apps/supplier-invoice-editor/README.md",
-      "name": "README.md",
+      "path": "apps/supplier-invoice-editor/README.md-old",
+      "name": "README.md-old",
       "size": 930,
-      "extension": ".md",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-editor/README.md",
-      "lines": 40,
-      "type": "documentation"
+      "extension": ".md-old",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-editor/README.md-old"
     },
     {
       "path": "apps/supplier-invoice-editor/cleanup_backups.py",
@@ -80,13 +78,11 @@
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-editor/config/config.yaml"
     },
     {
-      "path": "apps/supplier-invoice-editor/database/README.md",
-      "name": "README.md",
+      "path": "apps/supplier-invoice-editor/database/README.md-old",
+      "name": "README.md-old",
       "size": 47,
-      "extension": ".md",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-editor/database/README.md",
-      "lines": 3,
-      "type": "documentation"
+      "extension": ".md-old",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-editor/database/README.md-old"
     },
     {
       "path": "apps/supplier-invoice-editor/database/schemas/001_initial_schema.sql",
@@ -119,22 +115,18 @@
       "type": "documentation"
     },
     {
-      "path": "apps/supplier-invoice-editor/docs/POSTGRESQL_SETUP.md",
-      "name": "POSTGRESQL_SETUP.md",
+      "path": "apps/supplier-invoice-editor/docs/POSTGRESQL_SETUP.md-old",
+      "name": "POSTGRESQL_SETUP.md-old",
       "size": 8743,
-      "extension": ".md",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-editor/docs/POSTGRESQL_SETUP.md",
-      "lines": 390,
-      "type": "documentation"
+      "extension": ".md-old",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-editor/docs/POSTGRESQL_SETUP.md-old"
     },
     {
-      "path": "apps/supplier-invoice-editor/docs/README.md",
-      "name": "README.md",
+      "path": "apps/supplier-invoice-editor/docs/README.md-old",
+      "name": "README.md-old",
       "size": 44,
-      "extension": ".md",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-editor/docs/README.md",
-      "lines": 3,
-      "type": "documentation"
+      "extension": ".md-old",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-editor/docs/README.md-old"
     },
     {
       "path": "apps/supplier-invoice-editor/docs/SESSION_NOTES.md",
@@ -146,13 +138,11 @@
       "type": "documentation"
     },
     {
-      "path": "apps/supplier-invoice-editor/docs/database/TYPE_MAPPINGS.md",
-      "name": "TYPE_MAPPINGS.md",
+      "path": "apps/supplier-invoice-editor/docs/database/TYPE_MAPPINGS.md-old",
+      "name": "TYPE_MAPPINGS.md-old",
       "size": 6336,
-      "extension": ".md",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-editor/docs/database/TYPE_MAPPINGS.md",
-      "lines": 240,
-      "type": "documentation"
+      "extension": ".md-old",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-editor/docs/database/TYPE_MAPPINGS.md-old"
     },
     {
       "path": "apps/supplier-invoice-editor/docs/project_file_access.json",
@@ -206,13 +196,11 @@
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-editor/requirements.txt"
     },
     {
-      "path": "apps/supplier-invoice-editor/resources/README.md",
-      "name": "README.md",
+      "path": "apps/supplier-invoice-editor/resources/README.md-old",
+      "name": "README.md-old",
       "size": 64,
-      "extension": ".md",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-editor/resources/README.md",
-      "lines": 3,
-      "type": "documentation"
+      "extension": ".md-old",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-editor/resources/README.md-old"
     },
     {
       "path": "apps/supplier-invoice-editor/scripts/apply_xml_import_changes.py",
@@ -341,13 +329,11 @@
       "type": "source"
     },
     {
-      "path": "apps/supplier-invoice-editor/src/README.md",
-      "name": "README.md",
+      "path": "apps/supplier-invoice-editor/src/README.md-old",
+      "name": "README.md-old",
       "size": 30,
-      "extension": ".md",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-editor/src/README.md",
-      "lines": 3,
-      "type": "documentation"
+      "extension": ".md-old",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-editor/src/README.md-old"
     },
     {
       "path": "apps/supplier-invoice-editor/src/__init__.py",
@@ -611,13 +597,11 @@
       "type": "source"
     },
     {
-      "path": "apps/supplier-invoice-editor/tests/README.md",
-      "name": "README.md",
+      "path": "apps/supplier-invoice-editor/tests/README.md-old",
+      "name": "README.md-old",
       "size": 23,
-      "extension": ".md",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-editor/tests/README.md",
-      "lines": 3,
-      "type": "documentation"
+      "extension": ".md-old",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-editor/tests/README.md-old"
     },
     {
       "path": "apps/supplier-invoice-editor/tests/__init__.py",
@@ -694,12 +678,6 @@
   ],
   "key_files": [
     "apps/supplier-invoice-editor/main.py",
-    "apps/supplier-invoice-editor/pyproject.toml",
-    "apps/supplier-invoice-editor/README.md",
-    "apps/supplier-invoice-editor/database/README.md",
-    "apps/supplier-invoice-editor/docs/README.md",
-    "apps/supplier-invoice-editor/resources/README.md",
-    "apps/supplier-invoice-editor/src/README.md",
-    "apps/supplier-invoice-editor/tests/README.md"
+    "apps/supplier-invoice-editor/pyproject.toml"
   ]
 }

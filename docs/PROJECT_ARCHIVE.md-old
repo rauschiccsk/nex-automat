@@ -3588,3 +3588,252 @@ Errors:          0 (0.0%)
 **Session End:** 2025-12-09 20:30  
 **Duration:** ~60 minút  
 **Result:** ✅ Deployment úspešný, ⚠️ Fix názvov stĺpcov needed
+
+# PROJECT ARCHIVE - Session: Systematic Documentation
+
+**Dátum:** 2025-12-15
+**Session URL:** https://claude.ai/chat/b64ae513-c5a0-414a-8a0c-4f3b0fd5d09c
+**Status:** ⚠️ Prerušené kvôli token limitu (neminuli sme ani 50% tokenov)
+**Projekt:** NEX Automat v2.4+
+**Developer:** Zoltán (40 rokov skúseností)
+
+---
+
+## 📋 OBSAH SESSION
+
+### 1. Cieľ Session
+Návrh novej GUI aplikácie **supplier-invoice-staging** pre spracovanie dodávateľských faktúr s pokročilou funkcionalitou párovania produktov a validácie dát.
+
+### 2. Hlavné Úlohy Dokončené
+
+#### ✅ Definícia Aplikácie
+- **Názov:** `supplier-invoice-staging`
+- **Účel:** Nahradiť starú `supplier-invoice-editor` aplikáciu
+- **Technológia:** PySide6 (prechod z PyQt5)
+- **Umiestnenie:** `apps/supplier-invoice-staging/`
+- **Dokumentácia:** `apps/supplier-invoice-staging/docs/SUPPLIER_INVOICE_STAGING.md`
+
+#### ✅ Databázová Schéma
+Navrhnutá tabuľka `supplier_invoice_items` s tromi kategóriami polí:
+
+**1. XML Polia (xml_*) - IMMUTABLE**
+- Originálne dáta z dodávateľskej faktúry
+- 11 polí: line_id, quantity, unit_code, unit_price, unit_price_vat, line_total, line_total_vat, vat_rate, description, seller_code, ean_code
+- Nikdy sa nemenené po načítaní z XML
+
+**2. NEX Genesis Polia (nex_*) - ENRICHMENT**
+- Dáta z produktového katalógu GSCAT
+- 6 polí: product_id, product_name, business_type, product_type, unit_name, vat_group_id
+- Automaticky doplnené pri párovaní
+
+**3. Používateľské Polia (user_*) - EDITOVATEĽNÉ**
+- Manuálne upravované v GUI
+- 3 polia: selling_price, margin_percent, notes
+
+**4. Statusové Polia**
+- `match_status`: unmatched | ean_matched | name_matched | manual_matched
+- `validation_status`: pending | valid | warning | error
+- `is_archived`: FALSE/TRUE
+
+#### ✅ Farebná Schéma GUI
+- 🟢 **Zelená** - Spárované (ean_matched, name_matched, manual_matched)
+- 🔴 **Červená** - Nespárované (unmatched - treba vytvoriť v NEX Genesis)
+- ⚪ **Biela** - Pending validácia
+- 🟡 **Žltá** - Warning (neblokujúce)
+- 🔴 **Červená** - Error (blokujúce)
+
+#### ✅ Technologické Rozhodnutia
+
+**PyQt5 → PySide6 Migration**
+- Rozhodnutie: Prechod na PySide6 pre všetky GUI aplikácie
+- Dôvod: Lepšia licencia (LGPL), oficiálna Qt for Python
+- Dopad: Potreba aktualizácie existujúcich BaseWindow a BaseGrid tried
+- Status: V návrhovej fáze
+
+#### ✅ Dokumentačný Systém
+
+**Systematická štruktúra:**
+- Každá aplikácia má vlastný `docs/` adresár
+- Hlavný dokument: `SUPPLIER_INVOICE_STAGING.md`
+- Všetky detaily v jednom dokumente
+- Konzistencia s existujúcimi docs (DATABASE_DOCUMENTATION.md štýl)
+
+### 3. Kľúčové Koncepty
+
+#### Workflow Používateľa (9 krokov)
+1. Zobrazenie pending faktúr
+2. Výber faktúry na spracovanie
+3. Zobrazenie položiek s farebným rozlíšením
+4. Identifikácia produktov (zelené = OK, červené = treba vytvoriť)
+5. Vytvorenie nových produktov v NEX Genesis (pre červené)
+6. Úprava cien (priame zadanie alebo margin %)
+7. Validácia všetkých položiek
+8. Archivovanie po úspešnom importe
+9. Import do NEX Genesis ako dodací list
+
+#### Architektúra Aplikácie
+```
+apps/supplier-invoice-staging/
+├── docs/
+│   └── SUPPLIER_INVOICE_STAGING.md
+├── src/
+│   ├── main.py
+│   ├── windows/
+│   ├── widgets/
+│   └── database/
+├── database/
+│   └── schemas/
+└── config/
+```
+
+### 4. Čo Zostalo Nedokončené
+
+#### 🔄 Rozpracované
+1. **SUPPLIER_INVOICE_STAGING.md** - začatý, nekompletný
+   - Vytvorená sekcia databázovej štruktúry
+   - Chýbajú: GUI štruktúra, workflows, konfigurácia
+
+2. **PySide6 Migration** - naplánované, neimplementované
+   - BaseWindow trieda
+   - BaseGrid trieda
+   - Quick search funkcionality
+   - Grid persistence
+
+3. **Generate Projects Access Script** - enhancement požadovaný
+   - Rozšírenie pre `docs/` manifest
+   - Automatická kategorizácia dokumentov
+
+#### ❌ Nezačaté
+1. Python kód aplikácie supplier-invoice-staging
+2. Konfiguračné súbory
+3. Database migration scripts pre novú schému
+4. PySide6 migračné scripty
+5. Testy
+
+### 5. Technické Detaily
+
+#### Database Schema SQL
+```sql
+CREATE TABLE supplier_invoice_items (
+    -- XML Fields (immutable)
+    xml_line_id INTEGER NOT NULL,
+    xml_quantity DECIMAL(12,3) NOT NULL,
+    xml_unit_code VARCHAR(10),
+    xml_unit_price DECIMAL(12,2),
+    xml_unit_price_vat DECIMAL(12,2),
+    xml_line_total DECIMAL(12,2),
+    xml_line_total_vat DECIMAL(12,2),
+    xml_vat_rate DECIMAL(5,2),
+    xml_description VARCHAR(255),
+    xml_seller_code VARCHAR(50),
+    xml_ean_code VARCHAR(50),
+
+    -- NEX Genesis Fields (enrichment)
+    nex_product_id INTEGER,
+    nex_product_name VARCHAR(100),
+    nex_business_type VARCHAR(1),
+    nex_product_type VARCHAR(1),
+    nex_unit_name VARCHAR(20),
+    nex_vat_group_id INTEGER,
+
+    -- User Fields (editable)
+    user_selling_price DECIMAL(12,2),
+    user_margin_percent DECIMAL(5,2),
+    user_notes TEXT,
+
+    -- Status Fields
+    match_status VARCHAR(20),
+    validation_status VARCHAR(20),
+    is_archived BOOLEAN DEFAULT FALSE,
+
+    -- Audit Fields
+    created_by VARCHAR(30),
+    created_at TIMESTAMP,
+    updated_by VARCHAR(30),
+    updated_at TIMESTAMP
+);
+```
+
+#### Farebné Mapovanie
+```python
+COLOR_MAP = {
+    'ean_matched': '#90EE90',      # Zelená
+    'name_matched': '#90EE90',     # Zelená
+    'manual_matched': '#90EE90',   # Zelená
+    'unmatched': '#FFB6C6',        # Červená
+    'pending': '#FFFFFF',          # Biela
+    'valid': '#90EE90',            # Zelená
+    'warning': '#FFFF99',          # Žltá
+    'error': '#FFB6C6'             # Červená
+}
+```
+
+### 6. Lessons Learned
+
+#### ✅ Čo Fungovalo Dobre
+1. **Kategorizácia polí** (xml_*, nex_*, user_*) - veľmi prehľadné
+2. **Farebná schéma** - intuitívna pre používateľa
+3. **Systematická dokumentácia** - každá app má svoj docs/
+4. **Step-by-step approach** - nie všetko naraz
+
+#### ⚠️ Čo Treba Zlepšiť
+1. **Token management** - session sa zablokovala predčasne (nie je jasné prečo)
+2. **Dokumentácia príliš obsiahla** - možno rozdeliť na viacero súborov
+3. **PySide6 migration** - malo byť urobené skôr
+
+#### 💡 Insights
+1. Token limit problém - možno technický issue Claude.ai
+2. Dokumentácia musí byť modularizovaná
+3. GUI framework migration je major effort - plánovať vopred
+
+### 7. Deployment Info
+
+**Status:** Nedeploy-ované (iba návrh)
+**Prostredie:** Žiadne
+**Verzia:** N/A
+
+### 8. Súvisiace Dokumenty
+
+#### Vytvorené v Tejto Session
+- `SUPPLIER_INVOICE_STAGING.md` (čiastočne) - databázová schéma
+
+#### Súvisiace z Iných Sessions
+- `COMMON_DOCUMENT_PRINCIPLES.md v2.0` (Session 7)
+- `DATABASE_DOCUMENTATION.md` (Sessions 1-8)
+- `GSCAT-product_catalog.md` (Sessions 1-3)
+- `TSI-supplier_delivery_items.md` (Session 7)
+
+#### Nasledujúce Session
+- Dokončenie SUPPLIER_INVOICE_STAGING.md
+- PySide6 migration BaseWindow/BaseGrid
+- Implementácia supplier-invoice-staging aplikácie
+
+### 9. Git Info
+
+**Branch:** Pravdepodobne `develop`
+**Commits:** Žiadne (iba dokumentácia v artifacts)
+**Tags:** N/A
+
+### 10. Notes & Comments
+
+#### Prečo Session Zlyhala
+⚠️ **Token limit dosiahnutý predčasne** - neminuli sme ani 50% tokenov (z ~190k), ale chat sa zablokoval. Možný bug v Claude.ai alebo nejaké iné obmedzenie.
+
+#### Čo Pokračovať
+1. **URGENT:** Dokončiť SUPPLIER_INVOICE_STAGING.md
+2. **HIGH:** PySide6 migration plan
+3. **MEDIUM:** Generate projects access enhancement
+4. **LOW:** Implementácia aplikácie
+
+#### Rozhodnutia Pre Budúcnosť
+- Všetky GUI aplikácie → PySide6
+- Systematická dokumentácia (každá app = svoj docs/)
+- Kategorizované polia (xml_*, nex_*, user_*)
+- Farebná schéma = zelená/červená (spárované/nespárované)
+
+---
+
+**Archivované:** 2025-12-15
+**Celkový čas session:** ~2-3 hodiny (odhad)
+**Tokens použité:** ~95k / 190k (~50%)
+**Status:** ⚠️ Prerušené, vyžaduje pokračovanie

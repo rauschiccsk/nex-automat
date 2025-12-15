@@ -2,16 +2,16 @@
   "name": "supplier-invoice-loader",
   "type": "application",
   "location": "apps/supplier-invoice-loader",
-  "generated": "2025-12-13T22:09:45.485919",
+  "generated": "2025-12-15T11:08:58.502292",
   "statistics": {
-    "total_files": 142,
+    "total_files": 145,
     "total_dirs": 34,
     "python_files": 54,
     "powershell_files": 2,
-    "markdown_files": 29,
+    "markdown_files": 2,
     "test_files": 15,
-    "total_lines": 20514,
-    "total_size": 9204605
+    "total_lines": 12030,
+    "total_size": 9217470
   },
   "structure": {
     "has_src": true,
@@ -48,18 +48,16 @@
   },
   "files": [
     {
-      "path": "apps/supplier-invoice-loader/README.md",
-      "name": "README.md",
+      "path": "apps/supplier-invoice-loader/README.md-old",
+      "name": "README.md-old",
       "size": 1130,
-      "extension": ".md",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-loader/README.md",
-      "lines": 47,
-      "type": "documentation"
+      "extension": ".md-old",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-loader/README.md-old"
     },
     {
       "path": "apps/supplier-invoice-loader/backups/backup.log",
       "name": "backup.log",
-      "size": 15180,
+      "size": 17009,
       "extension": ".log",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-loader/backups/backup.log"
     },
@@ -117,22 +115,18 @@
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-loader/config/invoices.db"
     },
     {
-      "path": "apps/supplier-invoice-loader/database/schemas/README.md",
-      "name": "README.md",
+      "path": "apps/supplier-invoice-loader/database/schemas/README.md-old",
+      "name": "README.md-old",
       "size": 473,
-      "extension": ".md",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-loader/database/schemas/README.md",
-      "lines": 24,
-      "type": "documentation"
+      "extension": ".md-old",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-loader/database/schemas/README.md-old"
     },
     {
-      "path": "apps/supplier-invoice-loader/deploy/README.md",
-      "name": "README.md",
+      "path": "apps/supplier-invoice-loader/deploy/README.md-old",
+      "name": "README.md-old",
       "size": 57,
-      "extension": ".md",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-loader/deploy/README.md",
-      "lines": 3,
-      "type": "documentation"
+      "extension": ".md-old",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-loader/deploy/README.md-old"
     },
     {
       "path": "apps/supplier-invoice-loader/deploy/build_package.py",
@@ -206,157 +200,123 @@
       "type": "documentation"
     },
     {
-      "path": "apps/supplier-invoice-loader/docs/architecture/README.md",
-      "name": "README.md",
+      "path": "apps/supplier-invoice-loader/docs/architecture/README.md-old",
+      "name": "README.md-old",
       "size": 398,
-      "extension": ".md",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-loader/docs/architecture/README.md",
-      "lines": 8,
-      "type": "documentation"
+      "extension": ".md-old",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-loader/docs/architecture/README.md-old"
     },
     {
-      "path": "apps/supplier-invoice-loader/docs/database/TYPE_MAPPINGS.md",
-      "name": "TYPE_MAPPINGS.md",
+      "path": "apps/supplier-invoice-loader/docs/database/TYPE_MAPPINGS.md-old",
+      "name": "TYPE_MAPPINGS.md-old",
       "size": 3041,
-      "extension": ".md",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-loader/docs/database/TYPE_MAPPINGS.md",
-      "lines": 87,
-      "type": "documentation"
+      "extension": ".md-old",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-loader/docs/database/TYPE_MAPPINGS.md-old"
     },
     {
-      "path": "apps/supplier-invoice-loader/docs/decisions/README.md",
-      "name": "README.md",
+      "path": "apps/supplier-invoice-loader/docs/decisions/README.md-old",
+      "name": "README.md-old",
       "size": 97,
-      "extension": ".md",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-loader/docs/decisions/README.md",
-      "lines": 3,
-      "type": "documentation"
+      "extension": ".md-old",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-loader/docs/decisions/README.md-old"
     },
     {
-      "path": "apps/supplier-invoice-loader/docs/deployment/DEPLOYMENT_CHECKLIST.md",
-      "name": "DEPLOYMENT_CHECKLIST.md",
+      "path": "apps/supplier-invoice-loader/docs/deployment/DEPLOYMENT_CHECKLIST.md-old",
+      "name": "DEPLOYMENT_CHECKLIST.md-old",
       "size": 12466,
-      "extension": ".md",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-loader/docs/deployment/DEPLOYMENT_CHECKLIST.md",
-      "lines": 514,
-      "type": "documentation"
+      "extension": ".md-old",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-loader/docs/deployment/DEPLOYMENT_CHECKLIST.md-old"
     },
     {
-      "path": "apps/supplier-invoice-loader/docs/deployment/INSTALL_CUSTOMER.md",
-      "name": "INSTALL_CUSTOMER.md",
+      "path": "apps/supplier-invoice-loader/docs/deployment/INSTALL_CUSTOMER.md-old",
+      "name": "INSTALL_CUSTOMER.md-old",
       "size": 2091,
-      "extension": ".md",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-loader/docs/deployment/INSTALL_CUSTOMER.md",
-      "lines": 79,
-      "type": "documentation"
+      "extension": ".md-old",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-loader/docs/deployment/INSTALL_CUSTOMER.md-old"
     },
     {
-      "path": "apps/supplier-invoice-loader/docs/deployment/RELEASE_NOTES_v2.0.0.md",
-      "name": "RELEASE_NOTES_v2.0.0.md",
+      "path": "apps/supplier-invoice-loader/docs/deployment/RELEASE_NOTES_v2.0.0.md-old",
+      "name": "RELEASE_NOTES_v2.0.0.md-old",
       "size": 9504,
-      "extension": ".md",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-loader/docs/deployment/RELEASE_NOTES_v2.0.0.md",
-      "lines": 324,
-      "type": "documentation"
+      "extension": ".md-old",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-loader/docs/deployment/RELEASE_NOTES_v2.0.0.md-old"
     },
     {
-      "path": "apps/supplier-invoice-loader/docs/deployment/WINDOWS_SERVICE_GUIDE.md",
-      "name": "WINDOWS_SERVICE_GUIDE.md",
+      "path": "apps/supplier-invoice-loader/docs/deployment/WINDOWS_SERVICE_GUIDE.md-old",
+      "name": "WINDOWS_SERVICE_GUIDE.md-old",
       "size": 9148,
-      "extension": ".md",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-loader/docs/deployment/WINDOWS_SERVICE_GUIDE.md",
-      "lines": 442,
-      "type": "documentation"
+      "extension": ".md-old",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-loader/docs/deployment/WINDOWS_SERVICE_GUIDE.md-old"
     },
     {
-      "path": "apps/supplier-invoice-loader/docs/guides/CUSTOMER_TESTING_CHECKLIST.md",
-      "name": "CUSTOMER_TESTING_CHECKLIST.md",
+      "path": "apps/supplier-invoice-loader/docs/guides/CUSTOMER_TESTING_CHECKLIST.md-old",
+      "name": "CUSTOMER_TESTING_CHECKLIST.md-old",
       "size": 10871,
-      "extension": ".md",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-loader/docs/guides/CUSTOMER_TESTING_CHECKLIST.md",
-      "lines": 433,
-      "type": "documentation"
+      "extension": ".md-old",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-loader/docs/guides/CUSTOMER_TESTING_CHECKLIST.md-old"
     },
     {
-      "path": "apps/supplier-invoice-loader/docs/guides/DEVELOPMENT.md",
-      "name": "DEVELOPMENT.md",
+      "path": "apps/supplier-invoice-loader/docs/guides/DEVELOPMENT.md-old",
+      "name": "DEVELOPMENT.md-old",
       "size": 13648,
-      "extension": ".md",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-loader/docs/guides/DEVELOPMENT.md",
-      "lines": 669,
-      "type": "documentation"
+      "extension": ".md-old",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-loader/docs/guides/DEVELOPMENT.md-old"
     },
     {
-      "path": "apps/supplier-invoice-loader/docs/guides/N8N_WORKFLOW_SETUP.md",
-      "name": "N8N_WORKFLOW_SETUP.md",
+      "path": "apps/supplier-invoice-loader/docs/guides/N8N_WORKFLOW_SETUP.md-old",
+      "name": "N8N_WORKFLOW_SETUP.md-old",
       "size": 17256,
-      "extension": ".md",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-loader/docs/guides/N8N_WORKFLOW_SETUP.md",
-      "lines": 662,
-      "type": "documentation"
+      "extension": ".md-old",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-loader/docs/guides/N8N_WORKFLOW_SETUP.md-old"
     },
     {
-      "path": "apps/supplier-invoice-loader/docs/guides/PYTHON_SETUP.md",
-      "name": "PYTHON_SETUP.md",
+      "path": "apps/supplier-invoice-loader/docs/guides/PYTHON_SETUP.md-old",
+      "name": "PYTHON_SETUP.md-old",
       "size": 16086,
-      "extension": ".md",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-loader/docs/guides/PYTHON_SETUP.md",
-      "lines": 744,
-      "type": "documentation"
+      "extension": ".md-old",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-loader/docs/guides/PYTHON_SETUP.md-old"
     },
     {
-      "path": "apps/supplier-invoice-loader/docs/guides/SECURITY.md",
-      "name": "SECURITY.md",
+      "path": "apps/supplier-invoice-loader/docs/guides/SECURITY.md-old",
+      "name": "SECURITY.md-old",
       "size": 14478,
-      "extension": ".md",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-loader/docs/guides/SECURITY.md",
-      "lines": 612,
-      "type": "documentation"
+      "extension": ".md-old",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-loader/docs/guides/SECURITY.md-old"
     },
     {
-      "path": "apps/supplier-invoice-loader/docs/guides/TESTING.md",
-      "name": "TESTING.md",
+      "path": "apps/supplier-invoice-loader/docs/guides/TESTING.md-old",
+      "name": "TESTING.md-old",
       "size": 12587,
-      "extension": ".md",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-loader/docs/guides/TESTING.md",
-      "lines": 651,
-      "type": "documentation"
+      "extension": ".md-old",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-loader/docs/guides/TESTING.md-old"
     },
     {
-      "path": "apps/supplier-invoice-loader/docs/operations/EMAIL_ALERTING.md",
-      "name": "EMAIL_ALERTING.md",
+      "path": "apps/supplier-invoice-loader/docs/operations/EMAIL_ALERTING.md-old",
+      "name": "EMAIL_ALERTING.md-old",
       "size": 13181,
-      "extension": ".md",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-loader/docs/operations/EMAIL_ALERTING.md",
-      "lines": 613,
-      "type": "documentation"
+      "extension": ".md-old",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-loader/docs/operations/EMAIL_ALERTING.md-old"
     },
     {
-      "path": "apps/supplier-invoice-loader/docs/operations/MONITORING.md",
-      "name": "MONITORING.md",
+      "path": "apps/supplier-invoice-loader/docs/operations/MONITORING.md-old",
+      "name": "MONITORING.md-old",
       "size": 16920,
-      "extension": ".md",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-loader/docs/operations/MONITORING.md",
-      "lines": 707,
-      "type": "documentation"
+      "extension": ".md-old",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-loader/docs/operations/MONITORING.md-old"
     },
     {
-      "path": "apps/supplier-invoice-loader/docs/operations/TROUBLESHOOTING.md",
-      "name": "TROUBLESHOOTING.md",
+      "path": "apps/supplier-invoice-loader/docs/operations/TROUBLESHOOTING.md-old",
+      "name": "TROUBLESHOOTING.md-old",
       "size": 26948,
-      "extension": ".md",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-loader/docs/operations/TROUBLESHOOTING.md",
-      "lines": 1284,
-      "type": "documentation"
+      "extension": ".md-old",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-loader/docs/operations/TROUBLESHOOTING.md-old"
     },
     {
-      "path": "apps/supplier-invoice-loader/docs/operations/USER_GUIDE.md",
-      "name": "USER_GUIDE.md",
+      "path": "apps/supplier-invoice-loader/docs/operations/USER_GUIDE.md-old",
+      "name": "USER_GUIDE.md-old",
       "size": 6577,
-      "extension": ".md",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-loader/docs/operations/USER_GUIDE.md",
-      "lines": 274,
-      "type": "documentation"
+      "extension": ".md-old",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-loader/docs/operations/USER_GUIDE.md-old"
     },
     {
       "path": "apps/supplier-invoice-loader/docs/project_file_access.json",
@@ -366,31 +326,25 @@
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-loader/docs/project_file_access.json"
     },
     {
-      "path": "apps/supplier-invoice-loader/docs/sessions/README.md",
-      "name": "README.md",
+      "path": "apps/supplier-invoice-loader/docs/sessions/README.md-old",
+      "name": "README.md-old",
       "size": 53,
-      "extension": ".md",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-loader/docs/sessions/README.md",
-      "lines": 3,
-      "type": "documentation"
+      "extension": ".md-old",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-loader/docs/sessions/README.md-old"
     },
     {
-      "path": "apps/supplier-invoice-loader/docs/stories/README.md",
-      "name": "README.md",
+      "path": "apps/supplier-invoice-loader/docs/stories/README.md-old",
+      "name": "README.md-old",
       "size": 67,
-      "extension": ".md",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-loader/docs/stories/README.md",
-      "lines": 3,
-      "type": "documentation"
+      "extension": ".md-old",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-loader/docs/stories/README.md-old"
     },
     {
-      "path": "apps/supplier-invoice-loader/docs/troubleshooting/README.md",
-      "name": "README.md",
+      "path": "apps/supplier-invoice-loader/docs/troubleshooting/README.md-old",
+      "name": "README.md-old",
       "size": 57,
-      "extension": ".md",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-loader/docs/troubleshooting/README.md",
-      "lines": 3,
-      "type": "documentation"
+      "extension": ".md-old",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-loader/docs/troubleshooting/README.md-old"
     },
     {
       "path": "apps/supplier-invoice-loader/logs/backup_daily_20251124.log",
@@ -526,6 +480,20 @@
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-loader/logs/backup_daily_20251213.log"
     },
     {
+      "path": "apps/supplier-invoice-loader/logs/backup_daily_20251214.log",
+      "name": "backup_daily_20251214.log",
+      "size": 3677,
+      "extension": ".log",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-loader/logs/backup_daily_20251214.log"
+    },
+    {
+      "path": "apps/supplier-invoice-loader/logs/backup_daily_20251215.log",
+      "name": "backup_daily_20251215.log",
+      "size": 3677,
+      "extension": ".log",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-loader/logs/backup_daily_20251215.log"
+    },
+    {
       "path": "apps/supplier-invoice-loader/logs/backup_weekly_20251124.log",
       "name": "backup_weekly_20251124.log",
       "size": 3682,
@@ -547,6 +515,13 @@
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-loader/logs/backup_weekly_20251208.log"
     },
     {
+      "path": "apps/supplier-invoice-loader/logs/backup_weekly_20251214.log",
+      "name": "backup_weekly_20251214.log",
+      "size": 3682,
+      "extension": ".log",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-loader/logs/backup_weekly_20251214.log"
+    },
+    {
       "path": "apps/supplier-invoice-loader/main.py",
       "name": "main.py",
       "size": 20228,
@@ -556,13 +531,11 @@
       "type": "source"
     },
     {
-      "path": "apps/supplier-invoice-loader/n8n-workflows/README.md",
-      "name": "README.md",
+      "path": "apps/supplier-invoice-loader/n8n-workflows/README.md-old",
+      "name": "README.md-old",
       "size": 67,
-      "extension": ".md",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-loader/n8n-workflows/README.md",
-      "lines": 3,
-      "type": "documentation"
+      "extension": ".md-old",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-loader/n8n-workflows/README.md-old"
     },
     {
       "path": "apps/supplier-invoice-loader/n8n-workflows/n8n-SupplierInvoiceEmailLoader.json",
@@ -600,13 +573,11 @@
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-loader/requirements.txt"
     },
     {
-      "path": "apps/supplier-invoice-loader/scripts/SCHEDULER_README.md",
-      "name": "SCHEDULER_README.md",
+      "path": "apps/supplier-invoice-loader/scripts/SCHEDULER_README.md-old",
+      "name": "SCHEDULER_README.md-old",
       "size": 2788,
-      "extension": ".md",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-loader/scripts/SCHEDULER_README.md",
-      "lines": 115,
-      "type": "documentation"
+      "extension": ".md-old",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-loader/scripts/SCHEDULER_README.md-old"
     },
     {
       "path": "apps/supplier-invoice-loader/scripts/backup_config.py",
@@ -951,13 +922,11 @@
       "type": "source"
     },
     {
-      "path": "apps/supplier-invoice-loader/tests/README.md",
-      "name": "README.md",
+      "path": "apps/supplier-invoice-loader/tests/README.md-old",
+      "name": "README.md-old",
       "size": 241,
-      "extension": ".md",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-loader/tests/README.md",
-      "lines": 15,
-      "type": "documentation"
+      "extension": ".md-old",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-loader/tests/README.md-old"
     },
     {
       "path": "apps/supplier-invoice-loader/tests/__init__.py",
@@ -1113,13 +1082,11 @@
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-loader/tests/samples/20251118_105818_32506183_FAK.pdf"
     },
     {
-      "path": "apps/supplier-invoice-loader/tests/samples/README.md",
-      "name": "README.md",
+      "path": "apps/supplier-invoice-loader/tests/samples/README.md-old",
+      "name": "README.md-old",
       "size": 3789,
-      "extension": ".md",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-loader/tests/samples/README.md",
-      "lines": 162,
-      "type": "documentation"
+      "extension": ".md-old",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/apps/supplier-invoice-loader/tests/samples/README.md-old"
     },
     {
       "path": "apps/supplier-invoice-loader/tests/unit/__init__.py",
@@ -1214,17 +1181,6 @@
   ],
   "key_files": [
     "apps/supplier-invoice-loader/main.py",
-    "apps/supplier-invoice-loader/pyproject.toml",
-    "apps/supplier-invoice-loader/README.md",
-    "apps/supplier-invoice-loader/deploy/README.md",
-    "apps/supplier-invoice-loader/n8n-workflows/README.md",
-    "apps/supplier-invoice-loader/tests/README.md",
-    "apps/supplier-invoice-loader/tests/samples/README.md",
-    "apps/supplier-invoice-loader/docs/architecture/README.md",
-    "apps/supplier-invoice-loader/docs/decisions/README.md",
-    "apps/supplier-invoice-loader/docs/sessions/README.md",
-    "apps/supplier-invoice-loader/docs/stories/README.md",
-    "apps/supplier-invoice-loader/docs/troubleshooting/README.md",
-    "apps/supplier-invoice-loader/database/schemas/README.md"
+    "apps/supplier-invoice-loader/pyproject.toml"
   ]
 }
