@@ -2,7 +2,7 @@
   "name": "supplier-invoice-staging",
   "type": "application",
   "location": "apps/supplier-invoice-staging",
-  "generated": "2025-12-15T18:34:28.748288",
+  "generated": "2025-12-15T19:05:03.978720",
   "statistics": {
     "total_files": 0,
     "total_dirs": 0,

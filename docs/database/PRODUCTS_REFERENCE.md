@@ -1,11 +1,13 @@
-# Products - Produktový katalóg
+# Products Reference - Produktový katalóg
 
-**Kategória:** Catalogs  
-**Verzia:** 1.0  
-**Dátum:** 2025-12-11  
-**Status:** ✅ Kompletná dokumentácia
+**Category:** Database / Catalogs  
+**Status:** 🟢 Complete  
+**Created:** 2025-12-11  
+**Updated:** 2025-12-15  
+**Related:** [CATALOGS_REFERENCE.md](CATALOGS_REFERENCE.md), [PARTNERS_REFERENCE.md](PARTNERS_REFERENCE.md)
 
 ---
+
 
 ## PREHĽAD
 

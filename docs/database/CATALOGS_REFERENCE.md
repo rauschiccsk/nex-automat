@@ -1,10 +1,13 @@
-# Catalogs - Číselníky
+# Catalogs Reference - Číselníky
 
-**Verzia:** 2.0  
-**Dátum:** 2025-12-11  
-**Status:** ✅ Kompletná dokumentácia
+**Category:** Database  
+**Status:** 🟢 Complete  
+**Created:** 2025-12-11  
+**Updated:** 2025-12-15  
+**Related:** [00_DATABASE_INDEX.md](00_DATABASE_INDEX.md), [MIGRATION_MAPPING.md](MIGRATION_MAPPING.md)
 
 ---
+
 
 ## PREHĽAD
 

@@ -1,10 +1,13 @@
-# Sales (Odbyt) - Prehľad
+# Sales Reference - Odbytový systém
 
-**Sekcia:** Database Architecture / Sales  
-**Vytvorené:** 2025-12-10  
-**Status:** 🔄 Aktívna dokumentácia
+**Category:** Database / Sales  
+**Status:** 🟡 In Progress (1/10 tables documented)  
+**Created:** 2025-12-10  
+**Updated:** 2025-12-15  
+**Related:** [CATALOGS_REFERENCE.md](CATALOGS_REFERENCE.md), [PRODUCTS_REFERENCE.md](PRODUCTS_REFERENCE.md)
 
 ---
+
 
 ## ÚČEL SEKCIE
 

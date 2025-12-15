@@ -1,12 +1,13 @@
-# Stock Cards - Skladové karty zásob
+# Stock Cards Reference - Skladové karty a FIFO
 
-**Účel:** Komplexný systém pre správu skladových kariet, FIFO oceňovanie a skladové pohyby.
-
-**Rozsah:** Aktuálne stavy zásob, FIFO karty, denník skladových pohybov.
-
-**Status:** ✅ Kompletný (Session 5)
+**Category:** Database / Stock  
+**Status:** 🟢 Complete (3 tables documented)  
+**Created:** 2025-12-11  
+**Updated:** 2025-12-15  
+**Related:** [STOCK_REFERENCE.md](STOCK_REFERENCE.md), [CATALOGS_REFERENCE.md](CATALOGS_REFERENCE.md)
 
 ---
+
 
 ## 📋 OBSAH
 

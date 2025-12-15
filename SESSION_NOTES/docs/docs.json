@@ -2,17 +2,17 @@
   "name": "documentation",
   "type": "docs",
   "location": "docs",
-  "generated": "2025-12-15T18:34:28.868224",
+  "generated": "2025-12-15T19:05:04.087564",
   "description": "Komplexná dokumentácia NEX Automat projektu",
   "statistics": {
     "total_files": 129,
     "total_dirs": 40,
     "python_files": 0,
     "powershell_files": 0,
-    "markdown_files": 90,
+    "markdown_files": 97,
     "test_files": 0,
-    "total_lines": 24170,
-    "total_size": 1438442
+    "total_lines": 26203,
+    "total_size": 1444251
   },
   "files": [
     {
@@ -142,13 +142,6 @@
       "type": "documentation"
     },
     {
-      "path": "docs/architecture/database/INDEX.md-old",
-      "name": "INDEX.md-old",
-      "size": 6013,
-      "extension": ".md-old",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/INDEX.md-old"
-    },
-    {
       "path": "docs/architecture/database/accounting/tables/ISH-supplier_invoice_heads.md-old",
       "name": "ISH-supplier_invoice_heads.md-old",
       "size": 34778,
@@ -168,20 +161,6 @@
       "size": 25833,
       "extension": ".md-old",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/accounting/tables/PAYJRN-payment_journal.md-old"
-    },
-    {
-      "path": "docs/architecture/database/catalogs/INDEX.md-old",
-      "name": "INDEX.md-old",
-      "size": 6730,
-      "extension": ".md-old",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/catalogs/INDEX.md-old"
-    },
-    {
-      "path": "docs/architecture/database/catalogs/partners/INDEX.md-old",
-      "name": "INDEX.md-old",
-      "size": 7531,
-      "extension": ".md-old",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/catalogs/partners/INDEX.md-old"
     },
     {
       "path": "docs/architecture/database/catalogs/partners/tables/BANKLST-bank_catalog.md-old",
@@ -247,13 +226,6 @@
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/catalogs/partners/tables/TRPLST-transport_methods.md-old"
     },
     {
-      "path": "docs/architecture/database/catalogs/products/INDEX.md-old",
-      "name": "INDEX.md-old",
-      "size": 5721,
-      "extension": ".md-old",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/catalogs/products/INDEX.md-old"
-    },
-    {
       "path": "docs/architecture/database/catalogs/products/tables/BARCODE-product_catalog_identifiers.md-old",
       "name": "BARCODE-product_catalog_identifiers.md-old",
       "size": 24158,
@@ -289,32 +261,11 @@
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/catalogs/products/tables/SGLST-product_categories.md-old"
     },
     {
-      "path": "docs/architecture/database/sales/INDEX.md-old",
-      "name": "INDEX.md-old",
-      "size": 8132,
-      "extension": ".md-old",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/sales/INDEX.md-old"
-    },
-    {
       "path": "docs/architecture/database/sales/tables/PLSnnnnn-price_list_items.md-old",
       "name": "PLSnnnnn-price_list_items.md-old",
       "size": 20479,
       "extension": ".md-old",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/sales/tables/PLSnnnnn-price_list_items.md-old"
-    },
-    {
-      "path": "docs/architecture/database/stock/INDEX.md-old",
-      "name": "INDEX.md-old",
-      "size": 0,
-      "extension": ".md-old",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/stock/INDEX.md-old"
-    },
-    {
-      "path": "docs/architecture/database/stock/cards/INDEX.md-old",
-      "name": "INDEX.md-old",
-      "size": 20381,
-      "extension": ".md-old",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/stock/cards/INDEX.md-old"
     },
     {
       "path": "docs/architecture/database/stock/cards/tables/FIF-stock_card_fifos.md-old",
@@ -573,12 +524,30 @@
       "type": "documentation"
     },
     {
+      "path": "docs/archive/sessions/SESSION_2025-12-15_documentation-migration-batch5.md",
+      "name": "SESSION_2025-12-15_documentation-migration-batch5.md",
+      "size": 8039,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/sessions/SESSION_2025-12-15_documentation-migration-batch5.md",
+      "lines": 306,
+      "type": "documentation"
+    },
+    {
       "path": "docs/database/00_DATABASE_INDEX.md",
       "name": "00_DATABASE_INDEX.md",
       "size": 3771,
       "extension": ".md",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/database/00_DATABASE_INDEX.md",
       "lines": 125,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/database/CATALOGS_REFERENCE.md",
+      "name": "CATALOGS_REFERENCE.md",
+      "size": 6869,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/database/CATALOGS_REFERENCE.md",
+      "lines": 244,
       "type": "documentation"
     },
     {
@@ -609,12 +578,57 @@
       "type": "documentation"
     },
     {
+      "path": "docs/database/PARTNERS_REFERENCE.md",
+      "name": "PARTNERS_REFERENCE.md",
+      "size": 7657,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/database/PARTNERS_REFERENCE.md",
+      "lines": 270,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/database/PRODUCTS_REFERENCE.md",
+      "name": "PRODUCTS_REFERENCE.md",
+      "size": 5847,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/database/PRODUCTS_REFERENCE.md",
+      "lines": 209,
+      "type": "documentation"
+    },
+    {
       "path": "docs/database/RELATIONSHIPS.md",
       "name": "RELATIONSHIPS.md",
       "size": 24157,
       "extension": ".md",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/database/RELATIONSHIPS.md",
       "lines": 707,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/database/SALES_REFERENCE.md",
+      "name": "SALES_REFERENCE.md",
+      "size": 8283,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/database/SALES_REFERENCE.md",
+      "lines": 305,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/database/STOCK_CARDS_REFERENCE.md",
+      "name": "STOCK_CARDS_REFERENCE.md",
+      "size": 20412,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/database/STOCK_CARDS_REFERENCE.md",
+      "lines": 580,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/database/STOCK_REFERENCE.md",
+      "name": "STOCK_REFERENCE.md",
+      "size": 3210,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/database/STOCK_REFERENCE.md",
+      "lines": 119,
       "type": "documentation"
     },
     {
@@ -1208,6 +1222,14 @@
         "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/database/00_DATABASE_INDEX.md"
       },
       {
+        "name": "CATALOGS_REFERENCE.md",
+        "path": "database/CATALOGS_REFERENCE.md",
+        "full_path": "docs/database/CATALOGS_REFERENCE.md",
+        "size": 6869,
+        "lines": 244,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/database/CATALOGS_REFERENCE.md"
+      },
+      {
         "name": "DATABASE_INDEX.md",
         "path": "database/DATABASE_INDEX.md",
         "full_path": "docs/database/DATABASE_INDEX.md",
@@ -1232,12 +1254,52 @@
         "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/database/MIGRATION_MAPPING.md"
       },
       {
+        "name": "PARTNERS_REFERENCE.md",
+        "path": "database/PARTNERS_REFERENCE.md",
+        "full_path": "docs/database/PARTNERS_REFERENCE.md",
+        "size": 7657,
+        "lines": 270,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/database/PARTNERS_REFERENCE.md"
+      },
+      {
+        "name": "PRODUCTS_REFERENCE.md",
+        "path": "database/PRODUCTS_REFERENCE.md",
+        "full_path": "docs/database/PRODUCTS_REFERENCE.md",
+        "size": 5847,
+        "lines": 209,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/database/PRODUCTS_REFERENCE.md"
+      },
+      {
         "name": "RELATIONSHIPS.md",
         "path": "database/RELATIONSHIPS.md",
         "full_path": "docs/database/RELATIONSHIPS.md",
         "size": 24157,
         "lines": 707,
         "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/database/RELATIONSHIPS.md"
+      },
+      {
+        "name": "SALES_REFERENCE.md",
+        "path": "database/SALES_REFERENCE.md",
+        "full_path": "docs/database/SALES_REFERENCE.md",
+        "size": 8283,
+        "lines": 305,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/database/SALES_REFERENCE.md"
+      },
+      {
+        "name": "STOCK_CARDS_REFERENCE.md",
+        "path": "database/STOCK_CARDS_REFERENCE.md",
+        "full_path": "docs/database/STOCK_CARDS_REFERENCE.md",
+        "size": 20412,
+        "lines": 580,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/database/STOCK_CARDS_REFERENCE.md"
+      },
+      {
+        "name": "STOCK_REFERENCE.md",
+        "path": "database/STOCK_REFERENCE.md",
+        "full_path": "docs/database/STOCK_REFERENCE.md",
+        "size": 3210,
+        "lines": 119,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/database/STOCK_REFERENCE.md"
       },
       {
         "name": "DATABASE_MIGRATION.md",
@@ -1304,6 +1366,14 @@
         "size": 8252,
         "lines": 299,
         "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/sessions/SESSION_2025-12-15_documentation-migration-batch4.md"
+      },
+      {
+        "name": "SESSION_2025-12-15_documentation-migration-batch5.md",
+        "path": "archive/sessions/SESSION_2025-12-15_documentation-migration-batch5.md",
+        "full_path": "docs/archive/sessions/SESSION_2025-12-15_documentation-migration-batch5.md",
+        "size": 8039,
+        "lines": 306,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/sessions/SESSION_2025-12-15_documentation-migration-batch5.md"
       }
     ],
     "api": [
