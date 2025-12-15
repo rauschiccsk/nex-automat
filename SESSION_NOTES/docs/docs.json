@@ -2,7 +2,7 @@
   "name": "documentation",
   "type": "docs",
   "location": "docs",
-  "generated": "2025-12-15T15:02:34.467867",
+  "generated": "2025-12-15T15:16:00.674120",
   "description": "Komplexná dokumentácia NEX Automat projektu",
   "statistics": {
     "total_files": 119,
@@ -11,8 +11,8 @@
     "powershell_files": 0,
     "markdown_files": 66,
     "test_files": 0,
-    "total_lines": 12871,
-    "total_size": 1343600
+    "total_lines": 13224,
+    "total_size": 1358242
   },
   "files": [
     {
@@ -25,12 +25,12 @@
       "type": "documentation"
     },
     {
-      "path": "docs/DOCUMENTATION_INDEX.md",
-      "name": "DOCUMENTATION_INDEX.md",
-      "size": 3965,
+      "path": "docs/COLLABORATION_RULES.md",
+      "name": "COLLABORATION_RULES.md",
+      "size": 18607,
       "extension": ".md",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/DOCUMENTATION_INDEX.md",
-      "lines": 133,
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/COLLABORATION_RULES.md",
+      "lines": 486,
       "type": "documentation"
     },
     {
@@ -1140,12 +1140,12 @@
         "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/00_DOCUMENTATION_INDEX.md"
       },
       {
-        "name": "DOCUMENTATION_INDEX.md",
-        "path": "DOCUMENTATION_INDEX.md",
-        "full_path": "docs/DOCUMENTATION_INDEX.md",
-        "size": 3965,
-        "lines": 133,
-        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/DOCUMENTATION_INDEX.md"
+        "name": "COLLABORATION_RULES.md",
+        "path": "COLLABORATION_RULES.md",
+        "full_path": "docs/COLLABORATION_RULES.md",
+        "size": 18607,
+        "lines": 486,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/COLLABORATION_RULES.md"
       },
       {
         "name": "00_APPLICATIONS_INDEX.md",
