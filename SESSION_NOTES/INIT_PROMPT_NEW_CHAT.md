@@ -1,11 +1,11 @@
 # INIT PROMPT - NEX Automat: Database Table Docs Migration (Batch 6 Continue)
 
 **Projekt:** nex-automat  
-**Úloha:** Database table docs migration (batch 6 continuation - Stock Management section)  
+**Úloha:** Database table docs migration (batch 6 continuation - dokončenie Stock Management + start Accounting)  
 **Developer:** Zoltán (40 rokov skúseností)  
 **Jazyk:** Slovenčina  
-**Previous Session:** https://claude.ai/chat/[PREVIOUS_CHAT_URI]  
-**Status:** 13/28 dokumentov dokončených, **15 zostáva**
+**Previous Session:** https://claude.ai/chat/[LINK_TO_CURRENT_SESSION]  
+**Status:** 18/28 dokumentov dokončených, **10 zostáva**
 
 ---
 
@@ -26,77 +26,84 @@ Kľúčové pravidlá pre túto session:
 
 ### Partners Section - COMPLETE! (8 dokumentov)
 
-1. **BANKLST-bank_catalog.md** (script #32)
-2. **PAB-partner_catalog.md** (script #33)
-3. **PABACC-partner_catalog_bank_accounts.md** (script #34)
-4. **PACNCT-partner_catalog_contacts.md** (script #35)
-5. **PAGLST-partner_categories.md** (14.9 KB → 7.0 KB, 53%)
-6. **PAYLST-payment_methods.md** (8.3 KB → 4.2 KB, 49%)
-7. **TRPLST-transport_methods.md** (8.6 KB → 4.3 KB, 50%)
-8. **PANOTI-partner_catalog_texts.md** (15.4 KB → 6.5 KB, 58%)
-9. **PASUBC-partner_catalog_facilities.md** (18.0 KB → 7.5 KB, 58%)
+1. BANKLST-bank_catalog.md
+2. PAB-partner_catalog.md
+3. PABACC-partner_catalog_bank_accounts.md
+4. PACNCT-partner_catalog_contacts.md
+5. PAGLST-partner_categories.md
+6. PAYLST-payment_methods.md
+7. TRPLST-transport_methods.md
+8. PANOTI-partner_catalog_texts.md
+9. PASUBC-partner_catalog_facilities.md
 
 ### Products Section - COMPLETE! (5 dokumentov)
 
-1. **BARCODE-product_catalog_identifiers.md** (24.2 KB → 10.5 KB, 56.6%)
-2. **FGLST-product_categories.md** (16.1 KB → 7.0 KB, 56.5%)
-3. **GSCAT-product_catalog.md** (20.7 KB → 10.5 KB, 49.3%)
-4. **MGLST-product_categories.md** (17.4 KB → 7.5 KB, 56.9%)
-5. **SGLST-product_categories.md** (20.1 KB → 8.5 KB, 57.7%)
+1. BARCODE-product_catalog_identifiers.md (24.2 KB → 10.5 KB, 56.6%)
+2. FGLST-product_categories.md (16.1 KB → 7.0 KB, 56.5%)
+3. GSCAT-product_catalog.md (20.7 KB → 10.5 KB, 49.3%)
+4. MGLST-product_categories.md (17.4 KB → 7.5 KB, 56.9%)
+5. SGLST-product_categories.md (20.1 KB → 8.5 KB, 57.7%)
+
+### Stock Management Section - PARTIAL! (5/7 dokumentov)
+
+1. **WRILST-facilities.md** (17.9 KB → 7.7 KB, 57%) ✅
+2. **STKLST-stocks.md** (20.4 KB → 8.7 KB, 57%) ✅
+3. **TSH-supplier_delivery_heads.md** (25.4 KB → 11.2 KB, 56%) ✅
+4. **FIF-stock_card_fifos.md** (28.5 KB → 11.8 KB, 59%) ✅
+5. **TSI-supplier_delivery_items.md** (29.7 KB → 12.5 KB, 58%) ✅
 
 ---
 
 ## 📊 PROGRESS
 
-**Dokončené:** 13/28 dokumentov (46.4%)  
-**Zostáva:** 15 database table dokumentov
+**Dokončené:** 18/28 dokumentov (64.3%)  
+**Zostáva:** 10 database table dokumentov
 
 **By Category:**
 - ✅ **Partners:** 8/8 (100%) - **COMPLETE**
 - ✅ **Products:** 5/5 (100%) - **COMPLETE**
-- ⏳ **Stock Management:** 0/7 (0%)
+- ⏳ **Stock Management:** 5/7 (71.4%) - **PARTIAL**
 - ⏳ **Accounting:** 0/3 (0%)
 - ⏳ **Sales:** 0/1 (0%)
+
+**Priemerná redukcia:** 57.4% veľkosti
 
 ---
 
 ## 🎯 ČO TREBA UROBIŤ TERAZ
 
-### Priority 1: Stock Management Section (START HERE!)
+### Priority 1: Stock Management - Dokončiť (2 dokumenty)
 
-**Odporúčané poradie (menšie → väčšie):**
+**Odporúčané poradie (veľké dokumenty!):**
 
-1. **WRILST-facilities.md-old** (17.9 KB) ← **ZAČNI TÝMTO**
-2. **STKLST-stocks.md-old** (20.4 KB)
-3. **TSH-supplier_delivery_heads.md-old** (25.4 KB)
-4. **FIF-stock_card_fifos.md-old** (28.5 KB)
-5. **TSI-supplier_delivery_items.md-old** (29.7 KB)
-6. **STM-stock_card_movements.md-old** (35.6 KB) ⚠️ VEĽKÝ
-7. **STK-stock_cards.md-old** (38.5 KB) ⚠️ VEĽKÝ
+1. **STM-stock_card_movements.md-old** (35.6 KB) ⚠️ VEĽKÉ ← **ZAČNI TÝMTO**
+   - Skladové pohyby (príjmy/výdaje)
+   - Prepojenie s FIFO kartami
+   - Multi-file architektúra (STMnnnnn.BTR)
+
+2. **STK-stock_cards.md-old** (38.5 KB) ⚠️ NAJVÄČŠÍ
+   - Skladové karty (master data)
+   - Bilancie, FIFO ceny
+   - Multi-file architektúra (STKnnnnn.BTR)
 
 **Všetky pravdepodobne v adresári STORES** (overiť pri každom).
 
 ---
 
-## 📂 ZOSTÁVAJÚCE DOKUMENTY (15 total)
+## 📂 ZOSTÁVAJÚCE DOKUMENTY (10 total)
 
-### Stock Management (7 súborov)
+### Stock Management (2 súbory - dokončiť)
 
-- WRILST-facilities.md-old (17.9 KB)
-- STKLST-stocks.md-old (20.4 KB)
-- TSH-supplier_delivery_heads.md-old (25.4 KB)
-- FIF-stock_card_fifos.md-old (28.5 KB)
-- TSI-supplier_delivery_items.md-old (29.7 KB)
-- STM-stock_card_movements.md-old (35.6 KB) ⚠️ VEĽKÝ
-- STK-stock_cards.md-old (38.5 KB) ⚠️ VEĽKÝ
+- **STM-stock_card_movements.md-old** (35.6 KB) ⚠️ VEĽKÉ
+- **STK-stock_cards.md-old** (38.5 KB) ⚠️ NAJVÄČŠÍ
 
-### Accounting (3 súbory)
+### Accounting (3 súbory - nové)
 
 - ISH-supplier_invoice_heads.md-old (34.8 KB)
 - ISI-supplier_invoice_items.md-old (29.6 KB)
 - PAYJRN-payment_journal.md-old (25.8 KB)
 
-### Sales (1 súbor)
+### Sales (1 súbor - nový)
 
 - PLSnnnnn-price_list_items.md-old (20.5 KB)
 
@@ -112,7 +119,7 @@ Kľúčové pravidlá pre túto session:
 4. **User skopíruje obsah + zmaže starý súbor** - manuálne
 5. **Pokračuj ďalším dokumentom**
 
-### Btrieve Locations (zistené doteraz)
+### Zistené Btrieve Locations
 
 **DIALS adresár:**
 - BANKLST.BTR, PAB.BTR, PABACC.BTR, PACNCT.BTR
@@ -121,11 +128,15 @@ Kľúčové pravidlá pre túto session:
 
 **STORES adresár:**
 - BARCODE.BTR, FGLST.BTR, GSCAT.BTR, MGLST.BTR, SGLST.BTR
-- Pravdepodobne aj všetky Stock Management súbory (overiť!)
+- WRILST.BTR, STKLST.BTR
+- TSH[YY][NNN].BTR (TSH25001.BTR, TSH25002.BTR, ...)
+- TSI[YY][NNN].BTR (TSI25001.BTR, TSI25002.BTR, ...)
+- FIF[NNNNN].BTR (FIF00001.BTR, FIF00002.BTR, ...)
+- **Pravdepodobne aj:** STM[NNNNN].BTR, STK[NNNNN].BTR (overiť!)
 
 ### Formát Úprav (konzistentný)
 
-**Pridávame:**
+**PRIDÁVAME:**
 - Btrieve súbor info:
   ```markdown
   ### Btrieve súbor
@@ -137,71 +148,117 @@ Kľúčové pravidlá pre túto session:
   ```
 - Aktualizované metadáta (dátum: 2025-12-15)
 - Status: ✅ Pripravené na migráciu
+- Batch info: "Batch 6 (Stock Management - dokumenty X/Y)"
 
-**Odstraňujeme:**
+**ODSTRAŇUJEME:**
 - CREATE TABLE statements
 - CREATE INDEX statements
 - CREATE TRIGGER statements
 - CREATE FUNCTION statements
 - Query patterns (veľké SQL bloky)
-- Python migration code
+- Python migration code (komplexné funkcie)
 - Veľké INSERT príklady
 
-**Zachovávame:**
+**ZACHOVÁVAME:**
 - Mapping polí (Btrieve → PostgreSQL)
 - Biznis logika (koncepčný popis)
 - Vzťahy s inými tabuľkami (popis)
 - Validačné pravidlá (koncepčný popis)
 - Poznámky pre migráciu (koncepčné, BEZ kódu)
-- Malé príklady dát (ukážkové)
+- Malé príklady dát (ukážkové INSERT)
 
 ### Priemerná Redukcia
 
-**53.6% veľkosti** (overené na 13 dokumentoch)
+**57.4% veľkosti** (overené na 18 dokumentoch)
 - Partners: 49-58%
 - Products: 49-58%
-- Expected pre Stock Management: podobné
+- Stock Management (5 docs): 56-59%
+- Expected pre STM/STK: podobné
 
 ---
 
 ## 💡 KRITICKÉ POZNÁMKY PRE MIGRÁCIU
 
-### 1. Audit Polia Pattern (štandard všade)
+### 1. Multi-file Btrieve Architektúra
 
-**created_by/created_at:**
-- Kto a kedy vytvoril záznam (nemenné)
-- Pri migrácii: CrtUser/CrtDate/CrtTime
-- Ak neexistuje: 'MIGRATION' + CURRENT_TIMESTAMP
+**Špeciálne prípady:**
 
-**updated_by/updated_at:**
-- Kto a kedy naposledy modifikoval (aktualizuje sa pri zmene)
-- Pri migrácii: ModUser/ModDate/ModTime
-- Ak neexistuje: použiť CrtUser alebo 'MIGRATION'
+**TSH/TSI** (Supplier Delivery Documents):
+- Btrieve: TSH25001.BTR, TSH25002.BTR (kniha+rok)
+- PostgreSQL: supplier_delivery_heads (jedna tabuľka)
+- Extrahovať book_num z názvu súboru
 
-### 2. Mapping Dictionary Pattern (pre číselníky)
+**FIF** (FIFO Cards):
+- Btrieve: FIF00001.BTR, FIF00002.BTR (per sklad)
+- PostgreSQL: stock_card_fifos (jedna tabuľka + stock_id)
+- Extrahovať stock_id z názvu súboru
 
-Pri migrácii závislých tabuliek:
-1. Najprv migrovať číselník
-2. Vytvoriť mapping dictionary (Code → ID)
-3. Použiť pri migrácii hlavnej tabuľky
+**STM/STK** (Stock Movements/Cards):
+- Btrieve: STMnnnnn.BTR, STKnnnnn.BTR (per sklad)
+- PostgreSQL: stock_card_movements, stock_cards (jedna tabuľka + stock_id)
+- Extrahovať stock_id z názvu súboru
 
-### 3. Stock Management Specific Notes
+### 2. Versioning Systém
 
-**FIFO záznamy (FIF):**
-- Sledovanie prijatých šarží produktov
-- Väzba na stock cards (STK)
+**Partners (v documents):**
+- supplier_id + supplier_modify_id
+- History: partner_catalog_history
+- Pri migrácii: modify_id = 0
 
-**Stock Movements (STM):**
-- Veľký počet záznamov (všetky pohyby)
-- Potrebné indexy pre performance
+**Products (v documents):**
+- product_id + product_modify_id
+- History: product_catalog_history
+- Pri migrácii: modify_id = 0
 
-**Facilities (WRILST):**
-- Číselník skladov/oddelení
-- Base table pre STKLST
+### 3. FIFO Logika (pre STM/STK)
+
+**FIFO Princíp:**
+- Výdaj vždy z najstaršej aktívnej karty
+- ORDER BY document_date ASC, fifo_id ASC
+- Ak výdaj > zostatok → rozdeliť na viacero movements
+
+**Stavy:**
+- A (Active) - aktívna karta
+- W (Waiting) - čaká na rad
+- X (eXhausted) - spotrebovaná
+
+### 4. NSO (Náklady súvisiace s obstaraním)
+
+**Koncept:**
+- NSO sa zadávajú v hlavičke (TSH)
+- Automaticky sa rozdeľujú na položky (TSI) aliquotne
+- OC = NC + NSO
+- Detail rozdelenia už je v TSI dokumentácii
 
 ---
 
-## 📁 DOKUMENTAČNÉ ŠTANDARDY
+## 📈 SUCCESS METRICS
+
+**Pre túto session očakávame:**
+- ✅ 2 Stock Management dokumenty dokončené (STM, STK)
+- ✅ Progress: 20/28 súborov (71.4%)
+- ✅ Konzistentný štýl s predchádzajúcimi dokumentmi
+- ✅ Priemerná redukcia ~57%
+
+**Estimated time:** 90-120 minút (veľké dokumenty!)
+
+---
+
+## 🎯 DECISION FRAMEWORK QUICK REFERENCE
+
+| Typ dokumentu | Rozhodnutie | Príklad |
+|---------------|-------------|---------|
+| Database table mapping | CLEAN + KEEP | Všetky .md-old v batch 6 |
+| SQL scripts | REMOVE | CREATE TABLE, INDEX, TRIGGER |
+| Python migration code | REMOVE | Veľké bloky kódu |
+| Mapping tables | KEEP | Btrieve → PostgreSQL |
+| Biznis logika | KEEP | Koncepčný popis |
+| Query patterns | REMOVE | Mnoho SQL SELECT blokov |
+| Príklady dát | KEEP MINIMAL | Malé ukážkové INSERT |
+
+---
+
+## 📝 DOKUMENTAČNÉ ŠTANDARDY
 
 ### Documentation Manifest Location
 
@@ -219,6 +276,16 @@ https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architect
 ```
 docs/architecture/database/stock/cards/tables/
 docs/architecture/database/stock/documents/tables/
+```
+
+**Accounting paths (pre budúce dokumenty):**
+```
+docs/architecture/database/accounting/tables/
+```
+
+**Sales paths (pre budúce dokumenty):**
+```
+docs/architecture/database/sales/tables/
 ```
 
 ---
@@ -247,51 +314,25 @@ docs/architecture/database/stock/documents/tables/
 **Prvý krok po načítaní tohto promptu:**
 
 1. Skontroluj memory_user_edits (22 pravidiel) ✅
-2. Načítaj **WRILST-facilities.md-old** z GitHubu
-3. Opýtaj sa: "V akom adresári je WRILST.BTR?"
+2. Načítaj **STM-stock_card_movements.md-old** z GitHubu
+3. Opýtaj sa: "V akom adresári sú STM súbory?"
 4. Po odpovedi vytvor artifact s vyčisteným dokumentom
-5. Čakaj na potvrdenie a pokračuj STKLST
+5. Čakaj na potvrdenie a pokračuj STK
 
 **Odporúčaný workflow pre session:**
-1. **WRILST-facilities.md-old** (17.9 KB) - menší, dobrý na rozbeh
-2. **STKLST-stocks.md-old** (20.4 KB)
-3. **TSH-supplier_delivery_heads.md-old** (25.4 KB)
-4. Podľa času a tokenov pokračovať ďalšími
+1. **STM-stock_card_movements.md-old** (35.6 KB) - veľký, zložitý
+2. **STK-stock_cards.md-old** (38.5 KB) - najväčší, master data
+3. Ak zostane čas: začni Accounting sekciu (ISH)
 
 ---
 
-## 📈 SUCCESS METRICS
-
-**Pre túto session očakávame:**
-- ✅ 3-5 Stock Management dokumentov dokončených
-- ✅ Progress: 16-18/28 súborov (57-64%)
-- ✅ Konzistentný štýl s predchádzajúcimi dokumentmi
-
-**Estimated time:** 90-120 minút
-
----
-
-## 🎯 DECISION FRAMEWORK QUICK REFERENCE
-
-| Typ dokumentu | Rozhodnutie | Príklad |
-|---------------|-------------|---------|
-| Database table mapping | CLEAN + KEEP | Všetky .md-old v batch 6 |
-| SQL scripts | REMOVE | CREATE TABLE, INDEX, TRIGGER |
-| Python migration code | REMOVE | Veľké bloky kódu |
-| Mapping tables | KEEP | Btrieve → PostgreSQL |
-| Biznis logika | KEEP | Koncepčný popis |
-| Query patterns | REMOVE | Mnoho SQL SELECT blokov |
-| Príklady dát | KEEP MINIMAL | Malé ukážkové INSERT |
-
----
-
-## 📝 GIT WORKFLOW (user robí manuálne)
+## 📋 GIT WORKFLOW (user robí manuálne)
 
 ```powershell
 # Git workflow
 git status
 git add docs/
-git commit -m "docs: Database table docs batch 6 - stock management (N docs)"
+git commit -m "docs: Database table docs batch 6 - stock management complete + start accounting (N docs)"
 git push origin develop
 
 # Generate manifests
@@ -300,8 +341,64 @@ python tools/generate_manifests.py
 
 ---
 
+## 🔗 SÚVISIACE DOKUMENTY
+
+**Already processed (reference):**
+- docs/architecture/database/stock/cards/tables/WRILST-facilities.md
+- docs/architecture/database/stock/cards/tables/STKLST-stocks.md
+- docs/architecture/database/stock/documents/tables/TSH-supplier_delivery_heads.md
+- docs/architecture/database/stock/cards/tables/FIF-stock_card_fifos.md
+- docs/architecture/database/stock/documents/tables/TSI-supplier_delivery_items.md
+
+**To be processed:**
+- docs/architecture/database/stock/cards/tables/STM-stock_card_movements.md-old
+- docs/architecture/database/stock/cards/tables/STK-stock_cards.md-old
+
+**Reference documents:**
+- docs/COLLABORATION_RULES.md (22 pravidiel)
+- docs/architecture/database/COMMON_DOCUMENT_PRINCIPLES.md (všeobecné zásady)
+- docs/archive/00_ARCHIVE_INDEX.md (update po session)
+
+---
+
+## ⚠️ ŠPECIÁLNE UPOZORNENIA
+
+### Pre STM (Stock Card Movements)
+
+**Očakávané vlastnosti:**
+- Multi-file architektúra (STMnnnnn.BTR per sklad)
+- Veľký počet záznamov (všetky pohyby)
+- Prepojenie s FIFO kartami (fifo_id)
+- Typy pohybov (príjem/výdaj/transfer)
+- Dokumentové odkazy (source_document_type, source_item_id)
+
+**Kľúčové mapping polia:**
+- MovNum → movement_id
+- GsCode → product_id
+- StkNum → stock_id (z názvu súboru)
+- MovQnt → quantity (+/- podľa typu)
+- FifNum → fifo_id (pre výdaje)
+
+### Pre STK (Stock Cards)
+
+**Očakávané vlastnosti:**
+- Multi-file architektúra (STKnnnnn.BTR per sklad)
+- Master data pre produkt na sklade
+- Bilancie (quantity_on_hand, value_total)
+- FIFO ceny (current_fifo_price)
+- Rezervácie (quantity_reserved)
+
+**Kľúčové mapping polia:**
+- GsCode → product_id
+- StkNum → stock_id (z názvu súboru)
+- ActQnt → quantity_on_hand
+- ActVal → value_total
+- FifPrice → current_fifo_price
+
+---
+
 **Token Budget:** 190,000  
-**Estimated Session:** 90-120 minút  
+**Estimated Session:** 90-120 minút (veľké dokumenty!)  
 **Ready to Continue:** ✅ ÁNO
 
 ---

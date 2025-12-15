@@ -2,17 +2,17 @@
   "name": "documentation",
   "type": "docs",
   "location": "docs",
-  "generated": "2025-12-15T21:09:06.601674",
+  "generated": "2025-12-15T21:34:03.712003",
   "description": "Komplexná dokumentácia NEX Automat projektu",
   "statistics": {
-    "total_files": 132,
+    "total_files": 133,
     "total_dirs": 40,
     "python_files": 0,
     "powershell_files": 0,
-    "markdown_files": 114,
+    "markdown_files": 120,
     "test_files": 0,
-    "total_lines": 31132,
-    "total_size": 1355139
+    "total_lines": 33273,
+    "total_size": 1304018
   },
   "files": [
     {
@@ -296,11 +296,13 @@
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/sales/tables/PLSnnnnn-price_list_items.md-old"
     },
     {
-      "path": "docs/architecture/database/stock/cards/tables/FIF-stock_card_fifos.md-old",
-      "name": "FIF-stock_card_fifos.md-old",
-      "size": 28483,
-      "extension": ".md-old",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/stock/cards/tables/FIF-stock_card_fifos.md-old"
+      "path": "docs/architecture/database/stock/cards/tables/FIF-stock_card_fifos.md",
+      "name": "FIF-stock_card_fifos.md",
+      "size": 11711,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/stock/cards/tables/FIF-stock_card_fifos.md",
+      "lines": 349,
+      "type": "documentation"
     },
     {
       "path": "docs/architecture/database/stock/cards/tables/STK-stock_cards.md-old",
@@ -310,11 +312,13 @@
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/stock/cards/tables/STK-stock_cards.md-old"
     },
     {
-      "path": "docs/architecture/database/stock/cards/tables/STKLST-stocks.md-old",
-      "name": "STKLST-stocks.md-old",
-      "size": 20405,
-      "extension": ".md-old",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/stock/cards/tables/STKLST-stocks.md-old"
+      "path": "docs/architecture/database/stock/cards/tables/STKLST-stocks.md",
+      "name": "STKLST-stocks.md",
+      "size": 8764,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/stock/cards/tables/STKLST-stocks.md",
+      "lines": 271,
+      "type": "documentation"
     },
     {
       "path": "docs/architecture/database/stock/cards/tables/STM-stock_card_movements.md-old",
@@ -324,33 +328,39 @@
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/stock/cards/tables/STM-stock_card_movements.md-old"
     },
     {
-      "path": "docs/architecture/database/stock/cards/tables/WRILST-facilities.md-old",
-      "name": "WRILST-facilities.md-old",
-      "size": 17909,
-      "extension": ".md-old",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/stock/cards/tables/WRILST-facilities.md-old"
+      "path": "docs/architecture/database/stock/cards/tables/WRILST-facilities.md",
+      "name": "WRILST-facilities.md",
+      "size": 9110,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/stock/cards/tables/WRILST-facilities.md",
+      "lines": 250,
+      "type": "documentation"
     },
     {
-      "path": "docs/architecture/database/stock/documents/tables/TSH-supplier_delivery_heads.md-old",
-      "name": "TSH-supplier_delivery_heads.md-old",
-      "size": 25448,
-      "extension": ".md-old",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/stock/documents/tables/TSH-supplier_delivery_heads.md-old"
+      "path": "docs/architecture/database/stock/documents/tables/TSH-supplier_delivery_heads.md",
+      "name": "TSH-supplier_delivery_heads.md",
+      "size": 15141,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/stock/documents/tables/TSH-supplier_delivery_heads.md",
+      "lines": 452,
+      "type": "documentation"
     },
     {
-      "path": "docs/architecture/database/stock/documents/tables/TSI-supplier_delivery_items.md-old",
-      "name": "TSI-supplier_delivery_items.md-old",
-      "size": 29676,
-      "extension": ".md-old",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/stock/documents/tables/TSI-supplier_delivery_items.md-old"
+      "path": "docs/architecture/database/stock/documents/tables/TSI-supplier_delivery_items.md",
+      "name": "TSI-supplier_delivery_items.md",
+      "size": 16139,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/stock/documents/tables/TSI-supplier_delivery_items.md",
+      "lines": 470,
+      "type": "documentation"
     },
     {
       "path": "docs/archive/00_ARCHIVE_INDEX.md",
       "name": "00_ARCHIVE_INDEX.md",
-      "size": 3857,
+      "size": 4412,
       "extension": ".md",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/00_ARCHIVE_INDEX.md",
-      "lines": 125,
+      "lines": 138,
       "type": "documentation"
     },
     {
@@ -549,6 +559,15 @@
       "extension": ".md",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/sessions/SESSION_2025-12-15_database-table-docs-batch6-start.md",
       "lines": 311,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/archive/sessions/SESSION_2025-12-15_database-table-docs-batch6-stock-management.md",
+      "name": "SESSION_2025-12-15_database-table-docs-batch6-stock-management.md",
+      "size": 9380,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/sessions/SESSION_2025-12-15_database-table-docs-batch6-stock-management.md",
+      "lines": 336,
       "type": "documentation"
     },
     {
@@ -1389,6 +1408,54 @@
         "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/sessions/SESSION_2025-12-15_database-table-docs-batch6-start.md"
       },
       {
+        "name": "SESSION_2025-12-15_database-table-docs-batch6-stock-management.md",
+        "path": "archive/sessions/SESSION_2025-12-15_database-table-docs-batch6-stock-management.md",
+        "full_path": "docs/archive/sessions/SESSION_2025-12-15_database-table-docs-batch6-stock-management.md",
+        "size": 9380,
+        "lines": 336,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/sessions/SESSION_2025-12-15_database-table-docs-batch6-stock-management.md"
+      },
+      {
+        "name": "TSH-supplier_delivery_heads.md",
+        "path": "architecture/database/stock/documents/tables/TSH-supplier_delivery_heads.md",
+        "full_path": "docs/architecture/database/stock/documents/tables/TSH-supplier_delivery_heads.md",
+        "size": 15141,
+        "lines": 452,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/stock/documents/tables/TSH-supplier_delivery_heads.md"
+      },
+      {
+        "name": "TSI-supplier_delivery_items.md",
+        "path": "architecture/database/stock/documents/tables/TSI-supplier_delivery_items.md",
+        "full_path": "docs/architecture/database/stock/documents/tables/TSI-supplier_delivery_items.md",
+        "size": 16139,
+        "lines": 470,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/stock/documents/tables/TSI-supplier_delivery_items.md"
+      },
+      {
+        "name": "FIF-stock_card_fifos.md",
+        "path": "architecture/database/stock/cards/tables/FIF-stock_card_fifos.md",
+        "full_path": "docs/architecture/database/stock/cards/tables/FIF-stock_card_fifos.md",
+        "size": 11711,
+        "lines": 349,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/stock/cards/tables/FIF-stock_card_fifos.md"
+      },
+      {
+        "name": "STKLST-stocks.md",
+        "path": "architecture/database/stock/cards/tables/STKLST-stocks.md",
+        "full_path": "docs/architecture/database/stock/cards/tables/STKLST-stocks.md",
+        "size": 8764,
+        "lines": 271,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/stock/cards/tables/STKLST-stocks.md"
+      },
+      {
+        "name": "WRILST-facilities.md",
+        "path": "architecture/database/stock/cards/tables/WRILST-facilities.md",
+        "full_path": "docs/architecture/database/stock/cards/tables/WRILST-facilities.md",
+        "size": 9110,
+        "lines": 250,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/stock/cards/tables/WRILST-facilities.md"
+      },
+      {
         "name": "BARCODE-product_catalog_identifiers.md",
         "path": "architecture/database/catalogs/products/tables/BARCODE-product_catalog_identifiers.md",
         "full_path": "docs/architecture/database/catalogs/products/tables/BARCODE-product_catalog_identifiers.md",
@@ -1738,8 +1805,8 @@
         "name": "00_ARCHIVE_INDEX.md",
         "path": "archive/00_ARCHIVE_INDEX.md",
         "full_path": "docs/archive/00_ARCHIVE_INDEX.md",
-        "size": 3857,
-        "lines": 125,
+        "size": 4412,
+        "lines": 138,
         "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/00_ARCHIVE_INDEX.md"
       },
       {

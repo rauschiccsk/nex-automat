@@ -10,6 +10,13 @@
 ### December 2025
 
 **2025-12-15:**
+- [Database Table Docs Migration - Batch 6 Stock Management](sessions/SESSION_2025-12-15_database-table-docs-batch6-stock-management.md)
+  - Status: ✅ COMPLETE
+  - Topics: Stock Management section (WRILST, STKLST, TSH, FIF, TSI)
+  - Progress: 18/28 dokumentov (64.3%)
+  - Average reduction: 57.4%
+
+**2025-12-15:**
 - [Database Table Docs Migration - Batch 6 Products](sessions/SESSION_2025-12-15_database-table-docs-batch6-products.md)
   - Status: ✅ COMPLETE
   - Topics: Products section (BARCODE, FGLST, GSCAT, MGLST, SGLST)
@@ -127,10 +134,10 @@
 
 ## STATISTICS
 
-**Total Sessions:** 21  
+**Total Sessions:** 22  
 **Total Deployments:** 10  
 **Active Tasks:** 1 (Database table docs migration)  
-**Completion Rate:** 46.4% (13/28 database table docs)
+**Completion Rate:** 64.3% (18/28 database table docs)
 
 ---
 
