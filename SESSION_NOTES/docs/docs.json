@@ -2,17 +2,17 @@
   "name": "documentation",
   "type": "docs",
   "location": "docs",
-  "generated": "2025-12-15T19:05:04.087564",
+  "generated": "2025-12-15T20:06:30.443023",
   "description": "Komplexná dokumentácia NEX Automat projektu",
   "statistics": {
-    "total_files": 129,
+    "total_files": 130,
     "total_dirs": 40,
     "python_files": 0,
     "powershell_files": 0,
-    "markdown_files": 97,
+    "markdown_files": 102,
     "test_files": 0,
-    "total_lines": 26203,
-    "total_size": 1444251
+    "total_lines": 28046,
+    "total_size": 1418221
   },
   "files": [
     {
@@ -163,32 +163,40 @@
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/accounting/tables/PAYJRN-payment_journal.md-old"
     },
     {
-      "path": "docs/architecture/database/catalogs/partners/tables/BANKLST-bank_catalog.md-old",
-      "name": "BANKLST-bank_catalog.md-old",
-      "size": 10681,
-      "extension": ".md-old",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/catalogs/partners/tables/BANKLST-bank_catalog.md-old"
+      "path": "docs/architecture/database/catalogs/partners/tables/BANKLST-bank_catalog.md",
+      "name": "BANKLST-bank_catalog.md",
+      "size": 7776,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/catalogs/partners/tables/BANKLST-bank_catalog.md",
+      "lines": 244,
+      "type": "documentation"
     },
     {
-      "path": "docs/architecture/database/catalogs/partners/tables/PAB-partner_catalog.md-old",
-      "name": "PAB-partner_catalog.md-old",
-      "size": 39869,
-      "extension": ".md-old",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/catalogs/partners/tables/PAB-partner_catalog.md-old"
+      "path": "docs/architecture/database/catalogs/partners/tables/PAB-partner_catalog.md",
+      "name": "PAB-partner_catalog.md",
+      "size": 20160,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/catalogs/partners/tables/PAB-partner_catalog.md",
+      "lines": 524,
+      "type": "documentation"
     },
     {
-      "path": "docs/architecture/database/catalogs/partners/tables/PABACC-partner_catalog_bank_accounts.md-old",
-      "name": "PABACC-partner_catalog_bank_accounts.md-old",
-      "size": 12639,
-      "extension": ".md-old",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/catalogs/partners/tables/PABACC-partner_catalog_bank_accounts.md-old"
+      "path": "docs/architecture/database/catalogs/partners/tables/PABACC-partner_catalog_bank_accounts.md",
+      "name": "PABACC-partner_catalog_bank_accounts.md",
+      "size": 9948,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/catalogs/partners/tables/PABACC-partner_catalog_bank_accounts.md",
+      "lines": 326,
+      "type": "documentation"
     },
     {
-      "path": "docs/architecture/database/catalogs/partners/tables/PACNCT-partner_catalog_contacts.md-old",
-      "name": "PACNCT-partner_catalog_contacts.md-old",
-      "size": 22821,
-      "extension": ".md-old",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/catalogs/partners/tables/PACNCT-partner_catalog_contacts.md-old"
+      "path": "docs/architecture/database/catalogs/partners/tables/PACNCT-partner_catalog_contacts.md",
+      "name": "PACNCT-partner_catalog_contacts.md",
+      "size": 13424,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/catalogs/partners/tables/PACNCT-partner_catalog_contacts.md",
+      "lines": 394,
+      "type": "documentation"
     },
     {
       "path": "docs/architecture/database/catalogs/partners/tables/PAGLST-partner_categories.md-old",
@@ -319,10 +327,10 @@
     {
       "path": "docs/archive/00_ARCHIVE_INDEX.md",
       "name": "00_ARCHIVE_INDEX.md",
-      "size": 3480,
+      "size": 3857,
       "extension": ".md",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/00_ARCHIVE_INDEX.md",
-      "lines": 81,
+      "lines": 125,
       "type": "documentation"
     },
     {
@@ -494,6 +502,15 @@
       "extension": ".md",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/sessions/SESSION_2025-12-09_v24-phase4-deployment.md",
       "lines": 279,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/archive/sessions/SESSION_2025-12-15_database-table-docs-batch6-start.md",
+      "name": "SESSION_2025-12-15_database-table-docs-batch6-start.md",
+      "size": 8295,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/sessions/SESSION_2025-12-15_database-table-docs-batch6-start.md",
+      "lines": 311,
       "type": "documentation"
     },
     {
@@ -1310,6 +1327,46 @@
         "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/migration/DATABASE_MIGRATION.md"
       },
       {
+        "name": "SESSION_2025-12-15_database-table-docs-batch6-start.md",
+        "path": "archive/sessions/SESSION_2025-12-15_database-table-docs-batch6-start.md",
+        "full_path": "docs/archive/sessions/SESSION_2025-12-15_database-table-docs-batch6-start.md",
+        "size": 8295,
+        "lines": 311,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/sessions/SESSION_2025-12-15_database-table-docs-batch6-start.md"
+      },
+      {
+        "name": "BANKLST-bank_catalog.md",
+        "path": "architecture/database/catalogs/partners/tables/BANKLST-bank_catalog.md",
+        "full_path": "docs/architecture/database/catalogs/partners/tables/BANKLST-bank_catalog.md",
+        "size": 7776,
+        "lines": 244,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/catalogs/partners/tables/BANKLST-bank_catalog.md"
+      },
+      {
+        "name": "PAB-partner_catalog.md",
+        "path": "architecture/database/catalogs/partners/tables/PAB-partner_catalog.md",
+        "full_path": "docs/architecture/database/catalogs/partners/tables/PAB-partner_catalog.md",
+        "size": 20160,
+        "lines": 524,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/catalogs/partners/tables/PAB-partner_catalog.md"
+      },
+      {
+        "name": "PABACC-partner_catalog_bank_accounts.md",
+        "path": "architecture/database/catalogs/partners/tables/PABACC-partner_catalog_bank_accounts.md",
+        "full_path": "docs/architecture/database/catalogs/partners/tables/PABACC-partner_catalog_bank_accounts.md",
+        "size": 9948,
+        "lines": 326,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/catalogs/partners/tables/PABACC-partner_catalog_bank_accounts.md"
+      },
+      {
+        "name": "PACNCT-partner_catalog_contacts.md",
+        "path": "architecture/database/catalogs/partners/tables/PACNCT-partner_catalog_contacts.md",
+        "full_path": "docs/architecture/database/catalogs/partners/tables/PACNCT-partner_catalog_contacts.md",
+        "size": 13424,
+        "lines": 394,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/architecture/database/catalogs/partners/tables/PACNCT-partner_catalog_contacts.md"
+      },
+      {
         "name": "DATABASE_SCHEMA.md",
         "path": "applications/supplier-invoice-staging/DATABASE_SCHEMA.md",
         "full_path": "docs/applications/supplier-invoice-staging/DATABASE_SCHEMA.md",
@@ -1547,8 +1604,8 @@
         "name": "00_ARCHIVE_INDEX.md",
         "path": "archive/00_ARCHIVE_INDEX.md",
         "full_path": "docs/archive/00_ARCHIVE_INDEX.md",
-        "size": 3480,
-        "lines": 81,
+        "size": 3857,
+        "lines": 125,
         "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/00_ARCHIVE_INDEX.md"
       },
       {

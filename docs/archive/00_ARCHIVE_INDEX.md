@@ -1,81 +1,125 @@
 # Archive Index
 
-**Category:** Archive  
-**Last Updated:** 2025-12-15
+**Last Updated:** 2025-12-15  
+**Purpose:** Index všetkých archivovaných dokumentov  
 
 ---
 
-## Overview
+## SESSION ARCHIVES
 
-This directory contains archived documentation and historical snapshots of the NEX Automat project.
-
----
-
-## Session History
-
-Complete chronological archive of development sessions. Each session documents work completed, decisions made, and lessons learned.
-
-**Total Sessions:** 10
-
-### By Date
+### December 2025
 
 **2025-12-15:**
+- [Database Table Docs Migration - Batch 6 Start](sessions/SESSION_2025-12-15_database-table-docs-batch6-start.md)
+  - Status: ⏸️ POZASTAVENÁ (4/28 dokumentov)
+  - Topics: BANKLST, PAB, PABACC, PACNCT
+  - Scripts: 32-35
 
-- [Documentation Migration Batch 4](sessions/SESSION_2025-12-15_documentation-migration-batch4.md) - **NEW**
-- [Documentation Migration Batch 3](sessions/SESSION_2025-12-15_documentation-migration-batch3.md)
-- [Documentation Migration Batch 2](sessions/SESSION_2025-12-15_documentation-migration-batch2.md)
+**2025-12-15:**
+- [Documentation Migration - Batch 5](sessions/SESSION_2025-12-15_documentation-migration-batch5.md)
+  - Status: ✅ COMPLETE
+  - Topics: Database indexes (7 dokumentov)
+  - Scripts: 25-31
+
+**2025-12-15:**
+- [Documentation Migration - Batch 4](sessions/SESSION_2025-12-15_documentation-migration-batch4.md)
+  - Status: ✅ COMPLETE
+  - Topics: Database docs (3 dokumenty)
+  - Scripts: 22-24
+
+**2025-12-15:**
+- [Documentation Migration - Batch 3](sessions/SESSION_2025-12-15_documentation-migration-batch3.md)
+  - Status: ✅ COMPLETE
+  - Topics: Database docs (6 dokumentov)
+  - Scripts: 16-21
+
+**2025-12-15:**
+- [Documentation Migration - Batch 2](sessions/SESSION_2025-12-15_documentation-migration-batch2.md)
+  - Status: ✅ COMPLETE
+  - Topics: Database general (4 dokumenty)
+  - Scripts: 12-15
 
 **2025-12-09:**
+- [v2.4 Implementation Complete](sessions/SESSION_2025-12-09_v24-implementation-complete.md)
+  - Status: ✅ COMPLETE
+  - Topics: Product enrichment, implementation
 
-- [V24 Implementation Complete](sessions/SESSION_2025-12-09_v24-implementation-complete.md)
-- [V24 Phase4 Deployment](sessions/SESSION_2025-12-09_v24-phase4-deployment.md)
+**2025-12-09:**
+- [v2.4 Phase 4 Deployment](sessions/SESSION_2025-12-09_v24-phase4-deployment.md)
+  - Status: ✅ COMPLETE
+  - Topics: Production deployment
 
 **2025-12-08:**
+- [v2.4 Product Enrichment](sessions/SESSION_2025-12-08_v24-product-enrichment.md)
+  - Status: ✅ COMPLETE
+  - Topics: EAN matching, product enrichment
 
-- [Documentation Restructure V23 Planning](sessions/SESSION_2025-12-08_documentation-restructure-v23-planning.md)
-- [V22 Cleanup Mágerstav Deployment Attempt](sessions/SESSION_2025-12-08_v22-cleanup-mágerstav-deployment-attempt.md)
-- [V23 Loader Migration](sessions/SESSION_2025-12-08_v23-loader-migration.md)
-- [V24 Product Enrichment](sessions/SESSION_2025-12-08_v24-product-enrichment.md)
+**2025-12-08:**
+- [v2.3 Loader Migration](sessions/SESSION_2025-12-08_v23-loader-migration.md)
+  - Status: ✅ COMPLETE
+  - Topics: Loader architecture
+
+**2025-12-08:**
+- [v2.2 Cleanup & Mágerstav Deployment Attempt](sessions/SESSION_2025-12-08_v22-cleanup-mÃ¡gerstav-deployment-attempt.md)
+  - Status: ✅ COMPLETE
+  - Topics: Code cleanup, deployment
+
+**2025-12-08:**
+- [Documentation Restructure v2.3 Planning](sessions/SESSION_2025-12-08_documentation-restructure-v23-planning.md)
+  - Status: ✅ COMPLETE
+  - Topics: Documentation structure
 
 **2025-12-06:**
-
-- [Basegrid Persistence Implementation](sessions/SESSION_2025-12-06_basegrid-persistence-implementation.md)
-
----
-
-## Archived Documents
-
-Historical snapshots of project documentation.
-
-### Project Status
-
-- [PROJECT_STATUS_v2.1_2025-12-02.md](PROJECT_STATUS_v2.1_2025-12-02.md) - Project status as of v2.1 (OUTDATED, archived)
+- [BaseGrid Persistence Implementation](sessions/SESSION_2025-12-06_basegrid-persistence-implementation.md)
+  - Status: ✅ COMPLETE
+  - Topics: Grid persistence
 
 ---
 
-## Deployment Records
+## DEPLOYMENT ARCHIVES
 
-### Mágerstav s.r.o. Deployment History
+### Mágerstav Deployments
 
-- **2025-12-02** - [User Guide](deployments/USER_GUIDE_MAGERSTAV_2025-12-02.md) - End-user manual (v2.1) - **NEW**
-- **2025-11-29** - [Production Deployment](deployments/DEPLOYMENT_MAGERSTAV_2025-11-29.md) - First production deployment, v2.0.0
-- **2025-11-27** - [Training Guide](deployments/TRAINING_GUIDE_MAGERSTAV_2025-11-27.md) - Training material (v2.0) - **NEW**
-- **2025-11-27** - [Go-Live Checklist](deployments/CHECKLIST_MAGERSTAV_2025-11-27.md) - Pre-deployment preparation checklist
-- **2025-11-27** - [Pre-Deployment Checklist](deployments/PRE_DEPLOYMENT_CHECKLIST_MAGERSTAV_2025-11-27.md) - Infrastructure and application verification
-- **2025-11-27** - [Deployment Guide](deployments/DEPLOYMENT_GUIDE_MAGERSTAV_2025-11-27.md) - Complete deployment process documentation
-- **2025-11-24** - [Operations Guide](deployments/OPERATIONS_GUIDE_MAGERSTAV_2025-11-24.md) - Daily operations and maintenance procedures
-- **2025-11-24** - [Recovery Procedures](deployments/RECOVERY_PROCEDURES_MAGERSTAV_2025-11-24.md) - Quick reference recovery guide (Slovak)
-- **2025-11-21** - [Recovery Guide](deployments/RECOVERY_GUIDE_MAGERSTAV_2025-11-21.md) - Database disaster recovery procedures
-- **2025-11-21** - [Troubleshooting Guide](deployments/TROUBLESHOOTING_MAGERSTAV_2025-11-21.md) - Common issues and solutions
+**2025-12-02:**
+- [User Guide](deployments/USER_GUIDE_MAGERSTAV_2025-12-02.md)
+
+**2025-11-29:**
+- [Deployment](deployments/DEPLOYMENT_MAGERSTAV_2025-11-29.md)
+
+**2025-11-27:**
+- [Deployment Guide](deployments/DEPLOYMENT_GUIDE_MAGERSTAV_2025-11-27.md)
+- [Training Guide](deployments/TRAINING_GUIDE_MAGERSTAV_2025-11-27.md)
+- [Pre-Deployment Checklist](deployments/PRE_DEPLOYMENT_CHECKLIST_MAGERSTAV_2025-11-27.md)
+- [Checklist](deployments/CHECKLIST_MAGERSTAV_2025-11-27.md)
+
+**2025-11-24:**
+- [Operations Guide](deployments/OPERATIONS_GUIDE_MAGERSTAV_2025-11-24.md)
+- [Recovery Procedures](deployments/RECOVERY_PROCEDURES_MAGERSTAV_2025-11-24.md)
+
+**2025-11-21:**
+- [Recovery Guide](deployments/RECOVERY_GUIDE_MAGERSTAV_2025-11-21.md)
+- [Troubleshooting](deployments/TROUBLESHOOTING_MAGERSTAV_2025-11-21.md)
 
 ---
 
-## See Also
+## PROJECT STATUS ARCHIVES
 
-- [Documentation Index](../00_DOCUMENTATION_INDEX.md) - Current documentation
-- [Session Notes](../../SESSION_NOTES/SESSION_NOTES.md) - Active work
-- [Project Archive](PROJECT_ARCHIVE.md-old.backup) - Original archive backup (if exists)
+**2025-12-02:**
+- [Project Status v2.1](PROJECT_STATUS_v2.1_2025-12-02.md)
+
+**2025-11-26:**
+- [Current State](CURRENT_STATE_2025-11-26.md)
 
 ---
 
-**Note:** Archive is manually curated. Session records added after each completed work session.
+## STATISTICS
+
+**Total Sessions:** 19  
+**Total Deployments:** 10  
+**Active Tasks:** 1 (Database table docs migration)  
+**Completion Rate:** 58.3% (35/60 .md-old files)
+
+---
+
+**Last Updated:** 2025-12-15  
+**Maintainer:** Zoltán & Claude
