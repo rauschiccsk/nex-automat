@@ -2,17 +2,17 @@
   "name": "documentation",
   "type": "docs",
   "location": "docs",
-  "generated": "2025-12-15T15:16:00.674120",
+  "generated": "2025-12-15T15:52:18.122094",
   "description": "Komplexná dokumentácia NEX Automat projektu",
   "statistics": {
-    "total_files": 119,
-    "total_dirs": 39,
+    "total_files": 126,
+    "total_dirs": 40,
     "python_files": 0,
     "powershell_files": 0,
-    "markdown_files": 66,
+    "markdown_files": 82,
     "test_files": 0,
-    "total_lines": 13224,
-    "total_size": 1358242
+    "total_lines": 19597,
+    "total_size": 1417211
   },
   "files": [
     {
@@ -389,10 +389,10 @@
     {
       "path": "docs/archive/00_ARCHIVE_INDEX.md",
       "name": "00_ARCHIVE_INDEX.md",
-      "size": 1721,
+      "size": 3150,
       "extension": ".md",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/00_ARCHIVE_INDEX.md",
-      "lines": 58,
+      "lines": 77,
       "type": "documentation"
     },
     {
@@ -411,6 +411,78 @@
       "extension": ".md",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/PROJECT_STATUS_v2.1_2025-12-02.md",
       "lines": 657,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/archive/deployments/CHECKLIST_MAGERSTAV_2025-11-27.md",
+      "name": "CHECKLIST_MAGERSTAV_2025-11-27.md",
+      "size": 6297,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/deployments/CHECKLIST_MAGERSTAV_2025-11-27.md",
+      "lines": 282,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/archive/deployments/DEPLOYMENT_GUIDE_MAGERSTAV_2025-11-27.md",
+      "name": "DEPLOYMENT_GUIDE_MAGERSTAV_2025-11-27.md",
+      "size": 13763,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/deployments/DEPLOYMENT_GUIDE_MAGERSTAV_2025-11-27.md",
+      "lines": 634,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/archive/deployments/DEPLOYMENT_MAGERSTAV_2025-11-29.md",
+      "name": "DEPLOYMENT_MAGERSTAV_2025-11-29.md",
+      "size": 4496,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/deployments/DEPLOYMENT_MAGERSTAV_2025-11-29.md",
+      "lines": 205,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/archive/deployments/OPERATIONS_GUIDE_MAGERSTAV_2025-11-24.md",
+      "name": "OPERATIONS_GUIDE_MAGERSTAV_2025-11-24.md",
+      "size": 8084,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/deployments/OPERATIONS_GUIDE_MAGERSTAV_2025-11-24.md",
+      "lines": 366,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/archive/deployments/PRE_DEPLOYMENT_CHECKLIST_MAGERSTAV_2025-11-27.md",
+      "name": "PRE_DEPLOYMENT_CHECKLIST_MAGERSTAV_2025-11-27.md",
+      "size": 6440,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/deployments/PRE_DEPLOYMENT_CHECKLIST_MAGERSTAV_2025-11-27.md",
+      "lines": 285,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/archive/deployments/RECOVERY_GUIDE_MAGERSTAV_2025-11-21.md",
+      "name": "RECOVERY_GUIDE_MAGERSTAV_2025-11-21.md",
+      "size": 13570,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/deployments/RECOVERY_GUIDE_MAGERSTAV_2025-11-21.md",
+      "lines": 610,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/archive/deployments/RECOVERY_PROCEDURES_MAGERSTAV_2025-11-24.md",
+      "name": "RECOVERY_PROCEDURES_MAGERSTAV_2025-11-24.md",
+      "size": 9779,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/deployments/RECOVERY_PROCEDURES_MAGERSTAV_2025-11-24.md",
+      "lines": 441,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/archive/deployments/TROUBLESHOOTING_MAGERSTAV_2025-11-21.md",
+      "name": "TROUBLESHOOTING_MAGERSTAV_2025-11-21.md",
+      "size": 9592,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/deployments/TROUBLESHOOTING_MAGERSTAV_2025-11-21.md",
+      "lines": 567,
       "type": "documentation"
     },
     {
@@ -486,6 +558,15 @@
       "type": "documentation"
     },
     {
+      "path": "docs/archive/sessions/SESSION_2025-12-15_documentation-migration-batch3.md",
+      "name": "SESSION_2025-12-15_documentation-migration-batch3.md",
+      "size": 9273,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/sessions/SESSION_2025-12-15_documentation-migration-batch3.md",
+      "lines": 324,
+      "type": "documentation"
+    },
+    {
       "path": "docs/database/00_DATABASE_INDEX.md",
       "name": "00_DATABASE_INDEX.md",
       "size": 3771,
@@ -504,11 +585,13 @@
       "type": "documentation"
     },
     {
-      "path": "docs/deployment/DEPLOYMENT_GUIDE.md-old",
-      "name": "DEPLOYMENT_GUIDE.md-old",
-      "size": 13763,
-      "extension": ".md-old",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/deployment/DEPLOYMENT_GUIDE.md-old"
+      "path": "docs/deployment/DEPLOYMENT_GUIDE.md",
+      "name": "DEPLOYMENT_GUIDE.md",
+      "size": 11720,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/deployment/DEPLOYMENT_GUIDE.md",
+      "lines": 525,
+      "type": "documentation"
     },
     {
       "path": "docs/deployment/GIT_WORKFLOW.md",
@@ -520,18 +603,13 @@
       "type": "documentation"
     },
     {
-      "path": "docs/deployment/GO_LIVE_CHECKLIST.md-old",
-      "name": "GO_LIVE_CHECKLIST.md-old",
-      "size": 6297,
-      "extension": ".md-old",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/deployment/GO_LIVE_CHECKLIST.md-old"
-    },
-    {
-      "path": "docs/deployment/MAGERSTAV_DEPLOYMET_SUMMARY.md-old",
-      "name": "MAGERSTAV_DEPLOYMET_SUMMARY.md-old",
-      "size": 4496,
-      "extension": ".md-old",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/deployment/MAGERSTAV_DEPLOYMET_SUMMARY.md-old"
+      "path": "docs/deployment/GO_LIVE_CHECKLIST.md",
+      "name": "GO_LIVE_CHECKLIST.md",
+      "size": 5849,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/deployment/GO_LIVE_CHECKLIST.md",
+      "lines": 282,
+      "type": "documentation"
     },
     {
       "path": "docs/deployment/MAGERSTAV_ONBOARDING_GUIDE.md-old",
@@ -541,39 +619,40 @@
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/deployment/MAGERSTAV_ONBOARDING_GUIDE.md-old"
     },
     {
-      "path": "docs/deployment/OPERATIONS_GUIDE.md-old",
-      "name": "OPERATIONS_GUIDE.md-old",
-      "size": 8084,
-      "extension": ".md-old",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/deployment/OPERATIONS_GUIDE.md-old"
+      "path": "docs/deployment/OPERATIONS_GUIDE.md",
+      "name": "OPERATIONS_GUIDE.md",
+      "size": 8386,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/deployment/OPERATIONS_GUIDE.md",
+      "lines": 366,
+      "type": "documentation"
     },
     {
-      "path": "docs/deployment/PRE_DEPLOYMENT_CHECKLIST.md-old",
-      "name": "PRE_DEPLOYMENT_CHECKLIST.md-old",
-      "size": 6440,
-      "extension": ".md-old",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/deployment/PRE_DEPLOYMENT_CHECKLIST.md-old"
+      "path": "docs/deployment/PRE_DEPLOYMENT_CHECKLIST.md",
+      "name": "PRE_DEPLOYMENT_CHECKLIST.md",
+      "size": 6662,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/deployment/PRE_DEPLOYMENT_CHECKLIST.md",
+      "lines": 284,
+      "type": "documentation"
     },
     {
-      "path": "docs/deployment/RECOVERY_GUIDE.md-old",
-      "name": "RECOVERY_GUIDE.md-old",
-      "size": 13570,
-      "extension": ".md-old",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/deployment/RECOVERY_GUIDE.md-old"
+      "path": "docs/deployment/RECOVERY_GUIDE.md",
+      "name": "RECOVERY_GUIDE.md",
+      "size": 8710,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/deployment/RECOVERY_GUIDE.md",
+      "lines": 377,
+      "type": "documentation"
     },
     {
-      "path": "docs/deployment/RECOVERY_PROCEDURES.md-old",
-      "name": "RECOVERY_PROCEDURES.md-old",
-      "size": 9779,
-      "extension": ".md-old",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/deployment/RECOVERY_PROCEDURES.md-old"
-    },
-    {
-      "path": "docs/deployment/SERVICE_MANAGEMENT.md-old",
-      "name": "SERVICE_MANAGEMENT.md-old",
+      "path": "docs/deployment/SERVICE_MANAGEMENT.md",
+      "name": "SERVICE_MANAGEMENT.md",
       "size": 7711,
-      "extension": ".md-old",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/deployment/SERVICE_MANAGEMENT.md-old"
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/deployment/SERVICE_MANAGEMENT.md",
+      "lines": 456,
+      "type": "documentation"
     },
     {
       "path": "docs/deployment/TRAINING_GUIDE.md-old",
@@ -583,11 +662,13 @@
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/deployment/TRAINING_GUIDE.md-old"
     },
     {
-      "path": "docs/deployment/TROUBLESHOOTING.md-old",
-      "name": "TROUBLESHOOTING.md-old",
-      "size": 9592,
-      "extension": ".md-old",
-      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/deployment/TROUBLESHOOTING.md-old"
+      "path": "docs/deployment/TROUBLESHOOTING.md",
+      "name": "TROUBLESHOOTING.md",
+      "size": 6940,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/deployment/TROUBLESHOOTING.md",
+      "lines": 350,
+      "type": "documentation"
     },
     {
       "path": "docs/development/00_DEVELOPMENT_INDEX.md",
@@ -984,6 +1065,30 @@
   "categories": {
     "guides": [
       {
+        "name": "DEPLOYMENT_GUIDE.md",
+        "path": "deployment/DEPLOYMENT_GUIDE.md",
+        "full_path": "docs/deployment/DEPLOYMENT_GUIDE.md",
+        "size": 11720,
+        "lines": 525,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/deployment/DEPLOYMENT_GUIDE.md"
+      },
+      {
+        "name": "OPERATIONS_GUIDE.md",
+        "path": "deployment/OPERATIONS_GUIDE.md",
+        "full_path": "docs/deployment/OPERATIONS_GUIDE.md",
+        "size": 8386,
+        "lines": 366,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/deployment/OPERATIONS_GUIDE.md"
+      },
+      {
+        "name": "RECOVERY_GUIDE.md",
+        "path": "deployment/RECOVERY_GUIDE.md",
+        "full_path": "docs/deployment/RECOVERY_GUIDE.md",
+        "size": 8710,
+        "lines": 377,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/deployment/RECOVERY_GUIDE.md"
+      },
+      {
         "name": "SETUP_GUIDE.md",
         "path": "development/SETUP_GUIDE.md",
         "full_path": "docs/development/SETUP_GUIDE.md",
@@ -998,6 +1103,30 @@
         "size": 12184,
         "lines": 582,
         "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/system/MONOREPO_GUIDE.md"
+      },
+      {
+        "name": "DEPLOYMENT_GUIDE_MAGERSTAV_2025-11-27.md",
+        "path": "archive/deployments/DEPLOYMENT_GUIDE_MAGERSTAV_2025-11-27.md",
+        "full_path": "docs/archive/deployments/DEPLOYMENT_GUIDE_MAGERSTAV_2025-11-27.md",
+        "size": 13763,
+        "lines": 634,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/deployments/DEPLOYMENT_GUIDE_MAGERSTAV_2025-11-27.md"
+      },
+      {
+        "name": "OPERATIONS_GUIDE_MAGERSTAV_2025-11-24.md",
+        "path": "archive/deployments/OPERATIONS_GUIDE_MAGERSTAV_2025-11-24.md",
+        "full_path": "docs/archive/deployments/OPERATIONS_GUIDE_MAGERSTAV_2025-11-24.md",
+        "size": 8084,
+        "lines": 366,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/deployments/OPERATIONS_GUIDE_MAGERSTAV_2025-11-24.md"
+      },
+      {
+        "name": "RECOVERY_GUIDE_MAGERSTAV_2025-11-21.md",
+        "path": "archive/deployments/RECOVERY_GUIDE_MAGERSTAV_2025-11-21.md",
+        "full_path": "docs/archive/deployments/RECOVERY_GUIDE_MAGERSTAV_2025-11-21.md",
+        "size": 13570,
+        "lines": 610,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/deployments/RECOVERY_GUIDE_MAGERSTAV_2025-11-21.md"
       }
     ],
     "database": [
@@ -1066,6 +1195,14 @@
         "size": 7070,
         "lines": 253,
         "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/sessions/SESSION_2025-12-15_documentation-migration-batch2.md"
+      },
+      {
+        "name": "SESSION_2025-12-15_documentation-migration-batch3.md",
+        "path": "archive/sessions/SESSION_2025-12-15_documentation-migration-batch3.md",
+        "full_path": "docs/archive/sessions/SESSION_2025-12-15_documentation-migration-batch3.md",
+        "size": 9273,
+        "lines": 324,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/sessions/SESSION_2025-12-15_documentation-migration-batch3.md"
       }
     ],
     "api": [
@@ -1106,12 +1243,84 @@
         "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/deployment/GIT_WORKFLOW.md"
       },
       {
+        "name": "GO_LIVE_CHECKLIST.md",
+        "path": "deployment/GO_LIVE_CHECKLIST.md",
+        "full_path": "docs/deployment/GO_LIVE_CHECKLIST.md",
+        "size": 5849,
+        "lines": 282,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/deployment/GO_LIVE_CHECKLIST.md"
+      },
+      {
+        "name": "PRE_DEPLOYMENT_CHECKLIST.md",
+        "path": "deployment/PRE_DEPLOYMENT_CHECKLIST.md",
+        "full_path": "docs/deployment/PRE_DEPLOYMENT_CHECKLIST.md",
+        "size": 6662,
+        "lines": 284,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/deployment/PRE_DEPLOYMENT_CHECKLIST.md"
+      },
+      {
+        "name": "SERVICE_MANAGEMENT.md",
+        "path": "deployment/SERVICE_MANAGEMENT.md",
+        "full_path": "docs/deployment/SERVICE_MANAGEMENT.md",
+        "size": 7711,
+        "lines": 456,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/deployment/SERVICE_MANAGEMENT.md"
+      },
+      {
+        "name": "TROUBLESHOOTING.md",
+        "path": "deployment/TROUBLESHOOTING.md",
+        "full_path": "docs/deployment/TROUBLESHOOTING.md",
+        "size": 6940,
+        "lines": 350,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/deployment/TROUBLESHOOTING.md"
+      },
+      {
         "name": "DEPLOYMENT.md",
         "path": "development/DEPLOYMENT.md",
         "full_path": "docs/development/DEPLOYMENT.md",
         "size": 197,
         "lines": 15,
         "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/development/DEPLOYMENT.md"
+      },
+      {
+        "name": "CHECKLIST_MAGERSTAV_2025-11-27.md",
+        "path": "archive/deployments/CHECKLIST_MAGERSTAV_2025-11-27.md",
+        "full_path": "docs/archive/deployments/CHECKLIST_MAGERSTAV_2025-11-27.md",
+        "size": 6297,
+        "lines": 282,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/deployments/CHECKLIST_MAGERSTAV_2025-11-27.md"
+      },
+      {
+        "name": "DEPLOYMENT_MAGERSTAV_2025-11-29.md",
+        "path": "archive/deployments/DEPLOYMENT_MAGERSTAV_2025-11-29.md",
+        "full_path": "docs/archive/deployments/DEPLOYMENT_MAGERSTAV_2025-11-29.md",
+        "size": 4496,
+        "lines": 205,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/deployments/DEPLOYMENT_MAGERSTAV_2025-11-29.md"
+      },
+      {
+        "name": "PRE_DEPLOYMENT_CHECKLIST_MAGERSTAV_2025-11-27.md",
+        "path": "archive/deployments/PRE_DEPLOYMENT_CHECKLIST_MAGERSTAV_2025-11-27.md",
+        "full_path": "docs/archive/deployments/PRE_DEPLOYMENT_CHECKLIST_MAGERSTAV_2025-11-27.md",
+        "size": 6440,
+        "lines": 285,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/deployments/PRE_DEPLOYMENT_CHECKLIST_MAGERSTAV_2025-11-27.md"
+      },
+      {
+        "name": "RECOVERY_PROCEDURES_MAGERSTAV_2025-11-24.md",
+        "path": "archive/deployments/RECOVERY_PROCEDURES_MAGERSTAV_2025-11-24.md",
+        "full_path": "docs/archive/deployments/RECOVERY_PROCEDURES_MAGERSTAV_2025-11-24.md",
+        "size": 9779,
+        "lines": 441,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/deployments/RECOVERY_PROCEDURES_MAGERSTAV_2025-11-24.md"
+      },
+      {
+        "name": "TROUBLESHOOTING_MAGERSTAV_2025-11-21.md",
+        "path": "archive/deployments/TROUBLESHOOTING_MAGERSTAV_2025-11-21.md",
+        "full_path": "docs/archive/deployments/TROUBLESHOOTING_MAGERSTAV_2025-11-21.md",
+        "size": 9592,
+        "lines": 567,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/deployments/TROUBLESHOOTING_MAGERSTAV_2025-11-21.md"
       },
       {
         "name": "SESSION_2025-12-08_v22-cleanup-mágerstav-deployment-attempt.md",
@@ -1167,8 +1376,8 @@
         "name": "00_ARCHIVE_INDEX.md",
         "path": "archive/00_ARCHIVE_INDEX.md",
         "full_path": "docs/archive/00_ARCHIVE_INDEX.md",
-        "size": 1721,
-        "lines": 58,
+        "size": 3150,
+        "lines": 77,
         "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/00_ARCHIVE_INDEX.md"
       },
       {

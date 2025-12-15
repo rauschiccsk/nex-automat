@@ -15,9 +15,14 @@ This directory contains archived documentation and historical snapshots of the N
 
 Complete chronological archive of development sessions. Each session documents work completed, decisions made, and lessons learned.
 
-**Total Sessions:** 7
+**Total Sessions:** 9
 
 ### By Date
+
+**2025-12-15:**
+
+- [Documentation Migration Batch 3](sessions/SESSION_2025-12-15_documentation-migration-batch3.md)
+- [Documentation Migration Batch 2](sessions/SESSION_2025-12-15_documentation-migration-batch2.md)
 
 **2025-12-09:**
 
@@ -56,3 +61,17 @@ Historical snapshots of project documentation.
 ---
 
 **Note:** This index is automatically generated. Do not edit manually.
+
+
+## Deployment Records
+
+- **2025-11-29** - [Mágerstav Production Deployment](deployments/DEPLOYMENT_MAGERSTAV_2025-11-29.md) - First production deployment, v2.0.0
+- **2025-11-27** - [Mágerstav Go-Live Checklist](deployments/CHECKLIST_MAGERSTAV_2025-11-27.md) - Pre-deployment preparation checklist
+- **2025-11-27** - [Mágerstav Pre-Deployment Checklist](deployments/PRE_DEPLOYMENT_CHECKLIST_MAGERSTAV_2025-11-27.md) - Infrastructure and application verification
+- **2025-11-27** - [Mágerstav Deployment Guide](deployments/DEPLOYMENT_GUIDE_MAGERSTAV_2025-11-27.md) - Complete deployment process documentation
+- **2025-11-24** - [Mágerstav Operations Guide](deployments/OPERATIONS_GUIDE_MAGERSTAV_2025-11-24.md) - Daily operations and maintenance procedures
+- **2025-11-21** - [Mágerstav Recovery Guide](deployments/RECOVERY_GUIDE_MAGERSTAV_2025-11-21.md) - Database disaster recovery procedures
+- **2025-11-24** - [Mágerstav Recovery Procedures](deployments/RECOVERY_PROCEDURES_MAGERSTAV_2025-11-24.md) - Quick reference recovery guide (Slovak)
+- **2025-11-21** - [Mágerstav Troubleshooting Guide](deployments/TROUBLESHOOTING_MAGERSTAV_2025-11-21.md) - Common issues and solutions
+
+---
