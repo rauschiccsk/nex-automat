@@ -195,7 +195,7 @@ História vývoja projektu, dokumentácia sessions.
 - [Staging (GUI)](applications/supplier-invoice-staging/00_STAGING_INDEX.md)
 
 ### Pre Session Work
-- [Session Notes](../SESSION_NOTES/SESSION_NOTES.md)
+- [Session Notes](../init_chat/SESSION_NOTES.md)
 - [Archive Index](archive/00_ARCHIVE_INDEX.md)
 
 ---

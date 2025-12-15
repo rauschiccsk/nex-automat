@@ -3,7 +3,7 @@
 
 PROJECT_ROOT = r"C:\Development\nex-automat"
 TOOLS_DIR = r"C:\Development\nex-automat\tools"
-SESSION_NOTES_DIR = r"C:\Development\nex-automat\SESSION_NOTES"
+SESSION_NOTES_DIR = r"/init_chat"
 
 # Artifact Server
 ARTIFACT_SERVER_PORT = 8765

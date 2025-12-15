@@ -13,7 +13,7 @@ try:
     from config import PROJECT_ROOT, SESSION_NOTES_DIR
 except ImportError:
     PROJECT_ROOT = Path("C:/Development/nex-automat")
-    SESSION_NOTES_DIR = Path("C:/Development/nex-automat/SESSION_NOTES")
+    SESSION_NOTES_DIR = Path("/init_chat")
 
 class ClaudeHotkeys:
     def __init__(self):

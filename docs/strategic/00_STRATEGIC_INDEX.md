@@ -9,7 +9,7 @@
 
 ## Účel
 
-Strategická dokumentácia obsahuje dlhodobé plány, vízie projektu, technologické rozhodnutia a roadmap.
+Strategická dokumentácia obsahuje dlhodobé plány, víziu projektu, technologické rozhodnutia a roadmap.
 
 ---
 
@@ -17,17 +17,11 @@ Strategická dokumentácia obsahuje dlhodobé plány, vízie projektu, technolog
 
 ### Kompletné Dokumenty
 
-**[QUICK_WINS_TECHNOLOGIES.md](QUICK_WINS_TECHNOLOGIES.md)**
-- Quick wins technológie (Redis, Sentry, Streamlit, Docker, Grafana, GitHub Actions)
-- Implementačný plán, náklady €0-312/rok, benefity
-- Status: 🟢 Complete
-- Veľkosť: ~19 KB
-
 **[AI_ML_TECHNOLOGIES.md](AI_ML_TECHNOLOGIES.md)**
 - Schválené AI/ML technológie (PaddleOCR, Camelot, Claude API, DuckDB)
 - Implementačný plán, náklady, benefity
 - Status: 🟢 Complete
-- Veľkosť: ~24 KB
+- Veľkosť: ~26 KB, 841 riadkov
 
 **[PROJECT_ROADMAP.md](PROJECT_ROADMAP.md)**
 - Kompletný roadmap NEX Automat projektu
@@ -39,7 +33,18 @@ Strategická dokumentácia obsahuje dlhodobé plány, vízie projektu, technolog
 - Vízia a ciele projektu
 - Long-term stratégia
 - Status: 🟢 Complete
-- Veľkosť: ~13 KB, 443 riadkov
+- Veľkosť: ~14 KB, 443 riadkov
+
+**[QUICK_WINS_TECHNOLOGIES.md](QUICK_WINS_TECHNOLOGIES.md)**
+- Quick win technológie a implementácie
+- Status: 🟢 Complete
+- Veľkosť: ~19 KB, 606 riadkov
+
+**[N8N_TO_TEMPORAL_MIGRATION.md](N8N_TO_TEMPORAL_MIGRATION.md)**
+- Migrácia z n8n na Temporal workflow orchestration
+- Architektúra, implementation roadmap, risks
+- Status: 📋 Planned
+- Veľkosť: ~12 KB
 
 ### Draft Dokumenty
 
@@ -57,18 +62,20 @@ Strategická dokumentácia obsahuje dlhodobé plány, vízie projektu, technolog
 - [Project Vision](PROJECT_VISION.md) - Dlhodobá vízia
 
 **Pre technológie:**
-- [Quick Wins Technologies](QUICK_WINS_TECHNOLOGIES.md) - Okamžité benefity
 - [AI/ML Technologies](AI_ML_TECHNOLOGIES.md) - Schválené AI/ML nástroje
+- [Quick Wins](QUICK_WINS_TECHNOLOGIES.md) - Quick win implementácie
+- [N8N to Temporal](N8N_TO_TEMPORAL_MIGRATION.md) - Workflow orchestration migration
 - [Technology Decisions](TECHNOLOGY_DECISIONS.md) - História rozhodnutí
 
 ---
 
 ## Štatistika
 
-- **Total dokumentov:** 5
+- **Total dokumentov:** 6
 - **Complete:** 4
+- **Planned:** 1
 - **Draft:** 1
-- **Total veľkosť:** ~71 KB
+- **Total veľkosť:** ~86 KB
 
 ---
 

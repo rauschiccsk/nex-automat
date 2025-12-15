@@ -12,7 +12,7 @@ from datetime import datetime
 try:
     from config import SESSION_NOTES_DIR
 except ImportError:
-    SESSION_NOTES_DIR = Path("C:/Development/nex-automat/SESSION_NOTES")
+    SESSION_NOTES_DIR = Path("/init_chat")
 
 
 class ChatLoader:

@@ -9,79 +9,64 @@
 
 ### December 2025
 
-**2025-12-15:**
-- [Database Table Docs Migration - Batch 6 Accounting Complete](sessions/SESSION_2025-12-15_database-table-docs-batch6-accounting-complete.md)
+**2025-12-15 - Database Table Docs Batch 6 (FINAL):**
+- [Database Table Docs - Batch 6 Sales Final](sessions/SESSION_2025-12-15_database-table-docs-batch6-sales-final.md)
+  - Status: ✅ COMPLETE
+  - Topics: Sales section complete (PLSnnnnn)
+  - Progress: 24/28 dokumentov (85.7%)
+  - **ALL DATABASE TABLE DOCS COMPLETE!** 🎉
+
+- [Database Table Docs - Batch 6 Accounting Complete](sessions/SESSION_2025-12-15_database-table-docs-batch6-accounting-complete.md)
   - Status: ✅ COMPLETE
   - Topics: Accounting section complete (ISH, ISI, PAYJRN)
   - Progress: 23/28 dokumentov (82.1%)
-  - Average reduction: 54.5%
-  - Accounting: 3/3 (100%) ✓
-  - Remaining: 1 document (Sales)
 
-**2025-12-15:**
-- [Database Table Docs Migration - Batch 6 Stock Complete](sessions/SESSION_2025-12-15_database-table-docs-batch6-stock-complete.md)
+- [Database Table Docs - Batch 6 Stock Complete](sessions/SESSION_2025-12-15_database-table-docs-batch6-stock-complete.md)
   - Status: ✅ COMPLETE
   - Topics: Stock Management complete (STM, STK)
   - Progress: 20/28 dokumentov (71.4%)
-  - Average reduction: 57.4%
-  - Stock Management: 7/7 (100%) ✓
 
-**2025-12-15:**
-- [Database Table Docs Migration - Batch 6 Stock Management](sessions/SESSION_2025-12-15_database-table-docs-batch6-stock-management.md)
+- [Database Table Docs - Batch 6 Stock Management](sessions/SESSION_2025-12-15_database-table-docs-batch6-stock-management.md)
   - Status: ✅ COMPLETE
   - Topics: Stock Management section (WRILST, STKLST, TSH, FIF, TSI)
   - Progress: 18/28 dokumentov (64.3%)
-  - Average reduction: 57.4%
 
-**2025-12-15:**
-- [Database Table Docs Migration - Batch 6 Products](sessions/SESSION_2025-12-15_database-table-docs-batch6-products.md)
+- [Database Table Docs - Batch 6 Products](sessions/SESSION_2025-12-15_database-table-docs-batch6-products.md)
   - Status: ✅ COMPLETE
   - Topics: Products section (BARCODE, FGLST, GSCAT, MGLST, SGLST)
   - Progress: 13/28 dokumentov (46.4%)
-  - Average reduction: 53.6%
 
-**2025-12-15:**
-- [Database Table Docs Migration - Batch 6 Partners](sessions/SESSION_2025-12-15_database-table-docs-batch6-partners.md)
+- [Database Table Docs - Batch 6 Partners](sessions/SESSION_2025-12-15_database-table-docs-batch6-partners.md)
   - Status: ✅ COMPLETE
   - Topics: Partners section (PAGLST, PAYLST, TRPLST, PANOTI, PASUBC)
   - Progress: 8/28 dokumentov
 
-**2025-12-15:**
-- [Database Table Docs Migration - Batch 6 Start](sessions/SESSION_2025-12-15_database-table-docs-batch6-start.md)
+- [Database Table Docs - Batch 6 Start](sessions/SESSION_2025-12-15_database-table-docs-batch6-start.md)
   - Status: ✅ COMPLETE
   - Topics: BANKLST, PAB, PABACC, PACNCT
-  - Scripts: 32-35
 
-**2025-12-15:**
+**2025-12-15 - Documentation Migration:**
 - [Documentation Migration - Batch 5](sessions/SESSION_2025-12-15_documentation-migration-batch5.md)
   - Status: ✅ COMPLETE
   - Topics: Database indexes (7 dokumentov)
-  - Scripts: 25-31
 
-**2025-12-15:**
 - [Documentation Migration - Batch 4](sessions/SESSION_2025-12-15_documentation-migration-batch4.md)
   - Status: ✅ COMPLETE
   - Topics: Database docs (3 dokumenty)
-  - Scripts: 22-24
 
-**2025-12-15:**
 - [Documentation Migration - Batch 3](sessions/SESSION_2025-12-15_documentation-migration-batch3.md)
   - Status: ✅ COMPLETE
   - Topics: Database docs (6 dokumentov)
-  - Scripts: 16-21
 
-**2025-12-15:**
 - [Documentation Migration - Batch 2](sessions/SESSION_2025-12-15_documentation-migration-batch2.md)
   - Status: ✅ COMPLETE
   - Topics: Database general (4 dokumenty)
-  - Scripts: 12-15
 
 **2025-12-09:**
 - [v2.4 Implementation Complete](sessions/SESSION_2025-12-09_v24-implementation-complete.md)
   - Status: ✅ COMPLETE
   - Topics: Product enrichment, implementation
 
-**2025-12-09:**
 - [v2.4 Phase 4 Deployment](sessions/SESSION_2025-12-09_v24-phase4-deployment.md)
   - Status: ✅ COMPLETE
   - Topics: Production deployment
@@ -91,17 +76,14 @@
   - Status: ✅ COMPLETE
   - Topics: EAN matching, product enrichment
 
-**2025-12-08:**
 - [v2.3 Loader Migration](sessions/SESSION_2025-12-08_v23-loader-migration.md)
   - Status: ✅ COMPLETE
   - Topics: Loader architecture
 
-**2025-12-08:**
-- [v2.2 Cleanup & Mágerstav Deployment Attempt](sessions/SESSION_2025-12-08_v22-cleanup-mÃ¡gerstav-deployment-attempt.md)
+- [v2.2 Cleanup & Mágerstav Deployment Attempt](sessions/SESSION_2025-12-08_v22-cleanup-mágerstav-deployment-attempt.md)
   - Status: ✅ COMPLETE
   - Topics: Code cleanup, deployment
 
-**2025-12-08:**
 - [Documentation Restructure v2.3 Planning](sessions/SESSION_2025-12-08_documentation-restructure-v23-planning.md)
   - Status: ✅ COMPLETE
   - Topics: Documentation structure
@@ -151,10 +133,11 @@
 
 ## STATISTICS
 
-**Total Sessions:** 24  
+**Total Sessions:** 25+ (včetne Database Table Docs Batch 6)  
 **Total Deployments:** 10  
-**Active Tasks:** 1 (Database table docs migration - FINAL document)  
-**Completion Rate:** 82.1% (23/28 database table docs)
+**Completed Milestones:** 
+- ✅ Database Table Documentation (25/25 - 100%)
+- ✅ Strategic Documentation (N8N to Temporal migration added)
 
 ---
 

@@ -4,7 +4,7 @@
   "version": "2.0.0",
   "description": "Multi-customer SaaS for automated invoice processing",
   "location": "C:\\Development\\nex-automat",
-  "generated": "2025-12-15T22:52:05.474985",
+  "generated": "2025-12-15T22:58:53.110532",
   "structure": {
     "apps": 3,
     "packages": 2,
@@ -18,14 +18,14 @@
     "powershell_files": 7,
     "markdown_files": 134,
     "test_files": 87,
-    "total_lines": 925884,
-    "total_size": 112048462
+    "total_lines": 925872,
+    "total_size": 112049175
   },
   "applications": [
     {
       "name": "supplier-invoice-editor",
       "location": "apps/supplier-invoice-editor",
-      "manifest": "SESSION_NOTES/apps/supplier-invoice-editor.json",
+      "manifest": "init_chat/apps/supplier-invoice-editor.json",
       "python_files": 54,
       "test_files": 4,
       "dependencies_count": 5
@@ -33,7 +33,7 @@
     {
       "name": "supplier-invoice-loader",
       "location": "apps/supplier-invoice-loader",
-      "manifest": "SESSION_NOTES/apps/supplier-invoice-loader.json",
+      "manifest": "init_chat/apps/supplier-invoice-loader.json",
       "python_files": 54,
       "test_files": 9,
       "dependencies_count": 10
@@ -41,7 +41,7 @@
     {
       "name": "supplier-invoice-staging",
       "location": "apps/supplier-invoice-staging",
-      "manifest": "SESSION_NOTES/apps/supplier-invoice-staging.json",
+      "manifest": "init_chat/apps/supplier-invoice-staging.json",
       "python_files": 0,
       "test_files": 0,
       "dependencies_count": 0
@@ -51,14 +51,14 @@
     {
       "name": "nex-shared",
       "location": "packages/nex-shared",
-      "manifest": "SESSION_NOTES/packages/nex-shared.json",
+      "manifest": "init_chat/packages/nex-shared.json",
       "python_files": 13,
       "dependencies_count": 0
     },
     {
       "name": "nexdata",
       "location": "packages/nexdata",
-      "manifest": "SESSION_NOTES/packages/nexdata.json",
+      "manifest": "init_chat/packages/nexdata.json",
       "python_files": 22,
       "dependencies_count": 1
     }
@@ -66,16 +66,22 @@
   "tools": {
     "name": "claude-tools",
     "location": "tools",
-    "manifest": "SESSION_NOTES/tools/tools.json",
+    "manifest": "init_chat/tools/tools.json",
     "python_files": 20,
     "powershell_files": 2,
     "type": "automation"
   },
   "documentation": {
-    "manifest": "SESSION_NOTES/docs/docs.json",
+    "manifest": "init_chat/docs/docs.json",
     "exists": true,
     "markdown_files": 129,
-    "total_lines": 38078
+    "total_lines": 38078,
+    "init_prompt": {
+      "path": "init_chat/INIT_PROMPT_NEW_CHAT.md",
+      "exists": true,
+      "size": 9802,
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/init_chat/INIT_PROMPT_NEW_CHAT.md"
+    }
   },
   "dependencies": {
     "unique_count": 14,

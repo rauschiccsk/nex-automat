@@ -2,14 +2,14 @@
 # -*- coding: utf-8 -*-
 """
 Generate Projects Access - NEX Automat Monorepo
-Location: C:/Development/nex-automat/scripts/generate_projects_access.py
+Location: C:/Development/nex-automat/tools/generate_projects_access.py
 
 Vytvára hierarchické JSON manifesty:
-- SESSION_NOTES/PROJECT_MANIFEST.json - root overview
-- SESSION_NOTES/apps/{app_name}.json - per-app manifests
-- SESSION_NOTES/packages/{package_name}.json - per-package manifests
-- SESSION_NOTES/tools/tools.json - Claude Tools manifest
-- SESSION_NOTES/docs/docs.json - Documentation manifest
+- init_chat/PROJECT_MANIFEST.json - root overview
+- init_chat/apps/{app_name}.json - per-app manifests
+- init_chat/packages/{package_name}.json - per-package manifests
+- init_chat/tools/tools.json - Claude Tools manifest
+- init_chat/docs/docs.json - Documentation manifest
 
 Pre efektívne lazy loading v Claude sessions.
 """
@@ -19,11 +19,11 @@ from datetime import datetime
 import json
 
 MONOREPO_ROOT = Path("C:/Development/nex-automat")
-SESSION_NOTES_DIR = MONOREPO_ROOT / "SESSION_NOTES"
-APPS_MANIFEST_DIR = SESSION_NOTES_DIR / "apps"
-PACKAGES_MANIFEST_DIR = SESSION_NOTES_DIR / "packages"
-TOOLS_MANIFEST_DIR = SESSION_NOTES_DIR / "tools"
-DOCS_MANIFEST_DIR = SESSION_NOTES_DIR / "docs"  # NEW: docs manifests
+INIT_CHAT_DIR = MONOREPO_ROOT / "init_chat"  # ✅ UPDATED: SESSION_NOTES → init_chat
+APPS_MANIFEST_DIR = INIT_CHAT_DIR / "apps"
+PACKAGES_MANIFEST_DIR = INIT_CHAT_DIR / "packages"
+TOOLS_MANIFEST_DIR = INIT_CHAT_DIR / "tools"
+DOCS_MANIFEST_DIR = INIT_CHAT_DIR / "docs"
 
 # GitHub Configuration
 GITHUB_REPO = "rauschiccsk/nex-automat"
@@ -456,7 +456,7 @@ def get_documentation_summary() -> dict:
     docs_dir = MONOREPO_ROOT / "docs"
 
     summary = {
-        "manifest": "SESSION_NOTES/docs/docs.json",
+        "manifest": "init_chat/docs/docs.json",  # ✅ UPDATED
         "exists": docs_dir.exists()
     }
 
@@ -465,23 +465,14 @@ def get_documentation_summary() -> dict:
         summary["markdown_files"] = stats["markdown_files"]
         summary["total_lines"] = stats["total_lines"]
 
-    # Key documentation files (SESSION_NOTES)
-    session_notes = SESSION_NOTES_DIR / "SESSION_NOTES.md"
-    if session_notes.exists():
-        summary["session_notes"] = {
-            "path": "SESSION_NOTES/SESSION_NOTES.md",
-            "exists": True,
-            "size": session_notes.stat().st_size,
-            "github_raw": f"https://raw.githubusercontent.com/{GITHUB_REPO}/{GITHUB_BRANCH}/SESSION_NOTES/SESSION_NOTES.md"
-        }
-
-    init_prompt = SESSION_NOTES_DIR / "INIT_PROMPT_NEW_CHAT.md"
+    # Key documentation files (init_chat)
+    init_prompt = INIT_CHAT_DIR / "INIT_PROMPT_NEW_CHAT.md"
     if init_prompt.exists():
         summary["init_prompt"] = {
-            "path": "SESSION_NOTES/INIT_PROMPT_NEW_CHAT.md",
+            "path": "init_chat/INIT_PROMPT_NEW_CHAT.md",  # ✅ UPDATED
             "exists": True,
             "size": init_prompt.stat().st_size,
-            "github_raw": f"https://raw.githubusercontent.com/{GITHUB_REPO}/{GITHUB_BRANCH}/SESSION_NOTES/INIT_PROMPT_NEW_CHAT.md"
+            "github_raw": f"https://raw.githubusercontent.com/{GITHUB_REPO}/{GITHUB_BRANCH}/init_chat/INIT_PROMPT_NEW_CHAT.md"  # ✅ UPDATED
         }
 
     return summary
@@ -504,7 +495,7 @@ def generate_root_manifest() -> dict:
                 apps_list.append({
                     "name": app.name,
                     "location": f"apps/{app.name}",
-                    "manifest": f"SESSION_NOTES/apps/{app.name}.json",
+                    "manifest": f"init_chat/apps/{app.name}.json",  # ✅ UPDATED
                     "python_files": stats["python_files"],
                     "test_files": tests["test_files"],
                     "dependencies_count": len(deps["main"])
@@ -522,7 +513,7 @@ def generate_root_manifest() -> dict:
                 packages_list.append({
                     "name": package.name,
                     "location": f"packages/{package.name}",
-                    "manifest": f"SESSION_NOTES/packages/{package.name}.json",
+                    "manifest": f"init_chat/packages/{package.name}.json",  # ✅ UPDATED
                     "python_files": stats["python_files"],
                     "dependencies_count": len(deps["main"])
                 })
@@ -535,7 +526,7 @@ def generate_root_manifest() -> dict:
         tools_info = {
             "name": "claude-tools",
             "location": "tools",
-            "manifest": "SESSION_NOTES/tools/tools.json",
+            "manifest": "init_chat/tools/tools.json",  # ✅ UPDATED
             "python_files": stats["python_files"],
             "powershell_files": stats["powershell_files"],
             "type": "automation"
@@ -616,7 +607,7 @@ def main():
     print("=" * 70)
     print()
     print(f"Monorepo: {MONOREPO_ROOT}")
-    print(f"Output:   {SESSION_NOTES_DIR}")
+    print(f"Output:   {INIT_CHAT_DIR}")  # ✅ UPDATED
     print(f"GitHub:   {GITHUB_REPO} (branch: {GITHUB_BRANCH})")
     print()
 
@@ -625,7 +616,7 @@ def main():
     PACKAGES_MANIFEST_DIR.mkdir(parents=True, exist_ok=True)
     TOOLS_MANIFEST_DIR.mkdir(parents=True, exist_ok=True)
     DOCS_MANIFEST_DIR.mkdir(parents=True, exist_ok=True)
-    print(f"✅ Created manifest directories")
+    print(f"✅ Created manifest directories in init_chat/")  # ✅ UPDATED
     print()
 
     # 1. Generate per-app manifests
@@ -713,7 +704,7 @@ def main():
     root_manifest = generate_root_manifest()
 
     # Save to JSON
-    root_manifest_file = SESSION_NOTES_DIR / "PROJECT_MANIFEST.json"
+    root_manifest_file = INIT_CHAT_DIR / "PROJECT_MANIFEST.json"
     with open(root_manifest_file, 'w', encoding='utf-8') as f:
         json.dump(root_manifest, f, indent=2, ensure_ascii=False)
 
@@ -727,13 +718,13 @@ def main():
     print()
     print(f"📊 Generated manifests:")
     print(f"   Root:     {root_manifest_file}")
-    print(f"   Apps:     {app_count} manifests in SESSION_NOTES/apps/")
-    print(f"   Packages: {package_count} manifests in SESSION_NOTES/packages/")
-    print(f"   Tools:    {tools_count} manifest in SESSION_NOTES/tools/")
-    print(f"   Docs:     {docs_count} manifest in SESSION_NOTES/docs/")
+    print(f"   Apps:     {app_count} manifests in init_chat/apps/")  # ✅ UPDATED
+    print(f"   Packages: {package_count} manifests in init_chat/packages/")  # ✅ UPDATED
+    print(f"   Tools:    {tools_count} manifest in init_chat/tools/")  # ✅ UPDATED
+    print(f"   Docs:     {docs_count} manifest in init_chat/docs/")  # ✅ UPDATED
     print()
-    print(f"🐍 Total files tracked: {root_manifest['statistics']['total_files']}")
-    print(f"📝 Python files: {root_manifest['statistics']['python_files']}")
+    print(f"📦 Total files tracked: {root_manifest['statistics']['total_files']}")
+    print(f"🐍 Python files: {root_manifest['statistics']['python_files']}")
     print(f"📜 PowerShell files: {root_manifest['statistics']['powershell_files']}")
     print(f"📖 Markdown files: {root_manifest['statistics']['markdown_files']}")
     print(f"📏 Total lines: {root_manifest['statistics']['total_lines']:,}")
@@ -744,19 +735,16 @@ def main():
     print("USAGE IN CLAUDE:")
     print("=" * 70)
     print("# Load root manifest:")
-    print(
-        f"web_fetch('https://raw.githubusercontent.com/{GITHUB_REPO}/{GITHUB_BRANCH}/SESSION_NOTES/PROJECT_MANIFEST.json')")
+    print(f"web_fetch('https://raw.githubusercontent.com/{GITHUB_REPO}/{GITHUB_BRANCH}/init_chat/PROJECT_MANIFEST.json')")  # ✅ UPDATED
     print()
     print("# Load specific app:")
-    print(
-        f"web_fetch('https://raw.githubusercontent.com/{GITHUB_REPO}/{GITHUB_BRANCH}/SESSION_NOTES/apps/supplier-invoice-loader.json')")
+    print(f"web_fetch('https://raw.githubusercontent.com/{GITHUB_REPO}/{GITHUB_BRANCH}/init_chat/apps/supplier-invoice-loader.json')")  # ✅ UPDATED
     print()
     print("# Load documentation:")
-    print(f"web_fetch('https://raw.githubusercontent.com/{GITHUB_REPO}/{GITHUB_BRANCH}/SESSION_NOTES/docs/docs.json')")
+    print(f"web_fetch('https://raw.githubusercontent.com/{GITHUB_REPO}/{GITHUB_BRANCH}/init_chat/docs/docs.json')")  # ✅ UPDATED
     print()
     print("# Load Claude Tools manifest:")
-    print(
-        f"web_fetch('https://raw.githubusercontent.com/{GITHUB_REPO}/{GITHUB_BRANCH}/SESSION_NOTES/tools/tools.json')")
+    print(f"web_fetch('https://raw.githubusercontent.com/{GITHUB_REPO}/{GITHUB_BRANCH}/init_chat/tools/tools.json')")  # ✅ UPDATED
     print()
     print("=" * 70)
 
