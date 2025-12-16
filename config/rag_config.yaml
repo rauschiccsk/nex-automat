@@ -1,0 +1,144 @@
+# ===================================================================
+# RAG SYSTEM CONFIGURATION
+# nex-automat RAG Implementation
+# ===================================================================
+
+# Database Configuration
+database:
+  host: localhost
+  port: 5432
+  database: nex_automat_rag
+  user: postgres
+  password: Nex1968
+
+  # Connection pool settings
+  min_connections: 2
+  max_connections: 10
+
+  # SSL (for production)
+  ssl_mode: disable  # Change to 'require' in production
+
+# Embedding Model Configuration
+embedding:
+  # Model: sentence-transformers/all-MiniLM-L6-v2
+  model_name: all-MiniLM-L6-v2
+  dimension: 384
+  batch_size: 32
+  device: cpu  # 'cuda' if GPU available
+
+  # Cache settings
+  cache_dir: C:/Development/nex-automat/.cache/models
+
+# Text Chunking Configuration
+chunking:
+  # Chunk size limits (in characters)
+  min_chunk_size: 100
+  target_chunk_size: 750
+  max_chunk_size: 1500
+
+  # Overlap between chunks (in tokens)
+  overlap_tokens: 150
+
+  # Chunk types to extract
+  chunk_types:
+    - heading
+    - paragraph
+    - code
+    - list
+    - table
+
+# Path Configuration
+paths:
+  # Root directory for documentation
+  docs_root: C:/Development/nex-automat/docs
+
+  # Output directory for processed data
+  output_dir: C:/Development/nex-automat/rag_output
+
+  # Logs directory
+  logs_dir: C:/Development/nex-automat/logs
+
+  # Include patterns (glob)
+  include_patterns:
+    - "**/*.md"
+    - "**/*.txt"
+
+  # Exclude patterns (glob)
+  exclude_patterns:
+    - "**/node_modules/**"
+    - "**/.git/**"
+    - "**/venv/**"
+    - "**/__pycache__/**"
+
+# Search Configuration
+search:
+  # Number of results to return
+  top_k: 5
+
+  # Minimum similarity threshold (0.0 - 1.0)
+  similarity_threshold: 0.5
+
+  # Hybrid search weights (must sum to 1.0)
+  vector_weight: 0.7
+  keyword_weight: 0.3
+
+  # HNSW search parameters
+  hnsw_ef_search: 40  # Higher = better recall, slower search
+
+# Processing Configuration
+processing:
+  # Parallel processing
+  num_workers: 4
+
+  # Batch processing
+  batch_size: 100
+
+  # Progress reporting
+  log_interval: 10  # Log every N documents
+
+# Logging Configuration
+logging:
+  level: INFO  # DEBUG, INFO, WARNING, ERROR
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+
+  # Log files
+  file:
+    enabled: true
+    path: C:/Development/nex-automat/logs/rag_system.log
+    max_bytes: 10485760  # 10 MB
+    backup_count: 5
+
+  # Console logging
+  console:
+    enabled: true
+    colored: true
+
+# Feature Flags
+features:
+  # Enable keyword extraction
+  keyword_extraction: true
+
+  # Enable search history logging
+  search_history: true
+
+  # Enable metadata extraction
+  metadata_extraction: true
+
+  # Enable automatic reindexing on document changes
+  auto_reindex: false
+
+# Performance Tuning
+performance:
+  # Vector index rebuild threshold (% of documents changed)
+  reindex_threshold: 0.1
+
+  # Cache embeddings in memory
+  cache_embeddings: true
+  cache_size_mb: 512
+
+  # Prefetch chunks for faster retrieval
+  prefetch_chunks: true
+
+# ===================================================================
+# END OF CONFIGURATION
+# ===================================================================

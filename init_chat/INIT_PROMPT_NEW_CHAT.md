@@ -1,10 +1,10 @@
-# INIT PROMPT - RAG Implementation: Fáza 1 PostgreSQL Setup
+# INIT PROMPT - RAG Implementation: Fáza 2 Python Environment
 
 **Projekt:** nex-automat  
-**Current Status:** RAG Implementation - Fáza 1: PostgreSQL Setup  
+**Current Status:** RAG Implementation - Fáza 2: Python Environment Setup  
 **Developer:** Zoltán (40 rokov skúseností)  
 **Jazyk:** Slovenčina  
-**Previous Session:** https://claude.ai/chat/[LINK_TO_SESSION_2025_12_16_RAG_PLANNING]  
+**Previous Session:** https://claude.ai/chat/[LINK_TO_SESSION_2025_12_16_RAG_PHASE1]  
 **Status:** 🚀 Ready to Implement
 
 ---
@@ -21,292 +21,182 @@ Kľúčové pravidlá:
 
 ---
 
-## ✅ ČO SME DOSIAHLI (Previous Session)
+## ✅ ČO SME DOSIAHLI (Previous Session - Phase 1)
 
-### 🎉 RAG Planning Complete
+### 🎉 PostgreSQL Setup COMPLETE
 
-**Status:** RAG_IMPLEMENTATION.md dokument pripravený (45KB)
-
-**Rozhodnutia:**
-- ✅ **Stratégia:** HYBRID variant (RAG MVP → PySide6 → Temporal)
-- ✅ **Tech Stack:** PostgreSQL + pgvector + sentence-transformers
-- ✅ **Timeline:** 1 týždeň RAG MVP, potom 9 týždňov migrations
-- ✅ **Benefit:** 30% rýchlejší vývoj, 64% úspora tokenov
-
-**Dokumentácia:**
-- ✅ `docs/strategic/RAG_IMPLEMENTATION.md` (kompletný plán)
-- ✅ `docs/strategic/00_STRATEGIC_INDEX.md` (aktualizovaný)
-
----
-
-## 🎯 CURRENT TASK: Fáza 1 - PostgreSQL Setup
-
-### Cieľ Fázy 1
-
-Nastaviť PostgreSQL databázu s pgvector extension pre RAG systém.
-
-**Časový odhad:** 2-3 hodiny
+**Status:** Fáza 1 dokončená (4 hodiny)
 
 **Deliverables:**
-- ✅ PostgreSQL 16 nainštalovaný
+- ✅ PostgreSQL 15.14 funkčný
+- ✅ pgvector 0.8.1 extension nainštalovaná (prebuilt binary)
 - ✅ Databáza `nex_automat_rag` vytvorená
-- ✅ pgvector extension aktívna
-- ✅ 4 tabuľky vytvorené (rag_documents, rag_chunks, rag_keywords, rag_search_history)
-- ✅ Indexy nakonfigurované (HNSW vector index)
-- ✅ Test vector operations funguje
+- ✅ 4 tabuľky vytvorené (documents, chunks, keywords, search_history)
+- ✅ HNSW vector index nakonfigurovaný (m=16, ef_construction=64)
+- ✅ Vector operations testované a funkčné
+- ✅ `config/rag_config.yaml` vytvorený
+
+**Kľúčové rozhodnutia:**
+- Použitý prebuilt pgvector binary (Windows MinGW issue)
+- HNSW index s parametrami: m=16, ef_construction=64
+- UTF8 encoding s template0
+- all-MiniLM-L6-v2 model (384 dimensions)
 
 ---
 
-## 📋 FÁZA 1: STEP-BY-STEP CHECKLIST
+## 🎯 CURRENT TASK: Fáza 2 - Python Environment Setup
 
-### 1.1 PostgreSQL Inštalácia
+### Cieľ Fázy 2
 
-**Windows Server:**
+Nastaviť Python environment a základnú štruktúru RAG modulov.
 
+**Časový odhad:** 1-2 hodiny
+
+**Deliverables:**
+- ✅ Python virtual environment vytvorený
+- ✅ Dependencies nainštalované
+- ✅ RAG module structure vytvorená
+- ✅ Database connection test úspešný
+- ✅ Embedding model test úspešný
+
+---
+
+## 📋 FÁZA 2: STEP-BY-STEP CHECKLIST
+
+### 2.1 Virtual Environment Setup
+
+**Python Version Check:**
 ```powershell
-# Možnosť A: Oficiálny installer
-# https://www.postgresql.org/download/windows/
-
-# Možnosť B: Chocolatey
-choco install postgresql16
-
-# Možnosť C: Scoop
-scoop install postgresql
+python --version
+# Expected: Python 3.11+ (preferably 3.11 or 3.12)
 ```
 
-**After Install:**
+**Create venv:**
 ```powershell
-# Set PATH
-$env:PATH += ";C:\Program Files\PostgreSQL\16\bin"
-
-# Verify
-psql --version
+cd C:\Development\nex-automat
+python -m venv venv
+venv\Scripts\activate
 ```
 
 **Status:** ⏸️ TODO
 
 ---
 
-### 1.2 pgvector Extension
+### 2.2 Dependencies Installation
 
-**Inštalácia pgvector:**
+**Create requirements file:**
+`requirements-rag.txt`:
+```
+# Core RAG dependencies
+sentence-transformers==2.5.1
+asyncpg==0.29.0
+pydantic==2.6.1
+pydantic-settings==2.1.0
+tiktoken==0.6.0
+numpy==1.26.3
+PyYAML==6.0.1
 
+# Optional but recommended
+python-dotenv==1.0.1
+tqdm==4.66.1
+```
+
+**Install:**
 ```powershell
-# Download pgvector pre PostgreSQL 16
-# https://github.com/pgvector/pgvector/releases
-
-# Alebo use prebuilt Windows binary
+pip install -r requirements-rag.txt
 ```
 
 **Status:** ⏸️ TODO
 
 ---
 
-### 1.3 Vytvorenie RAG Databázy
+### 2.3 RAG Module Structure
 
-```sql
--- Connect as postgres user
-psql -U postgres
-
--- Create database
-CREATE DATABASE nex_automat_rag
-    ENCODING 'UTF8'
-    LC_COLLATE 'Slovak_Slovakia.1250'
-    LC_CTYPE 'Slovak_Slovakia.1250';
-
--- Connect to new database
-\c nex_automat_rag
-
--- Enable pgvector
-CREATE EXTENSION IF NOT EXISTS vector;
-
--- Verify
-SELECT * FROM pg_extension WHERE extname = 'vector';
+**Create directory structure:**
+```
+tools/
+  └── rag/
+      ├── __init__.py
+      ├── config.py           # Configuration management
+      ├── database.py         # PostgreSQL + pgvector operations
+      ├── embeddings.py       # Embedding model wrapper
+      ├── chunker.py          # Document chunking logic
+      ├── indexer.py          # Document indexing pipeline
+      └── search.py           # Vector + hybrid search
 ```
 
 **Status:** ⏸️ TODO
 
 ---
 
-### 1.4 Vytvorenie Database Schema
+### 2.4 Config Module (config.py)
 
-**4 Tabuľky:**
+**Úloha:** Vytvoriť `tools/rag/config.py`
 
-```sql
--- 1. rag_documents (metadata)
-CREATE TABLE rag_documents (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    document_id VARCHAR(255) UNIQUE NOT NULL,
-    category VARCHAR(50) NOT NULL,
-    title VARCHAR(255) NOT NULL,
-    file_path VARCHAR(500) NOT NULL,
-    version VARCHAR(20) DEFAULT '1.0',
-    status VARCHAR(20) DEFAULT 'active',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    metadata JSONB DEFAULT '{}'::jsonb
-);
-
--- 2. rag_chunks (chunks + embeddings)
-CREATE TABLE rag_chunks (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    document_id VARCHAR(255) NOT NULL,
-    chunk_index INTEGER NOT NULL,
-    chunk_type VARCHAR(50) NOT NULL,
-    section_path TEXT,
-    heading_level INTEGER,
-    content TEXT NOT NULL,
-    tokens INTEGER,
-    embedding vector(384),  -- all-MiniLM-L6-v2
-    metadata JSONB DEFAULT '{}'::jsonb,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    
-    CONSTRAINT fk_document 
-        FOREIGN KEY (document_id) 
-        REFERENCES rag_documents(document_id)
-        ON DELETE CASCADE
-);
-
--- 3. rag_keywords (keyword search)
-CREATE TABLE rag_keywords (
-    id SERIAL PRIMARY KEY,
-    chunk_id UUID NOT NULL,
-    keyword VARCHAR(100) NOT NULL,
-    weight FLOAT DEFAULT 1.0,
-    
-    CONSTRAINT fk_chunk 
-        FOREIGN KEY (chunk_id) 
-        REFERENCES rag_chunks(id)
-        ON DELETE CASCADE
-);
-
--- 4. rag_search_history (analytics)
-CREATE TABLE rag_search_history (
-    id SERIAL PRIMARY KEY,
-    query TEXT NOT NULL,
-    results_count INTEGER,
-    top_chunk_ids UUID[],
-    execution_time_ms INTEGER,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-```
+**Funkcie:**
+- Load `config/rag_config.yaml`
+- Pydantic models pre validáciu
+- Environment variable support
 
 **Status:** ⏸️ TODO
 
 ---
 
-### 1.5 Vytvorenie Indexov
+### 2.5 Database Module (database.py)
 
-```sql
--- Documents indexes
-CREATE INDEX idx_documents_category ON rag_documents(category);
-CREATE INDEX idx_documents_status ON rag_documents(status);
-CREATE INDEX idx_documents_updated ON rag_documents(updated_at);
-CREATE INDEX idx_documents_metadata ON rag_documents USING GIN(metadata);
+**Úloha:** Vytvoriť `tools/rag/database.py`
 
--- Chunks indexes
-CREATE INDEX idx_chunks_document ON rag_chunks(document_id);
-CREATE INDEX idx_chunks_type ON rag_chunks(chunk_type);
-
--- CRITICAL: HNSW vector index
-CREATE INDEX idx_chunks_embedding 
-    ON rag_chunks 
-    USING hnsw (embedding vector_cosine_ops)
-    WITH (m = 16, ef_construction = 64);
-
--- Keywords indexes
-CREATE INDEX idx_keywords_chunk ON rag_keywords(chunk_id);
-CREATE INDEX idx_keywords_keyword ON rag_keywords(keyword);
-
--- Search history index
-CREATE INDEX idx_search_created ON rag_search_history(created_at);
-```
+**Funkcie:**
+- Asyncpg connection pool
+- CRUD operations pre 4 tabuľky
+- Vector similarity search queries
+- Transaction management
 
 **Status:** ⏸️ TODO
 
 ---
 
-### 1.6 Test Vector Operations
+### 2.6 Embeddings Module (embeddings.py)
 
-```sql
--- Test cosine distance
-SELECT '[0.1, 0.2, 0.3]'::vector <=> '[0.2, 0.3, 0.4]'::vector AS distance;
+**Úloha:** Vytvoriť `tools/rag/embeddings.py`
 
--- Expected output: distance value (0.0 to 2.0)
--- If works, pgvector is OK!
-```
-
-**Status:** ⏸️ TODO
-
----
-
-### 1.7 Konfiguračný Súbor
-
-**Vytvor:** `config/rag_config.yaml`
-
-```yaml
-database:
-  host: localhost
-  port: 5432
-  database: nex_automat_rag
-  user: postgres
-  password: your_password_here
-
-embedding:
-  model_name: all-MiniLM-L6-v2
-  dimension: 384
-  batch_size: 32
-
-chunking:
-  min_chunk_size: 100
-  target_chunk_size: 750
-  max_chunk_size: 1500
-  overlap_tokens: 150
-
-paths:
-  docs_root: C:/Development/nex-automat/docs
-  output_dir: C:/Development/nex-automat/rag_output
-
-search:
-  top_k: 5
-  similarity_threshold: 0.5
-  vector_weight: 0.7
-  keyword_weight: 0.3
-```
+**Funkcie:**
+- sentence-transformers model loading
+- Batch embedding generation
+- Model caching
+- GPU support (ak dostupné)
 
 **Status:** ⏸️ TODO
 
 ---
 
-## 📊 SUCCESS CRITERIA FÁZY 1
+### 2.7 Connection Test Script
 
-**Po dokončení Fázy 1 musí:**
+**Úloha:** Vytvoriť `tools/rag/test_connection.py`
 
-- ✅ `psql --version` → PostgreSQL 16.x
-- ✅ `psql -U postgres -d nex_automat_rag -c "\dx"` → vector extension listed
-- ✅ `psql -U postgres -d nex_automat_rag -c "\dt"` → 4 tabuľky viditeľné
-- ✅ Vector test query vracia výsledok
-- ✅ Konfiguračný súbor existuje a je validný
+**Tests:**
+1. Database connection
+2. pgvector extension check
+3. Embedding model loading
+4. Vector operation test
+
+**Status:** ⏸️ TODO
 
 ---
 
-## 🔄 WORKFLOW BEST PRACTICES
+## 📊 SUCCESS CRITERIA FÁZY 2
 
-### Overený Proces
+**Po dokončení Fázy 2 musí:**
 
-1. **Začni malým krokom** - Inštalácia PostgreSQL
-2. **Vytvor artifact** - SQL skripty
-3. **User skopíruje** - Do správneho umiestnenia
-4. **Čakaj na confirmation** - Pred pokračovaním
-5. **Test** - Vždy otestuj každý krok
-6. **Next step** - Len po úspešnom teste
-
-### Komunikácia
-
-✅ **Stručne** - Žiadny verbose output  
-✅ **Akcie** - Artifacts, konkrétne kroky  
-✅ **Čakanie** - Po každom artifacte čakať na potvrdenie  
-✅ **Progress** - Token stats na konci každej odpovede
+- ✅ `python --version` → Python 3.11+
+- ✅ Virtual environment aktivovaný
+- ✅ Všetky dependencies nainštalované
+- ✅ `tools/rag/` adresár existuje so 6 modulmi
+- ✅ `test_connection.py` prebehol úspešne:
+  - Database connection OK
+  - pgvector extension OK
+  - Embedding model loaded
+  - Vector similarity query OK
 
 ---
 
@@ -317,29 +207,37 @@ search:
 ```
 nex-automat/
 ├── config/
-│   └── rag_config.yaml          # ← NEW (Fáza 1)
+│   └── rag_config.yaml          # ← EXISTUJE (Phase 1)
 ├── tools/
-│   └── rag/                     # ← NEW (Fáza 2-6)
+│   └── rag/                     # ← NEW (Phase 2)
 │       ├── __init__.py
 │       ├── config.py
 │       ├── database.py
-│       └── ...
-├── docs/
-│   ├── strategic/
-│   │   ├── RAG_IMPLEMENTATION.md  # ← EXISTUJE
-│   │   └── 00_STRATEGIC_INDEX.md  # ← AKTUALIZOVANÝ
-│   └── ...
-└── tests/
-    └── test_rag_system.py       # ← NEW (Fáza 5)
+│       ├── embeddings.py
+│       ├── chunker.py
+│       ├── indexer.py
+│       ├── search.py
+│       └── test_connection.py
+├── venv/                        # ← NEW (Phase 2)
+└── requirements-rag.txt         # ← NEW (Phase 2)
 ```
 
 ### Environment
 
 **OS:** Windows Server 2019+  
-**PostgreSQL:** 16+ required  
-**Python:** 3.11+ (pre Fázy 2-6)  
-**RAM:** 16GB minimum  
-**HDD:** 20GB free space
+**Python:** 3.11+ required  
+**PostgreSQL:** 15.14 (už nainštalovaný)  
+**pgvector:** 0.8.1 (už nainštalovaný)
+
+### Database Connection Info
+
+```yaml
+Host: localhost
+Port: 5432
+Database: nex_automat_rag
+User: postgres
+Password: [from user]
+```
 
 ---
 
@@ -349,13 +247,14 @@ nex-automat/
 
 1. Skontroluj memory_user_edits (22 pravidiel) ✅
 2. Potvrdenie že rozumieš úlohe
-3. Začni s **Krokom 1.1: PostgreSQL Inštalácia**
-   - Artifact s inštalačným guide
+3. Začni s **Krokom 2.1: Virtual Environment Setup**
+   - Check Python version
+   - Create venv
    - Čakaj na user confirmation
 4. Postupuj step-by-step cez checklist
 
 **Pripomienka:**
-- VŽDY artifacts pre SQL skripty
+- VŽDY artifacts pre Python súbory
 - VŽDY čakaj na confirmation pred next step
 - VŽDY test po každom kroku
 - Slovak language komunikácia
@@ -367,11 +266,13 @@ nex-automat/
 **Already processed:**
 - docs/strategic/RAG_IMPLEMENTATION.md - Kompletný implementačný plán
 - docs/strategic/00_STRATEGIC_INDEX.md - Aktualizovaný index
-- docs/archive/sessions/SESSION_2025-12-16_RAG_Planning.md - Previous session
+- docs/archive/sessions/SESSION_2025-12-16_RAG_Phase1_PostgreSQL_Setup.md - Previous session
+- config/rag_config.yaml - Configuration file
 
-**To be created (Fáza 2-6):**
-- tools/rag/*.py - Python moduly (Fáza 2-4)
-- tests/test_rag_system.py - Test suite (Fáza 5)
+**To be created (Fáza 2):**
+- tools/rag/*.py - Python moduly (6 súborov)
+- requirements-rag.txt - Dependencies
+- tools/rag/test_connection.py - Connection test
 
 **Reference:**
 - docs/COLLABORATION_RULES.md - 22 pravidiel
@@ -381,23 +282,47 @@ nex-automat/
 
 ## ⚠️ ŠPECIÁLNE UPOZORNENIA
 
-### PostgreSQL Windows Špecifiká
+### Python Environment
 
-- PATH environment variable musí byť nastavená
-- pgvector pre Windows môže vyžadovať prebuilt binary
-- Collation: Slovak_Slovakia.1250 môže byť nedostupná (fallback: en_US.UTF8)
+- Python 3.11+ je preferovaný (pre performance)
+- sentence-transformers vyžaduje torch (auto-install)
+- První download modelu trvá ~2-3 minúty
+
+### Dependencies Size
+
+- sentence-transformers: ~500 MB (model + dependencies)
+- torch: ~1 GB (CPU version)
+- Celkovo: ~1.5 GB download
 
 ### Token Budget
 
 **Budget:** 190,000 tokens  
-**Estimated session:** 30,000-40,000 tokens (Fáza 1 je krátka, hlavne SQL)  
-**Strategy:** Step-by-step, potvrdenie po každom kroku
+**Used in Phase 1:** 74,994 tokens  
+**Remaining:** 115,006 tokens  
+**Estimated Phase 2:** 30,000-40,000 tokens  
+**Strategy:** Step-by-step, artifacts, minimálny verbose output
+
+---
+
+## 📈 PROGRESS TRACKING
+
+**RAG Implementation Timeline:**
+- ✅ **Fáza 1:** PostgreSQL Setup (4 hodiny) - COMPLETE
+- 🔄 **Fáza 2:** Python Environment (1-2 hodiny) - CURRENT
+- ⏸️ **Fáza 3:** Document Processing (2-3 hodiny)
+- ⏸️ **Fáza 4:** Embedding & Indexing (2-3 hodiny)
+- ⏸️ **Fáza 5:** Testing & Validation (1-2 hodiny)
+- ⏸️ **Fáza 6:** Integration (1-2 hodiny)
+
+**Total Estimated:** 11-16 hodín  
+**Completed:** 4 hodiny (Phase 1)  
+**Remaining:** 7-12 hodín
 
 ---
 
 **Token Budget:** 190,000  
 **Ready to Start:** ✅ ÁNO  
-**Current Phase:** 🔧 Fáza 1: PostgreSQL Setup  
+**Current Phase:** 🐍 Fáza 2: Python Environment Setup  
 **Status:** 🚀 Ready to Implement
 
 ---

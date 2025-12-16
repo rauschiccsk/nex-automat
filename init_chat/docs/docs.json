@@ -2,17 +2,17 @@
   "name": "documentation",
   "type": "docs",
   "location": "docs",
-  "generated": "2025-12-16T12:56:25.083166",
+  "generated": "2025-12-16T18:00:06.876905",
   "description": "Komplexná dokumentácia NEX Automat projektu",
   "statistics": {
-    "total_files": 137,
+    "total_files": 138,
     "total_dirs": 40,
     "python_files": 0,
     "powershell_files": 0,
-    "markdown_files": 131,
+    "markdown_files": 132,
     "test_files": 0,
-    "total_lines": 40001,
-    "total_size": 1324288
+    "total_lines": 40260,
+    "total_size": 1332062
   },
   "files": [
     {
@@ -634,6 +634,15 @@
       "extension": ".md",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/sessions/SESSION_2025-12-15_documentation-migration-batch5.md",
       "lines": 306,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/archive/sessions/SESSION_2025-12-16_RAG_Phase1_PostgreSQL_Setup.md",
+      "name": "SESSION_2025-12-16_RAG_Phase1_PostgreSQL_Setup.md",
+      "size": 7774,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/sessions/SESSION_2025-12-16_RAG_Phase1_PostgreSQL_Setup.md",
+      "lines": 259,
       "type": "documentation"
     },
     {
@@ -2226,6 +2235,14 @@
         "size": 53640,
         "lines": 1816,
         "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/sessions/SESSION_2025-12-09_v24-implementation-complete.md"
+      },
+      {
+        "name": "SESSION_2025-12-16_RAG_Phase1_PostgreSQL_Setup.md",
+        "path": "archive/sessions/SESSION_2025-12-16_RAG_Phase1_PostgreSQL_Setup.md",
+        "full_path": "docs/archive/sessions/SESSION_2025-12-16_RAG_Phase1_PostgreSQL_Setup.md",
+        "size": 7774,
+        "lines": 259,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/sessions/SESSION_2025-12-16_RAG_Phase1_PostgreSQL_Setup.md"
       },
       {
         "name": "SESSION_2025-12-16_RAG_Planning.md",
