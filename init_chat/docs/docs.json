@@ -2,17 +2,17 @@
   "name": "documentation",
   "type": "docs",
   "location": "docs",
-  "generated": "2025-12-16T20:58:33.742084",
+  "generated": "2025-12-16T22:07:34.419938",
   "description": "Komplexná dokumentácia NEX Automat projektu",
   "statistics": {
-    "total_files": 140,
+    "total_files": 142,
     "total_dirs": 41,
     "python_files": 0,
     "powershell_files": 0,
-    "markdown_files": 134,
+    "markdown_files": 136,
     "test_files": 0,
-    "total_lines": 40775,
-    "total_size": 1346536
+    "total_lines": 41121,
+    "total_size": 1356095
   },
   "files": [
     {
@@ -360,10 +360,10 @@
     {
       "path": "docs/archive/00_ARCHIVE_INDEX.md",
       "name": "00_ARCHIVE_INDEX.md",
-      "size": 6987,
+      "size": 8086,
       "extension": ".md",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/00_ARCHIVE_INDEX.md",
-      "lines": 174,
+      "lines": 196,
       "type": "documentation"
     },
     {
@@ -652,6 +652,24 @@
       "extension": ".md",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/sessions/SESSION_2025-12-16_RAG_Phase2_Python_Environment.md",
       "lines": 327,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/archive/sessions/SESSION_2025-12-16_RAG_Phase3-6_Complete.md",
+      "name": "SESSION_2025-12-16_RAG_Phase3-6_Complete.md",
+      "size": 4963,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/sessions/SESSION_2025-12-16_RAG_Phase3-6_Complete.md",
+      "lines": 181,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/archive/sessions/SESSION_2025-12-16_RAG_Phase3_Document_Processing.md",
+      "name": "SESSION_2025-12-16_RAG_Phase3_Document_Processing.md",
+      "size": 3497,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/sessions/SESSION_2025-12-16_RAG_Phase3_Document_Processing.md",
+      "lines": 143,
       "type": "documentation"
     },
     {
@@ -1954,8 +1972,8 @@
         "name": "00_ARCHIVE_INDEX.md",
         "path": "archive/00_ARCHIVE_INDEX.md",
         "full_path": "docs/archive/00_ARCHIVE_INDEX.md",
-        "size": 6987,
-        "lines": 174,
+        "size": 8086,
+        "lines": 196,
         "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/00_ARCHIVE_INDEX.md"
       },
       {
@@ -2277,6 +2295,22 @@
         "size": 9212,
         "lines": 327,
         "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/sessions/SESSION_2025-12-16_RAG_Phase2_Python_Environment.md"
+      },
+      {
+        "name": "SESSION_2025-12-16_RAG_Phase3-6_Complete.md",
+        "path": "archive/sessions/SESSION_2025-12-16_RAG_Phase3-6_Complete.md",
+        "full_path": "docs/archive/sessions/SESSION_2025-12-16_RAG_Phase3-6_Complete.md",
+        "size": 4963,
+        "lines": 181,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/sessions/SESSION_2025-12-16_RAG_Phase3-6_Complete.md"
+      },
+      {
+        "name": "SESSION_2025-12-16_RAG_Phase3_Document_Processing.md",
+        "path": "archive/sessions/SESSION_2025-12-16_RAG_Phase3_Document_Processing.md",
+        "full_path": "docs/archive/sessions/SESSION_2025-12-16_RAG_Phase3_Document_Processing.md",
+        "size": 3497,
+        "lines": 143,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/sessions/SESSION_2025-12-16_RAG_Phase3_Document_Processing.md"
       },
       {
         "name": "SESSION_2025-12-16_RAG_Planning.md",

@@ -54,7 +54,7 @@ class EmbeddingModel:
         if self._dimension != self.config.dimension:
             print(f"Warning: Model dimension {self._dimension} != config dimension {self.config.dimension}")
 
-        print(f"✓ Model loaded (dimension: {self._dimension})")
+        print(f"[OK] Model loaded (dimension: {self._dimension})")
 
     def encode(
             self,
@@ -208,7 +208,7 @@ if __name__ == "__main__":
     # Test single text
     text = "This is a test sentence."
     embedding = embed_text(text)
-    print(f"✓ Single text embedded: shape={embedding.shape}")
+    print(f"[OK] Single text embedded: shape={embedding.shape}")
 
     # Test batch
     texts = [
@@ -217,8 +217,8 @@ if __name__ == "__main__":
         "Third test sentence."
     ]
     embeddings = embed_texts(texts)
-    print(f"✓ Batch embedded: shape={embeddings.shape}")
+    print(f"[OK] Batch embedded: shape={embeddings.shape}")
 
     # Test similarity
     similarity = np.dot(embeddings[0], embeddings[1])
-    print(f"✓ Similarity (0,1): {similarity:.4f}")
+    print(f"[OK] Similarity (0,1): {similarity:.4f}")

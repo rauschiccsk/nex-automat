@@ -170,5 +170,27 @@
 
 ---
 
-**Last Updated:** 2025-12-16  
-**Maintainer:** Zoltán & Claude
+# Archive Index - Additions for 2025-12-16
+---
+
+## Sessions Section - Add:
+
+### RAG Implementation (2025-12-16)
+
+| Session | Popis | Status |
+|---------|-------|--------|
+| [SESSION_2025-12-16_RAG_Planning.md](sessions/SESSION_2025-12-16_RAG_Planning.md) | RAG systém plánovanie | ✅ Complete |
+| [SESSION_2025-12-16_RAG_Phase1_PostgreSQL_Setup.md](sessions/SESSION_2025-12-16_RAG_Phase1_PostgreSQL_Setup.md) | PostgreSQL + pgvector setup | ✅ Complete |
+| [SESSION_2025-12-16_RAG_Phase2_Python_Environment.md](sessions/SESSION_2025-12-16_RAG_Phase2_Python_Environment.md) | Python venv + dependencies | ✅ Complete |
+| [SESSION_2025-12-16_RAG_Phase3_Document_Processing.md](sessions/SESSION_2025-12-16_RAG_Phase3_Document_Processing.md) | Document processing testing | ✅ Complete |
+| [SESSION_2025-12-16_RAG_Phase3-6_Complete.md](sessions/SESSION_2025-12-16_RAG_Phase3-6_Complete.md) | Phases 3-6, CLI integration | ✅ Complete |
+
+---
+
+## Summary Update:
+
+**RAG Implementation:** 5 sessions, COMPLETE
+- PostgreSQL 15.14 + pgvector 0.8.1
+- 107 documents, 500 chunks indexed
+- Hybrid search, CLI tools
+- Status: 🟢 Production Ready

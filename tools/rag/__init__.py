@@ -1,17 +1,40 @@
 """
-RAG (Retrieval-Augmented Generation) Module
-NEX Automat Project
+RAG (Retrieval-Augmented Generation) Tools
 
-Provides document indexing, embedding, and semantic search capabilities
-using PostgreSQL with pgvector extension.
+This package provides document indexing and semantic search capabilities
+for the NEX Automat project knowledge base.
 
-Components:
-- config: Configuration management
-- database: PostgreSQL operations with pgvector
-- embeddings: Sentence transformer embeddings
-- chunker: Document chunking utilities
-- indexer: Document indexing pipeline
-- search: Vector and hybrid search
+Quick Usage:
+    # Search
+    from tools.rag.api import search, get_context
+    results = await search('your query')
+    context = await get_context('your query')
+
+    # CLI
+    python -m tools.rag "your query"
+    python -m tools.rag.init_prompt_helper "topic"
+
+Modules:
+    - config: Configuration management
+    - database: PostgreSQL/pgvector operations
+    - embeddings: Sentence transformer embeddings
+    - chunker: Document chunking
+    - indexer: Document indexing
+    - search: Basic search operations
+    - hybrid_search: Vector + keyword hybrid search
+    - api: High-level search API
+    - init_prompt_helper: Init prompt context generator
 """
 
-__version__ = "0.1.0"
+from .config import get_config, RAGConfig
+from .api import RAGSearchAPI, search, get_context
+
+__all__ = [
+    'get_config',
+    'RAGConfig',
+    'RAGSearchAPI',
+    'search',
+    'get_context',
+]
+
+__version__ = '1.0.0'

@@ -2,17 +2,17 @@
   "name": "claude-tools",
   "type": "tools",
   "location": "tools",
-  "generated": "2025-12-16T20:58:33.679423",
+  "generated": "2025-12-16T22:07:34.364559",
   "description": "Claude Tools - Automatizacia workflow pre claude.ai",
   "statistics": {
-    "total_files": 39,
+    "total_files": 43,
     "total_dirs": 8,
-    "python_files": 30,
+    "python_files": 34,
     "powershell_files": 2,
     "markdown_files": 0,
     "test_files": 1,
-    "total_lines": 6256,
-    "total_size": 208414
+    "total_lines": 7188,
+    "total_size": 236906
   },
   "structure": {
     "has_browser_extension": true,
@@ -186,10 +186,28 @@
     {
       "path": "tools/rag/__init__.py",
       "name": "__init__.py",
-      "size": 481,
+      "size": 1081,
       "extension": ".py",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/tools/rag/__init__.py",
-      "lines": 17,
+      "lines": 40,
+      "type": "source"
+    },
+    {
+      "path": "tools/rag/__main__.py",
+      "name": "__main__.py",
+      "size": 5021,
+      "extension": ".py",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/tools/rag/__main__.py",
+      "lines": 186,
+      "type": "source"
+    },
+    {
+      "path": "tools/rag/api.py",
+      "name": "api.py",
+      "size": 7122,
+      "extension": ".py",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/tools/rag/api.py",
+      "lines": 221,
       "type": "source"
     },
     {
@@ -213,19 +231,28 @@
     {
       "path": "tools/rag/database.py",
       "name": "database.py",
-      "size": 10070,
+      "size": 11016,
       "extension": ".py",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/tools/rag/database.py",
-      "lines": 350,
+      "lines": 370,
       "type": "source"
     },
     {
       "path": "tools/rag/embeddings.py",
       "name": "embeddings.py",
-      "size": 6227,
+      "size": 6231,
       "extension": ".py",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/tools/rag/embeddings.py",
       "lines": 224,
+      "type": "source"
+    },
+    {
+      "path": "tools/rag/hybrid_search.py",
+      "name": "hybrid_search.py",
+      "size": 8314,
+      "extension": ".py",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/tools/rag/hybrid_search.py",
+      "lines": 250,
       "type": "source"
     },
     {
@@ -235,6 +262,15 @@
       "extension": ".py",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/tools/rag/indexer.py",
       "lines": 362,
+      "type": "source"
+    },
+    {
+      "path": "tools/rag/init_prompt_helper.py",
+      "name": "init_prompt_helper.py",
+      "size": 6485,
+      "extension": ".py",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/tools/rag/init_prompt_helper.py",
+      "lines": 232,
       "type": "source"
     },
     {

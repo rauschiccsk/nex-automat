@@ -48,14 +48,14 @@ class DatabaseManager:
             max_size=self.config.pool_max_size
         )
 
-        print("✓ Database connection pool created")
+        print("[OK] Database connection pool created")
 
     async def close(self) -> None:
         """Close connection pool"""
         if self.pool is not None:
             await self.pool.close()
             self.pool = None
-            print("✓ Database connection pool closed")
+            print("[OK] Database connection pool closed")
 
     async def insert_document(
             self,
@@ -110,8 +110,19 @@ class DatabaseManager:
         if self.pool is None:
             await self.connect()
 
-        # Convert numpy array to list for pgvector
-        embedding_list = embedding.tolist()
+        # Convert numpy array to pgvector string format
+        import numpy as np
+        if isinstance(embedding, np.ndarray):
+            # Flatten if 2D and convert to list
+            if embedding.ndim > 1:
+                embedding = embedding.flatten()
+            embedding_list = embedding.tolist()
+        elif hasattr(embedding, 'tolist'):
+            embedding_list = embedding.tolist()
+        else:
+            embedding_list = list(embedding)
+        # Create pgvector format string
+        embedding_str = '[' + ','.join(str(float(x)) for x in embedding_list) + ']'
 
         query = """
             INSERT INTO chunks (document_id, chunk_index, content, embedding, metadata)
@@ -124,7 +135,7 @@ class DatabaseManager:
             document_id,
             chunk_index,
             content,
-            embedding_list,
+            embedding_str,
             metadata
         )
 
@@ -152,7 +163,16 @@ class DatabaseManager:
         if self.pool is None:
             await self.connect()
 
-        embedding_list = query_embedding.tolist()
+        import numpy as np
+        if isinstance(query_embedding, np.ndarray):
+            if query_embedding.ndim > 1:
+                query_embedding = query_embedding.flatten()
+            embedding_list = query_embedding.tolist()
+        elif hasattr(query_embedding, 'tolist'):
+            embedding_list = query_embedding.tolist()
+        else:
+            embedding_list = list(query_embedding)
+        embedding_str = '[' + ','.join(str(float(x)) for x in embedding_list) + ']'
 
         # Build query
         query = """
@@ -337,11 +357,11 @@ if __name__ == "__main__":
         async with DatabaseManager() as db:
             # Get stats
             stats = await db.get_stats()
-            print(f"✓ Database stats: {stats}")
+            print(f"[OK] Database stats: {stats}")
 
             # List documents
             docs = await db.list_documents(limit=5)
-            print(f"✓ Found {len(docs)} documents")
+            print(f"[OK] Found {len(docs)} documents")
 
             for doc in docs:
                 print(f"  - {doc['filename']} (ID: {doc['id']})")
