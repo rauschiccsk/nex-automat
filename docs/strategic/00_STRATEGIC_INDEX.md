@@ -3,7 +3,7 @@
 **Kategória:** Strategic  
 **Status:** 🟢 Complete  
 **Vytvorené:** 2025-12-15  
-**Aktualizované:** 2025-12-15
+**Aktualizované:** 2025-12-16
 
 ---
 
@@ -46,6 +46,18 @@ Strategická dokumentácia obsahuje dlhodobé plány, víziu projektu, technolog
 - Status: 📋 Planned
 - Veľkosť: ~12 KB
 
+### Ready for Implementation
+
+**[RAG_IMPLEMENTATION.md](RAG_IMPLEMENTATION.md)**
+- Kompletný implementačný plán RAG (Retrieval-Augmented Generation) systému
+- PostgreSQL + pgvector, sentence-transformers, embedding model
+- 6 implementačných fáz, Python skripty, testovacie procedúry
+- Claude integrácia pre efektívne vyhľadávanie v dokumentácii
+- Status: 🟡 Ready for Implementation
+- Časový odhad: 1 týždeň (RAG MVP)
+- Priorita: 🔴 HIGH - Blocker pre PySide6 + Temporal
+- Veľkosť: ~45 KB
+
 ### Draft Dokumenty
 
 **[TECHNOLOGY_DECISIONS.md](TECHNOLOGY_DECISIONS.md)**
@@ -67,18 +79,31 @@ Strategická dokumentácia obsahuje dlhodobé plány, víziu projektu, technolog
 - [N8N to Temporal](N8N_TO_TEMPORAL_MIGRATION.md) - Workflow orchestration migration
 - [Technology Decisions](TECHNOLOGY_DECISIONS.md) - História rozhodnutí
 
+**Pre implementáciu:**
+- [RAG Implementation](RAG_IMPLEMENTATION.md) - RAG systém implementácia (NEXT!)
+
 ---
 
 ## Štatistika
 
-- **Total dokumentov:** 6
+- **Total dokumentov:** 7
 - **Complete:** 4
+- **Ready for Implementation:** 1
 - **Planned:** 1
 - **Draft:** 1
-- **Total veľkosť:** ~86 KB
+- **Total veľkosť:** ~131 KB
+
+---
+
+## Implementačné Priority
+
+1. 🔴 **HIGH:** RAG Implementation (1 týždeň) - Blocker pre ďalší vývoj
+2. 🟡 **MEDIUM:** N8N to Temporal Migration (plánované)
+3. 🟢 **LOW:** Technology Decisions (draft, doplniť)
 
 ---
 
 **See Also:**
 - [Documentation Index](../00_DOCUMENTATION_INDEX.md) - Hlavný index
 - [System Architecture](../system/ARCHITECTURE.md) - Technická architektúra
+- [Migration Index](../migration/00_MIGRATION_INDEX.md) - Migračné plány

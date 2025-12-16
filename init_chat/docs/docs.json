@@ -2,17 +2,17 @@
   "name": "documentation",
   "type": "docs",
   "location": "docs",
-  "generated": "2025-12-15T22:58:52.240242",
+  "generated": "2025-12-16T12:56:25.083166",
   "description": "Komplexná dokumentácia NEX Automat projektu",
   "statistics": {
-    "total_files": 135,
+    "total_files": 137,
     "total_dirs": 40,
     "python_files": 0,
     "powershell_files": 0,
-    "markdown_files": 129,
+    "markdown_files": 131,
     "test_files": 0,
-    "total_lines": 38078,
-    "total_size": 1269336
+    "total_lines": 40001,
+    "total_size": 1324288
   },
   "files": [
     {
@@ -360,10 +360,10 @@
     {
       "path": "docs/archive/00_ARCHIVE_INDEX.md",
       "name": "00_ARCHIVE_INDEX.md",
-      "size": 5286,
+      "size": 5735,
       "extension": ".md",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/00_ARCHIVE_INDEX.md",
-      "lines": 145,
+      "lines": 154,
       "type": "documentation"
     },
     {
@@ -634,6 +634,15 @@
       "extension": ".md",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/sessions/SESSION_2025-12-15_documentation-migration-batch5.md",
       "lines": 306,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/archive/sessions/SESSION_2025-12-16_RAG_Planning.md",
+      "name": "SESSION_2025-12-16_RAG_Planning.md",
+      "size": 6823,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/sessions/SESSION_2025-12-16_RAG_Planning.md",
+      "lines": 259,
       "type": "documentation"
     },
     {
@@ -1072,10 +1081,10 @@
     {
       "path": "docs/strategic/00_STRATEGIC_INDEX.md",
       "name": "00_STRATEGIC_INDEX.md",
-      "size": 2307,
+      "size": 3296,
       "extension": ".md",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/strategic/00_STRATEGIC_INDEX.md",
-      "lines": 84,
+      "lines": 109,
       "type": "documentation"
     },
     {
@@ -1121,6 +1130,15 @@
       "extension": ".md",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/strategic/QUICK_WINS_TECHNOLOGIES.md",
       "lines": 606,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/strategic/RAG_IMPLEMENTATION.md",
+      "name": "RAG_IMPLEMENTATION.md",
+      "size": 46691,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/strategic/RAG_IMPLEMENTATION.md",
+      "lines": 1630,
       "type": "documentation"
     },
     {
@@ -1909,8 +1927,8 @@
         "name": "00_ARCHIVE_INDEX.md",
         "path": "archive/00_ARCHIVE_INDEX.md",
         "full_path": "docs/archive/00_ARCHIVE_INDEX.md",
-        "size": 5286,
-        "lines": 145,
+        "size": 5735,
+        "lines": 154,
         "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/00_ARCHIVE_INDEX.md"
       },
       {
@@ -2013,8 +2031,8 @@
         "name": "00_STRATEGIC_INDEX.md",
         "path": "strategic/00_STRATEGIC_INDEX.md",
         "full_path": "docs/strategic/00_STRATEGIC_INDEX.md",
-        "size": 2307,
-        "lines": 84,
+        "size": 3296,
+        "lines": 109,
         "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/strategic/00_STRATEGIC_INDEX.md"
       },
       {
@@ -2048,6 +2066,14 @@
         "size": 19375,
         "lines": 606,
         "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/strategic/QUICK_WINS_TECHNOLOGIES.md"
+      },
+      {
+        "name": "RAG_IMPLEMENTATION.md",
+        "path": "strategic/RAG_IMPLEMENTATION.md",
+        "full_path": "docs/strategic/RAG_IMPLEMENTATION.md",
+        "size": 46691,
+        "lines": 1630,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/strategic/RAG_IMPLEMENTATION.md"
       },
       {
         "name": "TECHNOLOGY_DECISIONS.md",
@@ -2200,6 +2226,14 @@
         "size": 53640,
         "lines": 1816,
         "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/sessions/SESSION_2025-12-09_v24-implementation-complete.md"
+      },
+      {
+        "name": "SESSION_2025-12-16_RAG_Planning.md",
+        "path": "archive/sessions/SESSION_2025-12-16_RAG_Planning.md",
+        "full_path": "docs/archive/sessions/SESSION_2025-12-16_RAG_Planning.md",
+        "size": 6823,
+        "lines": 259,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/sessions/SESSION_2025-12-16_RAG_Planning.md"
       },
       {
         "name": "00_LOADER_INDEX.md",

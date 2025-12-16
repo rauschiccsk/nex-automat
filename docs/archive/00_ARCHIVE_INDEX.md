@@ -1,6 +1,6 @@
 # Archive Index
 
-**Last Updated:** 2025-12-15  
+**Last Updated:** 2025-12-16  
 **Purpose:** Index všetkých archivovaných dokumentov  
 
 ---
@@ -8,6 +8,14 @@
 ## SESSION ARCHIVES
 
 ### December 2025
+
+**2025-12-16 - RAG Implementation Planning:**
+- [RAG Planning & Design](sessions/SESSION_2025-12-16_RAG_Planning.md)
+  - Status: ✅ COMPLETE
+  - Topics: RAG architecture, strategic analysis, implementation plan
+  - Deliverables: RAG_IMPLEMENTATION.md (45KB, 6 phases)
+  - Decision: HYBRID approach (RAG MVP 1 week → PySide6 → Temporal)
+  - Next: Fáza 1 PostgreSQL Setup
 
 **2025-12-15 - Database Table Docs Batch 6 (FINAL):**
 - [Database Table Docs - Batch 6 Sales Final](sessions/SESSION_2025-12-15_database-table-docs-batch6-sales-final.md)
@@ -133,13 +141,14 @@
 
 ## STATISTICS
 
-**Total Sessions:** 25+ (včetne Database Table Docs Batch 6)  
+**Total Sessions:** 26+ (vrátane RAG Planning)  
 **Total Deployments:** 10  
 **Completed Milestones:** 
 - ✅ Database Table Documentation (25/25 - 100%)
-- ✅ Strategic Documentation (N8N to Temporal migration added)
+- ✅ Strategic Documentation (N8N to Temporal migration + RAG Implementation)
+- 🚀 RAG Implementation Planning Complete (Ready for Fáza 1)
 
 ---
 
-**Last Updated:** 2025-12-15  
+**Last Updated:** 2025-12-16  
 **Maintainer:** Zoltán & Claude
