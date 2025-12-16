@@ -2,17 +2,17 @@
   "name": "documentation",
   "type": "docs",
   "location": "docs",
-  "generated": "2025-12-16T18:00:06.876905",
+  "generated": "2025-12-16T20:58:33.742084",
   "description": "Komplexná dokumentácia NEX Automat projektu",
   "statistics": {
-    "total_files": 138,
-    "total_dirs": 40,
+    "total_files": 140,
+    "total_dirs": 41,
     "python_files": 0,
     "powershell_files": 0,
-    "markdown_files": 132,
+    "markdown_files": 134,
     "test_files": 0,
-    "total_lines": 40260,
-    "total_size": 1332062
+    "total_lines": 40775,
+    "total_size": 1346536
   },
   "files": [
     {
@@ -360,10 +360,10 @@
     {
       "path": "docs/archive/00_ARCHIVE_INDEX.md",
       "name": "00_ARCHIVE_INDEX.md",
-      "size": 5735,
+      "size": 6987,
       "extension": ".md",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/00_ARCHIVE_INDEX.md",
-      "lines": 154,
+      "lines": 174,
       "type": "documentation"
     },
     {
@@ -643,6 +643,15 @@
       "extension": ".md",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/sessions/SESSION_2025-12-16_RAG_Phase1_PostgreSQL_Setup.md",
       "lines": 259,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/archive/sessions/SESSION_2025-12-16_RAG_Phase2_Python_Environment.md",
+      "name": "SESSION_2025-12-16_RAG_Phase2_Python_Environment.md",
+      "size": 9212,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/sessions/SESSION_2025-12-16_RAG_Phase2_Python_Environment.md",
+      "lines": 327,
       "type": "documentation"
     },
     {
@@ -1085,6 +1094,15 @@
       "extension": ".md",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/reference/WORKFLOW_REFERENCE.md",
       "lines": 251,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/setup/PYTHON_312_INSTALLATION.md",
+      "name": "PYTHON_312_INSTALLATION.md",
+      "size": 4010,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/setup/PYTHON_312_INSTALLATION.md",
+      "lines": 168,
       "type": "documentation"
     },
     {
@@ -1936,8 +1954,8 @@
         "name": "00_ARCHIVE_INDEX.md",
         "path": "archive/00_ARCHIVE_INDEX.md",
         "full_path": "docs/archive/00_ARCHIVE_INDEX.md",
-        "size": 5735,
-        "lines": 154,
+        "size": 6987,
+        "lines": 174,
         "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/00_ARCHIVE_INDEX.md"
       },
       {
@@ -2035,6 +2053,14 @@
         "size": 5521,
         "lines": 251,
         "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/reference/WORKFLOW_REFERENCE.md"
+      },
+      {
+        "name": "PYTHON_312_INSTALLATION.md",
+        "path": "setup/PYTHON_312_INSTALLATION.md",
+        "full_path": "docs/setup/PYTHON_312_INSTALLATION.md",
+        "size": 4010,
+        "lines": 168,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/setup/PYTHON_312_INSTALLATION.md"
       },
       {
         "name": "00_STRATEGIC_INDEX.md",
@@ -2243,6 +2269,14 @@
         "size": 7774,
         "lines": 259,
         "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/sessions/SESSION_2025-12-16_RAG_Phase1_PostgreSQL_Setup.md"
+      },
+      {
+        "name": "SESSION_2025-12-16_RAG_Phase2_Python_Environment.md",
+        "path": "archive/sessions/SESSION_2025-12-16_RAG_Phase2_Python_Environment.md",
+        "full_path": "docs/archive/sessions/SESSION_2025-12-16_RAG_Phase2_Python_Environment.md",
+        "size": 9212,
+        "lines": 327,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/sessions/SESSION_2025-12-16_RAG_Phase2_Python_Environment.md"
       },
       {
         "name": "SESSION_2025-12-16_RAG_Planning.md",

@@ -1,0 +1,16 @@
+# RAG Implementation Dependencies
+# NEX Automat Project
+# Phase 2: Python Environment Setup
+
+# Core RAG dependencies
+sentence-transformers==2.5.1
+asyncpg==0.29.0
+pydantic==2.10.5
+pydantic-settings==2.7.1
+tiktoken==0.6.0
+numpy==1.26.3
+PyYAML==6.0.1
+
+# Optional but recommended
+python-dotenv==1.0.1
+tqdm==4.66.1

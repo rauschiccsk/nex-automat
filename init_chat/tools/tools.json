@@ -2,17 +2,17 @@
   "name": "claude-tools",
   "type": "tools",
   "location": "tools",
-  "generated": "2025-12-16T18:00:06.836100",
+  "generated": "2025-12-16T20:58:33.679423",
   "description": "Claude Tools - Automatizacia workflow pre claude.ai",
   "statistics": {
-    "total_files": 29,
-    "total_dirs": 6,
-    "python_files": 20,
+    "total_files": 39,
+    "total_dirs": 8,
+    "python_files": 30,
     "powershell_files": 2,
     "markdown_files": 0,
     "test_files": 1,
-    "total_lines": 4328,
-    "total_size": 150395
+    "total_lines": 6256,
+    "total_size": 208414
   },
   "structure": {
     "has_browser_extension": true,
@@ -77,6 +77,15 @@
       "size": 6689,
       "extension": ".md-old",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/tools/INSTALLATION_GUIDE.md-old"
+    },
+    {
+      "path": "tools/__init__.py",
+      "name": "__init__.py",
+      "size": 0,
+      "extension": ".py",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/tools/__init__.py",
+      "lines": 0,
+      "type": "source"
     },
     {
       "path": "tools/artifact-server.py",
@@ -172,6 +181,69 @@
       "extension": ".py",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/tools/installer.py",
       "lines": 214,
+      "type": "source"
+    },
+    {
+      "path": "tools/rag/__init__.py",
+      "name": "__init__.py",
+      "size": 481,
+      "extension": ".py",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/tools/rag/__init__.py",
+      "lines": 17,
+      "type": "source"
+    },
+    {
+      "path": "tools/rag/chunker.py",
+      "name": "chunker.py",
+      "size": 9581,
+      "extension": ".py",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/tools/rag/chunker.py",
+      "lines": 321,
+      "type": "source"
+    },
+    {
+      "path": "tools/rag/config.py",
+      "name": "config.py",
+      "size": 4958,
+      "extension": ".py",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/tools/rag/config.py",
+      "lines": 159,
+      "type": "source"
+    },
+    {
+      "path": "tools/rag/database.py",
+      "name": "database.py",
+      "size": 10070,
+      "extension": ".py",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/tools/rag/database.py",
+      "lines": 350,
+      "type": "source"
+    },
+    {
+      "path": "tools/rag/embeddings.py",
+      "name": "embeddings.py",
+      "size": 6227,
+      "extension": ".py",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/tools/rag/embeddings.py",
+      "lines": 224,
+      "type": "source"
+    },
+    {
+      "path": "tools/rag/indexer.py",
+      "name": "indexer.py",
+      "size": 10990,
+      "extension": ".py",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/tools/rag/indexer.py",
+      "lines": 362,
+      "type": "source"
+    },
+    {
+      "path": "tools/rag/search.py",
+      "name": "search.py",
+      "size": 10094,
+      "extension": ".py",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/tools/rag/search.py",
+      "lines": 310,
       "type": "source"
     },
     {
@@ -301,6 +373,24 @@
       "type": "source"
     },
     {
+      "path": "tools/setup/__init__.py",
+      "name": "__init__.py",
+      "size": 47,
+      "extension": ".py",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/tools/setup/__init__.py",
+      "lines": 1,
+      "type": "source"
+    },
+    {
+      "path": "tools/setup/create_venv.py",
+      "name": "create_venv.py",
+      "size": 5571,
+      "extension": ".py",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/tools/setup/create_venv.py",
+      "lines": 184,
+      "type": "source"
+    },
+    {
       "path": "tools/start-claude-tools.ps1",
       "name": "start-claude-tools.ps1",
       "size": 5511,
@@ -327,6 +417,7 @@
     "tools/context-compressor.py",
     "tools/installer.py",
     "tools/session-notes-manager.py",
+    "tools/__init__.py",
     "tools/start-claude-tools.ps1",
     "tools/stop-claude-tools.ps1",
     "tools/config.py"
