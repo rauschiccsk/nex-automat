@@ -2,17 +2,17 @@
   "name": "claude-tools",
   "type": "tools",
   "location": "tools",
-  "generated": "2025-12-16T22:07:34.364559",
+  "generated": "2025-12-16T23:19:01.665160",
   "description": "Claude Tools - Automatizacia workflow pre claude.ai",
   "statistics": {
-    "total_files": 43,
+    "total_files": 46,
     "total_dirs": 8,
-    "python_files": 34,
+    "python_files": 37,
     "powershell_files": 2,
     "markdown_files": 0,
     "test_files": 1,
-    "total_lines": 7188,
-    "total_size": 236906
+    "total_lines": 7558,
+    "total_size": 247101
   },
   "structure": {
     "has_browser_extension": true,
@@ -204,10 +204,10 @@
     {
       "path": "tools/rag/api.py",
       "name": "api.py",
-      "size": 7122,
+      "size": 5406,
       "extension": ".py",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/tools/rag/api.py",
-      "lines": 221,
+      "lines": 175,
       "type": "source"
     },
     {
@@ -280,6 +280,24 @@
       "extension": ".py",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/tools/rag/search.py",
       "lines": 310,
+      "type": "source"
+    },
+    {
+      "path": "tools/rag/server.py",
+      "name": "server.py",
+      "size": 5016,
+      "extension": ".py",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/tools/rag/server.py",
+      "lines": 181,
+      "type": "source"
+    },
+    {
+      "path": "tools/rag/server_app.py",
+      "name": "server_app.py",
+      "size": 5626,
+      "extension": ".py",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/tools/rag/server_app.py",
+      "lines": 186,
       "type": "source"
     },
     {
@@ -424,6 +442,15 @@
       "extension": ".py",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/tools/setup/create_venv.py",
       "lines": 184,
+      "type": "source"
+    },
+    {
+      "path": "tools/setup/install_fastapi_deps.py",
+      "name": "install_fastapi_deps.py",
+      "size": 1269,
+      "extension": ".py",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/tools/setup/install_fastapi_deps.py",
+      "lines": 49,
       "type": "source"
     },
     {

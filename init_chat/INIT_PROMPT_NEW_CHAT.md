@@ -1,10 +1,10 @@
 # INIT PROMPT - NEX Automat Project
 
 **Projekt:** nex-automat  
-**Current Status:** RAG Implementation COMPLETE  
+**Current Status:** RAG FastAPI Server COMPLETE  
 **Developer:** Zoltán (40 rokov skúseností)  
 **Jazyk:** Slovenčina  
-**Previous Session:** RAG Phase 3-6 Complete (2025-12-16)
+**Previous Session:** RAG FastAPI Server Implementation (2025-12-16)
 
 ---
 
@@ -31,14 +31,16 @@ Kľúčové pravidlá:
 
 **Python Environment:**
 - Python 3.12.10 64-bit venv
-- sentence-transformers, asyncpg, pydantic
+- sentence-transformers, asyncpg, pydantic, fastapi, uvicorn
 
 **Features:**
 - Hybrid search (70% vector + 30% keyword)
 - 35ms average search latency
 - CLI tools pre search a init prompt generation
+- **FastAPI HTTP Server** (NEW!)
 
 **Použitie:**
+
 ```bash
 # CLI Search
 python -m tools.rag "your query"
@@ -48,6 +50,15 @@ python -m tools.rag --stats
 # Init Prompt Helper
 python -m tools.rag.init_prompt_helper "topic"
 python -m tools.rag.init_prompt_helper -i  # Interactive
+
+# HTTP Server (NEW!)
+python -m tools.rag.server start
+# Endpoints: http://localhost:8765/
+#   - GET / (API info)
+#   - GET /health (health check)
+#   - GET /stats (database stats)
+#   - GET /search?query=X&format=json|context
+#   - Swagger UI: http://localhost:8765/docs
 
 # Python API
 from tools.rag.api import search, get_context
@@ -70,15 +81,19 @@ nex-automat/
 │   └── nexdata/                    # Btrieve access layer
 ├── tools/
 │   ├── rag/                        # ✅ RAG system (COMPLETE)
-│   │   ├── api.py                  # Search API
+│   │   ├── api.py                  # Python search API
+│   │   ├── server_app.py           # FastAPI application (NEW!)
+│   │   ├── server.py               # Server manager (NEW!)
 │   │   ├── hybrid_search.py        # Hybrid search
+│   │   ├── database.py             # PostgreSQL operations
+│   │   ├── embeddings.py           # Sentence transformers
 │   │   ├── __main__.py             # CLI tool
 │   │   └── init_prompt_helper.py   # Context generator
 │   └── setup/
 ├── config/
 │   └── rag_config.yaml             # RAG configuration
 ├── docs/                           # 107 indexed documents
-├── scripts/                        # Session scripts (01-23)
+├── scripts/                        # Session scripts
 └── venv/                           # Python 3.12 64-bit
 ```
 
@@ -91,6 +106,7 @@ nex-automat/
 - [ ] Keywords extraction a tagging
 - [ ] Search history analytics
 - [ ] Multi-language query expansion
+- [ ] **Test Claude integration v novom chate** (NEXT!)
 
 ### NEX Automat Core
 - [ ] NEX Genesis Product Enrichment (v2.4 Phase 4)
@@ -98,7 +114,7 @@ nex-automat/
 - [ ] n8n → Temporal migration
 
 ### Infrastructure
-- [ ] FastAPI RAG endpoint integration
+- [ ] Windows service wrapper pre RAG server
 - [ ] Automated documentation updates
 - [ ] CI/CD pipeline
 
@@ -136,6 +152,7 @@ nex-automat/
 
 **Sessions:**
 - docs/archive/sessions/ - Všetky session dokumenty
+- docs/archive/sessions/SESSION_2025-12-16_RAG_FastAPI_Server.md - Posledná session
 
 ---
 
@@ -154,6 +171,11 @@ nex-automat/
 - RAG DB: nex_automat_rag
 - Main DB: nex_automat
 
+**RAG Server:**
+- Host: 127.0.0.1
+- Port: 8765
+- Start: `python -m tools.rag.server start`
+
 ---
 
 ## 📝 SESSION WORKFLOW
@@ -163,6 +185,33 @@ nex-automat/
 3. Identifikuj Current Status a Next Steps
 4. Pracuj step-by-step s confirmations
 5. Na konci: "novy chat" → 3 artifacts + archive update
+
+---
+
+## 🔮 RAG SERVER USAGE (NEW!)
+
+**Pre Claude v budúcich chatoch:**
+
+Keď potrebujem kontext z dokumentácie, môžem použiť:
+
+```javascript
+// V novom chate
+const response = await fetch(
+  "http://localhost:8765/search?query=product+enrichment&format=context&max_results=3"
+);
+const data = await response.json();
+// Použijem data.context v odpovedi
+```
+
+**Prerekvizity:**
+- RAG server musí bežať: `python -m tools.rag.server start`
+- Localhost only (bezpečné)
+
+**Benefits:**
+- Automatické vyhľadávanie relevantnej dokumentácie
+- Presné citácie z projektových súborov
+- Konzistentné dodržiavanie patterns a conventions
+- Zníženie repetitívnych otázok
 
 ---
 

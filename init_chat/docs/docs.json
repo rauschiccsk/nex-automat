@@ -2,17 +2,17 @@
   "name": "documentation",
   "type": "docs",
   "location": "docs",
-  "generated": "2025-12-16T22:07:34.419938",
+  "generated": "2025-12-16T23:19:01.726626",
   "description": "Komplexná dokumentácia NEX Automat projektu",
   "statistics": {
-    "total_files": 142,
+    "total_files": 143,
     "total_dirs": 41,
     "python_files": 0,
     "powershell_files": 0,
-    "markdown_files": 136,
+    "markdown_files": 137,
     "test_files": 0,
-    "total_lines": 41121,
-    "total_size": 1356095
+    "total_lines": 41456,
+    "total_size": 1364778
   },
   "files": [
     {
@@ -634,6 +634,15 @@
       "extension": ".md",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/sessions/SESSION_2025-12-15_documentation-migration-batch5.md",
       "lines": 306,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/archive/sessions/SESSION_2025-12-16_RAG_FastAPI_Server.md",
+      "name": "SESSION_2025-12-16_RAG_FastAPI_Server.md",
+      "size": 8683,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/sessions/SESSION_2025-12-16_RAG_FastAPI_Server.md",
+      "lines": 335,
       "type": "documentation"
     },
     {
@@ -1817,6 +1826,14 @@
         "size": 198,
         "lines": 15,
         "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/reference/API_REFERENCE.md"
+      },
+      {
+        "name": "SESSION_2025-12-16_RAG_FastAPI_Server.md",
+        "path": "archive/sessions/SESSION_2025-12-16_RAG_FastAPI_Server.md",
+        "full_path": "docs/archive/sessions/SESSION_2025-12-16_RAG_FastAPI_Server.md",
+        "size": 8683,
+        "lines": 335,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/sessions/SESSION_2025-12-16_RAG_FastAPI_Server.md"
       },
       {
         "name": "API_SPECIFICATION.md",
