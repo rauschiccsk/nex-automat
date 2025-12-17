@@ -39,6 +39,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
+    root_path="/rag",  # For Cloudflare Tunnel path routing
     title="NEX Automat RAG API",
     description="Retrieval-Augmented Generation system for NEX Automat project documentation",
     version="1.0.0",

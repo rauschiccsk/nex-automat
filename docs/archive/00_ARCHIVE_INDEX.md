@@ -1,6 +1,6 @@
 # Archive Index
 
-**Last Updated:** 2025-12-16  
+**Last Updated:** 2025-12-17  
 **Purpose:** Index všetkých archivovaných dokumentov  
 
 ---
@@ -8,6 +8,21 @@
 ## SESSION ARCHIVES
 
 ### December 2025
+
+**2025-12-17 - RAG Cloudflare Integration:**
+- [RAG Cloudflare Tunnel Integration](sessions/SESSION_2025-12-17_RAG_Cloudflare_Integration.md)
+  - Status: ⚠️ IN PROGRESS - Cloudflare blocking external access
+  - Topics: RAG FastAPI Server + Cloudflare Tunnel, Security Rules, LocalTunnel testing
+  - Duration: 4h 30min
+  - Achievements: 
+    - ✅ LocalTunnel successful (proof of concept)
+    - ✅ Cloudflare Tunnel setup (n8n.icc.sk/rag/*)
+    - ✅ FastAPI server patch (root_path="/rag")
+    - ✅ 2 Security Skip rules deployed
+    - ❌ External access blocked by Managed Rules (403)
+  - Blocker: Cloudflare Managed Rules blocking Claude's IP (34.162.230.222)
+  - Next: Cloudflare Workers OR subdomain rag.icc.sk solution
+  - Strategic: Zastavené všetky projekty pokiaľ nebude vyriešený prístup
 
 **2025-12-16 - RAG Implementation FastAPI Server:**
 - [RAG FastAPI Server Implementation](sessions/SESSION_2025-12-16_RAG_FastAPI_Server.md)
@@ -178,7 +193,7 @@
 
 ## STATISTICS
 
-**Total Sessions:** 29+ (vrátane RAG FastAPI Server)  
+**Total Sessions:** 30+ (vrátane RAG Cloudflare Integration)  
 **Total Deployments:** 10  
 **Completed Milestones:** 
 - ✅ Database Table Documentation (25/25 - 100%)
@@ -188,10 +203,11 @@
 - ✅ RAG Implementation Phase 3-6 Complete (Document Processing, CLI Tools, 107 docs indexed)
 - ✅ RAG Implementation FastAPI Server Complete (HTTP endpoints, Claude integration ready)
 - 🚀 RAG System COMPLETE - Ready for production use
+- ⚠️ **BLOCKER:** Cloudflare external access (in progress)
 
 ---
 
-## RAG Implementation Timeline (2025-12-16)
+## RAG Implementation Timeline (2025-12-16 to 2025-12-17)
 
 | Phase | Session | Status | Duration |
 |-------|---------|--------|----------|
@@ -200,7 +216,8 @@
 | Phase 2 | RAG_Phase2_Python_Environment.md | ✅ Complete | 4h |
 | Phase 3-6 | RAG_Phase3-6_Complete.md | ✅ Complete | 6h |
 | FastAPI | RAG_FastAPI_Server.md | ✅ Complete | 3h |
-| **Total** | **5 sessions** | **✅ COMPLETE** | **19h** |
+| Cloudflare | RAG_Cloudflare_Integration.md | ⚠️ IN PROGRESS | 4.5h |
+| **Total** | **6 sessions** | **⚠️ IN PROGRESS** | **23.5h** |
 
 **RAG System Features:**
 - 107 documents, 500 chunks, 415,891 tokens indexed
@@ -209,7 +226,25 @@
 - HTTP API: `python -m tools.rag.server start`
 - 5 REST endpoints (/, /health, /stats, /search)
 - Average latency: 35ms (CLI) / 500ms (HTTP)
-- Status: 🟢 Production Ready
+- Cloudflare Tunnel: https://n8n.icc.sk/rag/*
+- Status: ⚠️ **BLOCKER** - External access (Cloudflare Managed Rules)
+
+---
+
+## CURRENT BLOCKER (2025-12-17)
+
+**Issue:** Cloudflare Managed Rules blocking Claude's external access to RAG server  
+**Impact:** HIGH - Project paused until resolved  
+**Evidence:** 403 Forbidden for IP 34.162.230.222 (Anthropic)  
+**Local Status:** ✅ Working (localhost, browser with auth)  
+**External Status:** ❌ Blocked (Claude web_fetch tool)  
+
+**Next Steps:**
+1. Cloudflare Workers (proxy solution)
+2. Subdomain rag.icc.sk (separate security)
+3. API Token authentication
+
+**Commitment:** "Zastavím všetky projekty pokiaľ to nevyriešime" - Zoltán
 
 ---
 

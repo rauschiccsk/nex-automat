@@ -2,7 +2,7 @@
   "name": "claude-tools",
   "type": "tools",
   "location": "tools",
-  "generated": "2025-12-16T23:19:01.665160",
+  "generated": "2025-12-17T09:40:53.439615",
   "description": "Claude Tools - Automatizacia workflow pre claude.ai",
   "statistics": {
     "total_files": 46,
@@ -11,8 +11,8 @@
     "powershell_files": 2,
     "markdown_files": 0,
     "test_files": 1,
-    "total_lines": 7558,
-    "total_size": 247101
+    "total_lines": 7559,
+    "total_size": 247162
   },
   "structure": {
     "has_browser_extension": true,
@@ -294,10 +294,10 @@
     {
       "path": "tools/rag/server_app.py",
       "name": "server_app.py",
-      "size": 5626,
+      "size": 5687,
       "extension": ".py",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/tools/rag/server_app.py",
-      "lines": 186,
+      "lines": 187,
       "type": "source"
     },
     {

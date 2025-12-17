@@ -2,17 +2,17 @@
   "name": "documentation",
   "type": "docs",
   "location": "docs",
-  "generated": "2025-12-16T23:19:01.726626",
+  "generated": "2025-12-17T09:40:53.511960",
   "description": "Komplexná dokumentácia NEX Automat projektu",
   "statistics": {
-    "total_files": 143,
+    "total_files": 144,
     "total_dirs": 41,
     "python_files": 0,
     "powershell_files": 0,
-    "markdown_files": 137,
+    "markdown_files": 138,
     "test_files": 0,
-    "total_lines": 41456,
-    "total_size": 1364778
+    "total_lines": 41831,
+    "total_size": 1375598
   },
   "files": [
     {
@@ -360,10 +360,10 @@
     {
       "path": "docs/archive/00_ARCHIVE_INDEX.md",
       "name": "00_ARCHIVE_INDEX.md",
-      "size": 8086,
+      "size": 10673,
       "extension": ".md",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/00_ARCHIVE_INDEX.md",
-      "lines": 196,
+      "lines": 251,
       "type": "documentation"
     },
     {
@@ -688,6 +688,15 @@
       "extension": ".md",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/sessions/SESSION_2025-12-16_RAG_Planning.md",
       "lines": 259,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/archive/sessions/SESSION_2025-12-17_RAG_Cloudflare_Integration.md",
+      "name": "SESSION_2025-12-17_RAG_Cloudflare_Integration.md",
+      "size": 8233,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/sessions/SESSION_2025-12-17_RAG_Cloudflare_Integration.md",
+      "lines": 320,
       "type": "documentation"
     },
     {
@@ -1989,8 +1998,8 @@
         "name": "00_ARCHIVE_INDEX.md",
         "path": "archive/00_ARCHIVE_INDEX.md",
         "full_path": "docs/archive/00_ARCHIVE_INDEX.md",
-        "size": 8086,
-        "lines": 196,
+        "size": 10673,
+        "lines": 251,
         "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/00_ARCHIVE_INDEX.md"
       },
       {
@@ -2336,6 +2345,14 @@
         "size": 6823,
         "lines": 259,
         "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/sessions/SESSION_2025-12-16_RAG_Planning.md"
+      },
+      {
+        "name": "SESSION_2025-12-17_RAG_Cloudflare_Integration.md",
+        "path": "archive/sessions/SESSION_2025-12-17_RAG_Cloudflare_Integration.md",
+        "full_path": "docs/archive/sessions/SESSION_2025-12-17_RAG_Cloudflare_Integration.md",
+        "size": 8233,
+        "lines": 320,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/sessions/SESSION_2025-12-17_RAG_Cloudflare_Integration.md"
       },
       {
         "name": "00_LOADER_INDEX.md",
