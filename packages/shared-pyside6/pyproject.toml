@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "shared-pyside6"
+version = "1.0.0"
+description = "Shared PySide6 components for NEX Automat"
+readme = "README.md"
+requires-python = ">=3.11"
+license = {text = "Proprietary"}
+authors = [
+    {name = "ICC Komárno", email = "info@icc.sk"}
+]
+
+dependencies = [
+    "PySide6>=6.5.0",
+    "openpyxl>=3.1.0",
+    "asyncpg>=0.28.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-qt>=4.2.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["shared_pyside6*"]
