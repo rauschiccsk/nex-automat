@@ -153,10 +153,11 @@ class MainWindow(BaseWindow):
         window = InvoiceItemsWindow(
             invoice=invoice,
             settings=self.settings,
-            parent=None
+            parent=self
         )
         window.closed.connect(lambda: self._on_items_window_closed(invoice_id))
         self._items_windows[invoice_id] = window
+        window.setWindowModality(Qt.WindowModality.ApplicationModal)
         window.show()
 
     def _on_items_window_closed(self, invoice_id: int):
@@ -213,6 +214,9 @@ class MainWindow(BaseWindow):
         ]
         self._filtered_data = self._data.copy()
         self._populate_model()
+        # Select first row
+        if self._filtered_data:
+            self.grid.table_view.selectRow(0)
 
     def _refresh_data(self):
         self._load_test_data()
@@ -224,7 +228,17 @@ class MainWindow(BaseWindow):
             "a nastavenie obchodnej marze.\n\n"
             "ICC Komarno 2025")
 
+    def keyPressEvent(self, event):
+        """Handle key press - Enter opens invoice items."""
+        if event.key() in (Qt.Key.Key_Return, Qt.Key.Key_Enter):
+            current_row = self.grid.table_view.currentIndex().row()
+            if current_row >= 0:
+                self._on_row_activated(current_row)
+                return
+        super().keyPressEvent(event)
+
     def closeEvent(self, event):
         for window in list(self._items_windows.values()):
             window.close()
+        self.grid.save_grid_settings_now()
         super().closeEvent(event)

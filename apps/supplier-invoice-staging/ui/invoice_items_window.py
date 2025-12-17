@@ -41,7 +41,7 @@ class InvoiceItemsWindow(BaseWindow):
         self._filtered_data: List[Dict[str, Any]] = []
 
         super().__init__(
-            window_name=f"{self.WINDOW_ID}_{invoice['id']}",
+            window_name=self.WINDOW_ID,
             default_size=(1200, 600),
             default_pos=(150, 150),
             auto_load=True,
@@ -248,12 +248,23 @@ class InvoiceItemsWindow(BaseWindow):
         ]
         self._filtered_data = self._data.copy()
         self._populate_model()
+        # Select first row
+        if self._filtered_data:
+            self.grid.table_view.selectRow(0)
 
     def _save_items(self):
         modified = [i for i in self._data if (i.get("margin_percent") or 0) > 0]
         print(f"Saving {len(modified)} modified items...")
         self.status_label.setText(f"Ulozene {len(modified)} poloziek")
 
+    def keyPressEvent(self, event):
+        """Handle key press - ESC closes window."""
+        if event.key() == Qt.Key.Key_Escape:
+            self.close()
+            return
+        super().keyPressEvent(event)
+
     def closeEvent(self, event):
+        self.grid.save_grid_settings_now()
         self.closed.emit()
         super().closeEvent(event)
