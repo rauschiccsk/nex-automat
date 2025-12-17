@@ -137,6 +137,9 @@ class BaseGrid(QWidget):
         # Debounce timer for saving
         self._save_pending = False
 
+        # Flag to prevent saving during load (True until apply_model_and_load_settings)
+        self._loading = True
+
         self._setup_base_ui()
 
     @property
@@ -199,6 +202,7 @@ class BaseGrid(QWidget):
         """
         if self._auto_load:
             self._load_grid_settings()
+        self._loading = False  # Now allow saving
 
     def _load_grid_settings(self) -> None:
         """Load and apply saved grid settings."""
@@ -262,6 +266,9 @@ class BaseGrid(QWidget):
 
     def _save_grid_settings(self) -> None:
         """Save current grid settings."""
+        if self._loading:
+            return  # Don't save during initialization
+
         model = self.table_view.model()
         if not model:
             return

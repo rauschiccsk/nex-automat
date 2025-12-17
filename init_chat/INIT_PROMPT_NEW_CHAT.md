@@ -23,21 +23,14 @@ Kľúčové pravidlá:
 
 ## 🔄 DOKONČENÉ MINULÚ SESSION
 
-### supplier-invoice-staging Fixes (shared-pyside6 + app)
+### supplier-invoice-staging Fixes
 - ✅ QuickSearch auto-sort pri zmene stĺpca
-- ✅ Grid settings persistence (šírky, poradie, viditeľnosť stĺpcov)
+- ✅ Grid settings persistence (šírky, poradie stĺpcov)
 - ✅ Search column persistence
 - ✅ Numeric columns right-aligned, 2 decimal places
 - ✅ Search text cleared on column change
 - ✅ Visual order navigation (respects drag&drop)
-- ✅ Black text color in search editor
-- ✅ InvoiceItemsWindow grid refresh fix (layoutChanged)
-
-### Modified Files
-- `packages/shared-pyside6/shared_pyside6/ui/quick_search.py`
-- `packages/shared-pyside6/shared_pyside6/ui/base_grid.py`
-- `apps/supplier-invoice-staging/ui/main_window.py`
-- `apps/supplier-invoice-staging/ui/invoice_items_window.py`
+- ✅ InvoiceItemsWindow grid refresh fix
 
 ---
 

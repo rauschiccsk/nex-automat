@@ -192,7 +192,7 @@ class InvoiceItemsWindow(BaseWindow):
         self.model.blockSignals(False)
 
     def _populate_model(self):
-        self.model.blockSignals(True)
+        self.model.layoutAboutToBeChanged.emit()
         self.model.removeRows(0, self.model.rowCount())
 
         for row_data in self._filtered_data:
@@ -206,7 +206,7 @@ class InvoiceItemsWindow(BaseWindow):
                 row_items.append(item)
             self.model.appendRow(row_items)
 
-        self.model.blockSignals(False)
+        self.model.layoutChanged.emit()
         self._update_status()
 
     def _update_status(self, extra: str = ""):

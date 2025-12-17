@@ -46,6 +46,7 @@ class QuickSearchEdit(QLineEdit):
         self.setStyleSheet("""
             QLineEdit {
                 background-color: #90EE90;
+                color: #000000;
                 border: 1px solid #228B22;
                 padding: 2px 4px;
                 font-size: 12px;
@@ -223,28 +224,44 @@ class QuickSearchController(QObject):
         return super().eventFilter(obj, event)
 
     def _change_column(self, direction: int) -> None:
-        """Change search column."""
+        """Change search column using visual order."""
         model = self._table_view.model()
         if not model:
             return
 
-        new_column = self._active_column + direction
+        header = self._table_view.horizontalHeader()
+        col_count = model.columnCount()
+
+        # Get current visual index from logical index
+        current_visual = header.visualIndex(self._active_column)
+
+        # Move in visual order
+        new_visual = current_visual + direction
 
         # Wrap around
-        if new_column < 0:
-            new_column = model.columnCount() - 1
-        elif new_column >= model.columnCount():
-            new_column = 0
+        if new_visual < 0:
+            new_visual = col_count - 1
+        elif new_visual >= col_count:
+            new_visual = 0
 
-        # Skip hidden columns
-        while self._table_view.isColumnHidden(new_column):
-            new_column += direction
-            if new_column < 0:
-                new_column = model.columnCount() - 1
-            elif new_column >= model.columnCount():
-                new_column = 0
+        # Convert visual to logical index
+        new_logical = header.logicalIndex(new_visual)
 
-        self.set_active_column(new_column)
+        # Skip hidden columns (in visual order)
+        attempts = 0
+        while self._table_view.isColumnHidden(new_logical) and attempts < col_count:
+            new_visual += direction
+            if new_visual < 0:
+                new_visual = col_count - 1
+            elif new_visual >= col_count:
+                new_visual = 0
+            new_logical = header.logicalIndex(new_visual)
+            attempts += 1
+
+        # Clear search text when changing column
+        self._search_container.search_edit.clear()
+
+        self.set_active_column(new_logical)
 
     def _change_row(self, direction: int) -> None:
         """Move to next/previous row."""
@@ -326,7 +343,16 @@ class QuickSearchController(QObject):
         if self._header:
             self._header.set_active_column(column)
 
+        # Auto-sort by new active column (ascending)
+        self._sort_by_column(column)
+
         self.active_column_changed.emit(column)
+
+    def _sort_by_column(self, column: int) -> None:
+        """Sort table by column ascending."""
+        model = self._table_view.model()
+        if model and hasattr(model, 'sort'):
+            model.sort(column, Qt.SortOrder.AscendingOrder)
 
     def set_column(self, column: int) -> None:
         """Alias for set_active_column."""

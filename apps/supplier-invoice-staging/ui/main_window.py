@@ -91,8 +91,11 @@ class MainWindow(BaseWindow):
             self.grid.header  # GreenHeaderView
         )
 
-        # Set initial column (skip hidden ID column)
-        self.search_controller.set_active_column(1)
+        # Load saved column or default to 1 (skip hidden ID column)
+        saved_column = self.grid.get_active_column()
+        if saved_column == 0:  # ID column is hidden, use default
+            saved_column = 1
+        self.search_controller.set_active_column(saved_column)
 
     def _setup_menu(self):
         menubar = self.menuBar()
@@ -122,6 +125,8 @@ class MainWindow(BaseWindow):
         if 0 <= column < len(self.COLUMNS):
             col_name = self.COLUMNS[column][1]
             self.status_label.setText(f"Vyhladavanie v: {col_name}")
+            # Save active column to grid settings
+            self.grid.set_active_column(column)
 
     @Slot(int)
     def _on_row_selected(self, row: int):
@@ -158,14 +163,32 @@ class MainWindow(BaseWindow):
         if invoice_id in self._items_windows:
             del self._items_windows[invoice_id]
 
+    # Columns that should be right-aligned and formatted as decimals
+    NUMERIC_COLUMNS = {"total_amount", "match_percent"}
+
     def _populate_model(self):
         self.model.removeRows(0, self.model.rowCount())
         for row_data in self._filtered_data:
             row_items = []
             for col_key, _, _, _ in self.COLUMNS:
                 value = row_data.get(col_key, "")
-                item = QStandardItem(str(value) if value is not None else "")
+
+                # Format numeric columns
+                if col_key in self.NUMERIC_COLUMNS and value is not None:
+                    try:
+                        text = f"{float(value):.2f}"
+                    except (ValueError, TypeError):
+                        text = str(value) if value is not None else ""
+                else:
+                    text = str(value) if value is not None else ""
+
+                item = QStandardItem(text)
                 item.setEditable(False)
+
+                # Right-align numeric columns
+                if col_key in self.NUMERIC_COLUMNS:
+                    item.setTextAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
+
                 row_items.append(item)
             self.model.appendRow(row_items)
         self.title_label.setText(f"Faktury ({len(self._filtered_data)})")
