@@ -1,0 +1,9 @@
+database:
+  host: localhost
+  port: 5432
+  database: supplier_invoice_staging
+  user: postgres
+
+ui:
+  default_margin_percent: 25.0
+  default_vat_rate: 20.0

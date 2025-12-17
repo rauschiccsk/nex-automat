@@ -1,333 +1,270 @@
-#!/usr/bin/env python
 """
-New Chat Script - Creates session archive, updates index, generates init prompt.
-Run after completing a session to prepare for next chat.
+New Chat Script - Creates session archive, updates index, generates init prompt
+Run from: C:/Development/nex-automat
 """
 import subprocess
-from datetime import datetime
 from pathlib import Path
+from datetime import datetime
 
-BASE_DIR = Path(r"C:\Development\nex-automat")
-ARCHIVE_DIR = BASE_DIR / "docs" / "archive" / "sessions"
-INIT_CHAT_DIR = BASE_DIR / "init_chat"
+PROJECT_ROOT = Path("C:/Development/nex-automat")
+ARCHIVE_DIR = PROJECT_ROOT / "docs/archive/sessions"
+ARCHIVE_INDEX = PROJECT_ROOT / "docs/archive/00_ARCHIVE_INDEX.md"
+INIT_PROMPT_PATH = PROJECT_ROOT / "INIT_PROMPT_NEW_CHAT.md"
 
+SESSION_NAME = "supplier-invoice-staging-app-created"
+SESSION_DATE = datetime.now().strftime("%Y-%m-%d")
+SESSION_FILENAME = f"SESSION_{SESSION_DATE}_{SESSION_NAME}.md"
 
-def create_file(path: Path, content: str) -> None:
-    """Create file with content."""
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(content, encoding="utf-8")
-    print(f"✅ Created: {path.relative_to(BASE_DIR)}")
-
-
-def update_archive_index(session_filename: str, session_title: str) -> None:
-    """Update 00_ARCHIVE_INDEX.md with new session."""
-    index_path = BASE_DIR / "docs" / "archive" / "00_ARCHIVE_INDEX.md"
-
-    if not index_path.exists():
-        print(f"⚠️ Archive index not found: {index_path}")
-        return
-
-    content = index_path.read_text(encoding="utf-8")
-
-    # Find insertion point (after "## Sessions" or similar header)
-    new_entry = f"- [{session_filename}](sessions/{session_filename}) - {session_title}\n"
-
-    # Insert after first "## " section that contains "Session" or "2025"
-    lines = content.split("\n")
-    inserted = False
-    for i, line in enumerate(lines):
-        if line.startswith("## ") and "2025" in line:
-            # Insert after this line
-            lines.insert(i + 1, new_entry.strip())
-            inserted = True
-            break
-
-    if not inserted:
-        # Append to end
-        lines.append(new_entry.strip())
-
-    index_path.write_text("\n".join(lines), encoding="utf-8")
-    print(f"✅ Updated: docs/archive/00_ARCHIVE_INDEX.md")
-
-
-def run_scripts() -> None:
-    """Run generate_projects_access.py and rag_reindex.py."""
-    print("\n📦 Running additional scripts...")
-
-    # Generate projects access
-    try:
-        subprocess.run(
-            ["python", "tools/generate_projects_access.py"],
-            cwd=BASE_DIR,
-            check=True
-        )
-        print("✅ generate_projects_access.py completed")
-    except subprocess.CalledProcessError as e:
-        print(f"⚠️ generate_projects_access.py failed: {e}")
-    except FileNotFoundError:
-        print("⚠️ generate_projects_access.py not found")
-
-    # RAG reindex
-    try:
-        subprocess.run(
-            ["python", "tools/rag/rag_reindex.py", "--new"],
-            cwd=BASE_DIR,
-            check=True
-        )
-        print("✅ rag_reindex.py --new completed")
-    except subprocess.CalledProcessError as e:
-        print(f"⚠️ rag_reindex.py failed: {e}")
-    except FileNotFoundError:
-        print("⚠️ rag_reindex.py not found")
-
-
-def main():
-    today = datetime.now().strftime("%Y-%m-%d")
-    session_name = "shared-pyside6-package-complete"
-    session_filename = f"SESSION_{today}_{session_name}.md"
-    session_title = "shared-pyside6 Package Implementation Complete"
-
-    print("=" * 60)
-    print("NEW CHAT - Session Closure")
-    print("=" * 60)
-
-    # === 1. Create SESSION archive ===
-    session_content = f'''# SESSION: shared-pyside6 Package Implementation
-
-**Dátum:** {today}  
-**Projekt:** nex-automat  
-**Úloha:** PySide6 Migration - Create shared-pyside6 package  
-**Developer:** Zoltán  
-**Status:** ✅ COMPLETE
+# =============================================================================
+# SESSION CONTENT
+# =============================================================================
+SESSION_CONTENT = f"""# Session: {SESSION_NAME}
+**Date:** {SESSION_DATE}
+**Status:** COMPLETE
 
 ---
 
-## ✅ DOKONČENÉ V TEJTO SESSION
+## Summary
 
-### 1. Package Setup (Fáza 1)
-- Vytvorená štruktúra `packages/shared-pyside6/`
-- pyproject.toml s dependencies (PySide6, openpyxl, asyncpg)
-- README.md dokumentácia
-
-### 2. BaseWindow (Fáza 2)
-- `SettingsRepository` - SQLite persistence pre window/grid settings
-- `BaseWindow(QMainWindow)` - window persistence (position, size, maximize)
-- Multi-user support cez user_id parameter
-- 6 testov passed
-
-### 3. BaseGrid (Fáza 3-4)
-- `GreenHeaderView` - zelené zvýraznenie aktívneho stĺpca
-- `BaseGrid(QWidget)` - kompletná grid funkcionalita:
-  - Column widths persistence
-  - Column order (drag & drop)
-  - Column visibility (show/hide)
-  - Custom headers (premenovanie)
-  - Row cursor memory (zapamätanie pozície podľa ID)
-  - Export CSV/Excel
-  - Context menu
-- 9 testov passed
-
-### 4. QuickSearch (Fáza 5)
-- `text_utils` - remove_diacritics, normalize_for_search
-- `QuickSearchEdit` - zelený input s keyboard navigation
-- `QuickSearchContainer` - poziciovanie pod aktívnym stĺpcom
-- `QuickSearchController` - search logika, diacritic-insensitive
-- 11 testov passed
-
-### 5. Dokumentácia
-- PYSIDE6_MIGRATION.md aktualizovaný na v2.1
-- COLLABORATION_RULES.md aktualizovaný na v1.6 (pravidlá #23, #24)
+Vytvorenie novej PySide6 aplikacie **supplier-invoice-staging** od nuly s pouzitim shared-pyside6 package.
 
 ---
 
-## 📊 ŠTATISTIKY
+## Completed
 
-| Metrika | Hodnota |
-|---------|---------|
-| Fázy dokončené | 5/5 |
-| Testy | 29 passed |
-| Súbory vytvorené | 15+ |
-| Odhadovaný čas | 23h |
-| Skutočný čas | ~4h |
+### 1. Database Schema
+- Nova PostgreSQL databaza `supplier_invoice_staging`
+- Tabulky: `invoices` (hlavicky), `invoice_items` (polozky)
+- Triggery pre auto-update timestamp a vypocet predajnej ceny z marze
+- View `v_invoice_summary` pre GUI
 
----
-
-## 📁 VYTVORENÉ SÚBORY
-
+### 2. Application Structure
 ```
-packages/shared-pyside6/
-├── pyproject.toml
-├── README.md
-├── shared_pyside6/
-│   ├── __init__.py
-│   ├── ui/
-│   │   ├── __init__.py
-│   │   ├── base_window.py
-│   │   ├── base_grid.py
-│   │   └── quick_search.py
-│   ├── database/
-│   │   ├── __init__.py
-│   │   └── settings_repository.py
-│   └── utils/
-│       ├── __init__.py
-│       └── text_utils.py
-└── tests/
-    ├── __init__.py
-    ├── test_imports.py
-    ├── test_base_window.py
-    ├── test_base_grid.py
-    └── test_quick_search.py
+apps/supplier-invoice-staging/
+├── app.py                      # Entry point
+├── config/
+│   ├── settings.py             # Configuration (DB, defaults)
+│   └── config.yaml             # YAML config
+├── database/
+│   └── schemas/
+│       └── 001_staging_schema.sql
+├── ui/
+│   ├── main_window.py          # Invoice list (hlavne okno)
+│   └── invoice_items_window.py # Items (samostatne okno)
+└── data/
+    └── settings.db             # Grid/window persistence
 ```
 
----
+### 3. Features Implemented
+- **MainWindow**: Zoznam faktur s QuickSearch
+- **InvoiceItemsWindow**: Samostatne okno pre polozky (otvorenie dvojklikom/Enter)
+- **QuickSearch integration**: Editor pod aktivnym stlpcom, sipky menia stlpec
+- **BaseGrid**: Column persistence (sirky, poradie), GreenHeaderView
+- **BaseWindow**: Window position/size persistence
+- **Editable cells**: Marza % a PC - vzajomny prepocet
 
-## 🔧 WORKFLOW VYLEPŠENIA
-
-### Nové pravidlo #24: RAG Access Protocol
-- Keď Claude potrebuje RAG, priamo požiada o Permission URL
-- Bez zbytočného pokusu o fetch ktorý zlyhá
-
-### Aktualizované pravidlo #20: nový chat
-- 2 artifacts: new_chat.py + commit-message.txt
-- Script automatizuje: SESSION, ARCHIVE_INDEX, INIT_PROMPT, scripts
-
----
-
-## 🎯 NEXT SESSION PRIORITIES
-
-### Priority #1: supplier-invoice-staging aplikácia
-- Nová aplikácia od nuly s PySide6
-- Použiť shared-pyside6 package
-- Implementovať základné UI
-
-### Priority #2: Integrácia QuickSearch do BaseGrid
-- Automatický setup v BaseGrid.__init__
-- Prepojenie s GreenHeaderView
-
-### Priority #3: ColumnChooserDialog
-- UI dialóg pre výber viditeľných stĺpcov
-- Drag & drop pre poradie
+### 4. Scripts Created
+- `01_create_app_structure.py` - Zakladna struktura
+- `02_fix_and_add_schema.py` - DB schema
+- `03_recreate_schema.py` - Oprava encoding
+- `04_create_app_files.py` - Vsetky Python subory
+- `05_fix_main_window.py` - BaseWindow API fix
+- `06_fix_widgets.py` - QuickSearchEdit API fix
+- `07_fix_widgets_with_model.py` - QStandardItemModel
+- `08_refactor_to_separate_windows.py` - Oddelene okna
+- `09_add_quicksearch_to_grids.py` - QuickSearch integration
 
 ---
 
-**Token Budget:** ~88,000 / 190,000  
-**Status:** ✅ SUCCESS - Package Complete
-'''
+## Technical Notes
 
-    create_file(ARCHIVE_DIR / session_filename, session_content)
-
-    # === 2. Update Archive Index ===
-    update_archive_index(session_filename, session_title)
-
-    # === 3. Create INIT_PROMPT_NEW_CHAT.md ===
-    init_prompt_content = f'''# INIT PROMPT - NEX Automat Project
-
-**Projekt:** nex-automat  
-**Current Status:** shared-pyside6 Package COMPLETE ✅  
-**Developer:** Zoltán (40 rokov skúseností)  
-**Jazyk:** Slovenčina  
-**Previous Session:** shared-pyside6 Package Complete ({today})
-
----
-
-## ⚠️ KRITICKÉ: COLLABORATION RULES
-
-**MUSÍŠ dodržiavať 24 pravidiel z memory_user_edits!**
-
-Kľúčové pravidlá:
-- **Rule #7:** CRITICAL artifacts pre všetky dokumenty/kód
-- **Rule #8:** Step-by-step, confirmation pred pokračovaním
-- **Rule #5:** Slovak language, presná terminológia projektov
-- **Rule #20:** "novy chat" = 2 artifacts (new_chat.py + commit-message.txt)
-- **Rule #24:** RAG Access - priamo požiadaj o Permission URL
-
----
-
-## ✅ DOKONČENÉ: shared-pyside6 Package
-
-### Package je pripravený na použitie:
+### BaseGrid API (shared-pyside6)
 ```python
-from shared_pyside6.ui import BaseWindow, BaseGrid, QuickSearchEdit
-from shared_pyside6.database import SettingsRepository
-from shared_pyside6.utils import normalize_for_search
+BaseGrid(window_name, grid_name, user_id, auto_load, parent)
+# Attributes: table_view, header (GreenHeaderView)
+# Methods: apply_model_and_load_settings()
+# Signals: row_selected, row_activated
 ```
 
-### Testy: 29 passed
+### QuickSearch Components
+- `QuickSearchContainer` - pozicionuje editor pod aktivny stlpec
+- `QuickSearchController` - search logika, klavesove skratky
+- Integration: rucne v okne, nie automaticky v BaseGrid
+
+### Database
+- Name: `supplier_invoice_staging`
+- Tables: `invoices`, `invoice_items`
+- xml_* fields: immutable data from XML
+- margin_percent, selling_price_*: editable
+
+---
+
+## Next Steps
+
+1. **Connect to database** - nacitanie realnych dat z PostgreSQL
+2. **Test QuickSearch** - overit vsetky funkcie
+3. **Color coding** - farebne rozlisenie matched/unmatched
+4. **Save functionality** - ulozenie zmien do DB
+5. **Import XML** - import faktur z ISDOC/XML
+
+---
+
+## Related Documents
+- `docs/architecture/database/accounting/tables/ISH-supplier_invoice_heads.md`
+- `docs/architecture/database/accounting/tables/ISI-supplier_invoice_items.md`
+- `packages/shared-pyside6/` - PySide6 shared components
+
+---
+
+**End of session**
+"""
+
+# =============================================================================
+# INIT PROMPT CONTENT
+# =============================================================================
+INIT_PROMPT_CONTENT = f"""# INIT PROMPT - NEX Automat Project
+
+**Projekt:** nex-automat
+**Current Status:** supplier-invoice-staging App CREATED
+**Developer:** Zoltan (40 rokov skusenosti)
+**Jazyk:** Slovencina
+**Previous Session:** {SESSION_NAME} ({SESSION_DATE})
+
+---
+
+## KRITICKE: COLLABORATION RULES
+
+**MUSIS dodrzovat 24 pravidiel z memory_user_edits!**
+
+Klucove pravidla:
+- **Rule #7:** CRITICAL artifacts pre vsetky dokumenty/kod
+- **Rule #8:** Step-by-step, confirmation pred pokracovanim
+- **Rule #5:** Slovak language, presna terminologia projektov
+- **Rule #20:** "novy chat" = 2 artifacts (new_chat.py + commit-message.txt)
+- **Rule #24:** RAG Access - priamo poziadaj o Permission URL
+
+---
+
+## DOKONCENE: supplier-invoice-staging App
+
+### Aplikacia je pripravena na testovanie:
 ```powershell
-cd packages/shared-pyside6
-python -m pytest tests/ -v
+cd apps/supplier-invoice-staging
+python app.py
 ```
 
 ### Features:
-- BaseWindow - window persistence
-- BaseGrid - column widths/order/visibility, custom headers, cursor memory, export
-- QuickSearch - NEX Genesis style, diacritic-insensitive
+- MainWindow - zoznam faktur s QuickSearch
+- InvoiceItemsWindow - polozky v samostatnom okne (dvojklik/Enter)
+- QuickSearch pod aktivnym stlpcom (sipky menia stlpec)
+- BaseGrid - column persistence, GreenHeaderView
+- Editable margin/selling price s prepoctom
+
+### Database:
+- PostgreSQL: `supplier_invoice_staging`
+- Tables: `invoices`, `invoice_items`
+- Triggers pre auto-vypocet cien
 
 ---
 
-## 🎯 IMMEDIATE NEXT STEPS
+## IMMEDIATE NEXT STEPS
 
-### Priority #1: supplier-invoice-staging aplikácia
-- Nová PySide6 aplikácia od nuly
-- Použiť shared-pyside6 package
-- Základné UI pre staging invoices
+### Priority #1: Testovanie QuickSearch
+- Overit vsetky funkcie (sipky, vyhladavanie, beep)
+- Testovat column persistence
 
-### Priority #2: QuickSearch integrácia
-- Automatický setup v BaseGrid
-- Prepojenie s GreenHeaderView
+### Priority #2: Connect to Database
+- Nacitanie realnych faktur z PostgreSQL
+- Repository pattern pre CRUD operacie
+
+### Priority #3: Color Coding
+- Farebne rozlisenie matched/unmatched poloziek
+- Zelena = matched, cervena = unmatched
 
 ---
 
-## 📂 PROJECT STRUCTURE
+## PROJECT STRUCTURE
 
 ```
-packages/
-├── nex-shared/              # PyQt5 (legacy)
-└── shared-pyside6/          # PySide6 (NEW ✅)
-    ├── shared_pyside6/
-    │   ├── ui/              # BaseWindow, BaseGrid, QuickSearch
-    │   ├── database/        # SettingsRepository
-    │   └── utils/           # text_utils
-    └── tests/               # 29 tests
+apps/supplier-invoice-staging/
+├── app.py
+├── config/settings.py, config.yaml
+├── database/schemas/001_staging_schema.sql
+├── ui/main_window.py, invoice_items_window.py
+└── data/settings.db
+
+packages/shared-pyside6/
+├── ui/base_window.py, base_grid.py, quick_search.py
+├── database/settings_repository.py
+└── utils/text_utils.py
 ```
 
 ---
 
-## 🔍 RAG ACCESS
+## RAG ACCESS
 
-Keď potrebuješ info z RAG, priamo požiadaj o Permission URL:
+Ked potrebujes info z RAG, priamo poziadaj o Permission URL:
 ```
 https://rag-api.icc.sk/search?query=...&limit=N
 ```
 
 ---
 
-**Token Budget:** 190,000  
-**Location:** C:\\Development\\nex-automat  
-**Status:** 🟢 READY - shared-pyside6 Complete
+**Token Budget:** 190,000
+**Location:** C:\\Development\\nex-automat
+**Status:** READY - Testing Phase
 
 ---
 
 **KONIEC INIT PROMPTU**
-'''
+"""
 
-    create_file(INIT_CHAT_DIR / "INIT_PROMPT_NEW_CHAT.md", init_prompt_content)
 
-    # === 4. Run additional scripts ===
-    run_scripts()
+# =============================================================================
+# MAIN
+# =============================================================================
+def main():
+    # 1. Create session file
+    ARCHIVE_DIR.mkdir(parents=True, exist_ok=True)
+    session_path = ARCHIVE_DIR / SESSION_FILENAME
+    session_path.write_text(SESSION_CONTENT, encoding="utf-8")
+    print(f"[SESSION] {session_path}")
 
-    print()
-    print("=" * 60)
-    print("✅ NEW CHAT preparation complete!")
-    print("=" * 60)
-    print()
-    print("Files created:")
-    print(f"  - docs/archive/sessions/{session_filename}")
-    print(f"  - docs/archive/00_ARCHIVE_INDEX.md (updated)")
-    print(f"  - init_chat/INIT_PROMPT_NEW_CHAT.md")
-    print()
-    print("Next: Review and commit changes")
-    print()
+    # 2. Update archive index
+    if ARCHIVE_INDEX.exists():
+        index_content = ARCHIVE_INDEX.read_text(encoding="utf-8")
+        # Find insertion point (after header, before first entry)
+        new_entry = f"| {SESSION_DATE} | [{SESSION_NAME}](sessions/{SESSION_FILENAME}) | supplier-invoice-staging app created |"
+
+        if new_entry not in index_content:
+            # Insert after table header
+            lines = index_content.split("\n")
+            for i, line in enumerate(lines):
+                if line.startswith("|---"):
+                    lines.insert(i + 1, new_entry)
+                    break
+            ARCHIVE_INDEX.write_text("\n".join(lines), encoding="utf-8")
+            print(f"[INDEX] Updated {ARCHIVE_INDEX}")
+
+    # 3. Create init prompt
+    INIT_PROMPT_PATH.write_text(INIT_PROMPT_CONTENT, encoding="utf-8")
+    print(f"[INIT] {INIT_PROMPT_PATH}")
+
+    # 4. Run generate_projects_access.py if exists
+    gen_script = PROJECT_ROOT / "tools/rag/generate_projects_access.py"
+    if gen_script.exists():
+        print("[RAG] Running generate_projects_access.py...")
+        subprocess.run(["python", str(gen_script)], cwd=PROJECT_ROOT)
+
+    # 5. Run rag_reindex.py --new if exists
+    reindex_script = PROJECT_ROOT / "tools/rag/rag_reindex.py"
+    if reindex_script.exists():
+        print("[RAG] Running rag_reindex.py --new...")
+        subprocess.run(["python", str(reindex_script), "--new"], cwd=PROJECT_ROOT)
+
+    print("\n" + "=" * 50)
+    print("DONE! Ready for new chat.")
+    print("=" * 50)
 
 
 if __name__ == "__main__":
