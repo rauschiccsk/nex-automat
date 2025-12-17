@@ -2,17 +2,17 @@
   "name": "documentation",
   "type": "docs",
   "location": "docs",
-  "generated": "2025-12-17T09:40:53.511960",
+  "generated": "2025-12-17T15:08:20.498005",
   "description": "Komplexná dokumentácia NEX Automat projektu",
   "statistics": {
-    "total_files": 144,
-    "total_dirs": 41,
+    "total_files": 300,
+    "total_dirs": 43,
     "python_files": 0,
     "powershell_files": 0,
-    "markdown_files": 138,
+    "markdown_files": 294,
     "test_files": 0,
-    "total_lines": 41831,
-    "total_size": 1375598
+    "total_lines": 51975,
+    "total_size": 1563543
   },
   "files": [
     {
@@ -700,6 +700,1401 @@
       "type": "documentation"
     },
     {
+      "path": "docs/code/apps_supplier-invoice-editor_cleanup_backups.md",
+      "name": "apps_supplier-invoice-editor_cleanup_backups.md",
+      "size": 396,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_cleanup_backups.md",
+      "lines": 28,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/apps_supplier-invoice-editor_cleanup_project.md",
+      "name": "apps_supplier-invoice-editor_cleanup_project.md",
+      "size": 595,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_cleanup_project.md",
+      "lines": 37,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/apps_supplier-invoice-editor_main.md",
+      "name": "apps_supplier-invoice-editor_main.md",
+      "size": 276,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_main.md",
+      "lines": 21,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/apps_supplier-invoice-editor_scripts_apply_xml_import_changes.md",
+      "name": "apps_supplier-invoice-editor_scripts_apply_xml_import_changes.md",
+      "size": 749,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_scripts_apply_xml_import_changes.md",
+      "lines": 34,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/apps_supplier-invoice-editor_scripts_check_database_tables.md",
+      "name": "apps_supplier-invoice-editor_scripts_check_database_tables.md",
+      "size": 240,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_scripts_check_database_tables.md",
+      "lines": 13,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/apps_supplier-invoice-editor_scripts_debug_gscat_barcode.md",
+      "name": "apps_supplier-invoice-editor_scripts_debug_gscat_barcode.md",
+      "size": 517,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_scripts_debug_gscat_barcode.md",
+      "lines": 33,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/apps_supplier-invoice-editor_scripts_debug_import_config.md",
+      "name": "apps_supplier-invoice-editor_scripts_debug_import_config.md",
+      "size": 221,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_scripts_debug_import_config.md",
+      "lines": 13,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/apps_supplier-invoice-editor_scripts_generate_project_access.md",
+      "name": "apps_supplier-invoice-editor_scripts_generate_project_access.md",
+      "size": 1017,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_scripts_generate_project_access.md",
+      "lines": 55,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/apps_supplier-invoice-editor_scripts_import_xml_to_staging.md",
+      "name": "apps_supplier-invoice-editor_scripts_import_xml_to_staging.md",
+      "size": 677,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_scripts_import_xml_to_staging.md",
+      "lines": 40,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/apps_supplier-invoice-editor_scripts_insert_test_data.md",
+      "name": "apps_supplier-invoice-editor_scripts_insert_test_data.md",
+      "size": 531,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_scripts_insert_test_data.md",
+      "lines": 39,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/apps_supplier-invoice-editor_scripts_load_invoice_xml.md",
+      "name": "apps_supplier-invoice-editor_scripts_load_invoice_xml.md",
+      "size": 1017,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_scripts_load_invoice_xml.md",
+      "lines": 70,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/apps_supplier-invoice-editor_scripts_patch_postgres_client.md",
+      "name": "apps_supplier-invoice-editor_scripts_patch_postgres_client.md",
+      "size": 247,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_scripts_patch_postgres_client.md",
+      "lines": 13,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/apps_supplier-invoice-editor_scripts_replace_import_xml.md",
+      "name": "apps_supplier-invoice-editor_scripts_replace_import_xml.md",
+      "size": 260,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_scripts_replace_import_xml.md",
+      "lines": 13,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/apps_supplier-invoice-editor_scripts_show_table_structure.md",
+      "name": "apps_supplier-invoice-editor_scripts_show_table_structure.md",
+      "size": 223,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_scripts_show_table_structure.md",
+      "lines": 13,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/apps_supplier-invoice-editor_scripts_test_barcode_lookup.md",
+      "name": "apps_supplier-invoice-editor_scripts_test_barcode_lookup.md",
+      "size": 1644,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_scripts_test_barcode_lookup.md",
+      "lines": 84,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/apps_supplier-invoice-editor_scripts_test_pg8000_direct.md",
+      "name": "apps_supplier-invoice-editor_scripts_test_pg8000_direct.md",
+      "size": 219,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_scripts_test_pg8000_direct.md",
+      "lines": 13,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/apps_supplier-invoice-editor_scripts_verify_database.md",
+      "name": "apps_supplier-invoice-editor_scripts_verify_database.md",
+      "size": 575,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_scripts_verify_database.md",
+      "lines": 45,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/apps_supplier-invoice-editor_src___init__.md",
+      "name": "apps_supplier-invoice-editor_src___init__.md",
+      "size": 308,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_src___init__.md",
+      "lines": 15,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/apps_supplier-invoice-editor_src_btrieve___init__.md",
+      "name": "apps_supplier-invoice-editor_src_btrieve___init__.md",
+      "size": 253,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_src_btrieve___init__.md",
+      "lines": 15,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/apps_supplier-invoice-editor_src_btrieve_btrieve_client.md",
+      "name": "apps_supplier-invoice-editor_src_btrieve_btrieve_client.md",
+      "size": 1088,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_src_btrieve_btrieve_client.md",
+      "lines": 68,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/apps_supplier-invoice-editor_src_business___init__.md",
+      "name": "apps_supplier-invoice-editor_src_business___init__.md",
+      "size": 241,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_src_business___init__.md",
+      "lines": 13,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/apps_supplier-invoice-editor_src_business_invoice_service.md",
+      "name": "apps_supplier-invoice-editor_src_business_invoice_service.md",
+      "size": 2583,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_src_business_invoice_service.md",
+      "lines": 118,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/apps_supplier-invoice-editor_src_business_nex_lookup_service.md",
+      "name": "apps_supplier-invoice-editor_src_business_nex_lookup_service.md",
+      "size": 1210,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_src_business_nex_lookup_service.md",
+      "lines": 65,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/apps_supplier-invoice-editor_src_config.md",
+      "name": "apps_supplier-invoice-editor_src_config.md",
+      "size": 697,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_src_config.md",
+      "lines": 42,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/apps_supplier-invoice-editor_src_database___init__.md",
+      "name": "apps_supplier-invoice-editor_src_database___init__.md",
+      "size": 235,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_src_database___init__.md",
+      "lines": 13,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/apps_supplier-invoice-editor_src_database_postgres_client.md",
+      "name": "apps_supplier-invoice-editor_src_database_postgres_client.md",
+      "size": 1693,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_src_database_postgres_client.md",
+      "lines": 88,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/apps_supplier-invoice-editor_src_database_postgres_client_pg8000.md",
+      "name": "apps_supplier-invoice-editor_src_database_postgres_client_pg8000.md",
+      "size": 1733,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_src_database_postgres_client_pg8000.md",
+      "lines": 88,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/apps_supplier-invoice-editor_src_models___init__.md",
+      "name": "apps_supplier-invoice-editor_src_models___init__.md",
+      "size": 255,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_src_models___init__.md",
+      "lines": 14,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/apps_supplier-invoice-editor_src_models_barcode.md",
+      "name": "apps_supplier-invoice-editor_src_models_barcode.md",
+      "size": 1955,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_src_models_barcode.md",
+      "lines": 95,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/apps_supplier-invoice-editor_src_models_gscat.md",
+      "name": "apps_supplier-invoice-editor_src_models_gscat.md",
+      "size": 2347,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_src_models_gscat.md",
+      "lines": 101,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/apps_supplier-invoice-editor_src_models_mglst.md",
+      "name": "apps_supplier-invoice-editor_src_models_mglst.md",
+      "size": 2357,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_src_models_mglst.md",
+      "lines": 104,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/apps_supplier-invoice-editor_src_models_pab.md",
+      "name": "apps_supplier-invoice-editor_src_models_pab.md",
+      "size": 2352,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_src_models_pab.md",
+      "lines": 96,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/apps_supplier-invoice-editor_src_ui___init__.md",
+      "name": "apps_supplier-invoice-editor_src_ui___init__.md",
+      "size": 215,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_src_ui___init__.md",
+      "lines": 13,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/apps_supplier-invoice-editor_src_ui_invoice_detail_window.md",
+      "name": "apps_supplier-invoice-editor_src_ui_invoice_detail_window.md",
+      "size": 979,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_src_ui_invoice_detail_window.md",
+      "lines": 61,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/apps_supplier-invoice-editor_src_ui_main_window.md",
+      "name": "apps_supplier-invoice-editor_src_ui_main_window.md",
+      "size": 1215,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_src_ui_main_window.md",
+      "lines": 78,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/apps_supplier-invoice-editor_src_ui_widgets___init__.md",
+      "name": "apps_supplier-invoice-editor_src_ui_widgets___init__.md",
+      "size": 204,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_src_ui_widgets___init__.md",
+      "lines": 13,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/apps_supplier-invoice-editor_src_ui_widgets_invoice_items_grid.md",
+      "name": "apps_supplier-invoice-editor_src_ui_widgets_invoice_items_grid.md",
+      "size": 1391,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_src_ui_widgets_invoice_items_grid.md",
+      "lines": 88,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/apps_supplier-invoice-editor_src_ui_widgets_invoice_list_widget.md",
+      "name": "apps_supplier-invoice-editor_src_ui_widgets_invoice_list_widget.md",
+      "size": 1740,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_src_ui_widgets_invoice_list_widget.md",
+      "lines": 100,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/apps_supplier-invoice-editor_src_ui_widgets_quick_search.md",
+      "name": "apps_supplier-invoice-editor_src_ui_widgets_quick_search.md",
+      "size": 2747,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_src_ui_widgets_quick_search.md",
+      "lines": 143,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/apps_supplier-invoice-editor_src_utils___init__.md",
+      "name": "apps_supplier-invoice-editor_src_utils___init__.md",
+      "size": 213,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_src_utils___init__.md",
+      "lines": 13,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/apps_supplier-invoice-editor_src_utils_config.md",
+      "name": "apps_supplier-invoice-editor_src_utils_config.md",
+      "size": 984,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_src_utils_config.md",
+      "lines": 67,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/apps_supplier-invoice-editor_src_utils_constants.md",
+      "name": "apps_supplier-invoice-editor_src_utils_constants.md",
+      "size": 372,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_src_utils_constants.md",
+      "lines": 16,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/apps_supplier-invoice-editor_src_utils_grid_settings.md",
+      "name": "apps_supplier-invoice-editor_src_utils_grid_settings.md",
+      "size": 2842,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_src_utils_grid_settings.md",
+      "lines": 107,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/apps_supplier-invoice-editor_src_utils_text_utils.md",
+      "name": "apps_supplier-invoice-editor_src_utils_text_utils.md",
+      "size": 1486,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_src_utils_text_utils.md",
+      "lines": 92,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/apps_supplier-invoice-editor_src_utils_window_settings.md",
+      "name": "apps_supplier-invoice-editor_src_utils_window_settings.md",
+      "size": 885,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_src_utils_window_settings.md",
+      "lines": 45,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/apps_supplier-invoice-editor_tests_conftest.md",
+      "name": "apps_supplier-invoice-editor_tests_conftest.md",
+      "size": 427,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_tests_conftest.md",
+      "lines": 33,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/apps_supplier-invoice-editor_tests_test_config.md",
+      "name": "apps_supplier-invoice-editor_tests_test_config.md",
+      "size": 472,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_tests_test_config.md",
+      "lines": 33,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/apps_supplier-invoice-editor_tests_test_database.md",
+      "name": "apps_supplier-invoice-editor_tests_test_database.md",
+      "size": 501,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_tests_test_database.md",
+      "lines": 33,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/apps_supplier-invoice-editor_tests_test_imports.md",
+      "name": "apps_supplier-invoice-editor_tests_test_imports.md",
+      "size": 572,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_tests_test_imports.md",
+      "lines": 39,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/apps_supplier-invoice-editor_tests_test_main.md",
+      "name": "apps_supplier-invoice-editor_tests_test_main.md",
+      "size": 510,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_tests_test_main.md",
+      "lines": 39,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/apps_supplier-invoice-loader_config_config_customer.md",
+      "name": "apps_supplier-invoice-loader_config_config_customer.md",
+      "size": 267,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-loader_config_config_customer.md",
+      "lines": 14,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/apps_supplier-invoice-loader_deploy_build_package.md",
+      "name": "apps_supplier-invoice-loader_deploy_build_package.md",
+      "size": 1797,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-loader_deploy_build_package.md",
+      "lines": 92,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/apps_supplier-invoice-loader_main.md",
+      "name": "apps_supplier-invoice-loader_main.md",
+      "size": 2435,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-loader_main.md",
+      "lines": 145,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/apps_supplier-invoice-loader_scripts_backup_config.md",
+      "name": "apps_supplier-invoice-loader_scripts_backup_config.md",
+      "size": 396,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-loader_scripts_backup_config.md",
+      "lines": 28,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/apps_supplier-invoice-loader_scripts_backup_database.md",
+      "name": "apps_supplier-invoice-loader_scripts_backup_database.md",
+      "size": 700,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-loader_scripts_backup_database.md",
+      "lines": 35,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/apps_supplier-invoice-loader_scripts_backup_wrapper.md",
+      "name": "apps_supplier-invoice-loader_scripts_backup_wrapper.md",
+      "size": 580,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-loader_scripts_backup_wrapper.md",
+      "lines": 37,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/apps_supplier-invoice-loader_scripts_clear_test_data.md",
+      "name": "apps_supplier-invoice-loader_scripts_clear_test_data.md",
+      "size": 416,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-loader_scripts_clear_test_data.md",
+      "lines": 30,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/apps_supplier-invoice-loader_scripts_generate_project_access.md",
+      "name": "apps_supplier-invoice-loader_scripts_generate_project_access.md",
+      "size": 865,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-loader_scripts_generate_project_access.md",
+      "lines": 49,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/apps_supplier-invoice-loader_scripts_manual_test_batch_extraction.md",
+      "name": "apps_supplier-invoice-loader_scripts_manual_test_batch_extraction.md",
+      "size": 278,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-loader_scripts_manual_test_batch_extraction.md",
+      "lines": 13,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/apps_supplier-invoice-loader_scripts_manual_test_isdoc.md",
+      "name": "apps_supplier-invoice-loader_scripts_manual_test_isdoc.md",
+      "size": 232,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-loader_scripts_manual_test_isdoc.md",
+      "lines": 13,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/apps_supplier-invoice-loader_scripts_restore_database.md",
+      "name": "apps_supplier-invoice-loader_scripts_restore_database.md",
+      "size": 393,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-loader_scripts_restore_database.md",
+      "lines": 25,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/apps_supplier-invoice-loader_scripts_service_installer.md",
+      "name": "apps_supplier-invoice-loader_scripts_service_installer.md",
+      "size": 2474,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-loader_scripts_service_installer.md",
+      "lines": 130,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/apps_supplier-invoice-loader_scripts_test_invoice_integration.md",
+      "name": "apps_supplier-invoice-loader_scripts_test_invoice_integration.md",
+      "size": 1305,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-loader_scripts_test_invoice_integration.md",
+      "lines": 98,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/apps_supplier-invoice-loader_scripts_verify_installation.md",
+      "name": "apps_supplier-invoice-loader_scripts_verify_installation.md",
+      "size": 904,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-loader_scripts_verify_installation.md",
+      "lines": 70,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/apps_supplier-invoice-loader_src_api_models.md",
+      "name": "apps_supplier-invoice-loader_src_api_models.md",
+      "size": 473,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-loader_src_api_models.md",
+      "lines": 37,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/apps_supplier-invoice-loader_src_backup_config_backup.md",
+      "name": "apps_supplier-invoice-loader_src_backup_config_backup.md",
+      "size": 480,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-loader_src_backup_config_backup.md",
+      "lines": 33,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/apps_supplier-invoice-loader_src_backup_database_backup.md",
+      "name": "apps_supplier-invoice-loader_src_backup_database_backup.md",
+      "size": 2021,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-loader_src_backup_database_backup.md",
+      "lines": 97,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/apps_supplier-invoice-loader_src_backup_database_restore.md",
+      "name": "apps_supplier-invoice-loader_src_backup_database_restore.md",
+      "size": 1689,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-loader_src_backup_database_restore.md",
+      "lines": 92,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/apps_supplier-invoice-loader_src_business_isdoc_service.md",
+      "name": "apps_supplier-invoice-loader_src_business_isdoc_service.md",
+      "size": 2130,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-loader_src_business_isdoc_service.md",
+      "lines": 114,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/apps_supplier-invoice-loader_src_business_product_matcher.md",
+      "name": "apps_supplier-invoice-loader_src_business_product_matcher.md",
+      "size": 2514,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-loader_src_business_product_matcher.md",
+      "lines": 121,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/apps_supplier-invoice-loader_src_database_database.md",
+      "name": "apps_supplier-invoice-loader_src_database_database.md",
+      "size": 3359,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-loader_src_database_database.md",
+      "lines": 167,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/apps_supplier-invoice-loader_src_extractors_base_extractor.md",
+      "name": "apps_supplier-invoice-loader_src_extractors_base_extractor.md",
+      "size": 722,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-loader_src_extractors_base_extractor.md",
+      "lines": 40,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/apps_supplier-invoice-loader_src_extractors_generic_extractor.md",
+      "name": "apps_supplier-invoice-loader_src_extractors_generic_extractor.md",
+      "size": 942,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-loader_src_extractors_generic_extractor.md",
+      "lines": 50,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/apps_supplier-invoice-loader_src_extractors_ls_extractor.md",
+      "name": "apps_supplier-invoice-loader_src_extractors_ls_extractor.md",
+      "size": 1749,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-loader_src_extractors_ls_extractor.md",
+      "lines": 90,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/apps_supplier-invoice-loader_src_monitoring___init__.md",
+      "name": "apps_supplier-invoice-loader_src_monitoring___init__.md",
+      "size": 234,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-loader_src_monitoring___init__.md",
+      "lines": 13,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/apps_supplier-invoice-loader_src_monitoring_alert_manager.md",
+      "name": "apps_supplier-invoice-loader_src_monitoring_alert_manager.md",
+      "size": 3211,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-loader_src_monitoring_alert_manager.md",
+      "lines": 179,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/apps_supplier-invoice-loader_src_monitoring_health_monitor.md",
+      "name": "apps_supplier-invoice-loader_src_monitoring_health_monitor.md",
+      "size": 1560,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-loader_src_monitoring_health_monitor.md",
+      "lines": 107,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/apps_supplier-invoice-loader_src_monitoring_log_manager.md",
+      "name": "apps_supplier-invoice-loader_src_monitoring_log_manager.md",
+      "size": 2196,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-loader_src_monitoring_log_manager.md",
+      "lines": 137,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/apps_supplier-invoice-loader_src_utils_config.md",
+      "name": "apps_supplier-invoice-loader_src_utils_config.md",
+      "size": 369,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-loader_src_utils_config.md",
+      "lines": 25,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/apps_supplier-invoice-loader_src_utils_env_loader.md",
+      "name": "apps_supplier-invoice-loader_src_utils_env_loader.md",
+      "size": 621,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-loader_src_utils_env_loader.md",
+      "lines": 35,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/apps_supplier-invoice-loader_src_utils_monitoring.md",
+      "name": "apps_supplier-invoice-loader_src_utils_monitoring.md",
+      "size": 1088,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-loader_src_utils_monitoring.md",
+      "lines": 73,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/apps_supplier-invoice-loader_src_utils_notifications.md",
+      "name": "apps_supplier-invoice-loader_src_utils_notifications.md",
+      "size": 3305,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-loader_src_utils_notifications.md",
+      "lines": 150,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/apps_supplier-invoice-loader_tests_conftest.md",
+      "name": "apps_supplier-invoice-loader_tests_conftest.md",
+      "size": 1026,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-loader_tests_conftest.md",
+      "lines": 81,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/apps_supplier-invoice-loader_tests_unit_test_alert_manager.md",
+      "name": "apps_supplier-invoice-loader_tests_unit_test_alert_manager.md",
+      "size": 1196,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-loader_tests_unit_test_alert_manager.md",
+      "lines": 81,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/apps_supplier-invoice-loader_tests_unit_test_api.md",
+      "name": "apps_supplier-invoice-loader_tests_unit_test_api.md",
+      "size": 2419,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-loader_tests_unit_test_api.md",
+      "lines": 147,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/apps_supplier-invoice-loader_tests_unit_test_backup_database.md",
+      "name": "apps_supplier-invoice-loader_tests_unit_test_backup_database.md",
+      "size": 3525,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-loader_tests_unit_test_backup_database.md",
+      "lines": 176,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/apps_supplier-invoice-loader_tests_unit_test_config.md",
+      "name": "apps_supplier-invoice-loader_tests_unit_test_config.md",
+      "size": 1631,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-loader_tests_unit_test_config.md",
+      "lines": 99,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/apps_supplier-invoice-loader_tests_unit_test_health_monitor.md",
+      "name": "apps_supplier-invoice-loader_tests_unit_test_health_monitor.md",
+      "size": 813,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-loader_tests_unit_test_health_monitor.md",
+      "lines": 57,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/apps_supplier-invoice-loader_tests_unit_test_log_manager.md",
+      "name": "apps_supplier-invoice-loader_tests_unit_test_log_manager.md",
+      "size": 1520,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-loader_tests_unit_test_log_manager.md",
+      "lines": 105,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/apps_supplier-invoice-loader_tests_unit_test_monitoring.md",
+      "name": "apps_supplier-invoice-loader_tests_unit_test_monitoring.md",
+      "size": 2182,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-loader_tests_unit_test_monitoring.md",
+      "lines": 153,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/apps_supplier-invoice-loader_tests_unit_test_notifications.md",
+      "name": "apps_supplier-invoice-loader_tests_unit_test_notifications.md",
+      "size": 1866,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-loader_tests_unit_test_notifications.md",
+      "lines": 105,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/packages_nex-shared___init__.md",
+      "name": "packages_nex-shared___init__.md",
+      "size": 228,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/packages_nex-shared___init__.md",
+      "lines": 14,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/packages_nex-shared_database___init__.md",
+      "name": "packages_nex-shared_database___init__.md",
+      "size": 200,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/packages_nex-shared_database___init__.md",
+      "lines": 13,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/packages_nex-shared_database_postgres_staging.md",
+      "name": "packages_nex-shared_database_postgres_staging.md",
+      "size": 3229,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/packages_nex-shared_database_postgres_staging.md",
+      "lines": 139,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/packages_nex-shared_database_window_settings_db.md",
+      "name": "packages_nex-shared_database_window_settings_db.md",
+      "size": 1366,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/packages_nex-shared_database_window_settings_db.md",
+      "lines": 68,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/packages_nex-shared_setup.md",
+      "name": "packages_nex-shared_setup.md",
+      "size": 228,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/packages_nex-shared_setup.md",
+      "lines": 14,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/packages_nex-shared_ui___init__.md",
+      "name": "packages_nex-shared_ui___init__.md",
+      "size": 201,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/packages_nex-shared_ui___init__.md",
+      "lines": 13,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/packages_nex-shared_ui_base_grid.md",
+      "name": "packages_nex-shared_ui_base_grid.md",
+      "size": 3106,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/packages_nex-shared_ui_base_grid.md",
+      "lines": 131,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/packages_nex-shared_ui_base_window.md",
+      "name": "packages_nex-shared_ui_base_window.md",
+      "size": 2011,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/packages_nex-shared_ui_base_window.md",
+      "lines": 88,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/packages_nex-shared_ui_window_persistence.md",
+      "name": "packages_nex-shared_ui_window_persistence.md",
+      "size": 1533,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/packages_nex-shared_ui_window_persistence.md",
+      "lines": 77,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/packages_nex-shared_utils___init__.md",
+      "name": "packages_nex-shared_utils___init__.md",
+      "size": 194,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/packages_nex-shared_utils___init__.md",
+      "lines": 13,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/packages_nex-shared_utils_grid_settings.md",
+      "name": "packages_nex-shared_utils_grid_settings.md",
+      "size": 2829,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/packages_nex-shared_utils_grid_settings.md",
+      "lines": 107,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/packages_nex-shared_utils_text_utils.md",
+      "name": "packages_nex-shared_utils_text_utils.md",
+      "size": 537,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/packages_nex-shared_utils_text_utils.md",
+      "lines": 29,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/packages_nexdata_nexdata___init__.md",
+      "name": "packages_nexdata_nexdata___init__.md",
+      "size": 254,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/packages_nexdata_nexdata___init__.md",
+      "lines": 14,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/packages_nexdata_nexdata_btrieve_btrieve_client.md",
+      "name": "packages_nexdata_nexdata_btrieve_btrieve_client.md",
+      "size": 2369,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/packages_nexdata_nexdata_btrieve_btrieve_client.md",
+      "lines": 120,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/packages_nexdata_nexdata_models_barcode.md",
+      "name": "packages_nexdata_nexdata_models_barcode.md",
+      "size": 1947,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/packages_nexdata_nexdata_models_barcode.md",
+      "lines": 95,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/packages_nexdata_nexdata_models_gscat.md",
+      "name": "packages_nexdata_nexdata_models_gscat.md",
+      "size": 1210,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/packages_nexdata_nexdata_models_gscat.md",
+      "lines": 64,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/packages_nexdata_nexdata_models_mglst.md",
+      "name": "packages_nexdata_nexdata_models_mglst.md",
+      "size": 2349,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/packages_nexdata_nexdata_models_mglst.md",
+      "lines": 104,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/packages_nexdata_nexdata_models_pab.md",
+      "name": "packages_nexdata_nexdata_models_pab.md",
+      "size": 2344,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/packages_nexdata_nexdata_models_pab.md",
+      "lines": 96,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/packages_nexdata_nexdata_models_tsh.md",
+      "name": "packages_nexdata_nexdata_models_tsh.md",
+      "size": 2243,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/packages_nexdata_nexdata_models_tsh.md",
+      "lines": 85,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/packages_nexdata_nexdata_models_tsi.md",
+      "name": "packages_nexdata_nexdata_models_tsi.md",
+      "size": 2186,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/packages_nexdata_nexdata_models_tsi.md",
+      "lines": 88,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/packages_nexdata_nexdata_repositories___init__.md",
+      "name": "packages_nexdata_nexdata_repositories___init__.md",
+      "size": 205,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/packages_nexdata_nexdata_repositories___init__.md",
+      "lines": 13,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/packages_nexdata_nexdata_repositories_barcode_repository.md",
+      "name": "packages_nexdata_nexdata_repositories_barcode_repository.md",
+      "size": 1093,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/packages_nexdata_nexdata_repositories_barcode_repository.md",
+      "lines": 65,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/packages_nexdata_nexdata_repositories_base_repository.md",
+      "name": "packages_nexdata_nexdata_repositories_base_repository.md",
+      "size": 1835,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/packages_nexdata_nexdata_repositories_base_repository.md",
+      "lines": 112,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/packages_nexdata_nexdata_repositories_gscat_repository.md",
+      "name": "packages_nexdata_nexdata_repositories_gscat_repository.md",
+      "size": 1152,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/packages_nexdata_nexdata_repositories_gscat_repository.md",
+      "lines": 68,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/packages_nexdata_nexdata_repositories_mglst_repository.md",
+      "name": "packages_nexdata_nexdata_repositories_mglst_repository.md",
+      "size": 858,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/packages_nexdata_nexdata_repositories_mglst_repository.md",
+      "lines": 55,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/packages_nexdata_nexdata_repositories_pab_repository.md",
+      "name": "packages_nexdata_nexdata_repositories_pab_repository.md",
+      "size": 910,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/packages_nexdata_nexdata_repositories_pab_repository.md",
+      "lines": 62,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/packages_nexdata_nexdata_repositories_tsh_repository.md",
+      "name": "packages_nexdata_nexdata_repositories_tsh_repository.md",
+      "size": 1091,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/packages_nexdata_nexdata_repositories_tsh_repository.md",
+      "lines": 63,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/packages_nexdata_nexdata_repositories_tsi_repository.md",
+      "name": "packages_nexdata_nexdata_repositories_tsi_repository.md",
+      "size": 1169,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/packages_nexdata_nexdata_repositories_tsi_repository.md",
+      "lines": 64,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/tools_artifact-server.md",
+      "name": "tools_artifact-server.md",
+      "size": 1048,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/tools_artifact-server.md",
+      "lines": 78,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/tools_claude-chat-loader.md",
+      "name": "tools_claude-chat-loader.md",
+      "size": 865,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/tools_claude-chat-loader.md",
+      "lines": 52,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/tools_claude-hotkeys.md",
+      "name": "tools_claude-hotkeys.md",
+      "size": 866,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/tools_claude-hotkeys.md",
+      "lines": 62,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/tools_context-compressor.md",
+      "name": "tools_context-compressor.md",
+      "size": 889,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/tools_context-compressor.md",
+      "lines": 55,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/tools_installer.md",
+      "name": "tools_installer.md",
+      "size": 884,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/tools_installer.md",
+      "lines": 56,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/tools_rag___init__.md",
+      "name": "tools_rag___init__.md",
+      "size": 990,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/tools_rag___init__.md",
+      "lines": 37,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/tools_rag___main__.md",
+      "name": "tools_rag___main__.md",
+      "size": 548,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/tools_rag___main__.md",
+      "lines": 41,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/tools_rag_api.md",
+      "name": "tools_rag_api.md",
+      "size": 1469,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/tools_rag_api.md",
+      "lines": 96,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/tools_rag_chunker.md",
+      "name": "tools_rag_chunker.md",
+      "size": 1964,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/tools_rag_chunker.md",
+      "lines": 125,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/tools_rag_config.md",
+      "name": "tools_rag_config.md",
+      "size": 1286,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/tools_rag_config.md",
+      "lines": 90,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/tools_rag_database.md",
+      "name": "tools_rag_database.md",
+      "size": 2483,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/tools_rag_database.md",
+      "lines": 128,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/tools_rag_embeddings.md",
+      "name": "tools_rag_embeddings.md",
+      "size": 2007,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/tools_rag_embeddings.md",
+      "lines": 114,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/tools_rag_generate_code_docs.md",
+      "name": "tools_rag_generate_code_docs.md",
+      "size": 1277,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/tools_rag_generate_code_docs.md",
+      "lines": 68,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/tools_rag_hybrid_search.md",
+      "name": "tools_rag_hybrid_search.md",
+      "size": 1596,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/tools_rag_hybrid_search.md",
+      "lines": 87,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/tools_rag_indexer.md",
+      "name": "tools_rag_indexer.md",
+      "size": 2047,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/tools_rag_indexer.md",
+      "lines": 100,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/tools_rag_init_prompt_helper.md",
+      "name": "tools_rag_init_prompt_helper.md",
+      "size": 913,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/tools_rag_init_prompt_helper.md",
+      "lines": 50,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/tools_rag_rag_reindex.md",
+      "name": "tools_rag_rag_reindex.md",
+      "size": 1448,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/tools_rag_rag_reindex.md",
+      "lines": 77,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/tools_rag_search.md",
+      "name": "tools_rag_search.md",
+      "size": 2503,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/tools_rag_search.md",
+      "lines": 115,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/tools_rag_server.md",
+      "name": "tools_rag_server.md",
+      "size": 706,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/tools_rag_server.md",
+      "lines": 50,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/tools_rag_server_app.md",
+      "name": "tools_rag_server_app.md",
+      "size": 996,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/tools_rag_server_app.md",
+      "lines": 57,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/tools_session-notes-manager.md",
+      "name": "tools_session-notes-manager.md",
+      "size": 762,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/tools_session-notes-manager.md",
+      "lines": 52,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/tools_session_scripts_archive_20251121_221122_auto_deploy_service_scripts.md",
+      "name": "tools_session_scripts_archive_20251121_221122_auto_deploy_service_scripts.md",
+      "size": 432,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/tools_session_scripts_archive_20251121_221122_auto_deploy_service_scripts.md",
+      "lines": 26,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/tools_session_scripts_archive_20251121_221122_cleanup_session_scripts.md",
+      "name": "tools_session_scripts_archive_20251121_221122_cleanup_session_scripts.md",
+      "size": 607,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/tools_session_scripts_archive_20251121_221122_cleanup_session_scripts.md",
+      "lines": 38,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/tools_session_scripts_archive_20251121_221122_complete_deploy_to_production.md",
+      "name": "tools_session_scripts_archive_20251121_221122_complete_deploy_to_production.md",
+      "size": 375,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/tools_session_scripts_archive_20251121_221122_complete_deploy_to_production.md",
+      "lines": 20,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/tools_session_scripts_archive_20251121_221122_create_test_config.md",
+      "name": "tools_session_scripts_archive_20251121_221122_create_test_config.md",
+      "size": 556,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/tools_session_scripts_archive_20251121_221122_create_test_config.md",
+      "lines": 38,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/tools_session_scripts_archive_20251121_221122_deploy_config_tools.md",
+      "name": "tools_session_scripts_archive_20251121_221122_deploy_config_tools.md",
+      "size": 397,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/tools_session_scripts_archive_20251121_221122_deploy_config_tools.md",
+      "lines": 25,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/tools_session_scripts_archive_20251121_221122_final_config_fix.md",
+      "name": "tools_session_scripts_archive_20251121_221122_final_config_fix.md",
+      "size": 465,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/tools_session_scripts_archive_20251121_221122_final_config_fix.md",
+      "lines": 31,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/tools_session_scripts_archive_20251121_221122_fix_all_config_scripts.md",
+      "name": "tools_session_scripts_archive_20251121_221122_fix_all_config_scripts.md",
+      "size": 358,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/tools_session_scripts_archive_20251121_221122_fix_all_config_scripts.md",
+      "lines": 25,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/tools_session_scripts_archive_20251121_221122_fix_config_errors.md",
+      "name": "tools_session_scripts_archive_20251121_221122_fix_config_errors.md",
+      "size": 330,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/tools_session_scripts_archive_20251121_221122_fix_config_errors.md",
+      "lines": 25,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/tools_session_scripts_archive_20251121_221122_fix_env_vars_in_config.md",
+      "name": "tools_session_scripts_archive_20251121_221122_fix_env_vars_in_config.md",
+      "size": 386,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/tools_session_scripts_archive_20251121_221122_fix_env_vars_in_config.md",
+      "lines": 25,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/tools_session_scripts_archive_20251121_221122_fix_missing_os_import.md",
+      "name": "tools_session_scripts_archive_20251121_221122_fix_missing_os_import.md",
+      "size": 365,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/tools_session_scripts_archive_20251121_221122_fix_missing_os_import.md",
+      "lines": 25,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/tools_session_scripts_archive_20251121_221122_fix_validator_env_vars.md",
+      "name": "tools_session_scripts_archive_20251121_221122_fix_validator_env_vars.md",
+      "size": 412,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/tools_session_scripts_archive_20251121_221122_fix_validator_env_vars.md",
+      "lines": 25,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/tools_session_scripts_archive_20251121_221122_update_gitignore.md",
+      "name": "tools_session_scripts_archive_20251121_221122_update_gitignore.md",
+      "size": 363,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/tools_session_scripts_archive_20251121_221122_update_gitignore.md",
+      "lines": 21,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/tools_session_scripts_archive_20251121_221122_update_production_paths.md",
+      "name": "tools_session_scripts_archive_20251121_221122_update_production_paths.md",
+      "size": 484,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/tools_session_scripts_archive_20251121_221122_update_production_paths.md",
+      "lines": 32,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/tools_setup_create_venv.md",
+      "name": "tools_setup_create_venv.md",
+      "size": 855,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/tools_setup_create_venv.md",
+      "lines": 59,
+      "type": "documentation"
+    },
+    {
+      "path": "docs/code/tools_setup_install_fastapi_deps.md",
+      "name": "tools_setup_install_fastapi_deps.md",
+      "size": 325,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/tools_setup_install_fastapi_deps.md",
+      "lines": 21,
+      "type": "documentation"
+    },
+    {
       "path": "docs/database/00_DATABASE_INDEX.md",
       "name": "00_DATABASE_INDEX.md",
       "size": 4463,
@@ -975,6 +2370,15 @@
       "size": 12494,
       "extension": ".md-old",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/giudes/CONTRIBUTING.md-old"
+    },
+    {
+      "path": "docs/infrastructure/RAG_EXTERNAL_ACCESS.md",
+      "name": "RAG_EXTERNAL_ACCESS.md",
+      "size": 10462,
+      "extension": ".md",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/infrastructure/RAG_EXTERNAL_ACCESS.md",
+      "lines": 389,
+      "type": "documentation"
     },
     {
       "path": "docs/migration/00_MIGRATION_INDEX.md",
@@ -1400,6 +2804,134 @@
       }
     ],
     "database": [
+      {
+        "name": "apps_supplier-invoice-editor_scripts_check_database_tables.md",
+        "path": "code/apps_supplier-invoice-editor_scripts_check_database_tables.md",
+        "full_path": "docs/code/apps_supplier-invoice-editor_scripts_check_database_tables.md",
+        "size": 240,
+        "lines": 13,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_scripts_check_database_tables.md"
+      },
+      {
+        "name": "apps_supplier-invoice-editor_scripts_verify_database.md",
+        "path": "code/apps_supplier-invoice-editor_scripts_verify_database.md",
+        "full_path": "docs/code/apps_supplier-invoice-editor_scripts_verify_database.md",
+        "size": 575,
+        "lines": 45,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_scripts_verify_database.md"
+      },
+      {
+        "name": "apps_supplier-invoice-editor_src_database_postgres_client.md",
+        "path": "code/apps_supplier-invoice-editor_src_database_postgres_client.md",
+        "full_path": "docs/code/apps_supplier-invoice-editor_src_database_postgres_client.md",
+        "size": 1693,
+        "lines": 88,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_src_database_postgres_client.md"
+      },
+      {
+        "name": "apps_supplier-invoice-editor_src_database_postgres_client_pg8000.md",
+        "path": "code/apps_supplier-invoice-editor_src_database_postgres_client_pg8000.md",
+        "full_path": "docs/code/apps_supplier-invoice-editor_src_database_postgres_client_pg8000.md",
+        "size": 1733,
+        "lines": 88,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_src_database_postgres_client_pg8000.md"
+      },
+      {
+        "name": "apps_supplier-invoice-editor_src_database___init__.md",
+        "path": "code/apps_supplier-invoice-editor_src_database___init__.md",
+        "full_path": "docs/code/apps_supplier-invoice-editor_src_database___init__.md",
+        "size": 235,
+        "lines": 13,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_src_database___init__.md"
+      },
+      {
+        "name": "apps_supplier-invoice-editor_tests_test_database.md",
+        "path": "code/apps_supplier-invoice-editor_tests_test_database.md",
+        "full_path": "docs/code/apps_supplier-invoice-editor_tests_test_database.md",
+        "size": 501,
+        "lines": 33,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_tests_test_database.md"
+      },
+      {
+        "name": "apps_supplier-invoice-loader_scripts_backup_database.md",
+        "path": "code/apps_supplier-invoice-loader_scripts_backup_database.md",
+        "full_path": "docs/code/apps_supplier-invoice-loader_scripts_backup_database.md",
+        "size": 700,
+        "lines": 35,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-loader_scripts_backup_database.md"
+      },
+      {
+        "name": "apps_supplier-invoice-loader_scripts_restore_database.md",
+        "path": "code/apps_supplier-invoice-loader_scripts_restore_database.md",
+        "full_path": "docs/code/apps_supplier-invoice-loader_scripts_restore_database.md",
+        "size": 393,
+        "lines": 25,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-loader_scripts_restore_database.md"
+      },
+      {
+        "name": "apps_supplier-invoice-loader_src_backup_database_backup.md",
+        "path": "code/apps_supplier-invoice-loader_src_backup_database_backup.md",
+        "full_path": "docs/code/apps_supplier-invoice-loader_src_backup_database_backup.md",
+        "size": 2021,
+        "lines": 97,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-loader_src_backup_database_backup.md"
+      },
+      {
+        "name": "apps_supplier-invoice-loader_src_backup_database_restore.md",
+        "path": "code/apps_supplier-invoice-loader_src_backup_database_restore.md",
+        "full_path": "docs/code/apps_supplier-invoice-loader_src_backup_database_restore.md",
+        "size": 1689,
+        "lines": 92,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-loader_src_backup_database_restore.md"
+      },
+      {
+        "name": "apps_supplier-invoice-loader_src_database_database.md",
+        "path": "code/apps_supplier-invoice-loader_src_database_database.md",
+        "full_path": "docs/code/apps_supplier-invoice-loader_src_database_database.md",
+        "size": 3359,
+        "lines": 167,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-loader_src_database_database.md"
+      },
+      {
+        "name": "apps_supplier-invoice-loader_tests_unit_test_backup_database.md",
+        "path": "code/apps_supplier-invoice-loader_tests_unit_test_backup_database.md",
+        "full_path": "docs/code/apps_supplier-invoice-loader_tests_unit_test_backup_database.md",
+        "size": 3525,
+        "lines": 176,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-loader_tests_unit_test_backup_database.md"
+      },
+      {
+        "name": "packages_nex-shared_database_postgres_staging.md",
+        "path": "code/packages_nex-shared_database_postgres_staging.md",
+        "full_path": "docs/code/packages_nex-shared_database_postgres_staging.md",
+        "size": 3229,
+        "lines": 139,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/packages_nex-shared_database_postgres_staging.md"
+      },
+      {
+        "name": "packages_nex-shared_database_window_settings_db.md",
+        "path": "code/packages_nex-shared_database_window_settings_db.md",
+        "full_path": "docs/code/packages_nex-shared_database_window_settings_db.md",
+        "size": 1366,
+        "lines": 68,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/packages_nex-shared_database_window_settings_db.md"
+      },
+      {
+        "name": "packages_nex-shared_database___init__.md",
+        "path": "code/packages_nex-shared_database___init__.md",
+        "full_path": "docs/code/packages_nex-shared_database___init__.md",
+        "size": 200,
+        "lines": 13,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/packages_nex-shared_database___init__.md"
+      },
+      {
+        "name": "tools_rag_database.md",
+        "path": "code/tools_rag_database.md",
+        "full_path": "docs/code/tools_rag_database.md",
+        "size": 2483,
+        "lines": 128,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/tools_rag_database.md"
+      },
       {
         "name": "00_DATABASE_INDEX.md",
         "path": "database/00_DATABASE_INDEX.md",
@@ -1829,6 +3361,38 @@
     ],
     "api": [
       {
+        "name": "apps_supplier-invoice-loader_src_api_models.md",
+        "path": "code/apps_supplier-invoice-loader_src_api_models.md",
+        "full_path": "docs/code/apps_supplier-invoice-loader_src_api_models.md",
+        "size": 473,
+        "lines": 37,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-loader_src_api_models.md"
+      },
+      {
+        "name": "apps_supplier-invoice-loader_tests_unit_test_api.md",
+        "path": "code/apps_supplier-invoice-loader_tests_unit_test_api.md",
+        "full_path": "docs/code/apps_supplier-invoice-loader_tests_unit_test_api.md",
+        "size": 2419,
+        "lines": 147,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-loader_tests_unit_test_api.md"
+      },
+      {
+        "name": "tools_rag_api.md",
+        "path": "code/tools_rag_api.md",
+        "full_path": "docs/code/tools_rag_api.md",
+        "size": 1469,
+        "lines": 96,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/tools_rag_api.md"
+      },
+      {
+        "name": "tools_setup_install_fastapi_deps.md",
+        "path": "code/tools_setup_install_fastapi_deps.md",
+        "full_path": "docs/code/tools_setup_install_fastapi_deps.md",
+        "size": 325,
+        "lines": 21,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/tools_setup_install_fastapi_deps.md"
+      },
+      {
         "name": "API_REFERENCE.md",
         "path": "reference/API_REFERENCE.md",
         "full_path": "docs/reference/API_REFERENCE.md",
@@ -1855,6 +3419,158 @@
     ],
     "testing": [
       {
+        "name": "apps_supplier-invoice-editor_scripts_insert_test_data.md",
+        "path": "code/apps_supplier-invoice-editor_scripts_insert_test_data.md",
+        "full_path": "docs/code/apps_supplier-invoice-editor_scripts_insert_test_data.md",
+        "size": 531,
+        "lines": 39,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_scripts_insert_test_data.md"
+      },
+      {
+        "name": "apps_supplier-invoice-editor_scripts_test_barcode_lookup.md",
+        "path": "code/apps_supplier-invoice-editor_scripts_test_barcode_lookup.md",
+        "full_path": "docs/code/apps_supplier-invoice-editor_scripts_test_barcode_lookup.md",
+        "size": 1644,
+        "lines": 84,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_scripts_test_barcode_lookup.md"
+      },
+      {
+        "name": "apps_supplier-invoice-editor_scripts_test_pg8000_direct.md",
+        "path": "code/apps_supplier-invoice-editor_scripts_test_pg8000_direct.md",
+        "full_path": "docs/code/apps_supplier-invoice-editor_scripts_test_pg8000_direct.md",
+        "size": 219,
+        "lines": 13,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_scripts_test_pg8000_direct.md"
+      },
+      {
+        "name": "apps_supplier-invoice-editor_tests_conftest.md",
+        "path": "code/apps_supplier-invoice-editor_tests_conftest.md",
+        "full_path": "docs/code/apps_supplier-invoice-editor_tests_conftest.md",
+        "size": 427,
+        "lines": 33,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_tests_conftest.md"
+      },
+      {
+        "name": "apps_supplier-invoice-editor_tests_test_config.md",
+        "path": "code/apps_supplier-invoice-editor_tests_test_config.md",
+        "full_path": "docs/code/apps_supplier-invoice-editor_tests_test_config.md",
+        "size": 472,
+        "lines": 33,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_tests_test_config.md"
+      },
+      {
+        "name": "apps_supplier-invoice-editor_tests_test_imports.md",
+        "path": "code/apps_supplier-invoice-editor_tests_test_imports.md",
+        "full_path": "docs/code/apps_supplier-invoice-editor_tests_test_imports.md",
+        "size": 572,
+        "lines": 39,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_tests_test_imports.md"
+      },
+      {
+        "name": "apps_supplier-invoice-editor_tests_test_main.md",
+        "path": "code/apps_supplier-invoice-editor_tests_test_main.md",
+        "full_path": "docs/code/apps_supplier-invoice-editor_tests_test_main.md",
+        "size": 510,
+        "lines": 39,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_tests_test_main.md"
+      },
+      {
+        "name": "apps_supplier-invoice-loader_scripts_clear_test_data.md",
+        "path": "code/apps_supplier-invoice-loader_scripts_clear_test_data.md",
+        "full_path": "docs/code/apps_supplier-invoice-loader_scripts_clear_test_data.md",
+        "size": 416,
+        "lines": 30,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-loader_scripts_clear_test_data.md"
+      },
+      {
+        "name": "apps_supplier-invoice-loader_scripts_manual_test_batch_extraction.md",
+        "path": "code/apps_supplier-invoice-loader_scripts_manual_test_batch_extraction.md",
+        "full_path": "docs/code/apps_supplier-invoice-loader_scripts_manual_test_batch_extraction.md",
+        "size": 278,
+        "lines": 13,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-loader_scripts_manual_test_batch_extraction.md"
+      },
+      {
+        "name": "apps_supplier-invoice-loader_scripts_manual_test_isdoc.md",
+        "path": "code/apps_supplier-invoice-loader_scripts_manual_test_isdoc.md",
+        "full_path": "docs/code/apps_supplier-invoice-loader_scripts_manual_test_isdoc.md",
+        "size": 232,
+        "lines": 13,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-loader_scripts_manual_test_isdoc.md"
+      },
+      {
+        "name": "apps_supplier-invoice-loader_scripts_test_invoice_integration.md",
+        "path": "code/apps_supplier-invoice-loader_scripts_test_invoice_integration.md",
+        "full_path": "docs/code/apps_supplier-invoice-loader_scripts_test_invoice_integration.md",
+        "size": 1305,
+        "lines": 98,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-loader_scripts_test_invoice_integration.md"
+      },
+      {
+        "name": "apps_supplier-invoice-loader_tests_conftest.md",
+        "path": "code/apps_supplier-invoice-loader_tests_conftest.md",
+        "full_path": "docs/code/apps_supplier-invoice-loader_tests_conftest.md",
+        "size": 1026,
+        "lines": 81,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-loader_tests_conftest.md"
+      },
+      {
+        "name": "apps_supplier-invoice-loader_tests_unit_test_alert_manager.md",
+        "path": "code/apps_supplier-invoice-loader_tests_unit_test_alert_manager.md",
+        "full_path": "docs/code/apps_supplier-invoice-loader_tests_unit_test_alert_manager.md",
+        "size": 1196,
+        "lines": 81,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-loader_tests_unit_test_alert_manager.md"
+      },
+      {
+        "name": "apps_supplier-invoice-loader_tests_unit_test_config.md",
+        "path": "code/apps_supplier-invoice-loader_tests_unit_test_config.md",
+        "full_path": "docs/code/apps_supplier-invoice-loader_tests_unit_test_config.md",
+        "size": 1631,
+        "lines": 99,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-loader_tests_unit_test_config.md"
+      },
+      {
+        "name": "apps_supplier-invoice-loader_tests_unit_test_health_monitor.md",
+        "path": "code/apps_supplier-invoice-loader_tests_unit_test_health_monitor.md",
+        "full_path": "docs/code/apps_supplier-invoice-loader_tests_unit_test_health_monitor.md",
+        "size": 813,
+        "lines": 57,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-loader_tests_unit_test_health_monitor.md"
+      },
+      {
+        "name": "apps_supplier-invoice-loader_tests_unit_test_log_manager.md",
+        "path": "code/apps_supplier-invoice-loader_tests_unit_test_log_manager.md",
+        "full_path": "docs/code/apps_supplier-invoice-loader_tests_unit_test_log_manager.md",
+        "size": 1520,
+        "lines": 105,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-loader_tests_unit_test_log_manager.md"
+      },
+      {
+        "name": "apps_supplier-invoice-loader_tests_unit_test_monitoring.md",
+        "path": "code/apps_supplier-invoice-loader_tests_unit_test_monitoring.md",
+        "full_path": "docs/code/apps_supplier-invoice-loader_tests_unit_test_monitoring.md",
+        "size": 2182,
+        "lines": 153,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-loader_tests_unit_test_monitoring.md"
+      },
+      {
+        "name": "apps_supplier-invoice-loader_tests_unit_test_notifications.md",
+        "path": "code/apps_supplier-invoice-loader_tests_unit_test_notifications.md",
+        "full_path": "docs/code/apps_supplier-invoice-loader_tests_unit_test_notifications.md",
+        "size": 1866,
+        "lines": 105,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-loader_tests_unit_test_notifications.md"
+      },
+      {
+        "name": "tools_session_scripts_archive_20251121_221122_create_test_config.md",
+        "path": "code/tools_session_scripts_archive_20251121_221122_create_test_config.md",
+        "full_path": "docs/code/tools_session_scripts_archive_20251121_221122_create_test_config.md",
+        "size": 556,
+        "lines": 38,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/tools_session_scripts_archive_20251121_221122_create_test_config.md"
+      },
+      {
         "name": "TESTING_STRATEGY.md",
         "path": "development/TESTING_STRATEGY.md",
         "full_path": "docs/development/TESTING_STRATEGY.md",
@@ -1864,6 +3580,38 @@
       }
     ],
     "deployment": [
+      {
+        "name": "apps_supplier-invoice-loader_deploy_build_package.md",
+        "path": "code/apps_supplier-invoice-loader_deploy_build_package.md",
+        "full_path": "docs/code/apps_supplier-invoice-loader_deploy_build_package.md",
+        "size": 1797,
+        "lines": 92,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-loader_deploy_build_package.md"
+      },
+      {
+        "name": "tools_session_scripts_archive_20251121_221122_auto_deploy_service_scripts.md",
+        "path": "code/tools_session_scripts_archive_20251121_221122_auto_deploy_service_scripts.md",
+        "full_path": "docs/code/tools_session_scripts_archive_20251121_221122_auto_deploy_service_scripts.md",
+        "size": 432,
+        "lines": 26,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/tools_session_scripts_archive_20251121_221122_auto_deploy_service_scripts.md"
+      },
+      {
+        "name": "tools_session_scripts_archive_20251121_221122_complete_deploy_to_production.md",
+        "path": "code/tools_session_scripts_archive_20251121_221122_complete_deploy_to_production.md",
+        "full_path": "docs/code/tools_session_scripts_archive_20251121_221122_complete_deploy_to_production.md",
+        "size": 375,
+        "lines": 20,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/tools_session_scripts_archive_20251121_221122_complete_deploy_to_production.md"
+      },
+      {
+        "name": "tools_session_scripts_archive_20251121_221122_deploy_config_tools.md",
+        "path": "code/tools_session_scripts_archive_20251121_221122_deploy_config_tools.md",
+        "full_path": "docs/code/tools_session_scripts_archive_20251121_221122_deploy_config_tools.md",
+        "size": 397,
+        "lines": 25,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/tools_session_scripts_archive_20251121_221122_deploy_config_tools.md"
+      },
       {
         "name": "GIT_WORKFLOW.md",
         "path": "deployment/GIT_WORKFLOW.md",
@@ -2019,6 +3767,902 @@
         "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/archive/PROJECT_STATUS_v2.1_2025-12-02.md"
       },
       {
+        "name": "apps_supplier-invoice-editor_cleanup_backups.md",
+        "path": "code/apps_supplier-invoice-editor_cleanup_backups.md",
+        "full_path": "docs/code/apps_supplier-invoice-editor_cleanup_backups.md",
+        "size": 396,
+        "lines": 28,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_cleanup_backups.md"
+      },
+      {
+        "name": "apps_supplier-invoice-editor_cleanup_project.md",
+        "path": "code/apps_supplier-invoice-editor_cleanup_project.md",
+        "full_path": "docs/code/apps_supplier-invoice-editor_cleanup_project.md",
+        "size": 595,
+        "lines": 37,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_cleanup_project.md"
+      },
+      {
+        "name": "apps_supplier-invoice-editor_main.md",
+        "path": "code/apps_supplier-invoice-editor_main.md",
+        "full_path": "docs/code/apps_supplier-invoice-editor_main.md",
+        "size": 276,
+        "lines": 21,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_main.md"
+      },
+      {
+        "name": "apps_supplier-invoice-editor_scripts_apply_xml_import_changes.md",
+        "path": "code/apps_supplier-invoice-editor_scripts_apply_xml_import_changes.md",
+        "full_path": "docs/code/apps_supplier-invoice-editor_scripts_apply_xml_import_changes.md",
+        "size": 749,
+        "lines": 34,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_scripts_apply_xml_import_changes.md"
+      },
+      {
+        "name": "apps_supplier-invoice-editor_scripts_debug_gscat_barcode.md",
+        "path": "code/apps_supplier-invoice-editor_scripts_debug_gscat_barcode.md",
+        "full_path": "docs/code/apps_supplier-invoice-editor_scripts_debug_gscat_barcode.md",
+        "size": 517,
+        "lines": 33,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_scripts_debug_gscat_barcode.md"
+      },
+      {
+        "name": "apps_supplier-invoice-editor_scripts_debug_import_config.md",
+        "path": "code/apps_supplier-invoice-editor_scripts_debug_import_config.md",
+        "full_path": "docs/code/apps_supplier-invoice-editor_scripts_debug_import_config.md",
+        "size": 221,
+        "lines": 13,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_scripts_debug_import_config.md"
+      },
+      {
+        "name": "apps_supplier-invoice-editor_scripts_generate_project_access.md",
+        "path": "code/apps_supplier-invoice-editor_scripts_generate_project_access.md",
+        "full_path": "docs/code/apps_supplier-invoice-editor_scripts_generate_project_access.md",
+        "size": 1017,
+        "lines": 55,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_scripts_generate_project_access.md"
+      },
+      {
+        "name": "apps_supplier-invoice-editor_scripts_import_xml_to_staging.md",
+        "path": "code/apps_supplier-invoice-editor_scripts_import_xml_to_staging.md",
+        "full_path": "docs/code/apps_supplier-invoice-editor_scripts_import_xml_to_staging.md",
+        "size": 677,
+        "lines": 40,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_scripts_import_xml_to_staging.md"
+      },
+      {
+        "name": "apps_supplier-invoice-editor_scripts_load_invoice_xml.md",
+        "path": "code/apps_supplier-invoice-editor_scripts_load_invoice_xml.md",
+        "full_path": "docs/code/apps_supplier-invoice-editor_scripts_load_invoice_xml.md",
+        "size": 1017,
+        "lines": 70,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_scripts_load_invoice_xml.md"
+      },
+      {
+        "name": "apps_supplier-invoice-editor_scripts_patch_postgres_client.md",
+        "path": "code/apps_supplier-invoice-editor_scripts_patch_postgres_client.md",
+        "full_path": "docs/code/apps_supplier-invoice-editor_scripts_patch_postgres_client.md",
+        "size": 247,
+        "lines": 13,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_scripts_patch_postgres_client.md"
+      },
+      {
+        "name": "apps_supplier-invoice-editor_scripts_replace_import_xml.md",
+        "path": "code/apps_supplier-invoice-editor_scripts_replace_import_xml.md",
+        "full_path": "docs/code/apps_supplier-invoice-editor_scripts_replace_import_xml.md",
+        "size": 260,
+        "lines": 13,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_scripts_replace_import_xml.md"
+      },
+      {
+        "name": "apps_supplier-invoice-editor_scripts_show_table_structure.md",
+        "path": "code/apps_supplier-invoice-editor_scripts_show_table_structure.md",
+        "full_path": "docs/code/apps_supplier-invoice-editor_scripts_show_table_structure.md",
+        "size": 223,
+        "lines": 13,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_scripts_show_table_structure.md"
+      },
+      {
+        "name": "apps_supplier-invoice-editor_src_btrieve_btrieve_client.md",
+        "path": "code/apps_supplier-invoice-editor_src_btrieve_btrieve_client.md",
+        "full_path": "docs/code/apps_supplier-invoice-editor_src_btrieve_btrieve_client.md",
+        "size": 1088,
+        "lines": 68,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_src_btrieve_btrieve_client.md"
+      },
+      {
+        "name": "apps_supplier-invoice-editor_src_btrieve___init__.md",
+        "path": "code/apps_supplier-invoice-editor_src_btrieve___init__.md",
+        "full_path": "docs/code/apps_supplier-invoice-editor_src_btrieve___init__.md",
+        "size": 253,
+        "lines": 15,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_src_btrieve___init__.md"
+      },
+      {
+        "name": "apps_supplier-invoice-editor_src_business_invoice_service.md",
+        "path": "code/apps_supplier-invoice-editor_src_business_invoice_service.md",
+        "full_path": "docs/code/apps_supplier-invoice-editor_src_business_invoice_service.md",
+        "size": 2583,
+        "lines": 118,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_src_business_invoice_service.md"
+      },
+      {
+        "name": "apps_supplier-invoice-editor_src_business_nex_lookup_service.md",
+        "path": "code/apps_supplier-invoice-editor_src_business_nex_lookup_service.md",
+        "full_path": "docs/code/apps_supplier-invoice-editor_src_business_nex_lookup_service.md",
+        "size": 1210,
+        "lines": 65,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_src_business_nex_lookup_service.md"
+      },
+      {
+        "name": "apps_supplier-invoice-editor_src_business___init__.md",
+        "path": "code/apps_supplier-invoice-editor_src_business___init__.md",
+        "full_path": "docs/code/apps_supplier-invoice-editor_src_business___init__.md",
+        "size": 241,
+        "lines": 13,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_src_business___init__.md"
+      },
+      {
+        "name": "apps_supplier-invoice-editor_src_config.md",
+        "path": "code/apps_supplier-invoice-editor_src_config.md",
+        "full_path": "docs/code/apps_supplier-invoice-editor_src_config.md",
+        "size": 697,
+        "lines": 42,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_src_config.md"
+      },
+      {
+        "name": "apps_supplier-invoice-editor_src_models_barcode.md",
+        "path": "code/apps_supplier-invoice-editor_src_models_barcode.md",
+        "full_path": "docs/code/apps_supplier-invoice-editor_src_models_barcode.md",
+        "size": 1955,
+        "lines": 95,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_src_models_barcode.md"
+      },
+      {
+        "name": "apps_supplier-invoice-editor_src_models_gscat.md",
+        "path": "code/apps_supplier-invoice-editor_src_models_gscat.md",
+        "full_path": "docs/code/apps_supplier-invoice-editor_src_models_gscat.md",
+        "size": 2347,
+        "lines": 101,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_src_models_gscat.md"
+      },
+      {
+        "name": "apps_supplier-invoice-editor_src_models_mglst.md",
+        "path": "code/apps_supplier-invoice-editor_src_models_mglst.md",
+        "full_path": "docs/code/apps_supplier-invoice-editor_src_models_mglst.md",
+        "size": 2357,
+        "lines": 104,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_src_models_mglst.md"
+      },
+      {
+        "name": "apps_supplier-invoice-editor_src_models_pab.md",
+        "path": "code/apps_supplier-invoice-editor_src_models_pab.md",
+        "full_path": "docs/code/apps_supplier-invoice-editor_src_models_pab.md",
+        "size": 2352,
+        "lines": 96,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_src_models_pab.md"
+      },
+      {
+        "name": "apps_supplier-invoice-editor_src_models___init__.md",
+        "path": "code/apps_supplier-invoice-editor_src_models___init__.md",
+        "full_path": "docs/code/apps_supplier-invoice-editor_src_models___init__.md",
+        "size": 255,
+        "lines": 14,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_src_models___init__.md"
+      },
+      {
+        "name": "apps_supplier-invoice-editor_src_ui_invoice_detail_window.md",
+        "path": "code/apps_supplier-invoice-editor_src_ui_invoice_detail_window.md",
+        "full_path": "docs/code/apps_supplier-invoice-editor_src_ui_invoice_detail_window.md",
+        "size": 979,
+        "lines": 61,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_src_ui_invoice_detail_window.md"
+      },
+      {
+        "name": "apps_supplier-invoice-editor_src_ui_main_window.md",
+        "path": "code/apps_supplier-invoice-editor_src_ui_main_window.md",
+        "full_path": "docs/code/apps_supplier-invoice-editor_src_ui_main_window.md",
+        "size": 1215,
+        "lines": 78,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_src_ui_main_window.md"
+      },
+      {
+        "name": "apps_supplier-invoice-editor_src_ui_widgets_invoice_items_grid.md",
+        "path": "code/apps_supplier-invoice-editor_src_ui_widgets_invoice_items_grid.md",
+        "full_path": "docs/code/apps_supplier-invoice-editor_src_ui_widgets_invoice_items_grid.md",
+        "size": 1391,
+        "lines": 88,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_src_ui_widgets_invoice_items_grid.md"
+      },
+      {
+        "name": "apps_supplier-invoice-editor_src_ui_widgets_invoice_list_widget.md",
+        "path": "code/apps_supplier-invoice-editor_src_ui_widgets_invoice_list_widget.md",
+        "full_path": "docs/code/apps_supplier-invoice-editor_src_ui_widgets_invoice_list_widget.md",
+        "size": 1740,
+        "lines": 100,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_src_ui_widgets_invoice_list_widget.md"
+      },
+      {
+        "name": "apps_supplier-invoice-editor_src_ui_widgets_quick_search.md",
+        "path": "code/apps_supplier-invoice-editor_src_ui_widgets_quick_search.md",
+        "full_path": "docs/code/apps_supplier-invoice-editor_src_ui_widgets_quick_search.md",
+        "size": 2747,
+        "lines": 143,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_src_ui_widgets_quick_search.md"
+      },
+      {
+        "name": "apps_supplier-invoice-editor_src_ui_widgets___init__.md",
+        "path": "code/apps_supplier-invoice-editor_src_ui_widgets___init__.md",
+        "full_path": "docs/code/apps_supplier-invoice-editor_src_ui_widgets___init__.md",
+        "size": 204,
+        "lines": 13,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_src_ui_widgets___init__.md"
+      },
+      {
+        "name": "apps_supplier-invoice-editor_src_ui___init__.md",
+        "path": "code/apps_supplier-invoice-editor_src_ui___init__.md",
+        "full_path": "docs/code/apps_supplier-invoice-editor_src_ui___init__.md",
+        "size": 215,
+        "lines": 13,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_src_ui___init__.md"
+      },
+      {
+        "name": "apps_supplier-invoice-editor_src_utils_config.md",
+        "path": "code/apps_supplier-invoice-editor_src_utils_config.md",
+        "full_path": "docs/code/apps_supplier-invoice-editor_src_utils_config.md",
+        "size": 984,
+        "lines": 67,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_src_utils_config.md"
+      },
+      {
+        "name": "apps_supplier-invoice-editor_src_utils_constants.md",
+        "path": "code/apps_supplier-invoice-editor_src_utils_constants.md",
+        "full_path": "docs/code/apps_supplier-invoice-editor_src_utils_constants.md",
+        "size": 372,
+        "lines": 16,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_src_utils_constants.md"
+      },
+      {
+        "name": "apps_supplier-invoice-editor_src_utils_grid_settings.md",
+        "path": "code/apps_supplier-invoice-editor_src_utils_grid_settings.md",
+        "full_path": "docs/code/apps_supplier-invoice-editor_src_utils_grid_settings.md",
+        "size": 2842,
+        "lines": 107,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_src_utils_grid_settings.md"
+      },
+      {
+        "name": "apps_supplier-invoice-editor_src_utils_text_utils.md",
+        "path": "code/apps_supplier-invoice-editor_src_utils_text_utils.md",
+        "full_path": "docs/code/apps_supplier-invoice-editor_src_utils_text_utils.md",
+        "size": 1486,
+        "lines": 92,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_src_utils_text_utils.md"
+      },
+      {
+        "name": "apps_supplier-invoice-editor_src_utils_window_settings.md",
+        "path": "code/apps_supplier-invoice-editor_src_utils_window_settings.md",
+        "full_path": "docs/code/apps_supplier-invoice-editor_src_utils_window_settings.md",
+        "size": 885,
+        "lines": 45,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_src_utils_window_settings.md"
+      },
+      {
+        "name": "apps_supplier-invoice-editor_src_utils___init__.md",
+        "path": "code/apps_supplier-invoice-editor_src_utils___init__.md",
+        "full_path": "docs/code/apps_supplier-invoice-editor_src_utils___init__.md",
+        "size": 213,
+        "lines": 13,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_src_utils___init__.md"
+      },
+      {
+        "name": "apps_supplier-invoice-editor_src___init__.md",
+        "path": "code/apps_supplier-invoice-editor_src___init__.md",
+        "full_path": "docs/code/apps_supplier-invoice-editor_src___init__.md",
+        "size": 308,
+        "lines": 15,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-editor_src___init__.md"
+      },
+      {
+        "name": "apps_supplier-invoice-loader_config_config_customer.md",
+        "path": "code/apps_supplier-invoice-loader_config_config_customer.md",
+        "full_path": "docs/code/apps_supplier-invoice-loader_config_config_customer.md",
+        "size": 267,
+        "lines": 14,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-loader_config_config_customer.md"
+      },
+      {
+        "name": "apps_supplier-invoice-loader_main.md",
+        "path": "code/apps_supplier-invoice-loader_main.md",
+        "full_path": "docs/code/apps_supplier-invoice-loader_main.md",
+        "size": 2435,
+        "lines": 145,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-loader_main.md"
+      },
+      {
+        "name": "apps_supplier-invoice-loader_scripts_backup_config.md",
+        "path": "code/apps_supplier-invoice-loader_scripts_backup_config.md",
+        "full_path": "docs/code/apps_supplier-invoice-loader_scripts_backup_config.md",
+        "size": 396,
+        "lines": 28,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-loader_scripts_backup_config.md"
+      },
+      {
+        "name": "apps_supplier-invoice-loader_scripts_backup_wrapper.md",
+        "path": "code/apps_supplier-invoice-loader_scripts_backup_wrapper.md",
+        "full_path": "docs/code/apps_supplier-invoice-loader_scripts_backup_wrapper.md",
+        "size": 580,
+        "lines": 37,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-loader_scripts_backup_wrapper.md"
+      },
+      {
+        "name": "apps_supplier-invoice-loader_scripts_generate_project_access.md",
+        "path": "code/apps_supplier-invoice-loader_scripts_generate_project_access.md",
+        "full_path": "docs/code/apps_supplier-invoice-loader_scripts_generate_project_access.md",
+        "size": 865,
+        "lines": 49,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-loader_scripts_generate_project_access.md"
+      },
+      {
+        "name": "apps_supplier-invoice-loader_scripts_service_installer.md",
+        "path": "code/apps_supplier-invoice-loader_scripts_service_installer.md",
+        "full_path": "docs/code/apps_supplier-invoice-loader_scripts_service_installer.md",
+        "size": 2474,
+        "lines": 130,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-loader_scripts_service_installer.md"
+      },
+      {
+        "name": "apps_supplier-invoice-loader_scripts_verify_installation.md",
+        "path": "code/apps_supplier-invoice-loader_scripts_verify_installation.md",
+        "full_path": "docs/code/apps_supplier-invoice-loader_scripts_verify_installation.md",
+        "size": 904,
+        "lines": 70,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-loader_scripts_verify_installation.md"
+      },
+      {
+        "name": "apps_supplier-invoice-loader_src_backup_config_backup.md",
+        "path": "code/apps_supplier-invoice-loader_src_backup_config_backup.md",
+        "full_path": "docs/code/apps_supplier-invoice-loader_src_backup_config_backup.md",
+        "size": 480,
+        "lines": 33,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-loader_src_backup_config_backup.md"
+      },
+      {
+        "name": "apps_supplier-invoice-loader_src_business_isdoc_service.md",
+        "path": "code/apps_supplier-invoice-loader_src_business_isdoc_service.md",
+        "full_path": "docs/code/apps_supplier-invoice-loader_src_business_isdoc_service.md",
+        "size": 2130,
+        "lines": 114,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-loader_src_business_isdoc_service.md"
+      },
+      {
+        "name": "apps_supplier-invoice-loader_src_business_product_matcher.md",
+        "path": "code/apps_supplier-invoice-loader_src_business_product_matcher.md",
+        "full_path": "docs/code/apps_supplier-invoice-loader_src_business_product_matcher.md",
+        "size": 2514,
+        "lines": 121,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-loader_src_business_product_matcher.md"
+      },
+      {
+        "name": "apps_supplier-invoice-loader_src_extractors_base_extractor.md",
+        "path": "code/apps_supplier-invoice-loader_src_extractors_base_extractor.md",
+        "full_path": "docs/code/apps_supplier-invoice-loader_src_extractors_base_extractor.md",
+        "size": 722,
+        "lines": 40,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-loader_src_extractors_base_extractor.md"
+      },
+      {
+        "name": "apps_supplier-invoice-loader_src_extractors_generic_extractor.md",
+        "path": "code/apps_supplier-invoice-loader_src_extractors_generic_extractor.md",
+        "full_path": "docs/code/apps_supplier-invoice-loader_src_extractors_generic_extractor.md",
+        "size": 942,
+        "lines": 50,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-loader_src_extractors_generic_extractor.md"
+      },
+      {
+        "name": "apps_supplier-invoice-loader_src_extractors_ls_extractor.md",
+        "path": "code/apps_supplier-invoice-loader_src_extractors_ls_extractor.md",
+        "full_path": "docs/code/apps_supplier-invoice-loader_src_extractors_ls_extractor.md",
+        "size": 1749,
+        "lines": 90,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-loader_src_extractors_ls_extractor.md"
+      },
+      {
+        "name": "apps_supplier-invoice-loader_src_monitoring_alert_manager.md",
+        "path": "code/apps_supplier-invoice-loader_src_monitoring_alert_manager.md",
+        "full_path": "docs/code/apps_supplier-invoice-loader_src_monitoring_alert_manager.md",
+        "size": 3211,
+        "lines": 179,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-loader_src_monitoring_alert_manager.md"
+      },
+      {
+        "name": "apps_supplier-invoice-loader_src_monitoring_health_monitor.md",
+        "path": "code/apps_supplier-invoice-loader_src_monitoring_health_monitor.md",
+        "full_path": "docs/code/apps_supplier-invoice-loader_src_monitoring_health_monitor.md",
+        "size": 1560,
+        "lines": 107,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-loader_src_monitoring_health_monitor.md"
+      },
+      {
+        "name": "apps_supplier-invoice-loader_src_monitoring_log_manager.md",
+        "path": "code/apps_supplier-invoice-loader_src_monitoring_log_manager.md",
+        "full_path": "docs/code/apps_supplier-invoice-loader_src_monitoring_log_manager.md",
+        "size": 2196,
+        "lines": 137,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-loader_src_monitoring_log_manager.md"
+      },
+      {
+        "name": "apps_supplier-invoice-loader_src_monitoring___init__.md",
+        "path": "code/apps_supplier-invoice-loader_src_monitoring___init__.md",
+        "full_path": "docs/code/apps_supplier-invoice-loader_src_monitoring___init__.md",
+        "size": 234,
+        "lines": 13,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-loader_src_monitoring___init__.md"
+      },
+      {
+        "name": "apps_supplier-invoice-loader_src_utils_config.md",
+        "path": "code/apps_supplier-invoice-loader_src_utils_config.md",
+        "full_path": "docs/code/apps_supplier-invoice-loader_src_utils_config.md",
+        "size": 369,
+        "lines": 25,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-loader_src_utils_config.md"
+      },
+      {
+        "name": "apps_supplier-invoice-loader_src_utils_env_loader.md",
+        "path": "code/apps_supplier-invoice-loader_src_utils_env_loader.md",
+        "full_path": "docs/code/apps_supplier-invoice-loader_src_utils_env_loader.md",
+        "size": 621,
+        "lines": 35,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-loader_src_utils_env_loader.md"
+      },
+      {
+        "name": "apps_supplier-invoice-loader_src_utils_monitoring.md",
+        "path": "code/apps_supplier-invoice-loader_src_utils_monitoring.md",
+        "full_path": "docs/code/apps_supplier-invoice-loader_src_utils_monitoring.md",
+        "size": 1088,
+        "lines": 73,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-loader_src_utils_monitoring.md"
+      },
+      {
+        "name": "apps_supplier-invoice-loader_src_utils_notifications.md",
+        "path": "code/apps_supplier-invoice-loader_src_utils_notifications.md",
+        "full_path": "docs/code/apps_supplier-invoice-loader_src_utils_notifications.md",
+        "size": 3305,
+        "lines": 150,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/apps_supplier-invoice-loader_src_utils_notifications.md"
+      },
+      {
+        "name": "packages_nex-shared_setup.md",
+        "path": "code/packages_nex-shared_setup.md",
+        "full_path": "docs/code/packages_nex-shared_setup.md",
+        "size": 228,
+        "lines": 14,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/packages_nex-shared_setup.md"
+      },
+      {
+        "name": "packages_nex-shared_ui_base_grid.md",
+        "path": "code/packages_nex-shared_ui_base_grid.md",
+        "full_path": "docs/code/packages_nex-shared_ui_base_grid.md",
+        "size": 3106,
+        "lines": 131,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/packages_nex-shared_ui_base_grid.md"
+      },
+      {
+        "name": "packages_nex-shared_ui_base_window.md",
+        "path": "code/packages_nex-shared_ui_base_window.md",
+        "full_path": "docs/code/packages_nex-shared_ui_base_window.md",
+        "size": 2011,
+        "lines": 88,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/packages_nex-shared_ui_base_window.md"
+      },
+      {
+        "name": "packages_nex-shared_ui_window_persistence.md",
+        "path": "code/packages_nex-shared_ui_window_persistence.md",
+        "full_path": "docs/code/packages_nex-shared_ui_window_persistence.md",
+        "size": 1533,
+        "lines": 77,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/packages_nex-shared_ui_window_persistence.md"
+      },
+      {
+        "name": "packages_nex-shared_ui___init__.md",
+        "path": "code/packages_nex-shared_ui___init__.md",
+        "full_path": "docs/code/packages_nex-shared_ui___init__.md",
+        "size": 201,
+        "lines": 13,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/packages_nex-shared_ui___init__.md"
+      },
+      {
+        "name": "packages_nex-shared_utils_grid_settings.md",
+        "path": "code/packages_nex-shared_utils_grid_settings.md",
+        "full_path": "docs/code/packages_nex-shared_utils_grid_settings.md",
+        "size": 2829,
+        "lines": 107,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/packages_nex-shared_utils_grid_settings.md"
+      },
+      {
+        "name": "packages_nex-shared_utils_text_utils.md",
+        "path": "code/packages_nex-shared_utils_text_utils.md",
+        "full_path": "docs/code/packages_nex-shared_utils_text_utils.md",
+        "size": 537,
+        "lines": 29,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/packages_nex-shared_utils_text_utils.md"
+      },
+      {
+        "name": "packages_nex-shared_utils___init__.md",
+        "path": "code/packages_nex-shared_utils___init__.md",
+        "full_path": "docs/code/packages_nex-shared_utils___init__.md",
+        "size": 194,
+        "lines": 13,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/packages_nex-shared_utils___init__.md"
+      },
+      {
+        "name": "packages_nex-shared___init__.md",
+        "path": "code/packages_nex-shared___init__.md",
+        "full_path": "docs/code/packages_nex-shared___init__.md",
+        "size": 228,
+        "lines": 14,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/packages_nex-shared___init__.md"
+      },
+      {
+        "name": "packages_nexdata_nexdata_btrieve_btrieve_client.md",
+        "path": "code/packages_nexdata_nexdata_btrieve_btrieve_client.md",
+        "full_path": "docs/code/packages_nexdata_nexdata_btrieve_btrieve_client.md",
+        "size": 2369,
+        "lines": 120,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/packages_nexdata_nexdata_btrieve_btrieve_client.md"
+      },
+      {
+        "name": "packages_nexdata_nexdata_models_barcode.md",
+        "path": "code/packages_nexdata_nexdata_models_barcode.md",
+        "full_path": "docs/code/packages_nexdata_nexdata_models_barcode.md",
+        "size": 1947,
+        "lines": 95,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/packages_nexdata_nexdata_models_barcode.md"
+      },
+      {
+        "name": "packages_nexdata_nexdata_models_gscat.md",
+        "path": "code/packages_nexdata_nexdata_models_gscat.md",
+        "full_path": "docs/code/packages_nexdata_nexdata_models_gscat.md",
+        "size": 1210,
+        "lines": 64,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/packages_nexdata_nexdata_models_gscat.md"
+      },
+      {
+        "name": "packages_nexdata_nexdata_models_mglst.md",
+        "path": "code/packages_nexdata_nexdata_models_mglst.md",
+        "full_path": "docs/code/packages_nexdata_nexdata_models_mglst.md",
+        "size": 2349,
+        "lines": 104,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/packages_nexdata_nexdata_models_mglst.md"
+      },
+      {
+        "name": "packages_nexdata_nexdata_models_pab.md",
+        "path": "code/packages_nexdata_nexdata_models_pab.md",
+        "full_path": "docs/code/packages_nexdata_nexdata_models_pab.md",
+        "size": 2344,
+        "lines": 96,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/packages_nexdata_nexdata_models_pab.md"
+      },
+      {
+        "name": "packages_nexdata_nexdata_models_tsh.md",
+        "path": "code/packages_nexdata_nexdata_models_tsh.md",
+        "full_path": "docs/code/packages_nexdata_nexdata_models_tsh.md",
+        "size": 2243,
+        "lines": 85,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/packages_nexdata_nexdata_models_tsh.md"
+      },
+      {
+        "name": "packages_nexdata_nexdata_models_tsi.md",
+        "path": "code/packages_nexdata_nexdata_models_tsi.md",
+        "full_path": "docs/code/packages_nexdata_nexdata_models_tsi.md",
+        "size": 2186,
+        "lines": 88,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/packages_nexdata_nexdata_models_tsi.md"
+      },
+      {
+        "name": "packages_nexdata_nexdata_repositories_barcode_repository.md",
+        "path": "code/packages_nexdata_nexdata_repositories_barcode_repository.md",
+        "full_path": "docs/code/packages_nexdata_nexdata_repositories_barcode_repository.md",
+        "size": 1093,
+        "lines": 65,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/packages_nexdata_nexdata_repositories_barcode_repository.md"
+      },
+      {
+        "name": "packages_nexdata_nexdata_repositories_base_repository.md",
+        "path": "code/packages_nexdata_nexdata_repositories_base_repository.md",
+        "full_path": "docs/code/packages_nexdata_nexdata_repositories_base_repository.md",
+        "size": 1835,
+        "lines": 112,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/packages_nexdata_nexdata_repositories_base_repository.md"
+      },
+      {
+        "name": "packages_nexdata_nexdata_repositories_gscat_repository.md",
+        "path": "code/packages_nexdata_nexdata_repositories_gscat_repository.md",
+        "full_path": "docs/code/packages_nexdata_nexdata_repositories_gscat_repository.md",
+        "size": 1152,
+        "lines": 68,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/packages_nexdata_nexdata_repositories_gscat_repository.md"
+      },
+      {
+        "name": "packages_nexdata_nexdata_repositories_mglst_repository.md",
+        "path": "code/packages_nexdata_nexdata_repositories_mglst_repository.md",
+        "full_path": "docs/code/packages_nexdata_nexdata_repositories_mglst_repository.md",
+        "size": 858,
+        "lines": 55,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/packages_nexdata_nexdata_repositories_mglst_repository.md"
+      },
+      {
+        "name": "packages_nexdata_nexdata_repositories_pab_repository.md",
+        "path": "code/packages_nexdata_nexdata_repositories_pab_repository.md",
+        "full_path": "docs/code/packages_nexdata_nexdata_repositories_pab_repository.md",
+        "size": 910,
+        "lines": 62,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/packages_nexdata_nexdata_repositories_pab_repository.md"
+      },
+      {
+        "name": "packages_nexdata_nexdata_repositories_tsh_repository.md",
+        "path": "code/packages_nexdata_nexdata_repositories_tsh_repository.md",
+        "full_path": "docs/code/packages_nexdata_nexdata_repositories_tsh_repository.md",
+        "size": 1091,
+        "lines": 63,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/packages_nexdata_nexdata_repositories_tsh_repository.md"
+      },
+      {
+        "name": "packages_nexdata_nexdata_repositories_tsi_repository.md",
+        "path": "code/packages_nexdata_nexdata_repositories_tsi_repository.md",
+        "full_path": "docs/code/packages_nexdata_nexdata_repositories_tsi_repository.md",
+        "size": 1169,
+        "lines": 64,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/packages_nexdata_nexdata_repositories_tsi_repository.md"
+      },
+      {
+        "name": "packages_nexdata_nexdata_repositories___init__.md",
+        "path": "code/packages_nexdata_nexdata_repositories___init__.md",
+        "full_path": "docs/code/packages_nexdata_nexdata_repositories___init__.md",
+        "size": 205,
+        "lines": 13,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/packages_nexdata_nexdata_repositories___init__.md"
+      },
+      {
+        "name": "packages_nexdata_nexdata___init__.md",
+        "path": "code/packages_nexdata_nexdata___init__.md",
+        "full_path": "docs/code/packages_nexdata_nexdata___init__.md",
+        "size": 254,
+        "lines": 14,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/packages_nexdata_nexdata___init__.md"
+      },
+      {
+        "name": "tools_artifact-server.md",
+        "path": "code/tools_artifact-server.md",
+        "full_path": "docs/code/tools_artifact-server.md",
+        "size": 1048,
+        "lines": 78,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/tools_artifact-server.md"
+      },
+      {
+        "name": "tools_claude-chat-loader.md",
+        "path": "code/tools_claude-chat-loader.md",
+        "full_path": "docs/code/tools_claude-chat-loader.md",
+        "size": 865,
+        "lines": 52,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/tools_claude-chat-loader.md"
+      },
+      {
+        "name": "tools_claude-hotkeys.md",
+        "path": "code/tools_claude-hotkeys.md",
+        "full_path": "docs/code/tools_claude-hotkeys.md",
+        "size": 866,
+        "lines": 62,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/tools_claude-hotkeys.md"
+      },
+      {
+        "name": "tools_context-compressor.md",
+        "path": "code/tools_context-compressor.md",
+        "full_path": "docs/code/tools_context-compressor.md",
+        "size": 889,
+        "lines": 55,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/tools_context-compressor.md"
+      },
+      {
+        "name": "tools_installer.md",
+        "path": "code/tools_installer.md",
+        "full_path": "docs/code/tools_installer.md",
+        "size": 884,
+        "lines": 56,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/tools_installer.md"
+      },
+      {
+        "name": "tools_rag_chunker.md",
+        "path": "code/tools_rag_chunker.md",
+        "full_path": "docs/code/tools_rag_chunker.md",
+        "size": 1964,
+        "lines": 125,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/tools_rag_chunker.md"
+      },
+      {
+        "name": "tools_rag_config.md",
+        "path": "code/tools_rag_config.md",
+        "full_path": "docs/code/tools_rag_config.md",
+        "size": 1286,
+        "lines": 90,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/tools_rag_config.md"
+      },
+      {
+        "name": "tools_rag_embeddings.md",
+        "path": "code/tools_rag_embeddings.md",
+        "full_path": "docs/code/tools_rag_embeddings.md",
+        "size": 2007,
+        "lines": 114,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/tools_rag_embeddings.md"
+      },
+      {
+        "name": "tools_rag_generate_code_docs.md",
+        "path": "code/tools_rag_generate_code_docs.md",
+        "full_path": "docs/code/tools_rag_generate_code_docs.md",
+        "size": 1277,
+        "lines": 68,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/tools_rag_generate_code_docs.md"
+      },
+      {
+        "name": "tools_rag_hybrid_search.md",
+        "path": "code/tools_rag_hybrid_search.md",
+        "full_path": "docs/code/tools_rag_hybrid_search.md",
+        "size": 1596,
+        "lines": 87,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/tools_rag_hybrid_search.md"
+      },
+      {
+        "name": "tools_rag_indexer.md",
+        "path": "code/tools_rag_indexer.md",
+        "full_path": "docs/code/tools_rag_indexer.md",
+        "size": 2047,
+        "lines": 100,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/tools_rag_indexer.md"
+      },
+      {
+        "name": "tools_rag_init_prompt_helper.md",
+        "path": "code/tools_rag_init_prompt_helper.md",
+        "full_path": "docs/code/tools_rag_init_prompt_helper.md",
+        "size": 913,
+        "lines": 50,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/tools_rag_init_prompt_helper.md"
+      },
+      {
+        "name": "tools_rag_rag_reindex.md",
+        "path": "code/tools_rag_rag_reindex.md",
+        "full_path": "docs/code/tools_rag_rag_reindex.md",
+        "size": 1448,
+        "lines": 77,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/tools_rag_rag_reindex.md"
+      },
+      {
+        "name": "tools_rag_search.md",
+        "path": "code/tools_rag_search.md",
+        "full_path": "docs/code/tools_rag_search.md",
+        "size": 2503,
+        "lines": 115,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/tools_rag_search.md"
+      },
+      {
+        "name": "tools_rag_server.md",
+        "path": "code/tools_rag_server.md",
+        "full_path": "docs/code/tools_rag_server.md",
+        "size": 706,
+        "lines": 50,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/tools_rag_server.md"
+      },
+      {
+        "name": "tools_rag_server_app.md",
+        "path": "code/tools_rag_server_app.md",
+        "full_path": "docs/code/tools_rag_server_app.md",
+        "size": 996,
+        "lines": 57,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/tools_rag_server_app.md"
+      },
+      {
+        "name": "tools_rag___init__.md",
+        "path": "code/tools_rag___init__.md",
+        "full_path": "docs/code/tools_rag___init__.md",
+        "size": 990,
+        "lines": 37,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/tools_rag___init__.md"
+      },
+      {
+        "name": "tools_rag___main__.md",
+        "path": "code/tools_rag___main__.md",
+        "full_path": "docs/code/tools_rag___main__.md",
+        "size": 548,
+        "lines": 41,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/tools_rag___main__.md"
+      },
+      {
+        "name": "tools_session-notes-manager.md",
+        "path": "code/tools_session-notes-manager.md",
+        "full_path": "docs/code/tools_session-notes-manager.md",
+        "size": 762,
+        "lines": 52,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/tools_session-notes-manager.md"
+      },
+      {
+        "name": "tools_session_scripts_archive_20251121_221122_cleanup_session_scripts.md",
+        "path": "code/tools_session_scripts_archive_20251121_221122_cleanup_session_scripts.md",
+        "full_path": "docs/code/tools_session_scripts_archive_20251121_221122_cleanup_session_scripts.md",
+        "size": 607,
+        "lines": 38,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/tools_session_scripts_archive_20251121_221122_cleanup_session_scripts.md"
+      },
+      {
+        "name": "tools_session_scripts_archive_20251121_221122_final_config_fix.md",
+        "path": "code/tools_session_scripts_archive_20251121_221122_final_config_fix.md",
+        "full_path": "docs/code/tools_session_scripts_archive_20251121_221122_final_config_fix.md",
+        "size": 465,
+        "lines": 31,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/tools_session_scripts_archive_20251121_221122_final_config_fix.md"
+      },
+      {
+        "name": "tools_session_scripts_archive_20251121_221122_fix_all_config_scripts.md",
+        "path": "code/tools_session_scripts_archive_20251121_221122_fix_all_config_scripts.md",
+        "full_path": "docs/code/tools_session_scripts_archive_20251121_221122_fix_all_config_scripts.md",
+        "size": 358,
+        "lines": 25,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/tools_session_scripts_archive_20251121_221122_fix_all_config_scripts.md"
+      },
+      {
+        "name": "tools_session_scripts_archive_20251121_221122_fix_config_errors.md",
+        "path": "code/tools_session_scripts_archive_20251121_221122_fix_config_errors.md",
+        "full_path": "docs/code/tools_session_scripts_archive_20251121_221122_fix_config_errors.md",
+        "size": 330,
+        "lines": 25,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/tools_session_scripts_archive_20251121_221122_fix_config_errors.md"
+      },
+      {
+        "name": "tools_session_scripts_archive_20251121_221122_fix_env_vars_in_config.md",
+        "path": "code/tools_session_scripts_archive_20251121_221122_fix_env_vars_in_config.md",
+        "full_path": "docs/code/tools_session_scripts_archive_20251121_221122_fix_env_vars_in_config.md",
+        "size": 386,
+        "lines": 25,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/tools_session_scripts_archive_20251121_221122_fix_env_vars_in_config.md"
+      },
+      {
+        "name": "tools_session_scripts_archive_20251121_221122_fix_missing_os_import.md",
+        "path": "code/tools_session_scripts_archive_20251121_221122_fix_missing_os_import.md",
+        "full_path": "docs/code/tools_session_scripts_archive_20251121_221122_fix_missing_os_import.md",
+        "size": 365,
+        "lines": 25,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/tools_session_scripts_archive_20251121_221122_fix_missing_os_import.md"
+      },
+      {
+        "name": "tools_session_scripts_archive_20251121_221122_fix_validator_env_vars.md",
+        "path": "code/tools_session_scripts_archive_20251121_221122_fix_validator_env_vars.md",
+        "full_path": "docs/code/tools_session_scripts_archive_20251121_221122_fix_validator_env_vars.md",
+        "size": 412,
+        "lines": 25,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/tools_session_scripts_archive_20251121_221122_fix_validator_env_vars.md"
+      },
+      {
+        "name": "tools_session_scripts_archive_20251121_221122_update_gitignore.md",
+        "path": "code/tools_session_scripts_archive_20251121_221122_update_gitignore.md",
+        "full_path": "docs/code/tools_session_scripts_archive_20251121_221122_update_gitignore.md",
+        "size": 363,
+        "lines": 21,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/tools_session_scripts_archive_20251121_221122_update_gitignore.md"
+      },
+      {
+        "name": "tools_session_scripts_archive_20251121_221122_update_production_paths.md",
+        "path": "code/tools_session_scripts_archive_20251121_221122_update_production_paths.md",
+        "full_path": "docs/code/tools_session_scripts_archive_20251121_221122_update_production_paths.md",
+        "size": 484,
+        "lines": 32,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/tools_session_scripts_archive_20251121_221122_update_production_paths.md"
+      },
+      {
+        "name": "tools_setup_create_venv.md",
+        "path": "code/tools_setup_create_venv.md",
+        "full_path": "docs/code/tools_setup_create_venv.md",
+        "size": 855,
+        "lines": 59,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/code/tools_setup_create_venv.md"
+      },
+      {
         "name": "00_DEVELOPMENT_INDEX.md",
         "path": "development/00_DEVELOPMENT_INDEX.md",
         "full_path": "docs/development/00_DEVELOPMENT_INDEX.md",
@@ -2065,6 +4709,14 @@
         "size": 137,
         "lines": 11,
         "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/documents/WORKFLOWS.md"
+      },
+      {
+        "name": "RAG_EXTERNAL_ACCESS.md",
+        "path": "infrastructure/RAG_EXTERNAL_ACCESS.md",
+        "full_path": "docs/infrastructure/RAG_EXTERNAL_ACCESS.md",
+        "size": 10462,
+        "lines": 389,
+        "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/docs/infrastructure/RAG_EXTERNAL_ACCESS.md"
       },
       {
         "name": "00_PACKAGES_INDEX.md",

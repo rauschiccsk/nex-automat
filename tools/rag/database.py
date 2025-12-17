@@ -7,6 +7,7 @@ from typing import List, Optional, Dict, Any, Tuple
 from datetime import datetime
 import asyncpg
 import numpy as np
+import json
 
 from .config import DatabaseConfig, get_config
 
@@ -83,7 +84,8 @@ class DatabaseManager:
             RETURNING id
         """
 
-        doc_id = await self.pool.fetchval(query, filename, content, metadata)
+        metadata_json = json.dumps(metadata) if metadata else None
+        doc_id = await self.pool.fetchval(query, filename, content, metadata_json)
         return doc_id
 
     async def insert_chunk(
@@ -111,7 +113,6 @@ class DatabaseManager:
             await self.connect()
 
         # Convert numpy array to pgvector string format
-        import numpy as np
         if isinstance(embedding, np.ndarray):
             # Flatten if 2D and convert to list
             if embedding.ndim > 1:
@@ -130,13 +131,14 @@ class DatabaseManager:
             RETURNING id
         """
 
+        metadata_json = json.dumps(metadata) if metadata else None
         chunk_id = await self.pool.fetchval(
             query,
             document_id,
             chunk_index,
             content,
             embedding_str,
-            metadata
+            metadata_json
         )
 
         return chunk_id
@@ -163,7 +165,6 @@ class DatabaseManager:
         if self.pool is None:
             await self.connect()
 
-        import numpy as np
         if isinstance(query_embedding, np.ndarray):
             if query_embedding.ndim > 1:
                 query_embedding = query_embedding.flatten()

@@ -2,17 +2,17 @@
   "name": "claude-tools",
   "type": "tools",
   "location": "tools",
-  "generated": "2025-12-17T09:40:53.439615",
+  "generated": "2025-12-17T15:08:20.430084",
   "description": "Claude Tools - Automatizacia workflow pre claude.ai",
   "statistics": {
-    "total_files": 46,
+    "total_files": 48,
     "total_dirs": 8,
-    "python_files": 37,
+    "python_files": 39,
     "powershell_files": 2,
     "markdown_files": 0,
     "test_files": 1,
-    "total_lines": 7559,
-    "total_size": 247162
+    "total_lines": 8096,
+    "total_size": 265643
   },
   "structure": {
     "has_browser_extension": true,
@@ -231,10 +231,10 @@
     {
       "path": "tools/rag/database.py",
       "name": "database.py",
-      "size": 11016,
+      "size": 11119,
       "extension": ".py",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/tools/rag/database.py",
-      "lines": 370,
+      "lines": 371,
       "type": "source"
     },
     {
@@ -244,6 +244,15 @@
       "extension": ".py",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/tools/rag/embeddings.py",
       "lines": 224,
+      "type": "source"
+    },
+    {
+      "path": "tools/rag/generate_code_docs.py",
+      "name": "generate_code_docs.py",
+      "size": 11762,
+      "extension": ".py",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/tools/rag/generate_code_docs.py",
+      "lines": 322,
       "type": "source"
     },
     {
@@ -271,6 +280,15 @@
       "extension": ".py",
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/tools/rag/init_prompt_helper.py",
       "lines": 232,
+      "type": "source"
+    },
+    {
+      "path": "tools/rag/rag_reindex.py",
+      "name": "rag_reindex.py",
+      "size": 6616,
+      "extension": ".py",
+      "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/tools/rag/rag_reindex.py",
+      "lines": 214,
       "type": "source"
     },
     {

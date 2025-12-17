@@ -1,123 +1,104 @@
 # INIT PROMPT - NEX Automat Project
 
 **Projekt:** nex-automat  
-**Current Status:** RAG Cloudflare Integration - BLOCKED  
+**Current Status:** RAG External Access COMPLETE ✅  
 **Developer:** Zoltán (40 rokov skúseností)  
 **Jazyk:** Slovenčina  
-**Previous Session:** RAG Cloudflare Tunnel Setup (2025-12-17)
+**Previous Session:** RAG External Access Complete (2025-12-17)
 
 ---
 
 ## ⚠️ KRITICKÉ: COLLABORATION RULES
 
-**MUSÍŠ dodržiavať 22 pravidiel z memory_user_edits!**
+**MUSÍŠ dodržiavať 23 pravidiel z memory_user_edits!**
 
 Kľúčové pravidlá:
 - **Rule #7:** CRITICAL artifacts pre všetky dokumenty/kód
 - **Rule #8:** Step-by-step, confirmation pred pokračovaním
 - **Rule #5:** Slovak language, presná terminológia projektov
-- **Rule #22:** Na začiatku každého chatu skontrolovať všetky pravidlá
+- **Rule #20:** "novy chat" = 3 artifacts + archive + RAG reindex
+- **Rule #23:** RAG maintenance po pridaní nových docs
 
 ---
 
-## 🚨 HIGHEST PRIORITY - RAG EXTERNAL ACCESS
+## ✅ RAG EXTERNAL ACCESS - FUNGUJE
 
-### STRATEGIC BLOCKER ❌
-
-**Problém:** Cloudflare Managed Rules blokujú Claude's prístup k RAG serveru
-
-**Evidence:**
+### Claude má prístup k RAG API:
 ```
-URL: https://n8n.icc.sk/rag/health
-Status: 403 Forbidden
-Mitigation: Block by Managed rules
-Source IP: 34.162.230.222 (Anthropic/Claude)
+https://rag-api.icc.sk/health
+https://rag-api.icc.sk/search?query=...&limit=N
+https://rag-api.icc.sk/stats
 ```
 
-**Zoltán's Decision:**
-> "Zastavím všetky projekty pokiaľ to nevyriešime. Som v 21. storočí, plánujeme futuristické riešenia - nedokážeme vyriešiť elementárnu úlohu?"
+### Pred použitím RAG:
+1. Zoltán musí mať spustený RAG Server + Cloudflare Tunnel
+2. Zoltán poskytne URL do chatu (permission requirement)
 
-**Vízia:**
-1. Claude má priamy prístup k RAG dokumentácii (no manual courier)
-2. RAG system = budúci produkt pre veľké firmy
-3. Centrálny AI-powered knowledge repository
+### RAG obsahuje:
+- 261 dokumentov (107 docs + 154 code docs)
+- 614 chunks, 475k tokens
+- Docs: `docs/**/*.md`
+- Code: `docs/code/*.md` (vygenerované z Python)
 
 ---
 
 ## 🎯 IMMEDIATE NEXT STEPS
 
-### Priority #1: Vyriešiť Cloudflare Blocking DEFINITÍVNE
+### Priority #1: NEX Genesis Product Enrichment (v2.4 Phase 4)
 
-**Čo funguje:**
-- ✅ RAG Server: http://127.0.0.1:8765 (healthy, 107 docs)
-- ✅ Cloudflare Tunnel: n8n-tunnel running
-- ✅ Path routing: https://n8n.icc.sk/rag/* 
-- ✅ Local access + browser access funguje
-- ❌ Claude external access - 403
+**Cieľ:** Implementácia product enrichment functionality
 
-**Action Plan (postupne vyskúšať):**
+**Potrebné:**
+- EAN barcode matching
+- Btrieve database integration
+- GUI pre product enrichment
 
-### Option 1: Cloudflare Workers ⭐ (NAJVIAC SĽUBNÉ)
-**Why:** Workers bežia na edge, môžu bypassovať managed rules
+### Priority #2: Btrieve → PostgreSQL Migration
 
-**Steps:**
-1. Cloudflare Dashboard → Workers & Pages
-2. Create Service: `rag-proxy`
-3. Deploy worker code (proxy to localhost:8765)
-4. Workers Routes: `n8n.icc.sk/rag/*`
-5. Test: Claude pristúpi cez worker
-
-**Expected time:** 10-15 minút
+**Stav:** Dokumentácia complete, implementácia pending
 
 ---
 
-### Option 2: Subdoména `rag.icc.sk`
-**Why:** Nová subdoména BEZ managed rules + security policies
+## 🚀 RAG MAINTENANCE
 
-**Steps:**
-1. DNS: Add `rag.icc.sk` CNAME to Cloudflare Tunnel
-2. Update Cloudflare Tunnel config
-3. NO security rules na subdoméne
-4. Test: `https://rag.icc.sk/health`
+### Po pridaní nových docs:
+```powershell
+cd C:\Development\nex-automat
+.\venv\Scripts\Activate.ps1
+python tools/rag/rag_reindex.py --new
+```
 
-**Expected time:** 15-20 minút
+### Po zmene Python kódu:
+```powershell
+python tools/rag/generate_code_docs.py
+python tools/rag/rag_reindex.py --dir docs/code/
+```
 
----
-
-### Option 3: API Token Authentication
-**Why:** Autentifikovaný prístup môže bypassovať managed rules
-
-**Steps:**
-1. RAG server: Add API key middleware
-2. Cloudflare: Allow requests with valid API key header
-3. Claude: Send API key in X-API-Key header
-4. Test: web_fetch with headers
-
-**Expected time:** 25-30 minút
+### Kontrola stavu:
+```powershell
+python tools/rag/rag_reindex.py --stats
+```
 
 ---
 
-## ✅ COMPLETED - Previous Session
+## 🔧 SPUSTENIE SLUŽIEB (po reštarte PC)
 
-### RAG FastAPI Server ✅
-- HTTP server: http://127.0.0.1:8765
-- Endpoints: /health, /stats, /search
-- Database: 107 docs, 500 chunks, 415,891 tokens
-- Cloudflare Tunnel integration: n8n.icc.sk/rag/*
+### Terminal 1 - RAG Server:
+```powershell
+cd C:\Development\nex-automat
+.\venv\Scripts\Activate.ps1
+python -m tools.rag.server start
+```
 
-### Server Modifications ✅
-- Added `root_path="/rag"` to FastAPI app
-- Script: `scripts/01_add_root_path.py`
-- Config: `C:\Users\ZelenePC\.cloudflared\config.yml`
+### Terminal 2 - Cloudflare Tunnel:
+```powershell
+cloudflared tunnel --config C:\Users\ZelenePC\.cloudflared\config.yml run n8n-tunnel
+```
 
-### Cloudflare Security Rules ✅ (deployed, ale nefunkčné)
-- Rule 1: Allow Anthropic IPs (Order: 1, Skip, All managed rules)
-- Rule 2: Allow RAG API path (Order: 2, Skip, All managed rules)
-
-### Testing Results ✅
-- LocalTunnel: Fungoval perfektne (proof of concept)
-- Ngrok: Verification page blocking
-- Cloudflare: Managed rules blocking external IPs
+### Overenie:
+```
+https://rag-api.icc.sk/health
+```
 
 ---
 
@@ -133,132 +114,48 @@ nex-automat/
 │   ├── nex-shared/                 # Shared GUI components
 │   └── nexdata/                    # Btrieve access layer
 ├── tools/
-│   ├── rag/                        # ✅ RAG system (COMPLETE)
-│   │   ├── api.py                  # Python search API
-│   │   ├── server_app.py           # FastAPI (root_path="/rag")
-│   │   ├── server.py               # Server manager
-│   │   ├── hybrid_search.py        # Hybrid search
-│   │   ├── database.py             # PostgreSQL operations
-│   │   ├── embeddings.py           # Sentence transformers
-│   │   ├── __main__.py             # CLI tool
-│   │   └── init_prompt_helper.py   # Context generator
-│   └── setup/
-├── config/
-│   └── rag_config.yaml             # RAG configuration
-├── docs/                           # 107 indexed documents
-│   └── archive/
-│       └── sessions/
-│           └── SESSION_2025-12-17_RAG_Cloudflare_Integration.md
+│   └── rag/                        # ✅ RAG system (COMPLETE)
+│       ├── server.py               # Server manager
+│       ├── rag_reindex.py          # Reindex tool
+│       └── generate_code_docs.py   # Code docs generator
+├── docs/
+│   ├── infrastructure/             # RAG_EXTERNAL_ACCESS.md
+│   └── code/                       # Generated Python docs (154 files)
 ├── scripts/
-│   └── 01_add_root_path.py         # RAG server patch
+│   └── infrastructure/             # start-rag-services.bat
 └── venv/                           # Python 3.12 64-bit
 ```
 
 ---
 
-## 🔧 ENVIRONMENT
-
-**Servers:**
-- Development: C:\Development\nex-automat
-- Deployment: C:\Deployment\nex-automat
-
-**Python:**
-- venv: Python 3.12.10 64-bit
-- Activate: `.\venv\Scripts\Activate.ps1`
-
-**PostgreSQL:**
-- Port: 5432
-- RAG DB: nex_automat_rag (107 docs, 500 chunks)
-- Main DB: nex_automat
-
-**RAG Server:**
-- Host: 127.0.0.1
-- Port: 8765
-- Start: `python -m tools.rag.server start`
-
-**Cloudflare Tunnel:**
-- Name: n8n-tunnel
-- Config: `C:\Users\ZelenePC\.cloudflared\config.yml`
-- URL: https://n8n.icc.sk/rag/*
-- Start: `cloudflared tunnel --config <path> run n8n-tunnel`
-
----
-
 ## 📚 KEY DOCUMENTS
 
+**Infrastructure:**
+- `docs/infrastructure/RAG_EXTERNAL_ACCESS.md` - RAG setup guide
+
 **Strategic:**
-- docs/strategic/RAG_IMPLEMENTATION.md - RAG plán
-- docs/strategic/PROJECT_ROADMAP.md - Roadmap
+- `docs/strategic/RAG_IMPLEMENTATION.md` - RAG plán
+- `docs/strategic/PROJECT_ROADMAP.md` - Roadmap
 
 **Database:**
-- docs/database/MIGRATION_MAPPING.md - Btrieve→PostgreSQL
-- docs/database/DATABASE_PRINCIPLES.md - Konvencie
-
-**Sessions:**
-- docs/archive/sessions/SESSION_2025-12-17_RAG_Cloudflare_Integration.md - Posledná session
+- `docs/database/MIGRATION_MAPPING.md` - Btrieve→PostgreSQL
+- `docs/database/DATABASE_PRINCIPLES.md` - Konvencie
 
 ---
 
-## 📝 SESSION WORKFLOW
+## 🔍 SESSION WORKFLOW
 
 1. Načítaj tento INIT_PROMPT
-2. Skontroluj memory_user_edits (22 pravidiel)
-3. **FOCUS: Vyriešiť Cloudflare blocking (Option 1 → 2 → 3)**
+2. Skontroluj memory_user_edits (23 pravidiel)
+3. Ak potrebuješ info z RAG, požiadaj o URL
 4. Pracuj step-by-step s confirmations
-5. Na konci: "novy chat" → 3 artifacts + archive update
-
----
-
-## 🎯 SUCCESS CRITERIA
-
-**DONE WHEN:**
-- ✅ Claude môže volať `https://n8n.icc.sk/rag/health` (200 OK)
-- ✅ Claude môže volať `/search?query=...` (JSON response)
-- ✅ Žiadne 403 errory
-- ✅ Stable solution (nie dočasný hack)
-
-**After RAG access working:**
-- NEX Genesis Product Enrichment (v2.4 Phase 4)
-- Btrieve → PostgreSQL migration pokračovanie
-- n8n → Temporal migration
-
----
-
-## 💡 TECHNICAL HINTS
-
-### Cloudflare Workers Template
-```javascript
-export default {
-  async fetch(request) {
-    const url = new URL(request.url);
-    
-    if (url.pathname.startsWith('/rag')) {
-      // Proxy to local RAG server
-      const ragUrl = `http://localhost:8765${url.pathname.replace('/rag', '')}${url.search}`;
-      return fetch(ragUrl, {
-        method: request.method,
-        headers: request.headers,
-        body: request.body
-      });
-    }
-    
-    return new Response('Not Found', { status: 404 });
-  }
-};
-```
-
-### Anthropic IP Addresses
-```
-34.162.230.222
-34.34.24.135
-2a01:c846:cc3:7200:...
-```
+5. Na konci: "novy chat" → 3 artifacts + archive + RAG reindex
 
 ---
 
 **Token Budget:** 190,000  
 **Location:** C:\Development\nex-automat  
-**Status:** 🔴 BLOCKED - Cloudflare access issue
+**Status:** 🟢 READY - RAG Access Working
 
 ---
 

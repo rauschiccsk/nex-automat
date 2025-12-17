@@ -4,7 +4,7 @@
   "version": "2.0.0",
   "description": "Multi-customer SaaS for automated invoice processing",
   "location": "C:\\Development\\nex-automat",
-  "generated": "2025-12-17T09:40:55.411332",
+  "generated": "2025-12-17T15:08:23.011676",
   "structure": {
     "apps": 3,
     "packages": 2,
@@ -12,14 +12,14 @@
     "docs": true
   },
   "statistics": {
-    "total_files": 6519,
-    "total_dirs": 700,
-    "python_files": 3041,
+    "total_files": 6680,
+    "total_dirs": 703,
+    "python_files": 3045,
     "powershell_files": 7,
-    "markdown_files": 143,
+    "markdown_files": 299,
     "test_files": 87,
-    "total_lines": 932832,
-    "total_size": 112065615
+    "total_lines": 943497,
+    "total_size": 112407087
   },
   "applications": [
     {
@@ -67,19 +67,19 @@
     "name": "claude-tools",
     "location": "tools",
     "manifest": "init_chat/tools/tools.json",
-    "python_files": 37,
+    "python_files": 39,
     "powershell_files": 2,
     "type": "automation"
   },
   "documentation": {
     "manifest": "init_chat/docs/docs.json",
     "exists": true,
-    "markdown_files": 138,
-    "total_lines": 41831,
+    "markdown_files": 294,
+    "total_lines": 51975,
     "init_prompt": {
       "path": "init_chat/INIT_PROMPT_NEW_CHAT.md",
       "exists": true,
-      "size": 7392,
+      "size": 4102,
       "github_raw": "https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/init_chat/INIT_PROMPT_NEW_CHAT.md"
     }
   },
