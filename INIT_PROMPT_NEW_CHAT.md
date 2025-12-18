@@ -1,10 +1,10 @@
 # INIT PROMPT - NEX Automat Project
 
 **Projekt:** nex-automat  
-**Current Status:** supplier-invoice-staging - APPLY DB SCHEMA  
+**Current Status:** supplier-invoice-staging - FUNCTIONAL WITH DB  
 **Developer:** Zoltán (40 rokov skúseností)  
 **Jazyk:** Slovenčina  
-**Previous Session:** rag-knowledge-system (2025-12-18)
+**Previous Session:** supplier-invoice-db-integration (2025-12-18)
 
 ---
 
@@ -18,35 +18,39 @@ Kľúčové pravidlá:
 - **Rule #5:** Slovak language, presná terminológia projektov
 - **Rule #19:** "novy chat" = spustiť `python new_chat.py`
 - **Rule #23:** RAG Workflow - Claude vypíše URL, user vloží, Claude fetchne
+- **Rule #24:** PostgreSQL password via POSTGRES_PASSWORD env variable
 
 ---
 
 ## 🔄 DOKONČENÉ MINULÚ SESSION
 
-### RAG Knowledge System
-- ✅ Nová štruktúra `docs/knowledge/` (decisions, development, deployment, scripts, specifications)
-- ✅ Upravený `rag_update.py` - indexuje knowledge docs
-- ✅ Upravený `new_chat.py` - poradové čísla, knowledge docs, interaktívny vstup
+### Database Integration Complete
+- ✅ PostgreSQL schéma aplikovaná (`supplier_invoice_heads`, `supplier_invoice_items`)
+- ✅ `InvoiceRepository` s reálnymi queries
+- ✅ GUI napojené na databázu (18 + 19 stĺpcov)
+- ✅ Testovacie dáta (5 faktúr, 7 položiek)
+- ✅ `settings.db` v projektovom priečinku `data/`
 
-### DB Schema Design
-- ✅ Konvencia `xml_*` / `nex_*` prefixov
-- ✅ `supplier_invoice_heads` - kompletná schéma
-- ✅ `supplier_invoice_items` - kompletná schéma
-- ✅ Knowledge dokument vytvorený
+### DB Field Convention
+- `xml_*` = z ISDOC XML (immutable)
+- `nex_*` = z NEX Genesis (obohatenie)
 
 ---
 
 ## 🎯 IMMEDIATE NEXT STEPS
 
-### Priority #1: Aplikovať DB schému
-1. Uložiť SQL súbor: `database/schemas/supplier_invoice_staging.sql`
-2. Spustiť v PostgreSQL
-3. Overiť štruktúru
+### Priority #1: Product Matching Logic
+- Implementovať matching podľa EAN
+- Implementovať matching podľa názvu (fuzzy)
+- Implementovať matching podľa seller_code
 
-### Priority #2: Connect GUI to Real Data
-1. Pridať `DatabaseService` do supplier-invoice-staging
-2. Implementovať queries s novými `xml_*` / `nex_*` poliami
-3. Nahradiť `_load_test_data()` reálnymi queries
+### Priority #2: Save Functionality
+- Ukladanie editovaných položiek do DB
+- Ukladanie match výsledkov
+
+### Priority #3: NEX Genesis Connection
+- Lookup produktov cez Btrieve
+- Obohatenie položiek o NEX data
 
 ---
 
@@ -54,25 +58,28 @@ Kľúčové pravidlá:
 
 ```
 apps/supplier-invoice-staging/          # Main app
+  database/repositories/                # InvoiceRepository
+  database/schemas/                     # SQL schemas
+  data/settings.db                      # Grid settings (per-app)
+  ui/main_window.py                     # 18 columns
+  ui/invoice_items_window.py            # 19 columns
+
 packages/shared-pyside6/                # Shared UI components
+  shared_pyside6/ui/base_grid.py        # Updated with settings_db_path
+
 docs/knowledge/specifications/          # DB schémy (pre RAG)
-tools/rag/rag_update.py                 # RAG workflow (v2)
-new_chat.py                             # Session workflow (v2)
 ```
 
 ---
 
 ## 🗄️ DATABASE INFO
 
-**Databáza:** `supplier_invoice_staging`
+**Databáza:** `supplier_invoice_staging`  
+**Connection:** localhost:5432, user postgres, password via POSTGRES_PASSWORD
 
 **Tabuľky:**
-- `supplier_invoice_heads` - hlavičky faktúr
-- `supplier_invoice_items` - položky faktúr
-
-**Konvencia polí:**
-- `xml_*` = z ISDOC XML (immutable)
-- `nex_*` = z NEX Genesis (obohatenie)
+- `supplier_invoice_heads` - 36 stĺpcov
+- `supplier_invoice_items` - 25 stĺpcov + triggers
 
 ---
 
@@ -83,21 +90,6 @@ https://rag-api.icc.sk/search?query=...&limit=N
 ```
 
 **Knowledge docs location:** `docs/knowledge/`
-
----
-
-## 📝 NEW CHAT WORKFLOW
-
-Na konci session:
-```powershell
-python new_chat.py
-```
-
-Script sa interaktívne pýta na:
-1. Session name a summary
-2. Session content (paste markdown)
-3. Knowledge documents (optional, multiple)
-4. Init prompt content
 
 ---
 

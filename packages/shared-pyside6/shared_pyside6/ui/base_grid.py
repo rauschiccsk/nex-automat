@@ -3,6 +3,7 @@ BaseGrid - Base class for all grids with advanced features.
 PySide6 version for NEX Automat with enhanced functionality.
 """
 from typing import Any
+from pathlib import Path
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QTableView, QHeaderView,
     QAbstractItemView, QMenu, QFileDialog, QMessageBox, QInputDialog
@@ -103,6 +104,7 @@ class BaseGrid(QWidget):
         grid_name: str,
         user_id: str = "default",
         auto_load: bool = True,
+        settings_db_path: str | Path | None = None,
         parent: QWidget | None = None
     ):
         """
@@ -113,6 +115,7 @@ class BaseGrid(QWidget):
             grid_name: Grid identifier (e.g., "invoice_list")
             user_id: User ID for multi-user support
             auto_load: If True, automatically load settings after model set
+            settings_db_path: Path to settings.db (default: ~/.nex-automat/settings.db)
             parent: Parent widget
         """
         super().__init__(parent)
@@ -121,7 +124,7 @@ class BaseGrid(QWidget):
         self._grid_name = grid_name
         self._user_id = user_id
         self._auto_load = auto_load
-        self._repository = SettingsRepository()
+        self._repository = SettingsRepository(settings_db_path)
 
         # Settings state
         self._column_widths: dict[str, int] = {}

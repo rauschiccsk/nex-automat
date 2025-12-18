@@ -7,6 +7,7 @@ from shared_pyside6.ui import BaseWindow, BaseGrid
 from shared_pyside6.ui.quick_search import QuickSearchContainer, QuickSearchController
 
 from config.settings import Settings
+from database.repositories import InvoiceRepository
 from ui.invoice_items_window import InvoiceItemsWindow
 
 
@@ -15,19 +16,29 @@ class MainWindow(BaseWindow):
     GRID_NAME = "invoice_list"
 
     COLUMNS = [
-        ("id", "ID", 50, False),
-        ("supplier_name", "Dodavatel", 150, True),
-        ("invoice_number", "Cislo faktury", 120, True),
-        ("invoice_date", "Datum", 90, True),
-        ("total_amount", "Suma", 100, True),
-        ("currency", "Mena", 50, True),
+        ("id", "ID", 50, True),
+        ("xml_invoice_number", "Cislo faktury", 100, True),
+        ("xml_variable_symbol", "VS", 80, True),
+        ("xml_issue_date", "Vystavena", 90, True),
+        ("xml_due_date", "Splatnost", 90, True),
+        ("xml_supplier_ico", "ICO", 80, True),
+        ("xml_supplier_name", "Dodavatel", 180, True),
+        ("xml_supplier_dic", "DIC", 100, True),
+        ("xml_currency", "Mena", 50, True),
+        ("xml_total_without_vat", "Bez DPH", 90, True),
+        ("xml_total_vat", "DPH", 70, True),
+        ("xml_total_with_vat", "S DPH", 90, True),
+        ("nex_supplier_id", "NEX ID", 60, True),
         ("status", "Stav", 80, True),
         ("item_count", "Poloziek", 60, True),
+        ("items_matched", "Matched", 60, True),
         ("match_percent", "Match%", 70, True),
+        ("validation_status", "Validacia", 80, True),
     ]
 
     def __init__(self, settings: Settings):
         self.settings = settings
+        self.repository = InvoiceRepository(settings)
         self._data = []
         self._filtered_data = []
         self._items_windows = {}
@@ -44,7 +55,7 @@ class MainWindow(BaseWindow):
         self._setup_menu()
         self._setup_statusbar()
         self._connect_signals()
-        self._load_test_data()
+        self._load_data()
 
     def _setup_ui(self):
         central = QWidget()
@@ -63,6 +74,7 @@ class MainWindow(BaseWindow):
         self.grid = BaseGrid(
             window_name=self.WINDOW_ID,
             grid_name=self.GRID_NAME,
+            settings_db_path=self.settings.get_settings_db_path(),
             parent=self
         )
 
@@ -70,8 +82,7 @@ class MainWindow(BaseWindow):
         self.model.setHorizontalHeaderLabels([col[1] for col in self.COLUMNS])
         self.grid.table_view.setModel(self.model)
 
-        # Hide ID column
-        self.grid.table_view.setColumnHidden(0, True)
+        # ID column is now visible
 
         # Set column widths
         for i, col in enumerate(self.COLUMNS):
@@ -132,7 +143,7 @@ class MainWindow(BaseWindow):
     def _on_row_selected(self, row: int):
         if 0 <= row < len(self._filtered_data):
             inv = self._filtered_data[row]
-            self.status_label.setText(f"Faktura: {inv['invoice_number']} | {inv['supplier_name']}")
+            self.status_label.setText(f"Faktura: {inv['xml_invoice_number']} | {inv['xml_supplier_name']}")
 
     @Slot(int)
     def _on_row_activated(self, row: int):
@@ -153,6 +164,7 @@ class MainWindow(BaseWindow):
         window = InvoiceItemsWindow(
             invoice=invoice,
             settings=self.settings,
+            repository=self.repository,
             parent=self
         )
         window.closed.connect(lambda: self._on_items_window_closed(invoice_id))
@@ -170,35 +182,29 @@ class MainWindow(BaseWindow):
             row_items = []
             for col_key, _, _, _ in self.COLUMNS:
                 value = row_data.get(col_key, "")
+                if isinstance(value, (int, float)) and col_key in ("xml_total_without_vat", "xml_total_vat", "xml_total_with_vat", "match_percent"):
+                    value = f"{value:.2f}"
                 item = self.grid.create_item(value, editable=False)
                 row_items.append(item)
             self.model.appendRow(row_items)
         self.title_label.setText(f"Faktury ({len(self._filtered_data)})")
 
-    def _load_test_data(self):
-        self._data = [
-            {"id": 1, "supplier_name": "METRO", "invoice_number": "F2024-001", 
-             "invoice_date": "2024-12-15", "total_amount": 1250.50, "currency": "EUR",
-             "status": "pending", "item_count": 15, "match_percent": 45.0},
-            {"id": 2, "supplier_name": "MAKRO", "invoice_number": "F2024-002",
-             "invoice_date": "2024-12-14", "total_amount": 890.00, "currency": "EUR",
-             "status": "matched", "item_count": 8, "match_percent": 100.0},
-            {"id": 3, "supplier_name": "LIDL", "invoice_number": "F2024-003",
-             "invoice_date": "2024-12-13", "total_amount": 2100.75, "currency": "EUR",
-             "status": "processing", "item_count": 22, "match_percent": 68.0},
-            {"id": 4, "supplier_name": "TESCO", "invoice_number": "F2024-004",
-             "invoice_date": "2024-12-12", "total_amount": 550.25, "currency": "EUR",
-             "status": "pending", "item_count": 5, "match_percent": 20.0},
-            {"id": 5, "supplier_name": "BILLA", "invoice_number": "F2024-005",
-             "invoice_date": "2024-12-11", "total_amount": 1800.00, "currency": "EUR",
-             "status": "matched", "item_count": 12, "match_percent": 100.0},
-        ]
-        self._filtered_data = self._data.copy()
-        self._populate_model()
-        self.grid.select_initial_row()
+    def _load_data(self):
+        """Load invoice heads from database."""
+        try:
+            self._data = self.repository.get_invoice_heads()
+            self._filtered_data = self._data.copy()
+            self._populate_model()
+            self.grid.select_initial_row()
+            self.status_label.setText(f"Načítaných {len(self._data)} faktúr")
+        except Exception as e:
+            self._data = []
+            self._filtered_data = []
+            self._populate_model()
+            self.status_label.setText(f"Chyba: {e}")
 
     def _refresh_data(self):
-        self._load_test_data()
+        self._load_data()
 
     def _show_about(self):
         QMessageBox.about(self, "O programe", 

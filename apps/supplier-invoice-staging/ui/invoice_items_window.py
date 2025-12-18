@@ -9,6 +9,7 @@ from shared_pyside6.ui import BaseWindow, BaseGrid
 from shared_pyside6.ui.quick_search import QuickSearchContainer, QuickSearchController
 
 from config.settings import Settings
+from database.repositories import InvoiceRepository
 
 
 class InvoiceItemsWindow(BaseWindow):
@@ -18,25 +19,31 @@ class InvoiceItemsWindow(BaseWindow):
     closed = Signal()
 
     COLUMNS = [
-        ("id", "ID", 50, False, False),
-        ("line_number", "#", 40, True, False),
+        ("id", "ID", 50, True, False),
+        ("xml_line_number", "#", 40, True, False),
+        ("xml_seller_code", "Kod dod.", 80, True, False),
         ("xml_ean", "EAN", 120, True, False),
-        ("xml_name", "Nazov (XML)", 200, True, False),
+        ("xml_product_name", "Nazov (XML)", 200, True, False),
         ("nex_product_name", "Nazov (NEX)", 180, True, False),
+        ("nex_ean", "EAN (NEX)", 120, True, False),
         ("xml_quantity", "Mnozstvo", 70, True, False),
         ("xml_unit", "MJ", 50, True, False),
-        ("xml_unit_price", "NC", 90, True, False),
-        ("margin_percent", "Marza %", 80, True, True),
-        ("selling_price_excl_vat", "PC bez DPH", 90, True, True),
-        ("selling_price_incl_vat", "PC s DPH", 90, True, False),
-        ("in_nex", "NEX", 50, True, False),
-        ("matched_by", "Match", 60, True, False),
-        ("item_status", "Stav", 70, True, False),
+        ("xml_unit_price", "JC bez DPH", 90, True, False),
+        ("xml_unit_price_vat", "JC s DPH", 90, True, False),
+        ("xml_total_price", "Spolu", 90, True, False),
+        ("xml_vat_rate", "DPH %", 60, True, False),
+        ("nex_product_id", "NEX Prod ID", 80, True, False),
+        ("nex_stock_code", "Sklad kod", 80, True, False),
+        ("matched", "Matched", 60, True, False),
+        ("matched_by", "Match by", 70, True, False),
+        ("match_confidence", "Confidence", 70, True, False),
+        ("validation_status", "Stav", 70, True, False),
     ]
 
-    def __init__(self, invoice: dict, settings: Settings, parent=None):
+    def __init__(self, invoice: dict, settings: Settings, repository: InvoiceRepository, parent=None):
         self.invoice = invoice
         self.settings = settings
+        self.repository = repository
         self._data: List[Dict[str, Any]] = []
         self._filtered_data: List[Dict[str, Any]] = []
 
@@ -48,10 +55,10 @@ class InvoiceItemsWindow(BaseWindow):
             parent=parent
         )
 
-        self.setWindowTitle(f"Polozky faktury: {invoice['invoice_number']} - {invoice['supplier_name']}")
+        self.setWindowTitle(f"Polozky faktury: {invoice['xml_invoice_number']} - {invoice['xml_supplier_name']}")
         self._setup_ui()
         self._connect_signals()
-        self._load_test_items()
+        self._load_items()
 
     def _setup_ui(self):
         central = QWidget()
@@ -64,10 +71,10 @@ class InvoiceItemsWindow(BaseWindow):
         # Header info
         header_layout = QHBoxLayout()
 
-        info_text = (f"Dodavatel: {self.invoice['supplier_name']} | "
-                     f"Faktura: {self.invoice['invoice_number']} | "
-                     f"Datum: {self.invoice['invoice_date']} | "
-                     f"Suma: {self.invoice['total_amount']} {self.invoice['currency']}")
+        info_text = (f"Dodavatel: {self.invoice['xml_supplier_name']} | "
+                     f"Faktura: {self.invoice['xml_invoice_number']} | "
+                     f"Datum: {self.invoice['xml_issue_date']} | "
+                     f"Suma: {self.invoice['xml_total_with_vat']} {self.invoice['xml_currency']}")
         self.info_label = QLabel(info_text)
         self.info_label.setStyleSheet("font-weight: bold;")
         header_layout.addWidget(self.info_label)
@@ -84,6 +91,7 @@ class InvoiceItemsWindow(BaseWindow):
         self.grid = BaseGrid(
             window_name=self.WINDOW_ID,
             grid_name=self.GRID_NAME,
+            settings_db_path=self.settings.get_settings_db_path(),
             parent=self
         )
 
@@ -220,43 +228,32 @@ class InvoiceItemsWindow(BaseWindow):
             f"S marzou: {priced} ({priced/total*100:.0f}%){extra}" if total else ""
         )
 
-    def _load_test_items(self):
-        self._data = [
-            {"id": 1, "line_number": 1, "xml_ean": "8590123456789", "xml_name": "Mlieko 1L",
-             "nex_product_name": "Mlieko polotucne 1L", "xml_quantity": 10, "xml_unit": "ks",
-             "xml_unit_price": 1.20, "xml_vat_rate": 20.0, "margin_percent": 0.0,
-             "selling_price_excl_vat": 0.0, "selling_price_incl_vat": 0.0,
-             "in_nex": True, "matched_by": "ean", "item_status": "matched"},
-            {"id": 2, "line_number": 2, "xml_ean": "8590123456790", "xml_name": "Chlieb",
-             "nex_product_name": "", "xml_quantity": 5, "xml_unit": "ks",
-             "xml_unit_price": 2.50, "xml_vat_rate": 20.0, "margin_percent": 0.0,
-             "selling_price_excl_vat": 0.0, "selling_price_incl_vat": 0.0,
-             "in_nex": False, "matched_by": "", "item_status": "pending"},
-            {"id": 3, "line_number": 3, "xml_ean": "8590123456791", "xml_name": "Maslo 250g",
-             "nex_product_name": "Maslo 82% 250g", "xml_quantity": 20, "xml_unit": "ks",
-             "xml_unit_price": 3.80, "xml_vat_rate": 20.0, "margin_percent": 25.0,
-             "selling_price_excl_vat": 4.75, "selling_price_incl_vat": 5.70,
-             "in_nex": True, "matched_by": "ean", "item_status": "priced"},
-            {"id": 4, "line_number": 4, "xml_ean": "8590123456792", "xml_name": "Jogurt biely",
-             "nex_product_name": "Jogurt biely 150g", "xml_quantity": 30, "xml_unit": "ks",
-             "xml_unit_price": 0.65, "xml_vat_rate": 20.0, "margin_percent": 0.0,
-             "selling_price_excl_vat": 0.0, "selling_price_incl_vat": 0.0,
-             "in_nex": True, "matched_by": "name", "item_status": "matched"},
-            {"id": 5, "line_number": 5, "xml_ean": "8590123456793", "xml_name": "Syry Edamsky",
-             "nex_product_name": "", "xml_quantity": 8, "xml_unit": "ks",
-             "xml_unit_price": 4.20, "xml_vat_rate": 20.0, "margin_percent": 0.0,
-             "selling_price_excl_vat": 0.0, "selling_price_incl_vat": 0.0,
-             "in_nex": False, "matched_by": "", "item_status": "pending"},
-        ]
-        self._filtered_data = self._data.copy()
-        self._populate_model()
-        self.grid.select_initial_row()
-        self.grid.table_view.setFocus()
+    def _load_items(self):
+        """Load invoice items from database."""
+        try:
+            self._data = self.repository.get_invoice_items(self.invoice["id"])
+            self._filtered_data = self._data.copy()
+            self._populate_model()
+            self.grid.select_initial_row()
+            self.grid.table_view.setFocus()
+        except Exception as e:
+            self._data = []
+            self._filtered_data = []
+            self._populate_model()
+            self.status_label.setText(f"Chyba: {e}")
 
     def _save_items(self):
+        """Save modified items to database."""
         modified = [i for i in self._data if (i.get("margin_percent") or 0) > 0]
-        print(f"Saving {len(modified)} modified items...")
-        self.status_label.setText(f"Ulozene {len(modified)} poloziek")
+        if not modified:
+            self.status_label.setText("Žiadne položky na uloženie")
+            return
+
+        try:
+            count = self.repository.save_items_batch(modified)
+            self.status_label.setText(f"Uložených {count} položiek")
+        except Exception as e:
+            self.status_label.setText(f"Chyba pri ukladaní: {e}")
 
     def keyPressEvent(self, event):
         """Handle key press - ESC closes window."""
