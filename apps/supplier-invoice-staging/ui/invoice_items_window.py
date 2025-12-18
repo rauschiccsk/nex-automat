@@ -114,7 +114,11 @@ class InvoiceItemsWindow(BaseWindow):
             self.search_container,
             self.grid.header
         )
-        self.search_controller.set_active_column(2)  # EAN column
+        # Load saved column or default to 2 (EAN)
+        saved_column = self.grid.get_active_column()
+        if saved_column == 0:  # ID column is hidden
+            saved_column = 2
+        self.search_controller.set_active_column(saved_column)
 
         # Status
         self.status_label = QLabel("")
@@ -127,8 +131,9 @@ class InvoiceItemsWindow(BaseWindow):
     def _on_column_changed(self, column: int):
         if 0 <= column < len(self.COLUMNS):
             col_name = self.COLUMNS[column][1]
-            # Keep stats but add column info
             self._update_status(f" | Stlpec: {col_name}")
+            # Save active column to grid settings
+            self.grid.set_active_column(column)
 
     @Slot(QStandardItem)
     def _on_item_changed(self, item: QStandardItem):
@@ -199,10 +204,7 @@ class InvoiceItemsWindow(BaseWindow):
             row_items = []
             for col_key, _, _, _, editable in self.COLUMNS:
                 value = row_data.get(col_key, "")
-                if isinstance(value, float):
-                    value = f"{value:.2f}"
-                item = QStandardItem(str(value) if value is not None else "")
-                item.setEditable(editable)
+                item = self.grid.create_item(value, editable=editable)
                 row_items.append(item)
             self.model.appendRow(row_items)
 
@@ -222,13 +224,13 @@ class InvoiceItemsWindow(BaseWindow):
         self._data = [
             {"id": 1, "line_number": 1, "xml_ean": "8590123456789", "xml_name": "Mlieko 1L",
              "nex_product_name": "Mlieko polotucne 1L", "xml_quantity": 10, "xml_unit": "ks",
-             "xml_unit_price": 1.20, "xml_vat_rate": 20.0, "margin_percent": 0,
-             "selling_price_excl_vat": 0, "selling_price_incl_vat": 0,
+             "xml_unit_price": 1.20, "xml_vat_rate": 20.0, "margin_percent": 0.0,
+             "selling_price_excl_vat": 0.0, "selling_price_incl_vat": 0.0,
              "in_nex": True, "matched_by": "ean", "item_status": "matched"},
             {"id": 2, "line_number": 2, "xml_ean": "8590123456790", "xml_name": "Chlieb",
              "nex_product_name": "", "xml_quantity": 5, "xml_unit": "ks",
-             "xml_unit_price": 2.50, "xml_vat_rate": 20.0, "margin_percent": 0,
-             "selling_price_excl_vat": 0, "selling_price_incl_vat": 0,
+             "xml_unit_price": 2.50, "xml_vat_rate": 20.0, "margin_percent": 0.0,
+             "selling_price_excl_vat": 0.0, "selling_price_incl_vat": 0.0,
              "in_nex": False, "matched_by": "", "item_status": "pending"},
             {"id": 3, "line_number": 3, "xml_ean": "8590123456791", "xml_name": "Maslo 250g",
              "nex_product_name": "Maslo 82% 250g", "xml_quantity": 20, "xml_unit": "ks",
@@ -237,20 +239,19 @@ class InvoiceItemsWindow(BaseWindow):
              "in_nex": True, "matched_by": "ean", "item_status": "priced"},
             {"id": 4, "line_number": 4, "xml_ean": "8590123456792", "xml_name": "Jogurt biely",
              "nex_product_name": "Jogurt biely 150g", "xml_quantity": 30, "xml_unit": "ks",
-             "xml_unit_price": 0.65, "xml_vat_rate": 20.0, "margin_percent": 0,
-             "selling_price_excl_vat": 0, "selling_price_incl_vat": 0,
+             "xml_unit_price": 0.65, "xml_vat_rate": 20.0, "margin_percent": 0.0,
+             "selling_price_excl_vat": 0.0, "selling_price_incl_vat": 0.0,
              "in_nex": True, "matched_by": "name", "item_status": "matched"},
             {"id": 5, "line_number": 5, "xml_ean": "8590123456793", "xml_name": "Syry Edamsky",
              "nex_product_name": "", "xml_quantity": 8, "xml_unit": "ks",
-             "xml_unit_price": 4.20, "xml_vat_rate": 20.0, "margin_percent": 0,
-             "selling_price_excl_vat": 0, "selling_price_incl_vat": 0,
+             "xml_unit_price": 4.20, "xml_vat_rate": 20.0, "margin_percent": 0.0,
+             "selling_price_excl_vat": 0.0, "selling_price_incl_vat": 0.0,
              "in_nex": False, "matched_by": "", "item_status": "pending"},
         ]
         self._filtered_data = self._data.copy()
         self._populate_model()
-        # Select first row
-        if self._filtered_data:
-            self.grid.table_view.selectRow(0)
+        self.grid.select_initial_row()
+        self.grid.table_view.setFocus()
 
     def _save_items(self):
         modified = [i for i in self._data if (i.get("margin_percent") or 0) > 0]

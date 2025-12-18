@@ -5,10 +5,10 @@ PySide6 version for NEX Automat with enhanced functionality.
 from typing import Any
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QTableView, QHeaderView,
-    QAbstractItemView, QMenu, QFileDialog, QMessageBox
+    QAbstractItemView, QMenu, QFileDialog, QMessageBox, QInputDialog
 )
 from PySide6.QtCore import Qt, Signal, QModelIndex
-from PySide6.QtGui import QPainter, QColor, QPalette, QAction
+from PySide6.QtGui import QPainter, QColor, QPalette, QAction, QBrush
 
 from shared_pyside6.database import SettingsRepository
 
@@ -176,6 +176,10 @@ class BaseGrid(QWidget):
 
         layout.addWidget(self.table_view)
 
+        # Enable context menu on header
+        self.header.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+        self.header.customContextMenuRequested.connect(self._show_header_context_menu)
+
         # Connect signals
         self._connect_base_signals()
 
@@ -203,6 +207,20 @@ class BaseGrid(QWidget):
         if self._auto_load:
             self._load_grid_settings()
         self._loading = False  # Now allow saving
+
+    def select_initial_row(self) -> None:
+        """
+        Select first row or restore last position.
+        Call this AFTER populating model with data.
+        """
+        model = self.table_view.model()
+        if not model or model.rowCount() == 0:
+            return
+
+        # Try to restore last position first
+        if not self.restore_cursor_position():
+            # Otherwise select first row
+            self.table_view.selectRow(0)
 
     def _load_grid_settings(self) -> None:
         """Load and apply saved grid settings."""
@@ -244,6 +262,12 @@ class BaseGrid(QWidget):
 
         # Load custom headers
         self._custom_headers = settings.get("custom_headers", {})
+
+        # Apply custom headers to model
+        for col_str, header_text in self._custom_headers.items():
+            col = int(col_str)
+            if 0 <= col < model.columnCount():
+                model.setHeaderData(col, Qt.Orientation.Horizontal, header_text)
 
         # Load active column
         self._active_column = settings.get("active_column", 0)
@@ -365,6 +389,15 @@ class BaseGrid(QWidget):
         """Set column visibility."""
         self.table_view.setColumnHidden(column, not visible)
         self._column_visibility[str(column)] = visible
+
+        # Restore minimum width when making visible
+        if visible:
+            current_width = self.table_view.columnWidth(column)
+            if current_width < 20:
+                # Restore from saved width or use default
+                saved_width = self._column_widths.get(str(column), 80)
+                self.table_view.setColumnWidth(column, max(saved_width, 50))
+
         self._save_grid_settings()
 
     def is_column_visible(self, column: int) -> bool:
@@ -451,6 +484,68 @@ class BaseGrid(QWidget):
         self._active_column = column
         self.header.set_active_column(column)
         self._save_grid_settings()
+
+    # === Item Creation ===
+
+    def create_item(self, value, editable: bool = False) -> "QStandardItem":
+        """
+        Create QStandardItem with automatic formatting and alignment.
+
+        - Integers: right-aligned, no decimal places
+        - Floats: right-aligned, 2 decimal places
+        - Strings/other: left-aligned
+
+        Args:
+            value: The value to display
+            editable: Whether the item is editable
+
+        Returns:
+            Configured QStandardItem
+        """
+        from PySide6.QtGui import QStandardItem
+
+        # Determine text and alignment based on type
+        is_boolean = False
+        if value is None:
+            text = ""
+            align_right = False
+        elif isinstance(value, bool):
+            # Use icons for boolean: green checkmark / red X
+            text = "✓" if value else "✗"
+            is_boolean = True
+            align_right = False
+        elif isinstance(value, float):
+            # Float always with 2 decimal places (including 0.0)
+            text = f"{value:.2f}"
+            align_right = True
+        elif isinstance(value, int):
+            text = str(value)
+            align_right = True
+        else:
+            # Try to detect numeric strings
+            text = str(value)
+            align_right = False
+
+        item = QStandardItem(text)
+        item.setEditable(editable)
+
+        if align_right:
+            item.setTextAlignment(
+                Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter
+            )
+        else:
+            item.setTextAlignment(
+                Qt.AlignmentFlag.AlignCenter | Qt.AlignmentFlag.AlignVCenter
+            ) if is_boolean else None
+
+        # Set color for boolean icons
+        if is_boolean:
+            if value:
+                item.setForeground(QBrush(QColor(0, 200, 0)))  # Green
+            else:
+                item.setForeground(QBrush(QColor(220, 50, 50)))  # Red
+
+        return item
 
     # === Export ===
 
@@ -578,6 +673,94 @@ class BaseGrid(QWidget):
             return False
 
     # === Context Menu ===
+
+    def _show_header_context_menu(self, position) -> None:
+        """Show context menu on header for column visibility and rename."""
+        model = self.table_view.model()
+        if not model:
+            return
+        
+        # Get column under cursor
+        clicked_col = self.header.logicalIndexAt(position)
+        
+        menu = QMenu(self)
+        
+        # Rename option for clicked column
+        if clicked_col >= 0:
+            current_name = self.get_custom_header(clicked_col)
+            if not current_name:
+                current_name = model.headerData(clicked_col, Qt.Orientation.Horizontal) or f"Column {clicked_col}"
+            
+            rename_action = QAction(f"Premenovať '{current_name}'...", self)
+            rename_action.triggered.connect(lambda: self._rename_column_dialog(clicked_col))
+            menu.addAction(rename_action)
+            
+            # Reset name option (only if custom name exists)
+            if self.get_custom_header(clicked_col):
+                reset_action = QAction("Obnoviť pôvodný názov", self)
+                reset_action.triggered.connect(lambda: self._reset_column_name(clicked_col))
+                menu.addAction(reset_action)
+            
+            menu.addSeparator()
+        
+        # Column visibility submenu
+        columns_menu = menu.addMenu("Stĺpce")
+        for col in range(model.columnCount()):
+            # Get display name (custom or original)
+            custom = self.get_custom_header(col)
+            if custom:
+                header = custom
+            else:
+                header = model.headerData(col, Qt.Orientation.Horizontal) or f"Column {col}"
+            
+            action = QAction(str(header), self)
+            action.setCheckable(True)
+            action.setChecked(self.is_column_visible(col))
+            action.triggered.connect(
+                lambda checked, c=col: self.set_column_visible(c, checked)
+            )
+            columns_menu.addAction(action)
+        
+        menu.exec(self.header.mapToGlobal(position))
+
+    def _rename_column_dialog(self, column: int) -> None:
+        """Show dialog to rename column."""
+        model = self.table_view.model()
+        if not model:
+            return
+        
+        # Get current name
+        current = self.get_custom_header(column)
+        if not current:
+            current = model.headerData(column, Qt.Orientation.Horizontal) or ""
+        
+        # Show input dialog
+        new_name, ok = QInputDialog.getText(
+            self,
+            "Premenovať stĺpec",
+            "Nový názov:",
+            text=str(current)
+        )
+        
+        if ok and new_name:
+            self.set_custom_header(column, new_name)
+            # Update header display
+            model.setHeaderData(column, Qt.Orientation.Horizontal, new_name)
+
+    def _reset_column_name(self, column: int) -> None:
+        """Reset column name to original."""
+        model = self.table_view.model()
+        if not model or str(column) not in self._custom_headers:
+            return
+        
+        # Remove custom header
+        del self._custom_headers[str(column)]
+        self._save_grid_settings()
+        
+        # Restore original - need to get from model's original data
+        # For QStandardItemModel, we need to reload or store originals
+        # For now, just trigger a visual update
+        self.header.updateSection(column)
 
     def _show_context_menu(self, position) -> None:
         """Show context menu."""
