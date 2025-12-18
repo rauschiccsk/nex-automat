@@ -1,286 +1,90 @@
 """
-Create new chat artifacts: SESSION archive, update ARCHIVE_INDEX, create INIT_PROMPT, run RAG update.
+Create new chat artifacts: SESSION archive, KNOWLEDGE docs, INIT_PROMPT, run RAG update.
+
 Run from: C:/Development/nex-automat
+
+Usage:
+    python new_chat.py
+
+Then Claude generates content as artifacts, user pastes into script prompts.
 """
 
 import subprocess
+import sys
+import os
 from datetime import datetime
 from pathlib import Path
 
-SESSION_NAME = "supplier-invoice-staging-gui-testing"
+
+PROJECT_ROOT = Path(r"C:\Development\nex-automat")
 SESSION_DATE = datetime.now().strftime("%Y-%m-%d")
 
 
-def create_session_archive():
-    """Create SESSION_*.md archive file."""
-    content = f"""# Session: {SESSION_NAME}
+def get_next_session_number() -> str:
+    """Get next session number for today (01, 02, 03...)."""
+    sessions_dir = PROJECT_ROOT / "docs" / "archive" / "sessions"
 
-**Dátum:** {SESSION_DATE}
-**Projekt:** nex-automat
-**Stav:** COMPLETED
+    if not sessions_dir.exists():
+        return "01"
 
----
+    pattern = f"SESSION_{SESSION_DATE}_*"
+    existing = list(sessions_dir.glob(pattern))
 
-## Prehľad Session
+    if not existing:
+        return "01"
 
-Testovanie a vylepšovanie GUI aplikácie supplier-invoice-staging (PySide6).
+    numbers = []
+    for f in existing:
+        parts = f.stem.split("_")
+        if len(parts) >= 3:
+            try:
+                num = int(parts[2])
+                numbers.append(num)
+            except ValueError:
+                continue
 
----
+    if not numbers:
+        return "01"
 
-## Dokončené Úlohy
+    return f"{max(numbers) + 1:02d}"
 
-### 1. Klávesové skratky
-- ✅ Enter v hlavičkách faktúr otvára položky
-- ✅ ESC v položkách zatvára okno
-- ✅ ESC v hlavičkách zatvára aplikáciu
 
-### 2. Modálne okno položiek
-- ✅ InvoiceItemsWindow je teraz ApplicationModal
-- ✅ Len jedna faktúra môže byť otvorená naraz
-- ✅ Jednotná pozícia okna pre všetky faktúry
+def create_session_archive(session_name: str, session_content: str) -> str:
+    """Create SESSION_*.md archive file with sequential number."""
+    session_num = get_next_session_number()
 
-### 3. Grid Settings Persistence
-- ✅ save_grid_settings_now() volaný pri closeEvent oboch okien
-- ✅ Nastavenia sa ukladajú pri zatvorení každého okna
-
-### 4. Initial Row Selection
-- ✅ BaseGrid.select_initial_row() - nová metóda
-- ✅ Automatický výber prvého riadku po načítaní dát
-- ✅ Focus na table_view v InvoiceItemsWindow
-
-### 5. Header Context Menu (BaseGrid)
-- ✅ Pravý klik na header → context menu
-- ✅ "Premenovať '...'..." - dialóg pre vlastný názov stĺpca
-- ✅ "Obnoviť pôvodný názov" - reset custom header
-- ✅ "Stĺpce" submenu - checkbox pre viditeľnosť každého stĺpca
-- ✅ Custom headers sa ukladajú a načítavajú zo settings
-- ✅ Fix: Obnovenie šírky stĺpca pri set_column_visible(True)
-
-### 6. BaseGrid.create_item() - Automatické formátovanie
-- ✅ int → doprava zarovnané, bez desatinných miest
-- ✅ float → doprava zarovnané, 2 desatinné miesta (vrátane 0.00)
-- ✅ bool → ✓ (zelená) / ✗ (červená), centrované
-- ✅ string → doľava zarovnané
-- ✅ Použité v MainWindow a InvoiceItemsWindow
-
----
-
-## Modifikované Súbory
-
-### apps/supplier-invoice-staging/
-- `ui/main_window.py` - Enter/ESC handlers, modal window, create_item
-- `ui/invoice_items_window.py` - ESC handler, focus, create_item, test data floats
-
-### packages/shared-pyside6/shared_pyside6/ui/
-- `base_grid.py` - select_initial_row, header context menu, create_item, boolean icons, column visibility fix
-
----
-
-## Vytvorené Skripty (scripts/)
-
-| # | Skript | Popis |
-|---|--------|-------|
-| 01 | add_enter_key_handler.py | Enter otvára položky faktúry |
-| 02 | add_esc_handler_items_window.py | ESC zatvára okno položiek |
-| 03 | make_items_window_modal.py | Modálne okno položiek |
-| 04 | fix_items_window_position.py | Jednotná pozícia okna |
-| 05 | save_settings_on_close.py | Uloženie settings pri zatvorení |
-| 06 | select_first_row_on_load.py | Výber prvého riadku (hlavičky) |
-| 07 | select_first_row_items_window.py | Výber prvého riadku (položky) |
-| 08 | move_select_row_to_base_grid.py | Presun do BaseGrid |
-| 09 | fix_select_row_timing.py | Oprava timing |
-| 10 | fix_items_window_active_column.py | Ukladanie aktívneho stĺpca |
-| 11 | fix_items_window_focus.py | Focus na table_view |
-| 12 | add_header_context_menu.py | Context menu na header |
-| 13 | fix_load_custom_headers.py | Načítanie custom headers |
-| 14 | fix_column_visibility.py | Oprava šírky pri zobrazení |
-| 15 | add_create_item_to_base_grid.py | Automatické formátovanie |
-| 16 | fix_zero_decimal_format.py | 0 ako 0.00 |
-| 17 | fix_test_data_floats.py | Test dáta 0 → 0.0 |
-| 18 | add_boolean_icons.py | ✓/✗ ikony pre boolean |
-| 19 | add_esc_to_main_window.py | ESC v hlavnom okne |
-
----
-
-## Ďalšie Kroky (Nový Chat)
-
-### Priority #1: Connect to Real Data
-- Aplikácia pobeží na **Mágerstav serveri**
-- **Lokálna PostgreSQL** databáza `invoice_staging`
-- Použiť existujúci `PostgresStagingClient` z `nex-shared`
-- Nahradiť `_load_test_data()` a `_load_test_items()` reálnymi queries
-
-### Potrebné:
-1. Pridať database service do supplier-invoice-staging
-2. Konfigurácia pripojenia (config.yaml)
-3. Query pre načítanie faktúr z `invoices_pending`
-4. Query pre načítanie položiek z `invoice_items_pending`
-
----
-
-## Technické Poznámky
-
-### Settings DB lokácie
-- Development: `C:\\Users\\ZelenePC\\.nex-automat\\settings.db`
-- App-specific: `apps/supplier-invoice-staging/data/settings.db`
-
-### RAG Workflow
-- Claude vypíše URL, user vloží do chatu, Claude fetchne
-- Funguje spoľahlivo, nemeníme
-
----
-
-**Session ukončená:** {SESSION_DATE}
-"""
-
-    archive_dir = Path("docs/archive/sessions")
+    archive_dir = PROJECT_ROOT / "docs" / "archive" / "sessions"
     archive_dir.mkdir(parents=True, exist_ok=True)
 
-    filename = f"SESSION_{SESSION_DATE}_{SESSION_NAME}.md"
+    filename = f"SESSION_{SESSION_DATE}_{session_num}_{session_name}.md"
     filepath = archive_dir / filename
-    filepath.write_text(content, encoding="utf-8")
-    print(f"OK: Created {filepath}")
+    filepath.write_text(session_content, encoding="utf-8")
+    print(f"✓ Created {filepath.relative_to(PROJECT_ROOT)}")
     return filename
 
 
-def update_archive_index(session_filename):
-    """Update ARCHIVE_INDEX.md with new session."""
-    index_path = Path("docs/archive/00_ARCHIVE_INDEX.md")
+def create_knowledge_doc(category: str, topic: str, content: str) -> str:
+    """Create knowledge document in docs/knowledge/{category}/."""
+    knowledge_dir = PROJECT_ROOT / "docs" / "knowledge" / category
+    knowledge_dir.mkdir(parents=True, exist_ok=True)
 
-    if not index_path.exists():
-        print(f"WARNING: {index_path} not found, skipping update")
-        return
-
-    content = index_path.read_text(encoding="utf-8")
-
-    # Add new entry after the header row
-    new_entry = f"| {SESSION_DATE} | {SESSION_NAME} | GUI testing, BaseGrid improvements, create_item | sessions/SESSION_{SESSION_DATE}_{SESSION_NAME}.md |"
-
-    # Find the table and add entry
-    if "| Dátum |" in content:
-        lines = content.split("\n")
-        for i, line in enumerate(lines):
-            if line.startswith("| Dátum |"):
-                # Insert after header and separator (i+2)
-                lines.insert(i + 2, new_entry)
-                break
-        content = "\n".join(lines)
-        index_path.write_text(content, encoding="utf-8")
-        print(f"OK: Updated {index_path}")
-    else:
-        print(f"WARNING: Could not find table in {index_path}")
-
-
-def create_init_prompt():
-    """Create INIT_PROMPT_NEW_CHAT.md."""
-    content = f"""# INIT PROMPT - NEX Automat Project
-
-**Projekt:** nex-automat  
-**Current Status:** supplier-invoice-staging v1.0 - CONNECT TO REAL DATA
-**Developer:** Zoltán (40 rokov skúseností)  
-**Jazyk:** Slovenčina  
-**Previous Session:** {SESSION_NAME} ({SESSION_DATE})
-
----
-
-## ⚠️ KRITICKÉ: COLLABORATION RULES
-
-**MUSÍŠ dodržiavať pravidlá z memory_user_edits!**
-
-Kľúčové pravidlá:
-- **Rule #7:** CRITICAL artifacts pre všetky dokumenty/kód
-- **Rule #8:** Step-by-step, confirmation pred pokračovaním
-- **Rule #5:** Slovak language, presná terminológia projektov
-- **Rule #19:** "novy chat" = 2 artifacts (new_chat.py + commit-message.txt)
-- **Rule #23:** RAG Workflow - Claude vypíše URL, user vloží, Claude fetchne
-
----
-
-## 🔄 DOKONČENÉ MINULÚ SESSION
-
-### GUI Testing & Improvements
-- ✅ Klávesové skratky (Enter, ESC) pre obe okná
-- ✅ Modálne okno položiek faktúry
-- ✅ Grid settings persistence pri zatvorení okna
-- ✅ Header context menu (premenovanie stĺpcov, viditeľnosť)
-- ✅ BaseGrid.create_item() - automatické formátovanie a zarovnanie
-- ✅ Boolean ikony (✓/✗) s farbami
-- ✅ Initial row selection a focus
-
----
-
-## 🎯 IMMEDIATE NEXT STEPS
-
-### Priority #1: Connect to Real PostgreSQL Data
-- Aplikácia pobeží na **Mágerstav serveri**
-- **Lokálna PostgreSQL** databáza `invoice_staging`
-- Existujúci klient: `packages/nex-shared/database/postgres_staging.py`
-
-### Úlohy:
-1. Pridať database service do supplier-invoice-staging
-2. Konfigurácia pripojenia (localhost, invoice_staging)
-3. Nahradiť `_load_test_data()` → query z `invoices_pending`
-4. Nahradiť `_load_test_items()` → query z `invoice_items_pending`
-
----
-
-## 📂 KEY PATHS
-
-```
-apps/supplier-invoice-staging/          # Main app
-packages/shared-pyside6/                # Shared UI components
-packages/nex-shared/database/           # PostgresStagingClient
-tools/rag/rag_update.py                 # RAG workflow
-```
-
----
-
-## 🗄️ DATABASE INFO
-
-**Connection:**
-```python
-config = {{
-    'host': 'localhost',
-    'port': 5432,
-    'database': 'invoice_staging',
-    'user': 'postgres',
-    'password': '<from_env_POSTGRES_PASSWORD>'
-}}
-```
-
-**Tables:**
-- `invoices_pending` - hlavičky faktúr
-- `invoice_items_pending` - položky faktúr
-
----
-
-## 🔍 RAG ACCESS
-
-```
-https://rag-api.icc.sk/search?query=...&limit=N
-```
-
----
-
-**Token Budget:** 190,000  
-**Location:** C:\\Development\\nex-automat
-
----
-
-**KONIEC INIT PROMPTU**
-"""
-
-    filepath = Path("INIT_PROMPT_NEW_CHAT.md")
+    filename = f"{SESSION_DATE}_{topic}.md"
+    filepath = knowledge_dir / filename
     filepath.write_text(content, encoding="utf-8")
-    print(f"OK: Created {filepath}")
+    print(f"✓ Created {filepath.relative_to(PROJECT_ROOT)}")
+    return filename
+
+
+def create_init_prompt(init_content: str):
+    """Create INIT_PROMPT_NEW_CHAT.md in project root."""
+    filepath = PROJECT_ROOT / "INIT_PROMPT_NEW_CHAT.md"
+    filepath.write_text(init_content, encoding="utf-8")
+    print(f"✓ Created {filepath.relative_to(PROJECT_ROOT)}")
 
 
 def run_rag_update():
-    """Run RAG update for new files."""
-    import sys
-    import os
+    """Run RAG update for new knowledge files."""
     try:
-        # Set UTF-8 encoding for subprocess
         env = os.environ.copy()
         env["PYTHONIOENCODING"] = "utf-8"
 
@@ -291,29 +95,146 @@ def run_rag_update():
             encoding="utf-8",
             errors="replace",
             env=env,
-            cwd=Path.cwd()
+            cwd=PROJECT_ROOT
         )
         if result.returncode == 0:
-            print(f"OK: RAG update completed")
+            print(f"✓ RAG update completed")
             if result.stdout:
-                print(result.stdout)
+                for line in result.stdout.split("\n"):
+                    if "Found" in line or "Indexed" in line or "COMPLETE" in line:
+                        print(f"  {line.strip()}")
         else:
-            print(f"WARNING: RAG update failed: {result.stderr}")
+            print(f"⚠ RAG update failed: {result.stderr}")
     except Exception as e:
-        print(f"WARNING: Could not run RAG update: {e}")
+        print(f"⚠ Could not run RAG update: {e}")
+
+
+def read_multiline_input(prompt: str) -> str:
+    """Read multiline input until empty line."""
+    print(prompt)
+    print("(Paste content, then press Enter twice to finish)")
+    print("-" * 40)
+
+    lines = []
+    empty_count = 0
+
+    while True:
+        try:
+            line = input()
+            if line == "":
+                empty_count += 1
+                if empty_count >= 2:
+                    break
+                lines.append("")
+            else:
+                empty_count = 0
+                lines.append(line)
+        except EOFError:
+            break
+
+    return "\n".join(lines).strip()
 
 
 def main():
-    print("=== Creating New Chat Artifacts ===\n")
+    print()
+    print("=" * 60)
+    print(" NEW CHAT - Create Session Archive & Knowledge Docs")
+    print("=" * 60)
+    print()
 
-    session_filename = create_session_archive()
-    update_archive_index(session_filename)
-    create_init_prompt()
+    # 1. Session name
+    session_name = input("Session name (slug, e.g., 'rag-knowledge-system'): ").strip()
+    if not session_name:
+        print("❌ Session name required!")
+        return
+
+    # 2. Session content
+    print()
+    session_content = read_multiline_input("SESSION ARCHIVE content (markdown):")
+
+    if not session_content:
+        print("❌ Session content required!")
+        return
+
+    # 3. Knowledge documents (optional, multiple)
+    knowledge_docs = []
+    print()
+    print("-" * 60)
+    print("KNOWLEDGE DOCUMENTS (optional)")
+    print("Categories: decisions, development, deployment, scripts, specifications")
+    print("-" * 60)
+
+    while True:
+        print()
+        add_knowledge = input("Add knowledge document? (y/n): ").strip().lower()
+        if add_knowledge != 'y':
+            break
+
+        category = input("  Category (decisions/development/deployment/scripts/specifications): ").strip()
+        if category not in ['decisions', 'development', 'deployment', 'scripts', 'specifications']:
+            print(f"  ⚠ Invalid category: {category}")
+            continue
+
+        topic = input("  Topic slug (e.g., 'db-schema-xml-nex-prefixes'): ").strip()
+        if not topic:
+            print("  ⚠ Topic required")
+            continue
+
+        print()
+        content = read_multiline_input(f"  Content for {category}/{topic}:")
+
+        if content:
+            knowledge_docs.append((category, topic, content))
+            print(f"  ✓ Queued: {category}/{SESSION_DATE}_{topic}.md")
+
+    # 4. Init prompt
+    print()
+    print("-" * 60)
+    init_content = read_multiline_input("INIT_PROMPT content (markdown):")
+
+    if not init_content:
+        print("⚠ No init prompt provided, skipping")
+
+    # Execute
+    print()
+    print("=" * 60)
+    print(" CREATING FILES")
+    print("=" * 60)
+    print()
+
+    # Create session archive
+    session_filename = create_session_archive(session_name, session_content)
+
+    # Create knowledge docs
+    for category, topic, content in knowledge_docs:
+        create_knowledge_doc(category, topic, content)
+
+    # Create init prompt
+    if init_content:
+        create_init_prompt(init_content)
+
+    # Run RAG update
+    print()
+    print("-" * 60)
+    print("Running RAG update...")
     run_rag_update()
 
-    print("\n=== Done! ===")
-    print("1. Commit changes")
-    print("2. Start new chat with INIT_PROMPT_NEW_CHAT.md")
+    # Summary
+    print()
+    print("=" * 60)
+    print(" DONE!")
+    print("=" * 60)
+    print()
+    print("Created files:")
+    print(f"  • Session: docs/archive/sessions/{session_filename}")
+    for category, topic, _ in knowledge_docs:
+        print(f"  • Knowledge: docs/knowledge/{category}/{SESSION_DATE}_{topic}.md")
+    if init_content:
+        print(f"  • Init prompt: INIT_PROMPT_NEW_CHAT.md")
+    print()
+    print("Next steps:")
+    print("  1. git add -A && git commit -m 'Session archive + knowledge docs'")
+    print("  2. Start new chat with INIT_PROMPT_NEW_CHAT.md")
 
 
 if __name__ == "__main__":
