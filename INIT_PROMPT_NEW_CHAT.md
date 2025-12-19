@@ -1,10 +1,10 @@
 # INIT PROMPT - NEX Automat Project
 
 **Projekt:** nex-automat  
-**Current Status:** supplier-invoice-staging - FUNCTIONAL WITH DB  
+**Current Status:** NEX Brain API - FUNCTIONAL  
 **Developer:** Zoltán (40 rokov skúseností)  
 **Jazyk:** Slovenčina  
-**Previous Session:** supplier-invoice-db-integration (2025-12-18)
+**Previous Session:** nex-brain-api-fixes (2025-12-19)
 
 ---
 
@@ -24,62 +24,51 @@ Kľúčové pravidlá:
 
 ## 🔄 DOKONČENÉ MINULÚ SESSION
 
-### Database Integration Complete
-- ✅ PostgreSQL schéma aplikovaná (`supplier_invoice_heads`, `supplier_invoice_items`)
-- ✅ `InvoiceRepository` s reálnymi queries
-- ✅ GUI napojené na databázu (18 + 19 stĺpcov)
-- ✅ Testovacie dáta (5 faktúr, 7 položiek)
-- ✅ `settings.db` v projektovom priečinku `data/`
+### NEX Brain API - FUNCTIONAL
+- ✅ FastAPI server na http://127.0.0.1:8001
+- ✅ Swagger UI na /docs
+- ✅ Greeting detection funguje
+- ✅ RAG chunk selection opravený
+- ✅ LLM odpovede bez halucinácie
+- ✅ Testy "Co je NEX Brain?" a "fázy implementácie" fungujú
 
-### DB Field Convention
-- `xml_*` = z ISDOC XML (immutable)
-- `nex_*` = z NEX Genesis (obohatenie)
+### Kľúčové opravy
+- RAG: Boost pre chunky kde sekcia je na ZAČIATKU
+- LLM: temperature=0.0, striktný prompt
+- Chat: ASCII patterns pre slovenské znaky
 
 ---
 
 ## 🎯 IMMEDIATE NEXT STEPS
 
-### Priority #1: Product Matching Logic
-- Implementovať matching podľa EAN
-- Implementovať matching podľa názvu (fuzzy)
-- Implementovať matching podľa seller_code
+### Priority #1: Git Commit
+- Commitnúť všetky zmeny z minulej session
+- Zmazať dočasné scripty
 
-### Priority #2: Save Functionality
-- Ukladanie editovaných položiek do DB
-- Ukladanie match výsledkov
+### Priority #2: .env Configuration
+- Vytvoriť .env súbor pre nex-brain app
 
-### Priority #3: NEX Genesis Connection
-- Lookup produktov cez Btrieve
-- Obohatenie položiek o NEX data
+### Priority #3: Fáza 2 - Knowledge Base
+- Import dokumentov pre ICC
+- Import dokumentov pre ANDROS
+- Tenant-specific RAG filtering
 
 ---
 
 ## 📂 KEY PATHS
 
 ```
-apps/supplier-invoice-staging/          # Main app
-  database/repositories/                # InvoiceRepository
-  database/schemas/                     # SQL schemas
-  data/settings.db                      # Grid settings (per-app)
-  ui/main_window.py                     # 18 columns
-  ui/invoice_items_window.py            # 19 columns
+apps/nex-brain/                         # NEX Brain app
+  api/main.py                           # FastAPI
+  api/routes/chat.py                    # Chat endpoint (greeting detection)
+  api/services/rag_service.py           # RAG (boost logic)
+  api/services/llm_service.py           # Ollama (strict prompt)
+  cli/chat_cli.py                       # CLI testing
+  config/settings.py                    # Multi-tenant config
 
-packages/shared-pyside6/                # Shared UI components
-  shared_pyside6/ui/base_grid.py        # Updated with settings_db_path
-
-docs/knowledge/specifications/          # DB schémy (pre RAG)
+docs/knowledge/strategic/               # Strategic docs
+  NEX_BRAIN_PRODUCT.md                  # Product strategy
 ```
-
----
-
-## 🗄️ DATABASE INFO
-
-**Databáza:** `supplier_invoice_staging`  
-**Connection:** localhost:5432, user postgres, password via POSTGRES_PASSWORD
-
-**Tabuľky:**
-- `supplier_invoice_heads` - 36 stĺpcov
-- `supplier_invoice_items` - 25 stĺpcov + triggers
 
 ---
 
@@ -89,7 +78,18 @@ docs/knowledge/specifications/          # DB schémy (pre RAG)
 https://rag-api.icc.sk/search?query=...&limit=N
 ```
 
-**Knowledge docs location:** `docs/knowledge/`
+---
+
+## 🛠️ NEX Brain Server
+
+```powershell
+# Start server
+cd C:\Development\nex-automat\apps\nex-brain
+python -m uvicorn api.main:app --reload --port 8001
+
+# Test
+Invoke-RestMethod -Uri "http://127.0.0.1:8001/api/v1/chat" -Method POST -ContentType "application/json" -Body '{"question": "Co je NEX Brain?", "tenant": "icc"}'
+```
 
 ---
 

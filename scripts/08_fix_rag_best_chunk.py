@@ -1,9 +1,17 @@
+#!/usr/bin/env python
 """
+Fix rag_service.py - Select best chunk per file, not first.
+"""
+
+from pathlib import Path
+
+FILE_PATH = Path("C:/Development/nex-automat/apps/nex-brain/api/services/rag_service.py")
+
+CONTENT = '''"""
 RAG Service - Integration with existing RAG API.
 """
 
 import httpx
-import re
 from typing import List, Dict, Any, Optional
 from config.settings import settings
 
@@ -17,7 +25,7 @@ class RAGService:
     async def search(
         self, 
         query: str, 
-        limit: int = 10,
+        limit: int = 10,  # Get more, then filter
         tenant: Optional[str] = None
     ) -> List[Dict[str, Any]]:
         """Search RAG knowledge base."""
@@ -32,7 +40,7 @@ class RAGService:
                 data = response.json()
                 results = data.get("results", [])
 
-                # Boost by query relevance
+                # Score chunks that contain query terms higher
                 results = self._boost_relevant(results, query)
 
                 if tenant:
@@ -52,68 +60,37 @@ class RAGService:
         results: List[Dict[str, Any]], 
         query: str
     ) -> List[Dict[str, Any]]:
-        """Boost score for chunks that match query intent."""
-        query_lower = query.lower()
-
-        # Extract important keywords from query
-        keywords = self._extract_keywords(query_lower)
+        """Boost score for chunks containing query keywords."""
+        query_words = set(query.lower().split())
 
         for r in results:
             content = r.get("content", "").lower()
             score = r.get("score", 0)
-            boost = 0
 
-            # Boost for each keyword match in content
-            for kw in keywords:
-                if kw in content:
-                    boost += 0.15
+            # Boost if content contains key query words
+            matches = sum(1 for w in query_words if w in content and len(w) > 3)
+            if matches > 0:
+                r["adjusted_score"] = score + (matches * 0.1)
+            else:
+                r["adjusted_score"] = score
 
-            # Extra boost for structural matches
-            if "faz" in query_lower or "implementa" in query_lower:
-                raw_content = r.get("content", "")
-                # Check if section header is at START (first 200 chars) - this is the RIGHT chunk
-                start_content = raw_content[:200]
-                if "IMPLEMENTAČNÉ FÁZY" in start_content or "## 5." in start_content:
-                    boost += 0.8  # Strong boost - this is THE chunk about phases
-                elif "Fáza 1:" in start_content or "Foundation" in start_content[:300]:
-                    boost += 0.6  # Also good - starts with phase details
-                # No boost if IMPLEMENTAČNÉ is buried deep in chunk
-
-            if "co je" in query_lower or "co to je" in query_lower:
-                # Definition question - boost SUMMARY
-                if "summary" in content or "je " in content[:100]:
-                    boost += 0.2
-
-            r["adjusted_score"] = score + boost
+            # Extra boost for "SUMMARY" or definition-like content
+            if "summary" in content or "je " in content[:200]:
+                r["adjusted_score"] += 0.15
 
         # Sort by adjusted score
         results.sort(key=lambda x: x.get("adjusted_score", 0), reverse=True)
         return results
-
-    def _extract_keywords(self, query: str) -> List[str]:
-        """Extract meaningful keywords from query."""
-        # Remove common words
-        stopwords = {"ake", "su", "co", "je", "ako", "pre", "na", "do", "sa", "to", "a", "v", "s"}
-        words = query.split()
-        keywords = [w for w in words if w not in stopwords and len(w) > 2]
-        return keywords
 
     def _deduplicate_best(self, results: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         """Keep only BEST chunk per unique filename (by adjusted_score)."""
         best = {}
         for r in results:
             filename = r.get("filename", "")
-            current_score = r.get("adjusted_score", r.get("score", 0))
-            existing = best.get(filename)
-            if existing is None:
+            score = r.get("adjusted_score", r.get("score", 0))
+            if filename not in best or score > best[filename].get("adjusted_score", 0):
                 best[filename] = r
-            else:
-                existing_score = existing.get("adjusted_score", existing.get("score", 0))
-                if current_score > existing_score:
-                    best[filename] = r
-        # Sort by adjusted_score descending
-        sorted_results = sorted(best.values(), key=lambda x: x.get("adjusted_score", 0), reverse=True)
-        return sorted_results
+        return list(best.values())
 
     def _filter_by_tenant(
         self, 
@@ -133,25 +110,24 @@ class RAGService:
         return filtered
 
     def format_context(self, results: List[Dict[str, Any]]) -> str:
-        """Format RAG results as context for LLM."""
+        """Format RAG results as concise context for LLM."""
         if not results:
             return ""
 
         context_parts = []
         for r in results:
             content = r.get("content", "")
-            # Allow longer content for better context
-            if len(content) > 1200:
-                content = content[:1200]
+            if len(content) > 800:
+                content = content[:800]
             content = self._clean_content(content)
             if content.strip():
                 context_parts.append(content)
 
-        return "\n\n".join(context_parts)
+        return "\\n\\n".join(context_parts)
 
     def _clean_content(self, content: str) -> str:
-        """Clean content for LLM."""
-        lines = content.split("\n")
+        """Clean content for better LLM understanding."""
+        lines = content.split("\\n")
         cleaned = []
         in_code_block = False
 
@@ -161,7 +137,20 @@ class RAGService:
                 continue
             if in_code_block:
                 continue
-            if line.strip() and line.strip() != "---":
+            if line.strip() and not line.strip() == "---":
                 cleaned.append(line)
 
-        return "\n".join(cleaned[:30])  # More lines allowed
+        return "\\n".join(cleaned[:20])
+'''
+
+
+def main():
+    FILE_PATH.write_text(CONTENT, encoding="utf-8")
+    print("✅ Fixed: rag_service.py")
+    print("   - Boost chunks containing query words")
+    print("   - Boost 'SUMMARY' sections")
+    print("   - Keep BEST chunk per file (not first)")
+
+
+if __name__ == "__main__":
+    main()

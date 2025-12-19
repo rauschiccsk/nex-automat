@@ -1,4 +1,13 @@
+#!/usr/bin/env python
 """
+Fix rag_service.py - Better keyword boosting for implementation phases.
+"""
+
+from pathlib import Path
+
+FILE_PATH = Path("C:/Development/nex-automat/apps/nex-brain/api/services/rag_service.py")
+
+CONTENT = '''"""
 RAG Service - Integration with existing RAG API.
 """
 
@@ -70,14 +79,9 @@ class RAGService:
 
             # Extra boost for structural matches
             if "faz" in query_lower or "implementa" in query_lower:
-                raw_content = r.get("content", "")
-                # Check if section header is at START (first 200 chars) - this is the RIGHT chunk
-                start_content = raw_content[:200]
-                if "IMPLEMENTAČNÉ FÁZY" in start_content or "## 5." in start_content:
-                    boost += 0.8  # Strong boost - this is THE chunk about phases
-                elif "Fáza 1:" in start_content or "Foundation" in start_content[:300]:
-                    boost += 0.6  # Also good - starts with phase details
-                # No boost if IMPLEMENTAČNÉ is buried deep in chunk
+                # Looking for phases - boost chunks with numbered phases
+                if re.search(r"faz[ae]\s*[123456]", content) or "## 5. IMPLEMENT" in r.get("content", ""):
+                    boost += 0.3
 
             if "co je" in query_lower or "co to je" in query_lower:
                 # Definition question - boost SUMMARY
@@ -99,21 +103,14 @@ class RAGService:
         return keywords
 
     def _deduplicate_best(self, results: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-        """Keep only BEST chunk per unique filename (by adjusted_score)."""
+        """Keep only BEST chunk per unique filename."""
         best = {}
         for r in results:
             filename = r.get("filename", "")
-            current_score = r.get("adjusted_score", r.get("score", 0))
-            existing = best.get(filename)
-            if existing is None:
+            score = r.get("adjusted_score", r.get("score", 0))
+            if filename not in best or score > best[filename].get("adjusted_score", 0):
                 best[filename] = r
-            else:
-                existing_score = existing.get("adjusted_score", existing.get("score", 0))
-                if current_score > existing_score:
-                    best[filename] = r
-        # Sort by adjusted_score descending
-        sorted_results = sorted(best.values(), key=lambda x: x.get("adjusted_score", 0), reverse=True)
-        return sorted_results
+        return list(best.values())
 
     def _filter_by_tenant(
         self, 
@@ -147,11 +144,11 @@ class RAGService:
             if content.strip():
                 context_parts.append(content)
 
-        return "\n\n".join(context_parts)
+        return "\\n\\n".join(context_parts)
 
     def _clean_content(self, content: str) -> str:
         """Clean content for LLM."""
-        lines = content.split("\n")
+        lines = content.split("\\n")
         cleaned = []
         in_code_block = False
 
@@ -164,4 +161,18 @@ class RAGService:
             if line.strip() and line.strip() != "---":
                 cleaned.append(line)
 
-        return "\n".join(cleaned[:30])  # More lines allowed
+        return "\\n".join(cleaned[:30])  # More lines allowed
+'''
+
+
+def main():
+    FILE_PATH.write_text(CONTENT, encoding="utf-8")
+    print("✅ Fixed: rag_service.py")
+    print("   - Better keyword extraction")
+    print("   - Boost for 'faz' + numbered phases")
+    print("   - Boost for definition questions")
+    print("   - Longer content allowed (1200 chars)")
+
+
+if __name__ == "__main__":
+    main()

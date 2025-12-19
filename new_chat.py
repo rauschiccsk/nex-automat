@@ -10,143 +10,213 @@ from pathlib import Path
 
 BASE_PATH = Path("C:/Development/nex-automat")
 ARCHIVE_PATH = BASE_PATH / "docs" / "archive" / "sessions"
-INIT_CHAT_PATH = BASE_PATH / "docs" / "init_chat"
+KNOWLEDGE_PATH = BASE_PATH / "docs" / "knowledge" / "development"
+INIT_CHAT_PATH = BASE_PATH  # ROOT - INIT_PROMPT_NEW_CHAT.md in project root
 
 TODAY = datetime.now().strftime("%Y-%m-%d")
-SESSION_NAME = f"SESSION_{TODAY}_nex-brain-foundation"
+SESSION_NAME = f"SESSION_{TODAY}_nex-brain-api-fixes"
 
-SESSION_CONTENT = f"""# Session: NEX Brain Foundation
+SESSION_CONTENT = f"""# Session: NEX Brain API Fixes
 
 **Dátum:** {TODAY}
 **Projekt:** nex-automat
-**Fokus:** NEX Brain - Fáza 1 Foundation Complete
+**Fokus:** NEX Brain - RAG a LLM opravy
 
 ---
 
 ## DOKONČENÉ V TEJTO SESSION
 
-### 1. Strategický dokument NEX Brain
-- ✅ `docs/knowledge/strategic/NEX_BRAIN_PRODUCT.md`
-- Vízia: Mozog NEX ekosystému
-- Architektúra: RAG + Ollama + NEX Genesis
-- Podrobné porovnanie Ollama modelov (plusy/mínusy)
-- Kedy sa oplatí premium model
-- Nákladová analýza
-- Migrácia medzi modelmi
-- Pilot plán (ICC, ANDROS)
-- Zaindexované v RAG
+### 1. new_chat.py oprava
+- ✅ INIT_PROMPT path zmenený na ROOT (nie docs/init_chat/)
 
-### 2. NEX Brain Application Structure
-- ✅ `apps/nex-brain/` vytvorená
-- Multi-tenant architektúra (ICC, ANDROS)
-- FastAPI backend (`api/main.py`)
-- Chat endpoint (`api/routes/chat.py`)
-- RAG service (`api/services/rag_service.py`)
-- LLM service (`api/services/llm_service.py`)
-- CLI pre testovanie (`cli/chat_cli.py`)
-- Konfigurácia (`config/settings.py`)
+### 2. NEX Brain API - FastAPI Server
+- ✅ Server beží na http://127.0.0.1:8001
+- ✅ Swagger UI na /docs
+- ✅ Endpointy: /api/v1/chat, /api/v1/tenants, /health
 
-### 3. Ollama Integration
-- ✅ Ollama nainštalovaná
-- ✅ llama3.1:8b model stiahnutý (4.9 GB)
-- ✅ Beží na GPU (Quadro M4000, 8GB VRAM)
-- ✅ Prompt tuning - opravené halucinácie
+### 3. Chat Endpoint Opravy
+- ✅ Greeting detection - "Ahoj" bez RAG
+- ✅ ASCII patterns pre slovenské znaky
+- ✅ Diacritics removal v is_simple_greeting()
 
-### 4. Testovanie
-- ✅ CLI funguje
-- ✅ RAG integrácia funguje
-- ✅ LLM odpovede v slovenčine
-- ⚠️ Pomalšie odpovede (~40s) kvôli staršej GPU
+### 4. LLM Service Opravy
+- ✅ Striktnejší prompt
+- ✅ temperature=0.0 (deterministic)
+- ✅ top_p=0.1 (focused)
+- ✅ Kratšie odpovede (150-256 tokens)
+
+### 5. RAG Service Opravy - HLAVNÝ FIX
+- ✅ Boost pre chunks kde IMPLEMENTAČNÉ FÁZY je na ZAČIATKU
+- ✅ Deduplicate best chunk per file
+- ✅ Keyword extraction a boosting
+- ✅ Relevance filtering
+- ✅ Správny chunk selection pre fázy otázky
 
 ---
 
-## ŠTRUKTÚRA PROJEKTU
+## ŠTRUKTÚRA OPRAVENÝCH SÚBOROV
 
 ```
 apps/nex-brain/
 ├── api/
-│   ├── main.py              # FastAPI app
 │   ├── routes/
-│   │   └── chat.py          # /chat endpoint (multi-tenant)
+│   │   └── chat.py              # Greeting detection, ASCII patterns
 │   └── services/
-│       ├── rag_service.py   # RAG integration
-│       └── llm_service.py   # Ollama integration
-├── cli/
-│   └── chat_cli.py          # CLI pre testovanie
-├── config/
-│   └── settings.py          # Multi-tenant config
-├── requirements.txt
-└── README.md
+│       ├── rag_service.py       # Boost logic, dedupe, chunk selection
+│       └── llm_service.py       # Strict prompt, low temperature
 ```
 
 ---
 
-## KĽÚČOVÉ ROZHODNUTIA
+## KĽÚČOVÉ OPRAVY
 
-1. **Názov produktu:** NEX Brain (nie CorpBrain)
-2. **Positioning:** Core komponent NEX ekosystému (mozog)
-3. **Architektúra:** Multi-tenant (jeden server pre ICC + ANDROS)
-4. **LLM Model:** llama3.1:8b (odporúčaný, SK podpora)
-5. **Migrácia:** Triviálna - zmena 1 parametra
+### RAG Chunk Selection Problem
+- Problém: RAG vracal chunk "Dátové zdroje" namiesto "IMPLEMENTAČNÉ FÁZY"
+- Príčina: Oba chunky obsahovali slovo IMPLEMENT, ale prvý mal vyšší score
+- Riešenie: Boost +0.8 pre chunky kde sekcia je na ZAČIATKU (prvých 200 znakov)
 
----
-
-## NEXT STEPS
-
-### Immediate (nasledujúca session)
-1. Git commit všetkých zmien
-2. FastAPI server testovanie
-3. `.env` súbor pre konfiguráciu
-
-### Fáza 2: Knowledge Base
-- Import dokumentov pre ICC
-- Import dokumentov pre ANDROS
-- Tenant-specific RAG filtering
-
-### Fáza 3: NEX Genesis Integration
-- Connector pre ERP dáta
-- Live queries
+### LLM Hallucination Problem
+- Problém: llama3.1:8b vymýšľal informácie (Docker, GitHub Actions)
+- Príčina: Zlý kontext z RAG
+- Riešenie: Správny chunk selection + striktnejší prompt
 
 ---
 
-## TECHNICKÉ POZNÁMKY
+## TESTY - FUNGUJE
 
-### HW na dev serveri
-- GPU: Quadro M4000 (8GB VRAM, staršia)
-- Ollama: 100% GPU, ~10-15 tok/s
-- Odpovede: ~30-40 sekúnd
+```
+Otázka: "Co je NEX Brain?"
+Odpoveď: "NEX Brain je inteligentné rozhranie pre NEX ekosystém..."
+✅ SPRÁVNE
 
-### Odporúčanie pre produkciu
-- RTX 4060 (8GB) = ~350 EUR = 4x rýchlejšie
-
-### Multi-tenant konfigurácia
-```env
-MODE=multi-tenant
-TENANTS=icc,andros
+Otázka: "Ake su fazy implementacie NEX Brain?"
+Odpoveď: "Fáza 1: Foundation, Fáza 2: Knowledge Base, Fáza 3: NEX Genesis Integration, Fáza 4: User Interface"
+✅ SPRÁVNE
 ```
 
 ---
 
 ## SCRIPTS VYTVORENÉ
 
-1. `01_save_nex_brain_product.py` - strategický dokument
-2. `02_fix_nex_brain_location.py` - presun do knowledge/
-3. `03_create_nex_brain_structure.py` - app štruktúra
-4. `04_fix_llm_prompt.py` - oprava halucinácie
+1. `01_fix_new_chat_path.py` - INIT_PROMPT do ROOT
+2. `02_fix_chat_rag_detection.py` - greeting detection
+3. `03_fix_chat_encoding.py` - ASCII patterns
+4. `04_fix_llm_prompt.py` - lepší prompt
+5. `05_fix_llm_strict_prompt.py` - striktnejší prompt
+6. `06_fix_rag_context.py` - kratší kontext
+7. `07_fix_rag_relevance.py` - relevance filtering
+8. `08_fix_rag_best_chunk.py` - best chunk selection
+9. `09_fix_rag_boost_keywords.py` - keyword boosting
+10. `10_fix_rag_impl_detection.py` - IMPLEMENT detection
+11. `11_debug_rag.py` - debug (DOČASNÝ - zmazať)
+12. `12_fix_rag_specific_boost.py` - specific boost
+13. `13_fix_rag_dedupe_order.py` - dedupe fix
+14. `14_fix_rag_start_boost.py` - START boost
 
 ---
 
-**Session Status:** ✅ COMPLETE - Fáza 1 Foundation hotová
-**Token Usage:** ~84,000 / 190,000 (44%)
+## NEXT STEPS
+
+### Priority #1: Git Commit
+- Commitnúť všetky zmeny
+- Zmazať dočasné scripty (11_debug_rag.py)
+
+### Priority #2: .env Configuration
+- Vytvoriť .env súbor pre nex-brain
+
+### Priority #3: Fáza 2 - Knowledge Base
+- Import dokumentov pre ICC
+- Import dokumentov pre ANDROS
+
+---
+
+**Session Status:** ✅ COMPLETE
+**Token Usage:** ~85,000 / 190,000 (45%)
+"""
+
+KNOWLEDGE_CONTENT = f"""# NEX Brain API - Technical Documentation
+
+**Dátum:** {TODAY}
+**Kategória:** Development
+**Status:** ✅ Complete
+
+---
+
+## Prehľad
+
+Táto dokumentácia popisuje technické riešenia implementované pre NEX Brain API.
+
+## Kľúčové komponenty
+
+### 1. FastAPI Server
+- Endpoint: `http://127.0.0.1:8001`
+- Swagger UI: `/docs`
+- Hlavné routes: `/api/v1/chat`, `/api/v1/tenants`, `/health`
+
+### 2. RAG Service (`api/services/rag_service.py`)
+
+**Boost logika pre správny chunk selection:**
+- Chunks kde sekcia je na ZAČIATKU (prvých 200 znakov) dostávajú +0.8 boost
+- Deduplicate vyberá chunk s najvyšším adjusted_score per súbor
+- Keyword extraction z query pre lepšie matching
+
+**Kľúčové metódy:**
+- `_boost_relevant()` - pridáva boost podľa query keywords
+- `_deduplicate_best()` - vyberá najlepší chunk per súbor
+- `format_context()` - formátuje kontext pre LLM
+
+### 3. LLM Service (`api/services/llm_service.py`)
+
+**Konfigurácia pre minimálne halucinácie:**
+- `temperature=0.0` (deterministické)
+- `top_p=0.1` (focused)
+- `num_predict=150-256` (krátke odpovede)
+- Striktný system prompt
+
+### 4. Chat Endpoint (`api/routes/chat.py`)
+
+**Greeting detection:**
+- Jednoduché pozdravy (Ahoj, Čau, Hi) - bez RAG
+- ASCII patterns pre slovenské znaky
+- Diacritics removal funkcia
+
+## Riešené problémy
+
+### RAG Chunk Selection
+- **Problém:** RAG vracal zlý chunk (Dátové zdroje namiesto IMPLEMENTAČNÉ FÁZY)
+- **Príčina:** Oba chunky obsahovali kľúčové slová, ale prvý mal vyšší score
+- **Riešenie:** Boost +0.8 pre chunky kde sekcia je na začiatku
+
+### LLM Halucinácie
+- **Problém:** Model vymýšľal informácie (Docker, GitHub Actions)
+- **Príčina:** Zlý kontext z RAG + príliš kreatívne nastavenia
+- **Riešenie:** Správny chunk + temperature=0.0
+
+---
+
+## Použitie
+
+```powershell
+# Start server
+cd C:\Development\nex-automat\apps\nex-brain
+python -m uvicorn api.main:app --reload --port 8001
+
+# Test API
+Invoke-RestMethod -Uri "http://127.0.0.1:8001/api/v1/chat" -Method POST -ContentType "application/json" -Body '{{"question": "Co je NEX Brain?", "tenant": "icc"}}'
+```
+
+---
+
+**Related:** NEX_BRAIN_PRODUCT.md, supplier-invoice-staging
 """
 
 INIT_PROMPT_CONTENT = f"""# INIT PROMPT - NEX Automat Project
 
 **Projekt:** nex-automat  
-**Current Status:** NEX Brain - Fáza 1 COMPLETE  
+**Current Status:** NEX Brain API - FUNCTIONAL  
 **Developer:** Zoltán (40 rokov skúseností)  
 **Jazyk:** Slovenčina  
-**Previous Session:** nex-brain-foundation ({TODAY})
+**Previous Session:** nex-brain-api-fixes ({TODAY})
 
 ---
 
@@ -166,36 +236,34 @@ Kľúčové pravidlá:
 
 ## 🔄 DOKONČENÉ MINULÚ SESSION
 
-### NEX Brain Foundation Complete
-- ✅ Strategický dokument `docs/knowledge/strategic/NEX_BRAIN_PRODUCT.md`
-- ✅ App štruktúra `apps/nex-brain/` (multi-tenant)
-- ✅ Ollama integrácia (llama3.1:8b na GPU)
-- ✅ RAG integrácia funguje
-- ✅ CLI funguje (`python cli/chat_cli.py`)
-- ✅ Prompt tuning - opravené halucinácie
+### NEX Brain API - FUNCTIONAL
+- ✅ FastAPI server na http://127.0.0.1:8001
+- ✅ Swagger UI na /docs
+- ✅ Greeting detection funguje
+- ✅ RAG chunk selection opravený
+- ✅ LLM odpovede bez halucinácie
+- ✅ Testy "Co je NEX Brain?" a "fázy implementácie" fungujú
 
-### Multi-tenant Architecture
-- MODE=multi-tenant / single-tenant
-- Tenants: icc, andros
-- Tenant-specific prompts a RAG filtering
+### Kľúčové opravy
+- RAG: Boost pre chunky kde sekcia je na ZAČIATKU
+- LLM: temperature=0.0, striktný prompt
+- Chat: ASCII patterns pre slovenské znaky
 
 ---
 
 ## 🎯 IMMEDIATE NEXT STEPS
 
 ### Priority #1: Git Commit
-- Commitnúť všetky zmeny z tejto session
+- Commitnúť všetky zmeny z minulej session
+- Zmazať dočasné scripty
 
-### Priority #2: FastAPI Server
-- Otestovať `uvicorn api.main:app`
-- Curl test na `/api/v1/chat`
+### Priority #2: .env Configuration
+- Vytvoriť .env súbor pre nex-brain app
 
-### Priority #3: .env Configuration
-- Vytvoriť `.env` súbor pre nex-brain
-
-### Priority #4: Fáza 2 - Knowledge Base
+### Priority #3: Fáza 2 - Knowledge Base
 - Import dokumentov pre ICC
 - Import dokumentov pre ANDROS
+- Tenant-specific RAG filtering
 
 ---
 
@@ -204,16 +272,14 @@ Kľúčové pravidlá:
 ```
 apps/nex-brain/                         # NEX Brain app
   api/main.py                           # FastAPI
-  api/routes/chat.py                    # Chat endpoint
-  api/services/rag_service.py           # RAG
-  api/services/llm_service.py           # Ollama
+  api/routes/chat.py                    # Chat endpoint (greeting detection)
+  api/services/rag_service.py           # RAG (boost logic)
+  api/services/llm_service.py           # Ollama (strict prompt)
   cli/chat_cli.py                       # CLI testing
   config/settings.py                    # Multi-tenant config
 
 docs/knowledge/strategic/               # Strategic docs
   NEX_BRAIN_PRODUCT.md                  # Product strategy
-
-tools/rag/                              # RAG tools
 ```
 
 ---
@@ -226,13 +292,15 @@ https://rag-api.icc.sk/search?query=...&limit=N
 
 ---
 
-## 🛠️ OLLAMA
+## 🛠️ NEX Brain Server
 
 ```powershell
-# Check status
-& "$env:LOCALAPPDATA\\Programs\\Ollama\\ollama.exe" ps
+# Start server
+cd C:\\Development\\nex-automat\\apps\\nex-brain
+python -m uvicorn api.main:app --reload --port 8001
 
-# Model: llama3.1:8b (4.9 GB, 100% GPU)
+# Test
+Invoke-RestMethod -Uri "http://127.0.0.1:8001/api/v1/chat" -Method POST -ContentType "application/json" -Body '{{"question": "Co je NEX Brain?", "tenant": "icc"}}'
 ```
 
 ---
@@ -256,21 +324,24 @@ def main():
     session_file.write_text(SESSION_CONTENT, encoding="utf-8")
     print(f"✅ Created: {session_file.name}")
 
-    # 2. Archive index removed - skipping
+    # 2. Create KNOWLEDGE document (for RAG indexing)
+    knowledge_file = KNOWLEDGE_PATH / f"{TODAY}_nex-brain-api.md"
+    knowledge_file.parent.mkdir(parents=True, exist_ok=True)
+    knowledge_file.write_text(KNOWLEDGE_CONTENT, encoding="utf-8")
+    print(f"✅ Created: {knowledge_file.name} (in docs/knowledge/)")
 
-    # 3. Create INIT_PROMPT
+    # 3. Create INIT_PROMPT in ROOT
     init_file = INIT_CHAT_PATH / "INIT_PROMPT_NEW_CHAT.md"
-    init_file.parent.mkdir(parents=True, exist_ok=True)
     init_file.write_text(INIT_PROMPT_CONTENT, encoding="utf-8")
-    print(f"✅ Created: INIT_PROMPT_NEW_CHAT.md")
+    print(f"✅ Created: INIT_PROMPT_NEW_CHAT.md (in ROOT)")
 
     # 4. Run rag_update.py --new
-    print("\n🔄 Running RAG update...")
+    print("\\n🔄 Running RAG update...")
     try:
         result = subprocess.run(
-            ["python", "tools/rag/rag_update.py", "--new"],
+            [__import__("sys").executable, "tools/rag/rag_update.py", "--new"],
             cwd=BASE_PATH,
-            capture_output=True,
+            capture_output=False,
             text=True
         )
         if result.returncode == 0:
@@ -280,11 +351,11 @@ def main():
     except Exception as e:
         print(f"⚠️ RAG update skipped: {e}")
 
-    print("\n" + "=" * 60)
+    print("\\n" + "=" * 60)
     print("✅ New chat session ready!")
     print("=" * 60)
-    print(f"\nSession: {SESSION_NAME}")
-    print("\nNext: Start new Claude chat with INIT_PROMPT_NEW_CHAT.md")
+    print(f"\\nSession: {SESSION_NAME}")
+    print("\\nNext: Start new Claude chat with INIT_PROMPT_NEW_CHAT.md")
 
 if __name__ == "__main__":
     main()

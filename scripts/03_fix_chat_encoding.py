@@ -1,4 +1,13 @@
+#!/usr/bin/env python
 """
+Fix chat.py - Rewrite with correct UTF-8 encoding.
+"""
+
+from pathlib import Path
+
+FILE_PATH = Path("C:/Development/nex-automat/apps/nex-brain/api/routes/chat.py")
+
+CONTENT = '''"""
 Chat endpoint for NEX Brain - Multi-tenant support.
 """
 
@@ -128,3 +137,15 @@ async def list_tenants():
         return {"tenants": settings.tenant_list}
     else:
         return {"tenant": settings.TENANT, "mode": "single-tenant"}
+'''
+
+
+def main():
+    FILE_PATH.write_text(CONTENT, encoding="utf-8")
+    print(f"✅ Fixed: {FILE_PATH.name}")
+    print("   - ASCII patterns (no diacritics)")
+    print("   - Diacritics removal in function")
+
+
+if __name__ == "__main__":
+    main()

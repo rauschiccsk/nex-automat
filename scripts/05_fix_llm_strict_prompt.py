@@ -1,4 +1,13 @@
+#!/usr/bin/env python
 """
+Fix llm_service.py - Even stricter prompt to prevent hallucinations.
+"""
+
+from pathlib import Path
+
+FILE_PATH = Path("C:/Development/nex-automat/apps/nex-brain/api/services/llm_service.py")
+
+CONTENT = '''"""
 LLM Service - Integration with Ollama.
 """
 
@@ -62,7 +71,7 @@ Odpoved:"""
                             "num_predict": 150,
                             "top_p": 0.1,
                             "repeat_penalty": 1.2,
-                            "stop": ["Otazka:", "KONTEXT:", "\n\n\n"],
+                            "stop": ["Otazka:", "KONTEXT:", "\\n\\n\\n"],
                         }
                     }
                 )
@@ -93,3 +102,17 @@ Odpoved:"""
                 return response.status_code == 200
         except:
             return False
+'''
+
+
+def main():
+    FILE_PATH.write_text(CONTENT, encoding="utf-8")
+    print("✅ Fixed: llm_service.py")
+    print("   - temperature=0.0 (deterministic)")
+    print("   - top_p=0.1 (very focused)")
+    print("   - repeat_penalty=1.2")
+    print("   - Simpler, stricter prompt")
+
+
+if __name__ == "__main__":
+    main()

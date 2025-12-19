@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 """
-Fix LLM prompt to prevent hallucinated follow-up questions.
+Fix llm_service.py - Better prompt and stop sequences.
 """
 
 from pathlib import Path
 
 FILE_PATH = Path("C:/Development/nex-automat/apps/nex-brain/api/services/llm_service.py")
 
-NEW_CONTENT = '''"""
+CONTENT = '''"""
 LLM Service - Integration with Ollama.
 Multi-tenant support with tenant-aware prompts.
 """
@@ -20,23 +20,28 @@ from api.services.rag_service import RAGService
 
 # Tenant-specific system prompts
 TENANT_PROMPTS = {
-    "icc": """Si NEX Brain - inteligentný asistent pre ICC s.r.o.
-ICC je softvérová firma vyvíjajúca NEX Genesis ERP systém a NEX Automat.""",
+    "icc": """Si NEX Brain - inteligentny asistent pre ICC s.r.o.
+ICC je softverova firma vyvijajuca NEX Genesis ERP system a NEX Automat.
+NEX Brain je inteligentne rozhranie pre NEX ekosystem - umoznuje pristup k firemnym informaciam pomocou prirodzeneho jazyka.""",
 
-    "andros": """Si NEX Brain - inteligentný asistent pre ANDROS s.r.o.
-Pomáhaj zamestnancom s procesmi, dokumentáciou a ERP systémom.""",
+    "andros": """Si NEX Brain - inteligentny asistent pre ANDROS s.r.o.
+Pomahaj zamestnancom s procesmi, dokumentaciou a ERP systemom.""",
 
-    "default": """Si NEX Brain - inteligentný asistent pre NEX systém."""
+    "default": """Si NEX Brain - inteligentny asistent pre NEX system.
+NEX Brain je inteligentne rozhranie pre NEX ekosystem."""
 }
 
 # Common instructions for all tenants
 COMMON_INSTRUCTIONS = """
-PRAVIDLÁ:
-- Odpovedaj VŽDY v slovenčine
-- Odpovedaj stručne a presne na položenú otázku
-- Odpovedz LEN na túto jednu otázku, NEPRIDÁVAJ ďalšie otázky ani odpovede
-- Ak informácia nie je v kontexte, povedz "Túto informáciu nemám v knowledge base."
-- Nepoužívaj markdown formátovanie (žiadne ** alebo ##)
+
+ZASADY:
+1. Odpovedaj VZDY po slovensky
+2. Odpovedaj STRUCNE - max 2-3 vety
+3. Pouzivaj LEN informacie z KONTEXTU nizsie
+4. Ak informacia nie je v kontexte, povedz: "Tuto informaciu nemam."
+5. NIKDY nevymyslaj informacie
+6. NIKDY nepridavaj dalsie otazky
+7. NIKDY nepouzivaj markdown (** ## atd)
 """
 
 
@@ -54,18 +59,7 @@ class LLMService:
         context: Optional[List[Dict[str, Any]]] = None,
         tenant: str = "default"
     ) -> Tuple[str, int]:
-        """
-        Generate answer using Ollama.
-
-        Args:
-            question: User question
-            context: RAG context (optional)
-            tenant: Tenant identifier
-
-        Returns:
-            Tuple of (answer, tokens_used)
-        """
-        # Build prompt with tenant-specific system prompt
+        """Generate answer using Ollama."""
         prompt = self._build_prompt(question, context, tenant)
 
         try:
@@ -77,9 +71,16 @@ class LLMService:
                         "prompt": prompt,
                         "stream": False,
                         "options": {
-                            "temperature": 0.3,  # Lower = more focused
-                            "num_predict": 512,  # Limit response length
-                            "stop": ["OTÁZKA:", "Otázka:", "?\\n\\n"],  # Stop sequences
+                            "temperature": 0.1,
+                            "num_predict": 256,
+                            "stop": [
+                                "OTAZKA:",
+                                "Otazka:",
+                                "KONTEXT:",
+                                "Kontext:",
+                                "ZASADY:",
+                                "\\n\\n\\n",
+                            ],
                         }
                     }
                 )
@@ -87,12 +88,27 @@ class LLMService:
                 data = response.json()
 
                 answer = data.get("response", "").strip()
+                # Clean up any prompt leakage
+                answer = self._clean_answer(answer)
                 tokens = data.get("eval_count", 0)
 
                 return answer, tokens
 
         except httpx.RequestError as e:
-            return f"Chyba pri komunikácii s LLM: {e}", 0
+            return f"Chyba pri komunikacii s LLM: {e}", 0
+
+    def _clean_answer(self, answer: str) -> str:
+        """Remove any prompt leakage from answer."""
+        # Remove common prompt patterns that might leak
+        patterns_to_remove = [
+            "OTAZKA POUZIVATELA:",
+            "TVOJA ODPOVED:",
+            "KONTEXT Z KNOWLEDGE BASE:",
+        ]
+        for pattern in patterns_to_remove:
+            if pattern in answer:
+                answer = answer.split(pattern)[0].strip()
+        return answer
 
     def _build_prompt(
         self, 
@@ -101,8 +117,6 @@ class LLMService:
         tenant: str = "default"
     ) -> str:
         """Build prompt with tenant-specific system prompt and context."""
-
-        # Get tenant-specific or default system prompt
         tenant_intro = TENANT_PROMPTS.get(tenant, TENANT_PROMPTS["default"])
         system = tenant_intro + COMMON_INSTRUCTIONS
 
@@ -110,18 +124,18 @@ class LLMService:
             context_text = self.rag_service.format_context(context)
             return f"""{system}
 
-KONTEXT Z KNOWLEDGE BASE:
+KONTEXT:
 {context_text}
 
-OTÁZKA POUŽÍVATEĽA: {question}
+OTAZKA: {question}
 
-TVOJA ODPOVEĎ (len na túto otázku):"""
+ODPOVED:"""
         else:
             return f"""{system}
 
-OTÁZKA POUŽÍVATEĽA: {question}
+OTAZKA: {question}
 
-TVOJA ODPOVEĎ (len na túto otázku):"""
+ODPOVED:"""
 
     async def health_check(self) -> bool:
         """Check if Ollama is running."""
@@ -133,19 +147,14 @@ TVOJA ODPOVEĎ (len na túto otázku):"""
             return False
 '''
 
-
 def main():
-    FILE_PATH.write_text(NEW_CONTENT, encoding="utf-8")
-    print(f"✅ Updated: {FILE_PATH}")
-    print()
-    print("Zmeny:")
-    print("  - Nižšia temperature (0.3) pre fokusovanejšie odpovede")
-    print("  - Stop sequences pre zastavenie pri ďalších otázkach")
-    print("  - Jasné inštrukcie 'odpovedz LEN na túto otázku'")
-    print("  - Limit 512 tokenov")
-    print()
-    print("Otestuj: python cli/chat_cli.py")
-
+    FILE_PATH.write_text(CONTENT, encoding="utf-8")
+    print(f"✅ Fixed: {FILE_PATH.name}")
+    print("   - Better system prompt (explains what NEX Brain is)")
+    print("   - Lower temperature (0.1)")
+    print("   - Shorter max tokens (256)")
+    print("   - More stop sequences")
+    print("   - Answer cleanup function")
 
 if __name__ == "__main__":
     main()

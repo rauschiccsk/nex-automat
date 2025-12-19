@@ -3,8 +3,8 @@
 **Project:** NEX Automat & Related Projects  
 **Owner:** Zoltán  
 **Assistant:** Claude (Anthropic)  
-**Last Updated:** 2025-12-17  
-**Version:** 1.6
+**Last Updated:** 2025-12-19  
+**Version:** 1.7
 
 ---
 
@@ -84,7 +84,7 @@
 
 ### 🛠️ Scripts & Code / Scripty & Kód
 
-**7. Artifacts Usage (CRITICAL - UPDATED)**
+**7. Artifacts Usage (CRITICAL)**
 - CRITICAL: ALL code/configs/documents/scripts MUST be artifacts. Triggers: Python files, any config, doc >10 lines, code >5 lines. ALWAYS artifacts FIRST, never plain text.
 - KRITICKÉ: VŠETOK kód/configs/dokumenty/scripty MUSIA byť artifacts. VŽDY artifacts NAJPRV, nikdy plain text.
 
@@ -108,21 +108,25 @@
 - No need to write manifest generation instructions, user generates manifests himself
 - Nepíš manifest inštrukcie, používateľ generuje sám
 
-**20. Session Closure (UPDATED v1.6)**
-- When user says "novy chat": Generate 2 artifacts - new_chat.py script (creates SESSION_*.md, updates 00_ARCHIVE_INDEX.md, creates INIT_PROMPT_NEW_CHAT.md, runs generate_projects_access.py + rag_reindex.py --new) + commit-message.txt
-- Pri "novy chat": Vygeneruj 2 artifacts - new_chat.py script + commit-message.txt
+**20. Session Closure (UPDATED v1.7)**
+- When user says "novy chat": new_chat.py creates SESSION_*.md (archive), KNOWLEDGE_*.md (docs/knowledge/ for RAG indexing), INIT_PROMPT_NEW_CHAT.md (root), then runs rag_update.py --new
+- Pri "novy chat": new_chat.py vytvára SESSION (archív), KNOWLEDGE (docs/knowledge/ pre RAG), INIT_PROMPT (root), potom spúšťa rag_update
 
 ---
 
-### 🔍 RAG System / RAG Systém (NEW v1.6)
+### 🔍 RAG System / RAG Systém
 
 **23. RAG Maintenance**
-- After adding new docs run "python tools/rag/rag_reindex.py --new". Full reindex weekly with --all. Check stats with --stats
-- Po pridaní nových docs spusti reindex. Týždenne full reindex.
+- RAG maintenance: "python tools/rag/rag_update.py --new" (daily, files modified today), --all (weekly full reindex), --stats (check stats)
+- Po pridaní nových docs spusti --new. Týždenne full reindex s --all.
 
 **24. RAG Access Protocol**
-- RAG Access: When RAG is needed, directly ask for RAG Permission URL - don't try fetch first
-- Keď potrebuješ RAG, priamo požiadaj o RAG Permission URL - neskúšaj fetch najprv
+- RAG Workflow: Claude vypíše RAG URL, user vloží URL do chatu, Claude automaticky fetchne výsledky. NIKDY neskúšať fetch pred vložením URL userom.
+- Claude poskytne URL, user vloží, Claude fetchne. Toto funguje - nemeňme to.
+
+**25. PostgreSQL Password**
+- PostgreSQL password via POSTGRES_PASSWORD env variable, no config.yaml needed for DB password
+- Heslo pre PostgreSQL cez environment variable, nie v config súboroch
 
 ---
 
@@ -134,7 +138,7 @@
 
 ---
 
-## Complete List / Plynulý Zoznam (1-24)
+## Complete List / Plynulý Zoznam (1-25)
 
 1. **Provide single recommended solution only, no alternatives unless requested**
 2. **Present one step at a time, wait for confirmation before next step**
@@ -155,23 +159,40 @@
 17. **In docs use standard Markdown tables only**
 18. **CRITICAL: nex-shared package uses FLAT structure**
 19. **Session scripts numbered from 01 sequentially**
-20. **"novy chat": 2 artifacts - new_chat.py + commit-message.txt**
+20. **"novy chat": new_chat.py creates SESSION, KNOWLEDGE (for RAG), INIT_PROMPT**
 21. **Initialization protocol - avoid verbose output, confirm only**
 22. **CRITICAL: At start of every chat, check all memory rules**
-23. **RAG maintenance: reindex after new docs, weekly full reindex**
-24. **RAG Access: directly ask for Permission URL, don't try fetch first**
+23. **RAG maintenance: rag_update.py --new (daily), --all (weekly)**
+24. **RAG Workflow: Claude provides URL, user pastes, Claude fetches**
+25. **PostgreSQL password via POSTGRES_PASSWORD env variable**
 
 ---
 
 ## Usage Notes / Poznámky k Použitiu
 
-### RAG Access Protocol (Rule 24 - NEW)
+### Session Closure Workflow (Rule 20 - UPDATED v1.7)
 
-**When Claude needs RAG information:**
+**When user says "novy chat":**
+
+`new_chat.py` script automaticky vytvára:
+1. `docs/archive/sessions/SESSION_YYYY-MM-DD_name.md` - archív session
+2. `docs/knowledge/development/YYYY-MM-DD_topic.md` - knowledge pre RAG
+3. `INIT_PROMPT_NEW_CHAT.md` - v ROOT projektu
+4. Spúšťa `rag_update.py --new` - indexuje nový knowledge dokument
+
+**User workflow:**
+```powershell
+python new_chat.py
+# Všetko sa vytvorí automaticky + RAG reindex
+git add . && git commit -m "session: description"
 ```
-✅ CORRECT: "Potrebujem RAG Permission URL: https://rag-api.icc.sk/search?query=..."
-❌ WRONG: Try fetch first → FAIL → then ask for URL
-```
+
+**Výhody:**
+- Knowledge dokument ide do RAG pre budúce vyhľadávanie
+- SESSION zostáva v archíve (nie v RAG)
+- INIT_PROMPT pripravený pre nový chat
+
+### RAG Access Protocol (Rule 24)
 
 **Workflow:**
 1. User asks question requiring RAG
@@ -179,100 +200,58 @@
 3. User pastes URL into chat
 4. Claude fetches and responds
 
-**Benefits:**
-- Saves one round-trip
-- No unnecessary error messages
-- Cleaner conversation flow
+**Example:**
+```
+Claude: Potrebujem RAG, vlož túto URL:
+https://rag-api.icc.sk/search?query=NEX%20Brain&limit=5
+
+User: [pastes URL]
+
+Claude: [fetches and responds]
+```
 
 ### Artifacts Enforcement (Rule 7 - CRITICAL)
 
 **ALWAYS create artifacts for:**
-```
-✅ Python files (.py)
-✅ Config files (.json, .yaml, .py, .txt, .ini, .toml)
-✅ Init prompts (INIT_PROMPT_NEW_CHAT.md)
-✅ Commit messages (commit-message.txt)
-✅ Session archives (SESSION_YYYY-MM-DD_*.md)
-✅ Documents longer than 10 lines
-✅ Code examples longer than 5 lines
-✅ Any script or configuration
-```
-
-### Initialization Protocol (Rule 21)
-
-**When loading init prompt:**
-```
-✅ Load INIT_PROMPT_NEW_CHAT.md silently
-✅ Load PROJECT_MANIFEST.json silently
-✅ Respond ONLY: "✅ Všetko načítané správne"
-❌ NO analysis of loaded content
-❌ NO verbose output about status
-```
-
-### Session Closure Workflow (Rule 20 - UPDATED v1.6)
-
-**When user says "novy chat" - generate 2 artifacts:**
-
-**Artifact 1: `new_chat.py`** - Script that does everything:
-```python
-# Script performs:
-1. Creates docs/archive/sessions/SESSION_YYYY-MM-DD_name.md
-2. Updates docs/archive/00_ARCHIVE_INDEX.md
-3. Creates init_chat/INIT_PROMPT_NEW_CHAT.md
-4. Runs: python tools/generate_projects_access.py
-5. Runs: python tools/rag/rag_reindex.py --new
-```
-
-**Artifact 2: `commit-message.txt`** - As before
-
-**User workflow:**
-```powershell
-python new_chat.py
-# Review generated files
-git add . && git commit -F commit-message.txt
-```
-
-**Benefits:**
-- 2 artifacts instead of 3+
-- Full automation with one command
-- Consistent file generation
+- Python files (.py)
+- Config files (.json, .yaml, .py, .txt, .ini, .toml)
+- Init prompts (INIT_PROMPT_NEW_CHAT.md)
+- Session archives (SESSION_YYYY-MM-DD_*.md)
+- Knowledge documents (YYYY-MM-DD_*.md)
+- Documents longer than 10 lines
+- Code examples longer than 5 lines
 
 ---
 
 ## Version History / História Verzií
 
+- **v1.7** (2025-12-19): Knowledge document in session closure
+  - **UPDATED Rule #20**: new_chat.py now creates KNOWLEDGE_*.md for RAG indexing
+  - **NEW Rule #25**: PostgreSQL password via env variable
+  - Session closure creates: SESSION (archive) + KNOWLEDGE (RAG) + INIT_PROMPT
+  - Total rules: 25
+
 - **v1.6** (2025-12-17): Added RAG system rules + automated session closure
   - **NEW Rule #23**: RAG maintenance protocol
   - **NEW Rule #24**: RAG Access - ask for Permission URL directly
-  - **UPDATED Rule #20**: Changed to 2 artifacts (new_chat.py + commit-message.txt)
-    - new_chat.py automates: SESSION_*.md, ARCHIVE_INDEX, INIT_PROMPT, scripts
-  - Added "RAG System" section to structured rules
-  - Added "RAG Access Protocol" usage notes
-  - Total rules: 24
+  - **UPDATED Rule #20**: Changed to automated new_chat.py
 
 - **v1.5** (2025-12-15): Removed SESSION_NOTES.md (redundant)
-  - **UPDATED Rule #20**: Changed from 4 to 3 artifacts
-  - SESSION_NOTES.md is NO LONGER CREATED
 
 - **v1.4** (2025-12-15): Fixed session archive workflow
-  - **UPDATED Rule #20**: Changed PROJECT_ARCHIVE_SESSION.md → SESSION_YYYY-MM-DD_descriptive-name.md
-  - **NEW Rule #22**: Memory rules check at chat start
 
 - **v1.3** (2025-12-13): Added initialization protocol
-  - **NEW Rule #21**: Initialization protocol enforcement
 
 - **v1.2** (2025-12-08): Enhanced session closure workflow
-  - **UPDATED Rule #20**: Changed from 3 to 4 artifacts
 
 - **v1.1** (2025-12-06): Enhanced artifacts enforcement
-  - **UPDATED Rule #7**: Added CRITICAL marker
 
 - **v1.0** (2025-12-05): Initial version with 20 rules
 
 ---
 
-**Total Rules:** 24  
+**Total Rules:** 25  
 **Status:** Active & Enforced  
 **Maintained By:** Zoltán & Claude  
-**Critical Focus:** Artifacts (#7, #20) + Initialization (#21) + Memory (#22) + RAG (#23, #24)  
-**Current Version:** 1.6 (2025-12-17)
+**Critical Focus:** Artifacts (#7) + Session Closure (#20) + Memory (#22) + RAG (#23, #24)  
+**Current Version:** 1.7 (2025-12-19)

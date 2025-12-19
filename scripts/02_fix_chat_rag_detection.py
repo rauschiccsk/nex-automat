@@ -1,4 +1,13 @@
+#!/usr/bin/env python
 """
+Fix chat.py - Add detection for simple greetings that don't need RAG.
+"""
+
+from pathlib import Path
+
+FILE_PATH = Path("C:/Development/nex-automat/apps/nex-brain/api/routes/chat.py")
+
+NEW_CONTENT = '''"""
 Chat endpoint for NEX Brain - Multi-tenant support.
 """
 
@@ -16,34 +25,16 @@ router = APIRouter()
 rag_service = RAGService()
 llm_service = LLMService()
 
-# Simple greetings that don't need RAG (ASCII only to avoid encoding issues)
+# Simple greetings that don't need RAG
 GREETING_PATTERNS = [
-    r"^ahoj",
-    r"^cau",
-    r"^hi$",
-    r"^hello",
-    r"^dobry den",
-    r"^dobry",
-    r"^vitaj",
-    r"^ako sa mas",
-    r"^co robis",
-    r"^zdravim",
+    r"^ahoj\b", r"^čau\b", r"^cau\b", r"^hi\b", r"^hello\b",
+    r"^dobrý deň\b", r"^dobry den\b", r"^zdravím\b", r"^vitaj\b",
+    r"^ako sa máš\b", r"^ako sa mas\b", r"^čo robíš\b",
 ]
-
 
 def is_simple_greeting(text: str) -> bool:
     """Check if text is a simple greeting that doesn't need RAG."""
-    # Normalize: lowercase, strip, remove diacritics
     text_lower = text.lower().strip()
-    # Simple diacritics removal for Slovak
-    replacements = {
-        "á": "a", "ä": "a", "č": "c", "ď": "d", "é": "e", "í": "i",
-        "ĺ": "l", "ľ": "l", "ň": "n", "ó": "o", "ô": "o", "ŕ": "r",
-        "š": "s", "ť": "t", "ú": "u", "ý": "y", "ž": "z"
-    }
-    for sk, ascii_char in replacements.items():
-        text_lower = text_lower.replace(sk, ascii_char)
-
     for pattern in GREETING_PATTERNS:
         if re.match(pattern, text_lower):
             return True
@@ -128,3 +119,15 @@ async def list_tenants():
         return {"tenants": settings.tenant_list}
     else:
         return {"tenant": settings.TENANT, "mode": "single-tenant"}
+'''
+
+
+def main():
+    FILE_PATH.write_text(NEW_CONTENT, encoding="utf-8")
+    print(f"✅ Fixed: {FILE_PATH.name}")
+    print("   - Added greeting detection")
+    print("   - RAG skipped for simple greetings")
+
+
+if __name__ == "__main__":
+    main()
