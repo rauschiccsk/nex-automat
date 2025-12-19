@@ -69,7 +69,8 @@ class RAGSearchAPI:
         self,
         query: str,
         limit: int = 5,
-        mode: str = 'hybrid'
+        mode: str = 'hybrid',
+        tenant: Optional[str] = None
     ) -> RAGResponse:
         """
         Search documents.
@@ -85,7 +86,7 @@ class RAGSearchAPI:
         await self.connect()
 
         # hybrid_search returns list of its own SearchResult objects
-        results = await hybrid_search_func(query, limit=limit)
+        results = await hybrid_search_func(query, limit=limit, tenant=tenant)
 
         # Convert hybrid_search.SearchResult to api.SearchResult
         search_results = [
@@ -117,7 +118,8 @@ class RAGSearchAPI:
         self,
         query: str,
         max_chunks: int = 3,
-        max_tokens: int = 4000
+        max_tokens: int = 4000,
+        tenant: Optional[str] = None
     ) -> str:
         """
         Get formatted context for LLM.
@@ -130,7 +132,7 @@ class RAGSearchAPI:
         Returns:
             Formatted context string
         """
-        response = await self.search(query, limit=max_chunks, mode='hybrid')
+        response = await self.search(query, limit=max_chunks, mode='hybrid', tenant=tenant)
 
         context_parts = []
         total_chars = 0
@@ -163,13 +165,13 @@ class RAGSearchAPI:
 
 
 # Convenience functions for quick usage
-async def search(query: str, limit: int = 5, mode: str = 'hybrid') -> RAGResponse:
+async def search(query: str, limit: int = 5, mode: str = 'hybrid', tenant: Optional[str] = None) -> RAGResponse:
     """Quick search function."""
     async with RAGSearchAPI() as api:
-        return await api.search(query, limit=limit, mode=mode)
+        return await api.search(query, limit=limit, mode=mode, tenant=tenant)
 
 
-async def get_context(query: str, max_chunks: int = 3) -> str:
+async def get_context(query: str, max_chunks: int = 3, tenant: Optional[str] = None) -> str:
     """Quick context retrieval for LLM."""
     async with RAGSearchAPI() as api:
-        return await api.get_context_for_llm(query, max_chunks=max_chunks)
+        return await api.get_context_for_llm(query, max_chunks=max_chunks, tenant=tenant)

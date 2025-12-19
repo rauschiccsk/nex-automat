@@ -1,10 +1,10 @@
 # INIT PROMPT - NEX Automat Project
 
 **Projekt:** nex-automat  
-**Current Status:** NEX Brain API - FUNCTIONAL  
+**Current Status:** NEX Brain - Tenant Filtering Complete
 **Developer:** Zoltán (40 rokov skúseností)  
 **Jazyk:** Slovenčina  
-**Previous Session:** nex-brain-api-fixes (2025-12-19)
+**Previous Session:** nex-brain-tenant-filtering (2025-12-19)
 
 ---
 
@@ -24,34 +24,34 @@ Kľúčové pravidlá:
 
 ## 🔄 DOKONČENÉ MINULÚ SESSION
 
-### NEX Brain API - FUNCTIONAL
-- ✅ FastAPI server na http://127.0.0.1:8001
-- ✅ Swagger UI na /docs
-- ✅ Greeting detection funguje
-- ✅ RAG chunk selection opravený
-- ✅ LLM odpovede bez halucinácie
-- ✅ Testy "Co je NEX Brain?" a "fázy implementácie" fungujú
+### Tenant Filtering - COMPLETE
+- ✅ RAG API `?tenant=` parameter
+- ✅ NEX Brain tenant integration
+- ✅ Knowledge base štruktúra (shared/ + tenants/icc,andros/)
+- ✅ Indexer tenant detection
+- ✅ E2E test PASSED
+- ✅ DB cleanup (137 docs, 517 chunks)
 
-### Kľúčové opravy
-- RAG: Boost pre chunky kde sekcia je na ZAČIATKU
-- LLM: temperature=0.0, striktný prompt
-- Chat: ASCII patterns pre slovenské znaky
+### Kľúčové súbory
+- `tools/rag/hybrid_search.py` - tenant SQL filter
+- `tools/rag/indexer.py` - detect_tenant()
+- `apps/nex-brain/.env` - konfigurácia
 
 ---
 
 ## 🎯 IMMEDIATE NEXT STEPS
 
 ### Priority #1: Git Commit
-- Commitnúť všetky zmeny z minulej session
-- Zmazať dočasné scripty
+- Commitnúť všetky zmeny z tenant filtering session
+- Zmazať dočasné scripty (01-07)
 
-### Priority #2: .env Configuration
-- Vytvoriť .env súbor pre nex-brain app
+### Priority #2: Real Knowledge Base
+- Pridať reálne dokumenty pre ICC
+- Pridať reálne dokumenty pre ANDROS
 
-### Priority #3: Fáza 2 - Knowledge Base
-- Import dokumentov pre ICC
-- Import dokumentov pre ANDROS
-- Tenant-specific RAG filtering
+### Priority #3: Fáza 3 - NEX Genesis Integration
+- Connector pre ERP dáta
+- Live queries
 
 ---
 
@@ -59,15 +59,18 @@ Kľúčové pravidlá:
 
 ```
 apps/nex-brain/                         # NEX Brain app
-  api/main.py                           # FastAPI
-  api/routes/chat.py                    # Chat endpoint (greeting detection)
-  api/services/rag_service.py           # RAG (boost logic)
-  api/services/llm_service.py           # Ollama (strict prompt)
-  cli/chat_cli.py                       # CLI testing
-  config/settings.py                    # Multi-tenant config
+  .env                                  # Multi-tenant config
+  api/services/rag_service.py           # Tenant pass-through
 
-docs/knowledge/strategic/               # Strategic docs
-  NEX_BRAIN_PRODUCT.md                  # Product strategy
+tools/rag/                              # RAG system
+  hybrid_search.py                      # Tenant SQL filter
+  indexer.py                            # detect_tenant()
+  server_app.py                         # ?tenant= endpoint
+
+docs/knowledge/                         # Knowledge base
+  shared/                               # All tenants
+  tenants/icc/                          # ICC only
+  tenants/andros/                       # ANDROS only
 ```
 
 ---
@@ -75,26 +78,15 @@ docs/knowledge/strategic/               # Strategic docs
 ## 🔍 RAG ACCESS
 
 ```
-https://rag-api.icc.sk/search?query=...&limit=N
-```
-
----
-
-## 🛠️ NEX Brain Server
-
-```powershell
-# Start server
-cd C:\Development\nex-automat\apps\nex-brain
-python -m uvicorn api.main:app --reload --port 8001
-
-# Test
-Invoke-RestMethod -Uri "http://127.0.0.1:8001/api/v1/chat" -Method POST -ContentType "application/json" -Body '{"question": "Co je NEX Brain?", "tenant": "icc"}'
+https://rag-api.icc.sk/search?query=...&tenant=icc
+https://rag-api.icc.sk/search?query=...&tenant=andros
 ```
 
 ---
 
 **Token Budget:** 190,000  
-**Location:** C:\Development\nex-automat
+**Location:** C:\Development
+ex-automat
 
 ---
 

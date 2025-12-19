@@ -99,7 +99,8 @@ class HybridSearch:
             query: str,
             limit: int = 10,
             min_similarity: float = 0.0,
-            rerank: bool = True
+            rerank: bool = True,
+            tenant: Optional[str] = None
     ) -> List[SearchResult]:
         """
         Perform hybrid search.
@@ -125,21 +126,38 @@ class HybridSearch:
         # Fetch more results than needed for reranking
         fetch_limit = limit * 3 if rerank else limit
 
-        # Vector search
-        results = await self.db.pool.fetch("""
-            SELECT 
-                c.id as chunk_id,
-                c.document_id,
-                d.filename,
-                c.chunk_index,
-                c.content,
-                1 - (c.embedding <=> $1::vector) as similarity
-            FROM chunks c
-            JOIN documents d ON c.document_id = d.id
-            WHERE 1 - (c.embedding <=> $1::vector) >= $2
-            ORDER BY c.embedding <=> $1::vector
-            LIMIT $3
-        """, query_str, min_similarity, fetch_limit)
+        # Vector search with optional tenant filter
+        if tenant:
+            results = await self.db.pool.fetch("""
+                SELECT 
+                    c.id as chunk_id,
+                    c.document_id,
+                    d.filename,
+                    c.chunk_index,
+                    c.content,
+                    1 - (c.embedding <=> $1::vector) as similarity
+                FROM chunks c
+                JOIN documents d ON c.document_id = d.id
+                WHERE 1 - (c.embedding <=> $1::vector) >= $2
+                  AND (d.metadata->>'tenant' = $4 OR d.metadata->>'tenant' IS NULL)
+                ORDER BY c.embedding <=> $1::vector
+                LIMIT $3
+            """, query_str, min_similarity, fetch_limit, tenant)
+        else:
+            results = await self.db.pool.fetch("""
+                SELECT 
+                    c.id as chunk_id,
+                    c.document_id,
+                    d.filename,
+                    c.chunk_index,
+                    c.content,
+                    1 - (c.embedding <=> $1::vector) as similarity
+                FROM chunks c
+                JOIN documents d ON c.document_id = d.id
+                WHERE 1 - (c.embedding <=> $1::vector) >= $2
+                ORDER BY c.embedding <=> $1::vector
+                LIMIT $3
+            """, query_str, min_similarity, fetch_limit)
 
         # Calculate combined scores
         search_results = []
@@ -222,10 +240,10 @@ class HybridSearch:
 
 
 # Convenience function
-async def search(query: str, limit: int = 10, **kwargs) -> List[SearchResult]:
+async def search(query: str, limit: int = 10, tenant: Optional[str] = None, **kwargs) -> List[SearchResult]:
     """Quick search function."""
     async with HybridSearch() as searcher:
-        return await searcher.search(query, limit=limit, **kwargs)
+        return await searcher.search(query, limit=limit, tenant=tenant, **kwargs)
 
 
 if __name__ == "__main__":

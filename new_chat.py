@@ -1,222 +1,199 @@
-#!/usr/bin/env python
 """
-Create new chat session files for NEX Automat project.
-Creates: SESSION_*.md, updates ARCHIVE_INDEX, creates INIT_PROMPT, runs rag_update.py --new
+New Chat - Create session archive and init prompt for next session.
 """
-
 import subprocess
+import sys
 from datetime import datetime
 from pathlib import Path
 
-BASE_PATH = Path("C:/Development/nex-automat")
-ARCHIVE_PATH = BASE_PATH / "docs" / "archive" / "sessions"
-KNOWLEDGE_PATH = BASE_PATH / "docs" / "knowledge" / "development"
-INIT_CHAT_PATH = BASE_PATH  # ROOT - INIT_PROMPT_NEW_CHAT.md in project root
+PROJECT_ROOT = Path(r"C:\Development\nex-automat")
+ARCHIVE_DIR = PROJECT_ROOT / "docs" / "archive" / "sessions"
+KNOWLEDGE_DIR = PROJECT_ROOT / "docs" / "knowledge"
+SCRIPTS_DIR = PROJECT_ROOT / "scripts"
 
-TODAY = datetime.now().strftime("%Y-%m-%d")
-SESSION_NAME = f"SESSION_{TODAY}_nex-brain-api-fixes"
+SESSION_NAME = "nex-brain-tenant-filtering"
+SESSION_DATE = datetime.now().strftime("%Y-%m-%d")
 
-SESSION_CONTENT = f"""# Session: NEX Brain API Fixes
+# =============================================================================
+# SESSION CONTENT
+# =============================================================================
 
-**Dátum:** {TODAY}
+SESSION_CONTENT = f"""# Session: NEX Brain Tenant Filtering
+
+**Dátum:** {SESSION_DATE}
 **Projekt:** nex-automat
-**Fokus:** NEX Brain - RAG a LLM opravy
+**Fokus:** Knowledge Base - Tenant Filtering Implementation
 
 ---
 
 ## DOKONČENÉ V TEJTO SESSION
 
-### 1. new_chat.py oprava
-- ✅ INIT_PROMPT path zmenený na ROOT (nie docs/init_chat/)
+### 1. .env Configuration
+- ✅ `apps/nex-brain/.env` vytvorený
+- ✅ `apps/nex-brain/.gitignore` vytvorený
+- Multi-tenant konfigurácia (MODE, TENANTS, RAG_API_URL, OLLAMA_*)
 
-### 2. NEX Brain API - FastAPI Server
-- ✅ Server beží na http://127.0.0.1:8001
-- ✅ Swagger UI na /docs
-- ✅ Endpointy: /api/v1/chat, /api/v1/tenants, /health
+### 2. RAG Tenant Filtering
+- ✅ `tools/rag/hybrid_search.py` - tenant filter v SQL query
+- ✅ `tools/rag/api.py` - tenant parameter pass-through
+- ✅ `tools/rag/server_app.py` - `?tenant=` endpoint parameter
+- Filter logika: `metadata->>'tenant' = $tenant OR metadata->>'tenant' IS NULL`
 
-### 3. Chat Endpoint Opravy
-- ✅ Greeting detection - "Ahoj" bez RAG
-- ✅ ASCII patterns pre slovenské znaky
-- ✅ Diacritics removal v is_simple_greeting()
+### 3. NEX Brain Integration
+- ✅ `apps/nex-brain/api/services/rag_service.py` - posiela tenant do RAG API
 
-### 4. LLM Service Opravy
-- ✅ Striktnejší prompt
-- ✅ temperature=0.0 (deterministic)
-- ✅ top_p=0.1 (focused)
-- ✅ Kratšie odpovede (150-256 tokens)
+### 4. Knowledge Base Structure
+- ✅ Vytvorená štruktúra:
+  ```
+  docs/knowledge/
+  ├── shared/              # Všetci tenanti
+  └── tenants/
+      ├── icc/             # ICC-specific
+      │   ├── processes/
+      │   ├── hr/
+      │   └── technical/
+      └── andros/          # ANDROS-specific
+          ├── processes/
+          ├── hr/
+          └── technical/
+  ```
 
-### 5. RAG Service Opravy - HLAVNÝ FIX
-- ✅ Boost pre chunks kde IMPLEMENTAČNÉ FÁZY je na ZAČIATKU
-- ✅ Deduplicate best chunk per file
-- ✅ Keyword extraction a boosting
-- ✅ Relevance filtering
-- ✅ Správny chunk selection pre fázy otázky
+### 5. Tenant Detection v Indexeri
+- ✅ `tools/rag/indexer.py` - `detect_tenant()` funkcia
+- Automaticky pridáva `tenant` do metadata podľa cesty súboru
 
----
-
-## ŠTRUKTÚRA OPRAVENÝCH SÚBOROV
-
-```
-apps/nex-brain/
-├── api/
-│   ├── routes/
-│   │   └── chat.py              # Greeting detection, ASCII patterns
-│   └── services/
-│       ├── rag_service.py       # Boost logic, dedupe, chunk selection
-│       └── llm_service.py       # Strict prompt, low temperature
-```
-
----
-
-## KĽÚČOVÉ OPRAVY
-
-### RAG Chunk Selection Problem
-- Problém: RAG vracal chunk "Dátové zdroje" namiesto "IMPLEMENTAČNÉ FÁZY"
-- Príčina: Oba chunky obsahovali slovo IMPLEMENT, ale prvý mal vyšší score
-- Riešenie: Boost +0.8 pre chunky kde sekcia je na ZAČIATKU (prvých 200 znakov)
-
-### LLM Hallucination Problem
-- Problém: llama3.1:8b vymýšľal informácie (Docker, GitHub Actions)
-- Príčina: Zlý kontext z RAG
-- Riešenie: Správny chunk selection + striktnejší prompt
-
----
-
-## TESTY - FUNGUJE
-
-```
-Otázka: "Co je NEX Brain?"
-Odpoveď: "NEX Brain je inteligentné rozhranie pre NEX ekosystém..."
-✅ SPRÁVNE
-
-Otázka: "Ake su fazy implementacie NEX Brain?"
-Odpoveď: "Fáza 1: Foundation, Fáza 2: Knowledge Base, Fáza 3: NEX Genesis Integration, Fáza 4: User Interface"
-✅ SPRÁVNE
-```
+### 6. Testing & Cleanup
+- ✅ End-to-end test tenant filtering - PASSED
+- ✅ Duplikáty v DB vyčistené (137 docs, 517 chunks)
 
 ---
 
 ## SCRIPTS VYTVORENÉ
 
-1. `01_fix_new_chat_path.py` - INIT_PROMPT do ROOT
-2. `02_fix_chat_rag_detection.py` - greeting detection
-3. `03_fix_chat_encoding.py` - ASCII patterns
-4. `04_fix_llm_prompt.py` - lepší prompt
-5. `05_fix_llm_strict_prompt.py` - striktnejší prompt
-6. `06_fix_rag_context.py` - kratší kontext
-7. `07_fix_rag_relevance.py` - relevance filtering
-8. `08_fix_rag_best_chunk.py` - best chunk selection
-9. `09_fix_rag_boost_keywords.py` - keyword boosting
-10. `10_fix_rag_impl_detection.py` - IMPLEMENT detection
-11. `11_debug_rag.py` - debug (DOČASNÝ - zmazať)
-12. `12_fix_rag_specific_boost.py` - specific boost
-13. `13_fix_rag_dedupe_order.py` - dedupe fix
-14. `14_fix_rag_start_boost.py` - START boost
+1. `01_create_env_file.py` - .env pre nex-brain
+2. `02_add_tenant_filtering.py` - RAG API tenant filter
+3. `03_fix_rag_service_tenant.py` - NEX Brain tenant pass-through
+4. `04_create_tenant_knowledge_structure.py` - adresárová štruktúra
+5. `05_add_tenant_indexer.py` - tenant detection v indexeri
+6. `06_test_tenant_filtering.py` - E2E test
+7. `07_cleanup_duplicates.py` - cleanup DB duplikátov
+
+---
+
+## TECHNICKÉ POZNÁMKY
+
+### Tenant Filtering Logic
+```sql
+-- Documents with matching tenant OR no tenant (shared)
+WHERE (d.metadata->>'tenant' = $tenant OR d.metadata->>'tenant' IS NULL)
+```
+
+### RAG API Usage
+```
+/search?query=...&tenant=icc      # ICC only + shared
+/search?query=...&tenant=andros   # ANDROS only + shared
+/search?query=...                 # All documents
+```
+
+### Test Documents Created
+- `docs/knowledge/tenants/icc/hr/ICC_INTERNE_PROCESY.md`
+- `docs/knowledge/tenants/andros/hr/ANDROS_INTERNE_PROCESY.md`
+- `docs/knowledge/shared/BOZP_PRAVIDLA.md`
 
 ---
 
 ## NEXT STEPS
 
-### Priority #1: Git Commit
-- Commitnúť všetky zmeny
-- Zmazať dočasné scripty (11_debug_rag.py)
+### Immediate
+1. Git commit všetkých zmien
+2. Zmazať dočasné scripty (01-07)
 
-### Priority #2: .env Configuration
-- Vytvoriť .env súbor pre nex-brain
+### Fáza 2 Continued
+- Pridať reálne dokumenty pre ICC
+- Pridať reálne dokumenty pre ANDROS
+- Otestovať NEX Brain s tenant-specific responses
 
-### Priority #3: Fáza 2 - Knowledge Base
-- Import dokumentov pre ICC
-- Import dokumentov pre ANDROS
+### Fáza 3: NEX Genesis Integration
+- Connector pre ERP dáta
+- Live queries
 
 ---
 
 **Session Status:** ✅ COMPLETE
-**Token Usage:** ~85,000 / 190,000 (45%)
+**Token Usage:** ~63,000 / 190,000 (33%)
 """
 
-KNOWLEDGE_CONTENT = f"""# NEX Brain API - Technical Documentation
+# =============================================================================
+# KNOWLEDGE CONTENT (for RAG indexing)
+# =============================================================================
 
-**Dátum:** {TODAY}
-**Kategória:** Development
-**Status:** ✅ Complete
+KNOWLEDGE_CONTENT = f"""# NEX Brain - Tenant Filtering
 
----
-
-## Prehľad
-
-Táto dokumentácia popisuje technické riešenia implementované pre NEX Brain API.
-
-## Kľúčové komponenty
-
-### 1. FastAPI Server
-- Endpoint: `http://127.0.0.1:8001`
-- Swagger UI: `/docs`
-- Hlavné routes: `/api/v1/chat`, `/api/v1/tenants`, `/health`
-
-### 2. RAG Service (`api/services/rag_service.py`)
-
-**Boost logika pre správny chunk selection:**
-- Chunks kde sekcia je na ZAČIATKU (prvých 200 znakov) dostávajú +0.8 boost
-- Deduplicate vyberá chunk s najvyšším adjusted_score per súbor
-- Keyword extraction z query pre lepšie matching
-
-**Kľúčové metódy:**
-- `_boost_relevant()` - pridáva boost podľa query keywords
-- `_deduplicate_best()` - vyberá najlepší chunk per súbor
-- `format_context()` - formátuje kontext pre LLM
-
-### 3. LLM Service (`api/services/llm_service.py`)
-
-**Konfigurácia pre minimálne halucinácie:**
-- `temperature=0.0` (deterministické)
-- `top_p=0.1` (focused)
-- `num_predict=150-256` (krátke odpovede)
-- Striktný system prompt
-
-### 4. Chat Endpoint (`api/routes/chat.py`)
-
-**Greeting detection:**
-- Jednoduché pozdravy (Ahoj, Čau, Hi) - bez RAG
-- ASCII patterns pre slovenské znaky
-- Diacritics removal funkcia
-
-## Riešené problémy
-
-### RAG Chunk Selection
-- **Problém:** RAG vracal zlý chunk (Dátové zdroje namiesto IMPLEMENTAČNÉ FÁZY)
-- **Príčina:** Oba chunky obsahovali kľúčové slová, ale prvý mal vyšší score
-- **Riešenie:** Boost +0.8 pre chunky kde sekcia je na začiatku
-
-### LLM Halucinácie
-- **Problém:** Model vymýšľal informácie (Docker, GitHub Actions)
-- **Príčina:** Zlý kontext z RAG + príliš kreatívne nastavenia
-- **Riešenie:** Správny chunk + temperature=0.0
+**Aktualizované:** {SESSION_DATE}
+**Kategória:** Technical Documentation
 
 ---
 
-## Použitie
+## Overview
 
-```powershell
-# Start server
-cd C:\Development\nex-automat\apps\nex-brain
-python -m uvicorn api.main:app --reload --port 8001
+NEX Brain podporuje multi-tenant architektúru s tenant-specific knowledge base.
 
-# Test API
-Invoke-RestMethod -Uri "http://127.0.0.1:8001/api/v1/chat" -Method POST -ContentType "application/json" -Body '{{"question": "Co je NEX Brain?", "tenant": "icc"}}'
+## Tenant Filtering
+
+### RAG API
+```
+/search?query=...&tenant=icc      # ICC documents + shared
+/search?query=...&tenant=andros   # ANDROS documents + shared  
+/search?query=...                 # All documents
 ```
 
----
+### Knowledge Base Structure
+```
+docs/knowledge/
+├── shared/           # Available to all tenants
+└── tenants/
+    ├── icc/          # ICC-specific (tenant='icc' in metadata)
+    └── andros/       # ANDROS-specific (tenant='andros' in metadata)
+```
 
-**Related:** NEX_BRAIN_PRODUCT.md, supplier-invoice-staging
+### Automatic Tenant Detection
+Indexer automatically detects tenant from file path:
+- `docs/knowledge/tenants/icc/*` → tenant='icc'
+- `docs/knowledge/tenants/andros/*` → tenant='andros'
+- Other paths → no tenant (shared)
+
+## Configuration
+
+### .env file (apps/nex-brain/.env)
+```env
+MODE=multi-tenant
+TENANTS=icc,andros
+RAG_API_URL=https://rag-api.icc.sk
+OLLAMA_URL=http://localhost:11434
+OLLAMA_MODEL=llama3.1:8b
+API_PORT=8001
+```
+
+## Files Modified
+
+- `tools/rag/hybrid_search.py` - SQL tenant filter
+- `tools/rag/api.py` - tenant parameter
+- `tools/rag/server_app.py` - ?tenant= endpoint
+- `tools/rag/indexer.py` - detect_tenant() function
+- `apps/nex-brain/api/services/rag_service.py` - tenant pass-through
 """
 
-INIT_PROMPT_CONTENT = f"""# INIT PROMPT - NEX Automat Project
+# =============================================================================
+# INIT PROMPT
+# =============================================================================
+
+INIT_PROMPT = f"""# INIT PROMPT - NEX Automat Project
 
 **Projekt:** nex-automat  
-**Current Status:** NEX Brain API - FUNCTIONAL  
+**Current Status:** NEX Brain - Tenant Filtering Complete
 **Developer:** Zoltán (40 rokov skúseností)  
 **Jazyk:** Slovenčina  
-**Previous Session:** nex-brain-api-fixes ({TODAY})
+**Previous Session:** {SESSION_NAME} ({SESSION_DATE})
 
 ---
 
@@ -236,34 +213,34 @@ Kľúčové pravidlá:
 
 ## 🔄 DOKONČENÉ MINULÚ SESSION
 
-### NEX Brain API - FUNCTIONAL
-- ✅ FastAPI server na http://127.0.0.1:8001
-- ✅ Swagger UI na /docs
-- ✅ Greeting detection funguje
-- ✅ RAG chunk selection opravený
-- ✅ LLM odpovede bez halucinácie
-- ✅ Testy "Co je NEX Brain?" a "fázy implementácie" fungujú
+### Tenant Filtering - COMPLETE
+- ✅ RAG API `?tenant=` parameter
+- ✅ NEX Brain tenant integration
+- ✅ Knowledge base štruktúra (shared/ + tenants/icc,andros/)
+- ✅ Indexer tenant detection
+- ✅ E2E test PASSED
+- ✅ DB cleanup (137 docs, 517 chunks)
 
-### Kľúčové opravy
-- RAG: Boost pre chunky kde sekcia je na ZAČIATKU
-- LLM: temperature=0.0, striktný prompt
-- Chat: ASCII patterns pre slovenské znaky
+### Kľúčové súbory
+- `tools/rag/hybrid_search.py` - tenant SQL filter
+- `tools/rag/indexer.py` - detect_tenant()
+- `apps/nex-brain/.env` - konfigurácia
 
 ---
 
 ## 🎯 IMMEDIATE NEXT STEPS
 
 ### Priority #1: Git Commit
-- Commitnúť všetky zmeny z minulej session
-- Zmazať dočasné scripty
+- Commitnúť všetky zmeny z tenant filtering session
+- Zmazať dočasné scripty (01-07)
 
-### Priority #2: .env Configuration
-- Vytvoriť .env súbor pre nex-brain app
+### Priority #2: Real Knowledge Base
+- Pridať reálne dokumenty pre ICC
+- Pridať reálne dokumenty pre ANDROS
 
-### Priority #3: Fáza 2 - Knowledge Base
-- Import dokumentov pre ICC
-- Import dokumentov pre ANDROS
-- Tenant-specific RAG filtering
+### Priority #3: Fáza 3 - NEX Genesis Integration
+- Connector pre ERP dáta
+- Live queries
 
 ---
 
@@ -271,15 +248,18 @@ Kľúčové pravidlá:
 
 ```
 apps/nex-brain/                         # NEX Brain app
-  api/main.py                           # FastAPI
-  api/routes/chat.py                    # Chat endpoint (greeting detection)
-  api/services/rag_service.py           # RAG (boost logic)
-  api/services/llm_service.py           # Ollama (strict prompt)
-  cli/chat_cli.py                       # CLI testing
-  config/settings.py                    # Multi-tenant config
+  .env                                  # Multi-tenant config
+  api/services/rag_service.py           # Tenant pass-through
 
-docs/knowledge/strategic/               # Strategic docs
-  NEX_BRAIN_PRODUCT.md                  # Product strategy
+tools/rag/                              # RAG system
+  hybrid_search.py                      # Tenant SQL filter
+  indexer.py                            # detect_tenant()
+  server_app.py                         # ?tenant= endpoint
+
+docs/knowledge/                         # Knowledge base
+  shared/                               # All tenants
+  tenants/icc/                          # ICC only
+  tenants/andros/                       # ANDROS only
 ```
 
 ---
@@ -287,75 +267,62 @@ docs/knowledge/strategic/               # Strategic docs
 ## 🔍 RAG ACCESS
 
 ```
-https://rag-api.icc.sk/search?query=...&limit=N
-```
-
----
-
-## 🛠️ NEX Brain Server
-
-```powershell
-# Start server
-cd C:\\Development\\nex-automat\\apps\\nex-brain
-python -m uvicorn api.main:app --reload --port 8001
-
-# Test
-Invoke-RestMethod -Uri "http://127.0.0.1:8001/api/v1/chat" -Method POST -ContentType "application/json" -Body '{{"question": "Co je NEX Brain?", "tenant": "icc"}}'
+https://rag-api.icc.sk/search?query=...&tenant=icc
+https://rag-api.icc.sk/search?query=...&tenant=andros
 ```
 
 ---
 
 **Token Budget:** 190,000  
-**Location:** C:\\Development\\nex-automat
+**Location:** C:\Development\nex-automat
 
 ---
 
 **KONIEC INIT PROMPTU**
 """
 
+
 def main():
     print("=" * 60)
-    print("  Creating New Chat Session Files")
+    print("NEW CHAT - Session Archive & Init Prompt")
     print("=" * 60)
 
-    # 1. Create SESSION file
-    session_file = ARCHIVE_PATH / f"{SESSION_NAME}.md"
-    session_file.parent.mkdir(parents=True, exist_ok=True)
+    # 1. Create session archive
+    ARCHIVE_DIR.mkdir(parents=True, exist_ok=True)
+    session_file = ARCHIVE_DIR / f"SESSION_{SESSION_DATE}_{SESSION_NAME}.md"
     session_file.write_text(SESSION_CONTENT, encoding="utf-8")
-    print(f"✅ Created: {session_file.name}")
+    print(f"\n✅ Session archive: {session_file.name}")
 
-    # 2. Create KNOWLEDGE document (for RAG indexing)
-    knowledge_file = KNOWLEDGE_PATH / f"{TODAY}_nex-brain-api.md"
-    knowledge_file.parent.mkdir(parents=True, exist_ok=True)
+    # 2. Create knowledge doc (for RAG)
+    knowledge_file = KNOWLEDGE_DIR / f"KNOWLEDGE_{SESSION_DATE}_{SESSION_NAME}.md"
     knowledge_file.write_text(KNOWLEDGE_CONTENT, encoding="utf-8")
-    print(f"✅ Created: {knowledge_file.name} (in docs/knowledge/)")
+    print(f"✅ Knowledge doc: {knowledge_file.name}")
 
-    # 3. Create INIT_PROMPT in ROOT
-    init_file = INIT_CHAT_PATH / "INIT_PROMPT_NEW_CHAT.md"
-    init_file.write_text(INIT_PROMPT_CONTENT, encoding="utf-8")
-    print(f"✅ Created: INIT_PROMPT_NEW_CHAT.md (in ROOT)")
+    # 3. Create init prompt
+    init_file = PROJECT_ROOT / "INIT_PROMPT_NEW_CHAT.md"
+    init_file.write_text(INIT_PROMPT, encoding="utf-8")
+    print(f"✅ Init prompt: {init_file.name}")
 
-    # 4. Run rag_update.py --new
-    print("\\n🔄 Running RAG update...")
-    try:
-        result = subprocess.run(
-            [__import__("sys").executable, "tools/rag/rag_update.py", "--new"],
-            cwd=BASE_PATH,
-            capture_output=False,
-            text=True
-        )
-        if result.returncode == 0:
-            print("✅ RAG update complete")
-        else:
-            print(f"⚠️ RAG update warning: {result.stderr}")
-    except Exception as e:
-        print(f"⚠️ RAG update skipped: {e}")
+    # 4. Run RAG update
+    print("\n" + "-" * 60)
+    print("Running RAG update (--new)...")
+    print("-" * 60)
 
-    print("\\n" + "=" * 60)
-    print("✅ New chat session ready!")
+    result = subprocess.run(
+        [sys.executable, "tools/rag/rag_update.py", "--new"],
+        cwd=PROJECT_ROOT,
+        capture_output=False
+    )
+
+    print("\n" + "=" * 60)
+    print("✅ NEW CHAT READY")
     print("=" * 60)
-    print(f"\\nSession: {SESSION_NAME}")
-    print("\\nNext: Start new Claude chat with INIT_PROMPT_NEW_CHAT.md")
+    print(f"\nFiles created:")
+    print(f"  1. {session_file}")
+    print(f"  2. {knowledge_file}")
+    print(f"  3. {init_file}")
+    print(f"\nNext: Start new chat and paste INIT_PROMPT_NEW_CHAT.md")
+
 
 if __name__ == "__main__":
     main()

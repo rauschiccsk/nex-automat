@@ -4,7 +4,7 @@
 **Owner:** Zoltán  
 **Assistant:** Claude (Anthropic)  
 **Last Updated:** 2025-12-19  
-**Version:** 1.7
+**Version:** 1.8
 
 ---
 
@@ -96,6 +96,11 @@
 - Session scripts numbered from 01 sequentially. Only temporary scripts numbered, permanent scripts not.
 - Session scripty od 01 plynule. Len dočasné číslované, trvalé nie.
 
+**26. Subprocess in Scripts (CRITICAL - NEW v1.8)**
+- In new_chat.py scripts, ALWAYS use sys.executable instead of "python" for subprocess calls to ensure correct venv is used
+- V new_chat.py VŽDY použiť sys.executable namiesto "python" pre subprocess volania
+- Toto zaručuje že subprocess používa rovnaký Python/venv ako hlavný script
+
 ---
 
 ### 📝 Documentation / Dokumentácia
@@ -108,9 +113,9 @@
 - No need to write manifest generation instructions, user generates manifests himself
 - Nepíš manifest inštrukcie, používateľ generuje sám
 
-**20. Session Closure (UPDATED v1.7)**
-- When user says "novy chat": new_chat.py creates SESSION_*.md (archive), KNOWLEDGE_*.md (docs/knowledge/ for RAG indexing), INIT_PROMPT_NEW_CHAT.md (root), then runs rag_update.py --new
-- Pri "novy chat": new_chat.py vytvára SESSION (archív), KNOWLEDGE (docs/knowledge/ pre RAG), INIT_PROMPT (root), potom spúšťa rag_update
+**20. Session Closure (UPDATED v1.8)**
+- When user says "novy chat": new_chat.py creates SESSION_*.md (archive), KNOWLEDGE_*.md (docs/knowledge/ for RAG indexing), INIT_PROMPT_NEW_CHAT.md (root), then runs rag_update.py --new using sys.executable
+- Pri "novy chat": new_chat.py vytvára SESSION (archív), KNOWLEDGE (docs/knowledge/ pre RAG), INIT_PROMPT (root), potom spúšťa rag_update cez sys.executable
 
 ---
 
@@ -138,7 +143,7 @@
 
 ---
 
-## Complete List / Plynulý Zoznam (1-25)
+## Complete List / Plynulý Zoznam (1-26)
 
 1. **Provide single recommended solution only, no alternatives unless requested**
 2. **Present one step at a time, wait for confirmation before next step**
@@ -159,26 +164,39 @@
 17. **In docs use standard Markdown tables only**
 18. **CRITICAL: nex-shared package uses FLAT structure**
 19. **Session scripts numbered from 01 sequentially**
-20. **"novy chat": new_chat.py creates SESSION, KNOWLEDGE (for RAG), INIT_PROMPT**
+20. **"novy chat": new_chat.py creates SESSION, KNOWLEDGE (for RAG), INIT_PROMPT, uses sys.executable**
 21. **Initialization protocol - avoid verbose output, confirm only**
 22. **CRITICAL: At start of every chat, check all memory rules**
 23. **RAG maintenance: rag_update.py --new (daily), --all (weekly)**
 24. **RAG Workflow: Claude provides URL, user pastes, Claude fetches**
 25. **PostgreSQL password via POSTGRES_PASSWORD env variable**
+26. **CRITICAL: In new_chat.py ALWAYS use sys.executable for subprocess calls**
 
 ---
 
 ## Usage Notes / Poznámky k Použitiu
 
-### Session Closure Workflow (Rule 20 - UPDATED v1.7)
+### Session Closure Workflow (Rule 20, 26 - UPDATED v1.8)
 
 **When user says "novy chat":**
 
 `new_chat.py` script automaticky vytvára:
 1. `docs/archive/sessions/SESSION_YYYY-MM-DD_name.md` - archív session
-2. `docs/knowledge/development/YYYY-MM-DD_topic.md` - knowledge pre RAG
+2. `docs/knowledge/KNOWLEDGE_YYYY-MM-DD_topic.md` - knowledge pre RAG
 3. `INIT_PROMPT_NEW_CHAT.md` - v ROOT projektu
-4. Spúšťa `rag_update.py --new` - indexuje nový knowledge dokument
+4. Spúšťa `rag_update.py --new` cez **sys.executable** - indexuje nový knowledge dokument
+
+**KRITICKÉ pre new_chat.py:**
+```python
+import subprocess
+import sys  # POVINNÉ!
+
+# SPRÁVNE - použiť sys.executable
+subprocess.run([sys.executable, "tools/rag/rag_update.py", "--new"], ...)
+
+# NESPRÁVNE - nikdy nepoužívať "python" string
+subprocess.run(["python", "tools/rag/rag_update.py", "--new"], ...)  # ❌ ZAKÁZANÉ
+```
 
 **User workflow:**
 ```powershell
@@ -191,6 +209,7 @@ git add . && git commit -m "session: description"
 - Knowledge dokument ide do RAG pre budúce vyhľadávanie
 - SESSION zostáva v archíve (nie v RAG)
 - INIT_PROMPT pripravený pre nový chat
+- sys.executable zaručuje správny Python/venv
 
 ### RAG Access Protocol (Rule 24)
 
@@ -217,7 +236,7 @@ Claude: [fetches and responds]
 - Config files (.json, .yaml, .py, .txt, .ini, .toml)
 - Init prompts (INIT_PROMPT_NEW_CHAT.md)
 - Session archives (SESSION_YYYY-MM-DD_*.md)
-- Knowledge documents (YYYY-MM-DD_*.md)
+- Knowledge documents (KNOWLEDGE_YYYY-MM-DD_*.md)
 - Documents longer than 10 lines
 - Code examples longer than 5 lines
 
@@ -225,11 +244,16 @@ Claude: [fetches and responds]
 
 ## Version History / História Verzií
 
+- **v1.8** (2025-12-19): sys.executable fix for subprocess
+  - **NEW Rule #26**: In new_chat.py ALWAYS use sys.executable for subprocess calls
+  - **UPDATED Rule #20**: Added sys.executable requirement
+  - Fixes "ModuleNotFoundError: No module named 'yaml'" error in subprocess
+  - Total rules: 26
+
 - **v1.7** (2025-12-19): Knowledge document in session closure
   - **UPDATED Rule #20**: new_chat.py now creates KNOWLEDGE_*.md for RAG indexing
   - **NEW Rule #25**: PostgreSQL password via env variable
   - Session closure creates: SESSION (archive) + KNOWLEDGE (RAG) + INIT_PROMPT
-  - Total rules: 25
 
 - **v1.6** (2025-12-17): Added RAG system rules + automated session closure
   - **NEW Rule #23**: RAG maintenance protocol
@@ -250,8 +274,8 @@ Claude: [fetches and responds]
 
 ---
 
-**Total Rules:** 25  
+**Total Rules:** 26  
 **Status:** Active & Enforced  
 **Maintained By:** Zoltán & Claude  
-**Critical Focus:** Artifacts (#7) + Session Closure (#20) + Memory (#22) + RAG (#23, #24)  
-**Current Version:** 1.7 (2025-12-19)
+**Critical Focus:** Artifacts (#7) + Session Closure (#20) + Memory (#22) + RAG (#23, #24) + sys.executable (#26)  
+**Current Version:** 1.8 (2025-12-19)

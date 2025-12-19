@@ -13,6 +13,27 @@ from .embeddings import EmbeddingModel
 from .chunker import DocumentChunker
 
 
+def detect_tenant(filepath: Path) -> str | None:
+    """
+    Detect tenant from file path.
+    
+    Rules:
+    - docs/knowledge/tenants/icc/... → 'icc'
+    - docs/knowledge/tenants/andros/... → 'andros'  
+    - Other paths → None (shared/all tenants)
+    """
+    path_str = str(filepath).replace("\\", "/").lower()
+    
+    if "/tenants/" in path_str:
+        parts = path_str.split("/tenants/")
+        if len(parts) > 1:
+            tenant = parts[1].split("/")[0]
+            if tenant in ["icc", "andros"]:
+                return tenant
+    
+    return None
+
+
 class DocumentIndexer:
     """
     Handles document indexing pipeline
@@ -161,11 +182,16 @@ class DocumentIndexer:
         with open(filepath, 'r', encoding='utf-8') as f:
             content = f.read()
 
-        # Add filepath to metadata
+        # Add filepath and tenant to metadata
         if metadata is None:
             metadata = {}
         metadata['filepath'] = str(filepath.absolute())
         metadata['file_size'] = filepath.stat().st_size
+        
+        # Detect tenant from path
+        tenant = detect_tenant(filepath)
+        if tenant:
+            metadata['tenant'] = tenant
 
         # Index document
         return await self.index_document(

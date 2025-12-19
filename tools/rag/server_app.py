@@ -92,7 +92,8 @@ async def health_check():
 async def search_endpoint(
     query: str = Query(..., description="Search query"),
     max_results: int = Query(5, ge=1, le=20, description="Maximum number of results (1-20)"),
-    format: str = Query("json", pattern="^(json|context)$", description="Response format: json or context")
+    format: str = Query("json", pattern="^(json|context)$", description="Response format: json or context"),
+    tenant: Optional[str] = Query(None, description="Tenant filter (e.g., 'icc', 'andros')")
 ):
     """
     Search RAG database for relevant documents.
@@ -107,11 +108,11 @@ async def search_endpoint(
     """
     try:
         # Use existing API search function
-        response = await search(query, limit=max_results)
+        response = await search(query, limit=max_results, tenant=tenant)
 
         if format == "context":
             # Use existing get_context function
-            context = await get_context(query, max_chunks=max_results)
+            context = await get_context(query, max_chunks=max_results, tenant=tenant)
             return JSONResponse(content={"context": context})
         else:
             # Return raw JSON - convert SearchResult objects to dicts

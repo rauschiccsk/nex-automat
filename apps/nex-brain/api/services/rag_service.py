@@ -24,6 +24,8 @@ class RAGService:
         try:
             async with httpx.AsyncClient(timeout=30.0) as client:
                 params = {"query": query, "limit": limit}
+                if tenant:
+                    params["tenant"] = tenant
                 response = await client.get(
                     f"{self.base_url}/search",
                     params=params
