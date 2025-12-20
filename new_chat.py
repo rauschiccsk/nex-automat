@@ -20,120 +20,94 @@ from pathlib import Path
 # =============================================================================
 
 SESSION_DATE = "2025-12-21"  # YYYY-MM-DD
-SESSION_NAME = "temporal-phase5-deployment-continued"  # krátky názov bez medzier
+SESSION_NAME = "temporal-phase5-deployment-complete"  # krátky názov bez medzier
 
 KNOWLEDGE_CONTENT = """\
-# Temporal Phase 5 Deployment - Mágerstav Server (Session 2)
+# Temporal Migration Phase 5: Deployment Complete
 
-**Dátum:** 2025-12-20 - 2025-12-21
-**Server:** Mágerstav (testovacie prostredie)
-**Status:** 🔄 IN PROGRESS - API Key fix pending test
-
----
-
-## Dokončené úlohy ✅
-
-### 1. Temporal Server Inštalácia
-- Temporal CLI 1.5.1 (Server 1.29.1, UI 2.42.1)
-- Cesta: `C:\\Temporal\\cli\\temporal.exe`
-- SQLite DB: `C:\\Temporal\\data\\temporal.db`
-- Porty: 7233 (gRPC), 8233 (UI)
-
-### 2. NSSM Windows Services (všetky Running)
-| Služba | Popis |
-|--------|-------|
-| NEX-Temporal-Server | Temporal Server + UI |
-| NEX-Invoice-Worker | Python 3.12 64-bit worker |
-| NEX-Polling-Scheduler | Email polling každých 300s |
-
-### 3. Worker Deployment
-- ZIP prenos z Development na Mágerstav
-- 64-bit Python 3.12 venv (temporalio vyžaduje 64-bit)
-- Cesta: `C:\\Deployment\\nex-automat\\apps\\supplier-invoice-worker`
-
-### 4. invoice_activities.py Fix
-- Endpoint: `/invoice` (nie `/api/v1/invoice/upload`)
-- Payload: JSON s `file_b64` (base64)
-- Pridaný `import base64`
-
-### 5. Gmail OAuth2
-- Tokeny fungujú
-- `fetch_unread_emails` nachádza emaily ✅
-
-### 6. new_chat_template.py
-- Vytvorený otestovaný template pre session management
-- Cesta: `scripts/templates/new_chat_template.py`
+**Dátum:** 2025-12-21
+**Status:** ✅ DONE
 
 ---
 
-## Aktuálny problém ❌
+## Dokončené úlohy
 
-### HTTP 401 - Invalid API key
+### 1. HTTP 401 Invalid API Key - VYRIEŠENÉ
+**Root cause:** Worker posielal requesty na port 8000, kde bežal starý invoice-loader z `C:\\invoice-loader\\`, nie nový z `C:\\Deployment\\nex-automat\\`.
 
-**Symptóm:**
-```
-errors=['...pdf: HTTP 401: {"detail":"Invalid API key"}']
+**Riešenie:**
+- Opravený `FASTAPI_URL` v worker `.env`: 8000 → 8001
+- Worker reštartovaný
+
+### 2. Služba SupplierInvoiceLoader - OPRAVENÁ
+**Root cause:** NSSM služba bola nakonfigurovaná na starý adresár `C:\\invoice-loader\\`.
+
+**Riešenie:**
+```powershell
+nssm set SupplierInvoiceLoader Application "C:\\Deployment\\nex-automat\\venv32\\Scripts\\python.exe"
+nssm set SupplierInvoiceLoader AppDirectory "C:\\Deployment\\nex-automat\\apps\\supplier-invoice-loader"
+nssm set SupplierInvoiceLoader AppParameters "main.py"
+nssm set SupplierInvoiceLoader AppStdout "C:\\Deployment\\nex-automat\\apps\\supplier-invoice-loader\\logs\\service.log"
+nssm set SupplierInvoiceLoader AppStderr "C:\\Deployment\\nex-automat\\apps\\supplier-invoice-loader\\logs\\service_error.log"
 ```
 
-**Root cause:**
-- `supplier-invoice-loader/config/config_customer.py`:
-  ```python
-  API_KEY = os.getenv("LS_API_KEY", "ls-dev-key-change-in-production-2025")
-  ```
-- Worker `.env` mal iný kľúč
+### 3. Konfigurácia portov na Mágerstav
 
-**Riešenie (aplikované, čaká test):**
-- Worker `.env` zmenený na `LS_API_KEY=ls-dev-key-change-in-production-2025`
-- Treba reštartovať NEX-Invoice-Worker a otestovať
+| Služba | Port | Aplikácia |
+|--------|------|-----------|
+| supplier-invoice-loader | 8001 | FastAPI Invoice API |
+| Temporal Server | 7233 | Temporal gRPC |
+| Temporal UI | 8233 | Web UI |
 
----
+### 4. Monitoring - FUNKČNÝ
 
-## Next Steps
+| Nástroj | URL | Stav |
+|---------|-----|------|
+| Invoice API Health | http://localhost:8001/health | ✅ |
+| Temporal Web UI | http://localhost:8233 | ✅ |
+| Workflow história | 24+ úspešných | ✅ |
 
-1. **Reštart a test API key fix:**
-   ```powershell
-   C:\\Deployment\\nex-automat\\tools\\nssm\\win32\\nssm.exe restart NEX-Invoice-Worker
-   # Označ email ako neprečítaný v Gmail
-   # Spusti manuálny workflow test
-   ```
+### 5. SMTP Notifikácie
+- Preskočené - Temporal UI stačí na sledovanie zlyhaní
+- OAuth2 použité pre IMAP (nie App Password)
 
-2. **End-to-end test** - faktúra spracovaná a uložená do DB
+## Finálny stav služieb na Mágerstav
 
-3. **Phase 5.2 Monitoring** - health checks, logging
+| Služba | Status |
+|--------|--------|
+| NEX-Temporal-Server | ✅ Running |
+| NEX-Invoice-Worker | ✅ Running |
+| NEX-Polling-Scheduler | ✅ Running |
+| SupplierInvoiceLoader | ✅ Running (port 8001) |
 
----
-
-## Dôležité cesty (Mágerstav)
-
-| Komponenta | Cesta |
-|------------|-------|
-| Temporal CLI | `C:\\Temporal\\cli\\temporal.exe` |
-| Temporal DB | `C:\\Temporal\\data\\temporal.db` |
-| Worker | `C:\\Deployment\\nex-automat\\apps\\supplier-invoice-worker` |
-| Worker venv | `...\\supplier-invoice-worker\\venv` (Python 3.12 64-bit) |
-| NSSM | `C:\\Deployment\\nex-automat\\tools\\nssm\\win32\\nssm.exe` |
-| FastAPI | `C:\\Deployment\\nex-automat\\apps\\supplier-invoice-loader` |
+## End-to-end test
+```
+WorkflowResult(emails_processed=1, invoices_uploaded=1, errors=[])
+```
+✅ **PASSED** - Faktúra úspešne spracovaná cez Temporal workflow.
 
 ## Dôležité príkazy
 
+### Reštart služieb
 ```powershell
-# Stav služieb
-Get-Service "NEX-*"
-
-# Reštart služby
 C:\\Deployment\\nex-automat\\tools\\nssm\\win32\\nssm.exe restart NEX-Invoice-Worker
+C:\\Deployment\\nex-automat\\tools\\nssm\\win32\\nssm.exe restart NEX-Polling-Scheduler
+C:\\Deployment\\nex-automat\\tools\\nssm\\win32\\nssm.exe restart SupplierInvoiceLoader
+```
 
-# Temporal UI
-http://localhost:8233
+### Kontrola stavu
+```powershell
+Get-Service | Where-Object {$_.Name -like "*NEX*" -or $_.Name -like "*Invoice*" -or $_.Name -like "*Supplier*"}
+```
 
-# Manuálny workflow test
+### Manuálny test workflow
+```powershell
 cd C:\\Deployment\\nex-automat\\apps\\supplier-invoice-worker
 .\\venv\\Scripts\\Activate.ps1
 python -c "
 import asyncio
 from temporalio.client import Client
 from workflows.invoice_workflow import InvoiceProcessingWorkflow
-
 async def main():
     client = await Client.connect('localhost:7233')
     result = await client.execute_workflow(
@@ -142,24 +116,29 @@ async def main():
         task_queue='supplier-invoice-queue'
     )
     print(f'Result: {result}')
-
 asyncio.run(main())
 "
 ```
+
+## Next Steps
+
+1. Phase 6: Migration - Parallel run s n8n, validácia, vypnutie n8n
+2. Testovanie s reálnymi faktúrami v produkcii
+3. Dokumentácia pre operátorov
 """
 
 INIT_PROMPT = """\
-INIT PROMPT - Temporal Migration Phase 5: Deployment (CONTINUED)
+INIT PROMPT - Temporal Migration Phase 6: Migration
 
 Projekt: nex-automat
-Current Status: API Key Fix - Ready for Test
+Current Status: Phase 5 Complete, Ready for Phase 6
 Developer: Zoltán (40 rokov skúseností)
 Jazyk: Slovenčina
-Previous Session: 2025-12-20
+Previous Session: 2025-12-21
 
 ⚠️ KRITICKÉ: Dodržiavať pravidlá z memory_user_edits!
 
-🎯 IMMEDIATE NEXT STEP: Test API Key Fix
+🎯 CURRENT FOCUS: Phase 6 - Parallel run a migrácia z n8n
 
 ## Čo je hotové ✅
 
@@ -169,57 +148,24 @@ Previous Session: 2025-12-20
 | NEX-Temporal-Server služba | ✅ Running |
 | NEX-Invoice-Worker služba | ✅ Running |
 | NEX-Polling-Scheduler služba | ✅ Running |
-| invoice_activities.py fix | ✅ Deployed |
-| Gmail OAuth2 | ✅ Funguje |
-| Worker .env LS_API_KEY | ✅ Zmenený na správny kľúč |
-| new_chat_template.py | ✅ Otestovaný |
+| SupplierInvoiceLoader | ✅ Running (port 8001) |
+| End-to-end test | ✅ PASSED |
+| Monitoring (Temporal UI) | ✅ Funkčný |
 
-## Aktuálny problém ❌
+## Phase 6 Tasks
 
-HTTP 401 - Invalid API key pri upload faktúry.
-
-**Fix aplikovaný:** Worker `.env` zmenený na `LS_API_KEY=ls-dev-key-change-in-production-2025`
-
-**TREBA:** Reštartovať službu a otestovať!
-
-## Immediate Actions
-
-1. Na Mágerstav serveri:
-   ```powershell
-   C:\\Deployment\\nex-automat\\tools\\nssm\\win32\\nssm.exe restart NEX-Invoice-Worker
-   ```
-
-2. Označ email ako neprečítaný v Gmail (`magerstavinvoice@gmail.com`)
-
-3. Spusti test:
-   ```powershell
-   cd C:\\Deployment\\nex-automat\\apps\\supplier-invoice-worker
-   .\\venv\\Scripts\\Activate.ps1
-   python -c "
-   import asyncio
-   from temporalio.client import Client
-   from workflows.invoice_workflow import InvoiceProcessingWorkflow
-   async def main():
-       client = await Client.connect('localhost:7233')
-       result = await client.execute_workflow(
-           InvoiceProcessingWorkflow.run,
-           id='manual-test-005',
-           task_queue='supplier-invoice-queue'
-       )
-       print(f'Result: {result}')
-   asyncio.run(main())
-   "
-   ```
-
-4. Očakávaný výsledok: `invoices_uploaded: 1`
+1. [ ] Parallel run - Temporal + n8n súčasne
+2. [ ] Validácia výsledkov - porovnanie oboch systémov
+3. [ ] Vypnutie n8n workflow
+4. [ ] Cleanup starých súborov
 
 ## RAG Query
 
 ```
-https://rag-api.icc.sk/search?query=Temporal+deployment+Magerstav+API+key+invoice&limit=5
+https://rag-api.icc.sk/search?query=n8n+workflow+migration+parallel+run&limit=5
 ```
 
-Session Priority: Test API Key Fix → End-to-end faktúra → Phase 5.2 Monitoring
+Session Priority: Parallel run → Validácia → n8n vypnutie → Cleanup
 """
 
 
