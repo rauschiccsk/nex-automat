@@ -11,6 +11,7 @@ import hashlib
 from datetime import datetime
 from typing import Optional
 from pathlib import Path
+import shutil
 import base64
 
 from fastapi import FastAPI, Header, HTTPException, Depends
@@ -320,6 +321,69 @@ async def enrich_invoice_items(invoice_id: int):
         logger.error(f"❌ Failed to enrich invoice {invoice_id}: {e}")
 
 
+
+
+def move_files_to_staging(pdf_path: Path, xml_path: Path, file_basename: str, pg_conn, invoice_id: int) -> tuple:
+    """
+    Move PDF and XML files from RECEIVED to STAGING directory.
+    Update file_status in PostgreSQL.
+
+    Args:
+        pdf_path: Current PDF path in RECEIVED_DIR
+        xml_path: Current XML path in RECEIVED_DIR
+        file_basename: Base filename without extension
+        pg_conn: PostgreSQL connection (from pg_client._conn)
+        invoice_id: Invoice ID in PostgreSQL
+
+    Returns:
+        tuple: (new_pdf_path, new_xml_path) or (None, None) on error
+    """
+    try:
+        # Target paths in STAGING_DIR
+        staged_pdf_path = config.STAGING_DIR / f"{file_basename}.pdf"
+        staged_xml_path = config.STAGING_DIR / f"{file_basename}.xml"
+
+        # Move PDF
+        if pdf_path.exists():
+            shutil.move(str(pdf_path), str(staged_pdf_path))
+            print(f"[OK] PDF moved to staging: {staged_pdf_path}")
+        else:
+            print(f"[WARN] PDF not found for moving: {pdf_path}")
+            staged_pdf_path = None
+
+        # Move XML
+        if xml_path.exists():
+            shutil.move(str(xml_path), str(staged_xml_path))
+            print(f"[OK] XML moved to staging: {staged_xml_path}")
+        else:
+            print(f"[WARN] XML not found for moving: {xml_path}")
+            staged_xml_path = None
+
+        # Update file_status in PostgreSQL using cursor
+        cursor = pg_conn.cursor()
+        cursor.execute(
+            """
+            UPDATE supplier_invoice_heads 
+            SET file_status = 'staged',
+                pdf_file_path = %s,
+                xml_file_path = %s,
+                updated_at = NOW()
+            WHERE id = %s
+            """,
+            (str(staged_pdf_path) if staged_pdf_path else None,
+             str(staged_xml_path) if staged_xml_path else None,
+             invoice_id)
+        )
+        cursor.close()
+        print(f"[OK] Updated file_status to 'staged' for invoice {invoice_id}")
+
+        return (staged_pdf_path, staged_xml_path)
+
+    except Exception as e:
+        print(f"[FAIL] Failed to move files to staging: {e}")
+        return (None, None)
+
+
 @app.post("/invoice")
 async def process_invoice(
     request: models.InvoiceRequest,
@@ -484,6 +548,15 @@ async def process_invoice(
                         if postgres_invoice_id:
                             postgres_saved = True
                             print(f"[OK] Saved to PostgreSQL staging: invoice_id={postgres_invoice_id}")
+
+                            # Move files from RECEIVED to STAGING
+                            staged_pdf, staged_xml = move_files_to_staging(
+                                pdf_path, xml_path, file_basename, pg_client._conn, postgres_invoice_id
+                            )
+                            if staged_pdf:
+                                pdf_path = staged_pdf
+                            if staged_xml:
+                                xml_path = staged_xml
                         else:
                             print(f"[FAIL] Failed to save to PostgreSQL staging")
 

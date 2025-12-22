@@ -20,84 +20,68 @@ from pathlib import Path
 # =============================================================================
 
 SESSION_DATE = "2025-12-22"  # YYYY-MM-DD
-SESSION_NAME = "temporal-phase6-validation-file-organization"  # krátky názov bez medzier
+SESSION_NAME = "file-organization-phase-d-documentation"  # krátky názov bez medzier
 
 KNOWLEDGE_CONTENT = """\
-# Temporal Phase 6 Validation & File Organization System
+# Fáza D File Mover Service & RAG Dokumentácia
 
 **Dátum:** 2025-12-22
-**Status:** ✅ DONE (Fázy A, B, C)
+**Status:** ✅ DONE
 
 ---
 
 ## Dokončené úlohy
 
-### 1. Temporal Phase 6 - Validácia
-- n8n workflow zastavený na ICC serveri
-- Temporal prevzal produkciu na Mágerstav
-- Validačný test: 14/14 XML súborov PASSED (100% match s n8n)
-- Temporal je plne validovaný a produkčný
+- Fáza D - received → staged (main.py úprava s move_files_to_staging)
+- Fáza D - staged → archived funkcia (file_mover.py v supplier-invoice-staging)
+- Fix POSTGRES_DATABASE na supplier_invoice_staging
+- RAG dokumentácia - KNOWLEDGE_2025-12-22_project-structure.md
+- Skutočná štruktúra projektu zdokumentovaná (04_scan_project_structure.py)
+- Fáza E preskočená (migrácia bezpredmetná - čistý štart)
 
-### 2. File Organization System - Nová architektúra
-Implementovaný nový systém organizácie súborov založený na životnom cykle:
+## Aktuálny stav
 
-**Fáza 1 - Received:** `C:\\NEX\\IMPORT\\SUPPLIER-INVOICES\\`
-**Fáza 2 - Staged:** `C:\\NEX\\IMPORT\\SUPPLIER-STAGING\\`
-**Fáza 3 - Archived:** `C:\\NEX\\YEARACT\\ARCHIV\\SUPPLIER-INVOICES\\PDF|XML\\`
+- Temporal validácia 14/14 PASSED
+- n8n zastavený
+- Fázy A-D DONE
+- RAG dokumentácia aktuálna
 
-### 3. Implementované fázy
+## Zmenené súbory
 
-| Fáza | Úloha | Status |
-|------|-------|--------|
-| A | Databázové zmeny (file_basename, file_status, nex_*_doc_id) | ✅ DONE |
-| B | Vytvorenie adresárovej štruktúry | ✅ DONE |
-| C | Úprava SupplierInvoiceLoader kódu | ✅ DONE |
-| D | File Mover Service | ⏳ TODO |
-| E | Migrácia existujúcich súborov | ⏳ TODO |
+- apps/supplier-invoice-loader/main.py - move_files_to_staging()
+- apps/supplier-invoice-loader/config/config_customer.py - POSTGRES_DATABASE fix
+- apps/supplier-invoice-staging/services/file_mover.py - NEW
+- apps/supplier-invoice-staging/services/__init__.py - export
+- docs/knowledge/KNOWLEDGE_2025-12-22_project-structure.md - NEW
 
-### 4. Databázové zmeny (supplier_invoice_heads)
+## Vytvorené skripty
 
-Nové stĺpce:
-- `file_basename` VARCHAR(100) - názov súboru bez ext
-- `file_status` VARCHAR(20) - received/staged/archived
-- `nex_invoice_doc_id` VARCHAR(20) - číslo faktúry v NEX
-- `nex_delivery_doc_id` VARCHAR(20) - číslo DL v NEX
-
-### 5. Konvencia pomenovania súborov
-
-**Fáza 1-2:** `{timestamp}_{invoice_number}.pdf|xml`
-Príklad: `20251222_125701_32506183.pdf`
-
-**Fáza 3:** `{DF_number}-{DD_number}.pdf|xml`
-Príklad: `DF2500100123-DD2500100205.pdf`
-
-## Dôležité súbory
-
-- `apps/supplier-invoice-loader/config/config_customer.py` - nové cesty
-- `apps/supplier-invoice-loader/main.py` - file_basename logika
-- `apps/supplier-invoice-loader/database/migrations/003_add_file_tracking_columns.sql`
-- `docs/knowledge/KNOWLEDGE_2025-12-22_file-organization-system.md`
+- 00_check_db_tables.py - diagnostika (môže byť zmazaný)
+- 01_add_file_mover_to_loader.py
+- 02_fix_postgres_database_name.py
+- 03_add_archive_function.py
+- 04_scan_project_structure.py
 
 ## Next Steps
 
-1. Fáza D: File Mover Service (presun súborov medzi fázami)
-2. Fáza E: Migrácia existujúcich súborov z LS/PDF a LS/XML
-3. Otestovať SupplierInvoiceLoader s novými cestami
-4. Cleanup n8n workflow súborov
+1. Overiť vplyv DB zmien na supplier-invoice-staging GUI
+2. Otestovať invoice_repository.py s novými stĺpcami
+3. Deploy zmien na Mágerstav
+4. E2E test - poslať faktúru cez email
 """
 
 INIT_PROMPT = """\
-INIT PROMPT - File Mover Service Implementation
+INIT PROMPT - Supplier Invoice Staging Verification
 
 Projekt: nex-automat
-Current Status: Phase 6 Complete, File Organization Fázy A-C Done
+Current Status: Fáza D Complete, Documentation Updated
 Developer: Zoltán (40 rokov skúseností)
 Jazyk: Slovenčina
 Previous Session: 2025-12-22
 
 ⚠️ KRITICKÉ: Dodržiavať pravidlá z memory_user_edits!
 
-🎯 CURRENT FOCUS: Fáza D - File Mover Service
+🎯 CURRENT FOCUS: Verify GUI compatibility with DB changes
 
 ## Čo je hotové ✅
 
@@ -105,37 +89,25 @@ Previous Session: 2025-12-22
 |------------|--------|
 | Temporal validácia (14/14 XML) | ✅ PASSED |
 | n8n zastavený | ✅ DONE |
-| Temporal produkcia | ✅ Running |
 | Fáza A - DB zmeny | ✅ DONE |
 | Fáza B - Adresáre | ✅ DONE |
 | Fáza C - Kód loader | ✅ DONE |
+| Fáza D - File Mover | ✅ DONE |
+| RAG dokumentácia | ✅ DONE |
 
-## Nová adresárová štruktúra
+## Pending Tasks
 
-```
-C:\\NEX\\IMPORT\\SUPPLIER-INVOICES\\  <- received
-C:\\NEX\\IMPORT\\SUPPLIER-STAGING\\   <- staged
-C:\\NEX\\YEARACT\\ARCHIV\\SUPPLIER-INVOICES\\PDF|XML\\  <- archived
-```
-
-## Fáza D Tasks
-
-1. [ ] Vytvoriť File Mover Service
-2. [ ] Presun received → staged (po PostgreSQL uložení)
-3. [ ] Presun staged → archived (po NEX Genesis importe)
-4. [ ] Premenovanie na finálny názov pri archivácii
-
-## Fáza E Tasks
-
-1. [ ] Migračný skript pre existujúce súbory z LS/PDF a LS/XML
+1. [ ] Overiť invoice_repository.py kompatibilitu s novými DB stĺpcami
+2. [ ] Deploy na Mágerstav
+3. [ ] E2E test - poslať faktúru cez email
 
 ## RAG Query
 
 ```
-https://rag-api.icc.sk/search?query=file+mover+service+staging+archive&limit=5
+https://rag-api.icc.sk/search?query=invoice_repository+supplier_invoice_heads+file_status&limit=5
 ```
 
-Session Priority: File Mover Service → Migrácia → Testovanie
+Session Priority: GUI verification → Deploy → E2E Test
 """
 
 
@@ -166,11 +138,11 @@ def main():
     print("=" * 60)
 
     BASE_DIR = get_base_dir()
-    print(f"📁 Base directory: {BASE_DIR}")
+    print(f"Base directory: {BASE_DIR}")
 
     # Verify we're in correct directory
     if not (BASE_DIR / "apps").exists():
-        print(f"❌ ERROR: Not in nex-automat directory!")
+        print(f"ERROR: Not in nex-automat directory!")
         print(f"   Current: {Path.cwd()}")
         print(f"   Expected: C:\\Development\\nex-automat")
         sys.exit(1)
@@ -189,17 +161,17 @@ def main():
     # 1. Save SESSION file
     session_file = SESSION_DIR / session_filename
     session_file.write_text(KNOWLEDGE_CONTENT, encoding="utf-8")
-    print(f"✅ SESSION saved: {session_file}")
+    print(f"[OK] SESSION saved: {session_file}")
 
     # 2. Save KNOWLEDGE file
     knowledge_file = KNOWLEDGE_DIR / knowledge_filename
     knowledge_file.write_text(KNOWLEDGE_CONTENT, encoding="utf-8")
-    print(f"✅ KNOWLEDGE saved: {knowledge_file}")
+    print(f"[OK] KNOWLEDGE saved: {knowledge_file}")
 
     # 3. Save INIT_PROMPT
     init_file = BASE_DIR / "INIT_PROMPT.md"
     init_file.write_text(INIT_PROMPT, encoding="utf-8")
-    print(f"✅ INIT_PROMPT saved: {init_file}")
+    print(f"[OK] INIT_PROMPT saved: {init_file}")
 
     # 4. Run RAG update
     print()
@@ -209,45 +181,36 @@ def main():
 
     rag_script = BASE_DIR / "tools" / "rag" / "rag_update.py"
     if not rag_script.exists():
-        print(f"⚠️ RAG script not found: {rag_script}")
+        print(f"[WARN] RAG script not found: {rag_script}")
     else:
-        # Use main venv Python, not worker venv
-        main_venv_python = BASE_DIR / "venv" / "Scripts" / "python.exe"
-        if not main_venv_python.exists():
-            print(f"⚠️ Main venv not found: {main_venv_python}")
-            print("   Skipping RAG update. Run manually:")
-            print(f"   cd {BASE_DIR}")
-            print(f"   .\\venv\\Scripts\\Activate.ps1")
+        # Use sys.executable to ensure correct venv
+        try:
+            # Set UTF-8 encoding for subprocess
+            env = {**subprocess.os.environ, "PYTHONIOENCODING": "utf-8"}
+            result = subprocess.run(
+                [sys.executable, str(rag_script), "--new"],
+                cwd=str(BASE_DIR),
+                check=True,
+                capture_output=True,
+                text=True,
+                encoding="utf-8",
+                env=env
+            )
+            print(result.stdout)
+            print("[OK] RAG updated")
+        except subprocess.CalledProcessError as e:
+            print(f"[WARN] RAG update failed: {e}")
+            if e.stdout:
+                print(f"STDOUT: {e.stdout}")
+            if e.stderr:
+                print(f"STDERR: {e.stderr}")
+            print()
+            print("Run manually:")
             print(f"   python tools/rag/rag_update.py --new")
-        else:
-            try:
-                # Set UTF-8 encoding for subprocess
-                env = {**subprocess.os.environ, "PYTHONIOENCODING": "utf-8"}
-                result = subprocess.run(
-                    [str(main_venv_python), str(rag_script), "--new"],
-                    cwd=str(BASE_DIR),
-                    check=True,
-                    capture_output=True,
-                    text=True,
-                    encoding="utf-8",
-                    env=env
-                )
-                print(result.stdout)
-                print("✅ RAG updated")
-            except subprocess.CalledProcessError as e:
-                print(f"⚠️ RAG update failed: {e}")
-                if e.stdout:
-                    print(f"STDOUT: {e.stdout}")
-                if e.stderr:
-                    print(f"STDERR: {e.stderr}")
-                print()
-                print("Run manually:")
-                print(f"   .\\venv\\Scripts\\Activate.ps1")
-                print(f"   python tools/rag/rag_update.py --new")
 
     print()
     print("=" * 60)
-    print("✅ DONE!")
+    print("[OK] DONE!")
     print()
     print("Next steps:")
     print(f"  1. Git commit: git add -A && git commit -m 'Session {SESSION_DATE}'")

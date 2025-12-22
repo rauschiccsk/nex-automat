@@ -1,14 +1,14 @@
-INIT PROMPT - File Mover Service Implementation
+INIT PROMPT - Supplier Invoice Staging Verification
 
 Projekt: nex-automat
-Current Status: Phase 6 Complete, File Organization Fázy A-C Done
+Current Status: Fáza D Complete, Documentation Updated
 Developer: Zoltán (40 rokov skúseností)
 Jazyk: Slovenčina
 Previous Session: 2025-12-22
 
 ⚠️ KRITICKÉ: Dodržiavať pravidlá z memory_user_edits!
 
-🎯 CURRENT FOCUS: Fáza D - File Mover Service
+🎯 CURRENT FOCUS: Verify GUI compatibility with DB changes
 
 ## Čo je hotové ✅
 
@@ -16,34 +16,22 @@ Previous Session: 2025-12-22
 |------------|--------|
 | Temporal validácia (14/14 XML) | ✅ PASSED |
 | n8n zastavený | ✅ DONE |
-| Temporal produkcia | ✅ Running |
 | Fáza A - DB zmeny | ✅ DONE |
 | Fáza B - Adresáre | ✅ DONE |
 | Fáza C - Kód loader | ✅ DONE |
+| Fáza D - File Mover | ✅ DONE |
+| RAG dokumentácia | ✅ DONE |
 
-## Nová adresárová štruktúra
+## Pending Tasks
 
-```
-C:\NEX\IMPORT\SUPPLIER-INVOICES\  <- received
-C:\NEX\IMPORT\SUPPLIER-STAGING\   <- staged
-C:\NEX\YEARACT\ARCHIV\SUPPLIER-INVOICES\PDF|XML\  <- archived
-```
-
-## Fáza D Tasks
-
-1. [ ] Vytvoriť File Mover Service
-2. [ ] Presun received → staged (po PostgreSQL uložení)
-3. [ ] Presun staged → archived (po NEX Genesis importe)
-4. [ ] Premenovanie na finálny názov pri archivácii
-
-## Fáza E Tasks
-
-1. [ ] Migračný skript pre existujúce súbory z LS/PDF a LS/XML
+1. [ ] Overiť invoice_repository.py kompatibilitu s novými DB stĺpcami
+2. [ ] Deploy na Mágerstav
+3. [ ] E2E test - poslať faktúru cez email
 
 ## RAG Query
 
 ```
-https://rag-api.icc.sk/search?query=file+mover+service+staging+archive&limit=5
+https://rag-api.icc.sk/search?query=invoice_repository+supplier_invoice_heads+file_status&limit=5
 ```
 
-Session Priority: File Mover Service → Migrácia → Testovanie
+Session Priority: GUI verification → Deploy → E2E Test
