@@ -7,7 +7,7 @@ from shared_pyside6.ui import BaseWindow, BaseGrid
 from shared_pyside6.ui.quick_search import QuickSearchContainer, QuickSearchController
 
 from config.settings import Settings
-from database.repositories import InvoiceRepository
+from nex_staging import DatabaseConnection, InvoiceRepository
 from ui.invoice_items_window import InvoiceItemsWindow
 
 
@@ -30,6 +30,7 @@ class MainWindow(BaseWindow):
         ("xml_total_with_vat", "S DPH", 90, True),
         ("nex_supplier_id", "NEX ID", 60, True),
         ("status", "Stav", 80, True),
+        ("file_status", "File Status", 80, True),
         ("item_count", "Poloziek", 60, True),
         ("items_matched", "Matched", 60, True),
         ("match_percent", "Match%", 70, True),
@@ -38,7 +39,17 @@ class MainWindow(BaseWindow):
 
     def __init__(self, settings: Settings):
         self.settings = settings
-        self.repository = InvoiceRepository(settings)
+
+        # Create DatabaseConnection from Settings
+        db = DatabaseConnection(
+            host=settings.database.host,
+            port=settings.database.port,
+            database=settings.database.database,
+            user=settings.database.user,
+            password=settings.database.password,
+        )
+        self.repository = InvoiceRepository(db)
+
         self._data = []
         self._filtered_data = []
         self._items_windows = {}
@@ -50,7 +61,7 @@ class MainWindow(BaseWindow):
             auto_load=True
         )
 
-        self.setWindowTitle("Supplier Invoice Staging v1.0")
+        self.setWindowTitle("Supplier Invoice Staging v1.1")
         self._setup_ui()
         self._setup_menu()
         self._setup_statusbar()
@@ -81,8 +92,6 @@ class MainWindow(BaseWindow):
         self.model = QStandardItemModel()
         self.model.setHorizontalHeaderLabels([col[1] for col in self.COLUMNS])
         self.grid.table_view.setModel(self.model)
-
-        # ID column is now visible
 
         # Set column widths
         for i, col in enumerate(self.COLUMNS):
@@ -136,7 +145,6 @@ class MainWindow(BaseWindow):
         if 0 <= column < len(self.COLUMNS):
             col_name = self.COLUMNS[column][1]
             self.status_label.setText(f"Vyhladavanie v: {col_name}")
-            # Save active column to grid settings
             self.grid.set_active_column(column)
 
     @Slot(int)
@@ -192,7 +200,8 @@ class MainWindow(BaseWindow):
     def _load_data(self):
         """Load invoice heads from database."""
         try:
-            self._data = self.repository.get_invoice_heads()
+            # Use dict method for grid compatibility
+            self._data = self.repository.get_invoice_heads_dict()
             self._filtered_data = self._data.copy()
             self._populate_model()
             self.grid.select_initial_row()
@@ -208,9 +217,10 @@ class MainWindow(BaseWindow):
 
     def _show_about(self):
         QMessageBox.about(self, "O programe", 
-            "Supplier Invoice Staging v1.0\n\n"
+            "Supplier Invoice Staging v1.1\n\n"
             "Aplikacia pre spravu dodavatelskych faktur\n"
             "a nastavenie obchodnej marze.\n\n"
+            "Pouziva nex-staging package.\n\n"
             "ICC Komarno 2025")
 
     def keyPressEvent(self, event):

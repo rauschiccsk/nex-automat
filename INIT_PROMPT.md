@@ -1,37 +1,43 @@
-INIT PROMPT - Supplier Invoice Staging Verification
+INIT PROMPT - nex-staging Package Migration
 
 Projekt: nex-automat
-Current Status: Fáza D Complete, Documentation Updated
+Current Status: Package vytvorený, loader inštalácia zlyháva
 Developer: Zoltán (40 rokov skúseností)
 Jazyk: Slovenčina
-Previous Session: 2025-12-22
 
 ⚠️ KRITICKÉ: Dodržiavať pravidlá z memory_user_edits!
 
-🎯 CURRENT FOCUS: Verify GUI compatibility with DB changes
+🎯 CURRENT FOCUS: Vyriešiť pg8000/psycopg2 kompatibilitu pre venv32
 
 ## Čo je hotové ✅
 
 | Komponenta | Status |
 |------------|--------|
-| Temporal validácia (14/14 XML) | ✅ PASSED |
-| n8n zastavený | ✅ DONE |
-| Fáza A - DB zmeny | ✅ DONE |
-| Fáza B - Adresáre | ✅ DONE |
-| Fáza C - Kód loader | ✅ DONE |
-| Fáza D - File Mover | ✅ DONE |
-| RAG dokumentácia | ✅ DONE |
+| nex-staging package | ✅ DONE |
+| supplier-invoice-staging migrácia | ✅ DONE |
+| supplier-invoice-loader import update | ✅ DONE |
+| nex-shared cleanup | ✅ DONE |
+| Loader test vo venv32 | ❌ FAIL - psycopg2 |
+
+## Problém
+
+supplier-invoice-loader používa venv32 (32-bit Python pre Btrieve DLL).
+psycopg2-binary nefunguje v 32-bit Python.
+Loader pôvodne používal pg8000.
+
+## Riešenie
+
+Upraviť nex-staging aby podporoval pg8000 (už v connection.py je základ).
 
 ## Pending Tasks
 
-1. [ ] Overiť invoice_repository.py kompatibilitu s novými DB stĺpcami
-2. [ ] Deploy na Mágerstav
-3. [ ] E2E test - poslať faktúru cez email
+1. [ ] Upraviť nex-staging pre pg8000 kompatibilitu
+2. [ ] Test loader vo venv32
+3. [ ] Git commit všetkých zmien
+4. [ ] Deploy na Mágerstav
 
 ## RAG Query
 
 ```
-https://rag-api.icc.sk/search?query=invoice_repository+supplier_invoice_heads+file_status&limit=5
+https://rag-api.icc.sk/search?query=nex-staging+supplier_invoice_heads+StagingClient&limit=5
 ```
-
-Session Priority: GUI verification → Deploy → E2E Test

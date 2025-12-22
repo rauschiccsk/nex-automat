@@ -9,7 +9,7 @@ from shared_pyside6.ui import BaseWindow, BaseGrid
 from shared_pyside6.ui.quick_search import QuickSearchContainer, QuickSearchController
 
 from config.settings import Settings
-from database.repositories import InvoiceRepository
+from nex_staging import InvoiceRepository
 
 
 class InvoiceItemsWindow(BaseWindow):
@@ -140,7 +140,6 @@ class InvoiceItemsWindow(BaseWindow):
         if 0 <= column < len(self.COLUMNS):
             col_name = self.COLUMNS[column][1]
             self._update_status(f" | Stlpec: {col_name}")
-            # Save active column to grid settings
             self.grid.set_active_column(column)
 
     @Slot(QStandardItem)
@@ -231,7 +230,8 @@ class InvoiceItemsWindow(BaseWindow):
     def _load_items(self):
         """Load invoice items from database."""
         try:
-            self._data = self.repository.get_invoice_items(self.invoice["id"])
+            # Use dict method for grid compatibility
+            self._data = self.repository.get_invoice_items_dict(self.invoice["id"])
             self._filtered_data = self._data.copy()
             self._populate_model()
             self.grid.select_initial_row()

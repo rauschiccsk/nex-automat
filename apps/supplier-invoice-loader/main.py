@@ -22,7 +22,7 @@ from src.api import models
 from src.business.product_matcher import ProductMatcher
 from src.utils import config, monitoring, notifications
 from src.database import database
-from nex_shared.database import PostgresStagingClient
+from nex_staging import StagingClient
 from src.extractors.ls_extractor import extract_invoice_data
 from src.business.isdoc_service import generate_isdoc_xml
 
@@ -271,7 +271,7 @@ async def enrich_invoice_items(invoice_id: int):
         return
 
     try:
-        pg_client = PostgresStagingClient(config.POSTGRES)
+        pg_client = StagingClient(config.POSTGRES)
         items = pg_client.get_pending_enrichment_items(invoice_id, limit=100)
 
         logger.info(f"🔍 Enriching {len(items)} items for invoice {invoice_id}")
@@ -497,7 +497,7 @@ async def process_invoice(
                 }
 
                 # Create PostgreSQL client
-                with PostgresStagingClient(pg_config) as pg_client:
+                with StagingClient(pg_config) as pg_client:
                     # Check for duplicates
                     is_duplicate = pg_client.check_duplicate_invoice(
                         invoice_data.supplier_ico,
