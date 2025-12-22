@@ -271,7 +271,13 @@ async def enrich_invoice_items(invoice_id: int):
         return
 
     try:
-        pg_client = StagingClient(config.POSTGRES)
+        pg_client = StagingClient(
+            host=config.POSTGRES_HOST,
+            port=config.POSTGRES_PORT,
+            database=config.POSTGRES_DATABASE,
+            user=config.POSTGRES_USER,
+            password=config.POSTGRES_PASSWORD
+        )
         items = pg_client.get_pending_enrichment_items(invoice_id, limit=100)
 
         logger.info(f"🔍 Enriching {len(items)} items for invoice {invoice_id}")
@@ -306,7 +312,7 @@ async def enrich_invoice_items(invoice_id: int):
                         reason=f"No match found (min confidence: 0.6)"
                     )
                     no_match_count += 1
-                    logger.debug(f"  ⚠️  Item {item['id']}: No match")
+                    logger.debug(f"  ⚠  Item {item['id']}: No match")
 
             except Exception as e:
                 logger.error(f"  ❌ Error enriching item {item['id']}: {e}")
@@ -497,7 +503,7 @@ async def process_invoice(
                 }
 
                 # Create PostgreSQL client
-                with StagingClient(pg_config) as pg_client:
+                with StagingClient(config=pg_config) as pg_client:
                     # Check for duplicates
                     is_duplicate = pg_client.check_duplicate_invoice(
                         invoice_data.supplier_ico,
@@ -505,7 +511,7 @@ async def process_invoice(
                     )
 
                     if is_duplicate:
-                        print(f"[WARN]️  Invoice already exists in PostgreSQL staging: {invoice_data.invoice_number}")
+                        print(f"[WARN]  Invoice already exists in PostgreSQL staging: {invoice_data.invoice_number}")
                     else:
                         # Prepare invoice data for PostgreSQL
                         invoice_pg_data = {
@@ -562,7 +568,7 @@ async def process_invoice(
 
             except Exception as pg_error:
                 # Log error but don't fail the whole process
-                print(f"[WARN]️  PostgreSQL staging error: {pg_error}")
+                print(f"[WARN]  PostgreSQL staging error: {pg_error}")
                 # Continue - invoice is still saved to SQLite and files
 
         # Return success response
@@ -669,7 +675,7 @@ async def startup_event():
             print(f"[ERROR] Failed to initialize ProductMatcher: {e}")
             product_matcher = None
     else:
-        print("⚠️  NEX Genesis enrichment disabled")
+        print("⚠  NEX Genesis enrichment disabled")
 
 
 @app.on_event("shutdown")
