@@ -1,38 +1,49 @@
-INIT PROMPT - Temporal Migration Phase 6: Migration
+INIT PROMPT - File Mover Service Implementation
 
 Projekt: nex-automat
-Current Status: Phase 5 Complete, Ready for Phase 6
+Current Status: Phase 6 Complete, File Organization Fázy A-C Done
 Developer: Zoltán (40 rokov skúseností)
 Jazyk: Slovenčina
-Previous Session: 2025-12-21
+Previous Session: 2025-12-22
 
 ⚠️ KRITICKÉ: Dodržiavať pravidlá z memory_user_edits!
 
-🎯 CURRENT FOCUS: Phase 6 - Parallel run a migrácia z n8n
+🎯 CURRENT FOCUS: Fáza D - File Mover Service
 
 ## Čo je hotové ✅
 
 | Komponenta | Status |
 |------------|--------|
-| Temporal Server na Mágerstav | ✅ Running (port 7233, 8233) |
-| NEX-Temporal-Server služba | ✅ Running |
-| NEX-Invoice-Worker služba | ✅ Running |
-| NEX-Polling-Scheduler služba | ✅ Running |
-| SupplierInvoiceLoader | ✅ Running (port 8001) |
-| End-to-end test | ✅ PASSED |
-| Monitoring (Temporal UI) | ✅ Funkčný |
+| Temporal validácia (14/14 XML) | ✅ PASSED |
+| n8n zastavený | ✅ DONE |
+| Temporal produkcia | ✅ Running |
+| Fáza A - DB zmeny | ✅ DONE |
+| Fáza B - Adresáre | ✅ DONE |
+| Fáza C - Kód loader | ✅ DONE |
 
-## Phase 6 Tasks
+## Nová adresárová štruktúra
 
-1. [ ] Parallel run - Temporal + n8n súčasne
-2. [ ] Validácia výsledkov - porovnanie oboch systémov
-3. [ ] Vypnutie n8n workflow
-4. [ ] Cleanup starých súborov
+```
+C:\NEX\IMPORT\SUPPLIER-INVOICES\  <- received
+C:\NEX\IMPORT\SUPPLIER-STAGING\   <- staged
+C:\NEX\YEARACT\ARCHIV\SUPPLIER-INVOICES\PDF|XML\  <- archived
+```
+
+## Fáza D Tasks
+
+1. [ ] Vytvoriť File Mover Service
+2. [ ] Presun received → staged (po PostgreSQL uložení)
+3. [ ] Presun staged → archived (po NEX Genesis importe)
+4. [ ] Premenovanie na finálny názov pri archivácii
+
+## Fáza E Tasks
+
+1. [ ] Migračný skript pre existujúce súbory z LS/PDF a LS/XML
 
 ## RAG Query
 
 ```
-https://rag-api.icc.sk/search?query=n8n+workflow+migration+parallel+run&limit=5
+https://rag-api.icc.sk/search?query=file+mover+service+staging+archive&limit=5
 ```
 
-Session Priority: Parallel run → Validácia → n8n vypnutie → Cleanup
+Session Priority: File Mover Service → Migrácia → Testovanie

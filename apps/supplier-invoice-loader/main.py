@@ -348,10 +348,12 @@ async def process_invoice(
         # 1. Decode PDF file
         pdf_data = base64.b64decode(request.file_b64)
 
-        # Generate unique filename with timestamp
+        # Generate unique filename with timestamp and invoice number
+        # Basename bude rovnaký pre PDF aj XML
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        pdf_filename = f"{timestamp}_{request.filename}"
-        pdf_path = config.PDF_DIR / pdf_filename
+        # Dočasný názov - po extrakcii sa premenuje na {timestamp}_{invoice_number}
+        temp_pdf_filename = f"{timestamp}_temp_{request.filename}"
+        pdf_path = config.PDF_DIR / temp_pdf_filename
 
         # Save PDF to disk
         pdf_path.write_bytes(pdf_data)
@@ -397,8 +399,19 @@ async def process_invoice(
         )
         print(f"[OK] Saved to SQLite: {invoice_data.invoice_number}")
 
-        # 4. Generate ISDOC XML
-        xml_filename = f"{invoice_data.invoice_number}.xml"
+        # 4. Rename PDF and generate XML with same basename
+        # Zjednotený basename: {timestamp}_{invoice_number}
+        file_basename = f"{timestamp}_{invoice_data.invoice_number}"
+        
+        # Premenuj PDF na finálny názov
+        final_pdf_filename = f"{file_basename}.pdf"
+        final_pdf_path = config.PDF_DIR / final_pdf_filename
+        pdf_path.rename(final_pdf_path)
+        pdf_path = final_pdf_path
+        print(f"[OK] PDF renamed: {pdf_path}")
+        
+        # Generuj XML s rovnakým basename
+        xml_filename = f"{file_basename}.xml"
         xml_path = config.XML_DIR / xml_filename
 
         isdoc_xml = generate_isdoc_xml(invoice_data, str(xml_path))
@@ -441,7 +454,11 @@ async def process_invoice(
                             'total_amount': invoice_data.total_amount,
                             'total_vat': invoice_data.tax_amount,
                             'total_without_vat': invoice_data.net_amount,
-                            'currency': invoice_data.currency
+                            'currency': invoice_data.currency,
+                            'file_basename': file_basename,
+                            'file_status': 'received',
+                            'pdf_file_path': str(pdf_path),
+                            'xml_file_path': str(xml_path)
                         }
 
                         # Prepare items data for PostgreSQL
@@ -485,6 +502,7 @@ async def process_invoice(
             "items_count": len(invoice_data.items),
             "pdf_saved": str(pdf_path),
             "xml_saved": str(xml_path),
+            "file_basename": file_basename,
             "sqlite_saved": True,
             "postgres_staging_enabled": config.POSTGRES_STAGING_ENABLED,
             "postgres_saved": postgres_saved,

@@ -19,153 +19,123 @@ from pathlib import Path
 # CONFIG - CLAUDE DOPLNÍ TIETO PREMENNÉ
 # =============================================================================
 
-SESSION_DATE = "2025-12-21"  # YYYY-MM-DD
-SESSION_NAME = "temporal-phase5-deployment-complete"  # krátky názov bez medzier
+SESSION_DATE = "2025-12-22"  # YYYY-MM-DD
+SESSION_NAME = "temporal-phase6-validation-file-organization"  # krátky názov bez medzier
 
 KNOWLEDGE_CONTENT = """\
-# Temporal Migration Phase 5: Deployment Complete
+# Temporal Phase 6 Validation & File Organization System
 
-**Dátum:** 2025-12-21
-**Status:** ✅ DONE
+**Dátum:** 2025-12-22
+**Status:** ✅ DONE (Fázy A, B, C)
 
 ---
 
 ## Dokončené úlohy
 
-### 1. HTTP 401 Invalid API Key - VYRIEŠENÉ
-**Root cause:** Worker posielal requesty na port 8000, kde bežal starý invoice-loader z `C:\\invoice-loader\\`, nie nový z `C:\\Deployment\\nex-automat\\`.
+### 1. Temporal Phase 6 - Validácia
+- n8n workflow zastavený na ICC serveri
+- Temporal prevzal produkciu na Mágerstav
+- Validačný test: 14/14 XML súborov PASSED (100% match s n8n)
+- Temporal je plne validovaný a produkčný
 
-**Riešenie:**
-- Opravený `FASTAPI_URL` v worker `.env`: 8000 → 8001
-- Worker reštartovaný
+### 2. File Organization System - Nová architektúra
+Implementovaný nový systém organizácie súborov založený na životnom cykle:
 
-### 2. Služba SupplierInvoiceLoader - OPRAVENÁ
-**Root cause:** NSSM služba bola nakonfigurovaná na starý adresár `C:\\invoice-loader\\`.
+**Fáza 1 - Received:** `C:\\NEX\\IMPORT\\SUPPLIER-INVOICES\\`
+**Fáza 2 - Staged:** `C:\\NEX\\IMPORT\\SUPPLIER-STAGING\\`
+**Fáza 3 - Archived:** `C:\\NEX\\YEARACT\\ARCHIV\\SUPPLIER-INVOICES\\PDF|XML\\`
 
-**Riešenie:**
-```powershell
-nssm set SupplierInvoiceLoader Application "C:\\Deployment\\nex-automat\\venv32\\Scripts\\python.exe"
-nssm set SupplierInvoiceLoader AppDirectory "C:\\Deployment\\nex-automat\\apps\\supplier-invoice-loader"
-nssm set SupplierInvoiceLoader AppParameters "main.py"
-nssm set SupplierInvoiceLoader AppStdout "C:\\Deployment\\nex-automat\\apps\\supplier-invoice-loader\\logs\\service.log"
-nssm set SupplierInvoiceLoader AppStderr "C:\\Deployment\\nex-automat\\apps\\supplier-invoice-loader\\logs\\service_error.log"
-```
+### 3. Implementované fázy
 
-### 3. Konfigurácia portov na Mágerstav
+| Fáza | Úloha | Status |
+|------|-------|--------|
+| A | Databázové zmeny (file_basename, file_status, nex_*_doc_id) | ✅ DONE |
+| B | Vytvorenie adresárovej štruktúry | ✅ DONE |
+| C | Úprava SupplierInvoiceLoader kódu | ✅ DONE |
+| D | File Mover Service | ⏳ TODO |
+| E | Migrácia existujúcich súborov | ⏳ TODO |
 
-| Služba | Port | Aplikácia |
-|--------|------|-----------|
-| supplier-invoice-loader | 8001 | FastAPI Invoice API |
-| Temporal Server | 7233 | Temporal gRPC |
-| Temporal UI | 8233 | Web UI |
+### 4. Databázové zmeny (supplier_invoice_heads)
 
-### 4. Monitoring - FUNKČNÝ
+Nové stĺpce:
+- `file_basename` VARCHAR(100) - názov súboru bez ext
+- `file_status` VARCHAR(20) - received/staged/archived
+- `nex_invoice_doc_id` VARCHAR(20) - číslo faktúry v NEX
+- `nex_delivery_doc_id` VARCHAR(20) - číslo DL v NEX
 
-| Nástroj | URL | Stav |
-|---------|-----|------|
-| Invoice API Health | http://localhost:8001/health | ✅ |
-| Temporal Web UI | http://localhost:8233 | ✅ |
-| Workflow história | 24+ úspešných | ✅ |
+### 5. Konvencia pomenovania súborov
 
-### 5. SMTP Notifikácie
-- Preskočené - Temporal UI stačí na sledovanie zlyhaní
-- OAuth2 použité pre IMAP (nie App Password)
+**Fáza 1-2:** `{timestamp}_{invoice_number}.pdf|xml`
+Príklad: `20251222_125701_32506183.pdf`
 
-## Finálny stav služieb na Mágerstav
+**Fáza 3:** `{DF_number}-{DD_number}.pdf|xml`
+Príklad: `DF2500100123-DD2500100205.pdf`
 
-| Služba | Status |
-|--------|--------|
-| NEX-Temporal-Server | ✅ Running |
-| NEX-Invoice-Worker | ✅ Running |
-| NEX-Polling-Scheduler | ✅ Running |
-| SupplierInvoiceLoader | ✅ Running (port 8001) |
+## Dôležité súbory
 
-## End-to-end test
-```
-WorkflowResult(emails_processed=1, invoices_uploaded=1, errors=[])
-```
-✅ **PASSED** - Faktúra úspešne spracovaná cez Temporal workflow.
-
-## Dôležité príkazy
-
-### Reštart služieb
-```powershell
-C:\\Deployment\\nex-automat\\tools\\nssm\\win32\\nssm.exe restart NEX-Invoice-Worker
-C:\\Deployment\\nex-automat\\tools\\nssm\\win32\\nssm.exe restart NEX-Polling-Scheduler
-C:\\Deployment\\nex-automat\\tools\\nssm\\win32\\nssm.exe restart SupplierInvoiceLoader
-```
-
-### Kontrola stavu
-```powershell
-Get-Service | Where-Object {$_.Name -like "*NEX*" -or $_.Name -like "*Invoice*" -or $_.Name -like "*Supplier*"}
-```
-
-### Manuálny test workflow
-```powershell
-cd C:\\Deployment\\nex-automat\\apps\\supplier-invoice-worker
-.\\venv\\Scripts\\Activate.ps1
-python -c "
-import asyncio
-from temporalio.client import Client
-from workflows.invoice_workflow import InvoiceProcessingWorkflow
-async def main():
-    client = await Client.connect('localhost:7233')
-    result = await client.execute_workflow(
-        InvoiceProcessingWorkflow.run,
-        id='manual-test-XXX',
-        task_queue='supplier-invoice-queue'
-    )
-    print(f'Result: {result}')
-asyncio.run(main())
-"
-```
+- `apps/supplier-invoice-loader/config/config_customer.py` - nové cesty
+- `apps/supplier-invoice-loader/main.py` - file_basename logika
+- `apps/supplier-invoice-loader/database/migrations/003_add_file_tracking_columns.sql`
+- `docs/knowledge/KNOWLEDGE_2025-12-22_file-organization-system.md`
 
 ## Next Steps
 
-1. Phase 6: Migration - Parallel run s n8n, validácia, vypnutie n8n
-2. Testovanie s reálnymi faktúrami v produkcii
-3. Dokumentácia pre operátorov
+1. Fáza D: File Mover Service (presun súborov medzi fázami)
+2. Fáza E: Migrácia existujúcich súborov z LS/PDF a LS/XML
+3. Otestovať SupplierInvoiceLoader s novými cestami
+4. Cleanup n8n workflow súborov
 """
 
 INIT_PROMPT = """\
-INIT PROMPT - Temporal Migration Phase 6: Migration
+INIT PROMPT - File Mover Service Implementation
 
 Projekt: nex-automat
-Current Status: Phase 5 Complete, Ready for Phase 6
+Current Status: Phase 6 Complete, File Organization Fázy A-C Done
 Developer: Zoltán (40 rokov skúseností)
 Jazyk: Slovenčina
-Previous Session: 2025-12-21
+Previous Session: 2025-12-22
 
 ⚠️ KRITICKÉ: Dodržiavať pravidlá z memory_user_edits!
 
-🎯 CURRENT FOCUS: Phase 6 - Parallel run a migrácia z n8n
+🎯 CURRENT FOCUS: Fáza D - File Mover Service
 
 ## Čo je hotové ✅
 
 | Komponenta | Status |
 |------------|--------|
-| Temporal Server na Mágerstav | ✅ Running (port 7233, 8233) |
-| NEX-Temporal-Server služba | ✅ Running |
-| NEX-Invoice-Worker služba | ✅ Running |
-| NEX-Polling-Scheduler služba | ✅ Running |
-| SupplierInvoiceLoader | ✅ Running (port 8001) |
-| End-to-end test | ✅ PASSED |
-| Monitoring (Temporal UI) | ✅ Funkčný |
+| Temporal validácia (14/14 XML) | ✅ PASSED |
+| n8n zastavený | ✅ DONE |
+| Temporal produkcia | ✅ Running |
+| Fáza A - DB zmeny | ✅ DONE |
+| Fáza B - Adresáre | ✅ DONE |
+| Fáza C - Kód loader | ✅ DONE |
 
-## Phase 6 Tasks
+## Nová adresárová štruktúra
 
-1. [ ] Parallel run - Temporal + n8n súčasne
-2. [ ] Validácia výsledkov - porovnanie oboch systémov
-3. [ ] Vypnutie n8n workflow
-4. [ ] Cleanup starých súborov
+```
+C:\\NEX\\IMPORT\\SUPPLIER-INVOICES\\  <- received
+C:\\NEX\\IMPORT\\SUPPLIER-STAGING\\   <- staged
+C:\\NEX\\YEARACT\\ARCHIV\\SUPPLIER-INVOICES\\PDF|XML\\  <- archived
+```
+
+## Fáza D Tasks
+
+1. [ ] Vytvoriť File Mover Service
+2. [ ] Presun received → staged (po PostgreSQL uložení)
+3. [ ] Presun staged → archived (po NEX Genesis importe)
+4. [ ] Premenovanie na finálny názov pri archivácii
+
+## Fáza E Tasks
+
+1. [ ] Migračný skript pre existujúce súbory z LS/PDF a LS/XML
 
 ## RAG Query
 
 ```
-https://rag-api.icc.sk/search?query=n8n+workflow+migration+parallel+run&limit=5
+https://rag-api.icc.sk/search?query=file+mover+service+staging+archive&limit=5
 ```
 
-Session Priority: Parallel run → Validácia → n8n vypnutie → Cleanup
+Session Priority: File Mover Service → Migrácia → Testovanie
 """
 
 
