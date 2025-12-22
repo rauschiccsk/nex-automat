@@ -6,6 +6,8 @@ import logging
 from typing import Optional, Dict, List, Any
 from decimal import Decimal
 
+import pg8000.native
+
 from nex_staging.connection import DatabaseConnection
 
 logger = logging.getLogger(__name__)
@@ -42,51 +44,58 @@ class StagingClient:
             config: Alternative - dict with connection parameters
         """
         if config:
-            self.db = DatabaseConnection(
-                host=config.get('host', 'localhost'),
-                port=config.get('port', 5432),
-                database=config.get('database', 'supplier_invoice_staging'),
-                user=config.get('user', 'postgres'),
-                password=config.get('password', ''),
-            )
+            self._host = config.get('host', 'localhost')
+            self._port = config.get('port', 5432)
+            self._database = config.get('database', 'supplier_invoice_staging')
+            self._user = config.get('user', 'postgres')
+            self._password = config.get('password', '')
         else:
-            self.db = DatabaseConnection(
-                host=host,
-                port=port,
-                database=database,
-                user=user,
-                password=password,
-            )
-        self._conn = None
-        self._cursor = None
+            self._host = host
+            self._port = port
+            self._database = database
+            self._user = user
+            self._password = password
+
+        self.db = DatabaseConnection(
+            host=self._host,
+            port=self._port,
+            database=self._database,
+            user=self._user,
+            password=self._password,
+        )
+        self._conn: Optional[pg8000.native.Connection] = None
 
     def __enter__(self):
         """Context manager entry - establish connection."""
-        import psycopg2
-        from psycopg2.extras import RealDictCursor
-
-        self._conn = psycopg2.connect(
-            host=self.db.config.host,
-            port=self.db.config.port,
-            database=self.db.config.database,
-            user=self.db.config.user,
-            password=self.db.config.password,
+        self._conn = pg8000.native.Connection(
+            host=self._host,
+            port=self._port,
+            database=self._database,
+            user=self._user,
+            password=self._password,
         )
         logger.debug("Database connection established")
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        """Context manager exit - commit/rollback and close."""
+        """Context manager exit - close connection."""
         if self._conn:
             if exc_type is not None:
-                self._conn.rollback()
-                logger.error(f"Transaction rolled back: {exc_val}")
-            else:
-                self._conn.commit()
-                logger.debug("Transaction committed")
+                logger.error(f"Transaction error: {exc_val}")
             self._conn.close()
             self._conn = None
         return False
+
+    def _run(self, query: str, params: tuple = None):
+        """Execute query with parameter conversion."""
+        if params:
+            converted_query = query
+            param_index = 1
+            while "%s" in converted_query:
+                converted_query = converted_query.replace("%s", f"${param_index}", 1)
+                param_index += 1
+            return self._conn.run(converted_query, list(params))
+        return self._conn.run(query)
 
     def check_duplicate_invoice(
         self,
@@ -106,16 +115,14 @@ class StagingClient:
         if not self._conn:
             raise RuntimeError("Not in context manager")
 
-        cursor = self._conn.cursor()
-        cursor.execute("""
+        result = self._run("""
             SELECT COUNT(*) 
             FROM supplier_invoice_heads 
             WHERE xml_supplier_ico = %s 
               AND xml_invoice_number = %s
         """, (supplier_ico, invoice_number))
 
-        count = cursor.fetchone()[0]
-        cursor.close()
+        count = result[0][0] if result else 0
 
         if count > 0:
             logger.info(f"Duplicate invoice found: {supplier_ico}/{invoice_number}")
@@ -132,32 +139,9 @@ class StagingClient:
         Insert invoice with items into staging database.
 
         Args:
-            invoice_data: Invoice header data dict with keys:
-                - supplier_ico (required)
-                - supplier_name
-                - supplier_dic
-                - invoice_number (required)
-                - invoice_date (required)
-                - due_date
-                - total_amount (required)
-                - total_vat
-                - total_without_vat
-                - currency (default: EUR)
-                - file_basename
-                - file_status
-                - pdf_file_path
-                - xml_file_path
-
-            items_data: List of item dicts with keys:
-                - line_number (required)
-                - name (required)
-                - quantity (required)
-                - unit
-                - price_per_unit (required)
-                - ean
-                - vat_rate
-
-            isdoc_xml: Optional ISDOC XML string (not stored, kept for compatibility)
+            invoice_data: Invoice header data dict
+            items_data: List of item dicts
+            isdoc_xml: Optional ISDOC XML string (not stored)
 
         Returns:
             Invoice ID if successful, None otherwise
@@ -166,10 +150,7 @@ class StagingClient:
             raise RuntimeError("Not in context manager")
 
         try:
-            cursor = self._conn.cursor()
-
-            # Insert invoice header into supplier_invoice_heads
-            cursor.execute("""
+            result = self._run("""
                 INSERT INTO supplier_invoice_heads (
                     xml_supplier_ico,
                     xml_supplier_name,
@@ -210,12 +191,11 @@ class StagingClient:
                 len(items_data)
             ))
 
-            invoice_id = cursor.fetchone()[0]
+            invoice_id = result[0][0]
             logger.info(f"Inserted invoice: id={invoice_id}")
 
-            # Insert invoice items into supplier_invoice_items
             for item in items_data:
-                cursor.execute("""
+                self._run("""
                     INSERT INTO supplier_invoice_items (
                         invoice_head_id,
                         xml_line_number,
@@ -239,9 +219,7 @@ class StagingClient:
                     item.get('vat_rate')
                 ))
 
-            cursor.close()
             logger.info(f"Inserted {len(items_data)} items for invoice {invoice_id}")
-
             return invoice_id
 
         except Exception as e:
@@ -255,22 +233,9 @@ class StagingClient:
         pdf_file_path: Optional[str] = None,
         xml_file_path: Optional[str] = None,
     ) -> bool:
-        """
-        Update file status and paths for an invoice.
-
-        Args:
-            invoice_id: Invoice head ID
-            file_status: New status ('received', 'staged', 'archived')
-            pdf_file_path: Optional new PDF path
-            xml_file_path: Optional new XML path
-
-        Returns:
-            True if updated successfully
-        """
+        """Update file status and paths for an invoice."""
         if not self._conn:
             raise RuntimeError("Not in context manager")
-
-        cursor = self._conn.cursor()
 
         query = """
             UPDATE supplier_invoice_heads
@@ -290,9 +255,8 @@ class StagingClient:
         query += " WHERE id = %s"
         params.append(invoice_id)
 
-        cursor.execute(query, params)
-        success = cursor.rowcount > 0
-        cursor.close()
+        self._run(query, tuple(params))
+        success = self._conn.row_count > 0
 
         if success:
             logger.info(f"Updated file_status to '{file_status}' for invoice {invoice_id}")
@@ -300,22 +264,12 @@ class StagingClient:
         return success
 
     def get_enrichment_stats(self, invoice_id: Optional[int] = None) -> Dict:
-        """
-        Get enrichment statistics.
-
-        Args:
-            invoice_id: Optional invoice ID to filter by
-
-        Returns:
-            Dictionary with enrichment statistics
-        """
+        """Get enrichment statistics."""
         if not self._conn:
             raise RuntimeError("Not in context manager")
 
-        cursor = self._conn.cursor()
-
         if invoice_id:
-            cursor.execute("""
+            result = self._run("""
                 SELECT 
                     COUNT(*) FILTER (WHERE matched = TRUE) as matched,
                     COUNT(*) FILTER (WHERE matched = FALSE OR matched IS NULL) as not_matched,
@@ -324,7 +278,7 @@ class StagingClient:
                 WHERE invoice_head_id = %s
             """, (invoice_id,))
         else:
-            cursor.execute("""
+            result = self._run("""
                 SELECT 
                     COUNT(*) FILTER (WHERE matched = TRUE) as matched,
                     COUNT(*) FILTER (WHERE matched = FALSE OR matched IS NULL) as not_matched,
@@ -332,8 +286,7 @@ class StagingClient:
                 FROM supplier_invoice_items
             """)
 
-        row = cursor.fetchone()
-        cursor.close()
+        row = result[0] if result else (0, 0, 0)
 
         return {
             'matched': row[0] or 0,
