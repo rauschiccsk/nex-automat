@@ -87,14 +87,19 @@ class StagingClient:
         return False
 
     def _run(self, query: str, params: tuple = None):
-        """Execute query with parameter conversion."""
+        """Execute query with parameter conversion.
+
+        pg8000.native uses named parameters (:name) with **kwargs,
+        not positional parameters ($1) with list.
+        """
         if params:
             converted_query = query
-            param_index = 1
-            while "%s" in converted_query:
-                converted_query = converted_query.replace("%s", f"${param_index}", 1)
-                param_index += 1
-            return self._conn.run(converted_query, list(params))
+            param_dict = {}
+            for i, value in enumerate(params):
+                placeholder = f":p{i}"
+                converted_query = converted_query.replace("%s", placeholder, 1)
+                param_dict[f"p{i}"] = value
+            return self._conn.run(converted_query, **param_dict)
         return self._conn.run(query)
 
     def check_duplicate_invoice(
