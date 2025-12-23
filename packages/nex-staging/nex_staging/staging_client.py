@@ -191,6 +191,9 @@ class StagingClient:
                 len(items_data)
             ))
 
+            # pg8000.native.run() may return empty list for INSERT RETURNING
+            if not result or len(result) == 0:
+                raise RuntimeError("INSERT RETURNING failed - no result returned")
             invoice_id = result[0][0]
             logger.info(f"Inserted invoice: id={invoice_id}")
 
