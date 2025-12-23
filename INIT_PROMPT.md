@@ -1,52 +1,40 @@
-INIT PROMPT - Fix pg8000 list index out of range
+INIT PROMPT - NEX Automat v3.0 Released
 
 Projekt: nex-automat
-Current Status: pg8000 INSERT RETURNING zlyhá
+Current Status: v3.0 deployed & tagged
 Developer: Zoltán (40 rokov skúseností)
 Jazyk: Slovenčina
 
 ⚠️ KRITICKÉ: Dodržiavať pravidlá z memory_user_edits!
 
-🎯 CURRENT FOCUS: Opraviť "list index out of range" chybu v pg8000 kóde
+🎯 CURRENT FOCUS: Post-release tasks
 
 ## Čo je hotové ✅
 
 | Komponenta | Status |
 |------------|--------|
-| nex-staging pg8000 migrácia | ✅ DONE |
-| Deployment Mágerstav | ✅ DONE |
-| config_customer.py cesty | ✅ DONE |
-| DB supplier_invoice_staging | ✅ DONE |
-| E2E test | ❌ FAIL - list index out of range |
+| pg8000 migration | ✅ DONE |
+| PySide6 migration | ✅ DONE |
+| E2E test Mágerstav | ✅ DONE |
+| v3.0 tag | ✅ DONE |
+| DEPLOYMENT_GUIDE_V3.md | ✅ DONE |
 
-## Problém
+## v3.0 Release Notes
 
-```
-[WARN] PostgreSQL staging error: list index out of range
-```
-
-Chyba nastáva pri INSERT RETURNING v StagingClient.insert_invoice_with_items()
-
-## Pravdepodobná príčina
-
-V `connection.py` Pg8000Cursor.fetchone():
-```python
-def fetchone(self):
-    if self._row_index >= len(self._rows):
-        return None
-    row = self._rows[self._row_index]  # <- možno prázdne self._rows
-```
+- PyQt5 → PySide6 (Qt6)
+- psycopg2 → pg8000 (32-bit kompatibilita)
+- Opravené: INSERT RETURNING, move_files_to_staging
+- Opravené: Qt6 RDP warning
+- Kompletný deployment guide pre nových zákazníkov
 
 ## Next Steps
 
-1. [ ] Pozrieť stderr log na serveri pre full traceback
-2. [ ] Analyzovať Pg8000Cursor implementáciu
-3. [ ] Opraviť fetchone() pre RETURNING queries
-4. [ ] Test na Development
-5. [ ] Deploy a E2E test
+1. ANDROS deployment planning
+2. Temporal workflows activation
+3. NEX Genesis product enrichment
 
 ## RAG Query
 
 ```
-https://rag-api.icc.sk/search?query=nex-staging+connection+Pg8000Cursor+fetchone&limit=5
+https://rag-api.icc.sk/search?query=deployment+guide+v3+pg8000+pyside6&limit=5
 ```
