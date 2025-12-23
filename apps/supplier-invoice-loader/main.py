@@ -365,22 +365,20 @@ def move_files_to_staging(pdf_path: Path, xml_path: Path, file_basename: str, pg
             print(f"[WARN] XML not found for moving: {xml_path}")
             staged_xml_path = None
 
-        # Update file_status in PostgreSQL using cursor
-        cursor = pg_conn.cursor()
-        cursor.execute(
+        # Update file_status in PostgreSQL using pg8000.native
+        pg_conn.run(
             """
             UPDATE supplier_invoice_heads 
             SET file_status = 'staged',
-                pdf_file_path = %s,
-                xml_file_path = %s,
+                pdf_file_path = :pdf_path,
+                xml_file_path = :xml_path,
                 updated_at = NOW()
-            WHERE id = %s
+            WHERE id = :inv_id
             """,
-            (str(staged_pdf_path) if staged_pdf_path else None,
-             str(staged_xml_path) if staged_xml_path else None,
-             invoice_id)
+            pdf_path=str(staged_pdf_path) if staged_pdf_path else None,
+            xml_path=str(staged_xml_path) if staged_xml_path else None,
+            inv_id=invoice_id
         )
-        cursor.close()
         print(f"[OK] Updated file_status to 'staged' for invoice {invoice_id}")
 
         return (staged_pdf_path, staged_xml_path)
