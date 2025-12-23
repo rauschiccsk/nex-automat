@@ -3,8 +3,8 @@
 **Project:** NEX Automat & Related Projects  
 **Owner:** Zoltán  
 **Assistant:** Claude (Anthropic)  
-**Last Updated:** 2025-12-19  
-**Version:** 1.8
+**Last Updated:** 2025-12-23  
+**Version:** 1.9
 
 ---
 
@@ -96,7 +96,7 @@
 - Session scripts numbered from 01 sequentially. Only temporary scripts numbered, permanent scripts not.
 - Session scripty od 01 plynule. Len dočasné číslované, trvalé nie.
 
-**26. Subprocess in Scripts (CRITICAL - NEW v1.8)**
+**26. Subprocess in Scripts (CRITICAL)**
 - In new_chat.py scripts, ALWAYS use sys.executable instead of "python" for subprocess calls to ensure correct venv is used
 - V new_chat.py VŽDY použiť sys.executable namiesto "python" pre subprocess volania
 - Toto zaručuje že subprocess používa rovnaký Python/venv ako hlavný script
@@ -113,8 +113,8 @@
 - No need to write manifest generation instructions, user generates manifests himself
 - Nepíš manifest inštrukcie, používateľ generuje sám
 
-**20. Session Closure (UPDATED v1.8)**
-- When user says "novy chat": new_chat.py creates SESSION_*.md (archive), KNOWLEDGE_*.md (docs/knowledge/ for RAG indexing), INIT_PROMPT_NEW_CHAT.md (root), then runs rag_update.py --new using sys.executable
+**20. Session Closure (UPDATED v1.9)**
+- When user says "novy chat": new_chat.py creates SESSION_*.md (archive), KNOWLEDGE_*.md (docs/knowledge/ for RAG indexing), INIT_PROMPT.md (root), then runs rag_update.py --new using sys.executable
 - Pri "novy chat": new_chat.py vytvára SESSION (archív), KNOWLEDGE (docs/knowledge/ pre RAG), INIT_PROMPT (root), potom spúšťa rag_update cez sys.executable
 
 ---
@@ -133,6 +133,15 @@
 - PostgreSQL password via POSTGRES_PASSWORD env variable, no config.yaml needed for DB password
 - Heslo pre PostgreSQL cez environment variable, nie v config súboroch
 
+**27. RAG Directory (CRITICAL - NEW v1.9)**
+- CRITICAL: Documents for RAG must go to docs/knowledge/ directory ONLY. Other locations (docs/deployment/, docs/sessions/) are NOT indexed by RAG.
+- KRITICKÉ: Dokumenty pre RAG musia ísť do docs/knowledge/ JEDINÉ. Iné lokácie (docs/deployment/, docs/sessions/) NIE SÚ indexované RAGom.
+
+**28. GitHub Raw URL Format (NEW v1.9)**
+- CRITICAL: For .py code use GitHub raw URL from branch "develop". Organization name is ALWAYS "rauschiccsk" - NEVER use "icc-zoltan" or any other variation.
+- Correct format: https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/path/to/file.py
+- KRITICKÉ: Pre .py kód použiť GitHub raw URL z branch "develop". Org name je VŽDY "rauschiccsk" - NIKDY "icc-zoltan" ani iné variácie.
+
 ---
 
 ### ✅ Memory Check / Kontrola Memory
@@ -143,7 +152,7 @@
 
 ---
 
-## Complete List / Plynulý Zoznam (1-26)
+## Complete List / Plynulý Zoznam (1-28)
 
 1. **Provide single recommended solution only, no alternatives unless requested**
 2. **Present one step at a time, wait for confirmation before next step**
@@ -171,22 +180,35 @@
 24. **RAG Workflow: Claude provides URL, user pastes, Claude fetches**
 25. **PostgreSQL password via POSTGRES_PASSWORD env variable**
 26. **CRITICAL: In new_chat.py ALWAYS use sys.executable for subprocess calls**
+27. **CRITICAL: Documents for RAG must go to docs/knowledge/ directory ONLY**
+28. **CRITICAL: GitHub raw URL org name is ALWAYS "rauschiccsk" - NEVER "icc-zoltan" or other**
 
 ---
 
 ## Usage Notes / Poznámky k Použitiu
 
-### Session Closure Workflow (Rule 20, 26 - UPDATED v1.8)
+### Session Closure Workflow (Rule 20, 26, 27 - UPDATED v1.9)
 
 **When user says "novy chat":**
 
 `new_chat.py` script automaticky vytvára:
-1. `docs/archive/sessions/SESSION_YYYY-MM-DD_name.md` - archív session
-2. `docs/knowledge/KNOWLEDGE_YYYY-MM-DD_topic.md` - knowledge pre RAG
-3. `INIT_PROMPT_NEW_CHAT.md` - v ROOT projektu
+1. `docs/sessions/SESSION_YYYY-MM-DD_name.md` - archív session
+2. `docs/knowledge/sessions/KNOWLEDGE_YYYY-MM-DD_topic.md` - knowledge pre RAG
+3. `INIT_PROMPT.md` - v ROOT projektu
 4. Spúšťa `rag_update.py --new` cez **sys.executable** - indexuje nový knowledge dokument
 
-**KRITICKÉ pre new_chat.py:**
+**KRITICKÉ pre dokumenty do RAG (Rule 27):**
+```
+docs/knowledge/           ← RAG INDEXUJE TOTO
+├── sessions/             ← Session knowledge
+├── deployment/           ← Deployment guides
+└── ...
+
+docs/deployment/          ← RAG NEINDEXUJE!
+docs/sessions/            ← RAG NEINDEXUJE!
+```
+
+**KRITICKÉ pre new_chat.py (Rule 26):**
 ```python
 import subprocess
 import sys  # POVINNÉ!
@@ -204,12 +226,6 @@ python new_chat.py
 # Všetko sa vytvorí automaticky + RAG reindex
 git add . && git commit -m "session: description"
 ```
-
-**Výhody:**
-- Knowledge dokument ide do RAG pre budúce vyhľadávanie
-- SESSION zostáva v archíve (nie v RAG)
-- INIT_PROMPT pripravený pre nový chat
-- sys.executable zaručuje správny Python/venv
 
 ### RAG Access Protocol (Rule 24)
 
@@ -229,12 +245,24 @@ User: [pastes URL]
 Claude: [fetches and responds]
 ```
 
+### GitHub Raw URL Format (Rule 28)
+
+**Správny formát:**
+```
+https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/path/to/file.py
+```
+
+**Nesprávny formát:**
+```
+https://raw.githubusercontent.com/icc-zoltan/nex-automat/develop/path/to/file.py  ❌
+```
+
 ### Artifacts Enforcement (Rule 7 - CRITICAL)
 
 **ALWAYS create artifacts for:**
 - Python files (.py)
 - Config files (.json, .yaml, .py, .txt, .ini, .toml)
-- Init prompts (INIT_PROMPT_NEW_CHAT.md)
+- Init prompts (INIT_PROMPT.md)
 - Session archives (SESSION_YYYY-MM-DD_*.md)
 - Knowledge documents (KNOWLEDGE_YYYY-MM-DD_*.md)
 - Documents longer than 10 lines
@@ -243,6 +271,13 @@ Claude: [fetches and responds]
 ---
 
 ## Version History / História Verzií
+
+- **v1.9** (2025-12-23): RAG directory rule + GitHub URL format
+  - **NEW Rule #27**: Documents for RAG must go to docs/knowledge/ ONLY
+  - **NEW Rule #28**: GitHub raw URL must use correct org "rauschiccsk"
+  - **UPDATED Rule #20**: Clarified knowledge goes to docs/knowledge/sessions/
+  - Fixes lost documentation issue - ensures all important docs are RAG-indexed
+  - Total rules: 28
 
 - **v1.8** (2025-12-19): sys.executable fix for subprocess
   - **NEW Rule #26**: In new_chat.py ALWAYS use sys.executable for subprocess calls
@@ -274,8 +309,8 @@ Claude: [fetches and responds]
 
 ---
 
-**Total Rules:** 26  
+**Total Rules:** 28  
 **Status:** Active & Enforced  
 **Maintained By:** Zoltán & Claude  
-**Critical Focus:** Artifacts (#7) + Session Closure (#20) + Memory (#22) + RAG (#23, #24) + sys.executable (#26)  
-**Current Version:** 1.8 (2025-12-19)
+**Critical Focus:** Artifacts (#7) + RAG Directory (#27) + Memory (#22) + RAG Access (#24) + sys.executable (#26) + GitHub URL (#28)  
+**Current Version:** 1.9 (2025-12-23)
