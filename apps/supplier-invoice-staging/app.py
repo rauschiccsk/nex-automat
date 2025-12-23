@@ -1,5 +1,10 @@
 """Application setup"""
 import sys
+import os
+
+# Suppress Qt6 RDP monitor detection warning
+os.environ["QT_LOGGING_RULES"] = "qt.qpa.screen=false"
+
 from PySide6.QtWidgets import QApplication
 from PySide6.QtCore import Qt
 
