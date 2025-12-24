@@ -149,9 +149,9 @@ desktop.ini
 
 # RAG generated code documentation (generated locally for indexing)
 docs/code/
-new_chat.py
+scripts/new_chat.py
 
-new_chat.py
+scripts/new_chat.py
 
 # Sensitive knowledge - credentials, tokens, internal configs
 docs/knowledge/

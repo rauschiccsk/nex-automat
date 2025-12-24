@@ -1,8 +1,8 @@
 # INIT PROMPT - NEX Automat
 
 **Projekt:** nex-automat
-**Modul:** Daily Summary Reports
-**Status:** ✅ Kompletný (čaká na Mágerstav deployment)
+**Modul:** Post v3.1 Deployment
+**Status:** ✅ Production running (Mágerstav)
 **Developer:** Zoltán (40 rokov skúseností)
 **Jazyk:** Slovenčina
 
@@ -14,24 +14,28 @@
 
 | Funkcia | Status |
 |---------|--------|
-| Daily Reports modul | ✅ |
-| SMTP SSL (port 465) | ✅ |
-| HTML email template | ✅ |
-| .env konfigurácia | ✅ |
-| Test odoslania | ✅ |
-| Security fix (tokeny) | ✅ |
-| CREDENTIALS.md | ✅ |
+| Mágerstav v3.1 deployment | ✅ |
+| Daily Reports (18:00 Po-Pi) | ✅ |
+| Telegram tokens revoked | ✅ |
+| Customer deploy system | ✅ |
+| docs/knowledge/ z Git | ✅ |
 
-## 🔧 Pending (Mágerstav)
+## 🔴 HIGH PRIORITY
 
-| Úloha | Priorita |
-|-------|----------|
-| Windows Task Scheduler | High |
-| Revoke Telegram tokenov | Medium |
-| Deploy na Mágerstav | High |
+| Úloha | Modul | Poznámka |
+|-------|-------|----------|
+| ANDROS server hardware upgrade | deployment | SuperMicro dual Xeon, 128GB RAM |
+| ANDROS deployment planning | supplier-invoice-loader | Nový zákazník |
+
+## 🟡 MEDIUM PRIORITY
+
+| Úloha | Modul |
+|-------|-------|
+| NEX Brain RAG multi-tenant | nex-brain |
+| n8n → Temporal migration | workflow |
 
 ## 📋 RAG Query
 
 ```
-https://rag-api.icc.sk/search?query=daily+report+supplier+invoice+staging&limit=5
+https://rag-api.icc.sk/search?query=andros+deployment+hardware&limit=5
 ```
