@@ -1,5 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+"""Fix run_daily_report.py - use .env values instead of hardcoded"""
+
+from pathlib import Path
+
+target = Path("apps/supplier-invoice-loader/scripts/run_daily_report.py")
+
+new_content = '''#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 """
 Entry point for Daily Summary Report
 Run via Windows Task Scheduler at 18:00 on workdays
@@ -79,3 +87,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+'''
+
+target.write_text(new_content, encoding="utf-8")
+print(f"✅ Fixed: {target}")
