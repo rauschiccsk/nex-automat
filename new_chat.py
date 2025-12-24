@@ -1,299 +1,240 @@
 #!/usr/bin/env python3
 """
-New Chat Script - NEX Automat v3.0 Deployment Session
+New Chat Template - NEX Automat
+===============================
+TEMPLATE: Tento súbor je template. Claude doplní len premenné v sekcii CONFIG.
+
+Použitie:
+1. Claude skopíruje tento template
+2. Doplní SESSION_DATE, SESSION_NAME, KNOWLEDGE_CONTENT, INIT_PROMPT
+3. User uloží ako scripts/new_chat.py a spustí
+
+Tento template NEMENÍME - je otestovaný a funkčný.
 """
 import sys
 import subprocess
 from pathlib import Path
 
 # =============================================================================
-# CONFIG
+# CONFIG - CLAUDE DOPLNÍ TIETO PREMENNÉ
 # =============================================================================
 
-SESSION_DATE = "2025-12-23"
-SESSION_NAME = "nex-automat-v3-deployment"
+SESSION_DATE = "2025-12-24"  # YYYY-MM-DD
+SESSION_NAME = "nex-brain-telegram-multibot"  # krátky názov bez medzier
 
 KNOWLEDGE_CONTENT = """\
-# Session: NEX Automat v3.0 Deployment & pg8000 Migration
+# NEX Brain Telegram Multi-Bot System
 
-**Dátum:** 2025-12-23
+**Dátum:** 2025-12-24
 **Status:** ✅ DONE
+**Projekt:** nex-automat / NEX Brain
 
 ---
 
-## Prehľad zmien v3.0
+## Prehľad
 
-| Zmena | Z | Na | Dôvod |
-|-------|---|-----|-------|
-| GUI Framework | PyQt5 | PySide6 | Lepšia licencia, Qt6 |
-| PostgreSQL Driver | psycopg2 | pg8000 | 32-bit kompatibilita |
-| Workflow Engine | n8n | Temporal | Robustnosť (pripravené) |
+NEX Brain Telegram integrácia s multi-bot architektúrou, schvaľovaním používateľov a centrálnym admin rozhraním.
 
----
+## Telegram Boty
 
-## Vyriešené problémy
+| Bot | Username | Token | Účel |
+|-----|----------|-------|------|
+| Admin | @ai_dev_automatin_bot | 8585064403:AAFHf_xXeA43QBWUcObjt6pYA3xOFPjVpjg | Admin rozhranie, testovanie, /tenant prepínanie |
+| ICC | @NexBrainIcc_bot | 8487965429:AAFmbe18rJo9NMLV7Ams-_HkHCrcIeXHAYM | Pre ICC používateľov, vyžaduje schválenie |
+| ANDROS | @NexBrainAndros_bot | 8178049225:AAGjwzT2-VcaSWJQADQcMHkvTiY8eMvgj9A | Pre ANDROS používateľov, vyžaduje schválenie |
 
-### 1. pg8000 "list index out of range"
-
-**Príčina:** pg8000.native.Connection.run() používa named parameters (`:name` s **kwargs), nie positional parameters (`$1` s list).
-
-**Riešenie:** V `staging_client.py` metóda `_run()`:
-```python
-# WRONG (psycopg2 style)
-converted_query = query.replace("%s", f"${param_index}", 1)
-return self._conn.run(converted_query, list(params))
-
-# CORRECT (pg8000.native style)
-converted_query = query.replace("%s", f":p{i}", 1)
-param_dict[f"p{i}"] = value
-return self._conn.run(converted_query, **param_dict)
-```
-
-### 2. move_files_to_staging() cursor error
-
-**Príčina:** Funkcia používala psycopg2 API (`.cursor()`, `.execute()`).
-
-**Riešenie:** V `main.py`:
-```python
-# WRONG
-cursor = pg_conn.cursor()
-cursor.execute("UPDATE ... WHERE id = %s", (invoice_id,))
-
-# CORRECT
-pg_conn.run("UPDATE ... WHERE id = :inv_id", inv_id=invoice_id)
-```
-
-### 3. Missing database columns
-
-**Príčina:** Migrácia 003_add_file_tracking_columns.sql nebola aplikovaná na production.
-
-**Riešenie:** Aplikovať migráciu:
-```powershell
-.\\venv32\\Scripts\\python.exe -c "
-import pg8000.native; import os
-conn = pg8000.native.Connection(...)
-sql = open('apps/supplier-invoice-loader/database/migrations/003_add_file_tracking_columns.sql').read()
-conn.run(sql)
-conn.close()
-"
-```
-
-### 4. Qt6 RDP monitor warning
-
-**Príčina:** Qt6 má problém s detekciou monitorov cez Remote Desktop.
-
-**Riešenie:** V `app.py`:
-```python
-import os
-os.environ["QT_LOGGING_RULES"] = "qt.qpa.screen=false"
-```
-
-### 5. Duplicate invoice detection
-
-**Príčina:** SQLite `invoices.db` obsahoval staré záznamy s file_hash.
-
-**Riešenie:**
-```powershell
-Remove-Item apps\\supplier-invoice-loader\\config\\invoices.db
-Stop-Service NEXAutomat
-Start-Service NEXAutomat
-```
-
----
-
-## Vytvorené/Upravené súbory
-
-| Súbor | Zmena |
-|-------|-------|
-| packages/nex-staging/nex_staging/staging_client.py | pg8000 named params |
-| apps/supplier-invoice-loader/main.py | pg8000.native.run() v move_files_to_staging |
-| apps/supplier-invoice-staging/app.py | Qt6 RDP warning suppress |
-
----
-
-## Deployment Workflow
+## Štruktúra súborov
 
 ```
-Development → Git → Deployment
+apps/nex-brain/telegram/
+├── .env                    # Tokeny a konfigurácia
+├── config.py               # Multi-bot settings s python-dotenv
+├── db.py                   # PostgreSQL logging modul
+├── multi_bot.py            # Hlavný multi-bot systém
+├── user_manager.py         # Správa používateľov a schvaľovanie
+├── requirements.txt        # Dependencies
+├── create_table.sql        # telegram_logs tabuľka
+└── create_users_table.sql  # telegram_users + telegram_admins tabuľky
 ```
 
-1. **Development:** Opraviť/pridať kód v `C:\\Development\\nex-automat`
-2. **Git:** `git add . && git commit -m "message" && git push`
-3. **Deployment:**
-   ```powershell
-   cd C:\\Deployment\\nex-automat
-   git pull
-   Stop-Service NEXAutomat
-   pip install -e packages/nex-staging --force-reinstall
-   Start-Service NEXAutomat
-   ```
+## Databázové tabuľky
 
----
+### telegram_logs
+- Logging všetkých dotazov a odpovedí
+- Feedback (good/bad) z inline tlačidiel
+- Response time tracking
 
-## Dôležité príkazy
+### telegram_users
+- user_id, username, first_name
+- tenant (icc/andros)
+- status (pending/approved/rejected)
+- requested_at, approved_at, approved_by
 
-### Server Management
+### telegram_admins
+- Zoznam admin používateľov
+
+## Admin príkazy (@ai_dev_automatin_bot)
+
+| Príkaz | Popis |
+|--------|-------|
+| /pending | Zoznam čakajúcich používateľov |
+| /approve {user_id} {tenant} | Schválenie používateľa |
+| /reject {user_id} {tenant} | Zamietnutie používateľa |
+| /users | Zoznam schválených používateľov |
+| /tenant {icc/andros} | Zmena tenant pre testovanie |
+
+## Funkcie botov
+
+- ✅ Markdown formátovanie odpovedí + emoji
+- ✅ Zobrazenie zdrojov z RAG
+- ✅ História konverzácie (10 správ, 30 min timeout)
+- ✅ Inline feedback tlačidlá (👍/👎)
+- ✅ PostgreSQL logging
+- ✅ Multi-tenant (ICC, ANDROS)
+- ✅ Schvaľovanie nových používateľov
+- ✅ Admin notifikácie o nových žiadostiach
+
+## Flow schvaľovania
+
+1. Nový používateľ napíše /start na @NexBrainIcc_bot
+2. Bot vytvorí záznam so status=pending
+3. Admin dostane notifikáciu na @ai_dev_automatin_bot
+4. Admin schváli: /approve {user_id} icc
+5. Používateľ dostane správu "Boli ste schválení"
+6. Používateľ môže používať bota
+
+## Spustenie
 
 ```powershell
-# Služba
-Start-Service NEXAutomat
-Stop-Service NEXAutomat
-Get-Service NEXAutomat
-
-# Logy
-Get-Content C:\\Deployment\\nex-automat\\logs\\service-stdout.log -Tail 50 -Wait
-Get-Content C:\\Deployment\\nex-automat\\logs\\service-stderr.log -Tail 50 -Wait
-
-# GUI test
-.\\venv64\\Scripts\\python.exe apps\\supplier-invoice-staging\\app.py
+cd apps/nex-brain/telegram
+python multi_bot.py
 ```
 
-### Database
+Spustí všetky 3 boty v jednom procese.
 
-```powershell
-# Test connection
-.\\venv32\\Scripts\\python.exe -c "
-import pg8000.native; import os
-conn = pg8000.native.Connection(
-    host='localhost', port=5432, 
-    database='supplier_invoice_staging', 
-    user='postgres', 
-    password=os.environ['POSTGRES_PASSWORD']
-)
-print('Connection OK')
-conn.close()
-"
+## Konfigurácia (.env)
 
-# List columns
-.\\venv32\\Scripts\\python.exe -c "
-import pg8000.native; import os
-conn = pg8000.native.Connection(...)
-result = conn.run('SELECT column_name FROM information_schema.columns WHERE table_name = :t', t='supplier_invoice_heads')
-print([r[0] for r in result])
-conn.close()
-"
+```env
+# Tokeny
+TELEGRAM_ADMIN_BOT_TOKEN=8585064403:AAFHf_xXeA43QBWUcObjt6pYA3xOFPjVpjg
+TELEGRAM_ICC_BOT_TOKEN=8487965429:AAFmbe18rJo9NMLV7Ams-_HkHCrcIeXHAYM
+TELEGRAM_ANDROS_BOT_TOKEN=8178049225:AAGjwzT2-VcaSWJQADQcMHkvTiY8eMvgj9A
+
+# API
+NEX_BRAIN_API_URL=http://localhost:8001
+
+# Database
+POSTGRES_HOST=localhost
+POSTGRES_PORT=5432
+POSTGRES_DB=nex_automat_rag
+POSTGRES_USER=postgres
 ```
 
----
+## Dependencies
 
-## pg8000.native API Reference
-
-```python
-# Connection
-conn = pg8000.native.Connection(host, port, database, user, password)
-
-# Execute with named params
-result = conn.run("SELECT * FROM table WHERE id = :id", id=123)
-
-# Execute without params
-result = conn.run("SELECT * FROM table")
-
-# Result is list of tuples
-for row in result:
-    print(row[0], row[1])
-
-# Column info after query
-columns = conn.columns  # [{'name': 'col1', ...}, ...]
-
-# Close
-conn.close()
+```
+python-telegram-bot>=20.0
+httpx>=0.25.0
+pg8000>=1.30.0
+python-dotenv>=1.0.0
 ```
 
----
+## Admin User ID
 
-## Lessons Learned
-
-1. **pg8000.native vs pg8000.dbapi** - Native API je jednoduchšie ale má iné parametre
-2. **Migrácie musia byť aplikované** - Vždy skontrolovať DB schému na production
-3. **SQLite duplicate detection** - Pri testovaní vymazať `invoices.db`
-4. **Qt6 + RDP** - Potrebuje QT_LOGGING_RULES suppress
-
----
-
-## Next Steps pre v3.1
-
-1. [ ] Temporal workflows integration
-2. [ ] NEX Genesis product matching
-3. [ ] Multi-tenant support (ANDROS deployment)
-4. [ ] Automated backup system
+Zoltán: 7204918893 (hardcoded v multi_bot.py pre notifikácie)
 """
 
 INIT_PROMPT = """\
-INIT PROMPT - NEX Automat v3.0 Released
+# INIT PROMPT - NEX Brain Telegram
 
-Projekt: nex-automat
-Current Status: v3.0 deployed & tagged
-Developer: Zoltán (40 rokov skúseností)
-Jazyk: Slovenčina
+**Projekt:** nex-automat / NEX Brain
+**Modul:** Telegram Multi-Bot System
+**Status:** ✅ Kompletný
+**Developer:** Zoltán (40 rokov skúseností)
+**Jazyk:** Slovenčina
 
 ⚠️ KRITICKÉ: Dodržiavať pravidlá z memory_user_edits!
 
-🎯 CURRENT FOCUS: Post-release tasks
+---
 
-## Čo je hotové ✅
+## ✅ Dokončené
 
-| Komponenta | Status |
-|------------|--------|
-| pg8000 migration | ✅ DONE |
-| PySide6 migration | ✅ DONE |
-| E2E test Mágerstav | ✅ DONE |
-| v3.0 tag | ✅ DONE |
-| DEPLOYMENT_GUIDE_V3.md | ✅ DONE |
+| Funkcia | Status |
+|---------|--------|
+| Multi-bot architektúra | ✅ |
+| Admin bot (@ai_dev_automatin_bot) | ✅ |
+| ICC bot (@NexBrainIcc_bot) | ✅ |
+| ANDROS bot (@NexBrainAndros_bot) | ✅ |
+| Schvaľovanie používateľov | ✅ |
+| Admin notifikácie | ✅ |
+| PostgreSQL logging | ✅ |
+| Feedback tlačidlá | ✅ |
+| História konverzácie | ✅ |
 
-## v3.0 Release Notes
+## 🔧 Technické detaily
 
-- PyQt5 → PySide6 (Qt6)
-- psycopg2 → pg8000 (32-bit kompatibilita)
-- Opravené: INSERT RETURNING, move_files_to_staging
-- Opravené: Qt6 RDP warning
-- Kompletný deployment guide pre nových zákazníkov
+**Spustenie:**
+```powershell
+cd apps/nex-brain/telegram
+python multi_bot.py
+```
 
-## Next Steps
+**Admin príkazy:**
+- /pending - čakajúci
+- /approve {user_id} {tenant}
+- /reject {user_id} {tenant}
+- /users - schválení
+- /tenant - zmena tenant
 
-1. ANDROS deployment planning
-2. Temporal workflows activation
-3. NEX Genesis product enrichment
-
-## RAG Query
+## 📋 RAG Query
 
 ```
-https://rag-api.icc.sk/search?query=deployment+guide+v3+pg8000+pyside6&limit=5
+https://rag-api.icc.sk/search?query=NEX+Brain+Telegram+bot+multibot&limit=5
 ```
 """
 
 
 # =============================================================================
-# TEMPLATE CODE - NEMENIŤ
+# TEMPLATE CODE - NEMENÍME
 # =============================================================================
 
 def get_base_dir() -> Path:
+    """Získa base directory projektu."""
+    # Ak sme v nex-automat adresári
     cwd = Path.cwd()
     if cwd.name == "nex-automat":
         return cwd
+    # Ak sme v scripts/
     if cwd.name == "scripts" and cwd.parent.name == "nex-automat":
         return cwd.parent
+    # Ak sme niekde inde, skús nájsť nex-automat
     for parent in cwd.parents:
         if parent.name == "nex-automat":
             return parent
+    # Fallback na cwd
     return cwd
 
 
 def main():
     print("=" * 60)
-    print("NEW CHAT SCRIPT - NEX Automat v3.0")
+    print("NEW CHAT SCRIPT")
     print("=" * 60)
 
     BASE_DIR = get_base_dir()
-    print(f"Base directory: {BASE_DIR}")
+    print(f"📁 Base directory: {BASE_DIR}")
 
+    # Verify we're in correct directory
     if not (BASE_DIR / "apps").exists():
-        print(f"ERROR: Not in nex-automat directory!")
+        print(f"❌ ERROR: Not in nex-automat directory!")
+        print(f"   Current: {Path.cwd()}")
+        print(f"   Expected: C:\\Development\\nex-automat")
         sys.exit(1)
 
     DOCS_DIR = BASE_DIR / "docs"
     KNOWLEDGE_DIR = DOCS_DIR / "knowledge" / "sessions"
     SESSION_DIR = DOCS_DIR / "sessions"
 
+    # Ensure directories exist
     KNOWLEDGE_DIR.mkdir(parents=True, exist_ok=True)
     SESSION_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -303,59 +244,69 @@ def main():
     # 1. Save SESSION file
     session_file = SESSION_DIR / session_filename
     session_file.write_text(KNOWLEDGE_CONTENT, encoding="utf-8")
-    print(f"SESSION saved: {session_file}")
+    print(f"✅ SESSION saved: {session_file}")
 
     # 2. Save KNOWLEDGE file
     knowledge_file = KNOWLEDGE_DIR / knowledge_filename
     knowledge_file.write_text(KNOWLEDGE_CONTENT, encoding="utf-8")
-    print(f"KNOWLEDGE saved: {knowledge_file}")
+    print(f"✅ KNOWLEDGE saved: {knowledge_file}")
 
     # 3. Save INIT_PROMPT
     init_file = BASE_DIR / "INIT_PROMPT.md"
     init_file.write_text(INIT_PROMPT, encoding="utf-8")
-    print(f"INIT_PROMPT saved: {init_file}")
+    print(f"✅ INIT_PROMPT saved: {init_file}")
 
-    # 4. Save DEPLOYMENT_GUIDE_V3.md
-    deployment_guide = BASE_DIR / "docs" / "deployment" / "DEPLOYMENT_GUIDE_V3.md"
-    deployment_guide.parent.mkdir(parents=True, exist_ok=True)
-    # Note: Content will be added separately from artifact
-    print(f"DEPLOYMENT_GUIDE location: {deployment_guide}")
-
-    # 5. Run RAG update
+    # 4. Run RAG update
     print()
     print("=" * 60)
     print("Running RAG update...")
     print("=" * 60)
 
     rag_script = BASE_DIR / "tools" / "rag" / "rag_update.py"
-    if rag_script.exists():
-        try:
-            env = {**subprocess.os.environ, "PYTHONIOENCODING": "utf-8"}
-            result = subprocess.run(
-                [sys.executable, str(rag_script), "--new"],
-                cwd=str(BASE_DIR),
-                check=True,
-                capture_output=True,
-                text=True,
-                encoding="utf-8",
-                env=env
-            )
-            print(result.stdout)
-            print("RAG updated")
-        except subprocess.CalledProcessError as e:
-            print(f"RAG update failed: {e}")
-            if e.stderr:
-                print(f"STDERR: {e.stderr}")
+    if not rag_script.exists():
+        print(f"⚠️ RAG script not found: {rag_script}")
+    else:
+        # Use main venv Python, not worker venv
+        main_venv_python = BASE_DIR / "venv" / "Scripts" / "python.exe"
+        if not main_venv_python.exists():
+            print(f"⚠️ Main venv not found: {main_venv_python}")
+            print("   Skipping RAG update. Run manually:")
+            print(f"   cd {BASE_DIR}")
+            print(f"   .\\venv\\Scripts\\Activate.ps1")
+            print(f"   python tools/rag/rag_update.py --new")
+        else:
+            try:
+                # Set UTF-8 encoding for subprocess
+                env = {**subprocess.os.environ, "PYTHONIOENCODING": "utf-8"}
+                result = subprocess.run(
+                    [str(main_venv_python), str(rag_script), "--new"],
+                    cwd=str(BASE_DIR),
+                    check=True,
+                    capture_output=True,
+                    text=True,
+                    encoding="utf-8",
+                    env=env
+                )
+                print(result.stdout)
+                print("✅ RAG updated")
+            except subprocess.CalledProcessError as e:
+                print(f"⚠️ RAG update failed: {e}")
+                if e.stdout:
+                    print(f"STDOUT: {e.stdout}")
+                if e.stderr:
+                    print(f"STDERR: {e.stderr}")
+                print()
+                print("Run manually:")
+                print(f"   .\\venv\\Scripts\\Activate.ps1")
+                print(f"   python tools/rag/rag_update.py --new")
 
     print()
     print("=" * 60)
-    print("DONE!")
+    print("✅ DONE!")
     print()
     print("Next steps:")
-    print("  1. Save DEPLOYMENT_GUIDE_V3.md from artifact")
-    print("  2. Git: git add -A && git commit -m 'v3.0 release' && git push")
-    print("  3. Tag: git tag -a v3.0.0 -m 'NEX Automat v3.0'")
-    print("  4. Push tag: git push origin v3.0.0")
+    print(f"  1. Git commit: git add -A && git commit -m 'Session {SESSION_DATE}'")
+    print(f"  2. Start new chat with INIT_PROMPT.md")
     print("=" * 60)
 
 

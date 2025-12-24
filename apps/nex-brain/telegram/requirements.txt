@@ -1,2 +1,5 @@
-python-telegram-bot>=20.7
+# NEX Brain Telegram Bot - Dependencies
+python-telegram-bot>=20.0
 httpx>=0.25.0
+pg8000>=1.30.0
+python-dotenv>=1.0.0
