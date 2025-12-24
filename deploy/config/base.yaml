@@ -1,0 +1,46 @@
+# Base deployment configuration
+# Spoločné nastavenia pre všetkých zákazníkov
+
+# Súbory/adresáre ktoré sa VŽDY kopírujú
+include:
+  - apps/supplier-invoice-loader/
+  - apps/supplier-invoice-staging/
+  - packages/nex-staging/
+  - packages/nex-shared/
+
+# Súbory/adresáre ktoré sa NIKDY nekopírujú
+exclude:
+  # Python cache
+  - __pycache__/
+  - "*.pyc"
+  - "*.pyo"
+  - ".pytest_cache/"
+
+  # Git
+  - .git/
+  - .gitignore
+  - .gitattributes
+
+  # Development only
+  - scripts/sessions/
+  - scripts/templates/
+  - docs/
+  - tests/
+  - "*.md-old"
+
+  # IDE
+  - .vscode/
+  - .idea/
+
+  # Logs (vytvárajú sa na serveri)
+  - "*.log"
+  - logs/
+
+  # Temp files
+  - "*.tmp"
+  - "*.bak"
+
+  # Init prompts (development only)
+  - INIT_PROMPT*.md
+  - TODO*.md
+  - new_chat.py

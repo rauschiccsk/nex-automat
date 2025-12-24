@@ -1,0 +1,23 @@
+# ANDROS deployment configuration
+customer: andros
+extends: base
+
+# Deployment cesta na serveri
+deploy_path: "C:\\Deployment\\nex-automat"
+
+# Dodatočné exclude pre ANDROS
+exclude:
+  # Mágerstav-specific
+  - "*_MAGERSTAV_*"
+  - "*_magerstav_*"
+  - "*_Magerstav_*"
+
+  # Analysis tools (dev only)
+  - tools/scripts/analyze_*.py
+
+  # RAG tools (dev only)
+  - tools/rag/
+
+# ANDROS-specific include
+include:
+  - apps/nex-brain/

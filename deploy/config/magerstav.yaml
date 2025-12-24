@@ -1,0 +1,23 @@
+# Mágerstav deployment configuration
+customer: magerstav
+extends: base
+
+# Deployment cesta na serveri
+deploy_path: "C:\\Deployment\\nex-automat"
+
+# Dodatočné exclude pre Mágerstav
+exclude:
+  # ANDROS-specific
+  - apps/nex-brain/
+  - INIT_PROMPT_ANDROS*.md
+  - "*_ANDROS_*"
+  - "*_andros_*"
+
+  # Analysis tools (dev only)
+  - tools/scripts/analyze_*.py
+
+  # RAG tools (dev only)  
+  - tools/rag/
+
+# Mágerstav-specific include (ak treba niečo extra)
+include: []
