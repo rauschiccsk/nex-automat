@@ -152,3 +152,6 @@ docs/code/
 new_chat.py
 
 new_chat.py
+
+# Sensitive knowledge - credentials, tokens, internal configs
+docs/knowledge/
