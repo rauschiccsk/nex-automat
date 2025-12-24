@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background: #f5f5f5; }
+        .container { max-width: 800px; margin: 0 auto; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .header { background: #2c5530; color: white; padding: 20px; border-radius: 8px 8px 0 0; }
+        .header h1 { margin: 0; font-size: 24px; }
+        .header .date { opacity: 0.9; margin-top: 5px; }
+        .content { padding: 20px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 20px; }
+        .stat-box { background: #f8f9fa; padding: 15px; border-radius: 6px; text-align: center; }
+        .stat-box .value { font-size: 28px; font-weight: bold; color: #2c5530; }
+        .stat-box .label { font-size: 12px; color: #666; margin-top: 5px; }
+        .stat-box .trend { font-size: 14px; color: #888; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th { background: #2c5530; color: white; padding: 12px; text-align: left; }
+        td { padding: 10px 12px; border-bottom: 1px solid #eee; }
+        tr:hover { background: #f8f9fa; }
+        .amount { text-align: right; font-family: monospace; }
+        .status-pending { background: #ffc107; color: #000; padding: 3px 8px; border-radius: 4px; font-size: 12px; }
+        .status-matched { background: #17a2b8; color: #fff; padding: 3px 8px; border-radius: 4px; font-size: 12px; }
+        .status-approved { background: #28a745; color: #fff; padding: 3px 8px; border-radius: 4px; font-size: 12px; }
+        .status-imported { background: #6c757d; color: #fff; padding: 3px 8px; border-radius: 4px; font-size: 12px; }
+        .status-error { background: #dc3545; color: #fff; padding: 3px 8px; border-radius: 4px; font-size: 12px; }
+        .error-section { background: #fff3cd; border: 1px solid #ffc107; padding: 15px; border-radius: 6px; margin-top: 20px; }
+        .error-section h3 { margin-top: 0; color: #856404; }
+        .footer { padding: 15px 20px; background: #f8f9fa; border-radius: 0 0 8px 8px; font-size: 12px; color: #666; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 Denný report spracovania faktúr</h1>
+            <div class="date">24.12.2025</div>
+        </div>
+
+        <div class="content">
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="value">3</div>
+                    <div class="label">Faktúr celkom</div>
+                    <div class="trend">↑ včera: 0</div>
+                </div>
+                <div class="stat-box">
+                    <div class="value">4,148.12 €</div>
+                    <div class="label">Celková suma</div>
+                    <div class="trend">↑ včera: 0.00 €</div>
+                </div>
+                <div class="stat-box">
+                    <div class="value">76.8%</div>
+                    <div class="label">Priem. zhoda</div>
+                </div>
+                <div class="stat-box">
+                    <div class="value">0</div>
+                    <div class="label">Chybových</div>
+                </div>
+            </div>
+
+            <p><strong>Podľa statusu:</strong> matched: 1, pending: 1, approved: 1</p>
+
+            
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Dodávateľ</th>
+                        <th>Číslo faktúry</th>
+                        <th>Dátum</th>
+                        <th>Suma</th>
+                        <th>Status</th>
+                        <th>Zhoda</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    
+            <tr>
+                <td>METRO Cash & Carry SR</td>
+                <td>FV2024001</td>
+                <td>24.12.2025</td>
+                <td class="amount">1,234.56 €</td>
+                <td><span class="status-matched">matched</span></td>
+                <td>85.5%</td>
+            </tr>
+            
+            <tr>
+                <td>MAKRO Cash & Carry</td>
+                <td>FV2024002</td>
+                <td>24.12.2025</td>
+                <td class="amount">567.89 €</td>
+                <td><span class="status-pending">pending</span></td>
+                <td>45.0%</td>
+            </tr>
+            
+            <tr>
+                <td>LIDL SR</td>
+                <td>FV2024003</td>
+                <td>24.12.2025</td>
+                <td class="amount">2,345.67 €</td>
+                <td><span class="status-approved">approved</span></td>
+                <td>100.0%</td>
+            </tr>
+            
+                </tbody>
+            </table>
+        </div>
+
+        <div class="footer">
+            Vygenerované: NEX Automat | supplier-invoice-loader
+        </div>
+    </div>
+</body>
+</html>

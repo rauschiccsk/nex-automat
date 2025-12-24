@@ -1,8 +1,8 @@
-# INIT PROMPT - NEX Brain Telegram
+# INIT PROMPT - NEX Automat
 
-**Projekt:** nex-automat / NEX Brain
-**Modul:** Telegram Multi-Bot System
-**Status:** ✅ Kompletný
+**Projekt:** nex-automat
+**Modul:** Daily Summary Reports
+**Status:** ✅ Kompletný (čaká na Mágerstav deployment)
 **Developer:** Zoltán (40 rokov skúseností)
 **Jazyk:** Slovenčina
 
@@ -10,37 +10,28 @@
 
 ---
 
-## ✅ Dokončené
+## ✅ Dokončené (2025-12-24)
 
 | Funkcia | Status |
 |---------|--------|
-| Multi-bot architektúra | ✅ |
-| Admin bot (@ai_dev_automatin_bot) | ✅ |
-| ICC bot (@NexBrainIcc_bot) | ✅ |
-| ANDROS bot (@NexBrainAndros_bot) | ✅ |
-| Schvaľovanie používateľov | ✅ |
-| Admin notifikácie | ✅ |
-| PostgreSQL logging | ✅ |
-| Feedback tlačidlá | ✅ |
-| História konverzácie | ✅ |
+| Daily Reports modul | ✅ |
+| SMTP SSL (port 465) | ✅ |
+| HTML email template | ✅ |
+| .env konfigurácia | ✅ |
+| Test odoslania | ✅ |
+| Security fix (tokeny) | ✅ |
+| CREDENTIALS.md | ✅ |
 
-## 🔧 Technické detaily
+## 🔧 Pending (Mágerstav)
 
-**Spustenie:**
-```powershell
-cd apps/nex-brain/telegram
-python multi_bot.py
-```
-
-**Admin príkazy:**
-- /pending - čakajúci
-- /approve {user_id} {tenant}
-- /reject {user_id} {tenant}
-- /users - schválení
-- /tenant - zmena tenant
+| Úloha | Priorita |
+|-------|----------|
+| Windows Task Scheduler | High |
+| Revoke Telegram tokenov | Medium |
+| Deploy na Mágerstav | High |
 
 ## 📋 RAG Query
 
 ```
-https://rag-api.icc.sk/search?query=NEX+Brain+Telegram+bot+multibot&limit=5
+https://rag-api.icc.sk/search?query=daily+report+supplier+invoice+staging&limit=5
 ```
