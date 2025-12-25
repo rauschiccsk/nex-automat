@@ -1,8 +1,8 @@
 # INIT PROMPT - NEX Automat
 
 **Projekt:** nex-automat
-**Modul:** Post RAG Cleanup
-**Status:** ✅ RAG vyčistený, Telegram tokeny opravené
+**Modul:** Post Cleanup
+**Status:** ✅ Služby bežia, DB vyčistená
 **Developer:** Zoltán (40 rokov skúseností)
 **Jazyk:** Slovenčina
 
@@ -14,16 +14,15 @@
 
 | Funkcia | Status |
 |---------|--------|
-| Telegram tokeny regenerované | ✅ |
-| CREDENTIALS.md aktualizovaný | ✅ |
-| RAG cleanup (len docs/knowledge/) | ✅ |
-| rag_update.py opravený | ✅ |
+| cleanup_databases.py | ✅ |
+| Worker settings fix | ✅ |
+| NEX služby Mágerstav | ✅ Running |
+| Git synchronizácia | ✅ |
 
 ## 🔴 HIGH PRIORITY
 
 | Úloha | Modul | Poznámka |
 |-------|-------|----------|
-| Cleanup script pre testovanie | supplier-invoice-loader | SQLite + PostgreSQL |
 | ANDROS server hardware upgrade | deployment | SuperMicro dual Xeon, 128GB RAM |
 | ANDROS deployment planning | supplier-invoice-loader | Nový zákazník |
 | Fáza 5: Btrieve Models | nexdata | TSH/TSI/PLS/RPC |
@@ -31,5 +30,5 @@
 ## 📋 RAG Query
 
 ```
-https://rag-api.icc.sk/search?query=cleanup+database+testing&limit=5
+https://rag-api.icc.sk/search?query=andros+deployment+planning&limit=5
 ```
