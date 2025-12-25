@@ -1,8 +1,8 @@
 # INIT PROMPT - NEX Automat
 
 **Projekt:** nex-automat
-**Modul:** Post v3.1 Deployment
-**Status:** ✅ Production running (Mágerstav)
+**Modul:** Post TODO Review
+**Status:** ✅ TODO_MASTER.md aktualizovaný
 **Developer:** Zoltán (40 rokov skúseností)
 **Jazyk:** Slovenčina
 
@@ -10,15 +10,15 @@
 
 ---
 
-## ✅ Dokončené (2025-12-24)
+## ✅ Dokončené (2025-12-25)
 
 | Funkcia | Status |
 |---------|--------|
-| Mágerstav v3.1 deployment | ✅ |
-| Daily Reports (18:00 Po-Pi) | ✅ |
-| Telegram tokens revoked | ✅ |
-| Customer deploy system | ✅ |
-| docs/knowledge/ z Git | ✅ |
+| TODO_MASTER.md kompletná revízia | ✅ |
+| n8n → Temporal presunuté do DONE | ✅ |
+| NEX Brain RAG multi-tenant → DONE | ✅ |
+| NEX Brain Telegram vylepšenia → DONE | ✅ |
+| KNOWLEDGE dokument pre RAG | ✅ |
 
 ## 🔴 HIGH PRIORITY
 
@@ -26,16 +26,18 @@
 |-------|-------|----------|
 | ANDROS server hardware upgrade | deployment | SuperMicro dual Xeon, 128GB RAM |
 | ANDROS deployment planning | supplier-invoice-loader | Nový zákazník |
+| Fáza 5: Btrieve Models | nexdata | TSH/TSI/PLS/RPC |
 
 ## 🟡 MEDIUM PRIORITY
 
 | Úloha | Modul |
 |-------|-------|
-| NEX Brain RAG multi-tenant | nex-brain |
-| n8n → Temporal migration | workflow |
+| Fáza 6-9: NEX Automat Core | nexdata/GUI |
+| NEX Brain Fáza 2-3 | nex-brain |
+| Monitoring (Prometheus/Grafana) | monitoring |
 
 ## 📋 RAG Query
 
 ```
-https://rag-api.icc.sk/search?query=andros+deployment+hardware&limit=5
+https://rag-api.icc.sk/search?query=andros+deployment+btrieve+models&limit=5
 ```
