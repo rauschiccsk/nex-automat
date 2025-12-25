@@ -93,10 +93,10 @@ class RAGUpdateManager:
             finally:
                 await db.close()
 
-            # Index all docs (entire docs/ folder)
+            # Index only docs/knowledge/ folder
             async with DocumentIndexer() as indexer:
                 results = await indexer.index_directory(
-                    directory=self.docs_path,
+                    directory=self.knowledge_path,
                     pattern="*.md",
                     recursive=True,
                     show_progress=True
@@ -201,7 +201,7 @@ def main():
         epilog="""
 Examples:
   python tools/rag/rag_update.py --new      # Index today's docs/knowledge/ files
-  python tools/rag/rag_update.py --all      # Full reindex all docs/
+  python tools/rag/rag_update.py --all      # Full reindex docs/knowledge/
   python tools/rag/rag_update.py --stats    # Show statistics
         """
     )
@@ -210,7 +210,7 @@ Examples:
     group.add_argument('--new', action='store_true',
                        help='Incremental: index new/modified docs/knowledge/ files')
     group.add_argument('--all', action='store_true',
-                       help='Full: clear and reindex all docs/')
+                       help='Full: clear and reindex docs/knowledge/')
     group.add_argument('--stats', action='store_true',
                        help='Show RAG statistics only')
 

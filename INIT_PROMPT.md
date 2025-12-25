@@ -1,8 +1,8 @@
 # INIT PROMPT - NEX Automat
 
 **Projekt:** nex-automat
-**Modul:** Post TODO Review
-**Status:** ✅ TODO_MASTER.md aktualizovaný
+**Modul:** Post RAG Cleanup
+**Status:** ✅ RAG vyčistený, Telegram tokeny opravené
 **Developer:** Zoltán (40 rokov skúseností)
 **Jazyk:** Slovenčina
 
@@ -14,30 +14,22 @@
 
 | Funkcia | Status |
 |---------|--------|
-| TODO_MASTER.md kompletná revízia | ✅ |
-| n8n → Temporal presunuté do DONE | ✅ |
-| NEX Brain RAG multi-tenant → DONE | ✅ |
-| NEX Brain Telegram vylepšenia → DONE | ✅ |
-| KNOWLEDGE dokument pre RAG | ✅ |
+| Telegram tokeny regenerované | ✅ |
+| CREDENTIALS.md aktualizovaný | ✅ |
+| RAG cleanup (len docs/knowledge/) | ✅ |
+| rag_update.py opravený | ✅ |
 
 ## 🔴 HIGH PRIORITY
 
 | Úloha | Modul | Poznámka |
 |-------|-------|----------|
+| Cleanup script pre testovanie | supplier-invoice-loader | SQLite + PostgreSQL |
 | ANDROS server hardware upgrade | deployment | SuperMicro dual Xeon, 128GB RAM |
 | ANDROS deployment planning | supplier-invoice-loader | Nový zákazník |
 | Fáza 5: Btrieve Models | nexdata | TSH/TSI/PLS/RPC |
 
-## 🟡 MEDIUM PRIORITY
-
-| Úloha | Modul |
-|-------|-------|
-| Fáza 6-9: NEX Automat Core | nexdata/GUI |
-| NEX Brain Fáza 2-3 | nex-brain |
-| Monitoring (Prometheus/Grafana) | monitoring |
-
 ## 📋 RAG Query
 
 ```
-https://rag-api.icc.sk/search?query=andros+deployment+btrieve+models&limit=5
+https://rag-api.icc.sk/search?query=cleanup+database+testing&limit=5
 ```
