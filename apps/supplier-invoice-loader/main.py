@@ -16,7 +16,7 @@ import base64
 
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse, Header, HTTPException, Depends
+from fastapi.responses import FileResponse
 from fastapi.responses import PlainTextResponse
 from pydantic import BaseModel
 
