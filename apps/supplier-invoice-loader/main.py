@@ -701,13 +701,23 @@ async def shutdown_event():
 FRONTEND_DIR = Path(__file__).parent.parent / "supplier-invoice-staging-web" / "dist"
 
 if FRONTEND_DIR.exists():
-    # Mount assets directory
-    app.mount("/assets", StaticFiles(directory=FRONTEND_DIR / "assets"), name="static_assets")
+    # Mount assets at /app/assets (must be before catch-all route)
+    app.mount("/app/assets", StaticFiles(directory=FRONTEND_DIR / "assets"), name="static_assets")
 
     @app.get("/app")
+    async def serve_frontend_root():
+        """Serve frontend index.html at /app."""
+        return FileResponse(FRONTEND_DIR / "index.html")
+
     @app.get("/app/{path:path}")
-    async def serve_frontend(path: str = ""):
-        """Serve frontend SPA."""
+    async def serve_frontend_spa(path: str):
+        """Serve frontend SPA for all /app/* routes."""
+        # Check if it's a file request (has extension)
+        if "." in path:
+            file_path = FRONTEND_DIR / path
+            if file_path.exists():
+                return FileResponse(file_path)
+        # Otherwise serve index.html for SPA routing
         return FileResponse(FRONTEND_DIR / "index.html")
 
 if __name__ == "__main__":
