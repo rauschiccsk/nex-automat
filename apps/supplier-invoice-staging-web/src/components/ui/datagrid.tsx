@@ -24,6 +24,48 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 
+// Numeric filter function - supports exact match and ranges
+// Usage: "21" (exact), ">20", "<10", ">=5", "<=100", "10-50" (range)
+export const numericFilter = (row: any, columnId: string, filterValue: string): boolean => {
+  const cellValue = row.getValue(columnId);
+  if (cellValue == null) return false;
+
+  const numValue = typeof cellValue === 'number' ? cellValue : parseFloat(String(cellValue));
+  if (isNaN(numValue)) return false;
+
+  const filter = filterValue.trim();
+  if (!filter) return true;
+
+  // Range: "10-50"
+  const rangeMatch = filter.match(/^(\d+(?:\.\d+)?)\s*-\s*(\d+(?:\.\d+)?)$/);
+  if (rangeMatch) {
+    const min = parseFloat(rangeMatch[1]);
+    const max = parseFloat(rangeMatch[2]);
+    return numValue >= min && numValue <= max;
+  }
+
+  // Comparison operators: >=, <=, >, <
+  const compMatch = filter.match(/^([><]=?)\s*(\d+(?:\.\d+)?)$/);
+  if (compMatch) {
+    const op = compMatch[1];
+    const compareValue = parseFloat(compMatch[2]);
+    switch (op) {
+      case '>': return numValue > compareValue;
+      case '>=': return numValue >= compareValue;
+      case '<': return numValue < compareValue;
+      case '<=': return numValue <= compareValue;
+    }
+  }
+
+  // Exact match
+  const exactValue = parseFloat(filter);
+  if (!isNaN(exactValue)) {
+    return numValue === exactValue;
+  }
+
+  return false;
+};
+
 // Column config types
 interface ColumnConfigItem {
   id: string;
@@ -141,6 +183,9 @@ export function DataGrid<T extends { id: number | string }>({
   // Drag state for dialog
   const [dialogDraggedId, setDialogDraggedId] = useState<string | null>(null);
   const [dialogDragOverId, setDialogDragOverId] = useState<string | null>(null);
+
+  // Track if any column is being resized - blocks drag & drop during resize
+  const [isResizing, setIsResizing] = useState(false);
 
   const tableContainerRef = useRef<HTMLDivElement>(null);
   const filterInputRefs = useRef<(HTMLInputElement | null)[]>([]);
@@ -438,6 +483,19 @@ export function DataGrid<T extends { id: number | string }>({
     }
   }, [columnConfig, storageKey, configOpen]);
 
+  // Global mouseup listener - ukončí resize kdekoľvek
+  useEffect(() => {
+    const handleGlobalMouseUp = () => {
+      if (isResizing) {
+        setIsResizing(false);
+        document.body.style.cursor = '';
+        document.body.style.userSelect = '';
+      }
+    };
+    document.addEventListener('mouseup', handleGlobalMouseUp);
+    return () => document.removeEventListener('mouseup', handleGlobalMouseUp);
+  }, [isResizing]);
+
   // Keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -533,9 +591,9 @@ export function DataGrid<T extends { id: number | string }>({
   };
 
   return (
-    <div className={cn('flex flex-col border rounded-lg bg-white overflow-hidden', className)}>
+    <div className={cn('flex flex-col border rounded-lg bg-white overflow-hidden max-w-full', className)}>
       {/* Status bar */}
-      <div className="px-4 py-2 bg-slate-50 border-b flex items-center justify-between text-sm">
+      <div className="px-3 py-1 bg-slate-50 border-b flex items-center justify-between text-xs">
         <span className="text-slate-600">
           {rows.length} z {data.length} záznamov
           {activeFiltersCount > 0 && (
@@ -570,9 +628,6 @@ export function DataGrid<T extends { id: number | string }>({
                 {sortedConfig.map((col) => (
                   <div 
                     key={col.id}
-                    draggable
-                    onDragStart={(e) => handleDialogDragStart(e, col.id)}
-                    onDragEnd={handleDialogDragEnd}
                     onDragOver={(e) => handleDialogDragOver(e, col.id)}
                     onDragLeave={handleDialogDragLeave}
                     onDrop={(e) => handleDialogDrop(e, col.id)}
@@ -583,8 +638,11 @@ export function DataGrid<T extends { id: number | string }>({
                       dialogDragOverId === col.id && "border-blue-500 border-2 bg-blue-50"
                     )}
                   >
-                    {/* Drag handle */}
+                    {/* Drag handle - JEDINÝ draggable element */}
                     <div 
+                      draggable
+                      onDragStart={(e) => handleDialogDragStart(e, col.id)}
+                      onDragEnd={handleDialogDragEnd}
                       className="cursor-grab active:cursor-grabbing p-1 text-slate-400 hover:text-slate-600"
                       title="Potiahnite pre zmenu poradia"
                     >
@@ -641,7 +699,7 @@ export function DataGrid<T extends { id: number | string }>({
       </div>
 
       {/* Table */}
-      <div ref={tableContainerRef} className="overflow-auto flex-1" style={{ maxHeight: '600px' }}>
+      <div ref={tableContainerRef} className="overflow-auto flex-1 min-h-0">
         <table className="w-full border-collapse" style={{ width: table.getTotalSize() }}>
           <thead className="sticky top-0 z-10">
             {table.getHeaderGroups().map((headerGroup) => (
@@ -649,16 +707,17 @@ export function DataGrid<T extends { id: number | string }>({
                 {headerGroup.headers.map((header) => (
                   <th 
                     key={header.id}
-                    draggable
-                    onDragStart={(e) => handleHeaderDragStart(e, header.column.id)}
+                    draggable={!isResizing}
+                    onDragStart={(e) => { if (!isResizing) handleHeaderDragStart(e, header.column.id); }}
                     onDragEnd={handleHeaderDragEnd}
-                    onDragOver={(e) => handleHeaderDragOver(e, header.column.id)}
+                    onDragOver={(e) => { if (!isResizing) handleHeaderDragOver(e, header.column.id); }}
                     onDragLeave={handleHeaderDragLeave}
-                    onDrop={(e) => handleHeaderDrop(e, header.column.id)}
+                    onDrop={(e) => { if (!isResizing) handleHeaderDrop(e, header.column.id); }}
                     className={cn(
-                      "px-3 py-2 text-left text-sm font-semibold text-slate-700 border-b select-none relative group",
-                      "hover:bg-slate-200 cursor-grab active:cursor-grabbing",
-                      dragOverColumnId === header.column.id && "bg-blue-100 border-l-2 border-l-blue-500",
+                      "px-2 py-1 text-left text-xs font-semibold text-slate-700 border-b select-none relative group",
+                      !isResizing && "hover:bg-slate-200 cursor-grab active:cursor-grabbing",
+                      isResizing && "cursor-col-resize",
+                      !isResizing && dragOverColumnId === header.column.id && "bg-blue-100 border-l-2 border-l-blue-500",
                       draggedColumnId === header.column.id && "opacity-50"
                     )}
                     style={{ width: header.getSize() }}
@@ -678,7 +737,13 @@ export function DataGrid<T extends { id: number | string }>({
                     </div>
                     {/* Resize handle */}
                     <div
-                      onMouseDown={header.getResizeHandler()}
+                      onMouseDown={(e) => {
+                        e.stopPropagation();
+                        setIsResizing(true);
+                        document.body.style.cursor = 'col-resize';
+                        document.body.style.userSelect = 'none';
+                        header.getResizeHandler()(e);
+                      }}
                       onTouchStart={header.getResizeHandler()}
                       onClick={(e) => e.stopPropagation()}
                       className={cn(
@@ -708,7 +773,7 @@ export function DataGrid<T extends { id: number | string }>({
                           onFocus={() => setFocusedFilterIndex(filterIndex)}
                           placeholder="..."
                           className={cn(
-                            "w-full px-2 py-1 text-sm border rounded text-slate-900 placeholder-slate-400",
+                            "w-full px-1 py-0.5 text-xs border rounded text-slate-900 placeholder-slate-400",
                             "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500",
                             filterValue ? "bg-yellow-50 border-yellow-400" : "bg-white border-slate-300"
                           )} />
@@ -719,7 +784,7 @@ export function DataGrid<T extends { id: number | string }>({
                           </button>
                         )}
                       </div>
-                    ) : <div className="h-7" />}
+                    ) : <div className="h-5" />}
                   </th>
                 );
               })}
@@ -742,7 +807,7 @@ export function DataGrid<T extends { id: number | string }>({
                   onClick={() => { setSelectedRowId(row.original.id); onRowClick?.(row.original); }}
                   onDoubleClick={() => onRowDoubleClick?.(row.original)}>
                   {row.getVisibleCells().map((cell) => (
-                    <td key={cell.id} className="px-3 py-1 text-sm text-slate-700" style={{ width: cell.column.getSize() }}>
+                    <td key={cell.id} className="px-2 py-0.5 text-xs text-slate-700" style={{ width: cell.column.getSize() }}>
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </td>
                   ))}
@@ -760,7 +825,7 @@ export function DataGrid<T extends { id: number | string }>({
           </div>
         )}
       </div>
-      <div className="px-4 py-1 bg-slate-50 border-t text-xs text-slate-500 flex gap-4">
+      <div className="px-3 py-0.5 bg-slate-50 border-t text-xs text-slate-500 flex gap-4">
         <span><kbd className="px-1 bg-slate-200 rounded">Tab</kbd> ďalší filter</span>
         <span><kbd className="px-1 bg-slate-200 rounded">Enter</kbd> do tabuľky</span>
         <span><kbd className="px-1 bg-slate-200 rounded">↑↓</kbd> navigácia</span>

@@ -5,9 +5,9 @@ import { ArrowLeft, Check, Upload, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { DataGrid } from '@/components/ui/datagrid';
+import { DataGrid, numericFilter } from '@/components/ui/datagrid';
 import { getInvoice } from '@/api/invoices';
-import { STATUS_CONFIG, MATCH_METHOD_CONFIG } from '@/types/invoice';
+import { STATUS_CONFIG, MATCH_METHOD_CONFIG, VALIDATION_STATUS_CONFIG } from '@/types/invoice';
 import type { InvoiceItem } from '@/types/invoice';
 
 const columnHelper = createColumnHelper<InvoiceItem>();
@@ -26,78 +26,96 @@ const stringFilter = (row: any, columnId: string, filterValue: string) => {
 };
 
 const itemColumns = [
+  // === XML fields ===
   columnHelper.accessor('xml_line_number', {
     id: 'xml_line_number',
     header: '#',
-    size: 50,
+    size: 40,
     enableColumnFilter: false,
   }),
   columnHelper.accessor('xml_product_name', {
     id: 'xml_product_name',
     header: 'Názov',
-    size: 220,
+    size: 180,
     enableColumnFilter: true,
     filterFn: stringFilter,
+  }),
+  columnHelper.accessor('xml_seller_code', {
+    id: 'xml_seller_code',
+    header: 'Kód dod.',
+    size: 80,
+    enableColumnFilter: true,
+    filterFn: stringFilter,
+    cell: (info) => info.getValue() || '-',
   }),
   columnHelper.accessor('xml_ean', {
     id: 'xml_ean',
     header: 'EAN',
-    size: 130,
+    size: 110,
     enableColumnFilter: true,
     filterFn: stringFilter,
     cell: (info) => info.getValue() || '-',
   }),
   columnHelper.accessor('xml_quantity', {
     id: 'xml_quantity',
-    header: 'Množstvo',
-    size: 80,
+    header: 'Množ.',
+    size: 60,
     enableColumnFilter: true,
-    filterFn: stringFilter,
-    cell: (info) => (
-      <span className="text-right block">{info.getValue()}</span>
-    ),
+    filterFn: numericFilter,
+    cell: (info) => <span className="text-right block">{info.getValue()}</span>,
   }),
   columnHelper.accessor('xml_unit', {
     id: 'xml_unit',
     header: 'MJ',
-    size: 50,
+    size: 40,
     enableColumnFilter: true,
     filterFn: stringFilter,
   }),
   columnHelper.accessor('xml_unit_price', {
     id: 'xml_unit_price',
     header: 'Cena/MJ',
-    size: 100,
+    size: 80,
     enableColumnFilter: true,
-    filterFn: stringFilter,
-    cell: (info) => (
-      <span className="text-right block">{formatAmount(info.getValue())}</span>
-    ),
+    filterFn: numericFilter,
+    cell: (info) => <span className="text-right block">{formatAmount(info.getValue())}</span>,
   }),
   columnHelper.accessor('xml_total_price', {
     id: 'xml_total_price',
     header: 'Celkom',
-    size: 100,
+    size: 80,
     enableColumnFilter: true,
-    filterFn: stringFilter,
-    cell: (info) => (
-      <span className="text-right block font-medium">{formatAmount(info.getValue())}</span>
-    ),
+    filterFn: numericFilter,
+    cell: (info) => <span className="text-right block font-medium">{formatAmount(info.getValue())}</span>,
   }),
   columnHelper.accessor('xml_vat_rate', {
     id: 'xml_vat_rate',
-    header: 'DPH %',
-    size: 70,
+    header: 'DPH%',
+    size: 50,
     enableColumnFilter: true,
-    filterFn: stringFilter,
-    cell: (info) => (
-      <span className="text-right block">{info.getValue()}%</span>
-    ),
+    filterFn: numericFilter,
+    cell: (info) => <span className="text-right block">{info.getValue()}%</span>,
   }),
+  columnHelper.accessor('xml_unit_price_vat', {
+    id: 'xml_unit_price_vat',
+    header: 'Cena+DPH',
+    size: 80,
+    enableColumnFilter: true,
+    filterFn: numericFilter,
+    cell: (info) => <span className="text-right block">{info.getValue() ? formatAmount(info.getValue()!) : '-'}</span>,
+  }),
+  columnHelper.accessor('xml_total_price_vat', {
+    id: 'xml_total_price_vat',
+    header: 'Celk+DPH',
+    size: 80,
+    enableColumnFilter: true,
+    filterFn: numericFilter,
+    cell: (info) => <span className="text-right block">{info.getValue() ? formatAmount(info.getValue()!) : '-'}</span>,
+  }),
+  // === Matching ===
   columnHelper.accessor('matched', {
     id: 'matched',
     header: 'Zhoda',
-    size: 80,
+    size: 70,
     enableColumnFilter: false,
     cell: (info) => {
       const matched = info.getValue();
@@ -107,30 +125,97 @@ const itemColumns = [
       return (
         <div className="flex items-center gap-1">
           <span className="text-green-500">✓</span>
-          {method && (
-            <span className="text-xs text-slate-500">
-              {MATCH_METHOD_CONFIG[method]?.label}
-            </span>
-          )}
-          {confidence && (
-            <span className="text-xs text-slate-400">
-              {confidence}%
-            </span>
-          )}
+          {method && <span className="text-slate-500">{MATCH_METHOD_CONFIG[method]?.label}</span>}
+          {confidence && <span className="text-slate-400">{confidence}%</span>}
         </div>
       );
     },
   }),
+  columnHelper.accessor('match_confidence', {
+    id: 'match_confidence',
+    header: 'Konf.',
+    size: 50,
+    enableColumnFilter: true,
+    filterFn: numericFilter,
+    cell: (info) => info.getValue() ? `${info.getValue()}%` : '-',
+  }),
+  // === NEX fields ===
   columnHelper.accessor('nex_product_name', {
     id: 'nex_product_name',
     header: 'NEX Produkt',
-    size: 180,
+    size: 150,
+    enableColumnFilter: true,
+    filterFn: stringFilter,
+    cell: (info) => info.getValue() || '-',
+  }),
+  columnHelper.accessor('nex_product_id', {
+    id: 'nex_product_id',
+    header: 'NEX ID',
+    size: 60,
+    enableColumnFilter: true,
+    filterFn: numericFilter,
+    cell: (info) => info.getValue() || '-',
+  }),
+  columnHelper.accessor('nex_ean', {
+    id: 'nex_ean',
+    header: 'NEX EAN',
+    size: 110,
+    enableColumnFilter: true,
+    filterFn: stringFilter,
+    cell: (info) => info.getValue() || '-',
+  }),
+  columnHelper.accessor('nex_stock_code', {
+    id: 'nex_stock_code',
+    header: 'Skl.kód',
+    size: 70,
+    enableColumnFilter: true,
+    filterFn: stringFilter,
+    cell: (info) => info.getValue() || '-',
+  }),
+  columnHelper.accessor('nex_purchase_price', {
+    id: 'nex_purchase_price',
+    header: 'Nák.cena',
+    size: 80,
+    enableColumnFilter: true,
+    filterFn: numericFilter,
+    cell: (info) => <span className="text-right block">{info.getValue() ? formatAmount(info.getValue()!) : '-'}</span>,
+  }),
+  columnHelper.accessor('nex_sales_price', {
+    id: 'nex_sales_price',
+    header: 'Pred.cena',
+    size: 80,
+    enableColumnFilter: true,
+    filterFn: numericFilter,
+    cell: (info) => <span className="text-right block">{info.getValue() ? formatAmount(info.getValue()!) : '-'}</span>,
+  }),
+  columnHelper.accessor('nex_stock_id', {
+    id: 'nex_stock_id',
+    header: 'Sklad',
+    size: 50,
+    enableColumnFilter: true,
+    filterFn: numericFilter,
+    cell: (info) => info.getValue() || '-',
+  }),
+  columnHelper.accessor('nex_facility_id', {
+    id: 'nex_facility_id',
+    header: 'Prev.',
+    size: 50,
+    enableColumnFilter: true,
+    filterFn: numericFilter,
+    cell: (info) => info.getValue() || '-',
+  }),
+  // === Validation ===
+  columnHelper.accessor('validation_status', {
+    id: 'validation_status',
+    header: 'Valid.',
+    size: 60,
     enableColumnFilter: true,
     filterFn: stringFilter,
     cell: (info) => {
-      const value = info.getValue();
-      if (!value) return <span className="text-slate-400">-</span>;
-      return <span>{value}</span>;
+      const status = info.getValue();
+      if (!status) return '-';
+      const config = VALIDATION_STATUS_CONFIG[status];
+      return <span className={config?.color}>{config?.label || status}</span>;
     },
   }),
 ];
@@ -177,125 +262,89 @@ export function InvoiceDetail() {
   };
 
   return (
-    <div className="space-y-4 h-full flex flex-col">
+    <div className="h-full flex flex-col overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
+      <div className="flex items-center justify-between py-2 flex-shrink-0">
+        <div className="flex items-center gap-3">
           <Button variant="ghost" size="icon" onClick={() => navigate('/invoices')}>
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div>
-            <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-3">
-              <FileText className="h-6 w-6 text-blue-600" />
+            <h1 className="text-xl font-bold text-slate-900 flex items-center gap-2">
+              <FileText className="h-5 w-5 text-blue-600" />
               {invoice.xml_invoice_number}
             </h1>
-            <p className="text-slate-500">{invoice.xml_supplier_name}</p>
+            <p className="text-sm text-slate-500">{invoice.xml_supplier_name}</p>
           </div>
         </div>
-
         <div className="flex items-center gap-2">
           {invoice.status === 'matched' && (
-            <Button onClick={handleApprove} className="bg-green-600 hover:bg-green-700">
-              <Check className="h-4 w-4 mr-2" />
-              Schváliť
+            <Button onClick={handleApprove} size="sm" className="bg-green-600 hover:bg-green-700">
+              <Check className="h-4 w-4 mr-1" /> Schváliť
             </Button>
           )}
           {invoice.status === 'approved' && (
-            <Button onClick={handleImport} className="bg-blue-600 hover:bg-blue-700">
-              <Upload className="h-4 w-4 mr-2" />
-              Import do NEX
+            <Button onClick={handleImport} size="sm" className="bg-blue-600 hover:bg-blue-700">
+              <Upload className="h-4 w-4 mr-1" /> Import
             </Button>
           )}
         </div>
       </div>
 
-      {/* Invoice Info Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-slate-600">Dodávateľ</CardTitle>
+      {/* Invoice Info Cards - kompaktnejšie */}
+      <div className="grid grid-cols-4 gap-2 flex-shrink-0 mb-2">
+        <Card className="py-2">
+          <CardHeader className="pb-1 pt-0 px-3">
+            <CardTitle className="text-xs font-medium text-slate-600">Dodávateľ</CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="font-semibold">{invoice.xml_supplier_name}</div>
-            <div className="text-sm text-slate-500">IČO: {invoice.xml_supplier_ico}</div>
-            <div className="text-sm text-slate-500">DIČ: {invoice.xml_supplier_dic || '-'}</div>
-            <div className="text-sm text-slate-500">IČ DPH: {invoice.xml_supplier_ic_dph || '-'}</div>
+          <CardContent className="px-3 py-0 text-xs">
+            <div className="font-semibold truncate">{invoice.xml_supplier_name}</div>
+            <div className="text-slate-500">IČO: {invoice.xml_supplier_ico}</div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-slate-600">Dátumy</CardTitle>
+        <Card className="py-2">
+          <CardHeader className="pb-1 pt-0 px-3">
+            <CardTitle className="text-xs font-medium text-slate-600">Dátumy</CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="text-sm">
-              <span className="text-slate-500">Vystavená:</span>{' '}
-              <span className="font-medium">{new Date(invoice.xml_issue_date).toLocaleDateString('sk-SK')}</span>
-            </div>
-            <div className="text-sm">
-              <span className="text-slate-500">DUZP:</span>{' '}
-              <span className="font-medium">{invoice.xml_tax_point_date ? new Date(invoice.xml_tax_point_date).toLocaleDateString('sk-SK') : '-'}</span>
-            </div>
-            <div className="text-sm">
-              <span className="text-slate-500">Splatnosť:</span>{' '}
-              <span className="font-medium">{invoice.xml_due_date ? new Date(invoice.xml_due_date).toLocaleDateString('sk-SK') : '-'}</span>
-            </div>
+          <CardContent className="px-3 py-0 text-xs">
+            <div><span className="text-slate-500">Vyst:</span> {new Date(invoice.xml_issue_date).toLocaleDateString('sk-SK')}</div>
+            <div><span className="text-slate-500">Splat:</span> {invoice.xml_due_date ? new Date(invoice.xml_due_date).toLocaleDateString('sk-SK') : '-'}</div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-slate-600">Sumy</CardTitle>
+        <Card className="py-2">
+          <CardHeader className="pb-1 pt-0 px-3">
+            <CardTitle className="text-xs font-medium text-slate-600">Sumy</CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="text-sm">
-              <span className="text-slate-500">Základ:</span>{' '}
-              <span className="font-medium">{formatAmount(invoice.xml_total_without_vat)}</span>
-            </div>
-            <div className="text-sm">
-              <span className="text-slate-500">DPH:</span>{' '}
-              <span className="font-medium">{formatAmount(invoice.xml_total_vat)}</span>
-            </div>
-            <div className="text-lg font-bold text-blue-600">
-              {formatAmount(invoice.xml_total_with_vat)}
-            </div>
+          <CardContent className="px-3 py-0 text-xs">
+            <div><span className="text-slate-500">Základ:</span> {formatAmount(invoice.xml_total_without_vat)}</div>
+            <div className="text-base font-bold text-blue-600">{formatAmount(invoice.xml_total_with_vat)}</div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-slate-600">Stav</CardTitle>
+        <Card className="py-2">
+          <CardHeader className="pb-1 pt-0 px-3">
+            <CardTitle className="text-xs font-medium text-slate-600">Stav</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-slate-500">Status:</span>
-              <Badge className={`${statusConfig.bgClass} ${statusConfig.color}`}>
-                {statusConfig.label}
-              </Badge>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-slate-500">Zhoda:</span>
-              <span className="font-medium">{invoice.match_percent.toFixed(0)}%</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-slate-500">Položky:</span>
-              <span className="font-medium">{invoice.items_matched}/{invoice.item_count}</span>
-            </div>
+          <CardContent className="px-3 py-0 text-xs space-y-1">
+            <Badge className={`${statusConfig.bgClass} ${statusConfig.color} text-xs`}>{statusConfig.label}</Badge>
+            <div><span className="text-slate-500">Zhoda:</span> <span className="font-medium">{invoice.match_percent.toFixed(0)}%</span> ({invoice.items_matched}/{invoice.item_count})</div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Items DataGrid */}
-      <div className="flex-1 flex flex-col min-h-0">
-        <h2 className="text-lg font-semibold text-slate-900 mb-2">
-          Položky faktúry ({items.length})
+      {/* Items DataGrid - flex-1 pre vyplnenie zvyšku */}
+      <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
+        <h2 className="text-sm font-semibold text-slate-900 mb-1 flex-shrink-0">
+          Položky ({items.length})
         </h2>
         <DataGrid
           data={items}
           columns={itemColumns}
-          rowHeight={32}
+          rowHeight={24}
           storageKey="invoice-items-columns"
-          className="flex-1"
+          className="flex-1 min-h-0"
         />
       </div>
     </div>

@@ -1,7 +1,7 @@
-# INIT PROMPT - Supplier Invoice Staging Web UI
+# INIT PROMPT - Supplier Invoice Staging Web UI - Editable Grid
 
 **Projekt:** nex-automat / supplier-invoice-staging-web
-**Typ:** React Web UI pre existujúci FastAPI backend
+**Typ:** React Web UI - editovateľné bunky v gride
 **Developer:** Zoltán (40 rokov skúseností)
 **Jazyk:** Slovenčina
 
@@ -11,7 +11,10 @@
 
 ## 🎯 CURRENT FOCUS
 
-Opraviť drag & drop v dialógu nastavení stĺpcov - ťahanie má fungovať IBA z GripVertical ikony (⋮⋮)
+Implementovať editovateľné bunky v DataGride pre:
+- Obchodná marža (%) - zapísať a prepočítať predajnú cenu
+- Predajná cena - zapísať a prepočítať maržu
+- Celková hodnota faktúry - automatický prepočet
 
 ---
 
@@ -20,37 +23,31 @@ Opraviť drag & drop v dialógu nastavení stĺpcov - ťahanie má fungovať IBA
 | Komponenta | Status |
 |------------|--------|
 | Vite + React + TypeScript | ✅ |
-| TypeScript typy (xml_* prefixy) | ✅ |
-| Mock data (stabilné) | ✅ |
 | DataGrid s column filters | ✅ |
+| Numerický filter (rozsahy) | ✅ |
 | Keyboard navigation | ✅ |
 | Column config dialog | ✅ |
-| Drag & drop v gride (hlavičky) | ✅ |
-| Resize stĺpcov (drag) | ✅ |
-| Zoznam faktúr | ✅ |
-| Detail faktúry + položky | ✅ |
-
----
-
-## 🐛 Bug na opravu
-
-Drag & drop v dialógu - konflikt: celý riadok je draggable, ale má byť len GripVertical ikona
+| Drag & drop (grid + dialog) | ✅ |
+| Resize stĺpcov | ✅ |
+| Všetky DB stĺpce | ✅ |
+| Kompaktný layout | ✅ |
 
 ---
 
 ## 📋 Next Steps
 
-1. **Fix dialog drag** - draggable len na GripVertical
-2. Test s reálnym backendom
-3. Schvaľovací workflow
-4. Docker deployment
+1. **Editovateľné bunky** - marža, predajná cena
+2. **Prepočty** - marža ↔ predajná cena
+3. **Celková hodnota** - suma + prepočet
+4. Test s reálnym backendom
+5. Schvaľovací workflow
 
 ---
 
 ## 🔍 RAG Query
 
 ```
-https://rag-api.icc.sk/search?query=supplier_invoice_staging_web+datagrid&limit=5
+https://rag-api.icc.sk/search?query=supplier_invoice_staging_web+datagrid+editable&limit=5
 ```
 
 ---
