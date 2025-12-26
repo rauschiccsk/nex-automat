@@ -14,7 +14,7 @@ from pathlib import Path
 import shutil
 import base64
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Header
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from fastapi.responses import PlainTextResponse
