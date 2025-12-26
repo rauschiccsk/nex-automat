@@ -115,15 +115,22 @@ class Pg8000Cursor:
 
     def execute(self, query: str, params: tuple = None):
         """Execute a query."""
+        # Handle empty list as None
+        if params is not None and len(params) == 0:
+            params = None
+
         if params:
-            # pg8000.native uses :name or positional, convert %s to positional
-            # Replace %s with $1, $2, etc.
+            # pg8000.native uses named parameters (:name style)
+            # Convert %s to :p1, :p2, etc. and pass as kwargs
             converted_query = query
+            param_dict = {}
             param_index = 1
             while "%s" in converted_query:
-                converted_query = converted_query.replace("%s", f"${param_index}", 1)
+                param_name = f"p{param_index}"
+                converted_query = converted_query.replace("%s", f":{param_name}", 1)
+                param_dict[param_name] = params[param_index - 1]
                 param_index += 1
-            result = self._conn.run(converted_query, list(params))
+            result = self._conn.run(converted_query, **param_dict)
         else:
             result = self._conn.run(query)
 

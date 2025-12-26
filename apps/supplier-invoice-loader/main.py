@@ -25,6 +25,7 @@ from src.database import database
 from nex_staging import StagingClient
 from src.extractors.ls_extractor import extract_invoice_data
 from src.business.isdoc_service import generate_isdoc_xml
+from src.api.staging_routes import router as staging_router
 
 # Start time for uptime calculation
 START_TIME = time.time()
@@ -36,6 +37,9 @@ app = FastAPI(
     version="2.0.0"
 )
 
+
+# Register staging API router
+app.include_router(staging_router)
 # Global ProductMatcher instance
 product_matcher: Optional[ProductMatcher] = None
 

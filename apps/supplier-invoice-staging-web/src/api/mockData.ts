@@ -196,4 +196,4 @@ export const mockStats: InvoiceStats = {
   avg_match_percent: Math.round(mockInvoices.reduce((sum, inv) => sum + inv.match_percent, 0) / mockInvoices.length * 100) / 100,
 };
 
-export const USE_MOCK_DATA = import.meta.env.DEV;
+export const USE_MOCK_DATA = false; // Disabled for real API testing

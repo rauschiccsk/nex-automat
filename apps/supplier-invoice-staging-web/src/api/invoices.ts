@@ -10,13 +10,10 @@ export async function getInvoices(filters?: InvoiceFilters): Promise<InvoiceList
     if (filters?.offset) params.append('offset', filters.offset.toString());
     if (filters?.status) params.append('status', filters.status);
 
-    const response = await apiClient.get<InvoiceListResponse>('/invoices', { params });
+    const response = await apiClient.get<InvoiceListResponse>('/staging/invoices', { params });
 
-    // If backend returns empty or no invoices, use mock data in dev
-    if (USE_MOCK_DATA && (!response.data.invoices || response.data.invoices.length === 0)) {
-      console.log('[API] Using mock data - no real invoices found');
-      return { count: mockInvoices.length, invoices: mockInvoices };
-    }
+    // Return real data even if empty
+    // Mock data fallback disabled for real API testing
 
     return response.data;
   } catch (error) {
@@ -32,7 +29,7 @@ export async function getInvoices(filters?: InvoiceFilters): Promise<InvoiceList
 // Get invoice by ID
 export async function getInvoice(id: number): Promise<InvoiceHead | null> {
   try {
-    const response = await apiClient.get<InvoiceHead>(`/invoices/${id}`);
+    const response = await apiClient.get<InvoiceHead>(`/staging/invoices/${id}`);
     return response.data;
   } catch (error) {
     // Fallback to mock data in development
@@ -45,23 +42,17 @@ export async function getInvoice(id: number): Promise<InvoiceHead | null> {
 
 // Get invoice statistics
 export async function getStats(): Promise<InvoiceStats> {
-  try {
-    const response = await apiClient.get<InvoiceStats>('/stats');
-
-    // If stats show 0 invoices, use mock stats in dev
-    if (USE_MOCK_DATA && response.data.total === 0) {
-      console.log('[API] Using mock stats');
-      return mockStats;
-    }
-
-    return response.data;
-  } catch (error) {
-    if (USE_MOCK_DATA) {
-      console.log('[API] Using mock stats - backend error');
-      return mockStats;
-    }
-    throw error;
-  }
+  // TODO: Add /staging/stats endpoint to backend
+  // For now return empty stats
+  return {
+    total: 0,
+    pending: 0,
+    approved: 0,
+    imported: 0,
+    rejected: 0,
+    by_supplier: {},
+    by_status: {},
+  };
 }
 
 // Get service status
@@ -79,7 +70,7 @@ export async function getHealth(): Promise<{ status: string; timestamp: string }
 // Approve invoice
 export async function approveInvoice(id: number): Promise<InvoiceHead> {
   try {
-    const response = await apiClient.put<InvoiceHead>(`/invoices/${id}/approve`);
+    const response = await apiClient.put<InvoiceHead>(`/staging/invoices/${id}/approve`);
     return response.data;
   } catch (error) {
     if (USE_MOCK_DATA) {
@@ -97,7 +88,7 @@ export async function approveInvoice(id: number): Promise<InvoiceHead> {
 // Import invoice to NEX Genesis
 export async function importInvoice(id: number): Promise<InvoiceHead> {
   try {
-    const response = await apiClient.put<InvoiceHead>(`/invoices/${id}/import`);
+    const response = await apiClient.put<InvoiceHead>(`/staging/invoices/${id}/import`);
     return response.data;
   } catch (error) {
     if (USE_MOCK_DATA) {

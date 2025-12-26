@@ -85,7 +85,7 @@ class InvoiceRepository:
             params.append(limit)
 
         with self.db.get_cursor() as cur:
-            cur.execute(query, params if params else None)
+            cur.execute(query, params if params and len(params) > 0 else None)
             rows = cur.fetchall()
             return [InvoiceHead(**dict(row)) for row in rows]
 
