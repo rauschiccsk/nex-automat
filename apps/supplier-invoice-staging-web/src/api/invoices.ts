@@ -1,12 +1,14 @@
 import apiClient from './client';
 import { mockInvoices, mockStats, USE_MOCK_DATA } from './mockData';
-import type { Invoice, InvoiceListResponse, InvoiceStats, InvoiceFilters } from '@/types/invoice';
+import type { InvoiceHead, InvoiceListResponse, InvoiceStats, InvoiceFilters } from '@/types/invoice';
 
 // Get all invoices
 export async function getInvoices(filters?: InvoiceFilters): Promise<InvoiceListResponse> {
   try {
     const params = new URLSearchParams();
     if (filters?.limit) params.append('limit', filters.limit.toString());
+    if (filters?.offset) params.append('offset', filters.offset.toString());
+    if (filters?.status) params.append('status', filters.status);
 
     const response = await apiClient.get<InvoiceListResponse>('/invoices', { params });
 
@@ -28,18 +30,12 @@ export async function getInvoices(filters?: InvoiceFilters): Promise<InvoiceList
 }
 
 // Get invoice by ID
-export async function getInvoice(id: number): Promise<Invoice | null> {
+export async function getInvoice(id: number): Promise<InvoiceHead | null> {
   try {
-    // TODO: Backend endpoint not implemented yet
-    // const response = await apiClient.get<Invoice>(`/invoices/${id}`);
-    // return response.data;
-
-    // For now, find in mock data
-    if (USE_MOCK_DATA) {
-      return mockInvoices.find(inv => inv.id === id) || null;
-    }
-    return null;
+    const response = await apiClient.get<InvoiceHead>(`/invoices/${id}`);
+    return response.data;
   } catch (error) {
+    // Fallback to mock data in development
     if (USE_MOCK_DATA) {
       return mockInvoices.find(inv => inv.id === id) || null;
     }
@@ -53,7 +49,7 @@ export async function getStats(): Promise<InvoiceStats> {
     const response = await apiClient.get<InvoiceStats>('/stats');
 
     // If stats show 0 invoices, use mock stats in dev
-    if (USE_MOCK_DATA && response.data.total_invoices === 0) {
+    if (USE_MOCK_DATA && response.data.total === 0) {
       console.log('[API] Using mock stats');
       return mockStats;
     }
@@ -69,7 +65,7 @@ export async function getStats(): Promise<InvoiceStats> {
 }
 
 // Get service status
-export async function getStatus(): Promise<any> {
+export async function getStatus(): Promise<{ status: string; version: string }> {
   const response = await apiClient.get('/status');
   return response.data;
 }
@@ -80,36 +76,39 @@ export async function getHealth(): Promise<{ status: string; timestamp: string }
   return response.data;
 }
 
-// Approve invoice (placeholder for future backend endpoint)
-export async function approveInvoice(id: number, note?: string): Promise<Invoice> {
-  // TODO: Implement when backend supports it
-  // const response = await apiClient.put<Invoice>(`/invoices/${id}/approve`, { note });
-  // return response.data;
-
-  if (USE_MOCK_DATA) {
-    const invoice = mockInvoices.find(inv => inv.id === id);
-    if (invoice) {
-      invoice.status = 'approved';
-      invoice.updated_at = new Date().toISOString();
+// Approve invoice
+export async function approveInvoice(id: number): Promise<InvoiceHead> {
+  try {
+    const response = await apiClient.put<InvoiceHead>(`/invoices/${id}/approve`);
+    return response.data;
+  } catch (error) {
+    if (USE_MOCK_DATA) {
+      const invoice = mockInvoices.find(inv => inv.id === id);
+      if (invoice) {
+        invoice.status = 'approved';
+        invoice.updated_at = new Date().toISOString();
+      }
+      return invoice!;
     }
-    return invoice!;
+    throw error;
   }
-  throw new Error('Not implemented');
 }
 
-// Reject invoice (placeholder for future backend endpoint)
-export async function rejectInvoice(id: number, reason: string): Promise<Invoice> {
-  // TODO: Implement when backend supports it
-  // const response = await apiClient.put<Invoice>(`/invoices/${id}/reject`, { reason });
-  // return response.data;
-
-  if (USE_MOCK_DATA) {
-    const invoice = mockInvoices.find(inv => inv.id === id);
-    if (invoice) {
-      invoice.status = 'rejected';
-      invoice.updated_at = new Date().toISOString();
+// Import invoice to NEX Genesis
+export async function importInvoice(id: number): Promise<InvoiceHead> {
+  try {
+    const response = await apiClient.put<InvoiceHead>(`/invoices/${id}/import`);
+    return response.data;
+  } catch (error) {
+    if (USE_MOCK_DATA) {
+      const invoice = mockInvoices.find(inv => inv.id === id);
+      if (invoice) {
+        invoice.status = 'imported';
+        invoice.imported_at = new Date().toISOString();
+        invoice.updated_at = new Date().toISOString();
+      }
+      return invoice!;
     }
-    return invoice!;
+    throw error;
   }
-  throw new Error('Not implemented');
 }

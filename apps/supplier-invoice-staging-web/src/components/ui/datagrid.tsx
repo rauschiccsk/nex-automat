@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useMemo } from 'react';
+import { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import {
   useReactTable,
   getCoreRowModel,
@@ -9,12 +9,13 @@ import {
   type SortingState,
   type ColumnFiltersState,
   type VisibilityState,
+  type ColumnSizingState,
+  type ColumnOrderState,
 } from '@tanstack/react-table';
 import { useVirtualizer } from '@tanstack/react-virtual';
-import { ArrowUpDown, ArrowUp, ArrowDown, X, Settings2, Eye, EyeOff, ChevronUp, ChevronDown, RotateCcw } from 'lucide-react';
+import { ArrowUpDown, ArrowUp, ArrowDown, X, Settings2, Eye, EyeOff, RotateCcw, GripVertical } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import {
   Dialog,
   DialogContent,
@@ -30,6 +31,82 @@ interface ColumnConfigItem {
   customHeader?: string;
   visible: boolean;
   order: number;
+  width?: number;
+}
+
+// Separate component for editable column header
+function ColumnHeaderInput({ 
+  value, 
+  placeholder, 
+  onChange 
+}: { 
+  value: string; 
+  placeholder: string; 
+  onChange: (value: string) => void;
+}) {
+  const [localValue, setLocalValue] = useState(value);
+
+  useEffect(() => {
+    setLocalValue(value);
+  }, [value]);
+
+  return (
+    <input
+      type="text"
+      value={localValue}
+      onChange={(e) => setLocalValue(e.target.value)}
+      onBlur={() => onChange(localValue)}
+      placeholder={placeholder}
+      className="w-full px-2 py-1 h-8 text-sm border rounded border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+    />
+  );
+}
+
+// Component for column width input
+function ColumnWidthInput({
+  value,
+  onChange,
+}: {
+  value: number;
+  onChange: (value: number) => void;
+}) {
+  const [localValue, setLocalValue] = useState(String(value));
+
+  useEffect(() => {
+    setLocalValue(String(value));
+  }, [value]);
+
+  const handleBlur = () => {
+    const num = parseInt(localValue, 10);
+    if (isNaN(num) || num < 30) {
+      setLocalValue(String(value));
+    } else {
+      onChange(Math.min(Math.max(num, 30), 800));
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleBlur();
+      (e.target as HTMLInputElement).blur();
+    }
+  };
+
+  return (
+    <div className="flex items-center gap-1">
+      <input
+        type="text"
+        inputMode="numeric"
+        pattern="[0-9]*"
+        value={localValue}
+        onChange={(e) => setLocalValue(e.target.value.replace(/[^0-9]/g, ''))}
+        onBlur={handleBlur}
+        onKeyDown={handleKeyDown}
+        className="w-14 px-2 py-1 h-7 text-xs text-center border rounded border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+      />
+      <span className="text-xs text-slate-400">px</span>
+    </div>
+  );
 }
 
 interface DataGridProps<T> {
@@ -57,14 +134,23 @@ export function DataGrid<T extends { id: number | string }>({
   const [focusedFilterIndex, setFocusedFilterIndex] = useState<number>(0);
   const [configOpen, setConfigOpen] = useState(false);
 
+  // Drag state for column headers in grid
+  const [draggedColumnId, setDraggedColumnId] = useState<string | null>(null);
+  const [dragOverColumnId, setDragOverColumnId] = useState<string | null>(null);
+
+  // Drag state for dialog
+  const [dialogDraggedId, setDialogDraggedId] = useState<string | null>(null);
+  const [dialogDragOverId, setDialogDragOverId] = useState<string | null>(null);
+
   const tableContainerRef = useRef<HTMLDivElement>(null);
   const filterInputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
-  // Extract column metadata
+  // Extract column metadata with default widths
   const columnsMeta = useMemo(() => 
     columns.map(col => ({
       id: (col as any).id || (col as any).accessorKey || '',
       header: typeof (col as any).header === 'string' ? (col as any).header : '',
+      defaultWidth: (col as any).size || 150,
     })).filter(c => c.id),
     [columns]
   );
@@ -74,7 +160,23 @@ export function DataGrid<T extends { id: number | string }>({
     if (storageKey) {
       try {
         const saved = localStorage.getItem(storageKey);
-        if (saved) return JSON.parse(saved);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          return columnsMeta.map((col, index) => {
+            const existing = parsed.find((p: ColumnConfigItem) => p.id === col.id);
+            if (existing) {
+              return { ...existing, originalHeader: col.header };
+            }
+            return {
+              id: col.id,
+              originalHeader: col.header,
+              customHeader: undefined,
+              visible: true,
+              order: parsed.length + index,
+              width: undefined,
+            };
+          }).sort((a: ColumnConfigItem, b: ColumnConfigItem) => a.order - b.order);
+        }
       } catch (e) {}
     }
     return columnsMeta.map((col, index) => ({
@@ -83,10 +185,11 @@ export function DataGrid<T extends { id: number | string }>({
       customHeader: undefined,
       visible: true,
       order: index,
+      width: undefined,
     }));
   });
 
-  // Sync config with columns
+  // Sync config with columns when columns change
   useEffect(() => {
     setColumnConfig(prev => {
       const newConfig = columnsMeta.map((col, index) => {
@@ -98,6 +201,7 @@ export function DataGrid<T extends { id: number | string }>({
           customHeader: undefined,
           visible: true,
           order: prev.length + index,
+          width: undefined,
         };
       });
       return newConfig.sort((a, b) => a.order - b.order);
@@ -116,6 +220,16 @@ export function DataGrid<T extends { id: number | string }>({
     [columnConfig]
   );
 
+  // Column sizing from config
+  const columnSizing = useMemo(() => {
+    const sizing: ColumnSizingState = {};
+    columnConfig.forEach(col => {
+      const defaultWidth = columnsMeta.find(c => c.id === col.id)?.defaultWidth || 150;
+      sizing[col.id] = col.width ?? defaultWidth;
+    });
+    return sizing;
+  }, [columnConfig, columnsMeta]);
+
   const columnsWithCustomHeaders = useMemo(() => {
     return columns.map(col => {
       const colId = (col as any).id || (col as any).accessorKey;
@@ -125,15 +239,38 @@ export function DataGrid<T extends { id: number | string }>({
     });
   }, [columns, columnConfig]);
 
+  // Update column order from drag & drop
+  const handleColumnOrderChange = useCallback((newOrder: ColumnOrderState) => {
+    setColumnConfig(prev => {
+      return prev.map(col => ({
+        ...col,
+        order: newOrder.indexOf(col.id),
+      })).sort((a, b) => a.order - b.order);
+    });
+  }, []);
+
+  // Handle column sizing change from resize
+  const handleColumnSizingChange = useCallback((updater: any) => {
+    const newSizing = typeof updater === 'function' ? updater(columnSizing) : updater;
+    setColumnConfig(prev => prev.map(col => ({
+      ...col,
+      width: newSizing[col.id] ?? col.width,
+    })));
+  }, [columnSizing]);
+
   const table = useReactTable({
     data,
     columns: columnsWithCustomHeaders,
-    state: { sorting, columnFilters, columnVisibility, columnOrder },
+    state: { sorting, columnFilters, columnVisibility, columnOrder, columnSizing },
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
+    onColumnOrderChange: handleColumnOrderChange,
+    onColumnSizingChange: handleColumnSizingChange,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getSortedRowModel: getSortedRowModel(),
+    columnResizeMode: 'onChange',
+    enableColumnResizing: true,
   });
 
   const { rows } = table.getRowModel();
@@ -154,63 +291,158 @@ export function DataGrid<T extends { id: number | string }>({
     filterInputRefs.current[0]?.focus();
   };
 
+  // Column header drag & drop handlers (for grid)
+  const handleHeaderDragStart = (e: React.DragEvent, columnId: string) => {
+    setDraggedColumnId(columnId);
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', columnId);
+  };
+
+  const handleHeaderDragEnd = () => {
+    setDraggedColumnId(null);
+    setDragOverColumnId(null);
+  };
+
+  const handleHeaderDragOver = (e: React.DragEvent, columnId: string) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    if (columnId !== draggedColumnId) {
+      setDragOverColumnId(columnId);
+    }
+  };
+
+  const handleHeaderDragLeave = () => {
+    setDragOverColumnId(null);
+  };
+
+  const handleHeaderDrop = (e: React.DragEvent, targetColumnId: string) => {
+    e.preventDefault();
+
+    if (!draggedColumnId || draggedColumnId === targetColumnId) {
+      setDraggedColumnId(null);
+      setDragOverColumnId(null);
+      return;
+    }
+
+    const currentOrder = [...columnOrder];
+    const draggedIndex = currentOrder.indexOf(draggedColumnId);
+    const targetIndex = currentOrder.indexOf(targetColumnId);
+
+    if (draggedIndex < 0 || targetIndex < 0) return;
+
+    currentOrder.splice(draggedIndex, 1);
+    currentOrder.splice(targetIndex, 0, draggedColumnId);
+
+    handleColumnOrderChange(currentOrder);
+
+    setDraggedColumnId(null);
+    setDragOverColumnId(null);
+  };
+
+  // Dialog drag & drop handlers
+  const handleDialogDragStart = (e: React.DragEvent, colId: string) => {
+    setDialogDraggedId(colId);
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', colId);
+  };
+
+  const handleDialogDragEnd = () => {
+    setDialogDraggedId(null);
+    setDialogDragOverId(null);
+  };
+
+  const handleDialogDragOver = (e: React.DragEvent, colId: string) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    if (colId !== dialogDraggedId) {
+      setDialogDragOverId(colId);
+    }
+  };
+
+  const handleDialogDragLeave = () => {
+    setDialogDragOverId(null);
+  };
+
+  const handleDialogDrop = (e: React.DragEvent, targetId: string) => {
+    e.preventDefault();
+
+    if (!dialogDraggedId || dialogDraggedId === targetId) {
+      setDialogDraggedId(null);
+      setDialogDragOverId(null);
+      return;
+    }
+
+    setColumnConfig(prev => {
+      const sorted = [...prev].sort((a, b) => a.order - b.order);
+      const draggedIndex = sorted.findIndex(c => c.id === dialogDraggedId);
+      const targetIndex = sorted.findIndex(c => c.id === targetId);
+
+      if (draggedIndex < 0 || targetIndex < 0) return prev;
+
+      const newSorted = [...sorted];
+      const [draggedItem] = newSorted.splice(draggedIndex, 1);
+      newSorted.splice(targetIndex, 0, draggedItem);
+
+      return newSorted.map((col, idx) => ({ ...col, order: idx }));
+    });
+
+    setDialogDraggedId(null);
+    setDialogDragOverId(null);
+  };
+
   // Column config handlers
-  const handleVisibilityToggle = (id: string) => {
+  const handleVisibilityToggle = useCallback((id: string) => {
     setColumnConfig(prev => prev.map(col => 
       col.id === id ? { ...col, visible: !col.visible } : col
     ));
-  };
+  }, []);
 
-  const handleHeaderChange = (id: string, customHeader: string) => {
+  const handleHeaderChange = useCallback((id: string, customHeader: string) => {
     setColumnConfig(prev => prev.map(col =>
       col.id === id ? { ...col, customHeader: customHeader || undefined } : col
     ));
-  };
+  }, []);
 
-  const handleMoveUp = (index: number) => {
-    if (index === 0) return;
-    setColumnConfig(prev => {
-      const sorted = [...prev].sort((a, b) => a.order - b.order);
-      const temp = sorted[index].order;
-      sorted[index].order = sorted[index - 1].order;
-      sorted[index - 1].order = temp;
-      return sorted.sort((a, b) => a.order - b.order);
-    });
-  };
+  const handleWidthChange = useCallback((id: string, width: number) => {
+    setColumnConfig(prev => prev.map(col =>
+      col.id === id ? { ...col, width } : col
+    ));
+  }, []);
 
-  const handleMoveDown = (index: number) => {
-    const sorted = [...columnConfig].sort((a, b) => a.order - b.order);
-    if (index === sorted.length - 1) return;
-    setColumnConfig(prev => {
-      const s = [...prev].sort((a, b) => a.order - b.order);
-      const temp = s[index].order;
-      s[index].order = s[index + 1].order;
-      s[index + 1].order = temp;
-      return s.sort((a, b) => a.order - b.order);
-    });
-  };
-
-  const handleResetConfig = () => {
+  const handleResetConfig = useCallback(() => {
     const defaultConfig = columnsMeta.map((col, index) => ({
       id: col.id,
       originalHeader: col.header,
       customHeader: undefined,
       visible: true,
       order: index,
+      width: undefined,
     }));
     setColumnConfig(defaultConfig);
-  };
+    if (storageKey) {
+      localStorage.removeItem(storageKey);
+    }
+  }, [columnsMeta, storageKey]);
 
-  const handleSaveConfig = () => {
+  const handleSaveConfig = useCallback(() => {
     if (storageKey) {
       localStorage.setItem(storageKey, JSON.stringify(columnConfig));
     }
     setConfigOpen(false);
-  };
+  }, [storageKey, columnConfig]);
+
+  // Auto-save on changes
+  useEffect(() => {
+    if (storageKey && !configOpen) {
+      localStorage.setItem(storageKey, JSON.stringify(columnConfig));
+    }
+  }, [columnConfig, storageKey, configOpen]);
 
   // Keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      if (configOpen) return;
+
       const isInFilterInput = filterInputRefs.current.some(ref => ref === document.activeElement);
 
       if (e.key === 'Tab' && isInFilterInput) {
@@ -276,7 +508,7 @@ export function DataGrid<T extends { id: number | string }>({
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [rows, selectedRowId, focusedFilterIndex, table, onRowDoubleClick, rowVirtualizer]);
+  }, [rows, selectedRowId, focusedFilterIndex, table, onRowDoubleClick, rowVirtualizer, configOpen]);
 
   useEffect(() => {
     if (rows.length > 0 && (selectedRowId == null || !rows.find(r => r.original.id === selectedRowId))) {
@@ -288,7 +520,17 @@ export function DataGrid<T extends { id: number | string }>({
     filterInputRefs.current[0]?.focus();
   }, []);
 
-  const sortedConfig = [...columnConfig].sort((a, b) => a.order - b.order);
+  const sortedConfig = useMemo(() => 
+    [...columnConfig].sort((a, b) => a.order - b.order),
+    [columnConfig]
+  );
+
+  // Get current width for column
+  const getColumnWidth = (colId: string) => {
+    const cfg = columnConfig.find(c => c.id === colId);
+    const defaultWidth = columnsMeta.find(c => c.id === colId)?.defaultWidth || 150;
+    return cfg?.width ?? defaultWidth;
+  };
 
   return (
     <div className={cn('flex flex-col border rounded-lg bg-white overflow-hidden', className)}>
@@ -309,62 +551,88 @@ export function DataGrid<T extends { id: number | string }>({
             </button>
           )}
 
-          {/* Column Config Button - Always Visible */}
-          <button 
-            onClick={() => setConfigOpen(true)}
-            className="p-1.5 rounded hover:bg-slate-200 text-slate-600 hover:text-slate-900"
-            title="Nastavenie stĺpcov"
-          >
-            <Settings2 className="h-4 w-4" />
-          </button>
-
           {/* Column Config Dialog */}
           <Dialog open={configOpen} onOpenChange={setConfigOpen}>
             <DialogTrigger asChild>
-              <span></span>
+              <button 
+                className="p-1.5 rounded hover:bg-slate-200 text-slate-600 hover:text-slate-900"
+                title="Nastavenie stĺpcov"
+              >
+                <Settings2 className="h-4 w-4" />
+              </button>
             </DialogTrigger>
-            <DialogContent className="max-w-md">
+            <DialogContent className="max-w-xl">
               <DialogHeader>
                 <DialogTitle>Nastavenie stĺpcov</DialogTitle>
               </DialogHeader>
-              <div className="space-y-2 max-h-96 overflow-y-auto">
-                {sortedConfig.map((col, index) => (
-                  <div key={col.id} className={cn(
-                    "flex items-center gap-2 p-2 rounded border",
-                    col.visible ? "bg-white" : "bg-slate-50 opacity-60"
-                  )}>
-                    <div className="flex flex-col">
-                      <button onClick={() => handleMoveUp(index)} disabled={index === 0}
-                        className="text-slate-400 hover:text-slate-600 disabled:opacity-30">
-                        <ChevronUp className="h-3 w-3" />
-                      </button>
-                      <button onClick={() => handleMoveDown(index)} disabled={index === sortedConfig.length - 1}
-                        className="text-slate-400 hover:text-slate-600 disabled:opacity-30">
-                        <ChevronDown className="h-3 w-3" />
-                      </button>
+              <p className="text-xs text-slate-500 -mt-2 mb-2">Potiahnutím ⋮⋮ zmeníte poradie stĺpcov</p>
+              <div className="space-y-1 max-h-96 overflow-y-auto">
+                {sortedConfig.map((col) => (
+                  <div 
+                    key={col.id}
+                    draggable
+                    onDragStart={(e) => handleDialogDragStart(e, col.id)}
+                    onDragEnd={handleDialogDragEnd}
+                    onDragOver={(e) => handleDialogDragOver(e, col.id)}
+                    onDragLeave={handleDialogDragLeave}
+                    onDrop={(e) => handleDialogDrop(e, col.id)}
+                    className={cn(
+                      "flex items-center gap-2 p-2 rounded border transition-all",
+                      col.visible ? "bg-white" : "bg-slate-50 opacity-60",
+                      dialogDraggedId === col.id && "opacity-50 border-dashed border-slate-400",
+                      dialogDragOverId === col.id && "border-blue-500 border-2 bg-blue-50"
+                    )}
+                  >
+                    {/* Drag handle */}
+                    <div 
+                      className="cursor-grab active:cursor-grabbing p-1 text-slate-400 hover:text-slate-600"
+                      title="Potiahnite pre zmenu poradia"
+                    >
+                      <GripVertical className="h-4 w-4" />
                     </div>
-                    <button onClick={() => handleVisibilityToggle(col.id)}
-                      className={cn("p-1 rounded", col.visible ? "text-green-600" : "text-slate-400")}>
+
+                    {/* Visibility toggle */}
+                    <button 
+                      type="button"
+                      onClick={() => handleVisibilityToggle(col.id)}
+                      className={cn("p-1 rounded hover:bg-slate-100", col.visible ? "text-green-600" : "text-slate-400")}
+                      title={col.visible ? "Skryť stĺpec" : "Zobraziť stĺpec"}
+                    >
                       {col.visible ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
                     </button>
-                    <div className="flex-1">
-                      <Input value={col.customHeader ?? col.originalHeader}
-                        onChange={(e) => handleHeaderChange(col.id, e.target.value)}
-                        placeholder={col.originalHeader} className="h-8 text-sm" />
-                      {col.customHeader && (
-                        <div className="text-xs text-slate-400 mt-0.5">Pôvodný: {col.originalHeader}</div>
-                      )}
+
+                    {/* Column name */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <code className="text-xs px-1.5 py-0.5 bg-slate-100 rounded text-slate-600 font-mono truncate">
+                          {col.id}
+                        </code>
+                      </div>
+                      <ColumnHeaderInput
+                        value={col.customHeader ?? col.originalHeader}
+                        placeholder={col.originalHeader}
+                        onChange={(value) => handleHeaderChange(col.id, value)}
+                      />
+                    </div>
+
+                    {/* Width input */}
+                    <div className="flex flex-col items-end gap-1">
+                      <span className="text-xs text-slate-400">Šírka</span>
+                      <ColumnWidthInput
+                        value={getColumnWidth(col.id)}
+                        onChange={(width) => handleWidthChange(col.id, width)}
+                      />
                     </div>
                   </div>
                 ))}
               </div>
               <div className="flex justify-between pt-4 border-t">
-                <Button variant="ghost" onClick={handleResetConfig}>
+                <Button type="button" variant="ghost" onClick={handleResetConfig}>
                   <RotateCcw className="h-4 w-4 mr-2" /> Obnoviť pôvodné
                 </Button>
                 <div className="flex gap-2">
-                  <Button variant="outline" onClick={() => setConfigOpen(false)}>Zrušiť</Button>
-                  <Button onClick={handleSaveConfig}>Uložiť</Button>
+                  <Button type="button" variant="outline" onClick={() => setConfigOpen(false)}>Zrušiť</Button>
+                  <Button type="button" onClick={handleSaveConfig}>Uložiť</Button>
                 </div>
               </div>
             </DialogContent>
@@ -374,16 +642,31 @@ export function DataGrid<T extends { id: number | string }>({
 
       {/* Table */}
       <div ref={tableContainerRef} className="overflow-auto flex-1" style={{ maxHeight: '600px' }}>
-        <table className="w-full border-collapse">
+        <table className="w-full border-collapse" style={{ width: table.getTotalSize() }}>
           <thead className="sticky top-0 z-10">
             {table.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id} className="bg-slate-100">
                 {headerGroup.headers.map((header) => (
-                  <th key={header.id}
-                    className="px-3 py-2 text-left text-sm font-semibold text-slate-700 border-b cursor-pointer hover:bg-slate-200 select-none"
+                  <th 
+                    key={header.id}
+                    draggable
+                    onDragStart={(e) => handleHeaderDragStart(e, header.column.id)}
+                    onDragEnd={handleHeaderDragEnd}
+                    onDragOver={(e) => handleHeaderDragOver(e, header.column.id)}
+                    onDragLeave={handleHeaderDragLeave}
+                    onDrop={(e) => handleHeaderDrop(e, header.column.id)}
+                    className={cn(
+                      "px-3 py-2 text-left text-sm font-semibold text-slate-700 border-b select-none relative group",
+                      "hover:bg-slate-200 cursor-grab active:cursor-grabbing",
+                      dragOverColumnId === header.column.id && "bg-blue-100 border-l-2 border-l-blue-500",
+                      draggedColumnId === header.column.id && "opacity-50"
+                    )}
                     style={{ width: header.getSize() }}
-                    onClick={header.column.getToggleSortingHandler()}>
-                    <div className="flex items-center gap-1">
+                  >
+                    <div 
+                      className="flex items-center gap-1 cursor-pointer"
+                      onClick={header.column.getToggleSortingHandler()}
+                    >
                       {flexRender(header.column.columnDef.header, header.getContext())}
                       {header.column.getCanSort() && (
                         <span className="text-slate-400">
@@ -393,6 +676,17 @@ export function DataGrid<T extends { id: number | string }>({
                         </span>
                       )}
                     </div>
+                    {/* Resize handle */}
+                    <div
+                      onMouseDown={header.getResizeHandler()}
+                      onTouchStart={header.getResizeHandler()}
+                      onClick={(e) => e.stopPropagation()}
+                      className={cn(
+                        "absolute right-0 top-0 h-full w-1 cursor-col-resize select-none touch-none",
+                        "hover:bg-blue-500 active:bg-blue-600",
+                        header.column.getIsResizing() && "bg-blue-500"
+                      )}
+                    />
                   </th>
                 ))}
               </tr>
@@ -448,7 +742,7 @@ export function DataGrid<T extends { id: number | string }>({
                   onClick={() => { setSelectedRowId(row.original.id); onRowClick?.(row.original); }}
                   onDoubleClick={() => onRowDoubleClick?.(row.original)}>
                   {row.getVisibleCells().map((cell) => (
-                    <td key={cell.id} className="px-3 py-1 text-sm text-slate-700">
+                    <td key={cell.id} className="px-3 py-1 text-sm text-slate-700" style={{ width: cell.column.getSize() }}>
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </td>
                   ))}

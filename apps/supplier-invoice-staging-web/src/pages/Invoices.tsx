@@ -7,9 +7,9 @@ import { Badge } from '@/components/ui/badge';
 import { DataGrid } from '@/components/ui/datagrid';
 import { getInvoices } from '@/api/invoices';
 import { STATUS_CONFIG } from '@/types/invoice';
-import type { Invoice } from '@/types/invoice';
+import type { InvoiceHead } from '@/types/invoice';
 
-const columnHelper = createColumnHelper<Invoice>();
+const columnHelper = createColumnHelper<InvoiceHead>();
 
 function formatDate(dateString: string): string {
   return new Date(dateString).toLocaleDateString('sk-SK');
@@ -23,8 +23,8 @@ function formatAmount(amount: number, currency: string = 'EUR'): string {
 }
 
 const columns = [
-  columnHelper.accessor('invoice_number', {
-    id: 'invoice_number',
+  columnHelper.accessor('xml_invoice_number', {
+    id: 'xml_invoice_number',
     header: 'Číslo faktúry',
     size: 150,
     enableColumnFilter: true,
@@ -33,32 +33,32 @@ const columns = [
       <span className="font-medium text-blue-600">{info.getValue()}</span>
     ),
   }),
-  columnHelper.accessor('supplier_name', {
-    id: 'supplier_name',
+  columnHelper.accessor('xml_supplier_name', {
+    id: 'xml_supplier_name',
     header: 'Dodávateľ',
     size: 220,
     enableColumnFilter: true,
     filterFn: 'includesString',
     cell: (info) => info.getValue(),
   }),
-  columnHelper.accessor('supplier_ico', {
-    id: 'supplier_ico',
+  columnHelper.accessor('xml_supplier_ico', {
+    id: 'xml_supplier_ico',
     header: 'IČO',
     size: 100,
     enableColumnFilter: true,
     filterFn: 'includesString',
     cell: (info) => info.getValue(),
   }),
-  columnHelper.accessor('invoice_date', {
-    id: 'invoice_date',
+  columnHelper.accessor('xml_issue_date', {
+    id: 'xml_issue_date',
     header: 'Dátum',
     size: 100,
     enableColumnFilter: true,
     filterFn: 'includesString',
     cell: (info) => formatDate(info.getValue()),
   }),
-  columnHelper.accessor('total_amount', {
-    id: 'total_amount',
+  columnHelper.accessor('xml_total_with_vat', {
+    id: 'xml_total_with_vat',
     header: 'Suma',
     size: 110,
     enableColumnFilter: true,
@@ -68,9 +68,24 @@ const columns = [
     },
     cell: (info) => (
       <span className="font-medium text-right block">
-        {formatAmount(info.getValue(), info.row.original.currency)}
+        {formatAmount(info.getValue(), info.row.original.xml_currency)}
       </span>
     ),
+  }),
+  columnHelper.accessor('match_percent', {
+    id: 'match_percent',
+    header: 'Zhoda',
+    size: 80,
+    enableColumnFilter: true,
+    filterFn: (row, columnId, filterValue) => {
+      const value = row.getValue(columnId) as number;
+      return String(value).includes(filterValue);
+    },
+    cell: (info) => {
+      const value = info.getValue();
+      const colorClass = value >= 80 ? 'text-green-600' : value >= 50 ? 'text-yellow-600' : 'text-red-600';
+      return <span className={`font-medium ${colorClass}`}>{value.toFixed(0)}%</span>;
+    },
   }),
   columnHelper.accessor('status', {
     id: 'status',
@@ -84,9 +99,9 @@ const columns = [
       return label.toLowerCase().includes(filterValue.toLowerCase());
     },
     cell: (info) => {
-      const config = STATUS_CONFIG[info.getValue()] || { label: info.getValue(), color: 'bg-gray-500' };
+      const config = STATUS_CONFIG[info.getValue()] || { label: info.getValue(), bgClass: 'bg-gray-100', color: 'text-gray-600' };
       return (
-        <Badge className={`${config.color} text-white text-xs`}>
+        <Badge className={`${config.bgClass} ${config.color} text-xs`}>
           {config.label}
         </Badge>
       );
@@ -104,11 +119,11 @@ export function Invoices() {
 
   const invoices = data?.invoices ?? [];
 
-  const handleRowClick = (invoice: Invoice) => {
-    console.log('Selected:', invoice.invoice_number);
+  const handleRowClick = (invoice: InvoiceHead) => {
+    console.log('Selected:', invoice.xml_invoice_number);
   };
 
-  const handleRowDoubleClick = (invoice: Invoice) => {
+  const handleRowDoubleClick = (invoice: InvoiceHead) => {
     navigate(`/invoices/${invoice.id}`);
   };
 
