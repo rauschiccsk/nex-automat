@@ -694,6 +694,22 @@ async def shutdown_event():
 # MAIN ENTRY POINT
 # ============================================================================
 
+
+# ============================================================================
+# FRONTEND STATIC FILES
+# ============================================================================
+FRONTEND_DIR = Path(__file__).parent.parent / "supplier-invoice-staging-web" / "dist"
+
+if FRONTEND_DIR.exists():
+    # Mount assets directory
+    app.mount("/assets", StaticFiles(directory=FRONTEND_DIR / "assets"), name="static_assets")
+
+    @app.get("/app")
+    @app.get("/app/{path:path}")
+    async def serve_frontend(path: str = ""):
+        """Serve frontend SPA."""
+        return FileResponse(FRONTEND_DIR / "index.html")
+
 if __name__ == "__main__":
     import uvicorn
 
