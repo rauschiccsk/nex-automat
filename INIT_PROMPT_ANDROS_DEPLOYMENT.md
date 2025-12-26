@@ -1,9 +1,9 @@
-# INIT PROMPT - ANDROS s.r.o. Deployment
+# INIT PROMPT - ANDROS s.r.o. Deployment V2
 
-**Projekt:** nex-automat v3.0  
+**Projekt:** nex-automat v3.0 + NEX Brain  
 **Zákazník:** ANDROS s.r.o.  
-**Typ:** Čistá inštalácia od nuly  
-**Server OS:** Microsoft Windows Server 2022 (čistá inštalácia)  
+**Typ:** Čistá inštalácia - Hybrid Linux + Windows  
+**Architektúra:** Ubuntu Server 24.04 LTS + Windows Server 2022 VM  
 **Developer:** Zoltán (40 rokov skúseností)  
 **Jazyk:** Slovenčina
 
@@ -17,239 +17,554 @@
 |-----------|--------------|
 | Server | Dell PowerEdge R740XD 24 bay 2U RACK |
 | CPU | 2x Intel Xeon Gold 6138 (40 jadier / 80 vlákien) |
-| RAM | 512GB DDR4 2666 |
+| RAM | 256GB DDR4 2666 |
 | RAID | H740p controller |
-| Storage | 8x 1.2TB SAS 10K RPM |
+| Storage | 8x 1.2TB SAS 10K RPM + 1x SSD (dokúpiť) |
 | Sieť | 2x 1GbE + 2x 10GbE RJ45 |
 | Management | iDRAC Enterprise |
 | Napájanie | 2x 750W redundant |
 
 ---
 
-## 📋 Deployment Checklist
-
-### Phase 1: OS a Základný Software
-
-| Úloha | Status | Poznámka |
-|-------|--------|----------|
-| Windows Server 2022 inštalácia | ⏳ | Čistá inštalácia |
-| Windows Update | ⏳ | Všetky aktualizácie |
-| Disk partitioning (RAID) | ⏳ | Nastaviť cez H740p |
-| Firewall konfigurácia | ⏳ | Porty 5432, 7233, 8000, 8001, 8233 |
-| Remote Desktop povolenie | ⏳ | Pre správu |
-
-### Phase 2: Software Inštalácia
-
-| Software | Verzia | Účel | Status |
-|----------|--------|------|--------|
-| Python 32-bit | 3.12.x | supplier-invoice-loader (Btrieve) | ⏳ |
-| Python 64-bit | 3.12.x | GUI apps, Temporal worker | ⏳ |
-| PostgreSQL | 15.x+ | Staging databáza | ⏳ |
-| Git | 2.40+ | Deployment | ⏳ |
-| NSSM | 2.24 | Windows Service Manager | ⏳ |
-| Pervasive PSQL | 11+ | Btrieve driver (ak NEX Genesis) | ⏳ |
-| Temporal CLI | 1.5.1+ | Workflow orchestration | ⏳ |
-
-### Phase 3: Adresárová Štruktúra
+## 🏗️ Architektúra - Variant 4 (Linux + Windows VM)
 
 ```
-C:\Deployment\nex-automat\          # Hlavný deployment
-C:\Temporal\                        # Temporal Server
-    ├── cli\temporal.exe
-    └── data\temporal.db
-C:\NEX\                             # NEX súbory
-    ├── IMPORT\SUPPLIER-INVOICES\   # Prijaté PDF
-    ├── IMPORT\SUPPLIER-STAGING\    # Staging
-    ├── IMPORT\SUPPLIER-ARCHIVE\    # Archív
-    └── YEARACT\STORES\             # Btrieve súbory (ak NEX Genesis)
-```
-
-### Phase 4: Git Clone a Virtual Environments
-
-```powershell
-# Clone repository
-cd C:\Deployment
-git clone https://github.com/rauschiccsk/nex-automat.git
-cd nex-automat
-git checkout main  # alebo develop pre testing
-
-# venv32 (32-bit Python pre Btrieve)
-C:\Python312-32\python.exe -m venv venv32
-.\venv32\Scripts\Activate.ps1
-pip install --upgrade pip
-pip install -e packages/nex-staging
-pip install -e packages/nex-shared
-pip install -e apps/supplier-invoice-loader
-deactivate
-
-# venv (64-bit Python pre GUI a worker)
-C:\Python312\python.exe -m venv venv
-.\venv\Scripts\Activate.ps1
-pip install --upgrade pip
-pip install -e packages/nex-staging
-pip install -e packages/nex-shared
-pip install -e apps/supplier-invoice-staging
-deactivate
-
-# Worker venv (64-bit, samostatný)
-cd apps\supplier-invoice-worker
-C:\Python312\python.exe -m venv venv
-.\venv\Scripts\Activate.ps1
-pip install -r requirements.txt
-deactivate
-```
-
-### Phase 5: PostgreSQL Setup
-
-```powershell
-# 1. Inštalácia PostgreSQL 15.x
-# 2. Nastavenie POSTGRES_PASSWORD (Machine level)
-[System.Environment]::SetEnvironmentVariable("POSTGRES_PASSWORD", "SecurePassword", "Machine")
-
-# 3. Vytvorenie databázy
-psql -U postgres -c "CREATE DATABASE supplier_invoice_staging;"
-
-# 4. Migrácie (z venv32)
-cd C:\Deployment\nex-automat
-.\venv32\Scripts\Activate.ps1
-python -m apps.supplier-invoice-loader.database.migrations
-```
-
-### Phase 6: Temporal Server Setup
-
-```powershell
-# 1. Stiahnuť Temporal CLI
-# https://github.com/temporalio/cli/releases
-# Extrahovať do C:\Temporal\cli\
-
-# 2. Test spustenie
-C:\Temporal\cli\temporal.exe server start-dev --db-filename C:\Temporal\data\temporal.db
-
-# 3. NSSM Windows Service
-nssm install NEX-Temporal-Server "C:\Temporal\cli\temporal.exe" server start-dev --db-filename "C:\Temporal\data\temporal.db"
-nssm set NEX-Temporal-Server AppDirectory "C:\Temporal"
-nssm set NEX-Temporal-Server Start SERVICE_AUTO_START
-```
-
-### Phase 7: Gmail OAuth2 Setup (ANDROS špecifické)
-
-**Google Cloud Console:**
-1. Vytvoriť nový projekt: `andros-invoice-worker`
-2. OAuth consent screen → External
-3. Credentials → Desktop app
-4. Pridať test user: `[ANDROS_EMAIL]@gmail.com`
-5. Enable Gmail API
-
-**Autorizácia:**
-```powershell
-cd C:\Deployment\nex-automat\apps\supplier-invoice-worker
-.\venv\Scripts\Activate.ps1
-python -m config.oauth_authorize
-# Otvorí prehliadač, autorizovať Gmail účet
-# Tokeny sa uložia do .gmail_tokens.json
-```
-
-### Phase 8: Environment Variables
-
-**System Environment Variables (Machine level):**
-```powershell
-[System.Environment]::SetEnvironmentVariable("POSTGRES_PASSWORD", "SecurePassword", "Machine")
-[System.Environment]::SetEnvironmentVariable("LS_API_KEY", "andros-api-key-2025", "Machine")
-```
-
-**Worker .env súbor:** `apps/supplier-invoice-worker/.env`
-```env
-# Temporal Server
-TEMPORAL_HOST=localhost
-TEMPORAL_PORT=7233
-TEMPORAL_NAMESPACE=default
-TEMPORAL_TASK_QUEUE=supplier-invoice-queue
-
-# IMAP (Gmail) - OAuth2
-IMAP_HOST=imap.gmail.com
-IMAP_PORT=993
-IMAP_USER=[ANDROS_EMAIL]@gmail.com
-IMAP_PASSWORD=
-IMAP_FOLDER=INBOX
-
-# FastAPI Invoice Service
-FASTAPI_URL=http://localhost:8000
-LS_API_KEY=andros-api-key-2025
-
-# Polling
-POLL_INTERVAL_SECONDS=300
-
-# Logging
-LOG_LEVEL=INFO
-```
-
-### Phase 9: Windows Services (NSSM)
-
-```powershell
-$nssm = "C:\Deployment\nex-automat\tools\nssm\win64\nssm.exe"
-
-# 1. NEX-Temporal-Server (už vytvorené v Phase 6)
-
-# 2. NEX-Invoice-Loader (FastAPI)
-& $nssm install NEX-Invoice-Loader "C:\Deployment\nex-automat\venv32\Scripts\python.exe" "-m" "uvicorn" "main:app" "--host" "0.0.0.0" "--port" "8000"
-& $nssm set NEX-Invoice-Loader AppDirectory "C:\Deployment\nex-automat\apps\supplier-invoice-loader"
-& $nssm set NEX-Invoice-Loader Start SERVICE_AUTO_START
-
-# 3. NEX-Invoice-Worker (Temporal Worker)
-& $nssm install NEX-Invoice-Worker "C:\Deployment\nex-automat\apps\supplier-invoice-worker\venv\Scripts\python.exe" "-m" "workers.main_worker"
-& $nssm set NEX-Invoice-Worker AppDirectory "C:\Deployment\nex-automat\apps\supplier-invoice-worker"
-& $nssm set NEX-Invoice-Worker Start SERVICE_AUTO_START
-
-# 4. NEX-Polling-Scheduler
-& $nssm install NEX-Polling-Scheduler "C:\Deployment\nex-automat\apps\supplier-invoice-worker\venv\Scripts\python.exe" "-m" "scheduler.polling_scheduler"
-& $nssm set NEX-Polling-Scheduler AppDirectory "C:\Deployment\nex-automat\apps\supplier-invoice-worker"
-& $nssm set NEX-Polling-Scheduler Start SERVICE_AUTO_START
-
-# Štart služieb
-Start-Service NEX-Temporal-Server
-Start-Service NEX-Invoice-Loader
-Start-Service NEX-Invoice-Worker
-Start-Service NEX-Polling-Scheduler
-```
-
-### Phase 10: Verifikácia
-
-```powershell
-# Stav služieb
-Get-Service "NEX-*"
-
-# Health checks
-Invoke-WebRequest -Uri "http://localhost:8000/health"  # Invoice Loader
-# Temporal UI: http://localhost:8233
-
-# Test workflow
-cd C:\Deployment\nex-automat\apps\supplier-invoice-worker
-.\venv\Scripts\Activate.ps1
-python -m scheduler.polling_scheduler --once
+┌─────────────────────────────────────────────────────────────────┐
+│              HARDVÉR (Dell R740XD - 256 GB RAM)                 │
+├─────────────────────────────────────────────────────────────────┤
+│                  Ubuntu Server 24.04 LTS                        │
+│                      + KVM/Libvirt                              │
+├────────────────────────────┬────────────────────────────────────┤
+│   LINUX NATÍVNE (192 GB)   │    WINDOWS VM - KVM (32-48 GB)    │
+│   ┌──────────────────────┐ │ ┌────────────────────────────────┐ │
+│   │ Docker Containers    │ │ │ Windows Server 2022            │ │
+│   │ ├─ PostgreSQL (16GB) │ │ │ ├─ RDS (5-10 užívateľov)       │ │
+│   │ ├─ Ollama (96GB)     │ │ │ ├─ NEX Genesis (Pascal ERP)    │ │
+│   │ ├─ Temporal (4GB)    │ │ │ ├─ PyQt5 GUI Aplikácie         │ │
+│   │ ├─ NEX Automat (8GB) │ │ │ └─ Pervasive PSQL (Btrieve)    │ │
+│   │ ├─ Qdrant (48GB)     │ │ └────────────────────────────────┘ │
+│   │ └─ Nginx Proxy       │ │                                    │
+│   └──────────────────────┘ │                                    │
+│   + Rezerva: 32 GB         │                                    │
+└────────────────────────────┴────────────────────────────────────┘
 ```
 
 ---
 
-## 🔧 Customer-Specific Konfigurácia
+## 📊 RAM Rozdelenie (256 GB)
 
-**Súbor:** `apps/supplier-invoice-loader/config/config_customer.py`
+| Komponent | RAM | Účel |
+|-----------|-----|------|
+| **Ubuntu Host OS** | 8 GB | Kernel, systémové procesy |
+| **Docker - PostgreSQL** | 16 GB | Hlavná DB + shared_buffers |
+| **Docker - Ollama** | 96 GB | Llama 3 70B model |
+| **Docker - Temporal** | 4 GB | Workflow orchestration |
+| **Docker - NEX Automat API** | 8 GB | FastAPI služby |
+| **Docker - Qdrant** | 48 GB | Vector DB (~500K docs v RAM) |
+| **Docker - Nginx** | 1 GB | Reverse proxy |
+| **Windows VM (KVM)** | 32 GB | RDS + NEX Genesis + GUI |
+| **Rezerva** | 43 GB | Cache, spike, rast |
+| **Celkom** | **256 GB** | |
 
-```python
-# ANDROS s.r.o. konfigurácia
-CUSTOMER_NAME = "ANDROS"
-CUSTOMER_ID = "andros"
+---
 
-# NEX Genesis (ak existuje)
-NEX_GENESIS_ENABLED = True  # alebo False
-NEX_DATA_PATH = "C:\\NEX\\YEARACT\\STORES"
+## 📋 Deployment Phases
 
-# API
-API_KEY = os.getenv("LS_API_KEY", "andros-api-key-2025")
+### Phase 0: RAID + SSD Konfigurácia (PRED inštaláciou)
 
-# Paths
-PDF_INPUT_PATH = "C:\\NEX\\IMPORT\\SUPPLIER-INVOICES"
-STAGING_PATH = "C:\\NEX\\IMPORT\\SUPPLIER-STAGING"
-ARCHIVE_PATH = "C:\\NEX\\IMPORT\\SUPPLIER-ARCHIVE"
+**RAID 10 pre HDD:**
+| Parameter | Hodnota |
+|-----------|---------|
+| RAID Level | RAID 10 |
+| Disky | 8x 1.2TB SAS 10K |
+| Kapacita | ~4.8TB |
+| Použitie | Dáta, zálohy, VM storage |
+
+**SSD (dokúpiť):**
+| Parameter | Hodnota |
+|-----------|---------|
+| Typ | SATA SSD alebo NVMe |
+| Kapacita | 500GB - 1TB |
+| Použitie | OS, Docker, PostgreSQL |
+
+**Postup RAID:**
+1. Boot → F2 (System Setup) alebo Ctrl+R
+2. Device Settings → RAID Controller (H740p)
+3. Create Virtual Disk → RAID 10
+4. Vybrať všetkých 8 HDD diskov
+5. Strip Size: 256KB
+6. Read Policy: Adaptive Read Ahead
+7. Write Policy: Write Back (s BBU)
+
+---
+
+### Phase 1: Ubuntu Server 24.04 LTS Inštalácia
+
+```bash
+# Inštalácia na SSD
+# Partition layout:
+# /boot/efi   512MB   EFI System
+# /boot       1GB     ext4
+# /           100GB   ext4 (root)
+# /var        300GB   ext4 (Docker, logs)
+# swap        32GB    swap
+
+# Po inštalácii - základné balíky
+sudo apt update && sudo apt upgrade -y
+sudo apt install -y \
+    vim htop tmux git curl wget \
+    net-tools openssh-server \
+    qemu-kvm libvirt-daemon-system \
+    libvirt-clients bridge-utils virt-manager \
+    docker.io docker-compose-v2 \
+    nginx certbot python3-certbot-nginx
+
+# Docker bez sudo
+sudo usermod -aG docker $USER
+sudo usermod -aG libvirt $USER
+
+# Firewall
+sudo ufw allow ssh
+sudo ufw allow 80/tcp
+sudo ufw allow 443/tcp
+sudo ufw allow 3389/tcp   # RDP pre Windows VM
+sudo ufw allow 5432/tcp   # PostgreSQL (len interné)
+sudo ufw allow 7233/tcp   # Temporal
+sudo ufw allow 8000/tcp   # NEX Automat API
+sudo ufw allow 8233/tcp   # Temporal UI
+sudo ufw enable
+```
+
+---
+
+### Phase 2: Storage Mount (RAID array)
+
+```bash
+# Identifikácia RAID virtual disk
+lsblk
+# Typicky /dev/sdb pre RAID array
+
+# Partition a format
+sudo parted /dev/sdb mklabel gpt
+sudo parted /dev/sdb mkpart primary ext4 0% 100%
+sudo mkfs.ext4 /dev/sdb1
+
+# Mount
+sudo mkdir -p /data
+sudo mount /dev/sdb1 /data
+
+# Permanent mount
+echo '/dev/sdb1 /data ext4 defaults 0 2' | sudo tee -a /etc/fstab
+
+# Adresárová štruktúra
+sudo mkdir -p /data/{vms,backups,nex-files,docker-volumes}
+sudo chown -R $USER:$USER /data
+```
+
+---
+
+### Phase 3: Docker Compose Stack
+
+**Súbor:** `/opt/nex-automat/docker-compose.yml`
+
+```yaml
+version: '3.8'
+
+services:
+  # PostgreSQL
+  postgres:
+    image: postgres:15-alpine
+    container_name: nex-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: nex
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: supplier_invoice_staging
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    deploy:
+      resources:
+        limits:
+          memory: 16G
+    command: >
+      postgres
+      -c shared_buffers=4GB
+      -c effective_cache_size=12GB
+      -c maintenance_work_mem=1GB
+      -c checkpoint_completion_target=0.9
+      -c wal_buffers=64MB
+      -c default_statistics_target=100
+      -c random_page_cost=1.1
+      -c effective_io_concurrency=200
+
+  # Temporal Server
+  temporal:
+    image: temporalio/auto-setup:latest
+    container_name: nex-temporal
+    restart: always
+    environment:
+      - DB=postgresql
+      - DB_PORT=5432
+      - POSTGRES_USER=nex
+      - POSTGRES_PWD=${POSTGRES_PASSWORD}
+      - POSTGRES_SEEDS=postgres
+    depends_on:
+      - postgres
+    ports:
+      - "7233:7233"
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+
+  # Temporal UI
+  temporal-ui:
+    image: temporalio/ui:latest
+    container_name: nex-temporal-ui
+    restart: always
+    environment:
+      - TEMPORAL_ADDRESS=temporal:7233
+    depends_on:
+      - temporal
+    ports:
+      - "8233:8080"
+
+  # Ollama (LLM)
+  ollama:
+    image: ollama/ollama:latest
+    container_name: nex-ollama
+    restart: always
+    volumes:
+      - ollama_data:/root/.ollama
+    ports:
+      - "11434:11434"
+    deploy:
+      resources:
+        limits:
+          memory: 96G
+
+  # Qdrant (Vector DB)
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: nex-qdrant
+    restart: always
+    volumes:
+      - qdrant_data:/qdrant/storage
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    deploy:
+      resources:
+        limits:
+          memory: 48G
+
+  # NEX Automat API
+  nex-automat-api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    container_name: nex-automat-api
+    restart: always
+    environment:
+      - DATABASE_URL=postgresql://nex:${POSTGRES_PASSWORD}@postgres:5432/supplier_invoice_staging
+      - TEMPORAL_HOST=temporal
+      - TEMPORAL_PORT=7233
+      - OLLAMA_HOST=ollama
+      - QDRANT_HOST=qdrant
+    depends_on:
+      - postgres
+      - temporal
+      - ollama
+      - qdrant
+    ports:
+      - "8000:8000"
+    deploy:
+      resources:
+        limits:
+          memory: 8G
+
+  # NEX Temporal Worker
+  nex-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.worker
+    container_name: nex-worker
+    restart: always
+    environment:
+      - DATABASE_URL=postgresql://nex:${POSTGRES_PASSWORD}@postgres:5432/supplier_invoice_staging
+      - TEMPORAL_HOST=temporal
+      - TEMPORAL_PORT=7233
+      - OLLAMA_HOST=ollama
+    depends_on:
+      - postgres
+      - temporal
+      - ollama
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+
+  # Nginx Reverse Proxy
+  nginx:
+    image: nginx:alpine
+    container_name: nex-nginx
+    restart: always
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - nex-automat-api
+      - temporal-ui
+
+volumes:
+  postgres_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /data/docker-volumes/postgres
+  ollama_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /data/docker-volumes/ollama
+  qdrant_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /data/docker-volumes/qdrant
+```
+
+**Environment súbor:** `/opt/nex-automat/.env`
+```env
+POSTGRES_PASSWORD=SecurePassword2025!
+LS_API_KEY=andros-api-key-2025
+```
+
+---
+
+### Phase 4: Windows Server 2022 VM (KVM)
+
+```bash
+# Vytvorenie VM storage
+mkdir -p /data/vms/windows-server
+
+# Stiahnutie Windows Server 2022 ISO
+# (manuálne z Microsoft Evaluation Center)
+
+# Vytvorenie VM
+sudo virt-install \
+  --name windows-server-2022 \
+  --ram 32768 \
+  --vcpus 8 \
+  --cpu host \
+  --os-variant win2k22 \
+  --disk path=/data/vms/windows-server/disk.qcow2,size=200,format=qcow2,bus=virtio \
+  --network bridge=virbr0,model=virtio \
+  --graphics vnc,listen=0.0.0.0,port=5900 \
+  --cdrom /data/iso/windows-server-2022.iso \
+  --boot cdrom,hd
+
+# Po inštalácii Windows - VirtIO drivers
+# Stiahnuť: https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/
+
+# Nastavenie autostart
+sudo virsh autostart windows-server-2022
+```
+
+**Windows VM Konfigurácia:**
+| Parameter | Hodnota |
+|-----------|---------|
+| RAM | 32 GB (dynamicky do 48 GB) |
+| vCPU | 8 jadier |
+| Disk | 200 GB (qcow2 na RAID) |
+| Sieť | Bridge (získa IP z DHCP/static) |
+| RDP Port | 3389 |
+
+---
+
+### Phase 5: Windows VM - Interná konfigurácia
+
+**Inštalovať na Windows VM:**
+| Software | Verzia | Účel |
+|----------|--------|------|
+| Python 32-bit | 3.12.x | Btrieve/Pervasive |
+| Python 64-bit | 3.12.x | GUI aplikácie |
+| Pervasive PSQL | 11+ | Btrieve driver |
+| Git | 2.40+ | Deployment |
+| NSSM | 2.24 | Windows Services |
+
+**RDS Konfigurácia:**
+```powershell
+# Inštalácia RDS role
+Install-WindowsFeature -Name RDS-RD-Server -IncludeManagementTools
+
+# Povoliť Remote Desktop
+Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -Name "fDenyTSConnections" -Value 0
+Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
+
+# Vytvoriť užívateľov
+$users = @("user1", "user2", "user3")
+foreach ($user in $users) {
+    New-LocalUser -Name $user -Password (ConvertTo-SecureString "Password123!" -AsPlainText -Force)
+    Add-LocalGroupMember -Group "Remote Desktop Users" -Member $user
+}
+```
+
+**Adresárová štruktúra (Windows VM):**
+```
+C:\NEX\                             # NEX súbory
+    ├── IMPORT\SUPPLIER-INVOICES\   # Prijaté PDF
+    ├── IMPORT\SUPPLIER-STAGING\    # Staging
+    ├── IMPORT\SUPPLIER-ARCHIVE\    # Archív
+    └── YEARACT\STORES\             # Btrieve súbory
+
+C:\Apps\                            # Aplikácie
+    ├── nex-genesis\                # Pascal ERP
+    └── gui-apps\                   # PyQt5 aplikácie
+```
+
+---
+
+### Phase 6: Sieťová Komunikácia Linux ↔ Windows
+
+```
+┌─────────────────┐         ┌─────────────────┐
+│  Ubuntu Host    │         │  Windows VM     │
+│  192.168.122.1  │◄───────►│  192.168.122.10 │
+├─────────────────┤  bridge ├─────────────────┤
+│ PostgreSQL:5432 │         │ Btrieve Access  │
+│ Temporal:7233   │         │ RDP:3389        │
+│ API:8000        │         │ SMB shares      │
+│ Ollama:11434    │         │                 │
+└─────────────────┘         └─────────────────┘
+```
+
+**Windows prístup k Linux službám:**
+```
+PostgreSQL: 192.168.122.1:5432
+Temporal:   192.168.122.1:7233
+API:        192.168.122.1:8000
+Ollama:     192.168.122.1:11434
+```
+
+**Linux prístup k Windows:**
+```bash
+# SMB share pre NEX súbory
+sudo mount -t cifs //192.168.122.10/NEX /mnt/nex-files -o username=admin,password=xxx
+```
+
+---
+
+### Phase 7: Ollama Model Setup
+
+```bash
+# Pripojiť sa do Ollama kontajnera
+docker exec -it nex-ollama bash
+
+# Stiahnuť modely
+ollama pull llama3:70b          # Hlavný model (~40GB)
+ollama pull nomic-embed-text    # Embedding model (~270MB)
+
+# Test
+ollama run llama3:70b "Ahoj, ako sa máš?"
+```
+
+---
+
+### Phase 8: Nginx Reverse Proxy
+
+**Súbor:** `/opt/nex-automat/nginx/nginx.conf`
+
+```nginx
+events {
+    worker_connections 1024;
+}
+
+http {
+    upstream nex_api {
+        server nex-automat-api:8000;
+    }
+
+    upstream temporal_ui {
+        server temporal-ui:8080;
+    }
+
+    server {
+        listen 80;
+        server_name andros.nex-automat.sk;
+
+        location / {
+            proxy_pass http://nex_api;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+        }
+
+        location /temporal/ {
+            proxy_pass http://temporal_ui/;
+            proxy_set_header Host $host;
+        }
+    }
+}
+```
+
+---
+
+### Phase 9: Systemd Services (Linux)
+
+```bash
+# Docker Compose ako systemd service
+sudo tee /etc/systemd/system/nex-automat.service << 'EOF'
+[Unit]
+Description=NEX Automat Docker Stack
+Requires=docker.service
+After=docker.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+WorkingDirectory=/opt/nex-automat
+ExecStart=/usr/bin/docker compose up -d
+ExecStop=/usr/bin/docker compose down
+TimeoutStartSec=0
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+sudo systemctl daemon-reload
+sudo systemctl enable nex-automat
+sudo systemctl start nex-automat
+```
+
+---
+
+### Phase 10: Verifikácia
+
+```bash
+# Docker kontajnery
+docker ps
+
+# Health checks
+curl http://localhost:8000/health          # NEX API
+curl http://localhost:7233                  # Temporal
+curl http://localhost:11434/api/tags       # Ollama
+curl http://localhost:6333/dashboard       # Qdrant
+
+# Windows VM
+sudo virsh list --all
+# RDP test: xfreerdp /v:192.168.122.10 /u:admin
+
+# Logy
+docker logs nex-automat-api
+docker logs nex-ollama
 ```
 
 ---
@@ -258,66 +573,56 @@ ARCHIVE_PATH = "C:\\NEX\\IMPORT\\SUPPLIER-ARCHIVE"
 
 | Kritérium | Cieľ |
 |-----------|------|
-| Všetky Windows Services Running | ✅ |
-| Health endpoint 200 OK | ✅ |
+| Docker kontajnery running | ✅ |
+| PostgreSQL pripojenie | ✅ |
 | Temporal UI dostupné | ✅ |
-| Gmail OAuth2 funguje | ✅ |
-| Test faktúra spracovaná | ✅ |
-| PostgreSQL data uložené | ✅ |
+| Ollama model loaded | ✅ |
+| Qdrant zdravý | ✅ |
+| Windows VM bootuje | ✅ |
+| RDP funguje | ✅ |
+| Sieťová komunikácia Linux↔Windows | ✅ |
 
 ---
 
 ## 🔗 RAG Queries
 
 ```
-https://rag-api.icc.sk/search?query=DEPLOYMENT_GUIDE_V3+installation&limit=5
-https://rag-api.icc.sk/search?query=Temporal+NSSM+Windows+Service&limit=5
-https://rag-api.icc.sk/search?query=Gmail+OAuth2+setup+credentials&limit=5
-https://rag-api.icc.sk/search?query=PostgreSQL+staging+database+setup&limit=5
+https://rag-api.icc.sk/search?query=Docker+compose+PostgreSQL+Temporal&limit=5
+https://rag-api.icc.sk/search?query=KVM+Windows+Server+VM+setup&limit=5
+https://rag-api.icc.sk/search?query=Ollama+Llama+70B+deployment&limit=5
+https://rag-api.icc.sk/search?query=Qdrant+vector+database+setup&limit=5
 ```
 
 ---
 
 ## ⚠️ Dôležité Poznámky
 
-1. **Čistá inštalácia** - žiadne legacy software, ideálne podmienky
-2. **Windows Server 2022** - plná kompatibilita, žiadne workaroundy
-3. **512GB RAM** - môžeme uvažovať o rozšírených funkciách (caching, etc.)
-4. **10GbE sieť** - vysoká priepustnosť pre veľké PDF súbory
+1. **Hybrid architektúra** - Linux pre výkon, Windows pre legacy/GUI
+2. **256GB RAM** - optimálne rozdelené medzi služby
+3. **Docker na SSD** - kritické pre výkon
+4. **Windows VM na RAID** - dostatočné pre RDS
+5. **Zálohy** - VM snapshots + PostgreSQL pg_dump
 
 ---
 
-## 💾 Phase 0: RAID Konfigurácia (PRED inštaláciou OS)
+## 🔄 Migrácia zo starého ANDROS servera
 
-**Konfigurácia: RAID 10** (8 diskov → 4.8TB užitočnej kapacity)
-
-| Parameter | Hodnota |
-|-----------|---------|
-| RAID Level | RAID 10 |
-| Disky | 8x 1.2TB SAS 10K |
-| Kapacita | ~4.8TB |
-| Redundancia | Až 4 disky môžu zlyhať |
-| Výkon | Najlepší pre databázy |
-
-**Postup:**
-1. Zapnúť server
-2. Počas POST stlačiť **F2** (System Setup) alebo **Ctrl+R** (RAID BIOS)
-3. Vojsť do **Device Settings → RAID Controller (H740p)**
-4. **Configuration Management → Create Virtual Disk**
-5. Vybrať RAID Level: **RAID 10**
-6. Vybrať všetkých 8 diskov
-7. Strip Size: **256KB** (default, dobré pre mixed workload)
-8. Read Policy: **Adaptive Read Ahead**
-9. Write Policy: **Write Back** (ak je BBU/battery backup)
-10. Potvrdiť a uložiť
-11. Reštart → inštalácia Windows Server 2022
+| Čo migrovať | Z (starý) | Do (nový) |
+|-------------|-----------|-----------|
+| NEX Genesis dáta | C:\NEX\ | Windows VM: C:\NEX\ |
+| Btrieve súbory | C:\NEX\YEARACT\ | Windows VM: C:\NEX\YEARACT\ |
+| PostgreSQL DB | localhost | Docker: postgres:5432 |
+| PDF archív | D:\Data | /data/nex-files/ |
 
 ---
 
-## 📝 Session Priority
+## 📅 Estimated Timeline
 
-**Immediate:** Phase 1-3 (OS, Software, Adresáre)  
-**Next:** Phase 4-6 (Git, PostgreSQL, Temporal)  
-**Final:** Phase 7-10 (OAuth2, Services, Verifikácia)
-
-**Estimated Time:** 4-6 hodín pre kompletný deployment
+| Fáza | Čas |
+|------|-----|
+| Phase 0-1: RAID + Ubuntu | 2 hodiny |
+| Phase 2-3: Storage + Docker | 2 hodiny |
+| Phase 4-5: Windows VM | 3 hodiny |
+| Phase 6-7: Networking + Ollama | 2 hodiny |
+| Phase 8-10: Nginx + Verifikácia | 1 hodina |
+| **Celkom** | **~10 hodín** |
