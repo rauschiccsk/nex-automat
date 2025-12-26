@@ -1,20 +1,198 @@
 import { useState, useMemo, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, Check, Upload, FileText, Download } from 'lucide-react';
+import { createColumnHelper } from '@tanstack/react-table';
+import { ArrowLeft, Check, Upload, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { 
-  BaseGrid, 
-  exportToCSV,
-  formatCurrency,
-  invoiceItemsGridConfig,
-  invoiceItemsEditableColumns,
-} from '@/components/grids';
+import { DataGrid, numericFilter } from '@/components/ui/datagrid';
 import { getInvoice } from '@/api/invoices';
-import { STATUS_CONFIG } from '@/types/invoice';
+import { STATUS_CONFIG, MATCH_METHOD_CONFIG, VALIDATION_STATUS_CONFIG } from '@/types/invoice';
 import type { InvoiceItem } from '@/types/invoice';
+
+const columnHelper = createColumnHelper<InvoiceItem>();
+
+function formatAmount(amount: number | null | undefined): string {
+  if (amount == null) return '-';
+  return new Intl.NumberFormat('sk-SK', {
+    style: 'currency',
+    currency: 'EUR',
+  }).format(amount);
+}
+
+function formatPercent(value: number | null | undefined): string {
+  if (value == null) return '-';
+  return `${value.toFixed(1)}%`;
+}
+
+const stringFilter = (row: any, columnId: string, filterValue: string) => {
+  const value = row.getValue(columnId);
+  if (value == null) return false;
+  return String(value).toLowerCase().includes(filterValue.toLowerCase());
+};
+
+const itemColumns = [
+  // === XML fields ===
+  columnHelper.accessor('xml_line_number', {
+    id: 'xml_line_number',
+    header: '#',
+    size: 40,
+    enableColumnFilter: false,
+  }),
+  columnHelper.accessor('xml_product_name', {
+    id: 'xml_product_name',
+    header: 'Názov',
+    size: 180,
+    enableColumnFilter: true,
+    filterFn: stringFilter,
+  }),
+  columnHelper.accessor('xml_seller_code', {
+    id: 'xml_seller_code',
+    header: 'Kód dod.',
+    size: 80,
+    enableColumnFilter: true,
+    filterFn: stringFilter,
+    cell: (info) => info.getValue() || '-',
+  }),
+  columnHelper.accessor('xml_ean', {
+    id: 'xml_ean',
+    header: 'EAN',
+    size: 110,
+    enableColumnFilter: true,
+    filterFn: stringFilter,
+    cell: (info) => info.getValue() || '-',
+  }),
+  columnHelper.accessor('xml_quantity', {
+    id: 'xml_quantity',
+    header: 'Množ.',
+    size: 60,
+    enableColumnFilter: true,
+    filterFn: numericFilter,
+    cell: (info) => <span className="text-right block">{info.getValue()}</span>,
+  }),
+  columnHelper.accessor('xml_unit', {
+    id: 'xml_unit',
+    header: 'MJ',
+    size: 40,
+    enableColumnFilter: true,
+    filterFn: stringFilter,
+  }),
+  columnHelper.accessor('xml_unit_price', {
+    id: 'xml_unit_price',
+    header: 'Nák.cena',
+    size: 80,
+    enableColumnFilter: true,
+    filterFn: numericFilter,
+    cell: (info) => <span className="text-right block">{formatAmount(info.getValue())}</span>,
+  }),
+  columnHelper.accessor('xml_total_price', {
+    id: 'xml_total_price',
+    header: 'Celkom',
+    size: 80,
+    enableColumnFilter: true,
+    filterFn: numericFilter,
+    cell: (info) => <span className="text-right block font-medium">{formatAmount(info.getValue())}</span>,
+  }),
+  // === EDITABLE: Marža a Predajná cena ===
+  columnHelper.accessor('nex_margin_percent', {
+    id: 'nex_margin_percent',
+    header: 'Marža %',
+    size: 70,
+    enableColumnFilter: true,
+    filterFn: numericFilter,
+    cell: (info) => <span className="text-right block font-medium text-green-700">{formatPercent(info.getValue())}</span>,
+  }),
+  columnHelper.accessor('nex_sales_price', {
+    id: 'nex_sales_price',
+    header: 'Pred.cena',
+    size: 85,
+    enableColumnFilter: true,
+    filterFn: numericFilter,
+    cell: (info) => <span className="text-right block font-medium text-blue-700">{formatAmount(info.getValue())}</span>,
+  }),
+  // === Other fields ===
+  columnHelper.accessor('xml_vat_rate', {
+    id: 'xml_vat_rate',
+    header: 'DPH%',
+    size: 50,
+    enableColumnFilter: true,
+    filterFn: numericFilter,
+    cell: (info) => <span className="text-right block">{info.getValue()}%</span>,
+  }),
+  columnHelper.accessor('matched', {
+    id: 'matched',
+    header: 'Zhoda',
+    size: 70,
+    enableColumnFilter: false,
+    cell: (info) => {
+      const matched = info.getValue();
+      const method = info.row.original.matched_by;
+      const confidence = info.row.original.match_confidence;
+      if (!matched) return <span className="text-red-500">✗</span>;
+      return (
+        <div className="flex items-center gap-1">
+          <span className="text-green-500">✓</span>
+          {method && <span className="text-slate-500">{MATCH_METHOD_CONFIG[method]?.label}</span>}
+          {confidence && <span className="text-slate-400">{confidence}%</span>}
+        </div>
+      );
+    },
+  }),
+  columnHelper.accessor('nex_product_name', {
+    id: 'nex_product_name',
+    header: 'NEX Produkt',
+    size: 150,
+    enableColumnFilter: true,
+    filterFn: stringFilter,
+    cell: (info) => info.getValue() || '-',
+  }),
+  columnHelper.accessor('nex_product_id', {
+    id: 'nex_product_id',
+    header: 'NEX ID',
+    size: 60,
+    enableColumnFilter: true,
+    filterFn: numericFilter,
+    cell: (info) => info.getValue() || '-',
+  }),
+  columnHelper.accessor('nex_ean', {
+    id: 'nex_ean',
+    header: 'NEX EAN',
+    size: 110,
+    enableColumnFilter: true,
+    filterFn: stringFilter,
+    cell: (info) => info.getValue() || '-',
+  }),
+  columnHelper.accessor('nex_stock_code', {
+    id: 'nex_stock_code',
+    header: 'Skl.kód',
+    size: 70,
+    enableColumnFilter: true,
+    filterFn: stringFilter,
+    cell: (info) => info.getValue() || '-',
+  }),
+  columnHelper.accessor('nex_purchase_price', {
+    id: 'nex_purchase_price',
+    header: 'NEX Nák.',
+    size: 80,
+    enableColumnFilter: true,
+    filterFn: numericFilter,
+    cell: (info) => <span className="text-right block">{formatAmount(info.getValue())}</span>,
+  }),
+  columnHelper.accessor('validation_status', {
+    id: 'validation_status',
+    header: 'Valid.',
+    size: 60,
+    enableColumnFilter: true,
+    filterFn: stringFilter,
+    cell: (info) => {
+      const status = info.getValue();
+      if (!status) return '-';
+      const config = VALIDATION_STATUS_CONFIG[status];
+      return <span className={config?.color}>{config?.label || status}</span>;
+    },
+  }),
+];
 
 export function InvoiceDetail() {
   const { id } = useParams<{ id: string }>();
@@ -60,6 +238,8 @@ export function InvoiceDetail() {
     let updates: Partial<InvoiceItem> = {};
 
     if (columnId === 'nex_margin_percent') {
+      // Marža zmenená → prepočítať predajnú cenu
+      // predajná cena = nákupná cena * (1 + marža/100)
       const margin = parseFloat(newValue) || 0;
       const salesPrice = purchasePrice * (1 + margin / 100);
       updates = {
@@ -67,6 +247,8 @@ export function InvoiceDetail() {
         nex_sales_price: Math.round(salesPrice * 100) / 100,
       };
     } else if (columnId === 'nex_sales_price') {
+      // Predajná cena zmenená → prepočítať maržu
+      // marža = ((predajná - nákupná) / nákupná) * 100
       const salesPrice = parseFloat(newValue) || 0;
       const margin = purchasePrice > 0 ? ((salesPrice - purchasePrice) / purchasePrice) * 100 : 0;
       updates = {
@@ -81,14 +263,9 @@ export function InvoiceDetail() {
       next.set(numericId, { ...existing, ...updates });
       return next;
     });
-  }, [items]);
 
-  // Export handler
-  const handleExport = useCallback(() => {
-    if (items.length === 0) return;
-    const filename = `faktura-${invoice?.xml_invoice_number || id}-polozky`;
-    exportToCSV(items, invoiceItemsGridConfig.columns, filename);
-  }, [items, invoice, id]);
+    console.log(`Cell edited: row=${numericId}, col=${columnId}, value=${newValue}`, updates);
+  }, [items]);
 
   if (isLoading) {
     return (
@@ -143,9 +320,6 @@ export function InvoiceDetail() {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={handleExport} title="Export do CSV">
-            <Download className="h-4 w-4 mr-1" /> Export
-          </Button>
           {hasEdits && (
             <Button onClick={handleSaveEdits} size="sm" variant="outline" className="border-orange-400 text-orange-600">
               Uložiť zmeny ({editedItems.size})
@@ -191,7 +365,7 @@ export function InvoiceDetail() {
             <CardTitle className="text-xs font-medium text-slate-600">Nákup</CardTitle>
           </CardHeader>
           <CardContent className="px-3 py-0 text-xs">
-            <div className="text-base font-bold">{formatCurrency(totals.purchaseTotal)}</div>
+            <div className="text-base font-bold">{formatAmount(totals.purchaseTotal)}</div>
             <div className="text-slate-500">bez DPH</div>
           </CardContent>
         </Card>
@@ -201,7 +375,7 @@ export function InvoiceDetail() {
             <CardTitle className="text-xs font-medium text-green-700">Predaj / Marža</CardTitle>
           </CardHeader>
           <CardContent className="px-3 py-0 text-xs">
-            <div className="text-base font-bold text-green-700">{formatCurrency(totals.salesTotal)}</div>
+            <div className="text-base font-bold text-green-700">{formatAmount(totals.salesTotal)}</div>
             <div className="text-green-600 font-medium">Marža: {totals.marginTotal.toFixed(1)}%</div>
           </CardContent>
         </Card>
@@ -217,18 +391,20 @@ export function InvoiceDetail() {
         </Card>
       </div>
 
-      {/* Items Grid - using BaseGrid */}
+      {/* Items DataGrid */}
       <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
         <h2 className="text-sm font-semibold text-slate-900 mb-1 flex-shrink-0">
           Položky ({items.length})
           {hasEdits && <span className="ml-2 text-orange-500 font-normal">• {editedItems.size} upravených</span>}
         </h2>
-        <BaseGrid
+        <DataGrid
           data={items}
-          config={invoiceItemsGridConfig}
-          editableColumns={invoiceItemsEditableColumns}
-          onCellEdit={handleCellEdit}
+          columns={itemColumns}
+          rowHeight={24}
+          storageKey="invoice-items-columns-v2"
           className="flex-1 min-h-0"
+          editableColumns={['nex_margin_percent', 'nex_sales_price']}
+          onCellEdit={handleCellEdit}
         />
       </div>
     </div>

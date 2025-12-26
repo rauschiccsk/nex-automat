@@ -98,6 +98,7 @@ export interface InvoiceItem {
   nex_facility_id?: number;
   nex_purchase_price?: number;
   nex_sales_price?: number;
+  nex_margin_percent?: number;  // NEW: Obchodná marža v %
 
   // Matching
   matched: boolean;

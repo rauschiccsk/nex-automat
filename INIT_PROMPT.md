@@ -1,7 +1,7 @@
-# INIT PROMPT - Supplier Invoice Staging Web UI - Editable Grid
+# INIT PROMPT - Supplier Invoice Staging Web - Real Data Testing
 
 **Projekt:** nex-automat / supplier-invoice-staging-web
-**Typ:** React Web UI - editovateľné bunky v gride
+**Typ:** React Web UI - testovanie s reálnym backendom
 **Developer:** Zoltán (40 rokov skúseností)
 **Jazyk:** Slovenčina
 
@@ -11,10 +11,7 @@
 
 ## 🎯 CURRENT FOCUS
 
-Implementovať editovateľné bunky v DataGride pre:
-- Obchodná marža (%) - zapísať a prepočítať predajnú cenu
-- Predajná cena - zapísať a prepočítať maržu
-- Celková hodnota faktúry - automatický prepočet
+Testovanie s reálnym FastAPI backendom a PostgreSQL databázou.
 
 ---
 
@@ -22,32 +19,28 @@ Implementovať editovateľné bunky v DataGride pre:
 
 | Komponenta | Status |
 |------------|--------|
-| Vite + React + TypeScript | ✅ |
-| DataGrid s column filters | ✅ |
-| Numerický filter (rozsahy) | ✅ |
-| Keyboard navigation | ✅ |
-| Column config dialog | ✅ |
-| Drag & drop (grid + dialog) | ✅ |
-| Resize stĺpcov | ✅ |
-| Všetky DB stĺpce | ✅ |
-| Kompaktný layout | ✅ |
+| BaseGrid systém | ✅ |
+| Editovateľné bunky | ✅ |
+| Prepočty marža ↔ cena | ✅ |
+| Export CSV | ✅ |
+| InvoiceHeadsGrid | ✅ |
+| InvoiceItemsGrid | ✅ |
 
 ---
 
 ## 📋 Next Steps
 
-1. **Editovateľné bunky** - marža, predajná cena
-2. **Prepočty** - marža ↔ predajná cena
-3. **Celková hodnota** - suma + prepočet
-4. Test s reálnym backendom
-5. Schvaľovací workflow
+1. Pripojenie na reálny FastAPI backend
+2. Uloženie editácií do PostgreSQL
+3. Schvaľovací workflow
+4. Docker deployment
 
 ---
 
 ## 🔍 RAG Query
 
 ```
-https://rag-api.icc.sk/search?query=supplier_invoice_staging_web+datagrid+editable&limit=5
+https://rag-api.icc.sk/search?query=supplier_invoice_staging+fastapi+backend&limit=5
 ```
 
 ---
