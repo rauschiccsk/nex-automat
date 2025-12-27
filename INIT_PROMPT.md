@@ -1,4 +1,4 @@
-# INIT PROMPT - NEX Automat v3.2 Deployment
+# INIT PROMPT - NEX Automat v3.2
 
 **Projekt:** nex-automat
 **Zákazník:** Mágerstav s.r.o.
@@ -10,32 +10,30 @@
 
 ---
 
-## 🎯 CURRENT FOCUS
+## 🎯 CURRENT STATUS
 
-Deployment v3.2 na server Mágerstav - supplier-invoice-staging-web s reálnym backendom.
+✅ Deployment v3.2 kompletný - Web UI funguje na http://localhost:8001/app
 
 ---
 
-## ✅ Čo je hotové (Dev PC)
+## ✅ Čo je hotové
 
 | Komponenta | Status |
 |------------|--------|
-| staging_routes.py endpointy | ✅ |
-| pg8000 named params fix | ✅ |
-| Frontend /staging/* endpointy | ✅ |
-| Mock data disabled | ✅ |
-| NEX Brain na port 8003 | ✅ |
+| Backend API (8001) | ✅ |
+| Temporal workflows | ✅ |
+| Web UI frontend | ✅ |
+| Windows služby | ✅ |
+| PostgreSQL staging | ✅ |
 
 ---
 
-## 📋 Next Steps - Deployment
+## 📋 Možné next steps
 
-1. Git commit a push
-2. Pull na Mágerstav server
-3. Reinstall nex-staging package (pg8000 fix)
-4. Reštart SupplierInvoiceLoader služby
-5. Test /staging/invoices endpoint
-6. Build a deploy frontend (ak potrebné)
+1. Doladiť UI (chýbajúce polia v hlavičke faktúry)
+2. Implementovať schvaľovací workflow
+3. Import do NEX Genesis
+4. Deploy na ANDROS
 
 ---
 
@@ -43,7 +41,7 @@ Deployment v3.2 na server Mágerstav - supplier-invoice-staging-web s reálnym b
 
 | Služba | Port |
 |--------|------|
-| supplier-invoice-loader | 8001 |
+| NEX-SupplierInvoiceLoader | 8001 |
 | Temporal Server | 7233 |
 | Temporal UI | 8233 |
 | PostgreSQL | 5432 |
@@ -53,7 +51,7 @@ Deployment v3.2 na server Mágerstav - supplier-invoice-staging-web s reálnym b
 ## 🔍 RAG Query
 
 ```
-https://rag-api.icc.sk/search?query=magerstav+deployment+nssm+services&limit=5
+https://rag-api.icc.sk/search?query=staging+web+deployment+magerstav&limit=5
 ```
 
 ---
@@ -62,3 +60,4 @@ https://rag-api.icc.sk/search?query=magerstav+deployment+nssm+services&limit=5
 
 **Dev:** C:\Development\nex-automat\
 **Mágerstav:** C:\Deployment\nex-automat\
+**Web UI:** http://localhost:8001/app

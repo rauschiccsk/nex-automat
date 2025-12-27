@@ -109,8 +109,6 @@ export function InvoiceDetail() {
       </div>
     );
   }
-
-  const statusConfig = STATUS_CONFIG[invoice.status];
   const hasEdits = editedItems.size > 0;
 
   const handleApprove = () => {
@@ -211,8 +209,8 @@ export function InvoiceDetail() {
             <CardTitle className="text-xs font-medium text-slate-600">Stav</CardTitle>
           </CardHeader>
           <CardContent className="px-3 py-0 text-xs space-y-1">
-            <Badge className={`${statusConfig.bgClass} ${statusConfig.color} text-xs`}>{statusConfig.label}</Badge>
-            <div><span className="text-slate-500">Zhoda:</span> <span className="font-medium">{invoice.match_percent.toFixed(0)}%</span></div>
+            <Badge className={`${(STATUS_CONFIG[invoice.file_status] || STATUS_CONFIG['staged']).bgClass} ${(STATUS_CONFIG[invoice.file_status] || STATUS_CONFIG['staged']).color} text-xs`}>{(STATUS_CONFIG[invoice.file_status] || STATUS_CONFIG['staged']).label}</Badge>
+            <div><span className="text-slate-500">Zhoda:</span> <span className="font-medium">{(invoice.match_percent ?? 0).toFixed(0)}%</span></div>
           </CardContent>
         </Card>
       </div>

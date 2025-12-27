@@ -159,7 +159,8 @@ export interface InvoiceFilters {
 // =============================================================================
 // Status display configuration
 // =============================================================================
-export const STATUS_CONFIG: Record<InvoiceStatus, { label: string; color: string; bgClass: string }> = {
+export const STATUS_CONFIG: Record<string, { label: string; color: string; bgClass: string }> = {
+  staged: { label: 'Nová', color: 'text-orange-600', bgClass: 'bg-orange-100' },
   pending: { label: 'Čaká', color: 'text-gray-600', bgClass: 'bg-gray-100' },
   matched: { label: 'Spárovaná', color: 'text-blue-600', bgClass: 'bg-blue-100' },
   approved: { label: 'Schválená', color: 'text-green-600', bgClass: 'bg-green-100' },

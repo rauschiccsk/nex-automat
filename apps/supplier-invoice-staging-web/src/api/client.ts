@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // API client instance
 export const apiClient = axios.create({
-  baseURL: '/api',
+  baseURL: '',
   headers: {
     'Content-Type': 'application/json',
     'X-API-Key': import.meta.env.VITE_API_KEY || 'andros-api-key-2025',
