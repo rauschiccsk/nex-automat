@@ -60,7 +60,7 @@ export function Settings() {
                 </span>
               </div>
             )}
-            {status?.components && Object.entries(status.components).map(([key, value]) => (
+            {(status as any)?.components && Object.entries((status as any).components).map(([key, value]) => (
               <div key={key} className="flex items-center justify-between">
                 <span className="text-slate-600 capitalize">{key}</span>
                 <Badge className={value === 'healthy' ? 'bg-green-500' : 'bg-yellow-500'}>

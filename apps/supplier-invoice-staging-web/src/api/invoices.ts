@@ -46,17 +46,32 @@ export async function getStats(): Promise<InvoiceStats> {
   // For now return empty stats
   return {
     total: 0,
+    total_invoices: 0,
     pending: 0,
     approved: 0,
     imported: 0,
     rejected: 0,
     by_supplier: {},
-    by_status: {},
+    by_status: {
+      pending: 0,
+      matched: 0,
+      approved: 0,
+      imported: 0,
+      pending_approval: 0,
+      processed: 0,
+    },
   };
 }
 
 // Get service status
-export async function getStatus(): Promise<{ status: string; version: string }> {
+export interface ServiceStatus {
+  status: string;
+  version: string;
+  uptime_seconds?: number;
+  components?: Record<string, string>;
+}
+
+export async function getStatus(): Promise<ServiceStatus> {
   const response = await apiClient.get('/status');
   return response.data;
 }

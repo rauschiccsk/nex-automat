@@ -35,6 +35,8 @@ export interface GridColumnConfig<T = any> {
   enumOptions?: { value: string; label: string }[];
   // For custom type
   cell?: (value: any, row: T) => React.ReactNode;
+  // Visibility
+  visible?: boolean;
   // CSS classes
   headerClass?: string;
   cellClass?: string;

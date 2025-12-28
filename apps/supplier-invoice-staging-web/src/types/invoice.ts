@@ -137,9 +137,15 @@ export interface InvoiceDetailResponse {
 
 export interface InvoiceStats {
   total: number;
-  by_status: Record<InvoiceStatus, number>;
-  total_amount: number;
-  avg_match_percent: number;
+  total_invoices?: number;
+  pending?: number;
+  approved?: number;
+  imported?: number;
+  rejected?: number;
+  by_status: Partial<Record<InvoiceStatus, number>> & { pending_approval?: number; processed?: number };
+  by_supplier?: Record<string, number>;
+  total_amount?: number;
+  avg_match_percent?: number;
 }
 
 // =============================================================================
