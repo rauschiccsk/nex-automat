@@ -1,12 +1,12 @@
 // Grid Filters - shared filter functions for all grids
 
 /**
- * String filter - case insensitive contains
+ * String filter - case insensitive startsWith
  */
 export const stringFilter = (row: any, columnId: string, filterValue: string): boolean => {
   const value = row.getValue(columnId);
   if (value == null) return false;
-  return String(value).toLowerCase().includes(filterValue.toLowerCase());
+  return String(value).toLowerCase().startsWith(filterValue.toLowerCase());
 };
 
 /**
