@@ -1,63 +1,87 @@
-# INIT PROMPT - NEX Automat v3.2
+INIT PROMPT - NEX Automat Development
 
-**Projekt:** nex-automat
-**Zákazník:** Mágerstav s.r.o.
-**Verzia:** v3.2 - Supplier Invoice Staging Web
-**Developer:** Zoltán (40 rokov skúseností)
-**Jazyk:** Slovenčina
+Projekt: nex-automat
+Current Status: UAE Tenant Setup Complete
+Developer: Zoltán (40 rokov skúseností)
+Jazyk: Slovenčina
 
-⚠️ **KRITICKÉ:** Dodržiavať pravidlá z memory_user_edits!
+⚠️ KRITICKÉ: Dodržiavať pravidlá z memory_user_edits!
 
----
+🎯 PREVIOUS SESSION: UAE Legal Tenant Setup
 
-## 🎯 CURRENT STATUS
-
-✅ Deployment v3.2 kompletný - Web UI funguje na http://localhost:8001/app
-
----
-
-## ✅ Čo je hotové
+## Dokončené v minulej session ✅
 
 | Komponenta | Status |
 |------------|--------|
-| Backend API (8001) | ✅ |
-| Temporal workflows | ✅ |
-| Web UI frontend | ✅ |
-| Windows služby | ✅ |
-| PostgreSQL staging | ✅ |
+| UAE tenant štruktúra | ✅ |
+| Vzorové dokumenty (27,500 slov) | ✅ |
+| Indexácia do RAG | ✅ |
+| NexBrain API test | ✅ |
 
----
+## NexBrain Multi-tenant Setup
 
-## 📋 Možné next steps
+### Aktuálne tenants
+- icc (ICC s.r.o.)
+- andros (ANDROS s.r.o.)
+- uae (UAE Legal Documentation)
 
-1. Doladiť UI (chýbajúce polia v hlavičke faktúry)
-2. Implementovať schvaľovací workflow
-3. Import do NEX Genesis
-4. Deploy na ANDROS
-
----
-
-## 🔧 Porty Mágerstav
-
-| Služba | Port |
-|--------|------|
-| NEX-SupplierInvoiceLoader | 8001 |
-| Temporal Server | 7233 |
-| Temporal UI | 8233 |
-| PostgreSQL | 5432 |
-
----
-
-## 🔍 RAG Query
-
+### Konfigurácia
 ```
-https://rag-api.icc.sk/search?query=staging+web+deployment+magerstav&limit=5
+apps/nex-brain/.env:
+MODE=multi-tenant
+TENANTS=icc,andros,uae
 ```
 
+### Database
+- Shared PostgreSQL: nex_automat_rag
+- Tenant filtering: metadata->>'tenant'
+
 ---
 
-## 📁 Cesty
+## Dostupné nástroje
 
-**Dev:** C:\Development\nex-automat\
-**Mágerstav:** C:\Deployment\nex-automat\
-**Web UI:** http://localhost:8001/app
+### RAG System
+```
+https://rag-api.icc.sk/search?query=...&limit=5
+```
+
+### NexBrain API (lokálne)
+```
+http://127.0.0.1:8003/api/v1/chat
+http://127.0.0.1:8003/api/v1/tenants
+```
+
+### Indexácia
+```powershell
+python tools/rag/rag_update.py --new
+python tools/rag/rag_update.py --stats
+```
+
+---
+
+## Project Structure
+
+```
+C:\Development\nex-automat\
+├── apps/
+│   ├── nex-brain/              # Multi-tenant AI API
+│   ├── supplier-invoice-worker/
+│   └── supplier-invoice-loader/
+├── docs/
+│   └── knowledge/
+│       ├── shared/             # Všetci tenants
+│       └── tenants/
+│           ├── icc/
+│           ├── andros/
+│           └── uae/            # NOVÝ
+└── tools/
+    └── rag/                    # RAG indexer
+```
+
+---
+
+## Token Budget
+190,000 tokens
+
+## Ready for
+Nové úlohy podľa zadania
