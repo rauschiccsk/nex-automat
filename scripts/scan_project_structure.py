@@ -1,11 +1,14 @@
 # -*- coding: utf-8 -*-
 """
-04_scan_project_structure.py
+scan_project_structure.py
 Scan and document actual project structure of nex-automat
+Output: docs/knowledge/PROJECT_STRUCTURE.md
 """
 
 from pathlib import Path
-import os
+
+# Output file - hardcoded
+OUTPUT_FILE = Path(__file__).parent.parent / "docs" / "knowledge" / "PROJECT_STRUCTURE.md"
 
 # Directories to skip
 SKIP_DIRS = {
@@ -14,19 +17,15 @@ SKIP_DIRS = {
     '.mypy_cache', 'htmlcov', '.tox', 'eggs', '.eggs'
 }
 
-# File extensions to include
-INCLUDE_EXT = {'.py', '.md', '.sql', '.yaml', '.yml', '.json', '.txt', '.env', '.bat', '.ps1', '.sh'}
-
 
 def should_skip(path: Path) -> bool:
     """Check if directory should be skipped."""
     return path.name in SKIP_DIRS or path.name.startswith('.')
 
 
-def scan_directory(root: Path, prefix: str = "", output_lines: list = None, max_depth: int = 4, current_depth: int = 0):
+def scan_directory(root: Path, prefix: str = "", max_depth: int = 4, current_depth: int = 0) -> list:
     """Recursively scan directory and build tree."""
-    if output_lines is None:
-        output_lines = []
+    output_lines = []
 
     if current_depth > max_depth:
         output_lines.append(f"{prefix}... (max depth reached)")
@@ -46,7 +45,7 @@ def scan_directory(root: Path, prefix: str = "", output_lines: list = None, max_
         output_lines.append(f"{prefix}{connector}{d.name}/")
 
         extension = "    " if is_last_dir else "│   "
-        scan_directory(d, prefix + extension, output_lines, max_depth, current_depth + 1)
+        output_lines.extend(scan_directory(d, prefix + extension, max_depth, current_depth + 1))
 
     for i, f in enumerate(files):
         is_last = i == len(files) - 1
@@ -59,65 +58,67 @@ def scan_directory(root: Path, prefix: str = "", output_lines: list = None, max_
 
 
 def main():
-    project_root = Path(".")
+    project_root = Path(__file__).parent.parent
+    lines = []
 
-    print("=" * 70)
-    print("NEX-AUTOMAT PROJECT STRUCTURE SCAN")
-    print("=" * 70)
-    print(f"Root: {project_root.absolute()}")
-    print("=" * 70)
+    lines.append("# NEX-AUTOMAT PROJECT STRUCTURE")
+    lines.append("")
+    lines.append(f"Generated from: `scripts/scan_project_structure.py`")
+    lines.append("")
 
     # Scan apps/
-    print("\n## apps/\n")
+    lines.append("## apps/")
+    lines.append("")
     apps_dir = project_root / "apps"
     if apps_dir.exists():
         for app in sorted(apps_dir.iterdir()):
             if app.is_dir() and not should_skip(app):
-                print(f"\n### {app.name}/\n")
-                print("```")
-                lines = scan_directory(app, "", [], max_depth=3)
-                for line in lines:
-                    print(line)
-                print("```")
+                lines.append(f"### {app.name}/")
+                lines.append("")
+                lines.append("```")
+                lines.extend(scan_directory(app, "", max_depth=3))
+                lines.append("```")
+                lines.append("")
 
     # Scan packages/
-    print("\n" + "=" * 70)
-    print("\n## packages/\n")
+    lines.append("## packages/")
+    lines.append("")
     packages_dir = project_root / "packages"
     if packages_dir.exists():
         for pkg in sorted(packages_dir.iterdir()):
             if pkg.is_dir() and not should_skip(pkg):
-                print(f"\n### {pkg.name}/\n")
-                print("```")
-                lines = scan_directory(pkg, "", [], max_depth=3)
-                for line in lines:
-                    print(line)
-                print("```")
+                lines.append(f"### {pkg.name}/")
+                lines.append("")
+                lines.append("```")
+                lines.extend(scan_directory(pkg, "", max_depth=3))
+                lines.append("```")
+                lines.append("")
 
-    # Scan docs/knowledge/ (just list)
-    print("\n" + "=" * 70)
-    print("\n## docs/knowledge/\n")
+    # Scan docs/knowledge/
+    lines.append("## docs/knowledge/")
+    lines.append("")
     knowledge_dir = project_root / "docs" / "knowledge"
     if knowledge_dir.exists():
-        print("```")
-        lines = scan_directory(knowledge_dir, "", [], max_depth=2)
-        for line in lines:
-            print(line)
-        print("```")
+        lines.append("```")
+        lines.extend(scan_directory(knowledge_dir, "", max_depth=2))
+        lines.append("```")
+        lines.append("")
 
     # Root files
-    print("\n" + "=" * 70)
-    print("\n## Root files\n")
-    print("```")
+    lines.append("## Root files")
+    lines.append("")
+    lines.append("```")
     for f in sorted(project_root.iterdir()):
         if f.is_file():
             size = f.stat().st_size
             size_str = f"{size:,}" if size < 10000 else f"{size / 1024:.1f}K"
-            print(f"{f.name} ({size_str})")
-    print("```")
+            lines.append(f"{f.name} ({size_str})")
+    lines.append("```")
 
-    print("\n" + "=" * 70)
-    print("[OK] Scan complete")
+    # Write to file
+    OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
+    OUTPUT_FILE.write_text("\n".join(lines), encoding="utf-8")
+    print(f"[OK] Saved to: {OUTPUT_FILE}")
 
 
 if __name__ == "__main__":
