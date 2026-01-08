@@ -24,6 +24,7 @@ class SearchResult:
     similarity: float
     keyword_score: float
     combined_score: float
+    metadata: Optional[Dict[str, Any]] = None
 
 
 class HybridSearch:
@@ -135,6 +136,7 @@ class HybridSearch:
                     d.filename,
                     c.chunk_index,
                     c.content,
+                    d.metadata,
                     1 - (c.embedding <=> $1::vector) as similarity
                 FROM chunks c
                 JOIN documents d ON c.document_id = d.id
@@ -151,6 +153,7 @@ class HybridSearch:
                     d.filename,
                     c.chunk_index,
                     c.content,
+                    d.metadata,
                     1 - (c.embedding <=> $1::vector) as similarity
                 FROM chunks c
                 JOIN documents d ON c.document_id = d.id
@@ -176,7 +179,8 @@ class HybridSearch:
                 content=r['content'],
                 similarity=r['similarity'],
                 keyword_score=keyword_score,
-                combined_score=combined_score
+                combined_score=combined_score,
+                metadata=r['metadata'] if r['metadata'] else None
             ))
 
         # Rerank by combined score

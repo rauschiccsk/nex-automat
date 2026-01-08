@@ -1,60 +1,41 @@
 INIT PROMPT - NEX Automat Development
 
 Projekt: nex-automat
-Current Status: UAE Tenant Setup Complete
+Current Status: UAE Legal Tenant Fully Operational
 Developer: Zoltán (40 rokov skúseností)
 Jazyk: Slovenčina
 
 ⚠️ KRITICKÉ: Dodržiavať pravidlá z memory_user_edits!
 
-🎯 PREVIOUS SESSION: UAE Legal Tenant Setup
+🎯 PREVIOUS SESSION: UAE Legal Tenant RAG Setup
 
 ## Dokončené v minulej session ✅
 
 | Komponenta | Status |
 |------------|--------|
-| UAE tenant štruktúra | ✅ |
-| Vzorové dokumenty (27,500 slov) | ✅ |
-| Indexácia do RAG | ✅ |
-| NexBrain API test | ✅ |
+| UAE dokumenty indexované | ✅ 19 docs, 37 chunks |
+| Database metadata | ✅ tenant='uae' |
+| hybrid_search.py | ✅ metadata support |
+| api.py | ✅ JSON parsing |
+| RAG Search | ✅ funguje |
+| Tenant isolation | ✅ funguje |
 
-## NexBrain Multi-tenant Setup
+## UAE Tenant Operational
 
-### Aktuálne tenants
-- icc (ICC s.r.o.)
-- andros (ANDROS s.r.o.)
-- uae (UAE Legal Documentation)
+### Tenants
+- **icc** (ICC s.r.o.)
+- **andros** (ANDROS s.r.o.)
+- **uae** (UAE Legal Documentation) ✅ NEW
 
-### Konfigurácia
+### RAG API
 ```
-apps/nex-brain/.env:
-MODE=multi-tenant
-TENANTS=icc,andros,uae
-```
-
-### Database
-- Shared PostgreSQL: nex_automat_rag
-- Tenant filtering: metadata->>'tenant'
-
----
-
-## Dostupné nástroje
-
-### RAG System
-```
-https://rag-api.icc.sk/search?query=...&limit=5
+https://rag-api.icc.sk/search?query=...&tenant=uae&limit=5
 ```
 
-### NexBrain API (lokálne)
+### NexBrain API
 ```
 http://127.0.0.1:8003/api/v1/chat
 http://127.0.0.1:8003/api/v1/tenants
-```
-
-### Indexácia
-```powershell
-python tools/rag/rag_update.py --new
-python tools/rag/rag_update.py --stats
 ```
 
 ---
@@ -62,9 +43,9 @@ python tools/rag/rag_update.py --stats
 ## Project Structure
 
 ```
-C:\Development\nex-automat\
-├── apps/
-│   ├── nex-brain/              # Multi-tenant AI API
+C:\Development
+ex-automat├── apps/
+│   ├── nex-brain/              # Multi-tenant AI API (port 8003)
 │   ├── supplier-invoice-worker/
 │   └── supplier-invoice-loader/
 ├── docs/
@@ -73,9 +54,14 @@ C:\Development\nex-automat\
 │       └── tenants/
 │           ├── icc/
 │           ├── andros/
-│           └── uae/            # NOVÝ
-└── tools/
-    └── rag/                    # RAG indexer
+│           └── uae/            # ✅ OPERATIONAL
+├── tools/
+│   └── rag/                    # RAG-API (port 8765)
+│       ├── hybrid_search.py    # ✅ FIXED
+│       ├── api.py              # ✅ FIXED
+│       └── server_app.py
+└── scripts/
+    └── 01_test_uae_legal_rag.py  # ✅ Test suite
 ```
 
 ---

@@ -5,6 +5,7 @@ Provides convenient async interface for document search.
 
 from typing import List, Dict, Any, Optional
 from dataclasses import dataclass
+import json
 from datetime import datetime
 
 from .config import get_config, RAGConfig
@@ -89,22 +90,26 @@ class RAGSearchAPI:
         results = await hybrid_search_func(query, limit=limit, tenant=tenant)
 
         # Convert hybrid_search.SearchResult to api.SearchResult
-        search_results = [
-            SearchResult(
+        search_results = []
+        for r in results:
+            # Start with original metadata from hybrid_search
+            result_metadata = json.loads(r.metadata) if isinstance(r.metadata, str) else (r.metadata if r.metadata else {})
+            # Add search-specific metadata
+            result_metadata.update({
+                'similarity': r.similarity,
+                'keyword_score': r.keyword_score,
+                'document_id': r.document_id,
+                'chunk_index': r.chunk_index
+            })
+
+            search_results.append(SearchResult(
                 filename=r.filename,
                 content=r.content,
-                score=r.combined_score,  # Use combined_score as main score
+                score=r.combined_score,
                 chunk_id=str(r.chunk_id),
-                section=None,  # hybrid_search doesn't have section
-                metadata={
-                    'similarity': r.similarity,
-                    'keyword_score': r.keyword_score,
-                    'document_id': r.document_id,
-                    'chunk_index': r.chunk_index
-                }
-            )
-            for r in results
-        ]
+                section=None,
+                metadata=result_metadata
+            ))
 
         return RAGResponse(
             query=query,
