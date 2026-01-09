@@ -1,129 +1,264 @@
+# INIT PROMPT - UAE Legal RAG System Continuation
 
-INIT PROMPT - UAE Legal Research - Testing Phase
+**Projekt:** nex-automat  
+**Session:** Cabinet Decision 10/2019 Indexing + Telegram Bot Setup  
+**Developer:** Zoltán (40 rokov skúseností)  
+**Jazyk:** Slovenčina s anglickou technickou terminológiou  
+**Dátum:** 2026-01-09  
 
-Projekt: nex-automat
-Session: UAE Anti-Money Laundering Legal Research - TESTING
-Developer: Zoltán (40 rokov skúseností)
-Jazyk: Slovenčina
-Dátum: 2026-01-09
-
-⚠️ KRITICKÉ: Dodržiavať pravidlá z memory_user_edits!
-
-🎯 CURRENT FOCUS: RAG Testing & TIER 1 Completion
+⚠️ **KRITICKÉ:** Dodržiavať pravidlá z memory_user_edits!
 
 ---
 
-## Čo je hotové ✅
+## 🎯 CURRENT FOCUS
 
-| Komponenta | Status | Poznámka |
-|------------|--------|----------|
-| Federal Decree-Law 10/2025 (AML) | ✅ DONE | Analysis complete |
-| Federal Decree-Law 38/2022 (Criminal) | ✅ DONE | Full 83-page analysis |
-| RAG Indexing | ✅ DONE | 82 docs, 265 chunks, 212K tokens |
-| Test Script | ✅ CREATED | test_rag_uae.py ready |
-
-**Progress:** TIER 1: [2/3] ████████░░ 67%
+**Dokončiť UAE Legal Tenant Integration:**
+1. ✅ Cabinet Decision 10/2019 - zaindexovaný (Document ID: 1137, 35 chunks)
+2. 🔄 **Pridať UAE Telegram bota** do multi-tenant systému
+3. 🔄 **Otestovať RAG retrieval** cez Telegram bot
+4. 📋 Pripraviť analýzu Federal Decree-Law 20/2018 (next TIER 1 document)
 
 ---
 
-## Aktuálna úloha ⏳
+## 📊 ČO JE HOTOVÉ
 
-### 1. RAG TESTING (IMMEDIATE)
+### Cabinet Decision 10/2019 Analysis ✅
+| Komponenta | Status | Detail |
+|------------|--------|--------|
+| PDF Extraction | ✅ | 41 pages, 62 articles |
+| Comprehensive Analysis | ✅ | 30,000 words, defense-focused |
+| Markdown Document | ✅ | `Cabinet_Decision_10_2019_Executive_Regulation_Analysis.md` |
+| RAG Indexing | ✅ | Doc ID 1137, 35 chunks, 34K tokens |
+| Article-by-Article Breakdown | ✅ | All 62 articles analyzed |
+| Defense Checklists | ✅ | Appendix A + B created |
+| Comparison Framework | ✅ | CD 10/2019 vs 134/2025 |
 
-**Run test script:**
+### RAG System Status ✅
+- **Database:** nex_automat_rag (PostgreSQL)
+- **Documents:** 86 (increased from 85)
+- **Chunks:** 311 (increased from 276)
+- **Embedding Model:** sentence-transformers/all-MiniLM-L6-v2 (384 dims)
+- **Multi-tenant:** Funguje (ICC, ANDROS tenants verified)
+
+### NEX Brain API ✅
+- **Port:** 8003 (8001 obsadený)
+- **Status:** Running (Uvicorn)
+- **Endpoints:** `/api/v1/chat`, `/api/v1/tenants`
+
+---
+
+## 🚨 AKTUÁLNY PROBLÉM
+
+### **UAE Telegram Bot - Chýba Konfigurácia**
+
+**Situácia:**
+- Multi-bot runner má len: Admin, ICC, ANDROS
+- **UAE tenant nie je nakonfigurovaný**
+- Bot beží, ale nemá UAE instanciu
+
+**Čo treba urobiť:**
+
+#### KROK 1: Pridať UAE Bot do `multi_bot.py`
+```python
+# File: apps/nex-brain/telegram/multi_bot.py
+# Pridať do BOTS list:
+
+BotConfig(
+    token=os.getenv("TELEGRAM_BOT_TOKEN_UAE"),
+    tenant="uae",
+    requires_approval=True,
+    name="UAE"
+),
+```
+
+#### KROK 2: Vytvoriť Token v BotFather (ak neexistuje)
+```
+1. Telegram: @BotFather
+2. /newbot
+3. Name: NEX Brain UAE
+4. Username: @NexBrainUAE_bot (alebo podobné)
+5. Copy token
+```
+
+#### KROK 3: Pridať Token do `.env`
 ```bash
-cd C:\Development\nex-automat\scripts
-python test_rag_uae.py
+# File: .env (root directory)
+TELEGRAM_BOT_TOKEN_UAE=1234567890:ABCdefGHIjklMNOpqrsTUVwxyz...
 ```
 
-**Expected output:**
-- 6 test queries executed
-- Results from indexed legal documents
-- Verify relevance scores and content accuracy
-
-**If tests fail:**
-- Check ChromaDB connection
-- Verify tenant='uae' documents exist
-- Review rag_manager.py configuration
-
-### 2. TIER 1 COMPLETION
-
-**Search for:** Cabinet Decision No. 10/2019
-
-**Query:**
+#### KROK 4: Reštartovať Bot
+```bash
+cd C:\Development
+ex-automatpps
+ex-brain	elegram
+# Ctrl+C (stop current)
+python multi_bot.py
+# Verify logs: "Inicializujem NEX Brain UAE..."
 ```
-"UAE Cabinet Decision 10 2019 AML executive regulation PDF"
-```
-
-**Expected:** Detailed implementation procedures for AML Law
 
 ---
 
-## Kritické zistenia pre prípad
+## 🔍 VEDĽAJŠÍ PROBLÉM (Lower Priority)
 
-### 🚨 DETENTION EXCESSIVE
-- Klient: **1.5 roka zadržaný** (540+ dní)
-- Zákonný max: 7+14 dní → 30-day extensions (Article 107)
-- **Action:** Verify all extensions were legal
+### CLI Search Tool Bug
+```bash
+python -m tools.rag "query"
+# Error: 'SearchResult' object is not subscriptable
+```
 
-### 🚨 NEW LAW CHANGES (effective 14 Oct 2025)
-- **Old:** "actual knowledge" required
-- **New:** "sufficient evidence or circumstantial evidence"
-- **Question:** Kedy bol klient odsúdený?
+**Impact:** CLI nefunguje, ale Telegram bot používa iný code path (cez API), takže by mal fungovať.
 
-### 🚨 BAIL SHOULD HAVE BEEN POSSIBLE
-- Money laundering ≠ death/life sentence
-- Article 108: Public Prosecution can release
-- **Question:** Prečo nebol bail granted?
+**Root Cause:** `tools/rag/__main__.py` pristupuje k SearchResult ako dictionary (`r['score']`), ale SearchResult je objekt.
+
+**Fix (ak potrebné):**
+```python
+# V __main__.py, zmeniť:
+score = r['score']  # ❌
+# Na:
+score = r.score     # ✅
+```
 
 ---
 
-## RAG Query Examples
+## 📋 NEXT STEPS (Priority Order)
+
+### 1. **UAE Telegram Bot Setup** (URGENT)
+- [ ] Vytvoriť UAE bot v BotFather (ak neexistuje)
+- [ ] Pridať token do `.env`
+- [ ] Pridať BotConfig do `multi_bot.py`
+- [ ] Reštartovať bot
+- [ ] Verify: "Inicializujem NEX Brain UAE..." v logs
+
+### 2. **Test UAE RAG Retrieval**
+Test queries cez Telegram:
+```
+1. "What is reasonable grounds to suspect in Cabinet Decision 10/2019?"
+   Expected: Explanation of Article 17 standard
+
+2. "CDD threshold AED 55000"
+   Expected: Article 6 - occasional transactions threshold
+
+3. "FIU administrative freeze 7 days"
+   Expected: Article 46 - Governor's freezing power
+
+4. "Article 47 contest freezing order"
+   Expected: Right to contest, 14-day decision deadline
+
+5. "beneficial owner 25 percent"
+   Expected: Article 9 - beneficial owner identification threshold
+```
+
+### 3. **Verify Tenant Isolation**
+- Test ICC bot → should NOT see UAE documents
+- Test ANDROS bot → should NOT see UAE documents
+- Test UAE bot → should ONLY see UAE documents
+
+### 4. **Fix CLI Search Bug** (Optional)
+- Locate bug in `__main__.py` or `api.py`
+- Change dictionary access to object attribute access
+- Test: `python -m tools.rag "test query"`
+
+### 5. **Prepare Next TIER 1 Document**
+- **Federal Decree-Law 20/2018** (parent law)
+  - Cabinet Decision 10/2019 is executive regulation FOR this law
+  - Essential for understanding legal framework
+  - Similar analysis approach as CD 10/2019
+
+---
+
+## 🔗 IMPORTANT FILES & PATHS
+
+### UAE Documents
+```
+docs/knowledge/tenants/uae/
+├── cabinet_decisions/
+│   └── Cabinet_Decision_10_2019_Executive_Regulation_Analysis.md ✅
+├── federal_laws/
+│   ├── Federal_Decree_Law_10_2025_AML.md ✅
+│   └── Federal_Decree_Law_38_2022_Criminal_Procedure.md ✅
+```
+
+### Telegram Bot Config
+```
+apps/nex-brain/telegram/
+├── multi_bot.py         ← ADD UAE BOT HERE
+├── config.py            ← Port 8003 (verified)
+└── .env (root)          ← ADD TELEGRAM_BOT_TOKEN_UAE
+```
+
+### RAG Tools
+```
+tools/rag/
+├── rag_reindex.py      # Manual indexing
+├── __main__.py         # CLI search (broken)
+├── api.py              # RAG API (working)
+└── indexer.py          # Indexing logic
+```
+
+---
+
+## 🎓 SYSTEMATIC APPROACH REMINDERS
+
+### Pravidlá z userMemories:
+1. ✅ **Krok-za-krokom riešenie** (nie veľa info naraz)
+2. ✅ **Token info na konci každej odpovede**
+3. ✅ **Systematický troubleshooting** (jeden príkaz → output → analýza)
+4. ✅ **Slovak + English technical terms**
+5. ✅ **40 rokov skúseností = preferencia tested solutions**
+
+### Token Budget Tracking:
+- **Session start:** 190,000 tokens
+- **Always report at end:**
+  - Used: X / 190,000 (Y%)
+  - Remaining: Z (W%)
+
+---
+
+## 📊 RAG QUERY FOR CONTEXT
+
+Ak potrebuješ dodatočný kontext z predošlých sessions:
+
+```
+https://rag-api.icc.sk/search?query=telegram+bot+configuration+multi+tenant+uae&limit=5
+https://rag-api.icc.sk/search?query=cabinet+decision+indexing+rag&limit=5
+https://rag-api.icc.sk/search?query=nex+brain+api+port+8003&limit=5
+```
+
+---
+
+## ✅ SUCCESS CRITERIA
+
+**Session is complete when:**
+1. ✅ UAE Telegram bot beží a odpovedá
+2. ✅ Test queries z UAE legal documents fungujú
+3. ✅ Tenant isolation verified (ICC/ANDROS nevidia UAE docs)
+4. ✅ (Optional) CLI search bug opravený
+5. 📋 Next document (FD-L 20/2018) pripravený na analýzu
+
+---
+
+## 🚀 START COMMAND
 
 ```bash
-# Test query via RAG API
-https://rag-api.icc.sk/search?tenant=uae&query=money+laundering+definition&limit=5
+# 1. Otvor multi_bot.py
+notepad apps
+ex-brain	elegram\multi_bot.py
 
-# Via Telegram Bot
-/ask money laundering burden of proof UAE
+# 2. Pridaj UAE BotConfig (see KROK 1 above)
+
+# 3. Pridaj token do .env
+notepad .env
+# TELEGRAM_BOT_TOKEN_UAE=...
+
+# 4. Reštartuj bot
+cd apps
+ex-brain	elegram
+python multi_bot.py
+
+# 5. Test v Telegram
+# Send: "What is reasonable grounds to suspect?"
 ```
 
 ---
 
-## Next Steps
-
-1. **Execute RAG tests** → Verify indexing works
-2. **Search Cabinet Decision 10/2019** → Complete TIER 1
-3. **Analyze test results** → Prepare legal queries
-4. **Document findings** → Build appeal arguments
-
----
-
-## File Locations
-
-**Knowledge Base:**
-```
-C:\Development\nex-automat\docs\knowledge\tenants\uae\
-├── federal_laws/AML/Federal_Decree_Law_10_2025_AML_Analysis.md
-└── federal_laws/Criminal/Federal_Decree_Law_38_2022_Criminal_Procedure_Analysis.md
-```
-
-**Scripts:**
-```
-C:\Development\nex-automat\scripts\
-├── test_rag_uae.py (NEW - ready to run)
-└── 02_test_uae_money_laundering.py (template for future queries)
-```
-
----
-
-## Critical Reminders
-
-- Token budget monitor: Always show remaining tokens
-- Step-by-step approach: One task at a time
-- Test before proceeding: Verify each component works
-- Document everything: Save artifacts to knowledge/
-
----
-
-**Ready to start TESTING phase!**
+**Ready to continue!** 🎯
