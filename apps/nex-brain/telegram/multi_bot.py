@@ -447,12 +447,35 @@ def create_admin_handlers():
         history["tenant"] = tenant
         await update.message.reply_text(f"✅ Tenant: `{tenant}`", parse_mode="Markdown")
 
+
+    async def status(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+        """Status admin bota"""
+        user_id = update.effective_user.id
+        history = get_user_history(user_id)
+        
+        current_tenant = history.get("tenant", "icc")
+        message_count = len(history.get("messages", []))
+        
+        timeout_mins = settings.history_timeout_minutes
+        logging_status = "✅" if DB_AVAILABLE else "❌"
+        
+        text = (
+            f"📊 **Stav konverzácie**\n\n"
+            f"🏢 Tenant: `{current_tenant}`\n"
+            f"💬 Správ v histórii: {message_count}/10\n"
+            f"⏰ Timeout: {timeout_mins} min\n"
+            f"📝 Logging: {logging_status}\n"
+        )
+        
+        await update.message.reply_text(text, parse_mode="Markdown")
+
     return {
         "pending": pending,
         "approve": approve,
         "reject": reject,
         "users": users,
-        "tenant": set_tenant
+        "tenant": set_tenant,
+        "status": status
     }
 
 
@@ -486,6 +509,7 @@ async def main():
             app.add_handler(CommandHandler("reject", admin_handlers["reject"]))
             app.add_handler(CommandHandler("users", admin_handlers["users"]))
             app.add_handler(CommandHandler("tenant", admin_handlers["tenant"]))
+            app.add_handler(CommandHandler("status", admin_handlers["status"]))
             admin_bot = app.bot
 
         applications.append(app)
