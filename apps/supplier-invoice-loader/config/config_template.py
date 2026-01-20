@@ -349,41 +349,35 @@ HEARTBEAT_ENABLED = True
 
 
 
-POSTGRESQL STAGING CONFIGURATION (for invoice-editor integration):
-------------------------------------------------------------------
-
-POSTGRES_STAGING_ENABLED (bool):
-    Enable/disable PostgreSQL staging database integration
-    If True: Invoices are saved to PostgreSQL for invoice-editor approval
-    If False: Only SQLite database and file storage (legacy mode)
-    Default: True
-    Example: True
-
-POSTGRES_HOST (str):
-    PostgreSQL server hostname or IP address
-    Default: "localhost"
-    Example: "localhost"
-
-POSTGRES_PORT (int):
-    PostgreSQL server port
-    Default: 5432 (standard PostgreSQL port)
-    Example: 5432
-
-POSTGRES_DATABASE (str):
-    PostgreSQL database name
-    Default: "invoice_staging"
-    Example: "invoice_staging"
-
-POSTGRES_USER (str):
-    PostgreSQL username for connection
-    Default: "invoice_user"
-    Example: "invoice_user"
-
-POSTGRES_PASSWORD (str):
-    PostgreSQL user password
-    Default: from environment variable POSTGRES_PASSWORD
-    Security: NEVER hardcode! Use environment variables
-    Example: os.getenv("POSTGRES_PASSWORD", "")
+# POSTGRESQL STAGING CONFIGURATION (for invoice-editor integration):
+# ------------------------------------------------------------------
+#
+# POSTGRES_STAGING_ENABLED (bool):
+#     Enable/disable PostgreSQL staging database integration
+#     If True: Invoices are saved to PostgreSQL for invoice-editor approval
+#     If False: Only SQLite database and file storage (legacy mode)
+#     Default: True
+#
+# POSTGRES_HOST (str):
+#     PostgreSQL server hostname or IP address
+#     Default: "localhost"
+#
+# POSTGRES_PORT (int):
+#     PostgreSQL server port
+#     Default: 5432 (standard PostgreSQL port)
+#
+# POSTGRES_DATABASE (str):
+#     PostgreSQL database name
+#     Default: "invoice_staging"
+#
+# POSTGRES_USER (str):
+#     PostgreSQL username for connection
+#     Default: "invoice_user"
+#
+# POSTGRES_PASSWORD (str):
+#     PostgreSQL user password
+#     Default: from environment variable POSTGRES_PASSWORD
+#     Security: NEVER hardcode! Use environment variables
 
 
 # ============================================================================
