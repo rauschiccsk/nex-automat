@@ -34,7 +34,7 @@ services:
       nex-postgres-icc:
         condition: service_healthy
     environment:
-      - DB=postgres
+      - DB=postgres12
       - DB_PORT=5432
       - POSTGRES_USER=nex_admin
       - POSTGRES_PWD=${POSTGRES_PASSWORD}
@@ -51,7 +51,7 @@ services:
     container_name: nex-temporal-ui-icc
     restart: unless-stopped
     ports:
-      - "8081:8080"
+      - "8082:8080"
     depends_on:
       - nex-temporal-icc
     environment:

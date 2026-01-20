@@ -34,7 +34,7 @@ services:
       nex-postgres-andros:
         condition: service_healthy
     environment:
-      - DB=postgres
+      - DB=postgres12
       - DB_PORT=5432
       - POSTGRES_USER=nex_admin
       - POSTGRES_PWD=${POSTGRES_PASSWORD}
