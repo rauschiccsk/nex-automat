@@ -375,7 +375,7 @@ def move_files_to_staging(pdf_path: Path, xml_path: Path, file_basename: str, pg
         # Update file_status in PostgreSQL using pg8000.native
         pg_conn.run(
             """
-            UPDATE supplier_invoice_heads 
+            UPDATE invoices_pending 
             SET file_status = 'staged',
                 pdf_file_path = :pdf_path,
                 xml_file_path = :xml_path,

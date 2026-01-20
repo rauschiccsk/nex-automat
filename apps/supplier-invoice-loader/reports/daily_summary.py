@@ -87,7 +87,7 @@ class DailySummaryReport:
                     item_count,
                     validation_status,
                     validation_errors
-                FROM supplier_invoice_heads
+                FROM invoices_pending
                 WHERE DATE(created_at) = %s
                 ORDER BY created_at DESC
             """, (report_date,))
@@ -113,7 +113,7 @@ class DailySummaryReport:
                     COALESCE(SUM(xml_total_with_vat), 0) as total_amount,
                     COALESCE(AVG(match_percent), 0) as avg_match,
                     COUNT(*) FILTER (WHERE validation_status = 'error') as errors
-                FROM supplier_invoice_heads
+                FROM invoices_pending
                 WHERE DATE(created_at) = %s
             """, (report_date,))
 
@@ -126,7 +126,7 @@ class DailySummaryReport:
             # By status
             cursor.execute("""
                 SELECT status, COUNT(*)
-                FROM supplier_invoice_heads
+                FROM invoices_pending
                 WHERE DATE(created_at) = %s
                 GROUP BY status
             """, (report_date,))
@@ -139,7 +139,7 @@ class DailySummaryReport:
                 SELECT 
                     COUNT(*),
                     COALESCE(SUM(xml_total_with_vat), 0)
-                FROM supplier_invoice_heads
+                FROM invoices_pending
                 WHERE DATE(created_at) = %s
             """, (prev_date,))
 
