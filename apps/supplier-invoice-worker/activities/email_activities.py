@@ -9,7 +9,6 @@ import imaplib
 from temporalio import activity
 
 from config.settings import get_settings
-from config.gmail_oauth import get_credentials
 
 
 @dataclass
@@ -30,18 +29,15 @@ class EmailMessage:
     attachments: list[EmailAttachment]
 
 
-def _get_oauth2_imap_connection(user: str) -> imaplib.IMAP4_SSL:
-    """Create IMAP connection with OAuth2 authentication."""
-    creds = get_credentials()
+def _get_imap_connection() -> imaplib.IMAP4_SSL:
+    """Create IMAP connection with standard password authentication."""
+    settings = get_settings()
 
-    # Build OAuth2 authentication string
-    auth_string = f"user={user}\1auth=Bearer {creds.token}\1\1"
+    # Connect to IMAP server with SSL
+    imap = imaplib.IMAP4_SSL(settings.imap_host, settings.imap_port)
 
-    # Connect to Gmail IMAP
-    imap = imaplib.IMAP4_SSL("imap.gmail.com", 993)
-
-    # Authenticate with OAuth2
-    imap.authenticate("XOAUTH2", lambda x: auth_string.encode())
+    # Authenticate with username and password
+    imap.login(settings.imap_user, settings.imap_password)
 
     return imap
 
@@ -49,7 +45,7 @@ def _get_oauth2_imap_connection(user: str) -> imaplib.IMAP4_SSL:
 @activity.defn
 async def fetch_unread_emails() -> list[EmailMessage]:
     """
-    Fetch unread emails from IMAP server using OAuth2.
+    Fetch unread emails from IMAP server.
 
     Returns:
         List of EmailMessage objects with PDF attachments.
@@ -57,10 +53,10 @@ async def fetch_unread_emails() -> list[EmailMessage]:
     settings = get_settings()
     messages: list[EmailMessage] = []
 
-    activity.logger.info(f"Connecting to imap.gmail.com with OAuth2...")
+    activity.logger.info(f"Connecting to {settings.imap_host}...")
 
     try:
-        imap = _get_oauth2_imap_connection(settings.imap_user)
+        imap = _get_imap_connection()
         imap.select(settings.imap_folder)
 
         # Search for unread emails
@@ -126,7 +122,7 @@ async def mark_email_processed(uid: int) -> bool:
     activity.logger.info(f"Marking email UID {uid} as processed...")
 
     try:
-        imap = _get_oauth2_imap_connection(settings.imap_user)
+        imap = _get_imap_connection()
         imap.select(settings.imap_folder)
 
         # Add SEEN flag
