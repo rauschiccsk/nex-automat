@@ -287,7 +287,7 @@ async def enrich_invoice_items(invoice_id: int):
         )
         items = pg_client.get_pending_enrichment_items(invoice_id, limit=100)
 
-        logger.info(f"🔍 Enriching {len(items)} items for invoice {invoice_id}")
+        logger.info(f"[ENRICH] Enriching {len(items)} items for invoice {invoice_id}")
 
         matched_count = 0
         no_match_count = 0
@@ -311,7 +311,7 @@ async def enrich_invoice_items(invoice_id: int):
                         matched_by=result.method
                     )
                     matched_count += 1
-                    logger.debug(f"  ✅ Item {item['id']}: {result.product.gs_name} (confidence: {result.confidence:.2f})")
+                    logger.debug(f"  [OK] Item {item['id']}: {result.product.gs_name} (confidence: {result.confidence:.2f})")
                 else:
                     # Mark as no match
                     pg_client.mark_no_match(
@@ -319,19 +319,19 @@ async def enrich_invoice_items(invoice_id: int):
                         reason=f"No match found (min confidence: 0.6)"
                     )
                     no_match_count += 1
-                    logger.debug(f"  ⚠  Item {item['id']}: No match")
+                    logger.debug(f"  [WARNING] Item {item['id']}: No match")
 
             except Exception as e:
-                logger.error(f"  ❌ Error enriching item {item['id']}: {e}")
+                logger.error(f"  [ERROR] Error enriching item {item['id']}: {e}")
                 continue
 
         # Log statistics
         stats = pg_client.get_enrichment_stats(invoice_id)
-        logger.info(f"✅ Enrichment complete: {matched_count} matched, {no_match_count} no match")
-        logger.info(f"📊 Stats - Total: {stats['total']}, Matched: {stats['matched']}, Pending: {stats['pending']}")
+        logger.info(f"[OK] Enrichment complete: {matched_count} matched, {no_match_count} no match")
+        logger.info(f"[STATS] Stats - Total: {stats['total']}, Matched: {stats['matched']}, Pending: {stats['pending']}")
 
     except Exception as e:
-        logger.error(f"❌ Failed to enrich invoice {invoice_id}: {e}")
+        logger.error(f"[ERROR] Failed to enrich invoice {invoice_id}: {e}")
 
 
 
@@ -686,7 +686,7 @@ async def startup_event():
             print(f"[ERROR] Failed to initialize ProductMatcher: {e}")
             product_matcher = None
     else:
-        print("⚠  NEX Genesis enrichment disabled")
+        print("[WARNING] NEX Genesis enrichment disabled")
 
 
 @app.on_event("shutdown")
