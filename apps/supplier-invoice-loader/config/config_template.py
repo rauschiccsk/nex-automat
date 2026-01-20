@@ -395,10 +395,15 @@ BASE_DIR = Path(__file__).resolve().parent
 STORAGE_BASE = Path(os.getenv("LS_STORAGE_PATH", r"C:\NEX_INVOICES"))
 PDF_DIR = STORAGE_BASE / "PDF"
 XML_DIR = STORAGE_BASE / "XML"
+STAGING_DIR = STORAGE_BASE / "STAGING"
 
 # Create directories
 PDF_DIR.mkdir(parents=True, exist_ok=True)
 XML_DIR.mkdir(parents=True, exist_ok=True)
+STAGING_DIR.mkdir(parents=True, exist_ok=True)
+
+# NEX Genesis data path (for ProductMatcher)
+NEX_DATA_PATH = Path(os.getenv("NEX_DATA_PATH", r"C:\NEX_DATA"))
 
 # Database
 DB_FILE = BASE_DIR / "invoices.db"
