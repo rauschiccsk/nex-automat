@@ -335,6 +335,7 @@ CUSTOMER_FULL_NAME = "Customer Company Name s.r.o."
 # NEX Genesis API
 NEX_GENESIS_API_URL = "http://localhost:8080/api"  # Change to customer server
 NEX_GENESIS_API_KEY = "CHANGE_ME_SECRET_KEY"
+NEX_GENESIS_ENABLED = True  # Enable NEX Genesis Btrieve integration
 
 # Operator email (who forwards invoices)
 OPERATOR_EMAIL = "operator@customer.sk"
