@@ -26,6 +26,7 @@ from src.utils import config, monitoring, notifications
 from src.database import database
 from nex_staging import StagingClient
 from src.extractors.ls_extractor import extract_invoice_data
+from src.extractors.marso_extractor import detect_marso_invoice_from_pdf, extract_marso_as_standard
 from src.business.isdoc_service import generate_isdoc_xml
 from src.api.staging_routes import router as staging_router
 
@@ -453,8 +454,14 @@ async def process_invoice(
                 "received_date": request.received_date
             }
 
-        # 2. Extract data from PDF
-        invoice_data = extract_invoice_data(str(pdf_path))
+        # 2. Extract data from PDF (with supplier auto-detection)
+        # Detect invoice type and route to appropriate extractor
+        if detect_marso_invoice_from_pdf(str(pdf_path)):
+            print("[INFO] Detected MARSO invoice - using MARSO extractor")
+            invoice_data = extract_marso_as_standard(str(pdf_path))
+        else:
+            print("[INFO] Using L&Š extractor (default)")
+            invoice_data = extract_invoice_data(str(pdf_path))
 
         if not invoice_data:
             raise Exception("Failed to extract data from PDF")
