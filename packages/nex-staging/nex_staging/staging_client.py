@@ -122,7 +122,7 @@ class StagingClient:
 
         result = self._run("""
             SELECT COUNT(*) 
-            FROM supplier_invoice_heads 
+            FROM invoices_pending 
             WHERE xml_supplier_ico = %s 
               AND xml_invoice_number = %s
         """, (supplier_ico, invoice_number))
@@ -156,7 +156,7 @@ class StagingClient:
 
         try:
             result = self._run("""
-                INSERT INTO supplier_invoice_heads (
+                INSERT INTO invoices_pending (
                     xml_supplier_ico,
                     xml_supplier_name,
                     xml_supplier_dic,
@@ -204,7 +204,7 @@ class StagingClient:
 
             for item in items_data:
                 self._run("""
-                    INSERT INTO supplier_invoice_items (
+                    INSERT INTO invoice_items_pending (
                         invoice_head_id,
                         xml_line_number,
                         xml_product_name,
@@ -246,7 +246,7 @@ class StagingClient:
             raise RuntimeError("Not in context manager")
 
         query = """
-            UPDATE supplier_invoice_heads
+            UPDATE invoices_pending
             SET file_status = %s,
                 updated_at = CURRENT_TIMESTAMP
         """
@@ -282,7 +282,7 @@ class StagingClient:
                     COUNT(*) FILTER (WHERE matched = TRUE) as matched,
                     COUNT(*) FILTER (WHERE matched = FALSE OR matched IS NULL) as not_matched,
                     COUNT(*) as total
-                FROM supplier_invoice_items
+                FROM invoice_items_pending
                 WHERE invoice_head_id = %s
             """, (invoice_id,))
         else:
@@ -291,7 +291,7 @@ class StagingClient:
                     COUNT(*) FILTER (WHERE matched = TRUE) as matched,
                     COUNT(*) FILTER (WHERE matched = FALSE OR matched IS NULL) as not_matched,
                     COUNT(*) as total
-                FROM supplier_invoice_items
+                FROM invoice_items_pending
             """)
 
         row = result[0] if result else (0, 0, 0)
