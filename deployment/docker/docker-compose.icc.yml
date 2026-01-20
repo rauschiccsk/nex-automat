@@ -1,0 +1,66 @@
+# ICC Stack - Docker Compose
+# Usage: docker-compose -f docker-compose.icc.yml --env-file .env.icc up -d
+
+services:
+  # PostgreSQL Database
+  nex-postgres-icc:
+    image: postgres:16-alpine
+    container_name: nex-postgres-icc
+    restart: unless-stopped
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_USER: nex_admin
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: nex_automat
+    volumes:
+      - /data/docker-volumes/icc/postgres:/var/lib/postgresql/data
+    networks:
+      - nex-icc-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U nex_admin -d nex_automat"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Temporal Server
+  nex-temporal-icc:
+    image: temporalio/auto-setup:1.24.2
+    container_name: nex-temporal-icc
+    restart: unless-stopped
+    ports:
+      - "7234:7233"
+    depends_on:
+      nex-postgres-icc:
+        condition: service_healthy
+    environment:
+      - DB=postgres
+      - DB_PORT=5432
+      - POSTGRES_USER=nex_admin
+      - POSTGRES_PWD=${POSTGRES_PASSWORD}
+      - POSTGRES_SEEDS=nex-postgres-icc
+      - DBNAME=temporal
+      - VISIBILITY_DBNAME=temporal_visibility
+      - SKIP_DB_CREATE=false
+    networks:
+      - nex-icc-network
+
+  # Temporal Web UI
+  nex-temporal-ui-icc:
+    image: temporalio/ui:latest
+    container_name: nex-temporal-ui-icc
+    restart: unless-stopped
+    ports:
+      - "8081:8080"
+    depends_on:
+      - nex-temporal-icc
+    environment:
+      - TEMPORAL_ADDRESS=nex-temporal-icc:7233
+      - TEMPORAL_CORS_ORIGINS=http://localhost:3000
+    networks:
+      - nex-icc-network
+
+networks:
+  nex-icc-network:
+    driver: bridge
+    name: nex-icc-network

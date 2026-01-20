@@ -1,0 +1,66 @@
+# ANDROS Stack - Docker Compose
+# Usage: docker-compose -f docker-compose.andros.yml --env-file .env.andros up -d
+
+services:
+  # PostgreSQL Database
+  nex-postgres-andros:
+    image: postgres:16-alpine
+    container_name: nex-postgres-andros
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: nex_admin
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: nex_automat
+    volumes:
+      - /data/docker-volumes/andros/postgres:/var/lib/postgresql/data
+    networks:
+      - nex-andros-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U nex_admin -d nex_automat"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Temporal Server
+  nex-temporal-andros:
+    image: temporalio/auto-setup:1.24.2
+    container_name: nex-temporal-andros
+    restart: unless-stopped
+    ports:
+      - "7233:7233"
+    depends_on:
+      nex-postgres-andros:
+        condition: service_healthy
+    environment:
+      - DB=postgres
+      - DB_PORT=5432
+      - POSTGRES_USER=nex_admin
+      - POSTGRES_PWD=${POSTGRES_PASSWORD}
+      - POSTGRES_SEEDS=nex-postgres-andros
+      - DBNAME=temporal
+      - VISIBILITY_DBNAME=temporal_visibility
+      - SKIP_DB_CREATE=false
+    networks:
+      - nex-andros-network
+
+  # Temporal Web UI
+  nex-temporal-ui-andros:
+    image: temporalio/ui:latest
+    container_name: nex-temporal-ui-andros
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    depends_on:
+      - nex-temporal-andros
+    environment:
+      - TEMPORAL_ADDRESS=nex-temporal-andros:7233
+      - TEMPORAL_CORS_ORIGINS=http://localhost:3000
+    networks:
+      - nex-andros-network
+
+networks:
+  nex-andros-network:
+    driver: bridge
+    name: nex-andros-network
