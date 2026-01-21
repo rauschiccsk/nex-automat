@@ -10,7 +10,7 @@ from temporalio.worker import Worker
 from activities.email_activities import fetch_unread_emails, mark_email_processed
 from activities.invoice_activities import upload_invoice_to_api, validate_pdf
 from config.settings import get_settings
-from workflows.invoice_workflow import InvoiceProcessingWorkflow
+from workflows.pdf_invoice_workflow import InvoiceProcessingWorkflow
 
 # Configure logging
 logging.basicConfig(

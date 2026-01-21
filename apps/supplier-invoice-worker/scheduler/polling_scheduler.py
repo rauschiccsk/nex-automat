@@ -9,7 +9,7 @@ from uuid import uuid4
 from temporalio.client import Client
 
 from config.settings import get_settings
-from workflows.invoice_workflow import InvoiceProcessingWorkflow
+from workflows.pdf_invoice_workflow import InvoiceProcessingWorkflow
 
 # Configure logging
 logging.basicConfig(
