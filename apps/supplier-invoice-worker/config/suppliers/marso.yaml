@@ -1,0 +1,49 @@
+# MARSO Slovakia s.r.o. - API Configuration
+# ==========================================
+# Status: SKELETON - čaká na API dokumentáciu
+
+supplier_id: "marso"
+supplier_name: "MARSO Slovakia s.r.o."
+
+# Authentication
+# TODO: Overiť typ autentifikácie podľa MARSO dokumentácie
+auth_type: "api_key"  # api_key | basic | oauth2 | certificate
+
+# Credentials: MARSO_API_KEY (v .env)
+
+# API Endpoints
+# TODO: Doplniť reálne URL z MARSO dokumentácie
+base_url: "https://api.marso.sk"  # TODO: overiť
+endpoints:
+  # TODO: Doplniť endpoint pre zoznam faktúr
+  list_invoices: "/invoices?status=pending"
+
+  # TODO: Doplniť endpoint pre detail faktúry
+  get_invoice: "/invoices/{invoice_id}"
+
+  # TODO: Doplniť endpoint pre potvrdenie spracovania
+  acknowledge: "/invoices/{invoice_id}/ack"
+
+# Product Code Mapping
+# TODO: Analyzovať vzorový XML a identifikovať pole s kódom produktu
+product_code:
+  # TODO: Názov elementu v MARSO XML obsahujúceho kód produktu
+  xml_field: "MarsoCode"  # TODO: overiť podľa vzorového XML
+
+  type: "marso_code"
+
+  # TODO: Overiť názov stĺpca v NEX Genesis pre MARSO kód
+  nex_genesis_field: "MARSO_KOD"  # TODO: overiť v NEX Genesis
+
+# Settings
+timeout_seconds: 30
+max_retries: 3
+rate_limit_per_minute: 60  # TODO: overiť rate limit MARSO API
+
+# XML Parsing
+# TODO: Doplniť po analýze vzorového XML
+# xml_namespaces: {}
+# xml_paths:
+#   invoice_number: "..."
+#   invoice_date: "..."
+#   items: "..."

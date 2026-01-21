@@ -18,26 +18,26 @@
 - [x] Vytvoriť `apps/supplier-invoice-worker/config/suppliers/`
 
 ### 1.3 Základné modely
-- [ ] Vytvoriť `models/__init__.py`
-- [ ] Vytvoriť `models/unified_invoice.py`
-  - [ ] `InvoiceStatus` enum
-  - [ ] `InvoiceItem` dataclass
-  - [ ] `UnifiedInvoice` dataclass
+- [x] Vytvoriť `models/__init__.py`
+- [x] Vytvoriť `models/unified_invoice.py`
+  - [x] `InvoiceStatus` enum
+  - [x] `InvoiceItem` dataclass
+  - [x] `UnifiedInvoice` dataclass
 
 ### 1.4 Adapter základ
-- [ ] Vytvoriť `adapters/__init__.py`
-- [ ] Vytvoriť `adapters/base_adapter.py`
-  - [ ] `AuthType` enum
-  - [ ] `SupplierConfig` dataclass
-  - [ ] `BaseSupplierAdapter` abstraktná trieda
+- [x] Vytvoriť `adapters/__init__.py`
+- [x] Vytvoriť `adapters/base_adapter.py`
+  - [x] `AuthType` enum
+  - [x] `SupplierConfig` dataclass
+  - [x] `BaseSupplierAdapter` abstraktná trieda
 
 ### 1.5 Konfigurácia
-- [ ] Vytvoriť `config/suppliers/_template.yaml`
-- [ ] Vytvoriť `config/suppliers/marso.yaml` (skeleton)
+- [x] Vytvoriť `config/suppliers/_template.yaml`
+- [x] Vytvoriť `config/suppliers/marso.yaml` (skeleton)
 
 ### 1.6 Skeleton workflow a activities
-- [ ] Vytvoriť `activities/supplier_api_activities.py` (skeleton)
-- [ ] Vytvoriť `workflows/api_invoice_workflow.py` (skeleton)
+- [x] Vytvoriť `activities/supplier_api_activities.py` (skeleton)
+- [x] Vytvoriť `workflows/api_invoice_workflow.py` (skeleton)
 
 ---
 
@@ -70,7 +70,7 @@
 ## Fáza 3: Temporal integration
 
 ### 3.1 Activities implementácia
-- [ ] `load_supplier_config()` - načítanie YAML
+- [x] `load_supplier_config()` - načítanie YAML (config/config_loader.py)
 - [ ] `authenticate_supplier()` - autentifikácia
 - [ ] `fetch_pending_invoices()` - zoznam faktúr
 - [ ] `fetch_invoice_xml()` - stiahnutie XML

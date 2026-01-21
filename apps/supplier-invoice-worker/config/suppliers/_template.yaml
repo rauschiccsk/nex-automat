@@ -1,0 +1,61 @@
+# Supplier API Configuration Template
+# =====================================
+# Skopíruj tento súbor a premenuj na {supplier_id}.yaml
+# Príklad: marso.yaml, continental.yaml
+
+# Identifikácia dodávateľa
+supplier_id: "supplier_code"        # Unikátny kód (lowercase, bez medzier)
+supplier_name: "Supplier Name s.r.o."
+
+# Authentication
+# Podporované typy: api_key | basic | oauth2 | certificate
+auth_type: "api_key"
+
+# Credentials sa načítavajú z environment variables:
+#   {SUPPLIER_ID}_API_KEY      - pre auth_type: api_key
+#   {SUPPLIER_ID}_USERNAME     - pre auth_type: basic
+#   {SUPPLIER_ID}_PASSWORD     - pre auth_type: basic
+#   {SUPPLIER_ID}_CLIENT_ID    - pre auth_type: oauth2
+#   {SUPPLIER_ID}_CLIENT_SECRET - pre auth_type: oauth2
+#
+# Príklad pre MARSO:
+#   MARSO_API_KEY=xxx
+
+# API Endpoints
+base_url: "https://api.supplier.com"
+endpoints:
+  # Zoznam nespracovaných faktúr
+  # Premenná: žiadne
+  list_invoices: "/api/v1/invoices?status=pending"
+
+  # Detail faktúry (XML)
+  # Premenná: {invoice_id}
+  get_invoice: "/api/v1/invoices/{invoice_id}"
+
+  # Potvrdenie spracovania
+  # Premenná: {invoice_id}
+  acknowledge: "/api/v1/invoices/{invoice_id}/ack"
+
+# Product Code Mapping
+# Definuje ako sa mapuje product code z XML na NEX Genesis
+product_code:
+  # Názov XML elementu/atribútu obsahujúceho kód produktu
+  xml_field: "EAN"
+
+  # Typ kódu: ean | supplier_code | catalog_number
+  type: "ean"
+
+  # Názov stĺpca v NEX Genesis produktovom katalógu
+  nex_genesis_field: "EAN"
+
+# Optional Settings
+timeout_seconds: 30           # Timeout pre API volania
+max_retries: 3                # Počet opakovaní pri chybe
+rate_limit_per_minute: 60     # Max požiadaviek za minútu
+
+# XML Parsing (voliteľné - ak supplier má špecifickú štruktúru)
+# xml_namespaces:
+#   inv: "http://supplier.com/invoice/v1"
+# xml_paths:
+#   invoice_number: "//inv:InvoiceNumber"
+#   invoice_date: "//inv:IssueDate"
