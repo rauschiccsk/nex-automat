@@ -9,6 +9,7 @@ import {
   BaseGrid,
   exportToCSV,
   formatCurrency,
+  formatDate,
   invoiceItemsGridConfig,
 } from '@/components/grids';
 import { getInvoice } from '@/api/invoices';
@@ -200,8 +201,8 @@ export function InvoiceDetail() {
             <CardTitle className="text-xs font-medium text-slate-600">Dátumy</CardTitle>
           </CardHeader>
           <CardContent className="px-3 py-0 text-xs">
-            <div><span className="text-slate-500">Vyst:</span> {new Date(invoice.xml_issue_date).toLocaleDateString('sk-SK')}</div>
-            <div><span className="text-slate-500">Splat:</span> {invoice.xml_due_date ? new Date(invoice.xml_due_date).toLocaleDateString('sk-SK') : '-'}</div>
+            <div><span className="text-slate-500">Vyst:</span> {formatDate(invoice.xml_issue_date)}</div>
+            <div><span className="text-slate-500">Splat:</span> {formatDate(invoice.xml_due_date)}</div>
           </CardContent>
         </Card>
 

@@ -44,11 +44,29 @@ export function formatInteger(value: number | null | undefined): string {
 }
 
 /**
+ * Parse date string that may be in DD.MM.YYYY format
+ */
+function parseLocalDate(value: string): Date {
+  // Try DD.MM.YYYY format first (Slovak/European)
+  const ddmmyyyy = value.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/);
+  if (ddmmyyyy) {
+    const [, day, month, year] = ddmmyyyy;
+    return new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+  }
+  // Fallback to standard Date parsing (ISO, etc.)
+  return new Date(value);
+}
+
+/**
  * Format date (Slovak format)
  */
 export function formatDate(value: string | Date | null | undefined): string {
   if (value == null) return '-';
-  const date = typeof value === 'string' ? new Date(value) : value;
+  // If already in DD.MM.YYYY format, return as-is
+  if (typeof value === 'string' && /^\d{1,2}\.\d{1,2}\.\d{4}$/.test(value)) {
+    return value;
+  }
+  const date = typeof value === 'string' ? parseLocalDate(value) : value;
   if (isNaN(date.getTime())) return '-';
   return date.toLocaleDateString('sk-SK');
 }
@@ -58,7 +76,7 @@ export function formatDate(value: string | Date | null | undefined): string {
  */
 export function formatDateTime(value: string | Date | null | undefined): string {
   if (value == null) return '-';
-  const date = typeof value === 'string' ? new Date(value) : value;
+  const date = typeof value === 'string' ? parseLocalDate(value) : value;
   if (isNaN(date.getTime())) return '-';
   return date.toLocaleString('sk-SK');
 }
