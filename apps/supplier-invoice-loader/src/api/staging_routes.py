@@ -61,6 +61,20 @@ def get_repository() -> InvoiceRepository:
 # ENDPOINTS
 # ============================================================================
 
+@router.get("/config")
+async def get_staging_config():
+    """
+    Get staging web UI configuration.
+
+    Returns customer-specific settings for the staging web UI,
+    controlling which features are available (price edit, margin edit, etc.)
+
+    Returns:
+        StagingWebConfig dict with allow_* flags
+    """
+    return config.STAGING_WEB_CONFIG
+
+
 @router.get("/invoices")
 async def get_invoices(
     file_status: Optional[str] = None,

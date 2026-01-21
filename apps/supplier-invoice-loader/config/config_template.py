@@ -432,3 +432,18 @@ POSTGRES_PORT = 5432
 POSTGRES_DATABASE = "invoice_staging"
 POSTGRES_USER = "invoice_user"
 POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD", "")
+
+# ============================================================================
+# STAGING WEB UI CONFIGURATION (multi-tenant support)
+# ============================================================================
+# Controls which features are available in supplier-invoice-staging-web UI
+# Different customers may have different permissions
+
+STAGING_WEB_CONFIG = {
+    "customer_name": CUSTOMER_NAME,           # Displayed in UI header
+    "allow_price_edit": False,                # ANDROS=False, MAGERSTAV=True
+    "allow_margin_edit": False,               # ANDROS=False, MAGERSTAV=True
+    "allow_approve": True,                    # Can approve invoices
+    "allow_reject": True,                     # Can reject invoices
+    "show_nex_columns": True,                 # Show NEX Genesis matched data
+}

@@ -5,14 +5,14 @@ import { ArrowLeft, Check, Upload, FileText, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { 
-  BaseGrid, 
+import {
+  BaseGrid,
   exportToCSV,
   formatCurrency,
   invoiceItemsGridConfig,
-  invoiceItemsEditableColumns,
 } from '@/components/grids';
 import { getInvoice } from '@/api/invoices';
+import { getStagingConfig, type StagingConfig } from '@/api/config';
 import { STATUS_CONFIG } from '@/types/invoice';
 import type { InvoiceItem } from '@/types/invoice';
 
@@ -25,6 +25,27 @@ export function InvoiceDetail() {
     queryFn: () => getInvoice(Number(id)),
     enabled: !!id,
   });
+
+  // Load staging config for permissions
+  const { data: stagingConfig } = useQuery({
+    queryKey: ['stagingConfig'],
+    queryFn: getStagingConfig,
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+  });
+
+  // Determine editable columns based on config
+  const editableColumns = useMemo(() => {
+    if (!stagingConfig) return []; // No editing until config loaded
+
+    const columns: string[] = [];
+    if (stagingConfig.allow_margin_edit) {
+      columns.push('nex_margin_percent');
+    }
+    if (stagingConfig.allow_price_edit) {
+      columns.push('nex_sales_price');
+    }
+    return columns;
+  }, [stagingConfig]);
 
   // Local state for edited items
   const [editedItems, setEditedItems] = useState<Map<number, Partial<InvoiceItem>>>(new Map());
@@ -224,7 +245,7 @@ export function InvoiceDetail() {
         <BaseGrid
           data={items}
           config={invoiceItemsGridConfig}
-          editableColumns={invoiceItemsEditableColumns}
+          editableColumns={editableColumns}
           onCellEdit={handleCellEdit}
           className="flex-1 min-h-0"
         />
