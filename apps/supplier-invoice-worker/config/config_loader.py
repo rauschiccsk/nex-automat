@@ -51,11 +51,19 @@ def load_supplier_config(supplier_id: str) -> SupplierConfig:
     except yaml.YAMLError as e:
         raise SupplierConfigError(f"Invalid YAML in {config_file}: {e}")
 
-    # Validate required fields
-    required_fields = ["supplier_id", "supplier_name", "auth_type", "base_url", "endpoints"]
+    # Validate required fields (base_url not required for SOAP - uses wsdl_url)
+    required_fields = ["supplier_id", "supplier_name", "auth_type"]
     for field in required_fields:
         if field not in yaml_config:
             raise SupplierConfigError(f"Missing required field '{field}' in {config_file}")
+
+    # Validate base_url or wsdl_url exists
+    connection = yaml_config.get("connection", {})
+    protocol = yaml_config.get("protocol", connection.get("protocol", "rest"))
+    if protocol == "rest" and "base_url" not in yaml_config:
+        raise SupplierConfigError(f"Missing 'base_url' for REST protocol in {config_file}")
+    if protocol == "soap" and not (connection.get("wsdl_url") or connection.get("wsdl_test")):
+        raise SupplierConfigError(f"Missing 'connection.wsdl_url' for SOAP protocol in {config_file}")
 
     # Parse auth_type
     try:
@@ -76,14 +84,15 @@ def load_supplier_config(supplier_id: str) -> SupplierConfig:
     password = os.environ.get(f"{env_prefix}_PASSWORD")
 
     # Validate credentials based on auth_type
-    if auth_type == AuthType.API_KEY and not api_key:
+    api_key_types = [AuthType.API_KEY, AuthType.API_KEY_HEADER, AuthType.API_KEY_QUERY, AuthType.API_KEY_BODY]
+    if auth_type in api_key_types and not api_key:
         raise SupplierConfigError(
-            f"Missing environment variable {env_prefix}_API_KEY for auth_type 'api_key'"
+            f"Missing environment variable {env_prefix}_API_KEY for auth_type '{auth_type.value}'"
         )
-    elif auth_type == AuthType.BASIC and (not username or not password):
+    elif auth_type in [AuthType.BASIC, AuthType.BEARER] and (not username or not password):
         raise SupplierConfigError(
             f"Missing environment variables {env_prefix}_USERNAME and/or "
-            f"{env_prefix}_PASSWORD for auth_type 'basic'"
+            f"{env_prefix}_PASSWORD for auth_type '{auth_type.value}'"
         )
 
     # Extract endpoints
@@ -92,15 +101,22 @@ def load_supplier_config(supplier_id: str) -> SupplierConfig:
     # Extract product_code configuration
     product_code = yaml_config.get("product_code", {})
 
+    # Extract SOAP-specific configuration
+    request_config = yaml_config.get("request", {})
+    response_config = yaml_config.get("response", {})
+
+    # Determine WSDL URL (prefer wsdl_url, fallback to wsdl_test)
+    wsdl_url = connection.get("wsdl_url") or connection.get("wsdl_test")
+
     # Build SupplierConfig
     return SupplierConfig(
         supplier_id=yaml_config["supplier_id"],
         supplier_name=yaml_config["supplier_name"],
         auth_type=auth_type,
-        base_url=yaml_config["base_url"],
-        endpoint_list_invoices=endpoints.get("list_invoices", ""),
-        endpoint_get_invoice=endpoints.get("get_invoice", ""),
-        endpoint_acknowledge=endpoints.get("acknowledge", ""),
+        base_url=yaml_config.get("base_url", ""),
+        endpoint_list_invoices=endpoints.get("list_invoices", endpoints.get("invoice_list", "")),
+        endpoint_get_invoice=endpoints.get("get_invoice", endpoints.get("invoice_detail", "")),
+        endpoint_acknowledge=endpoints.get("acknowledge", endpoints.get("invoice_ack", "")),
         product_code_field=product_code.get("xml_field", ""),
         product_code_type=product_code.get("type", ""),
         api_key=api_key,
@@ -109,6 +125,13 @@ def load_supplier_config(supplier_id: str) -> SupplierConfig:
         timeout_seconds=yaml_config.get("timeout_seconds", 30),
         max_retries=yaml_config.get("max_retries", 3),
         rate_limit_per_minute=yaml_config.get("rate_limit_per_minute", 60),
+        # SOAP support
+        protocol=protocol,
+        wsdl_url=wsdl_url,
+        soap_method=connection.get("method"),
+        message_types=endpoints,
+        request_params=request_config,
+        response_format=response_config.get("format", "xml"),
     )
 
 
