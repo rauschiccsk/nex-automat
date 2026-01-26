@@ -187,40 +187,54 @@ class MARSOAdapter(BaseSupplierAdapter):
 
     def to_unified_invoice(self, raw_data: Dict[str, Any]) -> UnifiedInvoice:
         """Convert MARSO JSON to UnifiedInvoice."""
+        from datetime import datetime
+
         lines = raw_data.get("Lines", [])
         items = [
             InvoiceItem(
                 line_number=idx + 1,
                 product_code=line.get("ItemId", ""),
+                product_code_type="ean",
                 product_name=line.get("ItemName", ""),
                 quantity=float(line.get("Qty", 0)),
                 unit=self._map_unit(line.get("SalesUnit", "Db")),
                 unit_price=float(line.get("Netto", 0)) / max(float(line.get("Qty", 1)), 1),
-                total_without_vat=float(line.get("Netto", 0)),
+                total_price=float(line.get("Netto", 0)),
                 vat_rate=self._calculate_vat_rate(line),
                 vat_amount=float(line.get("Afa", 0)),
-                total_with_vat=float(line.get("Brutto", 0)),
             )
             for idx, line in enumerate(lines)
         ]
 
+        # Parse date string to datetime
+        invoice_date_str = raw_data.get("Kelt", "")
+        try:
+            invoice_date = datetime.fromisoformat(invoice_date_str) if invoice_date_str else datetime.now()
+        except ValueError:
+            invoice_date = datetime.now()
+
+        due_date_str = raw_data.get("Hatarido", "")
+        try:
+            due_date = datetime.fromisoformat(due_date_str) if due_date_str else None
+        except ValueError:
+            due_date = None
+
         return UnifiedInvoice(
+            source_type="api",
             supplier_id=self.config.supplier_id,
+            supplier_name=self.config.supplier_name,
             invoice_number=raw_data.get("InvoiceId", ""),
-            issue_date=raw_data.get("Kelt", ""),
-            tax_point_date=raw_data.get("Teljesites", ""),
-            due_date=raw_data.get("Hatarido", ""),
-            currency=raw_data.get("Penznem", "EUR"),
+            invoice_date=invoice_date,
+            external_invoice_id=raw_data.get("SalesId", raw_data.get("InvoiceId", "")),
             total_without_vat=float(raw_data.get("Netto", 0)),
             total_vat=float(raw_data.get("Afa", 0)),
             total_with_vat=float(raw_data.get("Brutto", 0)),
-            supplier_name=self.config.supplier_name,
-            supplier_vat_id="HU10428342",
-            customer_name=raw_data.get("InvName", ""),
-            customer_address=self._build_address(raw_data),
             items=items,
+            fetched_at=datetime.now(),
             status=InvoiceStatus.PENDING,
-            raw_data=raw_data,
+            due_date=due_date,
+            currency=raw_data.get("Penznem", "EUR"),
+            supplier_ic_dph="HU10428342",
         )
 
     def _map_unit(self, marso_unit: str) -> str:

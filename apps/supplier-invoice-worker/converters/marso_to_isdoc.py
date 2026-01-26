@@ -272,7 +272,7 @@ class MARSOToISDOCConverter:
         try:
             root = ET.fromstring(isdoc_xml)
 
-            # Check required elements
+            # Check required elements (with namespace)
             required = [
                 "ID",
                 "IssueDate",
@@ -281,7 +281,11 @@ class MARSOToISDOCConverter:
                 "LegalMonetaryTotal",
             ]
             for elem_name in required:
-                if root.find(f".//{elem_name}") is None:
+                # Try both with and without namespace
+                found = root.find(f".//{{{ISDOC_NS}}}{elem_name}")
+                if found is None:
+                    found = root.find(f".//{elem_name}")
+                if found is None:
                     logger.error(f"Missing required element: {elem_name}")
                     return False
 
