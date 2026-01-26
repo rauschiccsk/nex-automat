@@ -1,49 +1,56 @@
-# MARSO Slovakia s.r.o. - API Configuration
-# ==========================================
-# Status: SKELETON - čaká na API dokumentáciu
+# MARSO Hungary Kft. - SOAP API Configuration
+# Dodávateľ pneumatík pre ANDROS s.r.o.
 
-supplier_id: "marso"
-supplier_name: "MARSO Slovakia s.r.o."
+supplier_id: marso
+supplier_name: MARSO Hungary Kft.
+supplier_country: HU
+supplier_ico: "10428342"
+supplier_vat: HU10428342
 
 # Authentication
-# TODO: Overiť typ autentifikácie podľa MARSO dokumentácie
-auth_type: "api_key"  # api_key | basic | oauth2 | certificate
+auth_type: api_key_body
+# Credentials from env: MARSO_API_KEY, MARSO_ACCOUNT_NUM
 
-# Credentials: MARSO_API_KEY (v .env)
+# Connection - SOAP
+protocol: soap
+connection:
+  protocol: soap
+  wsdl_test: "http://195.228.175.10:8082/ComaxWS/Comax.asmx?wsdl"
+  wsdl_live: "http://195.228.175.10:8081/ComaxWS/Comax.asmx?wsdl"
+  method: CallComax
+  timeout: 30
 
-# API Endpoints
-# TODO: Doplniť reálne URL z MARSO dokumentácie
-base_url: "https://api.marso.sk"  # TODO: overiť
+# Request parameters for SOAP envelope
+request:
+  sender: WebCatHU
+  receiver: Ax
+  test_mode: "0"
+  account_field: AccountNum
+  key_field: Key
+
+# API Endpoints (MessageType values)
 endpoints:
-  # TODO: Doplniť endpoint pre zoznam faktúr
-  list_invoices: "/invoices?status=pending"
+  invoice_list: CustInvoiceList
+  invoice_detail: CustInvoiceLines
 
-  # TODO: Doplniť endpoint pre detail faktúry
-  get_invoice: "/invoices/{invoice_id}"
+# Response configuration
+response:
+  format: json
+  invoice_id_field: InvoiceId
+  lines_field: Lines
+  product_code_field: ItemId
 
-  # TODO: Doplniť endpoint pre potvrdenie spracovania
-  acknowledge: "/invoices/{invoice_id}/ack"
-
-# Product Code Mapping
-# TODO: Analyzovať vzorový XML a identifikovať pole s kódom produktu
+# Product code mapping
 product_code:
-  # TODO: Názov elementu v MARSO XML obsahujúceho kód produktu
-  xml_field: "MarsoCode"  # TODO: overiť podľa vzorového XML
+  xml_field: ItemId
+  type: ean
 
-  type: "marso_code"
+# Schedule
+schedule:
+  cron: "0 6 * * *"
+  lookback_days: 7
 
-  # TODO: Overiť názov stĺpca v NEX Genesis pre MARSO kód
-  nex_genesis_field: "MARSO_KOD"  # TODO: overiť v NEX Genesis
-
-# Settings
+# Retry policy
 timeout_seconds: 30
 max_retries: 3
-rate_limit_per_minute: 60  # TODO: overiť rate limit MARSO API
-
-# XML Parsing
-# TODO: Doplniť po analýze vzorového XML
-# xml_namespaces: {}
-# xml_paths:
-#   invoice_number: "..."
-#   invoice_date: "..."
-#   items: "..."
+rate_limit_per_minute: 30
