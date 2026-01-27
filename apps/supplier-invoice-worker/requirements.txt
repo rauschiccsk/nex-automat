@@ -7,6 +7,12 @@ temporalio>=1.4.0
 # HTTP client (async)
 httpx>=0.25.0
 
+# SOAP client (MARSO)
+zeep>=4.3.0
+
+# YAML config
+PyYAML>=6.0
+
 # IMAP client
 imapclient>=2.3.0
 

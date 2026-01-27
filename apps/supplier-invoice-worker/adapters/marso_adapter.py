@@ -159,21 +159,57 @@ class MARSOAdapter(BaseSupplierAdapter):
             raise
 
     def _parse_response(self, response: str) -> List[Dict[str, Any]]:
-        """Parse SOAP response (JSON format)."""
+        """Parse SOAP response (XML with JSON inside <Invoices> element)."""
         if not response:
             return []
 
         try:
-            # MARSO returns JSON in response
-            data = json.loads(response)
+            # MARSO returns XML with JSON embedded in <Invoices> element
+            # Format: <Document><Message><Invoices>[{...}]</Invoices></Message></Document>
+            import re
+
+            # Extract JSON from <Invoices> element
+            invoices_match = re.search(r"<Invoices>\s*(\[.*?\])\s*</Invoices>", response, re.DOTALL)
+            if not invoices_match:
+                # Try direct JSON parsing as fallback (for unit tests)
+                try:
+                    data = json.loads(response)
+                    if isinstance(data, list):
+                        return data
+                    elif isinstance(data, dict):
+                        return [data]
+                except json.JSONDecodeError:
+                    pass
+                logger.debug("No <Invoices> element found in response")
+                return []
+
+            invoices_json = invoices_match.group(1)
+            data = json.loads(invoices_json)
+
+            # MARSO format: [{"invoice_id": {invoice_data}}, ...]
+            # Flatten to [{invoice_data}, ...]
+            result = []
             if isinstance(data, list):
-                return data
+                for item in data:
+                    if isinstance(item, dict):
+                        # Each item is {"invoice_id": {actual_data}}
+                        for key, value in item.items():
+                            if isinstance(value, dict):
+                                result.append(value)
+                            else:
+                                result.append(item)
+                            break  # Only first key-value pair
             elif isinstance(data, dict):
-                return [data]
-            return []
+                result.append(data)
+
+            return result
+
         except json.JSONDecodeError as e:
             logger.error(f"Failed to parse MARSO JSON response: {e}")
             logger.debug(f"Response: {response[:500]}")
+            return []
+        except Exception as e:
+            logger.error(f"Failed to parse MARSO response: {e}")
             return []
 
     async def acknowledge_invoice(self, invoice_id: str) -> bool:
@@ -208,17 +244,12 @@ class MARSOAdapter(BaseSupplierAdapter):
         ]
 
         # Parse date string to datetime
+        # MARSO uses format "YYYY.MM.DD" or "YYYY-MM-DD"
         invoice_date_str = raw_data.get("Kelt", "")
-        try:
-            invoice_date = datetime.fromisoformat(invoice_date_str) if invoice_date_str else datetime.now()
-        except ValueError:
-            invoice_date = datetime.now()
+        invoice_date = self._parse_marso_date(invoice_date_str) or datetime.now()
 
         due_date_str = raw_data.get("Hatarido", "")
-        try:
-            due_date = datetime.fromisoformat(due_date_str) if due_date_str else None
-        except ValueError:
-            due_date = None
+        due_date = self._parse_marso_date(due_date_str)
 
         return UnifiedInvoice(
             source_type="api",
@@ -255,6 +286,24 @@ class MARSOAdapter(BaseSupplierAdapter):
         if netto > 0:
             return round((afa / netto) * 100, 2)
         return 27.0  # Default Hungarian VAT
+
+    def _parse_marso_date(self, date_str: str) -> Optional[Any]:
+        """Parse MARSO date string (formats: YYYY.MM.DD or YYYY-MM-DD)."""
+        from datetime import datetime
+
+        if not date_str:
+            return None
+
+        # Try different formats
+        formats = ["%Y.%m.%d", "%Y-%m-%d", "%Y.%m.%d.", "%d.%m.%Y"]
+        for fmt in formats:
+            try:
+                return datetime.strptime(date_str, fmt)
+            except ValueError:
+                continue
+
+        logger.warning(f"Could not parse MARSO date: {date_str}")
+        return None
 
     def _build_address(self, data: Dict[str, Any]) -> str:
         """Build address string from invoice data."""
