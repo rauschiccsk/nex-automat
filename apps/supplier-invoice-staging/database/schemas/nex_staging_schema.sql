@@ -83,6 +83,8 @@ CREATE TABLE IF NOT EXISTS supplier_invoice_heads (
 
     -- Časové značky
     fetched_at TIMESTAMP WITH TIME ZONE,
+    processed_at TIMESTAMP WITH TIME ZONE,
+    imported_at TIMESTAMP WITH TIME ZONE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
 
