@@ -391,7 +391,7 @@ def import_to_database(xml_path: str, config_path: str = 'config/config.yaml'):
 
             # Insert item
             cursor.execute("""
-                INSERT INTO invoice_items_pending (
+                INSERT INTO supplier_invoice_items (
                     invoice_id, line_number, original_name, original_ean,
                     original_quantity, original_unit, original_price_per_unit,
                     original_line_total, nex_plu, nex_name, nex_category, in_nex,
@@ -465,22 +465,22 @@ if __name__ == '__main__':
     migration_content = '''-- 002_add_nex_columns.sql
 -- Pridanie stlpcov pre NEX Genesis lookup data
 
--- Pridaj NEX stlpce do invoice_items_pending
-ALTER TABLE invoice_items_pending
+-- Pridaj NEX stlpce do supplier_invoice_items
+ALTER TABLE supplier_invoice_items
 ADD COLUMN IF NOT EXISTS nex_plu INTEGER,
 ADD COLUMN IF NOT EXISTS nex_name VARCHAR(255),
 ADD COLUMN IF NOT EXISTS nex_category INTEGER,
 ADD COLUMN IF NOT EXISTS in_nex BOOLEAN DEFAULT FALSE;
 
 -- Indexy pre rychlejsie vyhladavanie
-CREATE INDEX IF NOT EXISTS idx_invoice_items_pending_in_nex ON invoice_items_pending(in_nex);
-CREATE INDEX IF NOT EXISTS idx_invoice_items_pending_nex_plu ON invoice_items_pending(nex_plu);
+CREATE INDEX IF NOT EXISTS idx_supplier_invoice_items_in_nex ON supplier_invoice_items(in_nex);
+CREATE INDEX IF NOT EXISTS idx_supplier_invoice_items_nex_plu ON supplier_invoice_items(nex_plu);
 
 -- Komentar
-COMMENT ON COLUMN invoice_items_pending.nex_plu IS 'PLU cislo produktu z NEX Genesis GSCAT';
-COMMENT ON COLUMN invoice_items_pending.nex_name IS 'Nazov produktu z NEX Genesis GSCAT';
-COMMENT ON COLUMN invoice_items_pending.nex_category IS 'Tovarova skupina (MGLST) z NEX Genesis';
-COMMENT ON COLUMN invoice_items_pending.in_nex IS 'Priznak ci produkt existuje v NEX Genesis';
+COMMENT ON COLUMN supplier_invoice_items.nex_plu IS 'PLU cislo produktu z NEX Genesis GSCAT';
+COMMENT ON COLUMN supplier_invoice_items.nex_name IS 'Nazov produktu z NEX Genesis GSCAT';
+COMMENT ON COLUMN supplier_invoice_items.nex_category IS 'Tovarova skupina (MGLST) z NEX Genesis';
+COMMENT ON COLUMN supplier_invoice_items.in_nex IS 'Priznak ci produkt existuje v NEX Genesis';
 '''
 
     create_file('database/schemas/002_add_nex_columns.sql', migration_content)

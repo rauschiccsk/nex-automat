@@ -29,8 +29,8 @@ def verify_tables(client: PostgresClient):
     print("\n2. Checking tables...")
 
     required_tables = [
-        'invoices_pending',
-        'invoice_items_pending',
+        'supplier_invoice_heads',
+        'supplier_invoice_items',
         'invoice_log'
     ]
 
@@ -59,7 +59,7 @@ def verify_invoices(client: PostgresClient):
 
     query = """
         SELECT COUNT(*) as count
-        FROM invoices_pending
+        FROM supplier_invoice_heads
         WHERE status = 'pending'
     """
 
@@ -72,7 +72,7 @@ def verify_invoices(client: PostgresClient):
         # Show sample
         sample_query = """
             SELECT invoice_number, supplier_name, total_amount
-            FROM invoices_pending
+            FROM supplier_invoice_heads
             WHERE status = 'pending'
             LIMIT 3
         """
@@ -95,7 +95,7 @@ def verify_items(client: PostgresClient):
 
     query = """
         SELECT COUNT(*) as count
-        FROM invoice_items_pending
+        FROM supplier_invoice_items
     """
 
     result = client.execute_query(query)

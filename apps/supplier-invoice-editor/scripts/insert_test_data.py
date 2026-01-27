@@ -49,7 +49,7 @@ def insert_test_invoices(client: PostgresClient):
     ]
 
     query = """
-        INSERT INTO invoices_pending 
+        INSERT INTO supplier_invoice_heads 
         (invoice_number, invoice_date, supplier_name, supplier_ico, total_amount, currency, status)
         VALUES (%s, %s, %s, %s, %s, %s, %s)
         RETURNING id
@@ -144,7 +144,7 @@ def insert_test_items(client: PostgresClient, invoice_ids: list):
     all_items = items_1 + items_2 + items_3
 
     query = """
-        INSERT INTO invoice_items_pending
+        INSERT INTO supplier_invoice_items
         (invoice_id, plu_code, item_name, category_code, unit, quantity, 
          unit_price, rabat_percent, price_after_rabat, total_price)
         VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
@@ -172,11 +172,11 @@ def insert_test_items(client: PostgresClient, invoice_ids: list):
     # Update invoice totals
     print("\nUpdating invoice totals...")
     update_query = """
-        UPDATE invoices_pending
+        UPDATE supplier_invoice_heads
         SET total_amount = (
             SELECT SUM(total_price)
-            FROM invoice_items_pending
-            WHERE invoice_id = invoices_pending.id
+            FROM supplier_invoice_items
+            WHERE invoice_id = supplier_invoice_heads.id
         )
     """
     client.execute_query(update_query, fetch=False)
@@ -188,11 +188,11 @@ def clear_existing_data(client: PostgresClient):
     print("\nClearing existing test data...")
 
     # Delete items first (foreign key constraint)
-    client.execute_query("DELETE FROM invoice_items_pending WHERE invoice_id IN (SELECT id FROM invoices_pending WHERE invoice_number LIKE 'FAV-2025-%')", fetch=False)
+    client.execute_query("DELETE FROM supplier_invoice_items WHERE invoice_id IN (SELECT id FROM supplier_invoice_heads WHERE invoice_number LIKE 'FAV-2025-%')", fetch=False)
     print("  ✓ Cleared items")
 
     # Delete invoices
-    client.execute_query("DELETE FROM invoices_pending WHERE invoice_number LIKE 'FAV-2025-%'", fetch=False)
+    client.execute_query("DELETE FROM supplier_invoice_heads WHERE invoice_number LIKE 'FAV-2025-%'", fetch=False)
     print("  ✓ Cleared invoices")
 
 

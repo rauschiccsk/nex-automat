@@ -138,7 +138,7 @@ def import_to_database(xml_path: str, config_path: str = 'config/config.yaml'):
             # Insert invoice
             print("Inserting invoice...")
             cursor.execute("""
-                INSERT INTO invoices_pending (
+                INSERT INTO supplier_invoice_heads (
                     invoice_number, supplier_name, supplier_ico, invoice_date, 
                     due_date, total_amount, currency, status
                 ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
@@ -179,7 +179,7 @@ def import_to_database(xml_path: str, config_path: str = 'config/config.yaml'):
 
                 # Insert item
                 cursor.execute("""
-                    INSERT INTO invoice_items_pending (
+                    INSERT INTO supplier_invoice_items (
                         invoice_id, line_number, original_name, original_ean,
                         original_quantity, original_unit, original_price_per_unit,
                         nex_plu, nex_name, nex_category, in_nex,

@@ -21,7 +21,7 @@ db_config = {
     'password': os.getenv('POSTGRES_PASSWORD', config_obj.get('database.postgres.password', ''))
 }
 
-table_name = sys.argv[1] if len(sys.argv) > 1 else 'invoices_pending'
+table_name = sys.argv[1] if len(sys.argv) > 1 else 'supplier_invoice_heads'
 
 print(f"Table: {table_name}")
 print("=" * 100)

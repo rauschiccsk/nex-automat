@@ -68,7 +68,7 @@ class InvoiceService:
                 total_amount,
                 currency,
                 status
-            FROM invoices_pending
+            FROM supplier_invoice_heads
             WHERE status = 'pending'
             ORDER BY invoice_date DESC, id DESC
         """
@@ -117,7 +117,7 @@ class InvoiceService:
                         total_amount,
                         currency,
                         status
-                    FROM invoices_pending
+                    FROM supplier_invoice_heads
                     WHERE id = %s
                 """
                 results = self.db_client.execute_query(query, (invoice_id,))
@@ -190,7 +190,7 @@ class InvoiceService:
                 original_ean,
                 was_edited,
                 validation_status
-            FROM invoice_items_pending
+            FROM supplier_invoice_items
             WHERE invoice_id = %s
             ORDER BY line_number
         """
@@ -265,7 +265,7 @@ class InvoiceService:
 
                 # Update each item
                 update_query = """
-                    UPDATE invoice_items_pending
+                    UPDATE supplier_invoice_items
                     SET 
                         edited_name = %s,
                         edited_mglst_code = %s,
@@ -297,11 +297,11 @@ class InvoiceService:
 
                 # Update invoice total
                 total_query = """
-                    UPDATE invoices_pending
+                    UPDATE supplier_invoice_heads
                     SET 
                         total_amount = (
                             SELECT SUM(final_price_buy * original_quantity)
-                            FROM invoice_items_pending
+                            FROM supplier_invoice_items
                             WHERE invoice_id = %s
                         )
                     WHERE id = %s
