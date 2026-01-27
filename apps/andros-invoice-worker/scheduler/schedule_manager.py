@@ -72,7 +72,7 @@ class ScheduleManager:
                     date_from,         # date_from
                     date_to,           # date_to
                     customer_code,     # customer_code
-                    False,             # skip_pipeline
+                    True,              # skip_pipeline
                 ],
                 id=f"{schedule_id}-{{{{.ScheduledTime.Format \"2006-01-02\"}}}}",
                 task_queue=self.task_queue,

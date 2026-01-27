@@ -1,0 +1,18 @@
+# /opt/nex-automat-src/Dockerfile.telegram
+# NEX Brain Telegram Multi-Bot
+
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Install dependencies
+COPY apps/nex-brain/telegram/requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy telegram bot code
+COPY apps/nex-brain/telegram/ ./telegram/
+
+# Environment variables (provided via docker-compose)
+ENV PYTHONUNBUFFERED=1
+
+CMD ["python", "telegram/multi_bot.py"]
