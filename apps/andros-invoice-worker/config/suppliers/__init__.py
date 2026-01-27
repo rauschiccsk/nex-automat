@@ -1,0 +1,1 @@
+"""Supplier configuration files."""
