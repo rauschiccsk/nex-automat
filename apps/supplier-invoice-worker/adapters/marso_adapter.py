@@ -28,7 +28,8 @@ class MARSOAdapter(BaseSupplierAdapter):
         super().__init__(config)
         self._client: Optional[Client] = None
         self._account_num = os.environ.get("MARSO_ACCOUNT_NUM", "339792")
-        self._use_test = os.environ.get("MARSO_USE_TEST", "true").lower() == "true"
+        self._api_key = os.environ.get("MARSO_API_KEY") or self.config.api_key
+        self._use_test = os.environ.get("MARSO_USE_TEST", "false").lower() == "true"
 
     @property
     def client(self) -> Client:
@@ -81,7 +82,7 @@ class MARSOAdapter(BaseSupplierAdapter):
     <SzlSzamResz></SzlSzamResz>'''
 
         xml += f'''
-    <Key>{self.config.api_key}</Key>
+    <Key>{self._api_key}</Key>
   </Message>
 </Document>'''
         return xml
