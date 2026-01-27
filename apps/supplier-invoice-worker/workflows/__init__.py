@@ -2,8 +2,8 @@
 
 from .api_invoice_workflow import (
     ApiInvoiceWorkflow,
-    ApiWorkflowInput,
-    ApiWorkflowResult,
+    SingleInvoiceWorkflow,
+    SupplierAPIInvoiceWorkflow,
 )
 from .pdf_invoice_workflow import (
     InvoiceProcessingWorkflow,
@@ -16,6 +16,6 @@ __all__ = [
     "WorkflowResult",
     # API workflow (supplier API-based)
     "ApiInvoiceWorkflow",
-    "ApiWorkflowInput",
-    "ApiWorkflowResult",
+    "SingleInvoiceWorkflow",
+    "SupplierAPIInvoiceWorkflow",
 ]

@@ -9,7 +9,19 @@ from temporalio.worker import Worker
 
 from activities.email_activities import fetch_unread_emails, mark_email_processed
 from activities.invoice_activities import upload_invoice_to_api, validate_pdf
+from activities.supplier_api_activities import (
+    acknowledge_invoice_activity,
+    archive_raw_data_activity,
+    authenticate_supplier_activity,
+    convert_to_isdoc_activity,
+    convert_to_unified_activity,
+    fetch_invoice_detail_activity,
+    fetch_invoice_list_activity,
+    fetch_supplier_config_activity,
+    post_isdoc_to_pipeline_activity,
+)
 from config.settings import get_settings
+from workflows.api_invoice_workflow import SingleInvoiceWorkflow, SupplierAPIInvoiceWorkflow
 from workflows.pdf_invoice_workflow import InvoiceProcessingWorkflow
 
 # Configure logging
@@ -34,12 +46,27 @@ async def run_worker():
     worker = Worker(
         client,
         task_queue=settings.temporal_task_queue,
-        workflows=[InvoiceProcessingWorkflow],
+        workflows=[
+            InvoiceProcessingWorkflow,
+            SupplierAPIInvoiceWorkflow,
+            SingleInvoiceWorkflow,
+        ],
         activities=[
+            # PDF/Email activities
             fetch_unread_emails,
             mark_email_processed,
             upload_invoice_to_api,
             validate_pdf,
+            # Supplier API activities
+            acknowledge_invoice_activity,
+            archive_raw_data_activity,
+            authenticate_supplier_activity,
+            convert_to_isdoc_activity,
+            convert_to_unified_activity,
+            fetch_invoice_detail_activity,
+            fetch_invoice_list_activity,
+            fetch_supplier_config_activity,
+            post_isdoc_to_pipeline_activity,
         ],
     )
 
