@@ -123,8 +123,8 @@ Vytvorený komplexný test framework:
 ```
 
 **PostgreSQL Data Verified:**
-- Invoice exists in `invoices_pending` table
-- 46 items in `invoice_items_pending` table
+- Invoice exists in `supplier_invoice_heads` table
+- 46 items in `supplier_invoice_items` table
 - All data correctly mapped
 - Ready for invoice-editor GUI
 

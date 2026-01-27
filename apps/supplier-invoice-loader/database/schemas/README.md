@@ -6,7 +6,7 @@ Databázové schémy pre supplier-invoice-loader.
 
 | Súbor | Popis |
 |-------|-------|
-| 001_initial_schema.sql | Základná schéma (invoices_pending, invoice_items_pending) |
+| 001_initial_schema.sql | Základná schéma (supplier_invoice_heads, supplier_invoice_items) |
 | 002_add_nex_columns.sql | NEX Genesis lookup stĺpce |
 | test_schema.sql | Testovacie dáta |
 

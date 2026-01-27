@@ -37,7 +37,7 @@ Claude odpovie: **"✅ Projekt načítaný. Čo robíme?"**
 ### invoice-editor Integration (TESTED - 2025-11-18)
 - **Purpose:** Operator approval workflow before NEX Genesis import
 - **Database:** PostgreSQL (invoice_staging)
-- **Tables:** invoices_pending, invoice_items_pending
+- **Tables:** supplier_invoice_heads, supplier_invoice_items
 - **Workflow:** supplier-invoice-loader → PostgreSQL → invoice-editor GUI → NEX Genesis
 - **Status:** ✅ Integrated & Tested
 
@@ -54,8 +54,8 @@ $env:LS_API_KEY = "your-api-key"
 ```
 
 **Schema:**
-- **invoices_pending:** Invoice headers (status: pending → approved → imported)
-- **invoice_items_pending:** Invoice line items (editable by operator)
+- **supplier_invoice_heads:** Invoice headers (status: pending → approved → imported)
+- **supplier_invoice_items:** Invoice line items (editable by operator)
 
 **Test Results (2025-11-18):**
 - ✅ Invoice 32506183 processed (46 items, 2270.33 EUR)

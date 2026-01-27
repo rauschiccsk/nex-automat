@@ -207,9 +207,9 @@ apps/supplier-invoice-loader/
 
 **Hlavné Tabuľky:**
 
-#### invoices_pending
+#### supplier_invoice_heads
 ```sql
-CREATE TABLE invoices_pending (
+CREATE TABLE supplier_invoice_heads (
     id SERIAL PRIMARY KEY,
     supplier_ico VARCHAR(20),
     supplier_name VARCHAR(255),
@@ -227,11 +227,11 @@ CREATE TABLE invoices_pending (
 );
 ```
 
-#### invoice_items_pending
+#### supplier_invoice_items
 ```sql
-CREATE TABLE invoice_items_pending (
+CREATE TABLE supplier_invoice_items (
     id SERIAL PRIMARY KEY,
-    invoice_id INTEGER REFERENCES invoices_pending(id),
+    invoice_id INTEGER REFERENCES supplier_invoice_heads(id),
     line_number INTEGER,
     
     -- XML polia (originál z dodávateľa) - IMMUTABLE
@@ -357,7 +357,7 @@ CREATE TABLE invoice_items_pending (
 │ • Extract data (pdfplumber + regex)                         │
 │ • Generate ISDOC XML                                         │
 │ • Save files (PDF + XML)                                     │
-│ • Insert to PostgreSQL (invoices_pending)                   │
+│ • Insert to PostgreSQL (supplier_invoice_heads)                   │
 └──────────────────────┬──────────────────────────────────────┘
                        │
 ┌──────────────────────▼──────────────────────────────────────┐
@@ -366,7 +366,7 @@ CREATE TABLE invoice_items_pending (
 │   • Read plu_code (EAN)                                      │
 │   • Lookup in BARCODE.BTR → GsCode                          │
 │   • Lookup in GSCAT.BTR → Product details                   │
-│   • UPDATE invoice_items_pending:                           │
+│   • UPDATE supplier_invoice_items:                           │
 │     - nex_gs_code = GsCode                                   │
 │     - nex_name = Product name                                │
 │     - in_nex = TRUE/FALSE                                    │
@@ -376,7 +376,7 @@ CREATE TABLE invoice_items_pending (
 ┌──────────────────────▼──────────────────────────────────────┐
 │ KROK 5: GUI ZOBRAZENIE (supplier-invoice-editor v2.4)       │
 │ • Operátor otvorí GUI                                        │
-│ • Zobrazí zoznam faktúr (invoices_pending)                  │
+│ • Zobrazí zoznam faktúr (supplier_invoice_heads)                  │
 │ • Otvorí detail faktúry                                      │
 │ • Farebné rozlíšenie položiek:                              │
 │   - Zelená: in_nex = TRUE                                    │
@@ -431,7 +431,7 @@ PostgreSQL (invoice_staging)
 
 **PostgreSQL → NEX Genesis:**
 ```
-invoice_items_pending
+supplier_invoice_items
   ↓ EAN lookup (BARCODE → GSCAT)
 Enriched items (nex_gs_code, nex_name)
   ↓ GUI validation

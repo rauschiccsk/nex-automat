@@ -175,7 +175,7 @@ def clean_string(value):
 - ✅ Invoice list loads from database
 - ✅ Invoice detail loads items from database
 - ✅ Edit functionality with real-time calculation
-- ✅ Save updates database (invoice_items_pending)
+- ✅ Save updates database (supplier_invoice_items)
 - ✅ Full integration with production schema
 - ✅ XML import with NEX Genesis lookup working
 - ✅ Data sanitization for Btrieve compatibility
@@ -226,8 +226,8 @@ def clean_string(value):
    - Parses ISDOC XML files
    - NEX Genesis lookup by EAN
    - Data sanitization (null bytes removed)
-   - Creates invoices_pending records
-   - Creates invoice_items_pending records
+   - Creates supplier_invoice_heads records
+   - Creates supplier_invoice_items records
    - UTF8 encoding compatible
 
 3. **Invoice List:** Database-driven
@@ -244,7 +244,7 @@ def clean_string(value):
    - Auto-updates summary
 
 5. **Editable Grid:** Complete and working
-   - Loads real data from invoice_items_pending
+   - Loads real data from supplier_invoice_items
    - In-place editing (9 columns)
    - Auto-calculation: rabat → price → total
    - Real-time updates
@@ -252,7 +252,7 @@ def clean_string(value):
    - Visual feedback
 
 6. **Save Functionality:** Database integration
-   - Saves to invoice_items_pending
+   - Saves to supplier_invoice_items
    - Updates edited_name, edited_mglst_code, etc.
    - Sets was_edited = true
    - Updates edited_at timestamp
