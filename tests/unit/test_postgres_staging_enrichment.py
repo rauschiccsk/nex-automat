@@ -86,7 +86,7 @@ class TestUpdateNexEnrichment:
         assert result is True
         mock_cursor.execute.assert_called_once()
         call_args = mock_cursor.execute.call_args[0]
-        assert 'UPDATE invoice_items_pending' in call_args[0]
+        assert 'UPDATE supplier_invoice_items' in call_args[0]
         assert call_args[1] == (12345, 12345, 'NEX Product Name', 10, 'matched', 'Auto-matched by ean', 1)
 
     def test_update_with_name_match(self, client, mock_cursor):
