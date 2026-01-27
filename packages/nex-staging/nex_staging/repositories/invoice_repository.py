@@ -69,7 +69,7 @@ class InvoiceRepository:
                 updated_at,
                 processed_at,
                 imported_at
-            FROM invoices_pending
+            FROM supplier_invoice_heads
             WHERE 1=1
         """
         params: List[Any] = []
@@ -130,7 +130,7 @@ class InvoiceRepository:
                 validation_status,
                 created_at,
                 updated_at
-            FROM invoice_items_pending
+            FROM supplier_invoice_items
             WHERE invoice_head_id = %s
             ORDER BY xml_line_number
         """
@@ -163,7 +163,7 @@ class InvoiceRepository:
             True if updated successfully
         """
         query = """
-            UPDATE invoices_pending
+            UPDATE supplier_invoice_heads
             SET file_status = %s,
                 updated_at = CURRENT_TIMESTAMP
         """
@@ -203,7 +203,7 @@ class InvoiceRepository:
             True if updated successfully
         """
         query = """
-            UPDATE invoice_items_pending
+            UPDATE supplier_invoice_items
             SET edited_unit_price = %s,
                 updated_at = CURRENT_TIMESTAMP
             WHERE id = %s
@@ -226,7 +226,7 @@ class InvoiceRepository:
             Count of updated items
         """
         query = """
-            UPDATE invoice_items_pending
+            UPDATE supplier_invoice_items
             SET edited_unit_price = %s,
                 updated_at = CURRENT_TIMESTAMP
             WHERE id = %s
