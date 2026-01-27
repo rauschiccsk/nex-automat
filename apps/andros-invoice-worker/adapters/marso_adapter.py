@@ -264,6 +264,8 @@ class MARSOAdapter(BaseSupplierAdapter):
             status=InvoiceStatus.PENDING,
             due_date=due_date,
             currency=raw_data.get("Penznem", "EUR"),
+            supplier_ico="10428342215",  # MARSO IČO from NEX Genesis ANDROS
+            supplier_dic="HU10428342",
             supplier_ic_dph="HU10428342",
         )
 

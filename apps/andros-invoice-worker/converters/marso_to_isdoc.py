@@ -23,7 +23,7 @@ class MARSOToISDOCConverter:
     SUPPLIER = {
         "id": "MARSO",
         "name": "MARSO Hungary Kft.",
-        "ico": "10428342",
+        "ico": "10428342215",  # IČO from NEX Genesis ANDROS
         "vat": "HU10428342",
         "country": "HU",
         "city": "Budapest",
