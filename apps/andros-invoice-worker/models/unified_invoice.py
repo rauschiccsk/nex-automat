@@ -10,7 +10,7 @@ from enum import Enum
 from typing import Optional
 
 
-class InvoiceStatus(Enum):
+class InvoiceStatus(str, Enum):
     """Status of an invoice in the processing pipeline."""
 
     PENDING = "pending"
