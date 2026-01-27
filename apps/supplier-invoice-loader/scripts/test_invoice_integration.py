@@ -269,7 +269,7 @@ def verify_postgresql_data(invoice_number):
             else:
                 print_error(f"Faktúra {invoice_number} nenájdená v PostgreSQL!")
                 print("    Skúste manuálne query v pgAdmin:")
-                print(f"    SELECT * FROM invoices_pending WHERE invoice_number = '{invoice_number}';")
+                print(f"    SELECT * FROM supplier_invoice_heads WHERE invoice_number = '{invoice_number}';")
                 return False
 
     except Exception as e:

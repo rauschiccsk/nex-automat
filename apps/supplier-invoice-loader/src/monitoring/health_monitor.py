@@ -211,7 +211,7 @@ class HealthMonitor:
                 # Get last processed invoice
                 last_invoice = await conn.fetchrow("""
                     SELECT id, created_at 
-                    FROM invoices_pending 
+                    FROM supplier_invoice_heads 
                     ORDER BY created_at DESC 
                     LIMIT 1
                 """)
@@ -222,7 +222,7 @@ class HealthMonitor:
                         COUNT(*) as total,
                         SUM(CASE WHEN status = 'approved' THEN 1 ELSE 0 END) as approved,
                         SUM(CASE WHEN status = 'rejected' THEN 1 ELSE 0 END) as rejected
-                    FROM invoices_pending
+                    FROM supplier_invoice_heads
                 """)
                 
                 total = stats['total'] or 0
