@@ -114,27 +114,25 @@ async def _insert_invoice_head(
         INSERT INTO supplier_invoice_heads (
             customer_code,
             supplier_code,
-            supplier_id,
-            supplier_name,
-            invoice_number,
-            external_invoice_id,
-            invoice_date,
-            due_date,
-            delivery_date,
-            total_without_vat,
-            total_vat,
-            total_with_vat,
-            currency,
+            xml_invoice_number,
+            xml_issue_date,
+            xml_due_date,
+            xml_delivery_date,
+            xml_supplier_ico,
+            xml_supplier_dic,
+            xml_supplier_ic_dph,
+            xml_supplier_name,
+            xml_total_without_vat,
+            xml_total_vat,
+            xml_total_with_vat,
+            xml_currency,
             source_type,
             status,
-            supplier_ico,
-            supplier_dic,
-            supplier_ic_dph,
             fetched_at,
             created_at
         ) VALUES (
             $1, $2, $3, $4, $5, $6, $7, $8, $9, $10,
-            $11, $12, $13, $14, $15, $16, $17, $18, $19, NOW()
+            $11, $12, $13, $14, $15, $16, $17, NOW()
         )
         RETURNING id
     """
@@ -143,22 +141,20 @@ async def _insert_invoice_head(
         sql,
         customer_code,
         supplier_code,
-        invoice_data.get("supplier_id", ""),
-        invoice_data.get("supplier_name", ""),
         invoice_data.get("invoice_number", ""),
-        invoice_data.get("external_invoice_id", ""),
         invoice_date,
         due_date,
         delivery_date,
+        invoice_data.get("supplier_ico"),
+        invoice_data.get("supplier_dic"),
+        invoice_data.get("supplier_ic_dph"),
+        invoice_data.get("supplier_name", ""),
         float(invoice_data.get("total_without_vat", 0)),
         float(invoice_data.get("total_vat", 0)),
         float(invoice_data.get("total_with_vat", 0)),
         invoice_data.get("currency", "EUR"),
         invoice_data.get("source_type", "api"),
         invoice_data.get("status", "pending"),
-        invoice_data.get("supplier_ico"),
-        invoice_data.get("supplier_dic"),
-        invoice_data.get("supplier_ic_dph"),
         fetched_at,
     )
 
@@ -179,25 +175,20 @@ async def _insert_invoice_item(
     sql = """
         INSERT INTO supplier_invoice_items (
             head_id,
-            line_number,
-            product_code,
-            product_code_type,
-            product_name,
-            quantity,
-            unit,
-            unit_price,
-            total_price,
-            vat_rate,
-            vat_amount,
-            ean,
-            supplier_product_code,
+            xml_line_number,
+            xml_seller_code,
+            xml_ean,
+            xml_product_name,
+            xml_quantity,
+            xml_unit,
+            xml_unit_price,
+            xml_total_price,
+            xml_vat_rate,
             nex_product_id,
-            nex_product_code,
             match_confidence,
             created_at
         ) VALUES (
-            $1, $2, $3, $4, $5, $6, $7, $8, $9, $10,
-            $11, $12, $13, $14, $15, $16, NOW()
+            $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, NOW()
         )
         RETURNING id
     """
@@ -206,19 +197,15 @@ async def _insert_invoice_item(
         sql,
         head_id,
         int(item.get("line_number", 0)),
-        item.get("product_code", ""),
-        item.get("product_code_type", ""),
+        item.get("supplier_product_code") or item.get("product_code", ""),
+        item.get("ean"),
         item.get("product_name", ""),
         float(item.get("quantity", 0)),
         item.get("unit", "PCE"),
         float(item.get("unit_price", 0)),
         float(item.get("total_price", 0)),
         float(item.get("vat_rate", 0)),
-        float(item.get("vat_amount", 0)),
-        item.get("ean"),
-        item.get("supplier_product_code"),
         item.get("nex_product_id"),
-        item.get("nex_product_code"),
         item.get("match_confidence"),
     )
 
@@ -272,7 +259,7 @@ async def check_invoice_exists_activity(
                 SELECT 1 FROM supplier_invoice_heads
                 WHERE customer_code = $1
                   AND supplier_code = $2
-                  AND invoice_number = $3
+                  AND xml_invoice_number = $3
             )
         """
 
