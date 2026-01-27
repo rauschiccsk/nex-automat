@@ -110,6 +110,13 @@ async def _insert_invoice_head(
     delivery_date = _parse_datetime(invoice_data.get("delivery_date"))
     fetched_at = _parse_datetime(invoice_data.get("fetched_at")) or datetime.now()
 
+    # Fallback for supplier_ico (required field)
+    supplier_ico = (
+        invoice_data.get("supplier_ico")
+        or invoice_data.get("supplier_dic")
+        or "UNKNOWN"
+    )
+
     sql = """
         INSERT INTO supplier_invoice_heads (
             customer_code,
@@ -145,7 +152,7 @@ async def _insert_invoice_head(
         invoice_date,
         due_date,
         delivery_date,
-        invoice_data.get("supplier_ico"),
+        supplier_ico,
         invoice_data.get("supplier_dic"),
         invoice_data.get("supplier_ic_dph"),
         invoice_data.get("supplier_name", ""),
