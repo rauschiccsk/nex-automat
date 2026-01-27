@@ -104,9 +104,9 @@ class InvoiceRepository:
             List of InvoiceItem models
         """
         query = """
-            SELECT 
+            SELECT
                 id,
-                invoice_head_id,
+                head_id AS invoice_head_id,
                 xml_line_number,
                 xml_seller_code,
                 xml_ean,
@@ -127,11 +127,11 @@ class InvoiceRepository:
                 matched_by,
                 match_confidence,
                 edited_unit_price,
-                validation_status,
+                NULL AS validation_status,
                 created_at,
                 updated_at
             FROM supplier_invoice_items
-            WHERE invoice_head_id = %s
+            WHERE head_id = %s
             ORDER BY xml_line_number
         """
         with self.db.get_cursor() as cur:
