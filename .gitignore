@@ -155,3 +155,9 @@ scripts/new_chat.py
 
 # Sensitive knowledge - credentials, tokens, internal configs
 docs/knowledge/
+
+# GitHub Actions
+.github/workflows/*.local.yml
+
+# Coverage
+coverage.xml
