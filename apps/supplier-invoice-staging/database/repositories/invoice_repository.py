@@ -93,7 +93,7 @@ class InvoiceRepository:
                 match_confidence,
                 validation_status
             FROM supplier_invoice_items
-            WHERE invoice_head_id = %s
+            WHERE head_id = %s
             ORDER BY xml_line_number
         """
         with self._get_cursor() as cur:
