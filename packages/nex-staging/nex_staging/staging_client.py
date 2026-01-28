@@ -205,7 +205,7 @@ class StagingClient:
             for item in items_data:
                 self._run("""
                     INSERT INTO supplier_invoice_items (
-                        invoice_head_id,
+                        head_id,
                         xml_line_number,
                         xml_product_name,
                         xml_quantity,
@@ -283,7 +283,7 @@ class StagingClient:
                     COUNT(*) FILTER (WHERE matched = FALSE OR matched IS NULL) as not_matched,
                     COUNT(*) as total
                 FROM supplier_invoice_items
-                WHERE invoice_head_id = %s
+                WHERE head_id = %s
             """, (invoice_id,))
         else:
             result = self._run("""
