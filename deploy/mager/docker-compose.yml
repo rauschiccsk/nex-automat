@@ -1,48 +1,6 @@
 version: "3.8"
 
 services:
-  postgres:
-    image: postgres:15
-    container_name: mager-postgres
-    restart: unless-stopped
-    ports:
-      - "5432:5432"
-    environment:
-      POSTGRES_USER: temporal
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: temporal
-    volumes:
-      - pg-data:/var/lib/postgresql/data
-    networks:
-      - nex-mager
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U temporal"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  temporal:
-    image: temporalio/auto-setup:latest
-    container_name: mager-temporal
-    restart: unless-stopped
-    ports:
-      - "7233:7233"
-      - "8233:8233"
-    environment:
-      - DB=postgresql
-      - DB_PORT=5432
-      - POSTGRES_USER=temporal
-      - POSTGRES_PWD=${POSTGRES_PASSWORD}
-      - POSTGRES_SEEDS=postgres
-      - DYNAMIC_CONFIG_FILE_PATH=config/dynamicconfig/development-sql.yaml
-    volumes:
-      - temporal-data:/etc/temporal
-    networks:
-      - nex-mager
-    depends_on:
-      postgres:
-        condition: service_healthy
-
   invoice-worker:
     build:
       context: C:/opt/nex-automat-src/apps/supplier-invoice-worker
@@ -50,13 +8,13 @@ services:
     container_name: mager-invoice-worker
     restart: unless-stopped
     environment:
-      - TEMPORAL_HOST=temporal
+      - TEMPORAL_HOST=host.docker.internal
       - TEMPORAL_PORT=7233
+      - POSTGRES_HOST=host.docker.internal
+      - POSTGRES_PORT=5432
       - FASTAPI_URL=http://host.docker.internal:8001
     networks:
       - nex-mager
-    depends_on:
-      - temporal
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
@@ -68,20 +26,16 @@ services:
     command: ["python", "-m", "scheduler.polling_scheduler"]
     restart: unless-stopped
     environment:
-      - TEMPORAL_HOST=temporal
+      - TEMPORAL_HOST=host.docker.internal
       - TEMPORAL_PORT=7233
+      - POSTGRES_HOST=host.docker.internal
+      - POSTGRES_PORT=5432
     networks:
       - nex-mager
-    depends_on:
-      - temporal
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
 networks:
   nex-mager:
     name: nex-mager
     driver: bridge
-
-volumes:
-  pg-data:
-    name: mager-pg-data
-  temporal-data:
-    name: mager-temporal-data
