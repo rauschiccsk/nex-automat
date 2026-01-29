@@ -74,3 +74,55 @@ jobs:
 
       - name: Bandit scan
         run: bandit -r packages/ apps/ -ll -x "*/tests/*" || true
+
+  build:
+    name: Docker Build
+    runs-on: self-hosted
+    needs: [lint, test]
+    if: github.event_name == 'push'
+    strategy:
+      matrix:
+        include:
+          - dockerfile: Dockerfile.nex-brain
+            image: nex-brain
+          - dockerfile: Dockerfile.telegram
+            image: nex-telegram
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Generate image tags
+        id: tags
+        run: |
+          SHA_SHORT=$(echo ${{ github.sha }} | cut -c1-7)
+          echo "sha_tag=$SHA_SHORT" >> $GITHUB_OUTPUT
+          if [ "${{ github.ref }}" == "refs/heads/develop" ]; then
+            echo "latest_tag=latest" >> $GITHUB_OUTPUT
+          elif [ "${{ github.ref }}" == "refs/heads/main" ]; then
+            echo "latest_tag=stable" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ${{ matrix.dockerfile }}
+          push: false
+          tags: |
+            ${{ matrix.image }}:${{ steps.tags.outputs.sha_tag }}
+            ${{ matrix.image }}:${{ steps.tags.outputs.latest_tag }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Image build summary
+        run: |
+          echo "### Docker Build Summary" >> $GITHUB_STEP_SUMMARY
+          echo "| Property | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|----------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Image | ${{ matrix.image }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Dockerfile | ${{ matrix.dockerfile }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| SHA Tag | ${{ steps.tags.outputs.sha_tag }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Latest Tag | ${{ steps.tags.outputs.latest_tag }} |" >> $GITHUB_STEP_SUMMARY
