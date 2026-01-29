@@ -11,10 +11,6 @@ on:
           - ANDROS
           - MAGER
 
-env:
-  SRC_DIR: /opt/nex-automat-src
-  DEPLOY_DIR: /opt/nex-automat
-
 jobs:
   deploy:
     name: Deploy to ${{ inputs.customer }}
@@ -22,45 +18,61 @@ jobs:
       - self-hosted
       - ${{ inputs.customer }}
     environment: production-${{ inputs.customer }}
-    defaults:
-      run:
-        working-directory: /opt/nex-automat
 
     steps:
       - name: Pull latest code
-        run: |
-          echo "Pulling latest code from repository..."
-          cd /opt/nex-automat-src
-          git pull
+        uses: appleboy/ssh-action@v1
+        with:
+          host: localhost
+          username: ${{ secrets.DEPLOY_SSH_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          script: |
+            echo "Pulling latest code..."
+            cd /opt/nex-automat-src
+            git pull
 
       - name: Build images
-        run: |
-          echo "Building Docker images..."
-          docker compose build nex-brain nex-telegram
+        uses: appleboy/ssh-action@v1
+        with:
+          host: localhost
+          username: ${{ secrets.DEPLOY_SSH_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          script: |
+            echo "Building Docker images..."
+            cd /opt/nex-automat
+            docker compose build nex-brain nex-telegram
 
       - name: Deploy services
-        run: |
-          echo "Deploying services for ${{ inputs.customer }}..."
-          docker compose up -d nex-brain nex-telegram
+        uses: appleboy/ssh-action@v1
+        with:
+          host: localhost
+          username: ${{ secrets.DEPLOY_SSH_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          script: |
+            echo "Deploying services..."
+            cd /opt/nex-automat
+            docker compose up -d nex-brain nex-telegram
 
       - name: Health check
-        run: |
-          echo "Waiting for services to start..."
-          sleep 10
-          echo "Running health check..."
-          curl -f http://localhost:8000/health || exit 1
-          echo "Health check passed!"
+        uses: appleboy/ssh-action@v1
+        with:
+          host: localhost
+          username: ${{ secrets.DEPLOY_SSH_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          script: |
+            echo "Waiting for services..."
+            sleep 10
+            echo "Running health check..."
+            curl -f http://localhost:8000/health
+            echo "Health check passed!"
 
       - name: Deployment summary
-        run: |
-          echo "### Deployment Summary" >> $GITHUB_STEP_SUMMARY
-          echo "| Property | Value |" >> $GITHUB_STEP_SUMMARY
-          echo "|----------|-------|" >> $GITHUB_STEP_SUMMARY
-          echo "| Customer | ${{ inputs.customer }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Branch | ${{ github.ref_name }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Triggered by | ${{ github.actor }} |" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### Running Containers" >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
-          docker compose ps >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
+        uses: appleboy/ssh-action@v1
+        with:
+          host: localhost
+          username: ${{ secrets.DEPLOY_SSH_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          script: |
+            echo "=== Running Containers ==="
+            cd /opt/nex-automat
+            docker compose ps
