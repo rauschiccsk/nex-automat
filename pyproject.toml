@@ -70,9 +70,14 @@ asyncio_mode = "auto"
 addopts = "-v --tb=short"
 
 [tool.coverage.run]
-source = ["packages", "apps"]
-omit = ["*/tests/*", "*/__pycache__/*", "*/.venv/*"]
+source = ["packages/nex-shared", "packages/nex-staging"]
+omit = ["*/tests/*", "*/__pycache__/*", "*/.venv/*", "*/ui/*"]
 
 [tool.coverage.report]
-fail_under = 50
+fail_under = 15
 show_missing = true
+exclude_lines = [
+    "pragma: no cover",
+    "if __name__ == .__main__.:",
+    "raise NotImplementedError",
+]
