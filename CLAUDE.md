@@ -13,7 +13,7 @@ Uses `uv` workspace with Python 3.11+ (some apps require 3.13+):
 ```
 apps/
 ├── nex-brain/              # Multi-tenant RAG + LLM API (FastAPI + Ollama)
-├── supplier-invoice-loader/  # Email-to-database invoice processing (FastAPI)
+├── btrieve-loader/           # Email-to-database invoice processing (FastAPI)
 ├── supplier-invoice-editor/  # Desktop approval app (PyQt5)
 ├── supplier-invoice-staging/ # PySide6 staging desktop app
 ├── supplier-invoice-staging-web/ # React + Vite web frontend
@@ -80,7 +80,7 @@ npm run lint    # ESLint
 - Documents for RAG indexing go to `docs/knowledge/` only
 
 ### Invoice Processing Pipeline
-1. `supplier-invoice-loader` - Receives emails, extracts PDFs, OCR
+1. `btrieve-loader` - Receives emails, extracts PDFs, OCR
 2. `supplier-invoice-worker` - Temporal workflows for processing
 3. `supplier-invoice-staging` / `supplier-invoice-staging-web` - Review UI
 4. `supplier-invoice-editor` - Final approval (PyQt5)
