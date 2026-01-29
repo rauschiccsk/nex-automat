@@ -45,7 +45,7 @@ services:
 
   invoice-worker:
     build:
-      context: ../../apps/supplier-invoice-worker
+      context: C:/opt/nex-automat-src/apps/supplier-invoice-worker
       dockerfile: Dockerfile
     container_name: mager-invoice-worker
     restart: unless-stopped
@@ -62,7 +62,7 @@ services:
 
   polling-scheduler:
     build:
-      context: ../../apps/supplier-invoice-worker
+      context: C:/opt/nex-automat-src/apps/supplier-invoice-worker
       dockerfile: Dockerfile
     container_name: mager-polling-scheduler
     command: ["python", "-m", "scheduler.polling_scheduler"]
