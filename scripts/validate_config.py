@@ -6,8 +6,9 @@ Validates production configuration for correctness and security
 
 import os
 import sys
-import yaml
 from pathlib import Path
+
+import yaml
 
 
 class ConfigValidator:
@@ -21,7 +22,7 @@ class ConfigValidator:
     def load_config(self) -> bool:
         """Load configuration file"""
         try:
-            with open(self.config_path, 'r', encoding='utf-8') as f:
+            with open(self.config_path, encoding="utf-8") as f:
                 self.config = yaml.safe_load(f)
             self.info.append(f"✅ Loaded config from: {self.config_path}")
             return True
@@ -37,19 +38,19 @@ class ConfigValidator:
 
     def validate_database(self):
         """Validate database configuration"""
-        db = self.config.get('database', {}).get('postgres', {})
+        db = self.config.get("database", {}).get("postgres", {})
 
-        required = ['host', 'port', 'database', 'user', 'password']
+        required = ["host", "port", "database", "user", "password"]
         for field in required:
             if not db.get(field):
                 self.errors.append(f"❌ Database: Missing required field '{field}'")
 
-        port = db.get('port')
+        port = db.get("port")
         if port and not (1 <= port <= 65535):
             self.errors.append(f"❌ Database: Invalid port {port}")
 
-        password = db.get('password', '')
-        if password == 'CHANGE_ME':
+        password = db.get("password", "")
+        if password == "CHANGE_ME":
             self.errors.append("❌ Database: Default password not changed!")
         elif len(password) < 8:
             self.warnings.append("⚠️  Database: Password is weak (< 8 characters)")
@@ -58,13 +59,13 @@ class ConfigValidator:
 
     def validate_nex_genesis(self):
         """Validate NEX Genesis configuration"""
-        nex = self.config.get('nex_genesis', {})
+        nex = self.config.get("nex_genesis", {})
 
-        if not nex.get('api_url'):
+        if not nex.get("api_url"):
             self.errors.append("❌ NEX Genesis: Missing API URL")
 
-        api_key = nex.get('api_key', '')
-        if api_key == 'CHANGE_ME':
+        api_key = nex.get("api_key", "")
+        if api_key == "CHANGE_ME":
             self.errors.append("❌ NEX Genesis: Default API key not changed!")
         elif not api_key:
             self.info.append("✅ NEX Genesis: API key empty (OK for local testing)")
@@ -73,22 +74,22 @@ class ConfigValidator:
 
     def validate_email(self):
         """Validate email configuration"""
-        email = self.config.get('email', {})
-        smtp = email.get('smtp', {})
+        email = self.config.get("email", {})
+        smtp = email.get("smtp", {})
 
-        if not email.get('operator'):
+        if not email.get("operator"):
             self.warnings.append("⚠️  Email: No operator email configured")
-        if not email.get('alert'):
+        if not email.get("alert"):
             self.warnings.append("⚠️  Email: No alert email configured")
 
-        if not smtp.get('host'):
+        if not smtp.get("host"):
             self.warnings.append("⚠️  Email: SMTP host not configured")
 
-        smtp_password = smtp.get('password', '')
-        if smtp_password == 'CHANGE_ME':
+        smtp_password = smtp.get("password", "")
+        if smtp_password == "CHANGE_ME":
             self.errors.append("❌ Email: Default SMTP password not changed!")
 
-        port = smtp.get('port')
+        port = smtp.get("port")
         if port not in [25, 465, 587]:
             self.warnings.append(f"⚠️  Email: Unusual SMTP port {port}")
 
@@ -96,9 +97,9 @@ class ConfigValidator:
 
     def validate_paths(self):
         """Validate storage paths"""
-        paths = self.config.get('paths', {})
+        paths = self.config.get("paths", {})
 
-        required_paths = ['pdf_storage', 'xml_storage', 'temp_processing', 'archive', 'error']
+        required_paths = ["pdf_storage", "xml_storage", "temp_processing", "archive", "error"]
 
         for path_name in required_paths:
             path = paths.get(path_name)
@@ -119,9 +120,9 @@ class ConfigValidator:
 
     def validate_backup(self):
         """Validate backup configuration"""
-        backup = self.config.get('backup', {})
+        backup = self.config.get("backup", {})
 
-        backup_dir = backup.get('backup_dir')
+        backup_dir = backup.get("backup_dir")
         if not backup_dir:
             self.errors.append("❌ Backup: No backup directory configured")
         else:
@@ -133,20 +134,20 @@ class ConfigValidator:
             else:
                 self.info.append(f"✅ Backup: {backup_dir}")
 
-        retention = backup.get('retention', {})
-        if retention.get('daily', 0) < 1:
+        retention = backup.get("retention", {})
+        if retention.get("daily", 0) < 1:
             self.warnings.append("⚠️  Backup: Daily retention < 1 day")
 
     def validate_logging(self):
         """Validate logging configuration"""
-        logging = self.config.get('logging', {})
+        logging = self.config.get("logging", {})
 
-        level = logging.get('level', '').upper()
-        valid_levels = ['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL']
+        level = logging.get("level", "").upper()
+        valid_levels = ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
         if level not in valid_levels:
             self.errors.append(f"❌ Logging: Invalid level '{level}'")
 
-        log_dir = logging.get('log_dir')
+        log_dir = logging.get("log_dir")
         if not log_dir:
             self.errors.append("❌ Logging: No log directory configured")
         else:
@@ -160,12 +161,12 @@ class ConfigValidator:
 
     def validate_security(self):
         """Validate security settings"""
-        security = self.config.get('security', {})
+        security = self.config.get("security", {})
 
-        enc_key = security.get('encryption_key', '')
+        enc_key = security.get("encryption_key", "")
         if not enc_key:
             self.errors.append("❌ Security: No encryption key configured")
-        elif enc_key == 'CHANGE_ME_GENERATE_NEW_KEY':
+        elif enc_key == "CHANGE_ME_GENERATE_NEW_KEY":
             self.errors.append("❌ Security: Default encryption key not changed!")
         elif len(enc_key) < 32:
             self.warnings.append("⚠️  Security: Encryption key is short (< 32 chars)")
@@ -174,13 +175,13 @@ class ConfigValidator:
 
     def validate_application(self):
         """Validate application settings"""
-        app = self.config.get('application', {})
+        app = self.config.get("application", {})
 
-        env = app.get('environment', '').lower()
-        if env not in ['development', 'staging', 'production']:
+        env = app.get("environment", "").lower()
+        if env not in ["development", "staging", "production"]:
             self.warnings.append(f"⚠️  Application: Unknown environment '{env}'")
 
-        if env == 'production':
+        if env == "production":
             self.info.append("✅ Application: Production environment")
         else:
             self.warnings.append(f"⚠️  Application: Non-production environment '{env}'")
@@ -188,12 +189,13 @@ class ConfigValidator:
     def check_default_values(self):
         """Check for unchanged default values"""
         import re
+
         config_str = yaml.dump(self.config)
 
         # Remove environment variable references (e.g., ${ENV:POSTGRES_PASSWORD})
-        config_str = re.sub(r'\$\{ENV:[^}]+\}', '', config_str)
+        config_str = re.sub(r"\$\{ENV:[^}]+\}", "", config_str)
 
-        dangerous_defaults = ['CHANGE_ME', 'example.com']
+        dangerous_defaults = ["CHANGE_ME", "example.com"]
 
         for default in dangerous_defaults:
             if default in config_str:

@@ -6,6 +6,7 @@ Modules:
     database: Database utilities
     utils: Helper utilities
 """
+
 __version__ = "1.0.0"
 
-from shared_pyside6.ui import BaseWindow, BaseGrid
+from shared_pyside6.ui import BaseGrid, BaseWindow

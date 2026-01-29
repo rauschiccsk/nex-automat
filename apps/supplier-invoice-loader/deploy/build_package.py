@@ -11,84 +11,75 @@ Usage:
     python build_package.py --full            # Build full package with venv
 """
 
-import os
-import sys
 import zipfile
 import shutil
 import argparse
 import json
 from pathlib import Path
 from datetime import datetime
-from typing import List, Dict, Optional
+from typing import Dict, Optional
 
 # Files to always include in package
 CORE_FILES = [
-    'main.py',
-    'config.py',
-    'config_template.py',
-    'database.py',
-    'models.py',
-    'isdoc.py',
-    'notifications.py',
-    'monitoring.py',
-    'env_loader.py',
-    'migrate_v2.py',
-    'rollback_v2.py',
-    'migration_v2.sql',
-    'requirements.txt',
-    'requirements-dev.txt',
-    '.env.example',
-    'README.md'
+    "main.py",
+    "config.py",
+    "config_template.py",
+    "database.py",
+    "models.py",
+    "isdoc.py",
+    "notifications.py",
+    "monitoring.py",
+    "env_loader.py",
+    "migrate_v2.py",
+    "rollback_v2.py",
+    "migration_v2.sql",
+    "requirements.txt",
+    "requirements-dev.txt",
+    ".env.example",
+    "README.md",
 ]
 
 # Directories to include
-CORE_DIRECTORIES = [
-    'extractors',
-    'deploy',
-    'tests'
-]
+CORE_DIRECTORIES = ["extractors", "deploy", "tests"]
 
 # Documentation files
 DOCUMENTATION = [
-    'DEPLOYMENT.md',
-    'DEVELOPMENT.md',
-    'MIGRATION_GUIDE.md',
-    'TROUBLESHOOTING.md',
-    'MONITORING.md',
-    'EMAIL_ALERTING.md',
-    'N8N_WORKFLOW_SETUP.md',
-    'PYTHON_SETUP.md',
-    'SECURITY.md',
-    'DEPLOYMENT_CHECKLIST.md',
-    'PROJECT_PLAN.md'
+    "DEPLOYMENT.md",
+    "DEVELOPMENT.md",
+    "MIGRATION_GUIDE.md",
+    "TROUBLESHOOTING.md",
+    "MONITORING.md",
+    "EMAIL_ALERTING.md",
+    "N8N_WORKFLOW_SETUP.md",
+    "PYTHON_SETUP.md",
+    "SECURITY.md",
+    "DEPLOYMENT_CHECKLIST.md",
+    "PROJECT_PLAN.md",
 ]
 
 # Files to exclude
 EXCLUDE_FILES = [
-    'config_customer.py',
-    'invoices.db',
-    '*.pyc',
-    '__pycache__',
-    '.git',
-    '.gitignore',
-    '.env',
-    '*.log',
-    'backup_*',
-    '*.backup',
-    '.idea',
-    '.vscode',
-    'venv',
-    'htmlcov',
-    '.coverage',
-    '.pytest_cache',
-    '*.egg-info'
+    "config_customer.py",
+    "invoices.db",
+    "*.pyc",
+    "__pycache__",
+    ".git",
+    ".gitignore",
+    ".env",
+    "*.log",
+    "backup_*",
+    "*.backup",
+    ".idea",
+    ".vscode",
+    "venv",
+    "htmlcov",
+    ".coverage",
+    ".pytest_cache",
+    "*.egg-info",
 ]
 
 # Customer-specific files (copy if they exist)
-CUSTOMER_FILES = [
-    'config_customer.py',
-    '.env'
-]
+CUSTOMER_FILES = ["config_customer.py", ".env"]
 
 
 class PackageBuilder:
@@ -96,19 +87,19 @@ class PackageBuilder:
 
     def __init__(self, project_root: Path = None):
         self.project_root = project_root or Path.cwd().parent
-        self.deploy_dir = self.project_root / 'deploy'
-        self.packages_dir = self.deploy_dir / 'packages'
+        self.deploy_dir = self.project_root / "deploy"
+        self.packages_dir = self.deploy_dir / "packages"
         self.packages_dir.mkdir(parents=True, exist_ok=True)
 
     def log(self, message: str, level: str = "INFO"):
         """Log message with color"""
         colors = {
-            'INFO': '\033[94m',
-            'SUCCESS': '\033[92m',
-            'WARNING': '\033[93m',
-            'ERROR': '\033[91m'
+            "INFO": "\033[94m",
+            "SUCCESS": "\033[92m",
+            "WARNING": "\033[93m",
+            "ERROR": "\033[91m",
         }
-        reset = '\033[0m'
+        reset = "\033[0m"
 
         print(f"{colors.get(level, '')}[{level}]{reset} {message}")
 
@@ -122,8 +113,9 @@ class PackageBuilder:
 
         # Check patterns
         for pattern in EXCLUDE_FILES:
-            if '*' in pattern:
+            if "*" in pattern:
                 import fnmatch
+
                 if fnmatch.fnmatch(name, pattern):
                     return True
 
@@ -133,11 +125,11 @@ class PackageBuilder:
         """Get version from main.py or git"""
         try:
             # Try to get from main.py
-            main_file = self.project_root / 'main.py'
+            main_file = self.project_root / "main.py"
             if main_file.exists():
                 content = main_file.read_text()
-                for line in content.split('\n'):
-                    if 'version=' in line and '"' in line:
+                for line in content.split("\n"):
+                    if "version=" in line and '"' in line:
                         return line.split('"')[1]
         except:
             pass
@@ -145,11 +137,12 @@ class PackageBuilder:
         try:
             # Try git describe
             import subprocess
+
             result = subprocess.run(
-                ['git', 'describe', '--tags', '--always'],
+                ["git", "describe", "--tags", "--always"],
                 capture_output=True,
                 text=True,
-                cwd=self.project_root
+                cwd=self.project_root,
             )
             if result.returncode == 0:
                 return result.stdout.strip()
@@ -161,16 +154,16 @@ class PackageBuilder:
     def create_manifest(self, package_type: str, customer_name: Optional[str] = None) -> Dict:
         """Create package manifest"""
         return {
-            'package_type': package_type,
-            'version': self.get_version(),
-            'created': datetime.now().isoformat(),
-            'customer': customer_name,
-            'python_required': '>=3.8',
-            'contents': {
-                'core_files': CORE_FILES,
-                'directories': CORE_DIRECTORIES,
-                'documentation': DOCUMENTATION
-            }
+            "package_type": package_type,
+            "version": self.get_version(),
+            "created": datetime.now().isoformat(),
+            "customer": customer_name,
+            "python_required": ">=3.8",
+            "contents": {
+                "core_files": CORE_FILES,
+                "directories": CORE_DIRECTORIES,
+                "documentation": DOCUMENTATION,
+            },
         }
 
     def build_template_package(self) -> Path:
@@ -182,7 +175,7 @@ class PackageBuilder:
         package_name = f"supplier_invoice_loader_template_v{version}_{timestamp}.zip"
         package_path = self.packages_dir / package_name
 
-        with zipfile.ZipFile(package_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
+        with zipfile.ZipFile(package_path, "w", zipfile.ZIP_DEFLATED) as zipf:
             # Add core files
             for file_name in CORE_FILES:
                 file_path = self.project_root / file_name
@@ -196,7 +189,7 @@ class PackageBuilder:
             for dir_name in CORE_DIRECTORIES:
                 dir_path = self.project_root / dir_name
                 if dir_path.exists():
-                    for file_path in dir_path.rglob('*'):
+                    for file_path in dir_path.rglob("*"):
                         if file_path.is_file() and not self.should_exclude(file_path):
                             rel_path = file_path.relative_to(self.project_root)
                             zipf.write(file_path, f"supplier_invoice_loader/{rel_path}")
@@ -209,13 +202,13 @@ class PackageBuilder:
                     zipf.write(doc_path, f"supplier_invoice_loader/{doc_name}")
 
             # Add manifest
-            manifest = self.create_manifest('template')
+            manifest = self.create_manifest("template")
             manifest_json = json.dumps(manifest, indent=2)
-            zipf.writestr('supplier_invoice_loader/MANIFEST.json', manifest_json)
+            zipf.writestr("supplier_invoice_loader/MANIFEST.json", manifest_json)
 
             # Add quick start guide
             quickstart = self.create_quickstart_guide()
-            zipf.writestr('supplier_invoice_loader/QUICKSTART.txt', quickstart)
+            zipf.writestr("supplier_invoice_loader/QUICKSTART.txt", quickstart)
 
         self.log(f"Template package created: {package_path}", "SUCCESS")
         self.log(f"Size: {package_path.stat().st_size / 1024 / 1024:.2f} MB")
@@ -232,7 +225,7 @@ class PackageBuilder:
         package_path = self.packages_dir / package_name
 
         # First, create template package structure
-        with zipfile.ZipFile(package_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
+        with zipfile.ZipFile(package_path, "w", zipfile.ZIP_DEFLATED) as zipf:
             # Add all template files first
             for file_name in CORE_FILES:
                 file_path = self.project_root / file_name
@@ -243,38 +236,38 @@ class PackageBuilder:
             for dir_name in CORE_DIRECTORIES:
                 dir_path = self.project_root / dir_name
                 if dir_path.exists():
-                    for file_path in dir_path.rglob('*'):
+                    for file_path in dir_path.rglob("*"):
                         if file_path.is_file() and not self.should_exclude(file_path):
                             rel_path = file_path.relative_to(self.project_root)
                             zipf.write(file_path, f"supplier_invoice_loader/{rel_path}")
 
             # Add customer-specific files if they exist
-            config_customer = self.project_root / 'config_customer.py'
+            config_customer = self.project_root / "config_customer.py"
             if config_customer.exists():
                 # Check if it's actually configured for this customer
                 content = config_customer.read_text()
                 if customer_name in content:
-                    zipf.write(config_customer, 'supplier_invoice_loader/config_customer.py')
+                    zipf.write(config_customer, "supplier_invoice_loader/config_customer.py")
                     self.log("  Added customer config", "SUCCESS")
                 else:
                     self.log("  Config exists but not for this customer", "WARNING")
 
             # Add .env if exists (sanitized)
-            env_file = self.project_root / '.env'
+            env_file = self.project_root / ".env"
             if env_file.exists():
                 # Create sanitized version
                 sanitized_env = self.sanitize_env_file(env_file)
-                zipf.writestr('supplier_invoice_loader/.env.configured', sanitized_env)
+                zipf.writestr("supplier_invoice_loader/.env.configured", sanitized_env)
                 self.log("  Added sanitized .env", "SUCCESS")
 
             # Add manifest
-            manifest = self.create_manifest('customer', customer_name)
+            manifest = self.create_manifest("customer", customer_name)
             manifest_json = json.dumps(manifest, indent=2)
-            zipf.writestr('supplier_invoice_loader/MANIFEST.json', manifest_json)
+            zipf.writestr("supplier_invoice_loader/MANIFEST.json", manifest_json)
 
             # Add customer-specific instructions
             instructions = self.create_customer_instructions(customer_name)
-            zipf.writestr('supplier_invoice_loader/CUSTOMER_README.md', instructions)
+            zipf.writestr("supplier_invoice_loader/CUSTOMER_README.md", instructions)
 
         self.log(f"Customer package created: {package_path}", "SUCCESS")
         self.log(f"Size: {package_path.stat().st_size / 1024 / 1024:.2f} MB")
@@ -296,23 +289,17 @@ class PackageBuilder:
 
         try:
             # Copy all files
-            package_root = temp_dir / 'supplier_invoice_loader'
+            package_root = temp_dir / "supplier_invoice_loader"
             shutil.copytree(
-                self.project_root,
-                package_root,
-                ignore=shutil.ignore_patterns(*EXCLUDE_FILES)
+                self.project_root, package_root, ignore=shutil.ignore_patterns(*EXCLUDE_FILES)
             )
 
             # Create deployment script
-            deploy_script = package_root / 'DEPLOY.bat'
+            deploy_script = package_root / "DEPLOY.bat"
             deploy_script.write_text(self.create_full_deploy_script())
 
             # Create ZIP
-            shutil.make_archive(
-                str(package_path.with_suffix('')),
-                'zip',
-                temp_dir
-            )
+            shutil.make_archive(str(package_path.with_suffix("")), "zip", temp_dir)
 
         finally:
             # Clean up temp directory
@@ -327,16 +314,18 @@ class PackageBuilder:
         """Remove sensitive data from .env file"""
         lines = []
         for line in env_path.read_text().splitlines():
-            if '=' in line and not line.strip().startswith('#'):
-                key, value = line.split('=', 1)
+            if "=" in line and not line.strip().startswith("#"):
+                key, value = line.split("=", 1)
                 # Keep key but remove value for sensitive fields
-                if any(sensitive in key.upper() for sensitive in ['PASSWORD', 'KEY', 'SECRET', 'TOKEN']):
+                if any(
+                    sensitive in key.upper() for sensitive in ["PASSWORD", "KEY", "SECRET", "TOKEN"]
+                ):
                     lines.append(f"{key}=CHANGE_ME")
                 else:
                     lines.append(line)
             else:
                 lines.append(line)
-        return '\n'.join(lines)
+        return "\n".join(lines)
 
     def create_quickstart_guide(self) -> str:
         """Create quick start guide"""
@@ -493,7 +482,7 @@ pause
         """List existing packages"""
         self.log("Existing packages:")
 
-        packages = list(self.packages_dir.glob('*.zip'))
+        packages = list(self.packages_dir.glob("*.zip"))
         if not packages:
             self.log("  No packages found", "WARNING")
             return
@@ -520,19 +509,19 @@ pause
 
         choice = input("\nSelect option (1-5): ").strip()
 
-        if choice == '1':
+        if choice == "1":
             self.build_template_package()
-        elif choice == '2':
+        elif choice == "2":
             customer = input("Enter customer name: ").strip().upper()
             if customer:
                 self.build_customer_package(customer)
             else:
                 self.log("Customer name required", "ERROR")
-        elif choice == '3':
+        elif choice == "3":
             self.build_full_package()
-        elif choice == '4':
+        elif choice == "4":
             self.list_packages()
-        elif choice == '5':
+        elif choice == "5":
             return
         else:
             self.log("Invalid option", "ERROR")
@@ -543,29 +532,11 @@ def main():
     parser = argparse.ArgumentParser(
         description="Build deployment packages for Supplier Invoice Loader"
     )
-    parser.add_argument(
-        "--customer",
-        help="Build package for specific customer"
-    )
-    parser.add_argument(
-        "--template",
-        action="store_true",
-        help="Build template package"
-    )
-    parser.add_argument(
-        "--full",
-        action="store_true",
-        help="Build full package with dependencies"
-    )
-    parser.add_argument(
-        "--list",
-        action="store_true",
-        help="List existing packages"
-    )
-    parser.add_argument(
-        "--output-dir",
-        help="Output directory for packages"
-    )
+    parser.add_argument("--customer", help="Build package for specific customer")
+    parser.add_argument("--template", action="store_true", help="Build template package")
+    parser.add_argument("--full", action="store_true", help="Build full package with dependencies")
+    parser.add_argument("--list", action="store_true", help="List existing packages")
+    parser.add_argument("--output-dir", help="Output directory for packages")
 
     args = parser.parse_args()
 

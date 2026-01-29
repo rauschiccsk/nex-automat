@@ -8,11 +8,11 @@ Definition: gscat.bdf
 Record Size: 705 bytes
 """
 
+import struct
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Optional
 from decimal import Decimal
-import struct
+from typing import Optional
 
 
 @dataclass
@@ -62,19 +62,19 @@ class GSCATRecord:
 
     # Audit fields
     mod_user: str = ""  # Užívateľ poslednej zmeny
-    mod_date: Optional[datetime] = None  # Dátum poslednej zmeny
-    mod_time: Optional[datetime] = None  # Čas poslednej zmeny
-    created_date: Optional[datetime] = None  # Dátum vytvorenia
+    mod_date: datetime | None = None  # Dátum poslednej zmeny
+    mod_time: datetime | None = None  # Čas poslednej zmeny
+    created_date: datetime | None = None  # Dátum vytvorenia
     created_user: str = ""  # Užívateľ, ktorý vytvoril
 
     # Indexes (constants)
-    INDEX_GSCODE = 'GsCode'  # Primary index
-    INDEX_NAME = 'GsName'  # Index podľa názvu
-    INDEX_MGLST = 'MglstCode'  # Index podľa tovarovej skupiny
-    INDEX_SUPPLIER = 'SupplierCode'  # Index podľa dodávateľa
+    INDEX_GSCODE = "GsCode"  # Primary index
+    INDEX_NAME = "GsName"  # Index podľa názvu
+    INDEX_MGLST = "MglstCode"  # Index podľa tovarovej skupiny
+    INDEX_SUPPLIER = "SupplierCode"  # Index podľa dodávateľa
 
     @classmethod
-    def from_bytes(cls, data: bytes, encoding: str = 'cp852') -> 'GSCATRecord':
+    def from_bytes(cls, data: bytes, encoding: str = "cp852") -> "GSCATRecord":
         """
         Deserialize GSCAT record from bytes
 
@@ -116,51 +116,51 @@ class GSCATRecord:
             raise ValueError(f"Invalid record size: {len(data)} bytes (expected 705)")
 
         # Primary key
-        gs_code = struct.unpack('<i', data[0:4])[0]
+        gs_code = struct.unpack("<i", data[0:4])[0]
 
         # Product names
-        gs_name = data[4:84].decode(encoding, errors='ignore').rstrip('\x00 ')
-        gs_name2 = data[84:164].decode(encoding, errors='ignore').rstrip('\x00 ')
-        gs_short_name = data[164:194].decode(encoding, errors='ignore').rstrip('\x00 ')
+        gs_name = data[4:84].decode(encoding, errors="ignore").rstrip("\x00 ")
+        gs_name2 = data[84:164].decode(encoding, errors="ignore").rstrip("\x00 ")
+        gs_short_name = data[164:194].decode(encoding, errors="ignore").rstrip("\x00 ")
 
         # Classification
-        mglst_code = struct.unpack('<i', data[194:198])[0]
+        mglst_code = struct.unpack("<i", data[194:198])[0]
 
         # Unit
-        unit = data[198:208].decode(encoding, errors='ignore').rstrip('\x00 ')
-        unit_coef = Decimal(str(struct.unpack('<d', data[208:216])[0]))
+        unit = data[198:208].decode(encoding, errors="ignore").rstrip("\x00 ")
+        unit_coef = Decimal(str(struct.unpack("<d", data[208:216])[0]))
 
         # Pricing
-        price_buy = Decimal(str(round(struct.unpack('<d', data[216:224])[0], 2)))
-        price_sell = Decimal(str(round(struct.unpack('<d', data[224:232])[0], 2)))
-        vat_rate = Decimal(str(round(struct.unpack('<d', data[232:240])[0], 1)))
+        price_buy = Decimal(str(round(struct.unpack("<d", data[216:224])[0], 2)))
+        price_sell = Decimal(str(round(struct.unpack("<d", data[224:232])[0], 2)))
+        vat_rate = Decimal(str(round(struct.unpack("<d", data[232:240])[0], 1)))
 
         # Stock
-        stock_min = Decimal(str(round(struct.unpack('<d', data[240:248])[0], 2)))
-        stock_max = Decimal(str(round(struct.unpack('<d', data[248:256])[0], 2)))
-        stock_current = Decimal(str(round(struct.unpack('<d', data[256:264])[0], 2)))
+        stock_min = Decimal(str(round(struct.unpack("<d", data[240:248])[0], 2)))
+        stock_max = Decimal(str(round(struct.unpack("<d", data[248:256])[0], 2)))
+        stock_current = Decimal(str(round(struct.unpack("<d", data[256:264])[0], 2)))
 
         # Status
         active = bool(data[264])
         discontinued = bool(data[265])
 
         # Supplier
-        supplier_code = struct.unpack('<i', data[266:270])[0]
-        supplier_item_code = data[270:300].decode(encoding, errors='ignore').rstrip('\x00 ')
+        supplier_code = struct.unpack("<i", data[266:270])[0]
+        supplier_item_code = data[270:300].decode(encoding, errors="ignore").rstrip("\x00 ")
 
         # Notes
-        note = data[300:500].decode(encoding, errors='ignore').rstrip('\x00 ')
-        note2 = data[500:600].decode(encoding, errors='ignore').rstrip('\x00 ')
+        note = data[300:500].decode(encoding, errors="ignore").rstrip("\x00 ")
+        note2 = data[500:600].decode(encoding, errors="ignore").rstrip("\x00 ")
 
         # Audit
-        mod_user = data[600:608].decode(encoding, errors='ignore').rstrip('\x00 ')
-        mod_date_int = struct.unpack('<i', data[608:612])[0]
+        mod_user = data[600:608].decode(encoding, errors="ignore").rstrip("\x00 ")
+        mod_date_int = struct.unpack("<i", data[608:612])[0]
         mod_date = cls._decode_delphi_date(mod_date_int) if mod_date_int > 0 else None
-        mod_time_int = struct.unpack('<i', data[612:616])[0]
+        mod_time_int = struct.unpack("<i", data[612:616])[0]
         mod_time = cls._decode_delphi_time(mod_time_int) if mod_time_int >= 0 else None
-        created_date_int = struct.unpack('<i', data[616:620])[0]
+        created_date_int = struct.unpack("<i", data[616:620])[0]
         created_date = cls._decode_delphi_date(created_date_int) if created_date_int > 0 else None
-        created_user = data[620:628].decode(encoding, errors='ignore').rstrip('\x00 ')
+        created_user = data[620:628].decode(encoding, errors="ignore").rstrip("\x00 ")
 
         return cls(
             gs_code=gs_code,
@@ -186,10 +186,10 @@ class GSCATRecord:
             mod_date=mod_date,
             mod_time=mod_time,
             created_date=created_date,
-            created_user=created_user
+            created_user=created_user,
         )
 
-    def to_bytes(self, encoding: str = 'cp852') -> bytes:
+    def to_bytes(self, encoding: str = "cp852") -> bytes:
         """
         Serialize record to bytes for Btrieve
 
@@ -202,52 +202,63 @@ class GSCATRecord:
         result = bytearray(705)
 
         # Primary key
-        struct.pack_into('<i', result, 0, self.gs_code)
+        struct.pack_into("<i", result, 0, self.gs_code)
 
         # Names
-        result[4:4 + len(self.gs_name.encode(encoding)[:80])] = self.gs_name.encode(encoding)[:80]
-        result[84:84 + len(self.gs_name2.encode(encoding)[:80])] = self.gs_name2.encode(encoding)[:80]
-        result[164:164 + len(self.gs_short_name.encode(encoding)[:30])] = self.gs_short_name.encode(encoding)[:30]
+        result[4 : 4 + len(self.gs_name.encode(encoding)[:80])] = self.gs_name.encode(encoding)[:80]
+        result[84 : 84 + len(self.gs_name2.encode(encoding)[:80])] = self.gs_name2.encode(encoding)[
+            :80
+        ]
+        result[164 : 164 + len(self.gs_short_name.encode(encoding)[:30])] = (
+            self.gs_short_name.encode(encoding)[:30]
+        )
 
         # Classification
-        struct.pack_into('<i', result, 194, self.mglst_code)
+        struct.pack_into("<i", result, 194, self.mglst_code)
 
         # Unit
-        result[198:198 + len(self.unit.encode(encoding)[:10])] = self.unit.encode(encoding)[:10]
-        struct.pack_into('<d', result, 208, float(self.unit_coef))
+        result[198 : 198 + len(self.unit.encode(encoding)[:10])] = self.unit.encode(encoding)[:10]
+        struct.pack_into("<d", result, 208, float(self.unit_coef))
 
         # Pricing
-        struct.pack_into('<d', result, 216, float(self.price_buy))
-        struct.pack_into('<d', result, 224, float(self.price_sell))
-        struct.pack_into('<d', result, 232, float(self.vat_rate))
+        struct.pack_into("<d", result, 216, float(self.price_buy))
+        struct.pack_into("<d", result, 224, float(self.price_sell))
+        struct.pack_into("<d", result, 232, float(self.vat_rate))
 
         # Stock
-        struct.pack_into('<d', result, 240, float(self.stock_min))
-        struct.pack_into('<d', result, 248, float(self.stock_max))
-        struct.pack_into('<d', result, 256, float(self.stock_current))
+        struct.pack_into("<d", result, 240, float(self.stock_min))
+        struct.pack_into("<d", result, 248, float(self.stock_max))
+        struct.pack_into("<d", result, 256, float(self.stock_current))
 
         # Status
         result[264] = 1 if self.active else 0
         result[265] = 1 if self.discontinued else 0
 
         # Supplier
-        struct.pack_into('<i', result, 266, self.supplier_code)
-        result[270:270 + len(self.supplier_item_code.encode(encoding)[:30])] = self.supplier_item_code.encode(encoding)[
-            :30]
+        struct.pack_into("<i", result, 266, self.supplier_code)
+        result[270 : 270 + len(self.supplier_item_code.encode(encoding)[:30])] = (
+            self.supplier_item_code.encode(encoding)[:30]
+        )
 
         # Notes
-        result[300:300 + len(self.note.encode(encoding)[:200])] = self.note.encode(encoding)[:200]
-        result[500:500 + len(self.note2.encode(encoding)[:100])] = self.note2.encode(encoding)[:100]
+        result[300 : 300 + len(self.note.encode(encoding)[:200])] = self.note.encode(encoding)[:200]
+        result[500 : 500 + len(self.note2.encode(encoding)[:100])] = self.note2.encode(encoding)[
+            :100
+        ]
 
         # Audit
-        result[600:600 + len(self.mod_user.encode(encoding)[:8])] = self.mod_user.encode(encoding)[:8]
+        result[600 : 600 + len(self.mod_user.encode(encoding)[:8])] = self.mod_user.encode(
+            encoding
+        )[:8]
         if self.mod_date:
-            struct.pack_into('<i', result, 608, self._encode_delphi_date(self.mod_date))
+            struct.pack_into("<i", result, 608, self._encode_delphi_date(self.mod_date))
         if self.mod_time:
-            struct.pack_into('<i', result, 612, self._encode_delphi_time(self.mod_time))
+            struct.pack_into("<i", result, 612, self._encode_delphi_time(self.mod_time))
         if self.created_date:
-            struct.pack_into('<i', result, 616, self._encode_delphi_date(self.created_date))
-        result[620:620 + len(self.created_user.encode(encoding)[:8])] = self.created_user.encode(encoding)[:8]
+            struct.pack_into("<i", result, 616, self._encode_delphi_date(self.created_date))
+        result[620 : 620 + len(self.created_user.encode(encoding)[:8])] = self.created_user.encode(
+            encoding
+        )[:8]
 
         return bytes(result)
 
@@ -255,6 +266,7 @@ class GSCATRecord:
     def _decode_delphi_date(days: int) -> datetime:
         """Convert Delphi date to Python datetime"""
         from datetime import timedelta
+
         base_date = datetime(1899, 12, 30)
         return base_date + timedelta(days=days)
 
@@ -268,6 +280,7 @@ class GSCATRecord:
     def _decode_delphi_time(milliseconds: int) -> datetime:
         """Convert Delphi time to Python datetime"""
         from datetime import timedelta
+
         base = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
         return base + timedelta(milliseconds=milliseconds)
 

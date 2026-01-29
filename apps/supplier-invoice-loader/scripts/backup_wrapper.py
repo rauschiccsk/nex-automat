@@ -19,6 +19,7 @@ PROJECT_ROOT = Path(__file__).parent.parent
 LOG_DIR = PROJECT_ROOT / "logs"
 LOG_DIR.mkdir(exist_ok=True)
 
+
 # Setup logging
 def setup_logging(backup_type: str) -> logging.Logger:
     """Setup file and console logging"""
@@ -29,7 +30,7 @@ def setup_logging(backup_type: str) -> logging.Logger:
     logger.setLevel(logging.INFO)
 
     # File handler
-    fh = logging.FileHandler(log_file, encoding='utf-8')
+    fh = logging.FileHandler(log_file, encoding="utf-8")
     fh.setLevel(logging.INFO)
 
     # Console handler
@@ -38,8 +39,7 @@ def setup_logging(backup_type: str) -> logging.Logger:
 
     # Formatter
     formatter = logging.Formatter(
-        '%(asctime)s - %(levelname)s - %(message)s',
-        datefmt='%Y-%m-%d %H:%M:%S'
+        "%(asctime)s - %(levelname)s - %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
     )
     fh.setFormatter(formatter)
     ch.setFormatter(formatter)
@@ -72,12 +72,7 @@ def send_email_notification(subject: str, message: str):
 def main():
     """Main wrapper entry point"""
     parser = argparse.ArgumentParser(description="Backup wrapper with logging")
-    parser.add_argument(
-        '--type',
-        choices=['daily', 'weekly'],
-        default='daily',
-        help='Backup type'
-    )
+    parser.add_argument("--type", choices=["daily", "weekly"], default="daily", help="Backup type")
     args = parser.parse_args()
 
     logger = setup_logging(args.type)
@@ -90,12 +85,7 @@ def main():
     backup_script = PROJECT_ROOT / "scripts" / "backup_database.py"
     config_file = PROJECT_ROOT / "config" / "config.yaml"
 
-    cmd = [
-        sys.executable,
-        str(backup_script),
-        '--config', str(config_file),
-        '--type', args.type
-    ]
+    cmd = [sys.executable, str(backup_script), "--config", str(config_file), "--type", args.type]
 
     logger.info(f"Command: {' '.join(cmd)}")
 
@@ -106,7 +96,7 @@ def main():
             cwd=str(PROJECT_ROOT),
             capture_output=True,
             text=True,
-            timeout=7200  # 2 hour timeout
+            timeout=7200,  # 2 hour timeout
         )
 
         # Log stdout
@@ -134,7 +124,7 @@ def main():
             send_email_notification(
                 subject=f"NEX Automat - {args.type.capitalize()} Backup Failed",
                 message=f"Backup failed with return code {result.returncode}\n\n"
-                       f"Error output:\n{result.stderr}"
+                f"Error output:\n{result.stderr}",
             )
 
             return result.returncode
@@ -146,7 +136,7 @@ def main():
 
         send_email_notification(
             subject=f"NEX Automat - {args.type.capitalize()} Backup Timeout",
-            message=f"Backup exceeded 2 hour timeout limit"
+            message="Backup exceeded 2 hour timeout limit",
         )
 
         return 1
@@ -158,11 +148,11 @@ def main():
 
         send_email_notification(
             subject=f"NEX Automat - {args.type.capitalize()} Backup Error",
-            message=f"Backup failed with exception:\n{e}"
+            message=f"Backup failed with exception:\n{e}",
         )
 
         return 1
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(main())

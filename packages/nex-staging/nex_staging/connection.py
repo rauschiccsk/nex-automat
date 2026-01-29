@@ -1,9 +1,10 @@
 """PostgreSQL connection manager using pg8000."""
 
+import os
+from collections.abc import Generator
 from contextlib import contextmanager
 from dataclasses import dataclass
-from typing import Optional, Generator, Any
-import os
+from typing import Any
 
 import pg8000.native
 
@@ -11,6 +12,7 @@ import pg8000.native
 @dataclass
 class DatabaseConfig:
     """Database connection configuration."""
+
     host: str = "localhost"
     port: int = 5432
     database: str = "nex_automat"
@@ -38,8 +40,8 @@ class DatabaseConnection:
         port: int = 5432,
         database: str = "nex_automat",
         user: str = "nex",
-        password: Optional[str] = None,
-        config: Optional[DatabaseConfig] = None,
+        password: str | None = None,
+        config: DatabaseConfig | None = None,
     ):
         if config:
             self.config = config
@@ -155,7 +157,7 @@ class Pg8000Cursor:
 
     def fetchall(self):
         """Fetch all remaining rows."""
-        rows = self._rows[self._row_index:]
+        rows = self._rows[self._row_index :]
         self._row_index = len(self._rows)
         if self._dict_cursor and self._columns:
             return [dict(zip(self._columns, row)) for row in rows]

@@ -2,7 +2,7 @@
 Check NEX Genesis connection method.
 Search for database connection strings, ODBC DSN, Btrieve settings.
 """
-import os
+
 from pathlib import Path
 
 
@@ -10,15 +10,11 @@ def search_in_file(filepath: Path, keywords: list) -> list:
     """Search for keywords in file."""
     results = []
     try:
-        with open(filepath, 'r', encoding='utf-8', errors='ignore') as f:
+        with open(filepath, encoding="utf-8", errors="ignore") as f:
             for line_num, line in enumerate(f, 1):
                 for keyword in keywords:
                     if keyword.upper() in line.upper():
-                        results.append({
-                            'line': line_num,
-                            'text': line.strip()[:200],
-                            'keyword': keyword
-                        })
+                        results.append({"line": line_num, "text": line.strip()[:200], "keyword": keyword})
     except Exception:
         pass
     return results
@@ -41,25 +37,25 @@ def search_nex_genesis_config():
 
     # Keywords to search for
     connection_keywords = [
-        'ODBC',
-        'DSN',
-        'ConnectionString',
-        'Database',
-        'BtrOpen',
-        'BtrCall',
-        'w3btrv7',
-        'YEARACT',
-        'STORES',
-        'ServerName',
-        'HostName',
+        "ODBC",
+        "DSN",
+        "ConnectionString",
+        "Database",
+        "BtrOpen",
+        "BtrCall",
+        "w3btrv7",
+        "YEARACT",
+        "STORES",
+        "ServerName",
+        "HostName",
     ]
 
-    file_types = ['.pas', '.dpr', '.dfm', '.ini', '.cfg', '.conf', '.txt']
+    file_types = [".pas", ".dpr", ".dfm", ".ini", ".cfg", ".conf", ".txt"]
 
     all_findings = {}
 
     # Search recursively
-    for filepath in nex_dir.rglob('*'):
+    for filepath in nex_dir.rglob("*"):
         if not filepath.is_file():
             continue
 
@@ -67,34 +63,31 @@ def search_nex_genesis_config():
             continue
 
         # Special interest in specific files
-        interesting = any(x in filepath.name.upper() for x in [
-            'BTRHAND', 'DATABASE', 'CONNECTION', 'CONFIG', 'MAIN', 'DATAMODULE'
-        ])
+        interesting = any(
+            x in filepath.name.upper() for x in ["BTRHAND", "DATABASE", "CONNECTION", "CONFIG", "MAIN", "DATAMODULE"]
+        )
 
         findings = search_in_file(filepath, connection_keywords)
 
         if findings:
-            all_findings[filepath] = {
-                'findings': findings,
-                'interesting': interesting
-            }
+            all_findings[filepath] = {"findings": findings, "interesting": interesting}
 
     # Print interesting files first
     print("\n🔍 HIGH PRIORITY FILES (Database/Connection related):")
     print("-" * 80)
 
-    interesting_files = {k: v for k, v in all_findings.items() if v['interesting']}
+    interesting_files = {k: v for k, v in all_findings.items() if v["interesting"]}
 
     if interesting_files:
         for filepath, data in sorted(interesting_files.items()):
             print(f"\n📄 {filepath.relative_to(nex_dir)}")
-            for finding in data['findings'][:10]:  # Max 10 per file
+            for finding in data["findings"][:10]:  # Max 10 per file
                 print(f"   Line {finding['line']:4d}: {finding['text']}")
     else:
         print("   ❌ No high priority files found")
 
     # Print other files
-    other_files = {k: v for k, v in all_findings.items() if not v['interesting']}
+    other_files = {k: v for k, v in all_findings.items() if not v["interesting"]}
 
     if other_files:
         print("\n\n📋 OTHER FILES WITH DATABASE KEYWORDS:")
@@ -102,7 +95,7 @@ def search_nex_genesis_config():
 
         for filepath, data in sorted(other_files.items()):
             print(f"\n📄 {filepath.relative_to(nex_dir)}")
-            for finding in data['findings'][:5]:  # Max 5 per file
+            for finding in data["findings"][:5]:  # Max 5 per file
                 print(f"   Line {finding['line']:4d}: {finding['text']}")
 
     # Summary
@@ -110,7 +103,8 @@ def search_nex_genesis_config():
     print("SUMMARY:")
     print("=" * 80)
     print(
-        f"Total files searched: {len([f for f in nex_dir.rglob('*') if f.is_file() and f.suffix.lower() in file_types])}")
+        f"Total files searched: {len([f for f in nex_dir.rglob('*') if f.is_file() and f.suffix.lower() in file_types])}"
+    )
     print(f"Files with findings: {len(all_findings)}")
     print(f"High priority files: {len(interesting_files)}")
 
@@ -138,7 +132,7 @@ def search_file_content(filepath: str):
     print("=" * 80 + "\n")
 
     try:
-        with open(path, 'r', encoding='utf-8', errors='ignore') as f:
+        with open(path, encoding="utf-8", errors="ignore") as f:
             content = f.read()
             print(content[:5000])  # First 5000 chars
 

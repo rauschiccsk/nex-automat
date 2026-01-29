@@ -6,7 +6,7 @@ and posting to the invoice processing pipeline.
 """
 
 from datetime import timedelta
-from typing import Any, Dict, List
+from typing import Any
 
 from temporalio import workflow
 from temporalio.common import RetryPolicy
@@ -47,7 +47,7 @@ class SupplierAPIInvoiceWorkflow:
         supplier_id: str,
         date_from: str,
         date_to: str,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Execute supplier invoice processing workflow.
 
@@ -59,9 +59,7 @@ class SupplierAPIInvoiceWorkflow:
         Returns:
             Summary of processed invoices
         """
-        workflow.logger.info(
-            f"Starting invoice workflow for {supplier_id}: {date_from} to {date_to}"
-        )
+        workflow.logger.info(f"Starting invoice workflow for {supplier_id}: {date_from} to {date_to}")
 
         # Retry policy for activities
         retry_policy = RetryPolicy(
@@ -122,34 +120,32 @@ class SupplierAPIInvoiceWorkflow:
             for invoice in invoices:
                 invoice_id = invoice.get("InvoiceId", "unknown")
                 try:
-                    await self._process_single_invoice(
-                        supplier_id, invoice_id, invoice, activity_options
-                    )
+                    await self._process_single_invoice(supplier_id, invoice_id, invoice, activity_options)
                     results["processed"] += 1
                 except Exception as e:
                     workflow.logger.error(f"Failed to process invoice {invoice_id}: {e}")
                     results["failed"] += 1
-                    results["errors"].append({
-                        "invoice_id": invoice_id,
-                        "error": str(e),
-                    })
+                    results["errors"].append(
+                        {
+                            "invoice_id": invoice_id,
+                            "error": str(e),
+                        }
+                    )
 
         except Exception as e:
             workflow.logger.error(f"Workflow failed: {e}")
             results["errors"].append({"workflow_error": str(e)})
             raise
 
-        workflow.logger.info(
-            f"Workflow complete: {results['processed']}/{results['total_invoices']} processed"
-        )
+        workflow.logger.info(f"Workflow complete: {results['processed']}/{results['total_invoices']} processed")
         return results
 
     async def _process_single_invoice(
         self,
         supplier_id: str,
         invoice_id: str,
-        invoice_data: Dict[str, Any],
-        activity_options: Dict[str, Any],
+        invoice_data: dict[str, Any],
+        activity_options: dict[str, Any],
     ) -> None:
         """Process a single invoice through the pipeline."""
         workflow.logger.info(f"Processing invoice: {invoice_id}")
@@ -206,7 +202,7 @@ class SingleInvoiceWorkflow:
         self,
         supplier_id: str,
         invoice_id: str,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Process single invoice.
 

@@ -5,8 +5,9 @@ WITH CACHE BUSTING for fresh GitHub content
 
 Invoice Editor - ISDOC approval and NEX Genesis integration
 """
-import os
+
 import json
+import os
 import subprocess
 from datetime import datetime
 from pathlib import Path
@@ -25,28 +26,28 @@ CATEGORIES = {
         "extensions": [".py"],
         "recursive": False,
         "exclude_dirs": [],
-        "include_patterns": ["main"]
+        "include_patterns": ["main"],
     },
     "documentation": {
         "description": "Project documentation and guides",
         "directories": ["docs"],
         "extensions": [".md"],
         "recursive": True,
-        "exclude_dirs": []
+        "exclude_dirs": [],
     },
     "python_sources": {
         "description": "Python source code modules",
         "directories": ["src", "scripts"],
         "extensions": [".py"],
         "recursive": True,
-        "exclude_dirs": ["__pycache__", ".pytest_cache"]
+        "exclude_dirs": ["__pycache__", ".pytest_cache"],
     },
     "ui_resources": {
         "description": "Qt5 UI files and resources",
         "directories": ["resources"],
         "extensions": [".ui", ".qrc"],
         "recursive": True,
-        "exclude_dirs": []
+        "exclude_dirs": [],
     },
     "configuration": {
         "description": "Configuration files and templates",
@@ -54,34 +55,30 @@ CATEGORIES = {
         "extensions": [".txt", ".yaml", ".yml", ".example", ".ini"],
         "recursive": False,
         "exclude_dirs": [],
-        "include_patterns": ["requirements", "config", ".env"]
+        "include_patterns": ["requirements", "config", ".env"],
     },
     "database_schemas": {
         "description": "PostgreSQL schemas and migrations",
         "directories": ["database"],
         "extensions": [".sql"],
         "recursive": True,
-        "exclude_dirs": []
+        "exclude_dirs": [],
     },
     "tests": {
         "description": "Test suite and fixtures",
         "directories": ["tests"],
         "extensions": [".py"],
         "recursive": True,
-        "exclude_dirs": ["__pycache__"]
+        "exclude_dirs": ["__pycache__"],
     },
 }
 
 
-def get_current_commit_sha(repo_path: Path) -> Optional[str]:
+def get_current_commit_sha(repo_path: Path) -> str | None:
     """Get current Git commit SHA"""
     try:
         result = subprocess.run(
-            ['git', 'rev-parse', 'HEAD'],
-            cwd=repo_path,
-            capture_output=True,
-            text=True,
-            check=True
+            ["git", "rev-parse", "HEAD"], cwd=repo_path, capture_output=True, text=True, check=True
         )
         sha = result.stdout.strip()
         return sha if sha else None
@@ -114,7 +111,7 @@ def should_skip(path):
         "*.sqlite",
         "build",
         "dist",
-        "*.spec"
+        "*.spec",
     ]
 
     path_str = str(path)
@@ -166,16 +163,18 @@ def scan_category(category_name, config, base_path, base_url, cache_version):
                             continue
 
                     relative_path = file_path.relative_to(base_path)
-                    clean_path = str(relative_path).replace(os.sep, '/')
+                    clean_path = str(relative_path).replace(os.sep, "/")
 
-                    files.append({
-                        "path": clean_path,
-                        "raw_url": f"{base_url}/{clean_path}?v={cache_version}",
-                        "size": file_path.stat().st_size,
-                        "extension": file_path.suffix,
-                        "name": file_path.name,
-                        "category": category_name
-                    })
+                    files.append(
+                        {
+                            "path": clean_path,
+                            "raw_url": f"{base_url}/{clean_path}?v={cache_version}",
+                            "size": file_path.stat().st_size,
+                            "extension": file_path.suffix,
+                            "name": file_path.name,
+                            "category": category_name,
+                        }
+                    )
 
     return files
 
@@ -250,38 +249,38 @@ def generate_manifest():
             {
                 "name": "INIT_PROMPT_NEW_CHAT.md",
                 "description": "Init prompt for new session - load this first",
-                "url": f"{base_url}/INIT_PROMPT_NEW_CHAT.md?v={cache_version}"
+                "url": f"{base_url}/INIT_PROMPT_NEW_CHAT.md?v={cache_version}",
             },
             {
                 "name": "SESSION_NOTES.md",
                 "description": "Current session progress and status",
-                "url": f"{base_url}/SESSION_NOTES.md?v={cache_version}"
-            }
+                "url": f"{base_url}/SESSION_NOTES.md?v={cache_version}",
+            },
         ],
         "core_modules": [
             {
                 "name": "src/btrieve/btrieve_client.py",
                 "description": "Btrieve database client (from nex-genesis-server)",
-                "url": f"{base_url}/src/btrieve/btrieve_client.py?v={cache_version}"
+                "url": f"{base_url}/src/btrieve/btrieve_client.py?v={cache_version}",
             },
             {
                 "name": "src/database/postgres_client.py",
                 "description": "PostgreSQL staging database client",
-                "url": f"{base_url}/src/database/postgres_client.py?v={cache_version}"
+                "url": f"{base_url}/src/database/postgres_client.py?v={cache_version}",
             },
             {
                 "name": "main.py",
                 "description": "Application entry point",
-                "url": f"{base_url}/main.py?v={cache_version}"
-            }
+                "url": f"{base_url}/main.py?v={cache_version}",
+            },
         ],
         "database": [
             {
                 "name": "database/schemas/001_initial_schema.sql",
                 "description": "PostgreSQL staging database schema",
-                "url": f"{base_url}/database/schemas/001_initial_schema.sql?v={cache_version}"
+                "url": f"{base_url}/database/schemas/001_initial_schema.sql?v={cache_version}",
             }
-        ]
+        ],
     }
 
     # Create manifest
@@ -298,13 +297,12 @@ def generate_manifest():
         "quick_access": quick_access,
         "categories": list(CATEGORIES.keys()),
         "category_descriptions": {
-            name: config["description"]
-            for name, config in CATEGORIES.items()
+            name: config["description"] for name, config in CATEGORIES.items()
         },
         "statistics": {
             "total_files": len(all_files),
             "by_category": category_stats,
-            "generated_by": "generate_project_access.py"
+            "generated_by": "generate_project_access.py",
         },
         "files": all_files,
         "usage_instructions": {
@@ -314,15 +312,15 @@ def generate_manifest():
             "step_4": "Access individual files using raw_url with cache version",
             "cache_strategy": "URLs use commit SHA for cache-proof access",
             "note_cache": "Commit SHA URLs are immutable - GitHub never returns stale cache",
-            "note": "Always regenerate manifest after pushing changes to get fresh cache version"
-        }
+            "note": "Always regenerate manifest after pushing changes to get fresh cache version",
+        },
     }
 
     # Write manifest
     output_path = project_root / OUTPUT_FILE
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    with open(output_path, 'w', encoding='utf-8') as f:
+    with open(output_path, "w", encoding="utf-8") as f:
         json.dump(manifest, f, indent=2, ensure_ascii=False)
 
     print("\n" + "=" * 70)
@@ -331,7 +329,7 @@ def generate_manifest():
     print(f"\n📄 Output: {output_path}")
     print(f"📊 Total files: {len(all_files)}")
     print(f"🔄 Cache version: {cache_version}")
-    print(f"\n📈 Files by category:")
+    print("\n📈 Files by category:")
     for category, count in category_stats.items():
         print(f"   • {category}: {count} files")
 
@@ -353,4 +351,5 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"\n❌ Error: {e}")
         import traceback
+
         traceback.print_exc()

@@ -7,7 +7,7 @@ Converts MARSO API JSON response to ISDOC 6.0.1 XML format.
 import hashlib
 import logging
 from decimal import ROUND_HALF_UP, Decimal
-from typing import Any, Dict, List, Optional
+from typing import Any
 from xml.etree import ElementTree as ET
 
 logger = logging.getLogger(__name__)
@@ -39,7 +39,7 @@ class MARSOToISDOCConverter:
         """Register ISDOC namespace."""
         ET.register_namespace("", ISDOC_NS)
 
-    def convert(self, marso_json: Dict[str, Any]) -> str:
+    def convert(self, marso_json: dict[str, Any]) -> str:
         """
         Convert MARSO JSON to ISDOC XML string.
 
@@ -91,16 +91,14 @@ class MARSOToISDOCConverter:
         # Generate XML string
         return ET.tostring(root, encoding="unicode", xml_declaration=True)
 
-    def _add_element(
-        self, parent: ET.Element, tag: str, text: Optional[str] = None
-    ) -> ET.Element:
+    def _add_element(self, parent: ET.Element, tag: str, text: str | None = None) -> ET.Element:
         """Add child element with optional text."""
         elem = ET.SubElement(parent, tag)
         if text is not None:
             elem.text = str(text)
         return elem
 
-    def _generate_uuid(self, data: Dict[str, Any]) -> str:
+    def _generate_uuid(self, data: dict[str, Any]) -> str:
         """Generate deterministic UUID from invoice data."""
         content = f"MARSO-{data.get('InvoiceId', '')}-{data.get('Kelt', '')}"
         hash_hex = hashlib.md5(content.encode()).hexdigest()
@@ -136,7 +134,7 @@ class MARSOToISDOCConverter:
         scheme = self._add_element(tax_scheme, "TaxScheme")
         self._add_element(scheme, "Name", "VAT")
 
-    def _build_customer_party(self, root: ET.Element, data: Dict[str, Any]):
+    def _build_customer_party(self, root: ET.Element, data: dict[str, Any]):
         """Build AccountingCustomerParty element."""
         customer = self._add_element(root, "AccountingCustomerParty")
         party = self._add_element(customer, "Party")
@@ -153,14 +151,14 @@ class MARSOToISDOCConverter:
         country = self._add_element(address, "Country")
         self._add_element(country, "IdentificationCode", data.get("InvCountryRegionId", "SK"))
 
-    def _build_payment_means(self, root: ET.Element, data: Dict[str, Any]):
+    def _build_payment_means(self, root: ET.Element, data: dict[str, Any]):
         """Build PaymentMeans element."""
         payment = self._add_element(root, "PaymentMeans")
         self._add_element(payment, "Payment")
         self._add_element(payment, "PaymentMeansCode", "42")  # Bank transfer
         self._add_element(payment, "PaymentDueDate", data.get("Hatarido", ""))
 
-    def _build_tax_total(self, root: ET.Element, data: Dict[str, Any]):
+    def _build_tax_total(self, root: ET.Element, data: dict[str, Any]):
         """Build TaxTotal element."""
         tax_total = self._add_element(root, "TaxTotal")
 
@@ -182,7 +180,7 @@ class MARSOToISDOCConverter:
         scheme = self._add_element(tax_category, "TaxScheme")
         self._add_element(scheme, "Name", "VAT")
 
-    def _build_legal_monetary_total(self, root: ET.Element, data: Dict[str, Any]):
+    def _build_legal_monetary_total(self, root: ET.Element, data: dict[str, Any]):
         """Build LegalMonetaryTotal element."""
         total = self._add_element(root, "LegalMonetaryTotal")
         self._add_element(total, "TaxExclusiveAmount", self._format_amount(data.get("Netto", 0)))
@@ -195,16 +193,14 @@ class MARSOToISDOCConverter:
         self._add_element(total, "PaidDepositsAmount", "0.00")
         self._add_element(total, "PayableAmount", self._format_amount(data.get("Brutto", 0)))
 
-    def _build_invoice_lines(self, root: ET.Element, lines: List[Dict[str, Any]]):
+    def _build_invoice_lines(self, root: ET.Element, lines: list[dict[str, Any]]):
         """Build InvoiceLines element."""
         lines_elem = self._add_element(root, "InvoiceLines")
 
         for idx, line in enumerate(lines, start=1):
             self._build_invoice_line(lines_elem, line, idx)
 
-    def _build_invoice_line(
-        self, parent: ET.Element, line: Dict[str, Any], line_number: int
-    ):
+    def _build_invoice_line(self, parent: ET.Element, line: dict[str, Any], line_number: int):
         """Build single InvoiceLine element."""
         line_elem = self._add_element(parent, "InvoiceLine")
 
@@ -225,7 +221,11 @@ class MARSOToISDOCConverter:
         netto = float(line.get("Netto", 0))
         unit_price = netto / qty if qty > 0 else 0
         self._add_element(line_elem, "UnitPrice", self._format_amount(unit_price))
-        self._add_element(line_elem, "UnitPriceTaxInclusive", self._format_amount(float(line.get("Brutto", 0)) / qty if qty > 0 else 0))
+        self._add_element(
+            line_elem,
+            "UnitPriceTaxInclusive",
+            self._format_amount(float(line.get("Brutto", 0)) / qty if qty > 0 else 0),
+        )
 
         # Tax category for line
         class_tax = self._add_element(line_elem, "ClassifiedTaxCategory")

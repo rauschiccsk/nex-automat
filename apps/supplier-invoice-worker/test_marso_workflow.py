@@ -5,9 +5,8 @@ import logging
 from datetime import date, datetime, timedelta
 from uuid import uuid4
 
-from temporalio.client import Client
-
 from config.settings import get_settings
+from temporalio.client import Client
 from workflows.api_invoice_workflow import SupplierAPIInvoiceWorkflow
 
 # Configure logging
@@ -52,9 +51,9 @@ async def test_marso_workflow():
         logger.info(f"Successfully processed: {result['processed']}")
         logger.info(f"Failed: {result['failed']}")
 
-        if result['errors']:
+        if result["errors"]:
             logger.warning(f"Errors encountered: {len(result['errors'])}")
-            for error in result['errors']:
+            for error in result["errors"]:
                 logger.warning(f"  - {error}")
 
         logger.info("=" * 60)

@@ -1,10 +1,11 @@
-# -*- coding: utf-8 -*-
 """
 Test main application entry point
 """
-import pytest
+
 import sys
 from pathlib import Path
+
+import pytest
 
 
 def test_main_file_exists():
@@ -20,8 +21,9 @@ def test_main_imports():
 
     try:
         import main
-        assert hasattr(main, 'main')
-        assert hasattr(main, 'setup_logging')
+
+        assert hasattr(main, "main")
+        assert hasattr(main, "setup_logging")
     except ImportError as e:
         pytest.fail(f"Failed to import main: {e}")
 
@@ -32,9 +34,10 @@ def test_logging_setup():
 
     try:
         from main import setup_logging
+
         logger = setup_logging()
         assert logger is not None
-        assert logger.name == '__main__'
+        assert logger.name == "__main__"
     except Exception as e:
         pytest.skip(f"Logging setup requires file system access: {e}")
 
@@ -44,6 +47,5 @@ def test_main_function():
     """Test main function (requires Qt)"""
     sys.path.insert(0, str(Path(__file__).parent.parent))
 
-    from main import main
     # Would need to mock Qt application
     pass

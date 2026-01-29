@@ -8,11 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from api.routes import chat
 
-app = FastAPI(
-    title="NEX Brain API",
-    description="Inteligentné rozhranie pre NEX ekosystém",
-    version="0.1.0"
-)
+app = FastAPI(title="NEX Brain API", description="Inteligentné rozhranie pre NEX ekosystém", version="0.1.0")
 
 # CORS
 app.add_middleware(

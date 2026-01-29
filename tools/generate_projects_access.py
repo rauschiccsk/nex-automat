@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 Generate Projects Access - NEX Automat Monorepo
 Location: C:/Development/nex-automat/tools/generate_projects_access.py
@@ -14,9 +13,9 @@ Vytvára hierarchické JSON manifesty:
 Pre efektívne lazy loading v Claude sessions.
 """
 
-from pathlib import Path
-from datetime import datetime
 import json
+from datetime import datetime
+from pathlib import Path
 
 MONOREPO_ROOT = Path("/")
 INIT_CHAT_DIR = MONOREPO_ROOT / "init_chat"  # ✅ UPDATED: SESSION_NOTES → init_chat
@@ -31,21 +30,28 @@ GITHUB_BRANCH = "develop"
 
 # Exclude patterns
 EXCLUDE_DIRS = {
-    '__pycache__', '.pytest_cache', '.venv', 'venv', '.git',
-    '.mypy_cache', '.ruff_cache', 'htmlcov', '.eggs',
-    'build', 'dist', '*.egg-info', 'node_modules'
+    "__pycache__",
+    ".pytest_cache",
+    ".venv",
+    "venv",
+    ".git",
+    ".mypy_cache",
+    ".ruff_cache",
+    "htmlcov",
+    ".eggs",
+    "build",
+    "dist",
+    "*.egg-info",
+    "node_modules",
 }
 
-EXCLUDE_FILES = {
-    '.pyc', '.pyo', '.pyd', '.so', '.dll', '.dylib',
-    '.coverage', '.DS_Store', 'Thumbs.db'
-}
+EXCLUDE_FILES = {".pyc", ".pyo", ".pyd", ".so", ".dll", ".dylib", ".coverage", ".DS_Store", "Thumbs.db"}
 
 
 def should_exclude(path: Path) -> bool:
     """Check if path should be excluded"""
     for part in path.parts:
-        if part in EXCLUDE_DIRS or part.startswith('.'):
+        if part in EXCLUDE_DIRS or part.startswith("."):
             return True
 
     if path.is_file():
@@ -59,7 +65,7 @@ def should_exclude(path: Path) -> bool:
 def count_lines(file_path: Path) -> int:
     """Count lines in file"""
     try:
-        with open(file_path, 'r', encoding='utf-8') as f:
+        with open(file_path, encoding="utf-8") as f:
             return len(f.readlines())
     except:
         return 0
@@ -77,25 +83,25 @@ def scan_files(root: Path, relative_to: Path = None) -> list[dict]:
 
             rel_path = item.relative_to(base)
             file_info = {
-                "path": str(rel_path).replace('\\', '/'),
+                "path": str(rel_path).replace("\\", "/"),
                 "name": item.name,
                 "size": item.stat().st_size,
                 "extension": item.suffix,
-                "github_raw": f"https://raw.githubusercontent.com/{GITHUB_REPO}/{GITHUB_BRANCH}/{str(rel_path).replace(chr(92), '/')}"
+                "github_raw": f"https://raw.githubusercontent.com/{GITHUB_REPO}/{GITHUB_BRANCH}/{str(rel_path).replace(chr(92), '/')}",
             }
 
             # Python-specific info
-            if item.suffix == '.py':
+            if item.suffix == ".py":
                 file_info["lines"] = count_lines(item)
                 file_info["type"] = "test" if "test" in item.name else "source"
 
             # PowerShell-specific info
-            if item.suffix == '.ps1':
+            if item.suffix == ".ps1":
                 file_info["lines"] = count_lines(item)
                 file_info["type"] = "script"
 
             # Markdown-specific info
-            if item.suffix == '.md':
+            if item.suffix == ".md":
                 file_info["lines"] = count_lines(item)
                 file_info["type"] = "documentation"
 
@@ -110,14 +116,14 @@ def scan_files(root: Path, relative_to: Path = None) -> list[dict]:
 def get_directory_stats(root: Path) -> dict:
     """Get statistics for directory"""
     stats = {
-        'total_files': 0,
-        'total_dirs': 0,
-        'python_files': 0,
-        'powershell_files': 0,
-        'markdown_files': 0,
-        'test_files': 0,
-        'total_lines': 0,
-        'total_size': 0
+        "total_files": 0,
+        "total_dirs": 0,
+        "python_files": 0,
+        "powershell_files": 0,
+        "markdown_files": 0,
+        "test_files": 0,
+        "total_lines": 0,
+        "total_size": 0,
     }
 
     try:
@@ -126,25 +132,25 @@ def get_directory_stats(root: Path) -> dict:
                 continue
 
             if item.is_dir():
-                stats['total_dirs'] += 1
+                stats["total_dirs"] += 1
             else:
-                stats['total_files'] += 1
-                stats['total_size'] += item.stat().st_size
+                stats["total_files"] += 1
+                stats["total_size"] += item.stat().st_size
 
-                if item.suffix == '.py':
-                    stats['python_files'] += 1
-                    stats['total_lines'] += count_lines(item)
+                if item.suffix == ".py":
+                    stats["python_files"] += 1
+                    stats["total_lines"] += count_lines(item)
 
-                    if 'test' in item.name:
-                        stats['test_files'] += 1
+                    if "test" in item.name:
+                        stats["test_files"] += 1
 
-                if item.suffix == '.ps1':
-                    stats['powershell_files'] += 1
-                    stats['total_lines'] += count_lines(item)
+                if item.suffix == ".ps1":
+                    stats["powershell_files"] += 1
+                    stats["total_lines"] += count_lines(item)
 
-                if item.suffix == '.md':
-                    stats['markdown_files'] += 1
-                    stats['total_lines'] += count_lines(item)
+                if item.suffix == ".md":
+                    stats["markdown_files"] += 1
+                    stats["total_lines"] += count_lines(item)
 
     except PermissionError:
         pass
@@ -155,31 +161,31 @@ def get_directory_stats(root: Path) -> dict:
 def read_pyproject_dependencies(pyproject_path: Path) -> dict:
     """Read dependencies from pyproject.toml"""
     if not pyproject_path.exists():
-        return {'main': [], 'dev': [], 'optional': {}}
+        return {"main": [], "dev": [], "optional": {}}
 
     try:
-        content = pyproject_path.read_text(encoding='utf-8')
-        deps = {'main': [], 'dev': [], 'optional': {}}
+        content = pyproject_path.read_text(encoding="utf-8")
+        deps = {"main": [], "dev": [], "optional": {}}
 
         in_deps = False
         in_dev = False
         in_optional = None
 
-        for line in content.split('\n'):
+        for line in content.split("\n"):
             line = line.strip()
 
-            if line == 'dependencies = [':
+            if line == "dependencies = [":
                 in_deps = True
                 continue
-            elif 'dev = [' in line or 'test = [' in line:
+            elif "dev = [" in line or "test = [" in line:
                 in_dev = True
                 continue
-            elif '[project.optional-dependencies' in line:
-                if '.' in line:
-                    in_optional = line.split('.')[-1].strip(']')
-                    deps['optional'][in_optional] = []
+            elif "[project.optional-dependencies" in line:
+                if "." in line:
+                    in_optional = line.split(".")[-1].strip("]")
+                    deps["optional"][in_optional] = []
                 continue
-            elif line == ']':
+            elif line == "]":
                 in_deps = False
                 in_dev = False
                 in_optional = None
@@ -188,32 +194,29 @@ def read_pyproject_dependencies(pyproject_path: Path) -> dict:
             if (in_deps or in_dev or in_optional) and line.startswith('"'):
                 dep = line.strip('",')
                 if in_deps:
-                    deps['main'].append(dep)
+                    deps["main"].append(dep)
                 elif in_dev:
-                    deps['dev'].append(dep)
+                    deps["dev"].append(dep)
                 elif in_optional:
-                    deps['optional'][in_optional].append(dep)
+                    deps["optional"][in_optional].append(dep)
 
         return deps
     except:
-        return {'main': [], 'dev': [], 'optional': {}}
+        return {"main": [], "dev": [], "optional": {}}
 
 
 def get_test_status(app_dir: Path) -> dict:
     """Get test status for application"""
     tests_dir = app_dir / "tests"
     if not tests_dir.exists():
-        return {
-            "has_tests": False,
-            "test_files": 0
-        }
+        return {"has_tests": False, "test_files": 0}
 
     test_files = list(tests_dir.rglob("test_*.py"))
 
     return {
         "has_tests": True,
         "test_files": len(test_files),
-        "test_directories": len([d for d in tests_dir.rglob("*") if d.is_dir() and not should_exclude(d)])
+        "test_directories": len([d for d in tests_dir.rglob("*") if d.is_dir() and not should_exclude(d)]),
     }
 
 
@@ -226,18 +229,18 @@ def generate_app_manifest(app_dir: Path) -> dict:
     manifest = {
         "name": app_name,
         "type": "application",
-        "location": str(app_dir.relative_to(MONOREPO_ROOT)).replace('\\', '/'),
+        "location": str(app_dir.relative_to(MONOREPO_ROOT)).replace("\\", "/"),
         "generated": datetime.now().isoformat(),
         "statistics": get_directory_stats(app_dir),
         "structure": {
             "has_src": (app_dir / "src").exists(),
             "has_tests": (app_dir / "tests").exists(),
             "has_scripts": (app_dir / "scripts").exists(),
-            "has_docs": (app_dir / "docs").exists()
+            "has_docs": (app_dir / "docs").exists(),
         },
         "dependencies": read_pyproject_dependencies(app_dir / "pyproject.toml"),
         "tests": get_test_status(app_dir),
-        "files": scan_files(app_dir, MONOREPO_ROOT)
+        "files": scan_files(app_dir, MONOREPO_ROOT),
     }
 
     # Add key files
@@ -245,7 +248,7 @@ def generate_app_manifest(app_dir: Path) -> dict:
     for pattern in ["main.py", "app.py", "pyproject.toml", "README.md"]:
         for file in app_dir.rglob(pattern):
             if not should_exclude(file):
-                key_files.append(str(file.relative_to(MONOREPO_ROOT)).replace('\\', '/'))
+                key_files.append(str(file.relative_to(MONOREPO_ROOT)).replace("\\", "/"))
     manifest["key_files"] = key_files
 
     return manifest
@@ -260,24 +263,26 @@ def generate_package_manifest(package_dir: Path) -> dict:
     manifest = {
         "name": package_name,
         "type": "package",
-        "location": str(package_dir.relative_to(MONOREPO_ROOT)).replace('\\', '/'),
+        "location": str(package_dir.relative_to(MONOREPO_ROOT)).replace("\\", "/"),
         "generated": datetime.now().isoformat(),
         "statistics": get_directory_stats(package_dir),
         "dependencies": read_pyproject_dependencies(package_dir / "pyproject.toml"),
-        "files": scan_files(package_dir, MONOREPO_ROOT)
+        "files": scan_files(package_dir, MONOREPO_ROOT),
     }
 
     # Add modules info
-    package_src = package_dir / package_name.replace('-', '_')
+    package_src = package_dir / package_name.replace("-", "_")
     if package_src.exists():
         modules = []
         for py_file in package_src.rglob("*.py"):
             if not should_exclude(py_file) and py_file.name != "__init__.py":
-                modules.append({
-                    "name": py_file.stem,
-                    "path": str(py_file.relative_to(package_src)).replace('\\', '/'),
-                    "lines": count_lines(py_file)
-                })
+                modules.append(
+                    {
+                        "name": py_file.stem,
+                        "path": str(py_file.relative_to(package_src)).replace("\\", "/"),
+                        "lines": count_lines(py_file),
+                    }
+                )
         manifest["modules"] = modules
     else:
         manifest["modules"] = []
@@ -287,29 +292,26 @@ def generate_package_manifest(package_dir: Path) -> dict:
 
 def generate_tools_manifest(tools_dir: Path) -> dict:
     """Generate manifest for Claude Tools"""
-    print(f"   🔧 Generating manifest for: Claude Tools")
+    print("   🔧 Generating manifest for: Claude Tools")
 
     manifest = {
         "name": "claude-tools",
         "type": "tools",
-        "location": str(tools_dir.relative_to(MONOREPO_ROOT)).replace('\\', '/'),
+        "location": str(tools_dir.relative_to(MONOREPO_ROOT)).replace("\\", "/"),
         "generated": datetime.now().isoformat(),
         "description": "Claude Tools - Automatizacia workflow pre claude.ai",
         "statistics": get_directory_stats(tools_dir),
         "structure": {
             "has_browser_extension": (tools_dir / "browser-extension").exists(),
             "has_config": (tools_dir / "config.py").exists(),
-            "has_log": (tools_dir / "claude-tools.log").exists()
+            "has_log": (tools_dir / "claude-tools.log").exists(),
         },
         "components": {
-            "installer": {
-                "file": "installer.py",
-                "description": "Automatická inštalácia dependencies a setup"
-            },
+            "installer": {"file": "installer.py", "description": "Automatická inštalácia dependencies a setup"},
             "chat_loader": {
                 "file": "claude-chat-loader.py",
                 "description": "Auto-load init promptu (Ctrl+Alt+L)",
-                "hotkey": "Ctrl+Alt+L"
+                "hotkey": "Ctrl+Alt+L",
             },
             "hotkeys": {
                 "file": "claude-hotkeys.py",
@@ -320,35 +322,32 @@ def generate_tools_manifest(tools_dir: Path) -> dict:
                     "Ctrl+Alt+G": "Git status",
                     "Ctrl+Alt+D": "Deployment info",
                     "Ctrl+Alt+N": "New chat template",
-                    "Ctrl+Alt+I": "Show project info"
-                }
+                    "Ctrl+Alt+I": "Show project info",
+                },
             },
             "artifact_server": {
                 "file": "artifact-server.py",
                 "description": "FastAPI server pre artifacts",
                 "port": 8765,
-                "url": "http://localhost:8765"
+                "url": "http://localhost:8765",
             },
             "session_notes_manager": {
                 "file": "session-notes-manager.py",
                 "description": "Správa session notes",
-                "commands": ["enhance", "validate", "template"]
+                "commands": ["enhance", "validate", "template"],
             },
             "context_compressor": {
                 "file": "context-compressor.py",
                 "description": "Kompresia histórie cez Claude API",
-                "requires": "ANTHROPIC_API_KEY"
-            }
+                "requires": "ANTHROPIC_API_KEY",
+            },
         },
-        "scripts": {
-            "startup": "start-claude-tools.ps1",
-            "shutdown": "stop-claude-tools.ps1"
-        },
+        "scripts": {"startup": "start-claude-tools.ps1", "shutdown": "stop-claude-tools.ps1"},
         "browser_extension": {
             "available": (tools_dir / "browser-extension" / "claude-artifact-saver").exists(),
-            "manifest": "browser-extension/claude-artifact-saver/manifest.json"
+            "manifest": "browser-extension/claude-artifact-saver/manifest.json",
         },
-        "files": scan_files(tools_dir, MONOREPO_ROOT)
+        "files": scan_files(tools_dir, MONOREPO_ROOT),
     }
 
     # Key files
@@ -356,7 +355,7 @@ def generate_tools_manifest(tools_dir: Path) -> dict:
     for pattern in ["*.py", "*.ps1", "config.py", "*.md"]:
         for file in tools_dir.glob(pattern):
             if not should_exclude(file):
-                key_files.append(str(file.relative_to(MONOREPO_ROOT)).replace('\\', '/'))
+                key_files.append(str(file.relative_to(MONOREPO_ROOT)).replace("\\", "/"))
     manifest["key_files"] = key_files
 
     return manifest
@@ -364,16 +363,16 @@ def generate_tools_manifest(tools_dir: Path) -> dict:
 
 def generate_docs_manifest(docs_dir: Path) -> dict:
     """Generate manifest for Documentation"""
-    print(f"   📖 Generating manifest for: Documentation")
+    print("   📖 Generating manifest for: Documentation")
 
     manifest = {
         "name": "documentation",
         "type": "docs",
-        "location": str(docs_dir.relative_to(MONOREPO_ROOT)).replace('\\', '/'),
+        "location": str(docs_dir.relative_to(MONOREPO_ROOT)).replace("\\", "/"),
         "generated": datetime.now().isoformat(),
         "description": "Komplexná dokumentácia NEX Automat projektu",
         "statistics": get_directory_stats(docs_dir),
-        "files": scan_files(docs_dir, MONOREPO_ROOT)
+        "files": scan_files(docs_dir, MONOREPO_ROOT),
     }
 
     # Organize docs by category
@@ -384,7 +383,7 @@ def generate_docs_manifest(docs_dir: Path) -> dict:
         "api": [],
         "testing": [],
         "deployment": [],
-        "other": []
+        "other": [],
     }
 
     # Scan all markdown files and categorize
@@ -392,29 +391,29 @@ def generate_docs_manifest(docs_dir: Path) -> dict:
         if should_exclude(md_file):
             continue
 
-        rel_path = str(md_file.relative_to(docs_dir)).replace('\\', '/')
+        rel_path = str(md_file.relative_to(docs_dir)).replace("\\", "/")
         doc_info = {
             "name": md_file.name,
             "path": rel_path,
-            "full_path": str(md_file.relative_to(MONOREPO_ROOT)).replace('\\', '/'),
+            "full_path": str(md_file.relative_to(MONOREPO_ROOT)).replace("\\", "/"),
             "size": md_file.stat().st_size,
             "lines": count_lines(md_file),
-            "github_raw": f"https://raw.githubusercontent.com/{GITHUB_REPO}/{GITHUB_BRANCH}/{str(md_file.relative_to(MONOREPO_ROOT)).replace(chr(92), '/')}"
+            "github_raw": f"https://raw.githubusercontent.com/{GITHUB_REPO}/{GITHUB_BRANCH}/{str(md_file.relative_to(MONOREPO_ROOT)).replace(chr(92), '/')}",
         }
 
         # Categorize by path or name
         path_lower = rel_path.lower()
-        if 'guide' in path_lower or md_file.parent.name == 'guides':
+        if "guide" in path_lower or md_file.parent.name == "guides":
             categories["guides"].append(doc_info)
-        elif 'database' in path_lower or 'schema' in path_lower or md_file.parent.name == 'database':
+        elif "database" in path_lower or "schema" in path_lower or md_file.parent.name == "database":
             categories["database"].append(doc_info)
-        elif 'migration' in path_lower or md_file.parent.name == 'migration':
+        elif "migration" in path_lower or md_file.parent.name == "migration":
             categories["migration"].append(doc_info)
-        elif 'api' in path_lower or md_file.parent.name == 'api':
+        elif "api" in path_lower or md_file.parent.name == "api":
             categories["api"].append(doc_info)
-        elif 'test' in path_lower or md_file.parent.name == 'testing':
+        elif "test" in path_lower or md_file.parent.name == "testing":
             categories["testing"].append(doc_info)
-        elif 'deploy' in path_lower or md_file.parent.name == 'deployment':
+        elif "deploy" in path_lower or md_file.parent.name == "deployment":
             categories["deployment"].append(doc_info)
         else:
             categories["other"].append(doc_info)
@@ -427,11 +426,11 @@ def generate_docs_manifest(docs_dir: Path) -> dict:
     # README files
     for readme in docs_dir.rglob("README.md"):
         if not should_exclude(readme):
-            rel_path = str(readme.relative_to(docs_dir)).replace('\\', '/')
+            rel_path = str(readme.relative_to(docs_dir)).replace("\\", "/")
             key_name = "main_readme" if rel_path == "README.md" else f"readme_{readme.parent.name}"
             key_docs[key_name] = {
-                "path": str(readme.relative_to(MONOREPO_ROOT)).replace('\\', '/'),
-                "github_raw": f"https://raw.githubusercontent.com/{GITHUB_REPO}/{GITHUB_BRANCH}/{str(readme.relative_to(MONOREPO_ROOT)).replace(chr(92), '/')}"
+                "path": str(readme.relative_to(MONOREPO_ROOT)).replace("\\", "/"),
+                "github_raw": f"https://raw.githubusercontent.com/{GITHUB_REPO}/{GITHUB_BRANCH}/{str(readme.relative_to(MONOREPO_ROOT)).replace(chr(92), '/')}",
             }
 
     manifest["key_files"] = key_docs
@@ -443,7 +442,7 @@ def generate_docs_manifest(docs_dir: Path) -> dict:
         "has_migration_docs": len(categories["migration"]) > 0,
         "has_api_docs": len(categories["api"]) > 0,
         "has_testing_docs": len(categories["testing"]) > 0,
-        "has_deployment_docs": len(categories["deployment"]) > 0
+        "has_deployment_docs": len(categories["deployment"]) > 0,
     }
 
     manifest["structure"] = structure
@@ -457,7 +456,7 @@ def get_documentation_summary() -> dict:
 
     summary = {
         "manifest": "init_chat/docs/docs.json",  # ✅ UPDATED
-        "exists": docs_dir.exists()
+        "exists": docs_dir.exists(),
     }
 
     if docs_dir.exists():
@@ -472,7 +471,7 @@ def get_documentation_summary() -> dict:
             "path": "init_chat/INIT_PROMPT_NEW_CHAT.md",  # ✅ UPDATED
             "exists": True,
             "size": init_prompt.stat().st_size,
-            "github_raw": f"https://raw.githubusercontent.com/{GITHUB_REPO}/{GITHUB_BRANCH}/init_chat/INIT_PROMPT_NEW_CHAT.md"  # ✅ UPDATED
+            "github_raw": f"https://raw.githubusercontent.com/{GITHUB_REPO}/{GITHUB_BRANCH}/init_chat/INIT_PROMPT_NEW_CHAT.md",  # ✅ UPDATED
         }
 
     return summary
@@ -492,14 +491,16 @@ def generate_root_manifest() -> dict:
                 deps = read_pyproject_dependencies(app / "pyproject.toml")
                 tests = get_test_status(app)
 
-                apps_list.append({
-                    "name": app.name,
-                    "location": f"apps/{app.name}",
-                    "manifest": f"init_chat/apps/{app.name}.json",  # ✅ UPDATED
-                    "python_files": stats["python_files"],
-                    "test_files": tests["test_files"],
-                    "dependencies_count": len(deps["main"])
-                })
+                apps_list.append(
+                    {
+                        "name": app.name,
+                        "location": f"apps/{app.name}",
+                        "manifest": f"init_chat/apps/{app.name}.json",  # ✅ UPDATED
+                        "python_files": stats["python_files"],
+                        "test_files": tests["test_files"],
+                        "dependencies_count": len(deps["main"]),
+                    }
+                )
 
     # Get all packages
     packages_dir = MONOREPO_ROOT / "packages"
@@ -510,13 +511,15 @@ def generate_root_manifest() -> dict:
                 stats = get_directory_stats(package)
                 deps = read_pyproject_dependencies(package / "pyproject.toml")
 
-                packages_list.append({
-                    "name": package.name,
-                    "location": f"packages/{package.name}",
-                    "manifest": f"init_chat/packages/{package.name}.json",  # ✅ UPDATED
-                    "python_files": stats["python_files"],
-                    "dependencies_count": len(deps["main"])
-                })
+                packages_list.append(
+                    {
+                        "name": package.name,
+                        "location": f"packages/{package.name}",
+                        "manifest": f"init_chat/packages/{package.name}.json",  # ✅ UPDATED
+                        "python_files": stats["python_files"],
+                        "dependencies_count": len(deps["main"]),
+                    }
+                )
 
     # Get tools info
     tools_dir = MONOREPO_ROOT / "tools"
@@ -529,7 +532,7 @@ def generate_root_manifest() -> dict:
             "manifest": "init_chat/tools/tools.json",  # ✅ UPDATED
             "python_files": stats["python_files"],
             "powershell_files": stats["powershell_files"],
-            "type": "automation"
+            "type": "automation",
         }
 
     # Get documentation summary
@@ -541,8 +544,8 @@ def generate_root_manifest() -> dict:
         if should_exclude(pyproject_file):
             continue
         deps = read_pyproject_dependencies(pyproject_file)
-        for dep in deps.get('main', []):
-            all_deps.add(dep.split('>=')[0].split('==')[0].split('[')[0])
+        for dep in deps.get("main", []):
+            all_deps.add(dep.split(">=")[0].split("==")[0].split("[")[0])
 
     # Root manifest
     manifest = {
@@ -556,17 +559,14 @@ def generate_root_manifest() -> dict:
             "apps": len(apps_list),
             "packages": len(packages_list),
             "tools": tools_info is not None,
-            "docs": docs_summary["exists"]
+            "docs": docs_summary["exists"],
         },
         "statistics": get_directory_stats(MONOREPO_ROOT),
         "applications": apps_list,
         "packages": packages_list,
         "tools": tools_info,
         "documentation": docs_summary,
-        "dependencies": {
-            "unique_count": len(all_deps),
-            "list": sorted(list(all_deps))
-        },
+        "dependencies": {"unique_count": len(all_deps), "list": sorted(list(all_deps))},
         "migration_status": {
             "phase_1_structure": "complete",
             "phase_2_migration": "complete",
@@ -575,26 +575,18 @@ def generate_root_manifest() -> dict:
             "phase_5_testing": "complete",
             "phase_6_test_fixes": "complete",
             "phase_7_documentation": "in_progress",
-            "phase_8_git": "todo"
+            "phase_8_git": "todo",
         },
         "claude_tools_status": {
             "installed": tools_info is not None,
             "artifact_server": "running on :8765",
             "hotkeys": "active",
-            "browser_extension": "available (optional)"
+            "browser_extension": "available (optional)",
         },
         "test_status": {
-            "supplier_invoice_loader": {
-                "total": 72,
-                "passed": 61,
-                "failed": 0,
-                "skipped": 11,
-                "coverage": "85%"
-            },
-            "supplier_invoice_editor": {
-                "status": "not_tested_yet"
-            }
-        }
+            "supplier_invoice_loader": {"total": 72, "passed": 61, "failed": 0, "skipped": 11, "coverage": "85%"},
+            "supplier_invoice_editor": {"status": "not_tested_yet"},
+        },
     }
 
     return manifest
@@ -616,7 +608,7 @@ def main():
     PACKAGES_MANIFEST_DIR.mkdir(parents=True, exist_ok=True)
     TOOLS_MANIFEST_DIR.mkdir(parents=True, exist_ok=True)
     DOCS_MANIFEST_DIR.mkdir(parents=True, exist_ok=True)
-    print(f"✅ Created manifest directories in init_chat/")  # ✅ UPDATED
+    print("✅ Created manifest directories in init_chat/")  # ✅ UPDATED
     print()
 
     # 1. Generate per-app manifests
@@ -631,7 +623,7 @@ def main():
 
                 # Save to JSON
                 manifest_file = APPS_MANIFEST_DIR / f"{app.name}.json"
-                with open(manifest_file, 'w', encoding='utf-8') as f:
+                with open(manifest_file, "w", encoding="utf-8") as f:
                     json.dump(app_manifest, f, indent=2, ensure_ascii=False)
 
                 app_count += 1
@@ -652,7 +644,7 @@ def main():
 
                 # Save to JSON
                 manifest_file = PACKAGES_MANIFEST_DIR / f"{package.name}.json"
-                with open(manifest_file, 'w', encoding='utf-8') as f:
+                with open(manifest_file, "w", encoding="utf-8") as f:
                     json.dump(package_manifest, f, indent=2, ensure_ascii=False)
 
                 package_count += 1
@@ -671,7 +663,7 @@ def main():
 
         # Save to JSON
         manifest_file = TOOLS_MANIFEST_DIR / "tools.json"
-        with open(manifest_file, 'w', encoding='utf-8') as f:
+        with open(manifest_file, "w", encoding="utf-8") as f:
             json.dump(tools_manifest, f, indent=2, ensure_ascii=False)
 
         tools_count = 1
@@ -690,7 +682,7 @@ def main():
 
         # Save to JSON
         manifest_file = DOCS_MANIFEST_DIR / "docs.json"
-        with open(manifest_file, 'w', encoding='utf-8') as f:
+        with open(manifest_file, "w", encoding="utf-8") as f:
             json.dump(docs_manifest, f, indent=2, ensure_ascii=False)
 
         docs_count = 1
@@ -705,7 +697,7 @@ def main():
 
     # Save to JSON
     root_manifest_file = INIT_CHAT_DIR / "PROJECT_MANIFEST.json"
-    with open(root_manifest_file, 'w', encoding='utf-8') as f:
+    with open(root_manifest_file, "w", encoding="utf-8") as f:
         json.dump(root_manifest, f, indent=2, ensure_ascii=False)
 
     print(f"   ✅ {root_manifest_file.relative_to(MONOREPO_ROOT)}")
@@ -716,7 +708,7 @@ def main():
     print("✅ MANIFEST GENERATION COMPLETE!")
     print("=" * 70)
     print()
-    print(f"📊 Generated manifests:")
+    print("📊 Generated manifests:")
     print(f"   Root:     {root_manifest_file}")
     print(f"   Apps:     {app_count} manifests in init_chat/apps/")  # ✅ UPDATED
     print(f"   Packages: {package_count} manifests in init_chat/packages/")  # ✅ UPDATED
@@ -735,16 +727,24 @@ def main():
     print("USAGE IN CLAUDE:")
     print("=" * 70)
     print("# Load root manifest:")
-    print(f"web_fetch('https://raw.githubusercontent.com/{GITHUB_REPO}/{GITHUB_BRANCH}/init_chat/PROJECT_MANIFEST.json')")  # ✅ UPDATED
+    print(
+        f"web_fetch('https://raw.githubusercontent.com/{GITHUB_REPO}/{GITHUB_BRANCH}/init_chat/PROJECT_MANIFEST.json')"
+    )  # ✅ UPDATED
     print()
     print("# Load specific app:")
-    print(f"web_fetch('https://raw.githubusercontent.com/{GITHUB_REPO}/{GITHUB_BRANCH}/init_chat/apps/supplier-invoice-loader.json')")  # ✅ UPDATED
+    print(
+        f"web_fetch('https://raw.githubusercontent.com/{GITHUB_REPO}/{GITHUB_BRANCH}/init_chat/apps/supplier-invoice-loader.json')"
+    )  # ✅ UPDATED
     print()
     print("# Load documentation:")
-    print(f"web_fetch('https://raw.githubusercontent.com/{GITHUB_REPO}/{GITHUB_BRANCH}/init_chat/docs/docs.json')")  # ✅ UPDATED
+    print(
+        f"web_fetch('https://raw.githubusercontent.com/{GITHUB_REPO}/{GITHUB_BRANCH}/init_chat/docs/docs.json')"
+    )  # ✅ UPDATED
     print()
     print("# Load Claude Tools manifest:")
-    print(f"web_fetch('https://raw.githubusercontent.com/{GITHUB_REPO}/{GITHUB_BRANCH}/init_chat/tools/tools.json')")  # ✅ UPDATED
+    print(
+        f"web_fetch('https://raw.githubusercontent.com/{GITHUB_REPO}/{GITHUB_BRANCH}/init_chat/tools/tools.json')"
+    )  # ✅ UPDATED
     print()
     print("=" * 70)
 

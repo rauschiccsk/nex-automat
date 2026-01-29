@@ -3,9 +3,7 @@ Script to find and remove all .backup files from the project.
 Shows list of files before deletion and asks for confirmation.
 """
 
-import os
 from pathlib import Path
-from typing import List
 
 # Paths
 BASE_DIR = Path(r"C:\Development\nex-automat")
@@ -21,7 +19,7 @@ BACKUP_PATTERNS = [
 ]
 
 
-def find_backup_files(base_path: Path) -> List[Path]:
+def find_backup_files(base_path: Path) -> list[Path]:
     """
     Find all backup files in the project.
 
@@ -43,7 +41,7 @@ def find_backup_files(base_path: Path) -> List[Path]:
 
 def format_size(size: int) -> str:
     """Format file size in human-readable format."""
-    for unit in ['B', 'KB', 'MB', 'GB']:
+    for unit in ["B", "KB", "MB", "GB"]:
         if size < 1024.0:
             return f"{size:.1f} {unit}"
         size /= 1024.0
@@ -100,7 +98,7 @@ def main():
     # Ask for confirmation
     response = input(f"\nDelete all {len(backup_files)} backup files? (yes/no): ").strip().lower()
 
-    if response != 'yes':
+    if response != "yes":
         print("\n❌ Cancelled - no files deleted")
         return
 
@@ -123,7 +121,7 @@ def main():
 
     print()
     print("=" * 70)
-    print(f"✅ CLEANUP COMPLETE")
+    print("✅ CLEANUP COMPLETE")
     print(f"   Deleted: {deleted_count} files")
     print(f"   Freed space: {format_size(deleted_size)}")
     print("=" * 70)

@@ -1,12 +1,11 @@
 """Gmail OAuth2 Helper - Token management for IMAP access."""
 
-import json
 import base64
+import json
 from pathlib import Path
-from datetime import datetime
 
-from google.oauth2.credentials import Credentials
 from google.auth.transport.requests import Request
+from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 
 # OAuth2 scopes for Gmail IMAP
@@ -22,7 +21,7 @@ CLIENT_CONFIG = {
         "client_secret": "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",
         "auth_uri": "https://accounts.google.com/o/oauth2/auth",
         "token_uri": "https://oauth2.googleapis.com/token",
-        "redirect_uris": ["http://localhost"]
+        "redirect_uris": ["http://localhost"],
     }
 }
 
@@ -61,9 +60,7 @@ def get_credentials() -> Credentials:
             print(f"Warning: Could not refresh token: {e}")
 
     # No valid credentials available
-    raise RuntimeError(
-        "No valid OAuth2 credentials. Run 'python -m config.oauth_authorize' first."
-    )
+    raise RuntimeError("No valid OAuth2 credentials. Run 'python -m config.oauth_authorize' first.")
 
 
 def authorize_interactive() -> Credentials:
@@ -89,7 +86,7 @@ def _save_credentials(creds: Credentials) -> None:
         "client_id": creds.client_id,
         "client_secret": creds.client_secret,
         "scopes": creds.scopes,
-        "expiry": creds.expiry.isoformat() if creds.expiry else None
+        "expiry": creds.expiry.isoformat() if creds.expiry else None,
     }
     TOKEN_FILE.write_text(json.dumps(token_data, indent=2))
     print(f"Credentials saved to {TOKEN_FILE}")

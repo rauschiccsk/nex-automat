@@ -1,19 +1,18 @@
 """Email Activities - IMAP operations for fetching invoices."""
 
 import email
+import imaplib
 from dataclasses import dataclass
 from email.message import Message
-from typing import Optional
-import imaplib
-
-from temporalio import activity
 
 from config.settings import get_settings
+from temporalio import activity
 
 
 @dataclass
 class EmailAttachment:
     """Represents an email attachment."""
+
     filename: str
     content: bytes
     content_type: str
@@ -22,6 +21,7 @@ class EmailAttachment:
 @dataclass
 class EmailMessage:
     """Represents a fetched email with attachments."""
+
     uid: int
     subject: str
     sender: str
@@ -90,12 +90,10 @@ async def fetch_unread_emails() -> list[EmailMessage]:
                     subject=msg.get("Subject", ""),
                     sender=msg.get("From", ""),
                     date=msg.get("Date", ""),
-                    attachments=attachments
+                    attachments=attachments,
                 )
                 messages.append(email_msg)
-                activity.logger.info(
-                    f"Email UID {uid}: {len(attachments)} PDF attachment(s)"
-                )
+                activity.logger.info(f"Email UID {uid}: {len(attachments)} PDF attachment(s)")
 
         imap.logout()
 
@@ -149,10 +147,6 @@ def _extract_pdf_attachments(msg: Message) -> list[EmailAttachment]:
         if filename and content_type == "application/pdf":
             content = part.get_payload(decode=True)
             if content:
-                attachments.append(EmailAttachment(
-                    filename=filename,
-                    content=content,
-                    content_type=content_type
-                ))
+                attachments.append(EmailAttachment(filename=filename, content=content, content_type=content_type))
 
     return attachments

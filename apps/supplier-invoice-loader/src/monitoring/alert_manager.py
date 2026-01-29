@@ -17,6 +17,7 @@ logger = logging.getLogger(__name__)
 
 class AlertLevel(str, Enum):
     """Alert severity levels"""
+
     INFO = "info"
     WARNING = "warning"
     ERROR = "error"
@@ -25,6 +26,7 @@ class AlertLevel(str, Enum):
 
 class AlertType(str, Enum):
     """Alert types"""
+
     SYSTEM = "system"
     DATABASE = "database"
     INVOICE = "invoice"
@@ -37,6 +39,7 @@ class AlertType(str, Enum):
 @dataclass
 class Alert:
     """Alert data structure"""
+
     level: AlertLevel
     alert_type: AlertType
     title: str
@@ -47,18 +50,19 @@ class Alert:
     def to_dict(self) -> dict:
         """Convert to dictionary"""
         return {
-            'level': self.level.value,
-            'type': self.alert_type.value,
-            'title': self.title,
-            'message': self.message,
-            'timestamp': self.timestamp.isoformat(),
-            'details': self.details
+            "level": self.level.value,
+            "type": self.alert_type.value,
+            "title": self.title,
+            "message": self.message,
+            "timestamp": self.timestamp.isoformat(),
+            "details": self.details,
         }
 
 
 @dataclass
 class AlertConfig:
     """Alert manager configuration"""
+
     smtp_host: str
     smtp_port: int
     smtp_user: str
@@ -110,11 +114,7 @@ class AlertManager:
             subject = f"[{alert.level.value.upper()}] {alert.title}"
             body = self._format_alert_email(alert)
 
-            return self._send_email(
-                subject=subject,
-                body=body,
-                recipients=self.config.to_emails
-            )
+            return self._send_email(subject=subject, body=body, recipients=self.config.to_emails)
 
         except Exception as e:
             logger.error(f"Failed to send alert: {e}")
@@ -125,7 +125,7 @@ class AlertManager:
         title: str,
         message: str,
         alert_type: AlertType = AlertType.SYSTEM,
-        details: Optional[Dict] = None
+        details: Optional[Dict] = None,
     ) -> bool:
         """
         Send critical alert
@@ -144,7 +144,7 @@ class AlertManager:
             alert_type=alert_type,
             title=title,
             message=message,
-            details=details or {}
+            details=details or {},
         )
 
         self._alert_history.append(alert)
@@ -155,7 +155,7 @@ class AlertManager:
         title: str,
         message: str,
         alert_type: AlertType = AlertType.SYSTEM,
-        details: Optional[Dict] = None
+        details: Optional[Dict] = None,
     ) -> bool:
         """
         Send warning alert
@@ -174,17 +174,14 @@ class AlertManager:
             alert_type=alert_type,
             title=title,
             message=message,
-            details=details or {}
+            details=details or {},
         )
 
         self._alert_history.append(alert)
         return self.send_alert(alert)
 
     def send_daily_summary(
-        self,
-        invoice_stats: Dict,
-        system_stats: Dict,
-        errors: List[str]
+        self, invoice_stats: Dict, system_stats: Dict, errors: List[str]
     ) -> bool:
         """
         Send daily summary report
@@ -200,11 +197,7 @@ class AlertManager:
         subject = f"Daily Summary - {datetime.now().strftime('%Y-%m-%d')}"
         body = self._format_daily_summary(invoice_stats, system_stats, errors)
 
-        result = self._send_email(
-            subject=subject,
-            body=body,
-            recipients=self.config.to_emails
-        )
+        result = self._send_email(subject=subject, body=body, recipients=self.config.to_emails)
 
         if result:
             self._last_daily_summary = datetime.now()
@@ -212,10 +205,7 @@ class AlertManager:
         return result
 
     def send_weekly_report(
-        self,
-        weekly_stats: Dict,
-        trends: Dict,
-        recommendations: List[str]
+        self, weekly_stats: Dict, trends: Dict, recommendations: List[str]
     ) -> bool:
         """
         Send weekly report
@@ -232,11 +222,7 @@ class AlertManager:
         subject = f"Weekly Report - Week of {week_start.strftime('%Y-%m-%d')}"
         body = self._format_weekly_report(weekly_stats, trends, recommendations)
 
-        result = self._send_email(
-            subject=subject,
-            body=body,
-            recipients=self.config.to_emails
-        )
+        result = self._send_email(subject=subject, body=body, recipients=self.config.to_emails)
 
         if result:
             self._last_weekly_report = datetime.now()
@@ -256,38 +242,38 @@ class AlertManager:
         alerts_sent = []
 
         # Check system metrics
-        system = health_status.get('system_metrics', {})
+        system = health_status.get("system_metrics", {})
 
-        if system.get('cpu_percent', 0) > self.config.cpu_threshold:
+        if system.get("cpu_percent", 0) > self.config.cpu_threshold:
             alert = Alert(
                 level=AlertLevel.CRITICAL,
                 alert_type=AlertType.SYSTEM,
                 title="High CPU Usage",
                 message=f"CPU usage at {system['cpu_percent']}%",
-                details=system
+                details=system,
             )
             if self.send_alert(alert):
                 alerts_sent.append(alert)
 
-        if system.get('memory_percent', 0) > self.config.memory_threshold:
+        if system.get("memory_percent", 0) > self.config.memory_threshold:
             alert = Alert(
                 level=AlertLevel.CRITICAL,
                 alert_type=AlertType.SYSTEM,
                 title="High Memory Usage",
                 message=f"Memory usage at {system['memory_percent']}%",
-                details=system
+                details=system,
             )
             if self.send_alert(alert):
                 alerts_sent.append(alert)
 
-        disk_percent = system.get('disk_percent', 0)
+        disk_percent = system.get("disk_percent", 0)
         if disk_percent > self.config.disk_threshold_critical:
             alert = Alert(
                 level=AlertLevel.CRITICAL,
                 alert_type=AlertType.DISK_SPACE,
                 title="Critical Disk Space",
                 message=f"Disk usage at {disk_percent}%, only {system.get('disk_free_gb', 0)}GB free",
-                details=system
+                details=system,
             )
             if self.send_alert(alert):
                 alerts_sent.append(alert)
@@ -297,32 +283,27 @@ class AlertManager:
                 alert_type=AlertType.DISK_SPACE,
                 title="High Disk Usage",
                 message=f"Disk usage at {disk_percent}%",
-                details=system
+                details=system,
             )
             if self.send_alert(alert):
                 alerts_sent.append(alert)
 
         # Check database
-        db_status = health_status.get('database_status', {})
-        if not db_status.get('connected', False):
+        db_status = health_status.get("database_status", {})
+        if not db_status.get("connected", False):
             alert = Alert(
                 level=AlertLevel.CRITICAL,
                 alert_type=AlertType.DATABASE,
                 title="Database Connection Failed",
                 message=f"Cannot connect to database: {db_status.get('error', 'Unknown error')}",
-                details=db_status
+                details=db_status,
             )
             if self.send_alert(alert):
                 alerts_sent.append(alert)
 
         return alerts_sent
 
-    def _send_email(
-        self,
-        subject: str,
-        body: str,
-        recipients: List[str]
-    ) -> bool:
+    def _send_email(self, subject: str, body: str, recipients: List[str]) -> bool:
         """
         Send email via SMTP
 
@@ -336,14 +317,14 @@ class AlertManager:
         """
         try:
             # Create message
-            msg = MIMEMultipart('alternative')
-            msg['From'] = self.config.from_email
-            msg['To'] = ', '.join(recipients)
-            msg['Subject'] = subject
-            msg['Date'] = datetime.now().strftime('%a, %d %b %Y %H:%M:%S %z')
+            msg = MIMEMultipart("alternative")
+            msg["From"] = self.config.from_email
+            msg["To"] = ", ".join(recipients)
+            msg["Subject"] = subject
+            msg["Date"] = datetime.now().strftime("%a, %d %b %Y %H:%M:%S %z")
 
             # Add body
-            msg.attach(MIMEText(body, 'html'))
+            msg.attach(MIMEText(body, "html"))
 
             # Send via SMTP
             if self.config.use_ssl:
@@ -368,13 +349,13 @@ class AlertManager:
         """Format alert as HTML email"""
 
         level_colors = {
-            AlertLevel.INFO: '#2196F3',
-            AlertLevel.WARNING: '#FF9800',
-            AlertLevel.ERROR: '#F44336',
-            AlertLevel.CRITICAL: '#D32F2F'
+            AlertLevel.INFO: "#2196F3",
+            AlertLevel.WARNING: "#FF9800",
+            AlertLevel.ERROR: "#F44336",
+            AlertLevel.CRITICAL: "#D32F2F",
         }
 
-        color = level_colors.get(alert.level, '#757575')
+        color = level_colors.get(alert.level, "#757575")
 
         html = f"""
         <html>
@@ -392,12 +373,12 @@ class AlertManager:
                 <h2>{alert.level.value.upper()}: {alert.title}</h2>
             </div>
             <div class="content">
-                <p><strong>Time:</strong> {alert.timestamp.strftime('%Y-%m-%d %H:%M:%S')}</p>
+                <p><strong>Time:</strong> {alert.timestamp.strftime("%Y-%m-%d %H:%M:%S")}</p>
                 <p><strong>Type:</strong> {alert.alert_type.value}</p>
                 <p><strong>Message:</strong></p>
                 <p>{alert.message}</p>
 
-                {self._format_details_html(alert.details) if alert.details else ''}
+                {self._format_details_html(alert.details) if alert.details else ""}
             </div>
             <div class="footer">
                 <p>Supplier Invoice Loader - Automated Alert System</p>
@@ -412,15 +393,12 @@ class AlertManager:
         """Format details dictionary as HTML"""
         html = '<div class="details"><h3>Details:</h3><ul>'
         for key, value in details.items():
-            html += f'<li><strong>{key}:</strong> {value}</li>'
-        html += '</ul></div>'
+            html += f"<li><strong>{key}:</strong> {value}</li>"
+        html += "</ul></div>"
         return html
 
     def _format_daily_summary(
-        self,
-        invoice_stats: Dict,
-        system_stats: Dict,
-        errors: List[str]
+        self, invoice_stats: Dict, system_stats: Dict, errors: List[str]
     ) -> str:
         """Format daily summary as HTML"""
 
@@ -437,36 +415,36 @@ class AlertManager:
         </head>
         <body>
             <div class="header">
-                <h2>Daily Summary - {datetime.now().strftime('%Y-%m-%d')}</h2>
+                <h2>Daily Summary - {datetime.now().strftime("%Y-%m-%d")}</h2>
             </div>
 
             <div class="section">
                 <h3>Invoice Processing</h3>
                 <div class="stat">
-                    <strong>Processed:</strong> {invoice_stats.get('total_processed', 0)}
+                    <strong>Processed:</strong> {invoice_stats.get("total_processed", 0)}
                 </div>
                 <div class="stat">
-                    <strong>Failed:</strong> {invoice_stats.get('total_failed', 0)}
+                    <strong>Failed:</strong> {invoice_stats.get("total_failed", 0)}
                 </div>
                 <div class="stat">
-                    <strong>Success Rate:</strong> {invoice_stats.get('success_rate', 0)}%
+                    <strong>Success Rate:</strong> {invoice_stats.get("success_rate", 0)}%
                 </div>
             </div>
 
             <div class="section">
                 <h3>System Health</h3>
                 <div class="stat">
-                    <strong>CPU:</strong> {system_stats.get('cpu_percent', 0)}%
+                    <strong>CPU:</strong> {system_stats.get("cpu_percent", 0)}%
                 </div>
                 <div class="stat">
-                    <strong>Memory:</strong> {system_stats.get('memory_percent', 0)}%
+                    <strong>Memory:</strong> {system_stats.get("memory_percent", 0)}%
                 </div>
                 <div class="stat">
-                    <strong>Disk:</strong> {system_stats.get('disk_percent', 0)}%
+                    <strong>Disk:</strong> {system_stats.get("disk_percent", 0)}%
                 </div>
             </div>
 
-            {self._format_errors_html(errors) if errors else ''}
+            {self._format_errors_html(errors) if errors else ""}
         </body>
         </html>
         """
@@ -478,14 +456,11 @@ class AlertManager:
         html = '<div class="section"><h3 class="error">Errors Today:</h3><ul>'
         for error in errors:
             html += f'<li class="error">{error}</li>'
-        html += '</ul></div>'
+        html += "</ul></div>"
         return html
 
     def _format_weekly_report(
-        self,
-        weekly_stats: Dict,
-        trends: Dict,
-        recommendations: List[str]
+        self, weekly_stats: Dict, trends: Dict, recommendations: List[str]
     ) -> str:
         """Format weekly report as HTML"""
 
@@ -501,7 +476,7 @@ class AlertManager:
         <body>
             <div class="header">
                 <h2>Weekly Report</h2>
-                <p>{(datetime.now() - timedelta(days=7)).strftime('%Y-%m-%d')} to {datetime.now().strftime('%Y-%m-%d')}</p>
+                <p>{(datetime.now() - timedelta(days=7)).strftime("%Y-%m-%d")} to {datetime.now().strftime("%Y-%m-%d")}</p>
             </div>
 
             <div class="section">
@@ -521,7 +496,7 @@ class AlertManager:
             <div class="section">
                 <h3>Recommendations</h3>
                 <ul>
-                    {''.join([f'<li>{rec}</li>' for rec in recommendations])}
+                    {"".join([f"<li>{rec}</li>" for rec in recommendations])}
                 </ul>
             </div>
         </body>
@@ -532,13 +507,13 @@ class AlertManager:
 
     def _format_dict_as_list(self, data: Dict) -> str:
         """Format dictionary as HTML list items"""
-        return ''.join([f'<li><strong>{k}:</strong> {v}</li>' for k, v in data.items()])
+        return "".join([f"<li><strong>{k}:</strong> {v}</li>" for k, v in data.items()])
 
     def get_alert_history(
         self,
         level: Optional[AlertLevel] = None,
         alert_type: Optional[AlertType] = None,
-        since: Optional[datetime] = None
+        since: Optional[datetime] = None,
     ) -> List[Alert]:
         """
         Get alert history with optional filters

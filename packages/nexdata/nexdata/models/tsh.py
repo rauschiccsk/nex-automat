@@ -8,11 +8,10 @@ Definition: tsh.bdf
 Record Size: ~800 bytes
 """
 
-from dataclasses import dataclass
-from datetime import datetime, date
-from typing import Optional
-from decimal import Decimal
 import struct
+from dataclasses import dataclass
+from datetime import date, datetime
+from decimal import Decimal
 
 
 @dataclass
@@ -29,9 +28,9 @@ class TSHRecord:
 
     # Document info
     doc_type: int = 1  # Typ dokladu (1=príjem, 2=výdaj, 3=transfer)
-    doc_date: Optional[date] = None  # Dátum vystavenia
-    delivery_date: Optional[date] = None  # Dátum dodania
-    due_date: Optional[date] = None  # Dátum splatnosti
+    doc_date: date | None = None  # Dátum vystavenia
+    delivery_date: date | None = None  # Dátum dodania
+    due_date: date | None = None  # Dátum splatnosti
 
     # Partner
     pab_code: int = 0  # Kód partnera (foreign key to PAB)
@@ -61,7 +60,7 @@ class TSHRecord:
     payment_method: int = 1  # Spôsob platby (1=hotovosť, 2=prevodom, 3=karta)
     payment_terms: int = 14  # Platobné podmienky (dni)
     paid: bool = False  # Zaplatené
-    paid_date: Optional[date] = None  # Dátum platby
+    paid_date: date | None = None  # Dátum platby
     paid_amount: Decimal = Decimal("0.00")  # Zaplatená suma
 
     # References
@@ -80,19 +79,19 @@ class TSHRecord:
 
     # Audit fields
     mod_user: str = ""  # Užívateľ poslednej zmeny
-    mod_date: Optional[datetime] = None  # Dátum poslednej zmeny
-    mod_time: Optional[datetime] = None  # Čas poslednej zmeny
-    created_date: Optional[datetime] = None  # Dátum vytvorenia
+    mod_date: datetime | None = None  # Dátum poslednej zmeny
+    mod_time: datetime | None = None  # Čas poslednej zmeny
+    created_date: datetime | None = None  # Dátum vytvorenia
     created_user: str = ""  # Užívateľ vytvorenia
 
     # Indexes (constants)
-    INDEX_DOCNUMBER = 'DocNumber'  # Primary index
-    INDEX_PABCODE = 'PabCode'  # Index podľa partnera
-    INDEX_DOCDATE = 'DocDate'  # Index podľa dátumu
-    INDEX_STATUS = 'Status'  # Index podľa stavu
+    INDEX_DOCNUMBER = "DocNumber"  # Primary index
+    INDEX_PABCODE = "PabCode"  # Index podľa partnera
+    INDEX_DOCDATE = "DocDate"  # Index podľa dátumu
+    INDEX_STATUS = "Status"  # Index podľa stavu
 
     @classmethod
-    def from_bytes(cls, data: bytes, encoding: str = 'cp852') -> 'TSHRecord':
+    def from_bytes(cls, data: bytes, encoding: str = "cp852") -> "TSHRecord":
         """
         Deserialize TSH record from bytes
 
@@ -139,58 +138,58 @@ class TSHRecord:
             raise ValueError(f"Invalid record size: {len(data)} bytes (expected >= 500)")
 
         # Primary key
-        doc_number = data[0:20].decode(encoding, errors='ignore').rstrip('\x00 ')
+        doc_number = data[0:20].decode(encoding, errors="ignore").rstrip("\x00 ")
 
         # Document info
-        doc_type = struct.unpack('<i', data[20:24])[0]
-        doc_date_int = struct.unpack('<i', data[24:28])[0]
+        doc_type = struct.unpack("<i", data[20:24])[0]
+        doc_date_int = struct.unpack("<i", data[24:28])[0]
         doc_date = cls._decode_delphi_date(doc_date_int) if doc_date_int > 0 else None
-        delivery_date_int = struct.unpack('<i', data[28:32])[0]
+        delivery_date_int = struct.unpack("<i", data[28:32])[0]
         delivery_date = cls._decode_delphi_date(delivery_date_int) if delivery_date_int > 0 else None
-        due_date_int = struct.unpack('<i', data[32:36])[0]
+        due_date_int = struct.unpack("<i", data[32:36])[0]
         due_date = cls._decode_delphi_date(due_date_int) if due_date_int > 0 else None
 
         # Partner
-        pab_code = struct.unpack('<i', data[36:40])[0]
-        pab_name = data[40:140].decode(encoding, errors='ignore').rstrip('\x00 ')
-        pab_address = data[140:290].decode(encoding, errors='ignore').rstrip('\x00 ')
-        pab_ico = data[290:310].decode(encoding, errors='ignore').rstrip('\x00 ')
-        pab_dic = data[310:330].decode(encoding, errors='ignore').rstrip('\x00 ')
-        pab_ic_dph = data[330:360].decode(encoding, errors='ignore').rstrip('\x00 ')
+        pab_code = struct.unpack("<i", data[36:40])[0]
+        pab_name = data[40:140].decode(encoding, errors="ignore").rstrip("\x00 ")
+        pab_address = data[140:290].decode(encoding, errors="ignore").rstrip("\x00 ")
+        pab_ico = data[290:310].decode(encoding, errors="ignore").rstrip("\x00 ")
+        pab_dic = data[310:330].decode(encoding, errors="ignore").rstrip("\x00 ")
+        pab_ic_dph = data[330:360].decode(encoding, errors="ignore").rstrip("\x00 ")
 
         # Financial
-        currency = data[360:364].decode(encoding, errors='ignore').rstrip('\x00 ')
-        exchange_rate = Decimal(str(struct.unpack('<d', data[364:372])[0]))
-        amount_base = Decimal(str(round(struct.unpack('<d', data[372:380])[0], 2)))
-        amount_vat = Decimal(str(round(struct.unpack('<d', data[380:388])[0], 2)))
-        amount_total = Decimal(str(round(struct.unpack('<d', data[388:396])[0], 2)))
+        currency = data[360:364].decode(encoding, errors="ignore").rstrip("\x00 ")
+        exchange_rate = Decimal(str(struct.unpack("<d", data[364:372])[0]))
+        amount_base = Decimal(str(round(struct.unpack("<d", data[372:380])[0], 2)))
+        amount_vat = Decimal(str(round(struct.unpack("<d", data[380:388])[0], 2)))
+        amount_total = Decimal(str(round(struct.unpack("<d", data[388:396])[0], 2)))
 
         # VAT breakdown
-        vat_20_base = Decimal(str(round(struct.unpack('<d', data[396:404])[0], 2)))
-        vat_20_amount = Decimal(str(round(struct.unpack('<d', data[404:412])[0], 2)))
-        vat_10_base = Decimal(str(round(struct.unpack('<d', data[412:420])[0], 2)))
-        vat_10_amount = Decimal(str(round(struct.unpack('<d', data[420:428])[0], 2)))
-        vat_0_base = Decimal(str(round(struct.unpack('<d', data[428:436])[0], 2)))
+        vat_20_base = Decimal(str(round(struct.unpack("<d", data[396:404])[0], 2)))
+        vat_20_amount = Decimal(str(round(struct.unpack("<d", data[404:412])[0], 2)))
+        vat_10_base = Decimal(str(round(struct.unpack("<d", data[412:420])[0], 2)))
+        vat_10_amount = Decimal(str(round(struct.unpack("<d", data[420:428])[0], 2)))
+        vat_0_base = Decimal(str(round(struct.unpack("<d", data[428:436])[0], 2)))
 
         # Payment
-        payment_method = struct.unpack('<i', data[436:440])[0]
-        payment_terms = struct.unpack('<i', data[440:444])[0]
+        payment_method = struct.unpack("<i", data[436:440])[0]
+        payment_terms = struct.unpack("<i", data[440:444])[0]
         paid = bool(data[444])
-        paid_date_int = struct.unpack('<i', data[445:449])[0]
+        paid_date_int = struct.unpack("<i", data[445:449])[0]
         paid_date = cls._decode_delphi_date(paid_date_int) if paid_date_int > 0 else None
-        paid_amount = Decimal(str(round(struct.unpack('<d', data[449:457])[0], 2)))
+        paid_amount = Decimal(str(round(struct.unpack("<d", data[449:457])[0], 2)))
 
         # References
-        invoice_number = data[457:487].decode(encoding, errors='ignore').rstrip('\x00 ')
-        order_number = data[487:517].decode(encoding, errors='ignore').rstrip('\x00 ')
+        invoice_number = data[457:487].decode(encoding, errors="ignore").rstrip("\x00 ")
+        order_number = data[487:517].decode(encoding, errors="ignore").rstrip("\x00 ")
 
         # Notes (flexible)
         internal_note = ""
         public_note = ""
         if len(data) >= 717:
-            internal_note = data[517:717].decode(encoding, errors='ignore').rstrip('\x00 ')
+            internal_note = data[517:717].decode(encoding, errors="ignore").rstrip("\x00 ")
         if len(data) >= 917:
-            public_note = data[717:917].decode(encoding, errors='ignore').rstrip('\x00 ')
+            public_note = data[717:917].decode(encoding, errors="ignore").rstrip("\x00 ")
 
         return cls(
             doc_number=doc_number,
@@ -222,13 +221,14 @@ class TSHRecord:
             invoice_number=invoice_number,
             order_number=order_number,
             internal_note=internal_note,
-            public_note=public_note
+            public_note=public_note,
         )
 
     @staticmethod
     def _decode_delphi_date(days: int) -> date:
         """Convert Delphi date to Python date"""
         from datetime import timedelta
+
         base_date = datetime(1899, 12, 30)
         return (base_date + timedelta(days=days)).date()
 

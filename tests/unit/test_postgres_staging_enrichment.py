@@ -1,8 +1,10 @@
 """
 Unit tests for PostgresStagingClient enrichment methods
 """
+
+from unittest.mock import MagicMock, Mock
+
 import pytest
-from unittest.mock import Mock, MagicMock
 from nex_shared.database.postgres_staging import PostgresStagingClient
 
 
@@ -38,15 +40,15 @@ class TestGetPendingEnrichmentItems:
     def test_get_all_pending_items(self, client, mock_cursor):
         """Should fetch all pending items"""
         mock_cursor.fetchall.return_value = [
-            (1, 100, 1, 'Product A', '1234567890123', 10, 'ks', 15.50, 20.0, None, None, False, None, None)
+            (1, 100, 1, "Product A", "1234567890123", 10, "ks", 15.50, 20.0, None, None, False, None, None)
         ]
 
         result = client.get_pending_enrichment_items()
 
         assert len(result) == 1
-        assert result[0]['id'] == 1
-        assert result[0]['original_name'] == 'Product A'
-        assert result[0]['original_ean'] == '1234567890123'
+        assert result[0]["id"] == 1
+        assert result[0]["original_name"] == "Product A"
+        assert result[0]["original_ean"] == "1234567890123"
         mock_cursor.execute.assert_called_once()
 
     def test_get_pending_items_by_invoice(self, client, mock_cursor):
@@ -58,7 +60,7 @@ class TestGetPendingEnrichmentItems:
         assert result == []
         mock_cursor.execute.assert_called_once()
         call_args = mock_cursor.execute.call_args[0]
-        assert 'invoice_id = %s' in call_args[0]
+        assert "invoice_id = %s" in call_args[0]
         assert call_args[1] == (100, 100)
 
     def test_respects_limit(self, client, mock_cursor):
@@ -66,7 +68,7 @@ class TestGetPendingEnrichmentItems:
         client.get_pending_enrichment_items(limit=50)
 
         call_args = mock_cursor.execute.call_args[0]
-        assert 'LIMIT %s' in call_args[0]
+        assert "LIMIT %s" in call_args[0]
         assert 50 in call_args[1]
 
 
@@ -78,38 +80,38 @@ class TestUpdateNexEnrichment:
         # Mock GSCATRecord
         gscat_record = Mock()
         gscat_record.gs_code = 12345
-        gscat_record.gs_name = 'NEX Product Name'
+        gscat_record.gs_name = "NEX Product Name"
         gscat_record.mglst_code = 10
 
-        result = client.update_nex_enrichment(1, gscat_record, 'ean')
+        result = client.update_nex_enrichment(1, gscat_record, "ean")
 
         assert result is True
         mock_cursor.execute.assert_called_once()
         call_args = mock_cursor.execute.call_args[0]
-        assert 'UPDATE supplier_invoice_items' in call_args[0]
-        assert call_args[1] == (12345, 12345, 'NEX Product Name', 10, 'matched', 'Auto-matched by ean', 1)
+        assert "UPDATE supplier_invoice_items" in call_args[0]
+        assert call_args[1] == (12345, 12345, "NEX Product Name", 10, "matched", "Auto-matched by ean", 1)
 
     def test_update_with_name_match(self, client, mock_cursor):
         """Should indicate name matching method"""
         gscat_record = Mock()
         gscat_record.gs_code = 12345
-        gscat_record.gs_name = 'Product'
+        gscat_record.gs_name = "Product"
         gscat_record.mglst_code = 10
 
-        client.update_nex_enrichment(1, gscat_record, 'name')
+        client.update_nex_enrichment(1, gscat_record, "name")
 
         call_args = mock_cursor.execute.call_args[0]
-        assert 'Auto-matched by name' in call_args[1]
+        assert "Auto-matched by name" in call_args[1]
 
     def test_returns_false_on_no_rows_affected(self, client, mock_cursor):
         """Should return False if no rows updated"""
         mock_cursor.rowcount = 0
         gscat_record = Mock()
         gscat_record.gs_code = 12345
-        gscat_record.gs_name = 'Product'
+        gscat_record.gs_name = "Product"
         gscat_record.mglst_code = 10
 
-        result = client.update_nex_enrichment(999, gscat_record, 'ean')
+        result = client.update_nex_enrichment(999, gscat_record, "ean")
 
         assert result is False
 
@@ -124,15 +126,15 @@ class TestMarkNoMatch:
         assert result is True
         mock_cursor.execute.assert_called_once()
         call_args = mock_cursor.execute.call_args[0]
-        assert 'in_nex = FALSE' in call_args[0]
+        assert "in_nex = FALSE" in call_args[0]
         assert "validation_status = 'needs_review'" in call_args[0]
 
     def test_uses_custom_reason(self, client, mock_cursor):
         """Should use custom reason message"""
-        client.mark_no_match(1, 'Custom reason')
+        client.mark_no_match(1, "Custom reason")
 
         call_args = mock_cursor.execute.call_args[0]
-        assert call_args[1] == ('Custom reason', 1)
+        assert call_args[1] == ("Custom reason", 1)
 
     def test_returns_false_on_no_rows_affected(self, client, mock_cursor):
         """Should return False if no rows updated"""
@@ -152,10 +154,10 @@ class TestGetEnrichmentStats:
 
         result = client.get_enrichment_stats()
 
-        assert result['enriched'] == 25
-        assert result['not_found'] == 5
-        assert result['pending'] == 10
-        assert result['total'] == 40
+        assert result["enriched"] == 25
+        assert result["not_found"] == 5
+        assert result["pending"] == 10
+        assert result["total"] == 40
 
     def test_get_invoice_stats(self, client, mock_cursor):
         """Should return statistics for specific invoice"""
@@ -163,12 +165,12 @@ class TestGetEnrichmentStats:
 
         result = client.get_enrichment_stats(invoice_id=100)
 
-        assert result['enriched'] == 8
-        assert result['not_found'] == 2
-        assert result['pending'] == 0
-        assert result['total'] == 10
+        assert result["enriched"] == 8
+        assert result["not_found"] == 2
+        assert result["pending"] == 0
+        assert result["total"] == 10
         call_args = mock_cursor.execute.call_args[0]
-        assert 'invoice_id = %s' in call_args[0]
+        assert "invoice_id = %s" in call_args[0]
 
     def test_handles_null_counts(self, client, mock_cursor):
         """Should handle NULL count values"""
@@ -176,7 +178,7 @@ class TestGetEnrichmentStats:
 
         result = client.get_enrichment_stats()
 
-        assert result['enriched'] == 0
-        assert result['not_found'] == 0
-        assert result['pending'] == 0
-        assert result['total'] == 0
+        assert result["enriched"] == 0
+        assert result["not_found"] == 0
+        assert result["pending"] == 0
+        assert result["total"] == 0

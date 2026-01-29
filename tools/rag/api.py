@@ -3,12 +3,12 @@ High-level RAG search API.
 Provides convenient async interface for document search.
 """
 
-from typing import List, Dict, Any, Optional
-from dataclasses import dataclass
 import json
+from dataclasses import dataclass
 from datetime import datetime
+from typing import Any
 
-from .config import get_config, RAGConfig
+from .config import RAGConfig, get_config
 from .database import DatabaseManager
 from .embeddings import EmbeddingModel
 from .hybrid_search import search as hybrid_search_func
@@ -17,19 +17,21 @@ from .hybrid_search import search as hybrid_search_func
 @dataclass
 class SearchResult:
     """Single search result."""
+
     filename: str
     content: str
     score: float
     chunk_id: str
-    section: Optional[str] = None
-    metadata: Optional[Dict[str, Any]] = None
+    section: str | None = None
+    metadata: dict[str, Any] | None = None
 
 
 @dataclass
 class RAGResponse:
     """RAG search response."""
+
     query: str
-    results: List[SearchResult]
+    results: list[SearchResult]
     total_found: int
     search_type: str
     timestamp: datetime
@@ -38,7 +40,7 @@ class RAGResponse:
 class RAGSearchAPI:
     """High-level RAG search API."""
 
-    def __init__(self, config: Optional[RAGConfig] = None):
+    def __init__(self, config: RAGConfig | None = None):
         self.config = config or get_config()
         self.db = DatabaseManager(self.config.database)  # Pass database config only
         self.embeddings = EmbeddingModel(self.config.embedding)  # Pass embedding config only
@@ -66,13 +68,7 @@ class RAGSearchAPI:
             await self.db.close()
             self._connected = False
 
-    async def search(
-        self,
-        query: str,
-        limit: int = 5,
-        mode: str = 'hybrid',
-        tenant: Optional[str] = None
-    ) -> RAGResponse:
+    async def search(self, query: str, limit: int = 5, mode: str = "hybrid", tenant: str | None = None) -> RAGResponse:
         """
         Search documents.
 
@@ -93,38 +89,40 @@ class RAGSearchAPI:
         search_results = []
         for r in results:
             # Start with original metadata from hybrid_search
-            result_metadata = json.loads(r.metadata) if isinstance(r.metadata, str) else (r.metadata if r.metadata else {})
+            result_metadata = (
+                json.loads(r.metadata) if isinstance(r.metadata, str) else (r.metadata if r.metadata else {})
+            )
             # Add search-specific metadata
-            result_metadata.update({
-                'similarity': r.similarity,
-                'keyword_score': r.keyword_score,
-                'document_id': r.document_id,
-                'chunk_index': r.chunk_index
-            })
+            result_metadata.update(
+                {
+                    "similarity": r.similarity,
+                    "keyword_score": r.keyword_score,
+                    "document_id": r.document_id,
+                    "chunk_index": r.chunk_index,
+                }
+            )
 
-            search_results.append(SearchResult(
-                filename=r.filename,
-                content=r.content,
-                score=r.combined_score,
-                chunk_id=str(r.chunk_id),
-                section=None,
-                metadata=result_metadata
-            ))
+            search_results.append(
+                SearchResult(
+                    filename=r.filename,
+                    content=r.content,
+                    score=r.combined_score,
+                    chunk_id=str(r.chunk_id),
+                    section=None,
+                    metadata=result_metadata,
+                )
+            )
 
         return RAGResponse(
             query=query,
             results=search_results,
             total_found=len(search_results),
             search_type=mode,
-            timestamp=datetime.utcnow()
+            timestamp=datetime.utcnow(),
         )
 
     async def get_context_for_llm(
-        self,
-        query: str,
-        max_chunks: int = 3,
-        max_tokens: int = 4000,
-        tenant: Optional[str] = None
+        self, query: str, max_chunks: int = 3, max_tokens: int = 4000, tenant: str | None = None
     ) -> str:
         """
         Get formatted context for LLM.
@@ -137,7 +135,7 @@ class RAGSearchAPI:
         Returns:
             Formatted context string
         """
-        response = await self.search(query, limit=max_chunks, mode='hybrid', tenant=tenant)
+        response = await self.search(query, limit=max_chunks, mode="hybrid", tenant=tenant)
 
         context_parts = []
         total_chars = 0
@@ -151,10 +149,10 @@ class RAGSearchAPI:
             context_parts.append(part)
             total_chars += len(r.content)
 
-        header = f"## Retrieved Context for: \"{query}\"\n\n"
+        header = f'## Retrieved Context for: "{query}"\n\n'
         return header + "\n\n---\n\n".join(context_parts)
 
-    async def get_stats(self) -> Dict[str, Any]:
+    async def get_stats(self) -> dict[str, Any]:
         """Get database statistics."""
         await self.connect()
 
@@ -162,21 +160,21 @@ class RAGSearchAPI:
         chunk_count = await self.db.pool.fetchval("SELECT COUNT(*) FROM chunks")
 
         return {
-            'documents': doc_count,
-            'chunks': chunk_count,
-            'embedding_model': self.config.embedding.model_name,
-            'embedding_dimension': self.config.embedding.dimension
+            "documents": doc_count,
+            "chunks": chunk_count,
+            "embedding_model": self.config.embedding.model_name,
+            "embedding_dimension": self.config.embedding.dimension,
         }
 
 
 # Convenience functions for quick usage
-async def search(query: str, limit: int = 5, mode: str = 'hybrid', tenant: Optional[str] = None) -> RAGResponse:
+async def search(query: str, limit: int = 5, mode: str = "hybrid", tenant: str | None = None) -> RAGResponse:
     """Quick search function."""
     async with RAGSearchAPI() as api:
         return await api.search(query, limit=limit, mode=mode, tenant=tenant)
 
 
-async def get_context(query: str, max_chunks: int = 3, tenant: Optional[str] = None) -> str:
+async def get_context(query: str, max_chunks: int = 3, tenant: str | None = None) -> str:
     """Quick context retrieval for LLM."""
     async with RAGSearchAPI() as api:
         return await api.get_context_for_llm(query, max_chunks=max_chunks, tenant=tenant)

@@ -3,6 +3,7 @@
 Test MARSO extractor integration into pipeline.
 Tests detection routing and ISDOC XML generation.
 """
+
 import sys
 from pathlib import Path
 
@@ -16,6 +17,7 @@ from src.business.isdoc_service import generate_isdoc_xml
 # Test PDF paths
 MARSO_PDF = r"C:\Test\szamla_masolat_5641876501.pdf"
 # LS_PDF = r"C:\NEX_AN\IMPORT\LS\PDF\20250929_232558_32510374_FAK.pdf"
+
 
 def test_marso_detection_and_extraction():
     """Test MARSO invoice detection and extraction."""
@@ -79,7 +81,7 @@ def test_marso_detection_and_extraction():
         print(f"      OK - XML file exists, size: {size} bytes")
 
         # Show first few lines
-        with open(test_xml_path, 'r', encoding='utf-8') as f:
+        with open(test_xml_path, "r", encoding="utf-8") as f:
             lines = f.readlines()[:10]
             print("\n      First 10 lines of generated XML:")
             for line in lines:

@@ -1,8 +1,7 @@
 """Invoice item model."""
 
-from decimal import Decimal
-from typing import Optional
 from datetime import datetime
+from decimal import Decimal
 
 from pydantic import BaseModel
 
@@ -14,39 +13,39 @@ class InvoiceItem(BaseModel):
     invoice_head_id: int
 
     # XML extracted fields
-    xml_line_number: Optional[int] = None
-    xml_seller_code: Optional[str] = None
-    xml_ean: Optional[str] = None
-    xml_product_name: Optional[str] = None
-    xml_quantity: Optional[Decimal] = None
-    xml_unit: Optional[str] = None
-    xml_unit_price: Optional[Decimal] = None
-    xml_unit_price_vat: Optional[Decimal] = None
-    xml_total_price: Optional[Decimal] = None
-    xml_total_price_vat: Optional[Decimal] = None
-    xml_vat_rate: Optional[Decimal] = None
+    xml_line_number: int | None = None
+    xml_seller_code: str | None = None
+    xml_ean: str | None = None
+    xml_product_name: str | None = None
+    xml_quantity: Decimal | None = None
+    xml_unit: str | None = None
+    xml_unit_price: Decimal | None = None
+    xml_unit_price_vat: Decimal | None = None
+    xml_total_price: Decimal | None = None
+    xml_total_price_vat: Decimal | None = None
+    xml_vat_rate: Decimal | None = None
 
     # NEX Genesis matched fields
-    nex_product_id: Optional[int] = None
-    nex_product_name: Optional[str] = None
-    nex_ean: Optional[str] = None
-    nex_stock_code: Optional[str] = None
-    nex_stock_id: Optional[int] = None
+    nex_product_id: int | None = None
+    nex_product_name: str | None = None
+    nex_ean: str | None = None
+    nex_stock_code: str | None = None
+    nex_stock_id: int | None = None
 
     # Matching info
     matched: bool = False
-    matched_by: Optional[str] = None
-    match_confidence: Optional[Decimal] = None
+    matched_by: str | None = None
+    match_confidence: Decimal | None = None
 
     # Editing
-    edited_unit_price: Optional[Decimal] = None
+    edited_unit_price: Decimal | None = None
 
     # Status
-    validation_status: Optional[str] = None
+    validation_status: str | None = None
 
     # Timestamps
-    created_at: Optional[datetime] = None
-    updated_at: Optional[datetime] = None
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
 
     class Config:
         from_attributes = True

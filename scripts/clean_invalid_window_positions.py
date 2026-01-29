@@ -29,7 +29,7 @@ def clean_invalid_positions():
     print("CLEAN INVALID WINDOW POSITIONS")
     print("=" * 80)
 
-    print(f"\nValidačné pravidlá:")
+    print("\nValidačné pravidlá:")
     print(f"  X >= {MIN_X}")
     print(f"  Y >= {MIN_Y}")
     print(f"  Width: {MIN_WIDTH}-{MAX_WIDTH}")
@@ -47,7 +47,7 @@ def clean_invalid_positions():
         cursor = conn.cursor()
 
         # 2. Načítaj všetky záznamy
-        print(f"\n2. Načítavam záznamy...")
+        print("\n2. Načítavam záznamy...")
 
         cursor.execute("""
             SELECT id, user_id, window_name, x, y, width, height
@@ -58,7 +58,7 @@ def clean_invalid_positions():
         print(f"✅ Nájdených {len(rows)} záznamov")
 
         # 3. Identifikuj nevalidné
-        print(f"\n3. Kontrolujem validitu...")
+        print("\n3. Kontrolujem validitu...")
 
         invalid_ids = []
 
@@ -99,11 +99,14 @@ def clean_invalid_positions():
         # 4. Vymaž nevalidné záznamy
         print(f"\n4. Mažem {len(invalid_ids)} nevalidných záznamov...")
 
-        placeholders = ','.join('?' * len(invalid_ids))
-        cursor.execute(f"""
+        placeholders = ",".join("?" * len(invalid_ids))
+        cursor.execute(
+            f"""
             DELETE FROM window_settings
             WHERE id IN ({placeholders})
-        """, invalid_ids)
+        """,
+            invalid_ids,
+        )
 
         conn.commit()
         deleted_count = cursor.rowcount
@@ -119,7 +122,7 @@ def clean_invalid_positions():
         print("\n" + "=" * 80)
         print("✅ HOTOVO - Invalid Positions CLEANED")
         print("=" * 80)
-        print(f"\nVýsledok:")
+        print("\nVýsledok:")
         print(f"  • Vymazaných: {deleted_count}")
         print(f"  • Zostalo: {remaining}")
 

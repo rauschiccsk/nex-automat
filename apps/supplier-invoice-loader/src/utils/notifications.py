@@ -10,7 +10,7 @@ import html
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from datetime import datetime
-from typing import Optional, List, Dict, Any
+from typing import Optional, Dict, Any
 
 from src.utils import config
 from src.database import database
@@ -21,6 +21,7 @@ logger = logging.getLogger(__name__)
 # ============================================================================
 # EMAIL TEMPLATES
 # ============================================================================
+
 
 def _error_template(error_type: str, error_message: str, details: Dict[str, Any]) -> str:
     """
@@ -34,15 +35,14 @@ def _error_template(error_type: str, error_message: str, details: Dict[str, Any]
     Returns:
         HTML email body
     """
-    invoice_id = details.get('invoice_id', 'N/A')
-    filename = details.get('filename', 'N/A')
-    timestamp = details.get('timestamp', datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
-    stack_trace = details.get('stack_trace', '')
+    invoice_id = details.get("invoice_id", "N/A")
+    filename = details.get("filename", "N/A")
+    timestamp = details.get("timestamp", datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+    stack_trace = details.get("stack_trace", "")
 
-    
     # Escape HTML to prevent XSS
     escaped_error_message = html.escape(error_message)
-    escaped_stack_trace = html.escape(stack_trace) if stack_trace else ''
+    escaped_stack_trace = html.escape(stack_trace) if stack_trace else ""
 
     html_content = f"""
     <html>
@@ -79,7 +79,7 @@ def _error_template(error_type: str, error_message: str, details: Dict[str, Any]
                     {escaped_error_message}
                 </div>
 
-                {f'<h3>Stack Trace:</h3><div class="error-box">{escaped_stack_trace}</div>' if stack_trace else ''}
+                {f'<h3>Stack Trace:</h3><div class="error-box">{escaped_stack_trace}</div>' if stack_trace else ""}
 
                 <p style="margin-top: 20px;">
                     <strong>Action Required:</strong><br>
@@ -111,12 +111,11 @@ def _validation_failed_template(invoice_data: Dict[str, Any], reason: str) -> st
     Returns:
         HTML email body
     """
-    filename = invoice_data.get('filename', 'N/A')
-    from_email = invoice_data.get('from', 'N/A')
-    subject = invoice_data.get('subject', 'N/A')
-    timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    filename = invoice_data.get("filename", "N/A")
+    from_email = invoice_data.get("from", "N/A")
+    subject = invoice_data.get("subject", "N/A")
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-    
     # Escape HTML to prevent XSS
     escaped_reason = html.escape(reason)
 
@@ -182,14 +181,14 @@ def _daily_summary_template(stats: Dict[str, Any]) -> str:
     Returns:
         HTML email body
     """
-    today = datetime.now().strftime('%Y-%m-%d')
+    today = datetime.now().strftime("%Y-%m-%d")
 
     # Extract stats
-    total = stats.get('total_invoices', 0)
-    processed = stats.get('processed_count', 0)
-    pending = stats.get('pending_count', 0)
-    failed = stats.get('failed_count', 0)
-    duplicates = stats.get('duplicate_count', 0)
+    total = stats.get("total_invoices", 0)
+    processed = stats.get("processed_count", 0)
+    pending = stats.get("pending_count", 0)
+    failed = stats.get("failed_count", 0)
+    duplicates = stats.get("duplicate_count", 0)
 
     # Calculate today's stats (would need date filtering in database.py)
     # For now, showing all-time stats
@@ -271,7 +270,7 @@ def _daily_summary_template(stats: Dict[str, Any]) -> str:
                     </div>
                 </div>
 
-                {f'<p style="background-color: #ffebee; padding: 15px; border-left: 4px solid #d32f2f; margin-top: 20px;"><strong>Action Required:</strong> {failed} invoices failed processing. Please review logs and take corrective action.</p>' if failed > 0 else ''}
+                {f'<p style="background-color: #ffebee; padding: 15px; border-left: 4px solid #d32f2f; margin-top: 20px;"><strong>Action Required:</strong> {failed} invoices failed processing. Please review logs and take corrective action.</p>' if failed > 0 else ""}
             </div>
 
             <div class="footer">
@@ -291,12 +290,8 @@ def _daily_summary_template(stats: Dict[str, Any]) -> str:
 # SMTP CONNECTION
 # ============================================================================
 
-def _send_email(
-        to: str,
-        subject: str,
-        html_body: str,
-        text_body: Optional[str] = None
-) -> bool:
+
+def _send_email(to: str, subject: str, html_body: str, text_body: Optional[str] = None) -> bool:
     """
     Send email via SMTP
 
@@ -311,20 +306,20 @@ def _send_email(
     """
     try:
         # Parse recipients (support comma-separated list)
-        recipients = [r.strip() for r in to.split(',')]
+        recipients = [r.strip() for r in to.split(",")]
 
         # Create message
-        msg = MIMEMultipart('alternative')
-        msg['Subject'] = subject
-        msg['From'] = config.SMTP_FROM
-        msg['To'] = to
+        msg = MIMEMultipart("alternative")
+        msg["Subject"] = subject
+        msg["From"] = config.SMTP_FROM
+        msg["To"] = to
 
         # Add text and HTML parts
         if text_body:
-            part1 = MIMEText(text_body, 'plain', 'utf-8')
+            part1 = MIMEText(text_body, "plain", "utf-8")
             msg.attach(part1)
 
-        part2 = MIMEText(html_body, 'html', 'utf-8')
+        part2 = MIMEText(html_body, "html", "utf-8")
         msg.attach(part2)
 
         # Connect to SMTP server
@@ -365,10 +360,9 @@ def _send_email(
 # PUBLIC API
 # ============================================================================
 
+
 def send_alert_email(
-        error_type: str,
-        error_message: str,
-        details: Optional[Dict[str, Any]] = None
+    error_type: str, error_message: str, details: Optional[Dict[str, Any]] = None
 ) -> bool:
     """
     Send error alert email
@@ -400,8 +394,8 @@ def send_alert_email(
         details = {}
 
     # Add timestamp if not present
-    if 'timestamp' not in details:
-        details['timestamp'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    if "timestamp" not in details:
+        details["timestamp"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     subject = f"[{config.CUSTOMER_NAME}] Alert: {error_type}"
     html_body = _error_template(error_type, error_message, details)
@@ -410,10 +404,7 @@ def send_alert_email(
     return _send_email(config.ALERT_EMAIL, subject, html_body)
 
 
-def send_validation_failed_email(
-        invoice_data: Dict[str, Any],
-        reason: str
-) -> bool:
+def send_validation_failed_email(invoice_data: Dict[str, Any], reason: str) -> bool:
     """
     Send validation failure notification
 
@@ -493,7 +484,7 @@ def test_email_configuration() -> bool:
         <h2 style="color: #4caf50;">✓ Email Configuration Test</h2>
         <p>This is a test email from Supplier Invoice Loader.</p>
         <p><strong>Customer:</strong> {config.CUSTOMER_NAME}</p>
-        <p><strong>Time:</strong> {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</p>
+        <p><strong>Time:</strong> {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}</p>
         <p>If you received this email, your SMTP configuration is working correctly!</p>
         <hr>
         <p style="font-size: 12px; color: #666;">
@@ -554,11 +545,7 @@ if __name__ == "__main__":
 
         elif command == "alert":
             # Send test alert
-            send_alert_email(
-                "Test Alert",
-                "This is a test alert from command line",
-                {'test': True}
-            )
+            send_alert_email("Test Alert", "This is a test alert from command line", {"test": True})
 
         else:
             print("Unknown command")

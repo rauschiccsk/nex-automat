@@ -2,8 +2,9 @@
 Window and Grid Settings Persistence
 Grid settings functions (active column) - window persistence je v BaseWindow.
 """
-import sqlite3
+
 import logging
+import sqlite3
 from pathlib import Path
 from typing import Optional
 
@@ -13,8 +14,9 @@ logger = logging.getLogger(__name__)
 DB_PATH = Path(r"C:\NEX\YEARACT\SYSTEM\SQLITE\window_settings.db")
 
 
-def save_grid_settings(window_name: str, grid_name: str, active_column: int, 
-                       user_id: str = "Server") -> bool:
+def save_grid_settings(
+    window_name: str, grid_name: str, active_column: int, user_id: str = "Server"
+) -> bool:
     """
     Save grid settings (active column).
 
@@ -45,16 +47,22 @@ def save_grid_settings(window_name: str, grid_name: str, active_column: int,
         """)
 
         # DELETE + INSERT pattern
-        cursor.execute("""
+        cursor.execute(
+            """
             DELETE FROM grid_settings
             WHERE user_id = ? AND window_name = ? AND grid_name = ?
-        """, (user_id, window_name, grid_name))
+        """,
+            (user_id, window_name, grid_name),
+        )
 
-        cursor.execute("""
+        cursor.execute(
+            """
             INSERT INTO grid_settings
             (user_id, window_name, grid_name, active_column, updated_at)
             VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)
-        """, (user_id, window_name, grid_name, active_column))
+        """,
+            (user_id, window_name, grid_name, active_column),
+        )
 
         conn.commit()
         conn.close()
@@ -67,8 +75,7 @@ def save_grid_settings(window_name: str, grid_name: str, active_column: int,
         return False
 
 
-def load_grid_settings(window_name: str, grid_name: str, 
-                      user_id: str = "Server") -> Optional[int]:
+def load_grid_settings(window_name: str, grid_name: str, user_id: str = "Server") -> int | None:
     """
     Load grid settings (active column).
 
@@ -87,11 +94,14 @@ def load_grid_settings(window_name: str, grid_name: str,
         conn = sqlite3.connect(DB_PATH)
         cursor = conn.cursor()
 
-        cursor.execute("""
+        cursor.execute(
+            """
             SELECT active_column
             FROM grid_settings
             WHERE user_id = ? AND window_name = ? AND grid_name = ?
-        """, (user_id, window_name, grid_name))
+        """,
+            (user_id, window_name, grid_name),
+        )
 
         row = cursor.fetchone()
         conn.close()

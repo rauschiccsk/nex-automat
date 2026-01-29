@@ -17,9 +17,10 @@ logger = logging.getLogger(__name__)
 @dataclass
 class MarsoInvoiceItem:
     """Jedna položka na MARSO faktúre"""
+
     line_number: int
     customs_code: str = ""  # Colný kód (4011100000)
-    description: str = ""   # Popis pneumatiky
+    description: str = ""  # Popis pneumatiky
     quantity: Optional[Decimal] = None
     unit: str = "Pcs"
     unit_price: Optional[Decimal] = None
@@ -30,12 +31,13 @@ class MarsoInvoiceItem:
 @dataclass
 class MarsoInvoiceData:
     """Kompletné dáta z MARSO faktúry"""
+
     # Hlavička
-    invoice_number: str = ""      # 11925-10338
-    issue_date: str = ""          # YYYY.MM.DD
+    invoice_number: str = ""  # 11925-10338
+    issue_date: str = ""  # YYYY.MM.DD
     due_date: str = ""
     tax_point_date: str = ""
-    sales_order: str = ""         # VR3696263
+    sales_order: str = ""  # VR3696263
 
     # Sumy
     total_amount: Optional[Decimal] = None
@@ -45,15 +47,15 @@ class MarsoInvoiceData:
 
     # Dodávateľ (MARSO)
     supplier_name: str = "MARSO-TYRE Kft."
-    supplier_tax_number: str = ""   # 10428342-2-15
-    supplier_eu_vat: str = ""       # HU10428342
+    supplier_tax_number: str = ""  # 10428342-2-15
+    supplier_eu_vat: str = ""  # HU10428342
     supplier_iban: str = ""
     supplier_swift: str = ""
     supplier_address: str = ""
 
     # Odberateľ
     customer_name: str = ""
-    customer_eu_vat: str = ""       # SK2120582200
+    customer_eu_vat: str = ""  # SK2120582200
     customer_address: str = ""
 
     # Položky
@@ -70,23 +72,20 @@ class MarsoInvoiceExtractor:
         """Inicializácia regex patterns pre MARSO faktúry"""
         return {
             # Hlavička - MARSO formát (� je pomlčka v PDF encoding)
-            'invoice_number': r'Sz.mlasz.m\s*\n\s*\w+\s+(\d{4}\.\d{2}\.\d{2})\s+(\d{4}\.\d{2}\.\d{2})\s+(\d{4}\.\d{2}\.\d{2})\s+(\d{5}.\d{5})',
-            'sales_order': r'(?:Sales\s+order|Rendel.s\s+sz.m)[.:\s]*(VR\d+)',
-
+            "invoice_number": r"Sz.mlasz.m\s*\n\s*\w+\s+(\d{4}\.\d{2}\.\d{2})\s+(\d{4}\.\d{2}\.\d{2})\s+(\d{4}\.\d{2}\.\d{2})\s+(\d{5}.\d{5})",
+            "sales_order": r"(?:Sales\s+order|Rendel.s\s+sz.m)[.:\s]*(VR\d+)",
             # Sumy - maďarský formát (medzery v tisícoch, čiarka ako desatinná)
-            'total_amount': r'(?:Grand\s+total|.sszesen)[:\s]*([\d\s,.]+)\s*EUR',
-            'net_amount': r'(?:Net\s+value|Nett.\s+.rt.k)[:\s]*([\d\s,.]+)\s*EUR',
-
+            "total_amount": r"(?:Grand\s+total|.sszesen)[:\s]*([\d\s,.]+)\s*EUR",
+            "net_amount": r"(?:Net\s+value|Nett.\s+.rt.k)[:\s]*([\d\s,.]+)\s*EUR",
             # Dodávateľ (MARSO)
-            'supplier_name': r'Marso\s+Kft',
-            'supplier_tax_number': r'(?:Tax\s+number|Ad.sz.m)[.:\s]*(\d{8}.\d.\d{2})',
-            'supplier_eu_vat': r'EU\s+VAT\s+No\.[^:]*:\s*(HU\d{8,11})',
-            'supplier_iban': r'IBAN[^:]*:\s*([A-Z]{2}\d{2}[\d\s]{20,30})',
-            'supplier_swift': r'Swift[^:]*:\s*([A-Z]{6,11})',
-
+            "supplier_name": r"Marso\s+Kft",
+            "supplier_tax_number": r"(?:Tax\s+number|Ad.sz.m)[.:\s]*(\d{8}.\d.\d{2})",
+            "supplier_eu_vat": r"EU\s+VAT\s+No\.[^:]*:\s*(HU\d{8,11})",
+            "supplier_iban": r"IBAN[^:]*:\s*([A-Z]{2}\d{2}[\d\s]{20,30})",
+            "supplier_swift": r"Swift[^:]*:\s*([A-Z]{6,11})",
             # Odberateľ
-            'customer_name': r'Customer\s*/\s*Vev.\s*\n\s*Marso[^\n]+\n[^\n]+\n([^\n]+)',
-            'customer_eu_vat': r'EU\s+VAT\s+No\.[^:]*:\s*(SK\d{10})',
+            "customer_name": r"Customer\s*/\s*Vev.\s*\n\s*Marso[^\n]+\n[^\n]+\n([^\n]+)",
+            "customer_eu_vat": r"EU\s+VAT\s+No\.[^:]*:\s*(SK\d{10})",
         }
 
     def extract_from_pdf(self, pdf_path: str) -> Optional[MarsoInvoiceData]:
@@ -120,9 +119,7 @@ class MarsoInvoiceExtractor:
 
             # Ak net_amount nie je, vypočítaj zo sumy položiek
             if not invoice_data.net_amount and items:
-                invoice_data.net_amount = sum(
-                    item.total for item in items if item.total
-                )
+                invoice_data.net_amount = sum(item.total for item in items if item.total)
 
             logger.info(f"MARSO: Extracted: {invoice_data.invoice_number}, {len(items)} items")
             return invoice_data
@@ -148,53 +145,56 @@ class MarsoInvoiceExtractor:
         # Špeciálne spracovanie pre invoice_number a dátumy (sú v jednom riadku)
         # Format: prepayment 2025.10.29 2025.10.29 2025.10.30 11925-10338
         date_line = re.search(
-            r'(?:prepayment|transfer)\s+(\d{4}\.\d{2}\.\d{2})\s+(\d{4}\.\d{2}\.\d{2})\s+(\d{4}\.\d{2}\.\d{2})\s+(\d{5}.\d{5})',
-            text, re.IGNORECASE
+            r"(?:prepayment|transfer)\s+(\d{4}\.\d{2}\.\d{2})\s+(\d{4}\.\d{2}\.\d{2})\s+(\d{4}\.\d{2}\.\d{2})\s+(\d{5}.\d{5})",
+            text,
+            re.IGNORECASE,
         )
         if date_line:
             data.issue_date = self._convert_date_format(date_line.group(1))
             data.tax_point_date = self._convert_date_format(date_line.group(2))
             data.due_date = self._convert_date_format(date_line.group(3))
             # Invoice number - nahraď špeciálny znak pomlčkou
-            data.invoice_number = re.sub(r'[^0-9]', '-', date_line.group(4))
+            data.invoice_number = re.sub(r"[^0-9]", "-", date_line.group(4))
 
         # Sales order
-        sales_match = re.search(self.patterns['sales_order'], text, re.IGNORECASE)
+        sales_match = re.search(self.patterns["sales_order"], text, re.IGNORECASE)
         if sales_match:
             data.sales_order = sales_match.group(1)
 
         # EU VAT numbers
-        supplier_vat = re.search(self.patterns['supplier_eu_vat'], text)
+        supplier_vat = re.search(self.patterns["supplier_eu_vat"], text)
         if supplier_vat:
             data.supplier_eu_vat = supplier_vat.group(1)
 
-        customer_vat = re.search(self.patterns['customer_eu_vat'], text)
+        customer_vat = re.search(self.patterns["customer_eu_vat"], text)
         if customer_vat:
             data.customer_eu_vat = customer_vat.group(1)
 
         # Tax number
-        tax_match = re.search(self.patterns['supplier_tax_number'], text)
+        tax_match = re.search(self.patterns["supplier_tax_number"], text)
         if tax_match:
-            data.supplier_tax_number = re.sub(r'[^0-9]', '-', tax_match.group(1))
+            data.supplier_tax_number = re.sub(r"[^0-9]", "-", tax_match.group(1))
 
         # IBAN
-        iban_match = re.search(self.patterns['supplier_iban'], text)
+        iban_match = re.search(self.patterns["supplier_iban"], text)
         if iban_match:
-            data.supplier_iban = re.sub(r'\s+', '', iban_match.group(1))
+            data.supplier_iban = re.sub(r"\s+", "", iban_match.group(1))
 
         # SWIFT
-        swift_match = re.search(self.patterns['supplier_swift'], text)
+        swift_match = re.search(self.patterns["supplier_swift"], text)
         if swift_match:
             data.supplier_swift = swift_match.group(1)
 
         # Customer name - Andros s.r.o.
-        customer_match = re.search(r'Customer\s*/\s*Vev.+?\n.+?\n.+?\n\s*(.+?)\s*\n', text, re.IGNORECASE)
+        customer_match = re.search(
+            r"Customer\s*/\s*Vev.+?\n.+?\n.+?\n\s*(.+?)\s*\n", text, re.IGNORECASE
+        )
         if customer_match:
             data.customer_name = customer_match.group(1).strip()
 
         # Total amount - formát: "26 295,71 0,00 0,00 26 295,71 EUR"
         # Hľadaj všetky výskyty číslo + EUR a vezmi najväčšie
-        all_eur_amounts = re.findall(r'(\d[\d\s]*[,.][\d]+)\s*EUR', text)
+        all_eur_amounts = re.findall(r"(\d[\d\s]*[,.][\d]+)\s*EUR", text)
         if all_eur_amounts:
             amounts = []
             for amt in all_eur_amounts:
@@ -224,15 +224,15 @@ class MarsoInvoiceExtractor:
         # Pattern pre MARSO položku
         # line_no customs_code short_desc qty unit list_price unit_price total
         item_pattern = re.compile(
-            r'^(\d+)\s+'                             # Číslo riadku
-            r'(\d{10})\s+'                           # Colný kód (10 číslic)
-            r'([A-Za-z.]+(?:\s+[A-Za-z.]+)*)\s+'     # Krátky popis (Szgk. gumiabroncs)
-            r'(\d+[,.]?\d*)\s+'                      # Množstvo
-            r'(Pcs|pcs)\s+'                          # Jednotka
-            r'(\d+[,.]?\d*)\s+'                      # List price
-            r'(\d+[,.]?\d*)\s+'                      # Unit price
-            r'(\d+[,.]?\d*)',                        # Total
-            re.MULTILINE
+            r"^(\d+)\s+"  # Číslo riadku
+            r"(\d{10})\s+"  # Colný kód (10 číslic)
+            r"([A-Za-z.]+(?:\s+[A-Za-z.]+)*)\s+"  # Krátky popis (Szgk. gumiabroncs)
+            r"(\d+[,.]?\d*)\s+"  # Množstvo
+            r"(Pcs|pcs)\s+"  # Jednotka
+            r"(\d+[,.]?\d*)\s+"  # List price
+            r"(\d+[,.]?\d*)\s+"  # Unit price
+            r"(\d+[,.]?\d*)",  # Total
+            re.MULTILINE,
         )
 
         # Nájdi všetky položky
@@ -253,7 +253,7 @@ class MarsoInvoiceExtractor:
             between_text = text[end_pos:next_match_pos]
 
             # Prvý riadok za položkou je plný popis
-            desc_match = re.search(r'\n([A-Z][A-Z0-9\s/]+(?:R\d{2}|/\d{2})[^\n]+)', between_text)
+            desc_match = re.search(r"\n([A-Z][A-Z0-9\s/]+(?:R\d{2}|/\d{2})[^\n]+)", between_text)
             full_description = desc_match.group(1).strip() if desc_match else short_desc
 
             item = MarsoInvoiceItem(
@@ -264,7 +264,7 @@ class MarsoInvoiceExtractor:
                 unit=unit,
                 unit_price=unit_price,
                 total=total,
-                vat_rate=Decimal("0")
+                vat_rate=Decimal("0"),
             )
             items.append(item)
 
@@ -283,10 +283,10 @@ class MarsoInvoiceExtractor:
         """
         try:
             # Odstráň medzery
-            date_str = date_str.replace(' ', '')
+            date_str = date_str.replace(" ", "")
 
             # Parsuj YYYY.MM.DD
-            match = re.match(r'(\d{4})\.(\d{2})\.(\d{2})', date_str)
+            match = re.match(r"(\d{4})\.(\d{2})\.(\d{2})", date_str)
             if match:
                 year, month, day = match.groups()
                 return f"{day}.{month}.{year}"
@@ -312,9 +312,9 @@ class MarsoInvoiceExtractor:
             return None
         try:
             # Odstráň medzery (tisíce)
-            value = value.replace(' ', '')
+            value = value.replace(" ", "")
             # Zmeň čiarku na bodku (desatinná)
-            value = value.replace(',', '.')
+            value = value.replace(",", ".")
             return Decimal(value)
         except:
             return None
@@ -349,11 +349,11 @@ def detect_marso_invoice(text: str) -> bool:
         True ak je to MARSO faktúra
     """
     marso_indicators = [
-        r'MARSO',
-        r'HU\d{8,11}',  # Hungarian EU VAT
-        r'\d{5}-\d{5}',  # MARSO invoice number format
-        r'Számla',       # Hungarian word for invoice
-        r'Fizetési\s+határidő',  # Hungarian "due date"
+        r"MARSO",
+        r"HU\d{8,11}",  # Hungarian EU VAT
+        r"\d{5}-\d{5}",  # MARSO invoice number format
+        r"Számla",  # Hungarian word for invoice
+        r"Fizetési\s+határidő",  # Hungarian "due date"
     ]
 
     for pattern in marso_indicators:
@@ -375,6 +375,7 @@ def detect_marso_invoice_from_pdf(pdf_path: str) -> bool:
     """
     try:
         import pdfplumber
+
         with pdfplumber.open(pdf_path) as pdf:
             # Stačí prvá strana
             if pdf.pages:
@@ -411,7 +412,7 @@ def convert_to_standard_invoice_data(marso_data: MarsoInvoiceData):
             unit_price_with_vat=mi.unit_price,  # Rovnaké (0% DPH)
             total_with_vat=mi.total,
             vat_rate=Decimal("0"),  # EU intra-community
-            discount_percent=None
+            discount_percent=None,
         )
         items.append(item)
 
@@ -421,34 +422,29 @@ def convert_to_standard_invoice_data(marso_data: MarsoInvoiceData):
         issue_date=marso_data.issue_date,
         due_date=marso_data.due_date,
         tax_point_date=marso_data.tax_point_date,
-
         total_amount=marso_data.total_amount,
         tax_amount=Decimal("0"),  # EU intra-community = 0% DPH
         net_amount=marso_data.total_amount,  # Net = Total pre 0% DPH
         currency=marso_data.currency,
-
         # Dodávateľ - MARSO (maďarský)
         supplier_name=marso_data.supplier_name,
         supplier_ico="",  # Maďarsko nemá IČO
         supplier_dic=marso_data.supplier_tax_number,  # Tax number ako DIČ
         supplier_icdph=marso_data.supplier_eu_vat,  # HU VAT
         supplier_address="",
-
         # Odberateľ
         customer_name=marso_data.customer_name,
         customer_ico="",  # Vyplní sa z DB lookup ak treba
         customer_dic="",
         customer_icdph=marso_data.customer_eu_vat,  # SK VAT
         customer_address="",
-
         # Bankové údaje
         bank_name="K&H Bank",
         iban=marso_data.supplier_iban,
         bic=marso_data.supplier_swift,
         variable_symbol=marso_data.invoice_number.replace("-", ""),  # 1192510338
         constant_symbol="",
-
-        items=items
+        items=items,
     )
 
     return invoice

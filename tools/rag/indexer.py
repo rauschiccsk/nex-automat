@@ -3,34 +3,33 @@ RAG Indexer Module
 Document indexing pipeline for RAG system
 """
 
-from typing import List, Optional, Dict, Any
-from pathlib import Path
 import asyncio
+from pathlib import Path
+from typing import Any
 
-from .config import get_config
+from .chunker import DocumentChunker
 from .database import DatabaseManager
 from .embeddings import EmbeddingModel
-from .chunker import DocumentChunker
 
 
 def detect_tenant(filepath: Path) -> str | None:
     """
     Detect tenant from file path.
-    
+
     Rules:
     - docs/knowledge/tenants/icc/... → 'icc'
-    - docs/knowledge/tenants/andros/... → 'andros'  
+    - docs/knowledge/tenants/andros/... → 'andros'
     - Other paths → None (shared/all tenants)
     """
     path_str = str(filepath).replace("\\", "/").lower()
-    
+
     if "/tenants/" in path_str:
         parts = path_str.split("/tenants/")
         if len(parts) > 1:
             tenant = parts[1].split("/")[0]
             if tenant in ["icc", "andros"]:
                 return tenant
-    
+
     return None
 
 
@@ -42,10 +41,10 @@ class DocumentIndexer:
     """
 
     def __init__(
-            self,
-            db: Optional[DatabaseManager] = None,
-            embedding_model: Optional[EmbeddingModel] = None,
-            chunker: Optional[DocumentChunker] = None
+        self,
+        db: DatabaseManager | None = None,
+        embedding_model: EmbeddingModel | None = None,
+        chunker: DocumentChunker | None = None,
     ):
         """
         Initialize document indexer
@@ -64,12 +63,8 @@ class DocumentIndexer:
             self.embedding_model.load()
 
     async def index_document(
-            self,
-            filename: str,
-            content: str,
-            metadata: Optional[Dict[str, Any]] = None,
-            show_progress: bool = True
-    ) -> Dict[str, Any]:
+        self, filename: str, content: str, metadata: dict[str, Any] | None = None, show_progress: bool = True
+    ) -> dict[str, Any]:
         """
         Index a document
 
@@ -105,33 +100,23 @@ class DocumentIndexer:
 
         # Step 3: Generate embeddings
         if show_progress:
-            print(f"  → Generating embeddings...")
+            print("  → Generating embeddings...")
 
-        embeddings = self.embedding_model.encode_batch(
-            chunks,
-            show_progress=show_progress
-        )
+        embeddings = self.embedding_model.encode_batch(chunks, show_progress=show_progress)
 
         if show_progress:
-            print(f"  ✓ Embeddings generated")
+            print("  ✓ Embeddings generated")
 
         # Step 4: Store chunks with embeddings
         if show_progress:
-            print(f"  → Storing chunks...")
+            print("  → Storing chunks...")
 
         chunk_ids = []
         for i, (chunk, embedding) in enumerate(zip(chunks, embeddings)):
-            chunk_metadata = {
-                'chunk_size': len(chunk),
-                'token_count': self.chunker.count_tokens(chunk)
-            }
+            chunk_metadata = {"chunk_size": len(chunk), "token_count": self.chunker.count_tokens(chunk)}
 
             chunk_id = await self.db.insert_chunk(
-                document_id=doc_id,
-                chunk_index=i,
-                content=chunk,
-                embedding=embedding,
-                metadata=chunk_metadata
+                document_id=doc_id, chunk_index=i, content=chunk, embedding=embedding, metadata=chunk_metadata
             )
 
             chunk_ids.append(chunk_id)
@@ -141,15 +126,15 @@ class DocumentIndexer:
 
         # Return results
         result = {
-            'document_id': doc_id,
-            'filename': filename,
-            'chunk_count': len(chunks),
-            'chunk_ids': chunk_ids,
-            'total_tokens': sum(self.chunker.count_tokens(c) for c in chunks)
+            "document_id": doc_id,
+            "filename": filename,
+            "chunk_count": len(chunks),
+            "chunk_ids": chunk_ids,
+            "total_tokens": sum(self.chunker.count_tokens(c) for c in chunks),
         }
 
         if show_progress:
-            print(f"✓ Document indexed successfully")
+            print("✓ Document indexed successfully")
             print(f"  Document ID: {doc_id}")
             print(f"  Chunks: {len(chunks)}")
             print(f"  Total tokens: {result['total_tokens']}")
@@ -157,11 +142,8 @@ class DocumentIndexer:
         return result
 
     async def index_file(
-            self,
-            filepath: Path,
-            metadata: Optional[Dict[str, Any]] = None,
-            show_progress: bool = True
-    ) -> Dict[str, Any]:
+        self, filepath: Path, metadata: dict[str, Any] | None = None, show_progress: bool = True
+    ) -> dict[str, Any]:
         """
         Index a file from disk
 
@@ -179,35 +161,28 @@ class DocumentIndexer:
             raise FileNotFoundError(f"File not found: {filepath}")
 
         # Read file content
-        with open(filepath, 'r', encoding='utf-8') as f:
+        with open(filepath, encoding="utf-8") as f:
             content = f.read()
 
         # Add filepath and tenant to metadata
         if metadata is None:
             metadata = {}
-        metadata['filepath'] = str(filepath.absolute())
-        metadata['file_size'] = filepath.stat().st_size
-        
+        metadata["filepath"] = str(filepath.absolute())
+        metadata["file_size"] = filepath.stat().st_size
+
         # Detect tenant from path
         tenant = detect_tenant(filepath)
         if tenant:
-            metadata['tenant'] = tenant
+            metadata["tenant"] = tenant
 
         # Index document
         return await self.index_document(
-            filename=filepath.name,
-            content=content,
-            metadata=metadata,
-            show_progress=show_progress
+            filename=filepath.name, content=content, metadata=metadata, show_progress=show_progress
         )
 
     async def index_directory(
-            self,
-            directory: Path,
-            pattern: str = "*.md",
-            recursive: bool = True,
-            show_progress: bool = True
-    ) -> List[Dict[str, Any]]:
+        self, directory: Path, pattern: str = "*.md", recursive: bool = True, show_progress: bool = True
+    ) -> list[dict[str, Any]]:
         """
         Index all files in a directory
 
@@ -251,19 +226,15 @@ class DocumentIndexer:
                 print()
 
         if show_progress:
-            total_chunks = sum(r['chunk_count'] for r in results)
-            total_tokens = sum(r['total_tokens'] for r in results)
+            total_chunks = sum(r["chunk_count"] for r in results)
+            total_tokens = sum(r["total_tokens"] for r in results)
             print(f"✓ Indexed {len(results)} documents")
             print(f"  Total chunks: {total_chunks}")
             print(f"  Total tokens: {total_tokens}")
 
         return results
 
-    async def reindex_document(
-            self,
-            document_id: int,
-            show_progress: bool = True
-    ) -> Dict[str, Any]:
+    async def reindex_document(self, document_id: int, show_progress: bool = True) -> dict[str, Any]:
         """
         Reindex an existing document
 
@@ -285,63 +256,50 @@ class DocumentIndexer:
             print(f"Reindexing document: {doc['filename']} (ID: {document_id})")
 
         # Delete old chunks
-        await self.db.pool.execute(
-            "DELETE FROM chunks WHERE document_id = $1",
-            document_id
-        )
+        await self.db.pool.execute("DELETE FROM chunks WHERE document_id = $1", document_id)
 
         if show_progress:
             print("  ✓ Old chunks deleted")
 
         # Chunk document
-        chunks = self.chunker.chunk_text(doc['content'])
+        chunks = self.chunker.chunk_text(doc["content"])
 
         if show_progress:
             print(f"  ✓ Document chunked ({len(chunks)} chunks)")
 
         # Generate embeddings
         if show_progress:
-            print(f"  → Generating embeddings...")
+            print("  → Generating embeddings...")
 
-        embeddings = self.embedding_model.encode_batch(
-            chunks,
-            show_progress=show_progress
-        )
+        embeddings = self.embedding_model.encode_batch(chunks, show_progress=show_progress)
 
         if show_progress:
-            print(f"  ✓ Embeddings generated")
+            print("  ✓ Embeddings generated")
 
         # Store new chunks
         if show_progress:
-            print(f"  → Storing chunks...")
+            print("  → Storing chunks...")
 
         chunk_ids = []
         for i, (chunk, embedding) in enumerate(zip(chunks, embeddings)):
-            chunk_metadata = {
-                'chunk_size': len(chunk),
-                'token_count': self.chunker.count_tokens(chunk)
-            }
+            chunk_metadata = {"chunk_size": len(chunk), "token_count": self.chunker.count_tokens(chunk)}
 
             chunk_id = await self.db.insert_chunk(
-                document_id=document_id,
-                chunk_index=i,
-                content=chunk,
-                embedding=embedding,
-                metadata=chunk_metadata
+                document_id=document_id, chunk_index=i, content=chunk, embedding=embedding, metadata=chunk_metadata
             )
 
             chunk_ids.append(chunk_id)
 
         if show_progress:
             print(f"  ✓ Chunks stored ({len(chunk_ids)} chunks)")
-            print(f"✓ Document reindexed successfully")
+            print("✓ Document reindexed successfully")
 
         return {
-            'document_id': document_id,
-            'filename': doc['filename'],
-            'chunk_count': len(chunks),
-            'chunk_ids': chunk_ids,
-            'total_tokens': sum(self.chunker.count_tokens(c) for c in chunks)
+            "document_id": document_id,
+            "filename": doc["filename"],
+            "chunk_count": len(chunks),
+            "chunk_ids": chunk_ids,
+            "total_tokens": sum(self.chunker.count_tokens(c) for c in chunks),
         }
 
     async def __aenter__(self):
@@ -355,6 +313,7 @@ class DocumentIndexer:
 
 
 if __name__ == "__main__":
+
     async def test():
         """Test document indexer"""
         print("Testing document indexer...")
@@ -373,16 +332,12 @@ if __name__ == "__main__":
 
         async with DocumentIndexer() as indexer:
             result = await indexer.index_document(
-                filename="test_document.txt",
-                content=test_content,
-                metadata={'type': 'test'},
-                show_progress=True
+                filename="test_document.txt", content=test_content, metadata={"type": "test"}, show_progress=True
             )
 
             print("\nIndexing result:")
             print(f"  Document ID: {result['document_id']}")
             print(f"  Chunks: {result['chunk_count']}")
             print(f"  Tokens: {result['total_tokens']}")
-
 
     asyncio.run(test())

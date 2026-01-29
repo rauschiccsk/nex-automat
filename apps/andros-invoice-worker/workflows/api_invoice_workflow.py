@@ -6,7 +6,7 @@ saving to PostgreSQL, and posting to the invoice processing pipeline.
 """
 
 from datetime import timedelta
-from typing import Any, Dict, List
+from typing import Any
 
 from temporalio import workflow
 from temporalio.common import RetryPolicy
@@ -58,7 +58,7 @@ class ANDROSInvoiceWorkflow:
         date_to: str,
         customer_code: str = "ANDROS",
         skip_pipeline: bool = False,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Execute ANDROS invoice processing workflow.
 
@@ -72,9 +72,7 @@ class ANDROSInvoiceWorkflow:
         Returns:
             Summary of processed invoices
         """
-        workflow.logger.info(
-            f"Starting ANDROS invoice workflow for {supplier_id}: {date_from} to {date_to}"
-        )
+        workflow.logger.info(f"Starting ANDROS invoice workflow for {supplier_id}: {date_from} to {date_to}")
 
         # Retry policy for activities
         retry_policy = RetryPolicy(
@@ -154,10 +152,12 @@ class ANDROSInvoiceWorkflow:
                 except Exception as e:
                     workflow.logger.error(f"Failed to process invoice {invoice_id}: {e}")
                     results["failed"] += 1
-                    results["errors"].append({
-                        "invoice_id": invoice_id,
-                        "error": str(e),
-                    })
+                    results["errors"].append(
+                        {
+                            "invoice_id": invoice_id,
+                            "error": str(e),
+                        }
+                    )
 
         except Exception as e:
             workflow.logger.error(f"Workflow failed: {e}")
@@ -174,10 +174,10 @@ class ANDROSInvoiceWorkflow:
         self,
         supplier_id: str,
         invoice_id: str,
-        invoice_data: Dict[str, Any],
+        invoice_data: dict[str, Any],
         customer_code: str,
         skip_pipeline: bool,
-        activity_options: Dict[str, Any],
+        activity_options: dict[str, Any],
     ) -> bool:
         """
         Process a single invoice through the pipeline.
@@ -220,9 +220,7 @@ class ANDROSInvoiceWorkflow:
             args=[unified_data, supplier_id, customer_code],
             **activity_options,
         )
-        workflow.logger.info(
-            f"Invoice {invoice_id} saved to DB: head_id={db_result['head_id']}"
-        )
+        workflow.logger.info(f"Invoice {invoice_id} saved to DB: head_id={db_result['head_id']}")
 
         # Convert to ISDOC XML
         isdoc_xml = await workflow.execute_activity(
@@ -282,7 +280,7 @@ class SingleInvoiceWorkflow:
         supplier_id: str,
         invoice_id: str,
         customer_code: str = "ANDROS",
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Process single invoice.
 

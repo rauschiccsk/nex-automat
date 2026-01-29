@@ -3,7 +3,6 @@ RAG Embeddings Module
 Handles text embedding generation using sentence-transformers
 """
 
-from typing import List, Optional, Union
 import numpy as np
 from sentence_transformers import SentenceTransformer
 
@@ -17,7 +16,7 @@ class EmbeddingModel:
     Handles model loading, caching, and batch embedding generation.
     """
 
-    def __init__(self, config: Optional[EmbeddingConfig] = None):
+    def __init__(self, config: EmbeddingConfig | None = None):
         """
         Initialize embedding model
 
@@ -28,8 +27,8 @@ class EmbeddingModel:
             config = get_config().embedding
 
         self.config = config
-        self.model: Optional[SentenceTransformer] = None
-        self._dimension: Optional[int] = None
+        self.model: SentenceTransformer | None = None
+        self._dimension: int | None = None
 
     def load(self) -> None:
         """Load the embedding model"""
@@ -42,7 +41,7 @@ class EmbeddingModel:
         self.model = SentenceTransformer(
             self.config.model_name,
             cache_folder=str(self.config.cache_dir) if self.config.cache_dir else None,
-            device=self.config.device
+            device=self.config.device,
         )
 
         # Set max sequence length
@@ -57,11 +56,7 @@ class EmbeddingModel:
         print(f"[OK] Model loaded (dimension: {self._dimension})")
 
     def encode(
-            self,
-            texts: Union[str, List[str]],
-            batch_size: Optional[int] = None,
-            show_progress: bool = False,
-            normalize: bool = True
+        self, texts: str | list[str], batch_size: int | None = None, show_progress: bool = False, normalize: bool = True
     ) -> np.ndarray:
         """
         Generate embeddings for text(s)
@@ -92,7 +87,7 @@ class EmbeddingModel:
             batch_size=batch_size,
             show_progress_bar=show_progress,
             normalize_embeddings=normalize,
-            convert_to_numpy=True
+            convert_to_numpy=True,
         )
 
         # Return single embedding if single input
@@ -101,12 +96,7 @@ class EmbeddingModel:
 
         return embeddings
 
-    def encode_batch(
-            self,
-            texts: List[str],
-            batch_size: Optional[int] = None,
-            show_progress: bool = True
-    ) -> np.ndarray:
+    def encode_batch(self, texts: list[str], batch_size: int | None = None, show_progress: bool = True) -> np.ndarray:
         """
         Generate embeddings for batch of texts
 
@@ -120,12 +110,7 @@ class EmbeddingModel:
         Returns:
             Numpy array of embeddings (N x dimension)
         """
-        return self.encode(
-            texts,
-            batch_size=batch_size,
-            show_progress=show_progress,
-            normalize=True
-        )
+        return self.encode(texts, batch_size=batch_size, show_progress=show_progress, normalize=True)
 
     @property
     def dimension(self) -> int:
@@ -149,7 +134,7 @@ class EmbeddingModel:
 
 
 # Global model instance (lazy loaded)
-_model: Optional[EmbeddingModel] = None
+_model: EmbeddingModel | None = None
 
 
 def get_model(reload: bool = False) -> EmbeddingModel:
@@ -186,7 +171,7 @@ def embed_text(text: str, normalize: bool = True) -> np.ndarray:
     return model.encode(text, normalize=normalize)
 
 
-def embed_texts(texts: List[str], batch_size: Optional[int] = None) -> np.ndarray:
+def embed_texts(texts: list[str], batch_size: int | None = None) -> np.ndarray:
     """
     Quick helper to embed multiple texts
 
@@ -211,11 +196,7 @@ if __name__ == "__main__":
     print(f"[OK] Single text embedded: shape={embedding.shape}")
 
     # Test batch
-    texts = [
-        "First test sentence.",
-        "Second test sentence.",
-        "Third test sentence."
-    ]
+    texts = ["First test sentence.", "Second test sentence.", "Third test sentence."]
     embeddings = embed_texts(texts)
     print(f"[OK] Batch embedded: shape={embeddings.shape}")
 

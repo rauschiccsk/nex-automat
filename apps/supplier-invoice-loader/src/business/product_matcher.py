@@ -3,6 +3,7 @@ ProductMatcher - Match invoice items with NEX Genesis products
 
 LIVE QUERIES - No caching, always fresh data from Btrieve
 """
+
 from dataclasses import dataclass, field
 from typing import Optional, List, Tuple, Dict
 
@@ -18,6 +19,7 @@ from nexdata.models.gscat import GSCATRecord
 @dataclass
 class MatchResult:
     """Result of product matching attempt"""
+
     product: Optional[GSCATRecord]
     confidence: float  # 0.0 - 1.0
     method: str  # 'ean', 'name', 'none'
@@ -56,18 +58,13 @@ class ProductMatcher:
             nex_data_path: Path to NEX Genesis data directory
         """
         # Create BtrieveClient with config
-        btrieve_config = {
-            'database_path': nex_data_path
-        }
+        btrieve_config = {"database_path": nex_data_path}
         self.btrieve = BtrieveClient(config_or_path=btrieve_config)
         self.gscat_repo = GSCATRepository(self.btrieve)
         self.barcode_repo = BARCODERepository(self.btrieve)
 
     def match_item(
-        self, 
-        item_data: Dict,
-        min_confidence: float = 0.6,
-        max_name_results: int = 20
+        self, item_data: Dict, min_confidence: float = 0.6, max_name_results: int = 20
     ) -> MatchResult:
         """
         Main matching logic - tries EAN first, then name matching
@@ -83,8 +80,8 @@ class ProductMatcher:
             MatchResult with matched product or None
         """
         # Get name and EAN (prefer edited over original)
-        name = item_data.get('edited_name') or item_data.get('original_name', '')
-        ean = item_data.get('edited_ean') or item_data.get('original_ean', '')
+        name = item_data.get("edited_name") or item_data.get("original_name", "")
+        ean = item_data.get("edited_ean") or item_data.get("original_ean", "")
 
         # Try EAN matching first (highest confidence)
         if ean and ean.strip():
@@ -94,20 +91,12 @@ class ProductMatcher:
 
         # Try name matching (medium confidence)
         if name and name.strip():
-            result = self._match_by_name(
-                name.strip(), 
-                min_confidence,
-                max_name_results
-            )
+            result = self._match_by_name(name.strip(), min_confidence, max_name_results)
             if result.product:
                 return result
 
         # No match found
-        return MatchResult(
-            product=None,
-            confidence=0.0,
-            method='none'
-        )
+        return MatchResult(product=None, confidence=0.0, method="none")
 
     def _match_by_ean(self, ean: str) -> MatchResult:
         """
@@ -124,20 +113,16 @@ class ProductMatcher:
             MatchResult with 0.95 confidence if found
         """
         # Normalize EAN (remove spaces, dashes)
-        ean_normalized = ean.replace(' ', '').replace('-', '').strip()
+        ean_normalized = ean.replace(" ", "").replace("-", "").strip()
 
         if not ean_normalized:
-            return MatchResult(product=None, confidence=0.0, method='none')
+            return MatchResult(product=None, confidence=0.0, method="none")
 
         # STEP 1: Search in GSCAT (primary barcode) - 95% hit rate
         product = self.gscat_repo.find_by_barcode(ean_normalized)
 
         if product and not product.discontinued:
-            return MatchResult(
-                product=product,
-                confidence=0.95,
-                method='ean'
-            )
+            return MatchResult(product=product, confidence=0.95, method="ean")
 
         # STEP 2: Search in BARCODE (additional barcodes) - 5% hit rate
         barcode_record = self.barcode_repo.find_by_barcode(ean_normalized)
@@ -147,25 +132,12 @@ class ProductMatcher:
             product = self.gscat_repo.get_by_code(barcode_record.gs_code)
 
             if product and not product.discontinued:
-                return MatchResult(
-                    product=product,
-                    confidence=0.95,
-                    method='ean'
-                )
+                return MatchResult(product=product, confidence=0.95, method="ean")
 
         # No match
-        return MatchResult(
-            product=None,
-            confidence=0.0,
-            method='none'
-        )
+        return MatchResult(product=None, confidence=0.0, method="none")
 
-    def _match_by_name(
-        self, 
-        name: str, 
-        min_confidence: float,
-        max_results: int
-    ) -> MatchResult:
+    def _match_by_name(self, name: str, min_confidence: float, max_results: int) -> MatchResult:
         """
         Match by fuzzy name matching - LIVE query
 
@@ -181,22 +153,14 @@ class ProductMatcher:
         name_normalized = self._normalize_text(name)
 
         if not name_normalized:
-            return MatchResult(
-                product=None,
-                confidence=0.0,
-                method='none'
-            )
+            return MatchResult(product=None, confidence=0.0, method="none")
 
         # LIVE query - get potential matches from GSCAT
         # Repository will return active products only
         products = self.gscat_repo.search_by_name(name_normalized, limit=max_results)
 
         if not products:
-            return MatchResult(
-                product=None,
-                confidence=0.0,
-                method='none'
-            )
+            return MatchResult(product=None, confidence=0.0, method="none")
 
         # Calculate similarity for each product
         matches = []
@@ -220,11 +184,7 @@ class ProductMatcher:
 
         # No matches found
         if not matches:
-            return MatchResult(
-                product=None,
-                confidence=0.0,
-                method='none'
-            )
+            return MatchResult(product=None, confidence=0.0, method="none")
 
         # Sort by score (highest first)
         matches.sort(key=lambda x: x[1], reverse=True)
@@ -236,10 +196,7 @@ class ProductMatcher:
         alternatives = matches[1:6]
 
         return MatchResult(
-            product=best_product,
-            confidence=best_score,
-            method='name',
-            alternatives=alternatives
+            product=best_product, confidence=best_score, method="name", alternatives=alternatives
         )
 
     def _normalize_text(self, text: str) -> str:
@@ -267,10 +224,10 @@ class ProductMatcher:
         text = text.lower()
 
         # Keep only alphanumeric and spaces
-        text = ''.join(c if c.isalnum() or c.isspace() else ' ' for c in text)
+        text = "".join(c if c.isalnum() or c.isspace() else " " for c in text)
 
         # Normalize whitespace
-        text = ' '.join(text.split())
+        text = " ".join(text.split())
 
         return text
 

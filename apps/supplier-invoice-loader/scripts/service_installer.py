@@ -17,7 +17,6 @@ Usage:
     python service_installer.py configure  # Reconfigure service
 """
 
-import os
 import sys
 import subprocess
 import platform
@@ -26,30 +25,27 @@ import json
 import shutil
 import time
 from pathlib import Path
-from typing import Optional, Dict, Tuple
+from typing import Dict, Tuple
 import logging
 
 # Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(levelname)s: %(message)s'
-)
+logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = logging.getLogger(__name__)
 
 # Service configuration
 SERVICE_CONFIG = {
-    'name': 'SupplierInvoiceLoader',
-    'display_name': 'Supplier Invoice Loader',
-    'description': 'Automated invoice processing system for supplier invoices',
-    'start_type': 'auto',  # auto, manual, disabled
-    'dependencies': [],  # Service dependencies if any
-    'recovery_actions': {
-        'first_failure': 'restart',
-        'second_failure': 'restart',
-        'subsequent_failures': 'restart',
-        'reset_period': 86400,  # 24 hours in seconds
-        'restart_delay': 60000  # 1 minute in milliseconds
-    }
+    "name": "SupplierInvoiceLoader",
+    "display_name": "Supplier Invoice Loader",
+    "description": "Automated invoice processing system for supplier invoices",
+    "start_type": "auto",  # auto, manual, disabled
+    "dependencies": [],  # Service dependencies if any
+    "recovery_actions": {
+        "first_failure": "restart",
+        "second_failure": "restart",
+        "subsequent_failures": "restart",
+        "reset_period": 86400,  # 24 hours in seconds
+        "restart_delay": 60000,  # 1 minute in milliseconds
+    },
 }
 
 
@@ -59,10 +55,10 @@ class WindowsServiceInstaller:
     def __init__(self):
         self.project_root = Path(__file__).parent.resolve()
         self.python_path = sys.executable
-        self.main_script = self.project_root / 'main.py'
-        self.venv_path = self.project_root / 'venv'
-        self.logs_dir = self.project_root / 'logs'
-        self.service_name = SERVICE_CONFIG['name']
+        self.main_script = self.project_root / "main.py"
+        self.venv_path = self.project_root / "venv"
+        self.logs_dir = self.project_root / "logs"
+        self.service_name = SERVICE_CONFIG["name"]
         self.nssm_path = None
 
         # Create logs directory
@@ -78,18 +74,18 @@ class WindowsServiceInstaller:
     def _check_nssm(self) -> bool:
         """Check if NSSM is available"""
         # Check in PATH
-        nssm_in_path = shutil.which('nssm.exe')
+        nssm_in_path = shutil.which("nssm.exe")
         if nssm_in_path:
             self.nssm_path = Path(nssm_in_path)
             logger.info(f"NSSM found in PATH: {self.nssm_path}")
             return True
 
         # Check in project tools directory
-        tools_dir = self.project_root / 'tools'
+        tools_dir = self.project_root / "tools"
         if tools_dir.exists():
             # Check for architecture-specific NSSM
-            arch = 'win64' if platform.machine().endswith('64') else 'win32'
-            nssm_exe = tools_dir / 'nssm' / arch / 'nssm.exe'
+            arch = "win64" if platform.machine().endswith("64") else "win32"
+            nssm_exe = tools_dir / "nssm" / arch / "nssm.exe"
             if nssm_exe.exists():
                 self.nssm_path = nssm_exe
                 logger.info(f"NSSM found in tools: {self.nssm_path}")
@@ -102,8 +98,10 @@ class WindowsServiceInstaller:
         """Get Windows version information"""
         try:
             import winreg
-            key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE,
-                                 r"SOFTWARE\Microsoft\Windows NT\CurrentVersion")
+
+            key = winreg.OpenKey(
+                winreg.HKEY_LOCAL_MACHINE, r"SOFTWARE\Microsoft\Windows NT\CurrentVersion"
+            )
             product_name = winreg.QueryValueEx(key, "ProductName")[0]
             build = winreg.QueryValueEx(key, "CurrentBuildNumber")[0]
             winreg.CloseKey(key)
@@ -123,18 +121,14 @@ class WindowsServiceInstaller:
         if not self.is_admin():
             logger.info("Requesting administrator privileges...")
             ctypes.windll.shell32.ShellExecuteW(
-                None, "runas", sys.executable, " ".join(sys.argv), None, 1)
+                None, "runas", sys.executable, " ".join(sys.argv), None, 1
+            )
             sys.exit(0)
 
     def run_command(self, command: list, check: bool = True) -> Tuple[int, str, str]:
         """Run a command and return result"""
         try:
-            result = subprocess.run(
-                command,
-                capture_output=True,
-                text=True,
-                check=check
-            )
+            result = subprocess.run(command, capture_output=True, text=True, check=check)
             return result.returncode, result.stdout, result.stderr
         except subprocess.CalledProcessError as e:
             return e.returncode, e.stdout, e.stderr
@@ -147,7 +141,7 @@ class WindowsServiceInstaller:
 
         # Determine Python executable
         if self.venv_path.exists():
-            python_exe = self.venv_path / 'Scripts' / 'python.exe'
+            python_exe = self.venv_path / "Scripts" / "python.exe"
             if not python_exe.exists():
                 logger.error(f"Virtual environment Python not found: {python_exe}")
                 return False
@@ -155,45 +149,39 @@ class WindowsServiceInstaller:
             python_exe = Path(self.python_path)
 
         # Install service
-        cmd = [str(self.nssm_path), 'install', self.service_name, str(python_exe)]
+        cmd = [str(self.nssm_path), "install", self.service_name, str(python_exe)]
         returncode, stdout, stderr = self.run_command(cmd)
 
-        if returncode != 0 and 'already exists' not in stderr:
+        if returncode != 0 and "already exists" not in stderr:
             logger.error(f"Failed to install service: {stderr}")
             return False
 
         # Configure service parameters
         configurations = [
-            ['set', self.service_name, 'AppParameters', str(self.main_script)],
-            ['set', self.service_name, 'AppDirectory', str(self.project_root)],
-            ['set', self.service_name, 'DisplayName', SERVICE_CONFIG['display_name']],
-            ['set', self.service_name, 'Description', SERVICE_CONFIG['description']],
-            ['set', self.service_name, 'Start', 'SERVICE_AUTO_START'],
-
+            ["set", self.service_name, "AppParameters", str(self.main_script)],
+            ["set", self.service_name, "AppDirectory", str(self.project_root)],
+            ["set", self.service_name, "DisplayName", SERVICE_CONFIG["display_name"]],
+            ["set", self.service_name, "Description", SERVICE_CONFIG["description"]],
+            ["set", self.service_name, "Start", "SERVICE_AUTO_START"],
             # Output redirection
-            ['set', self.service_name, 'AppStdout', str(self.logs_dir / 'service.log')],
-            ['set', self.service_name, 'AppStderr', str(self.logs_dir / 'service_error.log')],
-            ['set', self.service_name, 'AppStdoutCreationDisposition', '4'],
-            ['set', self.service_name, 'AppStderrCreationDisposition', '4'],
-
+            ["set", self.service_name, "AppStdout", str(self.logs_dir / "service.log")],
+            ["set", self.service_name, "AppStderr", str(self.logs_dir / "service_error.log")],
+            ["set", self.service_name, "AppStdoutCreationDisposition", "4"],
+            ["set", self.service_name, "AppStderrCreationDisposition", "4"],
             # Log rotation
-            ['set', self.service_name, 'AppRotateFiles', '1'],
-            ['set', self.service_name, 'AppRotateOnline', '1'],
-            ['set', self.service_name, 'AppRotateSeconds', '86400'],  # Daily
-            ['set', self.service_name, 'AppRotateBytes', '10485760'],  # 10MB
-
+            ["set", self.service_name, "AppRotateFiles", "1"],
+            ["set", self.service_name, "AppRotateOnline", "1"],
+            ["set", self.service_name, "AppRotateSeconds", "86400"],  # Daily
+            ["set", self.service_name, "AppRotateBytes", "10485760"],  # 10MB
             # Environment variables
-            ['set', self.service_name, 'AppEnvironmentExtra',
-             f'PYTHONPATH={self.project_root}'],
-
+            ["set", self.service_name, "AppEnvironmentExtra", f"PYTHONPATH={self.project_root}"],
             # Process priority
-            ['set', self.service_name, 'AppPriority', 'NORMAL_PRIORITY_CLASS'],
-
+            ["set", self.service_name, "AppPriority", "NORMAL_PRIORITY_CLASS"],
             # Shutdown grace period
-            ['set', self.service_name, 'AppStopMethodSkip', '0'],
-            ['set', self.service_name, 'AppStopMethodConsole', '1500'],
-            ['set', self.service_name, 'AppStopMethodWindow', '1500'],
-            ['set', self.service_name, 'AppStopMethodThreads', '1500'],
+            ["set", self.service_name, "AppStopMethodSkip", "0"],
+            ["set", self.service_name, "AppStopMethodConsole", "1500"],
+            ["set", self.service_name, "AppStopMethodWindow", "1500"],
+            ["set", self.service_name, "AppStopMethodThreads", "1500"],
         ]
 
         for config in configurations:
@@ -214,30 +202,35 @@ class WindowsServiceInstaller:
 
         # Determine Python executable
         if self.venv_path.exists():
-            python_exe = self.venv_path / 'Scripts' / 'python.exe'
+            python_exe = self.venv_path / "Scripts" / "python.exe"
         else:
             python_exe = Path(self.python_path)
 
         # Create service
         binpath = f'"{python_exe}" "{self.main_script}"'
         cmd = [
-            'sc', 'create', self.service_name,
-            'binpath=', binpath,
-            'DisplayName=', SERVICE_CONFIG['display_name'],
-            'start=', 'auto'
+            "sc",
+            "create",
+            self.service_name,
+            "binpath=",
+            binpath,
+            "DisplayName=",
+            SERVICE_CONFIG["display_name"],
+            "start=",
+            "auto",
         ]
 
         returncode, stdout, stderr = self.run_command(cmd)
 
         if returncode != 0:
-            if 'already exists' in stdout or 'already exists' in stderr:
+            if "already exists" in stdout or "already exists" in stderr:
                 logger.warning("Service already exists")
             else:
                 logger.error(f"Failed to create service: {stderr or stdout}")
                 return False
 
         # Set description
-        cmd = ['sc', 'description', self.service_name, SERVICE_CONFIG['description']]
+        cmd = ["sc", "description", self.service_name, SERVICE_CONFIG["description"]]
         self.run_command(cmd, check=False)
 
         # Set recovery actions
@@ -250,14 +243,17 @@ class WindowsServiceInstaller:
 
     def _set_recovery_actions(self):
         """Set service recovery actions"""
-        recovery = SERVICE_CONFIG['recovery_actions']
+        recovery = SERVICE_CONFIG["recovery_actions"]
 
         # Build recovery command
         cmd = [
-            'sc', 'failure', self.service_name,
-            'reset=', str(recovery['reset_period']),
-            'actions=',
-            f"restart/{recovery['restart_delay']}/restart/{recovery['restart_delay']}/restart/{recovery['restart_delay']}"
+            "sc",
+            "failure",
+            self.service_name,
+            "reset=",
+            str(recovery["reset_period"]),
+            "actions=",
+            f"restart/{recovery['restart_delay']}/restart/{recovery['restart_delay']}/restart/{recovery['restart_delay']}",
         ]
 
         returncode, stdout, stderr = self.run_command(cmd, check=False)
@@ -312,21 +308,21 @@ class WindowsServiceInstaller:
 
         # Remove using NSSM or SC
         if self.nssm_path:
-            cmd = [str(self.nssm_path), 'remove', self.service_name, 'confirm']
+            cmd = [str(self.nssm_path), "remove", self.service_name, "confirm"]
         else:
-            cmd = ['sc', 'delete', self.service_name]
+            cmd = ["sc", "delete", self.service_name]
 
         returncode, stdout, stderr = self.run_command(cmd)
 
         if returncode == 0:
             logger.info("Service removed successfully")
             # Remove service info file
-            info_file = self.project_root / 'service_info.json'
+            info_file = self.project_root / "service_info.json"
             if info_file.exists():
                 info_file.unlink()
             return True
         else:
-            if 'does not exist' in stderr or 'FAILED 1060' in stderr:
+            if "does not exist" in stderr or "FAILED 1060" in stderr:
                 logger.warning("Service does not exist")
                 return True
             logger.error(f"Failed to remove service: {stderr or stdout}")
@@ -336,13 +332,13 @@ class WindowsServiceInstaller:
         """Start the service"""
         logger.info(f"Starting service {self.service_name}...")
 
-        cmd = ['net', 'start', self.service_name]
+        cmd = ["net", "start", self.service_name]
         returncode, stdout, stderr = self.run_command(cmd, check=False)
 
         if returncode == 0:
             logger.info("Service started successfully")
             return True
-        elif 'already been started' in stdout or 'already been started' in stderr:
+        elif "already been started" in stdout or "already been started" in stderr:
             logger.info("Service is already running")
             return True
         else:
@@ -353,13 +349,13 @@ class WindowsServiceInstaller:
         """Stop the service"""
         logger.info(f"Stopping service {self.service_name}...")
 
-        cmd = ['net', 'stop', self.service_name]
+        cmd = ["net", "stop", self.service_name]
         returncode, stdout, stderr = self.run_command(cmd, check=False)
 
         if returncode == 0:
             logger.info("Service stopped successfully")
             return True
-        elif 'is not started' in stdout or 'is not started' in stderr:
+        elif "is not started" in stdout or "is not started" in stderr:
             logger.info("Service is not running")
             return True
         else:
@@ -377,29 +373,29 @@ class WindowsServiceInstaller:
 
     def get_service_status(self) -> Dict[str, str]:
         """Get service status"""
-        cmd = ['sc', 'query', self.service_name]
+        cmd = ["sc", "query", self.service_name]
         returncode, stdout, stderr = self.run_command(cmd, check=False)
 
         status = {
-            'exists': False,
-            'state': 'NOT_INSTALLED',
-            'win32_exit_code': '',
-            'service_exit_code': '',
-            'checkpoint': '',
-            'wait_hint': ''
+            "exists": False,
+            "state": "NOT_INSTALLED",
+            "win32_exit_code": "",
+            "service_exit_code": "",
+            "checkpoint": "",
+            "wait_hint": "",
         }
 
         if returncode == 0:
-            status['exists'] = True
-            for line in stdout.split('\n'):
-                if 'STATE' in line:
+            status["exists"] = True
+            for line in stdout.split("\n"):
+                if "STATE" in line:
                     parts = line.split()
                     if len(parts) >= 4:
-                        status['state'] = parts[3]
-                elif 'WIN32_EXIT_CODE' in line:
-                    status['win32_exit_code'] = line.split(':')[1].strip()
-                elif 'SERVICE_EXIT_CODE' in line:
-                    status['service_exit_code'] = line.split(':')[1].strip()
+                        status["state"] = parts[3]
+                elif "WIN32_EXIT_CODE" in line:
+                    status["win32_exit_code"] = line.split(":")[1].strip()
+                elif "SERVICE_EXIT_CODE" in line:
+                    status["service_exit_code"] = line.split(":")[1].strip()
 
         return status
 
@@ -411,21 +407,21 @@ class WindowsServiceInstaller:
         print(f"Service: {self.service_name}")
         print("=" * 50)
 
-        if status['exists']:
+        if status["exists"]:
             state_color = {
-                'RUNNING': '\033[92m',  # Green
-                'STOPPED': '\033[91m',  # Red
-                'PAUSED': '\033[93m',  # Yellow
-            }.get(status['state'], '\033[0m')
+                "RUNNING": "\033[92m",  # Green
+                "STOPPED": "\033[91m",  # Red
+                "PAUSED": "\033[93m",  # Yellow
+            }.get(status["state"], "\033[0m")
 
             print(f"Status: {state_color}{status['state']}\033[0m")
             print(f"Win32 Exit Code: {status['win32_exit_code']}")
             print(f"Service Exit Code: {status['service_exit_code']}")
 
             # Additional info from service_info.json
-            info_file = self.project_root / 'service_info.json'
+            info_file = self.project_root / "service_info.json"
             if info_file.exists():
-                with open(info_file, 'r') as f:
+                with open(info_file, "r") as f:
                     info = json.load(f)
                 print(f"\nInstalled: {info.get('installed_date', 'Unknown')}")
                 print(f"Python: {info.get('python_path', 'Unknown')}")
@@ -439,7 +435,7 @@ class WindowsServiceInstaller:
         """Interactive service configuration"""
         logger.info("Service configuration...")
 
-        if not self.get_service_status()['exists']:
+        if not self.get_service_status()["exists"]:
             logger.error("Service not installed. Please install first.")
             return
 
@@ -452,15 +448,15 @@ class WindowsServiceInstaller:
 
         choice = input("\nSelect option (1-5): ").strip()
 
-        if choice == '1':
+        if choice == "1":
             self._configure_startup_type()
-        elif choice == '2':
+        elif choice == "2":
             self._configure_recovery()
-        elif choice == '3':
+        elif choice == "3":
             print(f"\nLogs location: {self.logs_dir}")
             print(f"  Service log: {self.logs_dir / 'service.log'}")
             print(f"  Error log: {self.logs_dir / 'service_error.log'}")
-        elif choice == '4':
+        elif choice == "4":
             self._configure_environment()
 
     def _configure_startup_type(self):
@@ -472,14 +468,10 @@ class WindowsServiceInstaller:
 
         choice = input("\nSelect (1-3): ").strip()
 
-        start_type = {
-            '1': 'auto',
-            '2': 'demand',
-            '3': 'disabled'
-        }.get(choice)
+        start_type = {"1": "auto", "2": "demand", "3": "disabled"}.get(choice)
 
         if start_type:
-            cmd = ['sc', 'config', self.service_name, 'start=', start_type]
+            cmd = ["sc", "config", self.service_name, "start=", start_type]
             returncode, stdout, stderr = self.run_command(cmd)
 
             if returncode == 0:
@@ -500,9 +492,13 @@ class WindowsServiceInstaller:
             delay_ms = int(delay) * 1000
 
             cmd = [
-                'sc', 'failure', self.service_name,
-                'reset=', str(reset_seconds),
-                'actions=', f"restart/{delay_ms}/restart/{delay_ms}/restart/{delay_ms}"
+                "sc",
+                "failure",
+                self.service_name,
+                "reset=",
+                str(reset_seconds),
+                "actions=",
+                f"restart/{delay_ms}/restart/{delay_ms}/restart/{delay_ms}",
             ]
 
             returncode, stdout, stderr = self.run_command(cmd)
@@ -532,9 +528,8 @@ class WindowsServiceInstaller:
             env_vars.append(var)
 
         if env_vars:
-            env_string = '\n'.join(env_vars)
-            cmd = [str(self.nssm_path), 'set', self.service_name,
-                   'AppEnvironmentExtra', env_string]
+            env_string = "\n".join(env_vars)
+            cmd = [str(self.nssm_path), "set", self.service_name, "AppEnvironmentExtra", env_string]
             returncode, stdout, stderr = self.run_command(cmd)
 
             if returncode == 0:
@@ -545,18 +540,18 @@ class WindowsServiceInstaller:
     def _save_service_info(self):
         """Save service installation information"""
         info = {
-            'service_name': self.service_name,
-            'display_name': SERVICE_CONFIG['display_name'],
-            'installed_date': time.strftime('%Y-%m-%d %H:%M:%S'),
-            'python_path': str(self.python_path),
-            'main_script': str(self.main_script),
-            'project_root': str(self.project_root),
-            'using_nssm': bool(self.nssm_path),
-            'windows_version': self.windows_version
+            "service_name": self.service_name,
+            "display_name": SERVICE_CONFIG["display_name"],
+            "installed_date": time.strftime("%Y-%m-%d %H:%M:%S"),
+            "python_path": str(self.python_path),
+            "main_script": str(self.main_script),
+            "project_root": str(self.project_root),
+            "using_nssm": bool(self.nssm_path),
+            "windows_version": self.windows_version,
         }
 
-        info_file = self.project_root / 'service_info.json'
-        with open(info_file, 'w') as f:
+        info_file = self.project_root / "service_info.json"
+        with open(info_file, "w") as f:
             json.dump(info, f, indent=2)
 
     def download_nssm(self):
@@ -570,35 +565,35 @@ class WindowsServiceInstaller:
         nssm_url = "https://nssm.cc/release/nssm-2.24.zip"
 
         # Create tools directory
-        tools_dir = self.project_root / 'tools'
+        tools_dir = self.project_root / "tools"
         tools_dir.mkdir(exist_ok=True)
 
         # Download
-        zip_path = tools_dir / 'nssm.zip'
+        zip_path = tools_dir / "nssm.zip"
         try:
             urllib.request.urlretrieve(nssm_url, zip_path)
 
             # Extract
-            with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+            with zipfile.ZipFile(zip_path, "r") as zip_ref:
                 zip_ref.extractall(tools_dir)
 
             # Remove zip
             zip_path.unlink()
 
             # Find NSSM executable
-            arch = 'win64' if platform.machine().endswith('64') else 'win32'
-            nssm_exe = tools_dir / 'nssm-2.24' / arch / 'nssm.exe'
+            arch = "win64" if platform.machine().endswith("64") else "win32"
+            nssm_exe = tools_dir / "nssm-2.24" / arch / "nssm.exe"
 
             if nssm_exe.exists():
                 # Move to simpler path
-                nssm_dir = tools_dir / 'nssm' / arch
+                nssm_dir = tools_dir / "nssm" / arch
                 nssm_dir.mkdir(parents=True, exist_ok=True)
-                shutil.copy2(nssm_exe, nssm_dir / 'nssm.exe')
+                shutil.copy2(nssm_exe, nssm_dir / "nssm.exe")
 
                 # Clean up
-                shutil.rmtree(tools_dir / 'nssm-2.24')
+                shutil.rmtree(tools_dir / "nssm-2.24")
 
-                self.nssm_path = nssm_dir / 'nssm.exe'
+                self.nssm_path = nssm_dir / "nssm.exe"
                 logger.info(f"NSSM downloaded successfully: {self.nssm_path}")
                 return True
 
@@ -642,15 +637,15 @@ def main():
         choice = input("\nSelect option: ").strip()
 
         actions = {
-            '1': installer.install_service,
-            '2': installer.remove_service,
-            '3': installer.start_service,
-            '4': installer.stop_service,
-            '5': installer.restart_service,
-            '6': installer.configure_service,
-            '7': installer.show_status,
-            '8': installer.download_nssm if not installer.nssm_path else None,
-            '9': lambda: sys.exit(0)
+            "1": installer.install_service,
+            "2": installer.remove_service,
+            "3": installer.start_service,
+            "4": installer.stop_service,
+            "5": installer.restart_service,
+            "6": installer.configure_service,
+            "7": installer.show_status,
+            "8": installer.download_nssm if not installer.nssm_path else None,
+            "9": lambda: sys.exit(0),
         }
 
         action = actions.get(choice)
@@ -664,15 +659,15 @@ def main():
         command = sys.argv[1].lower()
 
         commands = {
-            'install': installer.install_service,
-            'remove': installer.remove_service,
-            'uninstall': installer.remove_service,
-            'start': installer.start_service,
-            'stop': installer.stop_service,
-            'restart': installer.restart_service,
-            'status': installer.show_status,
-            'configure': installer.configure_service,
-            'download-nssm': installer.download_nssm
+            "install": installer.install_service,
+            "remove": installer.remove_service,
+            "uninstall": installer.remove_service,
+            "start": installer.start_service,
+            "stop": installer.stop_service,
+            "restart": installer.restart_service,
+            "status": installer.show_status,
+            "configure": installer.configure_service,
+            "download-nssm": installer.download_nssm,
         }
 
         if command in commands:

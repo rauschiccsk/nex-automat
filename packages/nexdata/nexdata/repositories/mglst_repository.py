@@ -2,10 +2,8 @@
 Repository for MGLST (Pohyby)
 """
 
-from typing import Optional, List
-from nexdata.repositories.base_repository import BaseRepository
 from nexdata.models.mglst import MGLSTRecord
-from nexdata.btrieve.btrieve_client import BtrieveClient
+from nexdata.repositories.base_repository import BaseRepository
 
 
 class MGLSTRepository(BaseRepository[MGLSTRecord]):
@@ -14,7 +12,7 @@ class MGLSTRepository(BaseRepository[MGLSTRecord]):
     @property
     def table_name(self) -> str:
         """Get table file path"""
-        return 'mglst'
+        return "mglst"
 
     def from_bytes(self, data: bytes) -> MGLSTRecord:
         """Convert bytes to MGLSTRecord"""
@@ -23,7 +21,8 @@ class MGLSTRepository(BaseRepository[MGLSTRecord]):
     def to_bytes(self, record) -> bytes:
         """Convert record to bytes"""
         return record.to_bytes()
-    def get_by_product_code(self, product_code: str) -> List[MGLSTRecord]:
+
+    def get_by_product_code(self, product_code: str) -> list[MGLSTRecord]:
         """
         Get all movements for product code
 
@@ -41,7 +40,7 @@ class MGLSTRepository(BaseRepository[MGLSTRecord]):
 
         return results
 
-    def get_recent_movements(self, limit: int = 100) -> List[MGLSTRecord]:
+    def get_recent_movements(self, limit: int = 100) -> list[MGLSTRecord]:
         """
         Get recent movements (limited)
 

@@ -6,7 +6,6 @@ Windows Console compatible - no Unicode characters
 """
 
 import os
-import sys
 from pathlib import Path
 from typing import Optional
 
@@ -21,14 +20,14 @@ def find_env_file() -> Optional[Path]:
     current_dir = Path.cwd()
 
     # Check current directory first
-    env_path = current_dir / '.env'
+    env_path = current_dir / ".env"
     if env_path.exists():
         return env_path
 
     # Check parent directories (up to 3 levels)
     for _ in range(3):
         current_dir = current_dir.parent
-        env_path = current_dir / '.env'
+        env_path = current_dir / ".env"
         if env_path.exists():
             return env_path
 
@@ -52,17 +51,17 @@ def load_environment() -> bool:
 
         # Read .env file
         env_vars = {}
-        with open(env_path, 'r', encoding='utf-8') as f:
+        with open(env_path, "r", encoding="utf-8") as f:
             for line in f:
                 line = line.strip()
 
                 # Skip comments and empty lines
-                if not line or line.startswith('#'):
+                if not line or line.startswith("#"):
                     continue
 
                 # Parse key=value
-                if '=' in line:
-                    key, value = line.split('=', 1)
+                if "=" in line:
+                    key, value = line.split("=", 1)
                     key = key.strip()
                     value = value.strip()
 

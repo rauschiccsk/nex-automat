@@ -8,11 +8,10 @@ Definition: tsi.bdf
 Record Size: ~400 bytes
 """
 
+import struct
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Optional
 from decimal import Decimal
-import struct
 
 
 @dataclass
@@ -65,16 +64,16 @@ class TSIRecord:
 
     # Audit fields
     mod_user: str = ""  # Užívateľ poslednej zmeny
-    mod_date: Optional[datetime] = None  # Dátum poslednej zmeny
-    mod_time: Optional[datetime] = None  # Čas poslednej zmeny
+    mod_date: datetime | None = None  # Dátum poslednej zmeny
+    mod_time: datetime | None = None  # Čas poslednej zmeny
 
     # Indexes (constants)
-    INDEX_DOCLINE = 'DocNumber,LineNumber'  # Composite primary index
-    INDEX_GSCODE = 'GsCode'  # Index podľa produktu
-    INDEX_BARCODE = 'BarCode'  # Index podľa čiarového kódu
+    INDEX_DOCLINE = "DocNumber,LineNumber"  # Composite primary index
+    INDEX_GSCODE = "GsCode"  # Index podľa produktu
+    INDEX_BARCODE = "BarCode"  # Index podľa čiarového kódu
 
     @classmethod
-    def from_bytes(cls, data: bytes, encoding: str = 'cp852') -> 'TSIRecord':
+    def from_bytes(cls, data: bytes, encoding: str = "cp852") -> "TSIRecord":
         """
         Deserialize TSI record from bytes
 
@@ -115,51 +114,51 @@ class TSIRecord:
             raise ValueError(f"Invalid record size: {len(data)} bytes (expected >= 400)")
 
         # Primary key
-        doc_number = data[0:20].decode(encoding, errors='ignore').rstrip('\x00 ')
-        line_number = struct.unpack('<i', data[20:24])[0]
+        doc_number = data[0:20].decode(encoding, errors="ignore").rstrip("\x00 ")
+        line_number = struct.unpack("<i", data[20:24])[0]
 
         # Product
-        gs_code = struct.unpack('<i', data[24:28])[0]
-        gs_name = data[28:108].decode(encoding, errors='ignore').rstrip('\x00 ')
-        bar_code = data[108:123].decode(encoding, errors='ignore').rstrip('\x00 ')
+        gs_code = struct.unpack("<i", data[24:28])[0]
+        gs_name = data[28:108].decode(encoding, errors="ignore").rstrip("\x00 ")
+        bar_code = data[108:123].decode(encoding, errors="ignore").rstrip("\x00 ")
 
         # Quantity
-        quantity = Decimal(str(round(struct.unpack('<d', data[123:131])[0], 3)))
-        unit = data[131:141].decode(encoding, errors='ignore').rstrip('\x00 ')
-        unit_coef = Decimal(str(struct.unpack('<d', data[141:149])[0]))
+        quantity = Decimal(str(round(struct.unpack("<d", data[123:131])[0], 3)))
+        unit = data[131:141].decode(encoding, errors="ignore").rstrip("\x00 ")
+        unit_coef = Decimal(str(struct.unpack("<d", data[141:149])[0]))
 
         # Pricing
-        price_unit = Decimal(str(round(struct.unpack('<d', data[149:157])[0], 2)))
-        price_unit_vat = Decimal(str(round(struct.unpack('<d', data[157:165])[0], 2)))
-        vat_rate = Decimal(str(round(struct.unpack('<d', data[165:173])[0], 1)))
-        discount_percent = Decimal(str(round(struct.unpack('<d', data[173:181])[0], 2)))
+        price_unit = Decimal(str(round(struct.unpack("<d", data[149:157])[0], 2)))
+        price_unit_vat = Decimal(str(round(struct.unpack("<d", data[157:165])[0], 2)))
+        vat_rate = Decimal(str(round(struct.unpack("<d", data[165:173])[0], 1)))
+        discount_percent = Decimal(str(round(struct.unpack("<d", data[173:181])[0], 2)))
 
         # Line totals
-        line_base = Decimal(str(round(struct.unpack('<d', data[181:189])[0], 2)))
-        line_vat = Decimal(str(round(struct.unpack('<d', data[189:197])[0], 2)))
-        line_total = Decimal(str(round(struct.unpack('<d', data[197:205])[0], 2)))
+        line_base = Decimal(str(round(struct.unpack("<d", data[181:189])[0], 2)))
+        line_vat = Decimal(str(round(struct.unpack("<d", data[189:197])[0], 2)))
+        line_total = Decimal(str(round(struct.unpack("<d", data[197:205])[0], 2)))
 
         # Stock
-        warehouse_code = struct.unpack('<i', data[205:209])[0]
-        batch_number = data[209:239].decode(encoding, errors='ignore').rstrip('\x00 ')
-        serial_number = data[239:269].decode(encoding, errors='ignore').rstrip('\x00 ')
+        warehouse_code = struct.unpack("<i", data[205:209])[0]
+        batch_number = data[209:239].decode(encoding, errors="ignore").rstrip("\x00 ")
+        serial_number = data[239:269].decode(encoding, errors="ignore").rstrip("\x00 ")
 
         # Additional
-        note = data[269:369].decode(encoding, errors='ignore').rstrip('\x00 ')
-        supplier_item_code = data[369:399].decode(encoding, errors='ignore').rstrip('\x00 ')
+        note = data[269:369].decode(encoding, errors="ignore").rstrip("\x00 ")
+        supplier_item_code = data[369:399].decode(encoding, errors="ignore").rstrip("\x00 ")
 
         # Status
-        status = struct.unpack('<i', data[399:403])[0]
+        status = struct.unpack("<i", data[399:403])[0]
 
         # Audit
         mod_user = ""
         mod_date = None
         mod_time = None
         if len(data) >= 419:
-            mod_user = data[403:411].decode(encoding, errors='ignore').rstrip('\x00 ')
-            mod_date_int = struct.unpack('<i', data[411:415])[0]
+            mod_user = data[403:411].decode(encoding, errors="ignore").rstrip("\x00 ")
+            mod_date_int = struct.unpack("<i", data[411:415])[0]
             mod_date = cls._decode_delphi_date(mod_date_int) if mod_date_int > 0 else None
-            mod_time_int = struct.unpack('<i', data[415:419])[0]
+            mod_time_int = struct.unpack("<i", data[415:419])[0]
             mod_time = cls._decode_delphi_time(mod_time_int) if mod_time_int >= 0 else None
 
         return cls(
@@ -186,13 +185,14 @@ class TSIRecord:
             status=status,
             mod_user=mod_user,
             mod_date=mod_date,
-            mod_time=mod_time
+            mod_time=mod_time,
         )
 
     @staticmethod
     def _decode_delphi_date(days: int) -> datetime:
         """Convert Delphi date to Python datetime"""
         from datetime import timedelta
+
         base_date = datetime(1899, 12, 30)
         return base_date + timedelta(days=days)
 
@@ -200,6 +200,7 @@ class TSIRecord:
     def _decode_delphi_time(milliseconds: int) -> datetime:
         """Convert Delphi time to Python datetime"""
         from datetime import timedelta
+
         base = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
         return base + timedelta(milliseconds=milliseconds)
 

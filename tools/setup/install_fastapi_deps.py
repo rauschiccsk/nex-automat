@@ -4,7 +4,6 @@ Install FastAPI and uvicorn dependencies for RAG API server.
 
 import subprocess
 import sys
-from pathlib import Path
 
 
 def install_dependencies():
@@ -13,21 +12,12 @@ def install_dependencies():
     print("Installing RAG API Server Dependencies")
     print("=" * 60)
 
-    dependencies = [
-        "fastapi>=0.104.0",
-        "uvicorn[standard]>=0.24.0"
-    ]
+    dependencies = ["fastapi>=0.104.0", "uvicorn[standard]>=0.24.0"]
 
     for dep in dependencies:
         print(f"\nInstalling {dep}...")
         try:
-            subprocess.check_call([
-                sys.executable,
-                "-m",
-                "pip",
-                "install",
-                dep
-            ])
+            subprocess.check_call([sys.executable, "-m", "pip", "install", dep])
             print(f"[OK] {dep} installed")
         except subprocess.CalledProcessError as e:
             print(f"[ERROR] Failed to install {dep}: {e}")

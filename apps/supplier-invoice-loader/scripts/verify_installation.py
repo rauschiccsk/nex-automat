@@ -151,11 +151,13 @@ def test_basic_functionality():
     try:
         # Test FastAPI app creation
         from fastapi import FastAPI
+
         app = FastAPI()
         print("✅ FastAPI app creation")
 
         # Test Pydantic model
         from pydantic import BaseModel
+
         class TestModel(BaseModel):
             name: str
             value: int
@@ -164,12 +166,11 @@ def test_basic_functionality():
         print("✅ Pydantic model validation")
 
         # Test PDF libraries
-        import pdfplumber
-        import PyPDF2
         print("✅ PDF libraries accessible")
 
         # Test XML processing
         from lxml import etree
+
         root = etree.Element("root")
         print("✅ XML processing")
 

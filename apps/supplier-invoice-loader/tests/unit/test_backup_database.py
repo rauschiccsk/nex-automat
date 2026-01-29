@@ -95,6 +95,7 @@ class TestBackupCreation:
     @patch("subprocess.run")
     def test_create_backup_success(self, mock_subprocess, backup_manager, temp_backup_dir):
         """Test successful backup creation."""
+
         def create_mock_backup(*args, **kwargs):
             cmd = args[0]
             output_file = Path(cmd[cmd.index("-f") + 1])
@@ -131,6 +132,7 @@ class TestBackupCreation:
     @patch("subprocess.run")
     def test_create_weekly_backup(self, mock_subprocess, backup_manager):
         """Test weekly backup is stored in correct directory."""
+
         def create_mock_backup(*args, **kwargs):
             cmd = args[0]
             output_file = Path(cmd[cmd.index("-f") + 1])
@@ -200,6 +202,7 @@ class TestChecksumVerification:
 
         # Create actual gzip file
         import gzip
+
         with gzip.open(backup_file, "wb") as f:
             f.write(test_content)
 
@@ -268,7 +271,9 @@ class TestBackupRotation:
 
         for i in range(5):
             backup_date = now - timedelta(days=i)
-            backup_file = daily_dir / f"backup_{backup_date.strftime('%Y%m%d_%H%M%S')}_invoice_staging.sql.gz"
+            backup_file = (
+                daily_dir / f"backup_{backup_date.strftime('%Y%m%d_%H%M%S')}_invoice_staging.sql.gz"
+            )
             backup_file.touch()
 
         daily_removed, _ = backup_manager.rotate_backups()

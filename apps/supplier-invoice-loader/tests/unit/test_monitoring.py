@@ -11,6 +11,7 @@ def test_monitoring_module_imports():
     """Test that monitoring module can be imported"""
     try:
         from src.utils import monitoring
+
         assert monitoring is not None
     except ImportError as e:
         pytest.fail(f"Failed to from src.utils import monitoring: {e}")
@@ -143,17 +144,17 @@ def test_get_stats():
     stats = metrics.get_stats()
 
     assert isinstance(stats, dict)
-    assert 'uptime_seconds' in stats
-    assert 'requests' in stats
-    assert 'invoices' in stats
-    assert 'system' in stats
-    assert 'psutil_available' in stats
+    assert "uptime_seconds" in stats
+    assert "requests" in stats
+    assert "invoices" in stats
+    assert "system" in stats
+    assert "psutil_available" in stats
 
     # Check nested structure
-    assert stats['requests']['total'] == 1
-    assert stats['requests']['success'] == 1
-    assert stats['invoices']['processed'] == 2
-    assert stats['invoices']['failed'] == 1
+    assert stats["requests"]["total"] == 1
+    assert stats["requests"]["success"] == 1
+    assert stats["invoices"]["processed"] == 2
+    assert stats["invoices"]["failed"] == 1
 
 
 def test_get_system_metrics():
@@ -164,13 +165,13 @@ def test_get_system_metrics():
     system = metrics.get_system_metrics()
 
     assert isinstance(system, dict)
-    assert 'cpu_percent' in system
-    assert 'memory_percent' in system
-    assert 'disk_percent' in system
+    assert "cpu_percent" in system
+    assert "memory_percent" in system
+    assert "disk_percent" in system
 
     # Values might be None if psutil not available
-    if system['cpu_percent'] is not None:
-        assert isinstance(system['cpu_percent'], (int, float))
+    if system["cpu_percent"] is not None:
+        assert isinstance(system["cpu_percent"], (int, float))
 
 
 @pytest.mark.skip(reason="Function removed from monitoring.py")
@@ -181,12 +182,12 @@ def test_check_storage_health():
     result = monitoring.check_storage_health()
 
     assert isinstance(result, dict)
-    assert 'pdf_dir_exists' in result
-    assert 'xml_dir_exists' in result
-    assert 'storage_healthy' in result
+    assert "pdf_dir_exists" in result
+    assert "xml_dir_exists" in result
+    assert "storage_healthy" in result
 
     # Should be boolean values
-    assert isinstance(result['storage_healthy'], bool)
+    assert isinstance(result["storage_healthy"], bool)
 
 
 @pytest.mark.skip(reason="Function removed from monitoring.py")
@@ -197,9 +198,9 @@ def test_check_database_health():
     result = monitoring.check_database_health()
 
     assert isinstance(result, dict)
-    assert 'db_exists' in result
-    assert 'db_accessible' in result
-    assert 'database_healthy' in result
+    assert "db_exists" in result
+    assert "db_accessible" in result
+    assert "database_healthy" in result
 
 
 @pytest.mark.skip(reason="Function removed from monitoring.py")
@@ -210,9 +211,9 @@ def test_check_smtp_config():
     result = monitoring.check_smtp_config()
 
     assert isinstance(result, dict)
-    assert 'smtp_configured' in result
-    assert 'alert_email' in result
-    assert 'daily_summary_enabled' in result
+    assert "smtp_configured" in result
+    assert "alert_email" in result
+    assert "daily_summary_enabled" in result
 
 
 @pytest.mark.skip(reason="Function removed from monitoring.py")
@@ -226,8 +227,8 @@ def test_get_system_info():
 
     # Should have CPU and memory info
     # Values might be None if psutil fails
-    assert 'cpu_percent' in result
-    assert 'memory_percent' in result
+    assert "cpu_percent" in result
+    assert "memory_percent" in result
 
 
 @pytest.mark.skip(reason="Function removed from monitoring.py")
@@ -238,14 +239,14 @@ def test_get_health_status():
     result = monitoring.get_health_status()
 
     assert isinstance(result, dict)
-    assert 'status' in result
-    assert 'timestamp' in result
-    assert 'uptime' in result
-    assert 'storage_ok' in result
-    assert 'database_ok' in result
+    assert "status" in result
+    assert "timestamp" in result
+    assert "uptime" in result
+    assert "storage_ok" in result
+    assert "database_ok" in result
 
     # Status should be one of expected values
-    assert result['status'] in ['healthy', 'degraded', 'unhealthy']
+    assert result["status"] in ["healthy", "degraded", "unhealthy"]
 
 
 @pytest.mark.skip(reason="Function removed from monitoring.py")
@@ -256,17 +257,17 @@ def test_get_detailed_status():
     result = monitoring.get_detailed_status()
 
     assert isinstance(result, dict)
-    assert 'status' in result
-    assert 'timestamp' in result
-    assert 'customer' in result
-    assert 'uptime' in result
-    assert 'components' in result
-    assert 'statistics' in result
+    assert "status" in result
+    assert "timestamp" in result
+    assert "customer" in result
+    assert "uptime" in result
+    assert "components" in result
+    assert "statistics" in result
 
     # Check nested structure
-    assert 'storage' in result['components']
-    assert 'database' in result['components']
-    assert 'smtp' in result['components']
+    assert "storage" in result["components"]
+    assert "database" in result["components"]
+    assert "smtp" in result["components"]
 
 
 @pytest.mark.skip(reason="Function removed from monitoring.py")
@@ -279,9 +280,9 @@ def test_get_metrics_prometheus():
     assert isinstance(result, str)
 
     # Should contain Prometheus format elements
-    assert '# HELP' in result
-    assert '# TYPE' in result
-    assert 'app_uptime_seconds' in result
+    assert "# HELP" in result
+    assert "# TYPE" in result
+    assert "app_uptime_seconds" in result
 
 
 def test_global_metrics_instance():
@@ -309,7 +310,7 @@ def test_metrics_persistence():
 
     # Get stats - should still have same value
     stats = monitoring.get_metrics().get_stats()
-    assert stats['invoices']['processed'] == 1
+    assert stats["invoices"]["processed"] == 1
 
 
 @pytest.mark.skip(reason="Function removed from monitoring.py")
@@ -320,12 +321,12 @@ def test_health_status_values():
     status = monitoring.get_health_status()
 
     # If storage and DB are healthy, overall should be healthy
-    if status['storage_ok'] and status['database_ok']:
-        assert status['status'] == 'healthy'
+    if status["storage_ok"] and status["database_ok"]:
+        assert status["status"] == "healthy"
 
     # If neither is healthy, should be unhealthy
-    if not status['storage_ok'] and not status['database_ok']:
-        assert status['status'] == 'unhealthy'
+    if not status["storage_ok"] and not status["database_ok"]:
+        assert status["status"] == "unhealthy"
 
 
 @pytest.mark.skip(reason="Function removed from monitoring.py")
@@ -336,13 +337,13 @@ def test_system_info_types():
     info = monitoring.get_system_info()
 
     # CPU and memory should be numbers or None
-    if info['cpu_percent'] is not None:
-        assert isinstance(info['cpu_percent'], (int, float))
-        assert 0 <= info['cpu_percent'] <= 100
+    if info["cpu_percent"] is not None:
+        assert isinstance(info["cpu_percent"], (int, float))
+        assert 0 <= info["cpu_percent"] <= 100
 
-    if info['memory_percent'] is not None:
-        assert isinstance(info['memory_percent'], (int, float))
-        assert 0 <= info['memory_percent'] <= 100
+    if info["memory_percent"] is not None:
+        assert isinstance(info["memory_percent"], (int, float))
+        assert 0 <= info["memory_percent"] <= 100
 
 
 @pytest.mark.integration
@@ -363,7 +364,7 @@ def test_end_to_end_monitoring():
     stats = monitoring.get_metrics().get_stats()
 
     # Should reflect our activity
-    assert stats['invoices']['processed'] == 2
-    assert stats['invoices']['failed'] == 1
-    assert stats['requests']['total'] == 1
-    assert stats['requests']['success'] == 1
+    assert stats["invoices"]["processed"] == 2
+    assert stats["invoices"]["failed"] == 1
+    assert stats["requests"]["total"] == 1
+    assert stats["requests"]["success"] == 1

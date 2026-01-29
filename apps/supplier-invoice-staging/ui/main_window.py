@@ -1,13 +1,12 @@
 """Main Window - Invoice List with QuickSearch"""
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QStatusBar, QLabel, QMessageBox
-from PySide6.QtCore import Qt, Slot
-from PySide6.QtGui import QStandardItemModel, QStandardItem
-
-from shared_pyside6.ui import BaseWindow, BaseGrid
-from shared_pyside6.ui.quick_search import QuickSearchContainer, QuickSearchController
 
 from config.settings import Settings
 from nex_staging import DatabaseConnection, InvoiceRepository
+from PySide6.QtCore import Qt, Slot
+from PySide6.QtGui import QStandardItemModel
+from PySide6.QtWidgets import QLabel, QMessageBox, QStatusBar, QVBoxLayout, QWidget
+from shared_pyside6.ui import BaseGrid, BaseWindow
+from shared_pyside6.ui.quick_search import QuickSearchContainer, QuickSearchController
 from ui.invoice_items_window import InvoiceItemsWindow
 
 
@@ -54,12 +53,7 @@ class MainWindow(BaseWindow):
         self._filtered_data = []
         self._items_windows = {}
 
-        super().__init__(
-            window_name=self.WINDOW_ID,
-            default_size=(900, 600),
-            default_pos=(100, 100),
-            auto_load=True
-        )
+        super().__init__(window_name=self.WINDOW_ID, default_size=(900, 600), default_pos=(100, 100), auto_load=True)
 
         self.setWindowTitle("Supplier Invoice Staging v1.1")
         self._setup_ui()
@@ -86,7 +80,7 @@ class MainWindow(BaseWindow):
             window_name=self.WINDOW_ID,
             grid_name=self.GRID_NAME,
             settings_db_path=self.settings.get_settings_db_path(),
-            parent=self
+            parent=self,
         )
 
         self.model = QStandardItemModel()
@@ -108,7 +102,7 @@ class MainWindow(BaseWindow):
         self.search_controller = QuickSearchController(
             self.grid.table_view,
             self.search_container,
-            self.grid.header  # GreenHeaderView
+            self.grid.header,  # GreenHeaderView
         )
 
         # Load saved column or default to 1 (skip hidden ID column)
@@ -169,12 +163,7 @@ class MainWindow(BaseWindow):
                 window.raise_()
                 return
 
-        window = InvoiceItemsWindow(
-            invoice=invoice,
-            settings=self.settings,
-            repository=self.repository,
-            parent=self
-        )
+        window = InvoiceItemsWindow(invoice=invoice, settings=self.settings, repository=self.repository, parent=self)
         window.closed.connect(lambda: self._on_items_window_closed(invoice_id))
         self._items_windows[invoice_id] = window
         window.setWindowModality(Qt.WindowModality.ApplicationModal)
@@ -190,7 +179,12 @@ class MainWindow(BaseWindow):
             row_items = []
             for col_key, _, _, _ in self.COLUMNS:
                 value = row_data.get(col_key, "")
-                if isinstance(value, (int, float)) and col_key in ("xml_total_without_vat", "xml_total_vat", "xml_total_with_vat", "match_percent"):
+                if isinstance(value, (int, float)) and col_key in (
+                    "xml_total_without_vat",
+                    "xml_total_vat",
+                    "xml_total_with_vat",
+                    "match_percent",
+                ):
                     value = f"{value:.2f}"
                 item = self.grid.create_item(value, editable=False)
                 row_items.append(item)
@@ -216,12 +210,15 @@ class MainWindow(BaseWindow):
         self._load_data()
 
     def _show_about(self):
-        QMessageBox.about(self, "O programe", 
+        QMessageBox.about(
+            self,
+            "O programe",
             "Supplier Invoice Staging v1.1\n\n"
             "Aplikacia pre spravu dodavatelskych faktur\n"
             "a nastavenie obchodnej marze.\n\n"
             "Pouziva nex-staging package.\n\n"
-            "ICC Komarno 2025")
+            "ICC Komarno 2025",
+        )
 
     def keyPressEvent(self, event):
         """Handle key press - Enter opens invoice items."""

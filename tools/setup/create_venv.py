@@ -7,11 +7,11 @@ Creates Python virtual environment for development.
 Usage: python tools/setup/create_venv.py [options]
 """
 
-import sys
-import os
-import venv
-import shutil
 import argparse
+import os
+import shutil
+import sys
+import venv
 from pathlib import Path
 
 
@@ -57,7 +57,7 @@ def create_venv_dir(project_dir, venv_name="venv", force=False):
             shutil.rmtree(venv_path)
         else:
             response = input("Do you want to recreate it? (y/n): ").strip().lower()
-            if response != 'y':
+            if response != "y":
                 print("Using existing venv")
                 return venv_path
             print("Removing existing venv...")
@@ -80,7 +80,7 @@ def print_activation_instructions(venv_path):
         print("To activate the virtual environment, run:")
         print(f"  .\\{venv_name}\\Scripts\\activate.ps1")
         print("\nIf you get execution policy error:")
-        print(f"  Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process")
+        print("  Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process")
         print(f"  .\\{venv_name}\\Scripts\\activate.ps1")
         print("\nOr use cmd.exe:")
         print(f"  {venv_name}\\Scripts\\activate.bat")
@@ -90,7 +90,7 @@ def print_activation_instructions(venv_path):
 
     print("\nAfter activation, verify with:")
     print("  python --version")
-    print("  python -c \"import sys; print(sys.executable)\"")
+    print('  python -c "import sys; print(sys.executable)"')
 
 
 def get_project_root():
@@ -116,23 +116,10 @@ def get_project_root():
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="Create Python virtual environment for NEX Automat project"
-    )
-    parser.add_argument(
-        "--name",
-        default="venv",
-        help="Name of virtual environment directory (default: venv)"
-    )
-    parser.add_argument(
-        "--force",
-        action="store_true",
-        help="Force recreate if venv exists (no prompt)"
-    )
-    parser.add_argument(
-        "--dir",
-        help="Project directory (default: auto-detect)"
-    )
+    parser = argparse.ArgumentParser(description="Create Python virtual environment for NEX Automat project")
+    parser.add_argument("--name", default="venv", help="Name of virtual environment directory (default: venv)")
+    parser.add_argument("--force", action="store_true", help="Force recreate if venv exists (no prompt)")
+    parser.add_argument("--dir", help="Project directory (default: auto-detect)")
 
     args = parser.parse_args()
 
@@ -173,9 +160,9 @@ def main():
     print_header("Setup Complete")
     print(f"✓ Virtual environment '{args.name}' ready at: {venv_path}")
     print("\nNext steps:")
-    print(f"  1. Activate venv (see instructions above)")
-    print(f"  2. Install dependencies: pip install -r requirements.txt")
-    print(f"  3. Or for RAG: pip install -r requirements-rag.txt")
+    print("  1. Activate venv (see instructions above)")
+    print("  2. Install dependencies: pip install -r requirements.txt")
+    print("  3. Or for RAG: pip install -r requirements-rag.txt")
 
     return 0
 

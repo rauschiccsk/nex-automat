@@ -7,9 +7,9 @@ Usage:
     python test_rag_uae.py
 """
 
-import sys
 import asyncio
 import json
+import sys
 from pathlib import Path
 
 # Add project root to Python path
@@ -30,7 +30,7 @@ async def test_uae_rag():
         "bail conditions money laundering",
         "burden of proof money laundering",
         "federal decree law 10 2025 AML",
-        "article 107 detention extension"
+        "article 107 detention extension",
     ]
 
     print("=" * 80)
@@ -49,11 +49,7 @@ async def test_uae_rag():
 
         try:
             # Await the async search function
-            results = await search(
-                query=query,
-                tenant=tenant,
-                limit=3
-            )
+            results = await search(query=query, tenant=tenant, limit=3)
 
             if results:
                 print(f"✅ Found {len(results)} results")
@@ -76,9 +72,9 @@ async def test_uae_rag():
                             else:
                                 metadata = result.metadata
 
-                            if 'tenant' in metadata:
+                            if "tenant" in metadata:
                                 print(f"  Tenant: {metadata['tenant']}")
-                            if 'source' in metadata:
+                            if "source" in metadata:
                                 print(f"  Source: {metadata['source']}")
                         except (json.JSONDecodeError, TypeError):
                             # If parsing fails, just show raw metadata
@@ -92,6 +88,7 @@ async def test_uae_rag():
             print(f"❌ Error: {e}")
             fail_count += 1
             import traceback
+
             traceback.print_exc()
 
     # Summary
@@ -100,14 +97,14 @@ async def test_uae_rag():
     print("=" * 80)
     print(f"✅ Successful queries: {success_count}/{len(test_queries)}")
     print(f"❌ Failed queries: {fail_count}/{len(test_queries)}")
-    print(f"Success rate: {(success_count/len(test_queries)*100):.1f}%")
+    print(f"Success rate: {(success_count / len(test_queries) * 100):.1f}%")
     print("=" * 80)
 
     if fail_count > 0:
         print("\n⚠️  Some tests failed. Troubleshooting:")
         print("  1. Check PostgreSQL is running")
         print("  2. Verify UAE documents are indexed")
-        print("  3. Run: python -m tools.rag search \"test\" --tenant uae")
+        print('  3. Run: python -m tools.rag search "test" --tenant uae')
     else:
         print("\n🎉 ALL TESTS PASSED! RAG system working correctly.")
         print("\n📊 Results Analysis:")

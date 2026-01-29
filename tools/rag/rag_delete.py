@@ -37,7 +37,8 @@ class RAGDeleteManager:
 
     async def list_documents(self, limit: int = 50):
         """List all documents in RAG database."""
-        rows = await self.db.pool.fetch("""
+        rows = await self.db.pool.fetch(
+            """
             SELECT 
                 d.id,
                 d.filename,
@@ -49,7 +50,9 @@ class RAGDeleteManager:
             GROUP BY d.id
             ORDER BY d.created_at DESC
             LIMIT $1
-        """, limit)
+        """,
+            limit,
+        )
 
         print()
         print("=" * 80)
@@ -57,7 +60,7 @@ class RAGDeleteManager:
         print("=" * 80)
 
         for row in rows:
-            created = row['created_at'].strftime('%Y-%m-%d %H:%M') if row['created_at'] else 'N/A'
+            created = row["created_at"].strftime("%Y-%m-%d %H:%M") if row["created_at"] else "N/A"
             print(f"{row['id']:<6} {row['filename'][:49]:<50} {row['chunk_count']:<8} {created}")
 
         print("=" * 80)
@@ -80,12 +83,9 @@ class RAGDeleteManager:
 
         duplicates = []
         for row in rows:
-            duplicates.append({
-                'filename': row['filename'],
-                'count': row['count'],
-                'ids': row['ids'],
-                'dates': row['dates']
-            })
+            duplicates.append(
+                {"filename": row["filename"], "count": row["count"], "ids": row["ids"], "dates": row["dates"]}
+            )
 
         return duplicates
 
@@ -105,9 +105,9 @@ class RAGDeleteManager:
         for dup in duplicates:
             print(f"\n📄 {dup['filename']} ({dup['count']} copies)")
             print("-" * 60)
-            for i, (doc_id, date) in enumerate(zip(dup['ids'], dup['dates'])):
+            for i, (doc_id, date) in enumerate(zip(dup["ids"], dup["dates"])):
                 marker = "✓ KEEP (newest)" if i == 0 else "✗ DELETE"
-                date_str = date.strftime('%Y-%m-%d %H:%M') if date else 'N/A'
+                date_str = date.strftime("%Y-%m-%d %H:%M") if date else "N/A"
                 print(f"  ID {doc_id}: {date_str} - {marker}")
 
         print()
@@ -126,7 +126,7 @@ class RAGDeleteManager:
         ids_to_delete = []
         for dup in duplicates:
             # Keep first (newest), delete rest
-            ids_to_delete.extend(dup['ids'][1:])
+            ids_to_delete.extend(dup["ids"][1:])
 
         if dry_run:
             print(f"\n[DRY RUN] Would delete {len(ids_to_delete)} duplicate documents:")
@@ -147,44 +147,32 @@ class RAGDeleteManager:
     async def delete_by_id(self, document_id: int, confirm: bool = False) -> int:
         """Delete document by ID."""
         # First check if exists
-        doc = await self.db.pool.fetchrow(
-            "SELECT id, filename FROM documents WHERE id = $1",
-            document_id
-        )
+        doc = await self.db.pool.fetchrow("SELECT id, filename FROM documents WHERE id = $1", document_id)
 
         if not doc:
             print(f"\n✗ Document with ID {document_id} not found.\n")
             return 0
 
         if not confirm:
-            print(f"\nDocument found:")
+            print("\nDocument found:")
             print(f"  ID: {doc['id']}")
             print(f"  Filename: {doc['filename']}")
-            print(f"\nRun with --confirm to delete.\n")
+            print("\nRun with --confirm to delete.\n")
             return 0
 
         # Delete chunks first (foreign key)
-        chunks_deleted = await self.db.pool.execute(
-            "DELETE FROM chunks WHERE document_id = $1",
-            document_id
-        )
+        chunks_deleted = await self.db.pool.execute("DELETE FROM chunks WHERE document_id = $1", document_id)
         chunks_count = int(chunks_deleted.split()[-1])
 
         # Delete document
-        await self.db.pool.execute(
-            "DELETE FROM documents WHERE id = $1",
-            document_id
-        )
+        await self.db.pool.execute("DELETE FROM documents WHERE id = $1", document_id)
 
         print(f"✓ Deleted document ID {document_id} ({doc['filename']}) with {chunks_count} chunks")
         return 1
 
     async def delete_by_filename(self, filename: str, confirm: bool = False) -> int:
         """Delete documents by filename (partial match)."""
-        docs = await self.db.pool.fetch(
-            "SELECT id, filename FROM documents WHERE filename ILIKE $1",
-            f"%{filename}%"
-        )
+        docs = await self.db.pool.fetch("SELECT id, filename FROM documents WHERE filename ILIKE $1", f"%{filename}%")
 
         if not docs:
             print(f"\n✗ No documents matching '{filename}' found.\n")
@@ -195,13 +183,13 @@ class RAGDeleteManager:
             print(f"  ID {doc['id']}: {doc['filename']}")
 
         if not confirm:
-            print(f"\nRun with --confirm to delete these documents.\n")
+            print("\nRun with --confirm to delete these documents.\n")
             return 0
 
         deleted = 0
         for doc in docs:
-            await self.db.pool.execute("DELETE FROM chunks WHERE document_id = $1", doc['id'])
-            await self.db.pool.execute("DELETE FROM documents WHERE id = $1", doc['id'])
+            await self.db.pool.execute("DELETE FROM chunks WHERE document_id = $1", doc["id"])
+            await self.db.pool.execute("DELETE FROM documents WHERE id = $1", doc["id"])
             print(f"✓ Deleted: {doc['filename']} (ID: {doc['id']})")
             deleted += 1
 
@@ -211,8 +199,7 @@ class RAGDeleteManager:
     async def delete_by_path(self, path: str, confirm: bool = False) -> int:
         """Delete documents by metadata filepath (partial match)."""
         docs = await self.db.pool.fetch(
-            "SELECT id, filename, metadata FROM documents WHERE metadata->>'filepath' ILIKE $1",
-            f"%{path}%"
+            "SELECT id, filename, metadata FROM documents WHERE metadata->>'filepath' ILIKE $1", f"%{path}%"
         )
 
         if not docs:
@@ -221,17 +208,17 @@ class RAGDeleteManager:
 
         print(f"\nFound {len(docs)} documents with path containing '{path}':")
         for doc in docs:
-            filepath = doc['metadata'].get('filepath', 'N/A') if doc['metadata'] else 'N/A'
+            filepath = doc["metadata"].get("filepath", "N/A") if doc["metadata"] else "N/A"
             print(f"  ID {doc['id']}: {filepath}")
 
         if not confirm:
-            print(f"\nRun with --confirm to delete these documents.\n")
+            print("\nRun with --confirm to delete these documents.\n")
             return 0
 
         deleted = 0
         for doc in docs:
-            await self.db.pool.execute("DELETE FROM chunks WHERE document_id = $1", doc['id'])
-            await self.db.pool.execute("DELETE FROM documents WHERE id = $1", doc['id'])
+            await self.db.pool.execute("DELETE FROM chunks WHERE document_id = $1", doc["id"])
+            await self.db.pool.execute("DELETE FROM documents WHERE id = $1", doc["id"])
             print(f"✓ Deleted: {doc['filename']} (ID: {doc['id']})")
             deleted += 1
 
@@ -282,25 +269,18 @@ Examples:
   python tools/rag/rag_delete.py --path "deployment/old"        # Find by path
   python tools/rag/rag_delete.py --duplicates                   # Show duplicates
   python tools/rag/rag_delete.py --duplicates --confirm         # Remove duplicates
-        """
+        """,
     )
 
     group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument('--list', action='store_true',
-                       help='List all documents in RAG database')
-    group.add_argument('--id', type=int, metavar='ID',
-                       help='Delete document by ID')
-    group.add_argument('--filename', type=str, metavar='NAME',
-                       help='Delete documents by filename (partial match)')
-    group.add_argument('--path', type=str, metavar='PATH',
-                       help='Delete documents by filepath (partial match)')
-    group.add_argument('--duplicates', action='store_true',
-                       help='Find and optionally remove duplicate documents')
+    group.add_argument("--list", action="store_true", help="List all documents in RAG database")
+    group.add_argument("--id", type=int, metavar="ID", help="Delete document by ID")
+    group.add_argument("--filename", type=str, metavar="NAME", help="Delete documents by filename (partial match)")
+    group.add_argument("--path", type=str, metavar="PATH", help="Delete documents by filepath (partial match)")
+    group.add_argument("--duplicates", action="store_true", help="Find and optionally remove duplicate documents")
 
-    parser.add_argument('--confirm', action='store_true',
-                        help='Actually perform deletion (without this, dry run only)')
-    parser.add_argument('--limit', type=int, default=50,
-                        help='Limit for --list (default: 50)')
+    parser.add_argument("--confirm", action="store_true", help="Actually perform deletion (without this, dry run only)")
+    parser.add_argument("--limit", type=int, default=50, help="Limit for --list (default: 50)")
 
     args = parser.parse_args()
     asyncio.run(main_async(args))

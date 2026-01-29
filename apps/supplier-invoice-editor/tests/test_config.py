@@ -1,10 +1,11 @@
-# -*- coding: utf-8 -*-
 """
 Test configuration loading
 """
-import pytest
+
 import sys
 from pathlib import Path
+
+import pytest
 
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
@@ -19,6 +20,7 @@ def test_config_module_exists():
 def test_config_class_can_be_imported():
     """Test that Config class can be imported"""
     from utils.config import Config
+
     assert Config is not None
 
 

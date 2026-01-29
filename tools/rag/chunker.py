@@ -3,7 +3,6 @@ RAG Chunker Module
 Document chunking utilities for semantic text splitting
 """
 
-from typing import List, Optional
 import tiktoken
 
 from .config import ChunkingConfig, get_config
@@ -17,7 +16,7 @@ class DocumentChunker:
     with configurable overlap for context preservation.
     """
 
-    def __init__(self, config: Optional[ChunkingConfig] = None):
+    def __init__(self, config: ChunkingConfig | None = None):
         """
         Initialize document chunker
 
@@ -45,7 +44,7 @@ class DocumentChunker:
         """
         return len(self.tokenizer.encode(text))
 
-    def chunk_text(self, text: str) -> List[str]:
+    def chunk_text(self, text: str) -> list[str]:
         """
         Chunk text into overlapping segments
 
@@ -59,7 +58,7 @@ class DocumentChunker:
             return []
 
         # Split into paragraphs first (preserve natural boundaries)
-        paragraphs = [p.strip() for p in text.split('\n\n') if p.strip()]
+        paragraphs = [p.strip() for p in text.split("\n\n") if p.strip()]
 
         chunks = []
         current_chunk = []
@@ -72,7 +71,7 @@ class DocumentChunker:
             if para_size > self.config.chunk_size:
                 # Add current chunk if not empty
                 if current_chunk:
-                    chunks.append('\n\n'.join(current_chunk))
+                    chunks.append("\n\n".join(current_chunk))
                     current_chunk = []
                     current_size = 0
 
@@ -84,7 +83,7 @@ class DocumentChunker:
             # Check if adding paragraph would exceed chunk size
             if current_size + para_size > self.config.chunk_size and current_chunk:
                 # Save current chunk
-                chunks.append('\n\n'.join(current_chunk))
+                chunks.append("\n\n".join(current_chunk))
 
                 # Start new chunk with overlap
                 overlap_size = 0
@@ -108,13 +107,13 @@ class DocumentChunker:
 
         # Add final chunk
         if current_chunk:
-            chunk_text = '\n\n'.join(current_chunk)
+            chunk_text = "\n\n".join(current_chunk)
             if self.count_tokens(chunk_text) >= self.config.min_chunk_size:
                 chunks.append(chunk_text)
 
         return chunks
 
-    def _split_large_text(self, text: str) -> List[str]:
+    def _split_large_text(self, text: str) -> list[str]:
         """
         Split large text that exceeds chunk size
 
@@ -139,7 +138,7 @@ class DocumentChunker:
             # If single sentence exceeds chunk size, split by words
             if sentence_size > self.config.chunk_size:
                 if current_chunk:
-                    chunks.append(' '.join(current_chunk))
+                    chunks.append(" ".join(current_chunk))
                     current_chunk = []
                     current_size = 0
 
@@ -149,7 +148,7 @@ class DocumentChunker:
 
             # Check if adding sentence would exceed chunk size
             if current_size + sentence_size > self.config.chunk_size and current_chunk:
-                chunks.append(' '.join(current_chunk))
+                chunks.append(" ".join(current_chunk))
 
                 # Start new chunk with overlap (last few sentences)
                 overlap_size = 0
@@ -170,11 +169,11 @@ class DocumentChunker:
             current_size += sentence_size
 
         if current_chunk:
-            chunks.append(' '.join(current_chunk))
+            chunks.append(" ".join(current_chunk))
 
         return chunks
 
-    def _split_sentences(self, text: str) -> List[str]:
+    def _split_sentences(self, text: str) -> list[str]:
         """
         Split text into sentences
 
@@ -189,12 +188,12 @@ class DocumentChunker:
         import re
 
         # Split on sentence-ending punctuation followed by space and capital letter
-        pattern = r'(?<=[.!?])\s+(?=[A-Z])'
+        pattern = r"(?<=[.!?])\s+(?=[A-Z])"
         sentences = re.split(pattern, text)
 
         return [s.strip() for s in sentences if s.strip()]
 
-    def _split_by_words(self, text: str) -> List[str]:
+    def _split_by_words(self, text: str) -> list[str]:
         """
         Split text by words when sentences are too large
 
@@ -210,25 +209,25 @@ class DocumentChunker:
         current_size = 0
 
         for word in words:
-            word_size = self.count_tokens(word + ' ')
+            word_size = self.count_tokens(word + " ")
 
             if current_size + word_size > self.config.chunk_size and current_chunk:
-                chunks.append(' '.join(current_chunk))
+                chunks.append(" ".join(current_chunk))
 
                 # Small overlap (last few words)
                 overlap_words = current_chunk[-10:]  # Last 10 words
                 current_chunk = overlap_words
-                current_size = self.count_tokens(' '.join(overlap_words))
+                current_size = self.count_tokens(" ".join(overlap_words))
 
             current_chunk.append(word)
             current_size += word_size
 
         if current_chunk:
-            chunks.append(' '.join(current_chunk))
+            chunks.append(" ".join(current_chunk))
 
         return chunks
 
-    def chunk_with_metadata(self, text: str, base_metadata: Optional[dict] = None) -> List[dict]:
+    def chunk_with_metadata(self, text: str, base_metadata: dict | None = None) -> list[dict]:
         """
         Chunk text and return chunks with metadata
 
@@ -244,23 +243,22 @@ class DocumentChunker:
         result = []
         for i, chunk in enumerate(chunks):
             metadata = base_metadata.copy() if base_metadata else {}
-            metadata.update({
-                'chunk_index': i,
-                'total_chunks': len(chunks),
-                'token_count': self.count_tokens(chunk),
-                'char_count': len(chunk)
-            })
+            metadata.update(
+                {
+                    "chunk_index": i,
+                    "total_chunks": len(chunks),
+                    "token_count": self.count_tokens(chunk),
+                    "char_count": len(chunk),
+                }
+            )
 
-            result.append({
-                'content': chunk,
-                'metadata': metadata
-            })
+            result.append({"content": chunk, "metadata": metadata})
 
         return result
 
 
 # Global chunker instance (lazy loaded)
-_chunker: Optional[DocumentChunker] = None
+_chunker: DocumentChunker | None = None
 
 
 def get_chunker(reload: bool = False) -> DocumentChunker:
@@ -281,7 +279,7 @@ def get_chunker(reload: bool = False) -> DocumentChunker:
     return _chunker
 
 
-def chunk_text(text: str) -> List[str]:
+def chunk_text(text: str) -> list[str]:
     """
     Quick helper to chunk text
 

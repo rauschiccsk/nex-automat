@@ -149,12 +149,18 @@ class DatabaseBackup:
         """Build pg_dump command with connection parameters."""
         cmd = [
             "pg_dump",
-            "-h", self.db_config.get("host", "localhost"),
-            "-p", str(self.db_config.get("port", 5432)),
-            "-U", self.db_config.get("user", "postgres"),
-            "-d", self.db_config.get("database", "invoice_staging"),
-            "-F", "p",
-            "-f", str(output_file),
+            "-h",
+            self.db_config.get("host", "localhost"),
+            "-p",
+            str(self.db_config.get("port", 5432)),
+            "-U",
+            self.db_config.get("user", "postgres"),
+            "-d",
+            self.db_config.get("database", "invoice_staging"),
+            "-F",
+            "p",
+            "-f",
+            str(output_file),
             "--verbose",
         ]
 
@@ -169,7 +175,9 @@ class DatabaseBackup:
             self.logger.info(f"Compressing backup (level {self.compression_level})...")
 
             with open(backup_file, "rb") as f_in:
-                with gzip.open(compressed_file, "wb", compresslevel=self.compression_level) as f_out:
+                with gzip.open(
+                    compressed_file, "wb", compresslevel=self.compression_level
+                ) as f_out:
                     shutil.copyfileobj(f_in, f_out)
 
             backup_file.unlink()
@@ -217,7 +225,7 @@ class DatabaseBackup:
             current_checksum = self._generate_checksum(backup_file)
 
             if stored_checksum != current_checksum:
-                self.logger.error(f"Checksum mismatch!")
+                self.logger.error("Checksum mismatch!")
                 return False
 
             with gzip.open(backup_file, "rb") as f:
@@ -235,7 +243,9 @@ class DatabaseBackup:
         daily_removed = self._rotate_directory(self.daily_dir, self.retention_days)
         weekly_removed = self._rotate_directory(self.weekly_dir, self.retention_weeks * 7)
 
-        self.logger.info(f"Rotation complete: {daily_removed} daily, {weekly_removed} weekly removed")
+        self.logger.info(
+            f"Rotation complete: {daily_removed} daily, {weekly_removed} weekly removed"
+        )
         return daily_removed, weekly_removed
 
     def _rotate_directory(self, directory: Path, max_age_days: int) -> int:

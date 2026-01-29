@@ -2,10 +2,9 @@
 Repository for TSH (Dodacie listy - Header)
 """
 
-from typing import Optional, List
-from nexdata.repositories.base_repository import BaseRepository
-from nexdata.models.tsh import TSHRecord
 from nexdata.btrieve.btrieve_client import BtrieveClient
+from nexdata.models.tsh import TSHRecord
+from nexdata.repositories.base_repository import BaseRepository
 
 
 class TSHRepository(BaseRepository[TSHRecord]):
@@ -25,7 +24,7 @@ class TSHRepository(BaseRepository[TSHRecord]):
     @property
     def table_name(self) -> str:
         """Get table file path"""
-        return f'tsh-{self.book_id}'
+        return f"tsh-{self.book_id}"
 
     def from_bytes(self, data: bytes) -> TSHRecord:
         """Convert bytes to TSHRecord"""
@@ -34,7 +33,8 @@ class TSHRepository(BaseRepository[TSHRecord]):
     def to_bytes(self, record) -> bytes:
         """Convert record to bytes"""
         return record.to_bytes()
-    def get_by_document_number(self, doc_number: str) -> Optional[TSHRecord]:
+
+    def get_by_document_number(self, doc_number: str) -> TSHRecord | None:
         """
         Get TSH record by document number
 
@@ -50,7 +50,7 @@ class TSHRepository(BaseRepository[TSHRecord]):
                 return record
         return None
 
-    def get_recent_documents(self, limit: int = 100) -> List[TSHRecord]:
+    def get_recent_documents(self, limit: int = 100) -> list[TSHRecord]:
         """
         Get recent documents (limited)
 

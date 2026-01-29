@@ -1,13 +1,17 @@
 #!/usr/bin/env python3
 """Config Backup CLI - Minimal Version"""
+
 import sys
 from pathlib import Path
+
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 from backup.config_backup import ConfigBackup
 
+
 def main():
     import argparse
+
     parser = argparse.ArgumentParser()
     parser.add_argument("--config-files", nargs="+", required=True)
     parser.add_argument("--backup-dir", default="backups")
@@ -20,6 +24,7 @@ def main():
         print(f"✓ Backup created: {result}")
     else:
         print("✗ Backup failed")
+
 
 if __name__ == "__main__":
     main()

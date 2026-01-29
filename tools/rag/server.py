@@ -3,12 +3,8 @@ RAG API Server startup script.
 Starts FastAPI server for RAG system endpoints.
 """
 
-import sys
 import subprocess
-import signal
-import time
-from pathlib import Path
-from typing import Optional
+import sys
 
 
 class RAGServer:
@@ -17,7 +13,7 @@ class RAGServer:
     def __init__(self, host: str = "127.0.0.1", port: int = 8765):
         self.host = host
         self.port = port
-        self.process: Optional[subprocess.Popen] = None
+        self.process: subprocess.Popen | None = None
 
     def start(self, reload: bool = False, log_level: str = "info"):
         """
@@ -41,9 +37,12 @@ class RAGServer:
         cmd = [
             "uvicorn",
             "tools.rag.server_app:app",
-            "--host", self.host,
-            "--port", str(self.port),
-            "--log-level", log_level
+            "--host",
+            self.host,
+            "--port",
+            str(self.port),
+            "--log-level",
+            log_level,
         ]
 
         if reload:
@@ -57,18 +56,18 @@ class RAGServer:
                 stderr=subprocess.STDOUT,  # Merge stderr into stdout
                 text=True,
                 bufsize=1,
-                universal_newlines=True
+                universal_newlines=True,
             )
 
             print("\n[OK] Server starting...")
             print(f"\nAccess the API at: http://{self.host}:{self.port}")
             print(f"API docs: http://{self.host}:{self.port}/docs")
-            print(f"\nPress Ctrl+C to stop the server\n")
+            print("\nPress Ctrl+C to stop the server\n")
             print("=" * 60)
 
             # Stream output
             for line in self.process.stdout:
-                print(line, end='')
+                print(line, end="")
 
         except KeyboardInterrupt:
             print("\n\n[!] Received shutdown signal")
@@ -106,7 +105,7 @@ class RAGServer:
             print(f"[OK] Server is running on http://{self.host}:{self.port}")
             return True
         else:
-            print(f"[!] Server is not running")
+            print("[!] Server is not running")
             return False
 
 
@@ -130,39 +129,22 @@ Examples:
   
   # Check server status
   python -m tools.rag.server status
-        """
+        """,
     )
 
-    parser.add_argument(
-        "command",
-        choices=["start", "status"],
-        help="Server command"
-    )
+    parser.add_argument("command", choices=["start", "status"], help="Server command")
 
-    parser.add_argument(
-        "--host",
-        default="127.0.0.1",
-        help="Server host (default: 127.0.0.1)"
-    )
+    parser.add_argument("--host", default="127.0.0.1", help="Server host (default: 127.0.0.1)")
 
-    parser.add_argument(
-        "--port",
-        type=int,
-        default=8765,
-        help="Server port (default: 8765)"
-    )
+    parser.add_argument("--port", type=int, default=8765, help="Server port (default: 8765)")
 
-    parser.add_argument(
-        "--reload",
-        action="store_true",
-        help="Enable auto-reload on code changes (development mode)"
-    )
+    parser.add_argument("--reload", action="store_true", help="Enable auto-reload on code changes (development mode)")
 
     parser.add_argument(
         "--log-level",
         choices=["debug", "info", "warning", "error"],
         default="info",
-        help="Logging level (default: info)"
+        help="Logging level (default: info)",
     )
 
     args = parser.parse_args()

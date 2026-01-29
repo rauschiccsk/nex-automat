@@ -1,15 +1,13 @@
-# -*- coding: utf-8 -*-
 """
 File Mover Service - Archive operations
 Moves invoice files from STAGING to ARCHIVE after NEX Genesis import.
 """
 
+import os
 import shutil
 from pathlib import Path
-from typing import Optional, Tuple
-import pg8000.dbapi
-import os
 
+import pg8000.dbapi
 
 # Archive paths
 STAGING_DIR = Path(r"C:\NEX\IMPORT\SUPPLIER-STAGING")
@@ -20,19 +18,17 @@ ARCHIVE_XML_DIR = Path(r"C:\NEX\YEARACT\ARCHIV\SUPPLIER-INVOICES\XML")
 def get_db_connection():
     """Get PostgreSQL connection."""
     return pg8000.dbapi.connect(
-        host='localhost',
+        host="localhost",
         port=5432,
-        database='supplier_invoice_staging',
-        user='postgres',
-        password=os.getenv('POSTGRES_PASSWORD', '')
+        database="supplier_invoice_staging",
+        user="postgres",
+        password=os.getenv("POSTGRES_PASSWORD", ""),
     )
 
 
 def move_files_to_archive(
-    invoice_id: int,
-    nex_invoice_doc_id: str,
-    nex_delivery_doc_id: Optional[str] = None
-) -> Tuple[Optional[Path], Optional[Path]]:
+    invoice_id: int, nex_invoice_doc_id: str, nex_delivery_doc_id: str | None = None
+) -> tuple[Path | None, Path | None]:
     """
     Move PDF and XML files from STAGING to ARCHIVE directory.
     Rename files to final format: {DF_number}-{DD_number}.pdf|xml
@@ -52,11 +48,14 @@ def move_files_to_archive(
         cursor = conn.cursor()
 
         # Get current file paths and basename
-        cursor.execute("""
+        cursor.execute(
+            """
             SELECT file_basename, pdf_file_path, xml_file_path, file_status
             FROM supplier_invoice_heads
             WHERE id = %s
-        """, (invoice_id,))
+        """,
+            (invoice_id,),
+        )
 
         row = cursor.fetchone()
         if not row:
@@ -65,11 +64,11 @@ def move_files_to_archive(
 
         file_basename, pdf_path, xml_path, current_status = row
 
-        if current_status == 'archived':
+        if current_status == "archived":
             print(f"[SKIP] Invoice {invoice_id} already archived")
             return (None, None)
 
-        if current_status != 'staged':
+        if current_status != "staged":
             print(f"[WARN] Invoice {invoice_id} status is '{current_status}', expected 'staged'")
 
         # Build archive filename
@@ -104,7 +103,8 @@ def move_files_to_archive(
                 print(f"[WARN] XML not found: {src_xml}")
 
         # Update database
-        cursor.execute("""
+        cursor.execute(
+            """
             UPDATE supplier_invoice_heads 
             SET file_status = 'archived',
                 pdf_file_path = %s,
@@ -113,13 +113,15 @@ def move_files_to_archive(
                 nex_delivery_doc_id = %s,
                 updated_at = NOW()
             WHERE id = %s
-        """, (
-            str(archived_pdf_path) if archived_pdf_path else None,
-            str(archived_xml_path) if archived_xml_path else None,
-            nex_invoice_doc_id,
-            nex_delivery_doc_id,
-            invoice_id
-        ))
+        """,
+            (
+                str(archived_pdf_path) if archived_pdf_path else None,
+                str(archived_xml_path) if archived_xml_path else None,
+                nex_invoice_doc_id,
+                nex_delivery_doc_id,
+                invoice_id,
+            ),
+        )
 
         conn.commit()
         print(f"[OK] Invoice {invoice_id} archived: {archive_basename}")

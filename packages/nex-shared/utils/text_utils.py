@@ -21,10 +21,10 @@ def clean_string(value):
         return value
 
     # Remove null bytes
-    cleaned = value.replace('\x00', '')
+    cleaned = value.replace("\x00", "")
 
     # Remove other control characters (except newline, tab)
-    cleaned = ''.join(char for char in cleaned if ord(char) >= 32 or char in '\n\t')
+    cleaned = "".join(char for char in cleaned if ord(char) >= 32 or char in "\n\t")
 
     # Strip excess whitespace
     cleaned = cleaned.strip()

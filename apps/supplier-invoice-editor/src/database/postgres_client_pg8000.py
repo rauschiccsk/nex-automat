@@ -3,9 +3,8 @@ PostgreSQL Client - Database connection using pg8000 (Pure Python)
 """
 
 import logging
-from typing import List, Dict, Optional, Any
 from contextlib import contextmanager
-from decimal import Decimal
+from typing import Dict, List, Optional
 
 try:
     import pg8000
@@ -31,10 +30,7 @@ class PostgresClient:
         self.logger = logging.getLogger(__name__)
 
         if not PG8000_AVAILABLE:
-            raise ImportError(
-                "pg8000 not installed. "
-                "Install with: pip install pg8000"
-            )
+            raise ImportError("pg8000 not installed. Install with: pip install pg8000")
 
         # Get connection parameters
         self.conn_params = self._get_connection_params()
@@ -45,20 +41,21 @@ class PostgresClient:
     def _get_connection_params(self) -> dict:
         """Get connection parameters from config"""
         # Try to get config from 'database.postgres' or 'postgresql'
-        db_config = self.config.get('database', {}).get('postgres', {})
+        db_config = self.config.get("database", {}).get("postgres", {})
         if not db_config:
-            db_config = self.config.get('postgresql', {})
+            db_config = self.config.get("postgresql", {})
 
         params = {
-            'host': db_config.get('host', 'localhost'),
-            'port': db_config.get('port', 5432),
-            'database': db_config.get('database', 'supplier_invoice_editor'),
-            'user': db_config.get('user', 'postgres'),
-            'password': db_config.get('password', '')
+            "host": db_config.get("host", "localhost"),
+            "port": db_config.get("port", 5432),
+            "database": db_config.get("database", "supplier_invoice_editor"),
+            "user": db_config.get("user", "postgres"),
+            "password": db_config.get("password", ""),
         }
 
         self.logger.info(
-            f"Connection params: host={params['host']} port={params['port']} database={params['database']} user={params['user']}")
+            f"Connection params: host={params['host']} port={params['port']} database={params['database']} user={params['user']}"
+        )
 
         return params
 
@@ -80,7 +77,9 @@ class PostgresClient:
             if conn:
                 conn.close()
 
-    def execute_query(self, query: str, params: tuple = None, fetch: bool = True) -> Optional[List[Dict]]:
+    def execute_query(
+        self, query: str, params: tuple = None, fetch: bool = True
+    ) -> list[dict] | None:
         """
         Execute SQL query
 
@@ -112,11 +111,11 @@ class PostgresClient:
                         self.logger.debug("Query executed, no results")
                         return None
 
-        except Exception as e:
+        except Exception:
             self.logger.exception(f"Query execution failed: {query}")
             raise
 
-    def execute_many(self, query: str, params_list: List[tuple]) -> int:
+    def execute_many(self, query: str, params_list: list[tuple]) -> int:
         """
         Execute query with multiple parameter sets
 
@@ -136,7 +135,7 @@ class PostgresClient:
                     self.logger.info(f"Batch execution affected {affected} rows")
                     return affected
 
-        except Exception as e:
+        except Exception:
             self.logger.exception("Batch execution failed")
             raise
 

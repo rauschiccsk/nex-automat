@@ -1,7 +1,9 @@
 """Configuration"""
+
 import os
-from pathlib import Path
 from dataclasses import dataclass, field
+from pathlib import Path
+
 import yaml
 
 
@@ -28,7 +30,7 @@ class Settings:
 
     def _load_from_yaml(self):
         if self.config_file.exists():
-            with open(self.config_file, "r", encoding="utf-8") as f:
+            with open(self.config_file, encoding="utf-8") as f:
                 config = yaml.safe_load(f) or {}
             db = config.get("database", {})
             self.database.host = db.get("host", self.database.host)

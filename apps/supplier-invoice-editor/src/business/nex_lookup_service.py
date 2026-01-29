@@ -4,16 +4,17 @@ NEX Genesis Lookup Service
 Vyhladavanie produktov v NEX Genesis GSCAT.BTR podla EAN
 """
 
-from pathlib import Path
-from typing import Optional, Tuple, Dict
 import sys
+from pathlib import Path
+from typing import Dict, Optional
 
 # Add src to path for standalone usage
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from btrieve.btrieve_client import BtrieveClient
-from ..models.gscat import GSCATRecord
+
 from ..models.barcode import BarcodeRecord
+from ..models.gscat import GSCATRecord
 
 
 class NexLookupService:
@@ -32,7 +33,7 @@ class NexLookupService:
         if not self.gscat_path.exists():
             raise FileNotFoundError(f"GSCAT.BTR not found: {self.gscat_path}")
 
-    def lookup_by_ean(self, ean: str) -> Optional[Dict]:
+    def lookup_by_ean(self, ean: str) -> dict | None:
         """
         Vyhlada produkt podla EAN
 
@@ -60,14 +61,14 @@ class NexLookupService:
         gscat_record = self._find_in_gscat(ean)
         if gscat_record:
             return {
-                'plu': gscat_record.gs_code,
-                'name': gscat_record.gs_name,
-                'category': gscat_record.mglst_code,
-                'price_buy': float(gscat_record.price_buy),
-                'price_sell': float(gscat_record.price_sell),
-                'unit': gscat_record.unit,
-                'in_nex': True,
-                'source': 'GSCAT'
+                "plu": gscat_record.gs_code,
+                "name": gscat_record.gs_name,
+                "category": gscat_record.mglst_code,
+                "price_buy": float(gscat_record.price_buy),
+                "price_sell": float(gscat_record.price_sell),
+                "unit": gscat_record.unit,
+                "in_nex": True,
+                "source": "GSCAT",
             }
 
         # 2. Hladaj v BARCODE.BTR
@@ -77,19 +78,19 @@ class NexLookupService:
             gscat_record = self._find_in_gscat_by_plu(barcode_record.gs_code)
             if gscat_record:
                 return {
-                    'plu': gscat_record.gs_code,
-                    'name': gscat_record.gs_name,
-                    'category': gscat_record.mglst_code,
-                    'price_buy': float(gscat_record.price_buy),
-                    'price_sell': float(gscat_record.price_sell),
-                    'unit': gscat_record.unit,
-                    'in_nex': True,
-                    'source': 'BARCODE'
+                    "plu": gscat_record.gs_code,
+                    "name": gscat_record.gs_name,
+                    "category": gscat_record.mglst_code,
+                    "price_buy": float(gscat_record.price_buy),
+                    "price_sell": float(gscat_record.price_sell),
+                    "unit": gscat_record.unit,
+                    "in_nex": True,
+                    "source": "BARCODE",
                 }
 
         return None
 
-    def _find_in_gscat(self, ean: str) -> Optional[GSCATRecord]:
+    def _find_in_gscat(self, ean: str) -> GSCATRecord | None:
         """Najde produkt v GSCAT.BTR podla BarCode"""
         client = BtrieveClient()
 
@@ -106,8 +107,12 @@ class NexLookupService:
                         if len(data) >= 72:
                             # Read BarCode: [00 00][length][data...]
                             barcode_length = data[59] if len(data) > 59 else 0
-                            barcode_data = data[60:60+barcode_length] if len(data) >= 60+barcode_length else b''
-                            barcode_str = barcode_data.decode('cp852', errors='ignore')
+                            barcode_data = (
+                                data[60 : 60 + barcode_length]
+                                if len(data) >= 60 + barcode_length
+                                else b""
+                            )
+                            barcode_str = barcode_data.decode("cp852", errors="ignore")
 
                             if barcode_str.strip() == ean.strip():
                                 return GSCATRecord.from_bytes(data)
@@ -122,7 +127,7 @@ class NexLookupService:
         except:
             return None
 
-    def _find_in_gscat_by_plu(self, plu: int) -> Optional[GSCATRecord]:
+    def _find_in_gscat_by_plu(self, plu: int) -> GSCATRecord | None:
         """Najde produkt v GSCAT.BTR podla PLU"""
         client = BtrieveClient()
 
@@ -150,7 +155,7 @@ class NexLookupService:
         except:
             return None
 
-    def _find_in_barcode(self, ean: str) -> Optional[BarcodeRecord]:
+    def _find_in_barcode(self, ean: str) -> BarcodeRecord | None:
         """Najde zaznam v BARCODE.BTR"""
         if not self.barcode_path.exists():
             return None

@@ -22,6 +22,7 @@ with workflow.unsafe.imports_passed_through():
 @dataclass
 class WorkflowResult:
     """Result of invoice processing workflow."""
+
     emails_processed: int
     invoices_uploaded: int
     errors: list[str]
@@ -63,11 +64,7 @@ class InvoiceProcessingWorkflow:
 
         if not emails:
             workflow.logger.info("No unread emails with PDF attachments")
-            return WorkflowResult(
-                emails_processed=0,
-                invoices_uploaded=0,
-                errors=[]
-            )
+            return WorkflowResult(emails_processed=0, invoices_uploaded=0, errors=[])
 
         workflow.logger.info(f"Processing {len(emails)} emails...")
 
@@ -108,13 +105,6 @@ class InvoiceProcessingWorkflow:
                 retry_policy=retry_policy,
             )
 
-        workflow.logger.info(
-            f"Workflow complete: {invoices_uploaded} invoices uploaded, "
-            f"{len(errors)} errors"
-        )
+        workflow.logger.info(f"Workflow complete: {invoices_uploaded} invoices uploaded, {len(errors)} errors")
 
-        return WorkflowResult(
-            emails_processed=len(emails),
-            invoices_uploaded=invoices_uploaded,
-            errors=errors
-        )
+        return WorkflowResult(emails_processed=len(emails), invoices_uploaded=invoices_uploaded, errors=errors)

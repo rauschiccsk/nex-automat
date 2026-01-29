@@ -4,7 +4,6 @@ Base Extractor - Abstract class for all invoice extractors
 """
 
 from abc import ABC, abstractmethod
-from typing import Optional
 from pathlib import Path
 import logging
 
@@ -42,7 +41,7 @@ class BaseExtractor(ABC):
             logger.error(f"PDF file not found: {pdf_path}")
             return False
 
-        if not path.suffix.lower() == '.pdf':
+        if not path.suffix.lower() == ".pdf":
             logger.error(f"File is not PDF: {pdf_path}")
             return False
 

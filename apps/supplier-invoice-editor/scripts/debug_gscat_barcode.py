@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 r"""
 Debug script - zobrazí prvých 10 produktov z GSCAT s ich BarCode poľom
 """
@@ -8,7 +7,7 @@ import sys
 from pathlib import Path
 
 # Add src to path
-sys.path.insert(0, str(Path(__file__).parent.parent / 'src'))
+sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 from btrieve.btrieve_client import BtrieveClient
 from models.gscat import GSCATRecord
@@ -55,17 +54,21 @@ def debug_gscat_barcodes(nex_path: str = r"C:\NEX\YEARACT", limit: int = 10):
 
                     # Extract BarCode directly from raw data
                     # Structure: [00 00][length][data...] at offset 57
-                    barcode_raw = data[57:72] if len(data) >= 72 else b''
+                    barcode_raw = data[57:72] if len(data) >= 72 else b""
                     barcode_length = data[59] if len(data) > 59 else 0
-                    barcode_data = data[60:60 + barcode_length] if len(data) >= 60 + barcode_length else b''
+                    barcode_data = (
+                        data[60 : 60 + barcode_length] if len(data) >= 60 + barcode_length else b""
+                    )
 
                     # Decode
-                    barcode_str = barcode_data.decode('cp852', errors='ignore')
+                    barcode_str = barcode_data.decode("cp852", errors="ignore")
 
                     # Show hex dump of BarCode bytes
-                    barcode_hex = ' '.join(f'{b:02x}' for b in barcode_raw[:15])
+                    barcode_hex = " ".join(f"{b:02x}" for b in barcode_raw[:15])
 
-                    print(f"{count:<4} {record.gs_code:<8} {barcode_str:<18} {record.gs_name[:40]:<40} {len(data)} B")
+                    print(
+                        f"{count:<4} {record.gs_code:<8} {barcode_str:<18} {record.gs_name[:40]:<40} {len(data)} B"
+                    )
 
                     # Ak BarCode nie je prázdny, zobraz detaily
                     if barcode_str.strip():
@@ -73,7 +76,7 @@ def debug_gscat_barcodes(nex_path: str = r"C:\NEX\YEARACT", limit: int = 10):
                         print(f"     ├─ BarCode:    '{barcode_str}'")
                         print(f"     └─ HEX:        {barcode_hex}")
                     else:
-                        print(f"     └─ (prázdne BarCode)")
+                        print("     └─ (prázdne BarCode)")
 
                 except Exception as e:
                     print(f"{count:<4} ERROR: {e}")
@@ -90,6 +93,7 @@ def debug_gscat_barcodes(nex_path: str = r"C:\NEX\YEARACT", limit: int = 10):
     except Exception as e:
         print(f"ERROR: {e}")
         import traceback
+
         traceback.print_exc()
 
 
@@ -107,7 +111,7 @@ def search_by_ean(ean: str, nex_path: str = r"C:\NEX\YEARACT"):
     try:
         status, pos_block = client.open_file(str(gscat_path))
         if status != BtrieveClient.STATUS_SUCCESS:
-            print(f"ERROR Failed to open GSCAT.BTR")
+            print("ERROR Failed to open GSCAT.BTR")
             return
 
         try:
@@ -122,15 +126,19 @@ def search_by_ean(ean: str, nex_path: str = r"C:\NEX\YEARACT"):
                     if len(data) >= 72:
                         # Read length and data
                         barcode_length = data[59] if len(data) > 59 else 0
-                        barcode_data = data[60:60 + barcode_length] if len(data) >= 60 + barcode_length else b''
-                        barcode_str = barcode_data.decode('cp852', errors='ignore')
+                        barcode_data = (
+                            data[60 : 60 + barcode_length]
+                            if len(data) >= 60 + barcode_length
+                            else b""
+                        )
+                        barcode_str = barcode_data.decode("cp852", errors="ignore")
 
                         # Porovnaj
                         if barcode_str.strip() == ean.strip():
                             found = True
                             record = GSCATRecord.from_bytes(data)
 
-                            print(f"\nOK NÁJDENÉ!")
+                            print("\nOK NÁJDENÉ!")
                             print(f"  PLU:      {record.gs_code}")
                             print(f"  Názov:    {record.gs_name}")
                             print(f"  BarCode:  '{barcode_str}'")
@@ -138,7 +146,7 @@ def search_by_ean(ean: str, nex_path: str = r"C:\NEX\YEARACT"):
                             print(f"  Záznam #: {count}")
                             break
 
-                except Exception as e:
+                except Exception:
                     pass
 
                 status, data = client.get_next(pos_block)
@@ -166,5 +174,5 @@ def main():
         debug_gscat_barcodes(limit=20)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

@@ -1,15 +1,17 @@
 """
 Unit tests for ProductMatcher
 """
-import pytest
-from unittest.mock import Mock, MagicMock, patch
-from decimal import Decimal
 
 import sys
+from decimal import Decimal
 from pathlib import Path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'apps' / 'supplier-invoice-loader' / 'src'))
+from unittest.mock import Mock, patch
 
-from business.product_matcher import ProductMatcher, MatchResult
+import pytest
+
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "apps" / "supplier-invoice-loader" / "src"))
+
+from business.product_matcher import MatchResult, ProductMatcher
 from nexdata.models.gscat import GSCATRecord
 
 
@@ -26,7 +28,7 @@ def mock_gscat_records():
             price_sell=Decimal("20.00"),
             vat_rate=Decimal("20.0"),
             active=True,
-            discontinued=False
+            discontinued=False,
         ),
         GSCATRecord(
             gs_code=2,
@@ -37,7 +39,7 @@ def mock_gscat_records():
             price_sell=Decimal("18.00"),
             vat_rate=Decimal("20.0"),
             active=True,
-            discontinued=False
+            discontinued=False,
         ),
         GSCATRecord(
             gs_code=3,
@@ -48,7 +50,7 @@ def mock_gscat_records():
             price_sell=Decimal("18.00"),
             vat_rate=Decimal("20.0"),
             active=True,
-            discontinued=True  # Discontinued
+            discontinued=True,  # Discontinued
         ),
     ]
 
@@ -67,9 +69,10 @@ def mock_barcode_records():
 @pytest.fixture
 def matcher(mock_gscat_records, mock_barcode_records):
     """Create ProductMatcher with mocked repositories"""
-    with patch('business.product_matcher.GSCATRepository') as mock_gscat_repo, \
-         patch('business.product_matcher.BARCODERepository') as mock_barcode_repo:
-
+    with (
+        patch("business.product_matcher.GSCATRepository") as mock_gscat_repo,
+        patch("business.product_matcher.BARCODERepository") as mock_barcode_repo,
+    ):
         # Setup mock repositories
         mock_gscat_repo.return_value.get_all.return_value = mock_gscat_records
         mock_barcode_repo.return_value.get_all.return_value = mock_barcode_records
@@ -99,10 +102,10 @@ class TestMatcherInitialization:
         """Should return correct statistics"""
         stats = matcher.get_stats()
 
-        assert stats['total_products'] == 3
-        assert stats['active_products'] == 2  # 2 active, 1 discontinued
-        assert stats['discontinued_products'] == 1
-        assert stats['total_barcodes'] == 2
+        assert stats["total_products"] == 3
+        assert stats["active_products"] == 2  # 2 active, 1 discontinued
+        assert stats["discontinued_products"] == 1
+        assert stats["total_barcodes"] == 2
 
 
 class TestEANMatching:
@@ -110,24 +113,18 @@ class TestEANMatching:
 
     def test_match_by_exact_ean(self, matcher):
         """Should match by exact EAN"""
-        item_data = {
-            'original_name': 'Some product',
-            'original_ean': '1234567890123'
-        }
+        item_data = {"original_name": "Some product", "original_ean": "1234567890123"}
 
         result = matcher.match_item(item_data)
 
         assert result.is_match
         assert result.product.gs_code == 1
         assert result.confidence == 0.95
-        assert result.method == 'ean'
+        assert result.method == "ean"
 
     def test_match_by_ean_with_spaces(self, matcher):
         """Should match EAN with spaces"""
-        item_data = {
-            'original_name': 'Product',
-            'original_ean': '1234 5678 90123'
-        }
+        item_data = {"original_name": "Product", "original_ean": "1234 5678 90123"}
 
         result = matcher.match_item(item_data)
 
@@ -136,9 +133,7 @@ class TestEANMatching:
 
     def test_match_by_ean_with_dashes(self, matcher):
         """Should match EAN with dashes"""
-        item_data = {
-            'original_ean': '1234-5678-90123'
-        }
+        item_data = {"original_ean": "1234-5678-90123"}
 
         result = matcher.match_item(item_data)
 
@@ -147,10 +142,7 @@ class TestEANMatching:
 
     def test_prefers_edited_ean_over_original(self, matcher):
         """Should prefer edited EAN"""
-        item_data = {
-            'original_ean': 'wrong_ean',
-            'edited_ean': '1234567890123'
-        }
+        item_data = {"original_ean": "wrong_ean", "edited_ean": "1234567890123"}
 
         result = matcher.match_item(item_data)
 
@@ -159,9 +151,7 @@ class TestEANMatching:
 
     def test_no_match_for_unknown_ean(self, matcher):
         """Should return no match for unknown EAN"""
-        item_data = {
-            'original_ean': '0000000000000'
-        }
+        item_data = {"original_ean": "0000000000000"}
 
         result = matcher.match_item(item_data)
 
@@ -174,21 +164,19 @@ class TestNameMatching:
 
     def test_match_by_exact_name(self, matcher):
         """Should match by exact name"""
-        item_data = {
-            'original_name': 'Coca Cola 0.5L'
-        }
+        item_data = {"original_name": "Coca Cola 0.5L"}
 
         result = matcher.match_item(item_data)
 
         assert result.is_match
         assert result.product.gs_code == 1
-        assert result.method == 'name'
+        assert result.method == "name"
         assert result.confidence > 0.9
 
     def test_match_with_diacritics(self, matcher):
         """Should match names with diacritics"""
         item_data = {
-            'original_name': 'Coca Cóla 0.5L'  # With accent
+            "original_name": "Coca Cóla 0.5L"  # With accent
         }
 
         result = matcher.match_item(item_data)
@@ -198,9 +186,7 @@ class TestNameMatching:
 
     def test_match_case_insensitive(self, matcher):
         """Should match case-insensitively"""
-        item_data = {
-            'original_name': 'COCA COLA 0.5L'
-        }
+        item_data = {"original_name": "COCA COLA 0.5L"}
 
         result = matcher.match_item(item_data)
 
@@ -209,9 +195,7 @@ class TestNameMatching:
 
     def test_match_with_special_characters(self, matcher):
         """Should handle special characters"""
-        item_data = {
-            'original_name': 'Coca-Cola 0,5L!!!'
-        }
+        item_data = {"original_name": "Coca-Cola 0,5L!!!"}
 
         result = matcher.match_item(item_data)
 
@@ -221,7 +205,7 @@ class TestNameMatching:
     def test_partial_name_match(self, matcher):
         """Should match partial names"""
         item_data = {
-            'original_name': 'Coca Cola'  # Without volume
+            "original_name": "Coca Cola"  # Without volume
         }
 
         result = matcher.match_item(item_data, min_confidence=0.6)
@@ -233,7 +217,7 @@ class TestNameMatching:
     def test_respects_min_confidence(self, matcher):
         """Should respect minimum confidence threshold"""
         item_data = {
-            'original_name': 'Water'  # Very different
+            "original_name": "Water"  # Very different
         }
 
         result = matcher.match_item(item_data, min_confidence=0.8)
@@ -242,9 +226,7 @@ class TestNameMatching:
 
     def test_returns_alternatives(self, matcher):
         """Should return alternative matches"""
-        item_data = {
-            'original_name': 'Cola 0.5L'
-        }
+        item_data = {"original_name": "Cola 0.5L"}
 
         result = matcher.match_item(item_data, min_confidence=0.5)
 
@@ -255,7 +237,7 @@ class TestNameMatching:
     def test_skips_discontinued_products(self, matcher):
         """Should not match discontinued products"""
         item_data = {
-            'original_name': 'Fanta Orange 0.5L'  # Discontinued
+            "original_name": "Fanta Orange 0.5L"  # Discontinued
         }
 
         result = matcher.match_item(item_data)
@@ -266,10 +248,7 @@ class TestNameMatching:
 
     def test_prefers_edited_name(self, matcher):
         """Should prefer edited name over original"""
-        item_data = {
-            'original_name': 'Wrong name',
-            'edited_name': 'Coca Cola 0.5L'
-        }
+        item_data = {"original_name": "Wrong name", "edited_name": "Coca Cola 0.5L"}
 
         result = matcher.match_item(item_data)
 
@@ -282,18 +261,18 @@ class TestMatchResult:
 
     def test_is_match_property(self):
         """Should correctly identify match status"""
-        match = MatchResult(product=Mock(), confidence=0.9, method='ean')
-        no_match = MatchResult(product=None, confidence=0.0, method='none')
+        match = MatchResult(product=Mock(), confidence=0.9, method="ean")
+        no_match = MatchResult(product=None, confidence=0.0, method="none")
 
         assert match.is_match
         assert not no_match.is_match
 
     def test_confidence_levels(self):
         """Should categorize confidence levels"""
-        high = MatchResult(product=Mock(), confidence=0.95, method='ean')
-        medium = MatchResult(product=Mock(), confidence=0.75, method='name')
-        low = MatchResult(product=Mock(), confidence=0.65, method='name')
-        none = MatchResult(product=None, confidence=0.0, method='none')
+        high = MatchResult(product=Mock(), confidence=0.95, method="ean")
+        medium = MatchResult(product=Mock(), confidence=0.75, method="name")
+        low = MatchResult(product=Mock(), confidence=0.65, method="name")
+        none = MatchResult(product=None, confidence=0.0, method="none")
 
         assert high.confidence_level == "high"
         assert medium.confidence_level == "medium"

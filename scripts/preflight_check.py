@@ -16,18 +16,20 @@ Usage:
     python scripts\\day5_preflight_check.py
 """
 
-import sys
-import subprocess
 import json
 import os
-from pathlib import Path
+import subprocess
+import sys
 from datetime import datetime
+from pathlib import Path
+
 
 def print_section(title: str):
     """Print formatted section header."""
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print(f"  {title}")
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
+
 
 def check_service_status() -> bool:
     """Check if NEX-Automat-Loader service is running."""
@@ -35,12 +37,12 @@ def check_service_status() -> bool:
 
     try:
         result = subprocess.run(
-            ["python", "scripts/manage_service.py", "status"],
+            [sys.executable, "scripts/manage_service.py", "status"],
             capture_output=True,
             text=False,  # Get bytes to handle UTF-16
-            timeout=10
+            timeout=10,
         )
-        
+
         # NSSM returns mixed encoding - just decode as UTF-8 and strip null bytes
         try:
             stdout = result.stdout.decode("utf-8", errors="ignore")
@@ -49,10 +51,9 @@ def check_service_status() -> bool:
 
         # Strip all null bytes (NSSM returns UTF-16LE fragments with \x00)
         stdout = stdout.replace("\x00", "")
-        
+
         # Print decoded output
         print(stdout)
-
 
         # Check if service is running
         stdout_lower = stdout.lower()
@@ -72,6 +73,7 @@ def check_service_status() -> bool:
         print(f"❌ Error checking service: {e}")
         return False
 
+
 def check_database_connectivity() -> bool:
     """Check PostgreSQL and SQLite connectivity."""
     print_section("2. DATABASE CONNECTIVITY")
@@ -81,14 +83,11 @@ def check_database_connectivity() -> bool:
     # PostgreSQL check - use environment variable for password
     try:
         import pg8000.native
+
         pg_password = os.environ.get("POSTGRES_PASSWORD", "postgres")
 
         conn = pg8000.native.Connection(
-            host="localhost",
-            port=5432,
-            database="invoice_staging",
-            user="postgres",
-            password=pg_password
+            host="localhost", port=5432, database="invoice_staging", user="postgres", password=pg_password
         )
         conn.close()
         print("✅ PostgreSQL: Connected (localhost:5432/invoice_staging)")
@@ -105,15 +104,16 @@ def check_database_connectivity() -> bool:
         config_path = Path("apps/supplier-invoice-loader/config/config.yaml")
         if config_path.exists():
             import yaml
-            with open(config_path, 'r', encoding='utf-8') as f:
+
+            with open(config_path, encoding="utf-8") as f:
                 config = yaml.safe_load(f)
-                db_config = config.get('database', {})
+                db_config = config.get("database", {})
 
                 # Check if SQLite is configured
-                sqlite_path_str = db_config.get('sqlite_path')
-                db_type = db_config.get('type', '').lower()
+                sqlite_path_str = db_config.get("sqlite_path")
+                db_type = db_config.get("type", "").lower()
 
-                sqlite_required = db_type == 'sqlite' or sqlite_path_str is not None
+                sqlite_required = db_type == "sqlite" or sqlite_path_str is not None
 
                 if sqlite_path_str:
                     sqlite_path = Path(sqlite_path_str)
@@ -140,16 +140,7 @@ def check_dependencies() -> bool:
     """Verify critical dependencies are installed."""
     print_section("3. DEPENDENCIES")
 
-    required = [
-        "fastapi",
-        "uvicorn", 
-        "pdfplumber",
-        "pg8000",
-        "pypdf",
-        "PIL",
-        "httpx",
-        "pydantic"
-    ]
+    required = ["fastapi", "uvicorn", "pdfplumber", "pg8000", "pypdf", "PIL", "httpx", "pydantic"]
 
     missing = []
 
@@ -169,6 +160,7 @@ def check_dependencies() -> bool:
         print(f"\n✅ All {len(required)} dependencies installed")
         return True
 
+
 def check_known_issues() -> bool:
     """Check if KNOWN_ISSUES.md exists and display summary."""
     print_section("4. KNOWN ISSUES REVIEW")
@@ -181,12 +173,12 @@ def check_known_issues() -> bool:
         return False
 
     try:
-        content = known_issues_path.read_text(encoding='utf-8')
+        content = known_issues_path.read_text(encoding="utf-8")
 
         # Extract critical issues
-        lines = content.split('\n')
-        critical_count = sum(1 for line in lines if '❌' in line or 'CRITICAL' in line.upper())
-        resolved_count = sum(1 for line in lines if '✅' in line)
+        lines = content.split("\n")
+        critical_count = sum(1 for line in lines if "❌" in line or "CRITICAL" in line.upper())
+        resolved_count = sum(1 for line in lines if "✅" in line)
 
         print(f"✅ KNOWN_ISSUES.md found ({len(lines)} lines)")
         print(f"   Resolved issues: {resolved_count}")
@@ -195,7 +187,7 @@ def check_known_issues() -> bool:
         if critical_count > 0:
             print("\n⚠️  ATTENTION: Active critical issues present!")
             # Show first 5 critical lines
-            critical_lines = [line for line in lines if 'CRITICAL' in line.upper()][:5]
+            critical_lines = [line for line in lines if "CRITICAL" in line.upper()][:5]
             for line in critical_lines:
                 print(f"   {line.strip()}")
 
@@ -204,6 +196,7 @@ def check_known_issues() -> bool:
     except Exception as e:
         print(f"❌ Error reading KNOWN_ISSUES.md: {e}")
         return False
+
 
 def check_test_data() -> bool:
     """Verify test data availability."""
@@ -230,6 +223,7 @@ def check_test_data() -> bool:
         print(f"   ... and {len(pdf_files) - 5} more")
 
     return True
+
 
 def check_performance_baseline() -> bool:
     """Verify performance baseline data exists."""
@@ -258,6 +252,7 @@ def check_performance_baseline() -> bool:
         print(f"❌ Error reading baseline: {e}")
         return False
 
+
 def generate_summary(results: dict) -> str:
     """Generate final summary report."""
     print_section("SUMMARY")
@@ -283,11 +278,12 @@ def generate_summary(results: dict) -> str:
 
     return status
 
+
 def main():
     """Run all pre-flight checks."""
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("  NEX AUTOMAT v2.0 - DAY 5 PRE-FLIGHT CHECK")
-    print("="*60)
+    print("=" * 60)
     print(f"Timestamp: {datetime.now().isoformat()}")
     print(f"Location: {Path.cwd()}")
 
@@ -297,7 +293,7 @@ def main():
         "Dependencies": check_dependencies(),
         "Known Issues": check_known_issues(),
         "Test Data": check_test_data(),
-        "Performance Baseline": check_performance_baseline()
+        "Performance Baseline": check_performance_baseline(),
     }
 
     status = generate_summary(results)
@@ -309,6 +305,7 @@ def main():
         sys.exit(1)
     else:
         sys.exit(2)
+
 
 if __name__ == "__main__":
     main()

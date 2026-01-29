@@ -3,8 +3,8 @@ RAG Search Module
 Semantic and hybrid search capabilities
 """
 
-from typing import List, Optional, Dict, Any
 import asyncio
+from typing import Any
 
 from .config import SearchConfig, get_config
 from .database import DatabaseManager
@@ -19,10 +19,10 @@ class SearchEngine:
     """
 
     def __init__(
-            self,
-            db: Optional[DatabaseManager] = None,
-            embedding_model: Optional[EmbeddingModel] = None,
-            config: Optional[SearchConfig] = None
+        self,
+        db: DatabaseManager | None = None,
+        embedding_model: EmbeddingModel | None = None,
+        config: SearchConfig | None = None,
     ):
         """
         Initialize search engine
@@ -44,12 +44,12 @@ class SearchEngine:
             self.embedding_model.load()
 
     async def search(
-            self,
-            query: str,
-            limit: Optional[int] = None,
-            similarity_threshold: Optional[float] = None,
-            document_ids: Optional[List[int]] = None
-    ) -> List[Dict[str, Any]]:
+        self,
+        query: str,
+        limit: int | None = None,
+        similarity_threshold: float | None = None,
+        document_ids: list[int] | None = None,
+    ) -> list[dict[str, Any]]:
         """
         Perform semantic vector search
 
@@ -76,18 +76,14 @@ class SearchEngine:
             query_embedding=query_embedding,
             limit=limit,
             similarity_threshold=similarity_threshold,
-            document_ids=document_ids
+            document_ids=document_ids,
         )
 
         return results
 
     async def search_with_context(
-            self,
-            query: str,
-            limit: Optional[int] = None,
-            context_size: int = 1,
-            **kwargs
-    ) -> List[Dict[str, Any]]:
+        self, query: str, limit: int | None = None, context_size: int = 1, **kwargs
+    ) -> list[dict[str, Any]]:
         """
         Search with surrounding context chunks
 
@@ -108,8 +104,8 @@ class SearchEngine:
         # For each result, get surrounding chunks
         enriched_results = []
         for result in results:
-            doc_id = result['document_id']
-            chunk_idx = result['chunk_index']
+            doc_id = result["document_id"]
+            chunk_idx = result["chunk_index"]
 
             # Get all chunks for this document
             all_chunks = await self.db.get_chunks(doc_id)
@@ -130,19 +126,14 @@ class SearchEngine:
                     context_after.append(all_chunks[after_idx])
 
             # Add context to result
-            result['context_before'] = context_before
-            result['context_after'] = context_after
+            result["context_before"] = context_before
+            result["context_after"] = context_after
 
             enriched_results.append(result)
 
         return enriched_results
 
-    async def search_documents(
-            self,
-            query: str,
-            limit: Optional[int] = None,
-            **kwargs
-    ) -> List[Dict[str, Any]]:
+    async def search_documents(self, query: str, limit: int | None = None, **kwargs) -> list[dict[str, Any]]:
         """
         Search and group results by document
 
@@ -160,25 +151,22 @@ class SearchEngine:
         # Group by document
         docs_dict = {}
         for result in chunk_results:
-            doc_id = result['document_id']
+            doc_id = result["document_id"]
 
             if doc_id not in docs_dict:
                 docs_dict[doc_id] = {
-                    'document_id': doc_id,
-                    'filename': result['filename'],
-                    'chunks': [],
-                    'max_similarity': result['similarity']
+                    "document_id": doc_id,
+                    "filename": result["filename"],
+                    "chunks": [],
+                    "max_similarity": result["similarity"],
                 }
 
-            docs_dict[doc_id]['chunks'].append(result)
-            docs_dict[doc_id]['max_similarity'] = max(
-                docs_dict[doc_id]['max_similarity'],
-                result['similarity']
-            )
+            docs_dict[doc_id]["chunks"].append(result)
+            docs_dict[doc_id]["max_similarity"] = max(docs_dict[doc_id]["max_similarity"], result["similarity"])
 
         # Convert to list and sort by max similarity
         documents = list(docs_dict.values())
-        documents.sort(key=lambda x: x['max_similarity'], reverse=True)
+        documents.sort(key=lambda x: x["max_similarity"], reverse=True)
 
         # Limit to requested number of documents
         if limit:
@@ -186,11 +174,7 @@ class SearchEngine:
 
         return documents
 
-    async def explain_search(
-            self,
-            query: str,
-            limit: int = 3
-    ) -> Dict[str, Any]:
+    async def explain_search(self, query: str, limit: int = 3) -> dict[str, Any]:
         """
         Search with explanation of results
 
@@ -211,26 +195,27 @@ class SearchEngine:
 
         # Prepare explanation
         explanation = {
-            'query': query,
-            'query_tokens': len(query.split()),
-            'embedding_dimension': len(query_embedding),
-            'num_results': len(results),
-            'results': []
+            "query": query,
+            "query_tokens": len(query.split()),
+            "embedding_dimension": len(query_embedding),
+            "num_results": len(results),
+            "results": [],
         }
 
         for result in results:
             explained_result = {
-                'rank': len(explanation['results']) + 1,
-                'document': result['filename'],
-                'chunk_index': result['chunk_index'],
-                'similarity': result['similarity'],
-                'similarity_explanation': self._explain_similarity(result['similarity']),
-                'content_preview': result['content'][:200] + '...' if len(result['content']) > 200 else result[
-                    'content'],
-                'full_content': result['content']
+                "rank": len(explanation["results"]) + 1,
+                "document": result["filename"],
+                "chunk_index": result["chunk_index"],
+                "similarity": result["similarity"],
+                "similarity_explanation": self._explain_similarity(result["similarity"]),
+                "content_preview": result["content"][:200] + "..."
+                if len(result["content"]) > 200
+                else result["content"],
+                "full_content": result["content"],
             }
 
-            explanation['results'].append(explained_result)
+            explanation["results"].append(explained_result)
 
         return explanation
 
@@ -259,7 +244,7 @@ class SearchEngine:
         await self.db.close()
 
 
-async def search(query: str, limit: int = 10) -> List[Dict[str, Any]]:
+async def search(query: str, limit: int = 10) -> list[dict[str, Any]]:
     """
     Quick helper for semantic search
 
@@ -275,6 +260,7 @@ async def search(query: str, limit: int = 10) -> List[Dict[str, Any]]:
 
 
 if __name__ == "__main__":
+
     async def test():
         """Test search engine"""
         print("Testing search engine...")
@@ -301,10 +287,9 @@ if __name__ == "__main__":
             print(f"\nQuery: {explanation['query']}")
             print(f"Results: {explanation['num_results']}")
 
-            for result in explanation['results']:
+            for result in explanation["results"]:
                 print(f"\n{result['rank']}. {result['document']}")
                 print(f"   Similarity: {result['similarity']:.4f}")
                 print(f"   {result['similarity_explanation']}")
-
 
     asyncio.run(test())

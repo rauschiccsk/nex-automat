@@ -1,27 +1,26 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 """Show table structure"""
 
+import os
 import sys
 from pathlib import Path
-import os
 
-sys.path.insert(0, str(Path(__file__).parent.parent / 'src'))
+sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from utils.config import Config
 from database.postgres_client import PostgresClient
+from utils.config import Config
 
-config_obj = Config(Path('config/config.yaml'))
+config_obj = Config(Path("config/config.yaml"))
 
 db_config = {
-    'host': config_obj.get('database.postgres.host'),
-    'port': int(config_obj.get('database.postgres.port')),
-    'database': config_obj.get('database.postgres.database'),
-    'user': config_obj.get('database.postgres.user'),
-    'password': os.getenv('POSTGRES_PASSWORD', config_obj.get('database.postgres.password', ''))
+    "host": config_obj.get("database.postgres.host"),
+    "port": int(config_obj.get("database.postgres.port")),
+    "database": config_obj.get("database.postgres.database"),
+    "user": config_obj.get("database.postgres.user"),
+    "password": os.getenv("POSTGRES_PASSWORD", config_obj.get("database.postgres.password", "")),
 }
 
-table_name = sys.argv[1] if len(sys.argv) > 1 else 'supplier_invoice_heads'
+table_name = sys.argv[1] if len(sys.argv) > 1 else "supplier_invoice_heads"
 
 print(f"Table: {table_name}")
 print("=" * 100)
@@ -31,7 +30,8 @@ db = PostgresClient(db_config)
 with db.get_connection() as conn:
     cursor = conn.cursor()
 
-    cursor.execute("""
+    cursor.execute(
+        """
         SELECT 
             column_name, 
             data_type, 
@@ -40,7 +40,9 @@ with db.get_connection() as conn:
         FROM information_schema.columns 
         WHERE table_name = %s
         ORDER BY ordinal_position
-    """, (table_name,))
+    """,
+        (table_name,),
+    )
 
     columns = cursor.fetchall()
 

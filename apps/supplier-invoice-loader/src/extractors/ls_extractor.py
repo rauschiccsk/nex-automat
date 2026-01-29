@@ -6,7 +6,7 @@ Extracts invoice data from L&Š PDF invoices
 
 import re
 import logging
-from typing import Optional, List, Dict, Tuple
+from typing import Optional, List, Dict
 from dataclasses import dataclass, field
 from decimal import Decimal
 
@@ -16,6 +16,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class InvoiceItem:
     """Jedna položka na faktúre"""
+
     line_number: int
     item_code: str = ""
     ean_code: str = ""
@@ -32,6 +33,7 @@ class InvoiceItem:
 @dataclass
 class InvoiceData:
     """Kompletné dáta z faktúry"""
+
     # Hlavička
     invoice_number: str = ""
     issue_date: str = ""
@@ -79,33 +81,29 @@ class LSInvoiceExtractor:
         """Inicializácia regex patterns pre L&Š faktúry"""
         return {
             # Hlavička - s medzerami medzi číslicami
-            'invoice_number': r'FAKTÚRA[^\d]*?(\d+)',
-            'issue_date': r'Dátum\s+vystavenia[:\s]*(\d\s*\d?\s*\.\s*\d\s*\d?\s*\.\s*\d\s*\d\s*\d\s*\d)',
-            'due_date': r'Dátum\s+splatnosti[^\d]*?(\d\s*\d?\s*\.\s*\d\s*\d?\s*\.\s*\d\s*\d\s*\d\s*\d)',
-            'tax_point_date': r'Dátum\s+daňovej\s+povinnosti[:\s]*(\d\s*\d?\s*\.\s*\d\s*\d?\s*\.\s*\d\s*\d\s*\d\s*\d)',
-
+            "invoice_number": r"FAKTÚRA[^\d]*?(\d+)",
+            "issue_date": r"Dátum\s+vystavenia[:\s]*(\d\s*\d?\s*\.\s*\d\s*\d?\s*\.\s*\d\s*\d\s*\d\s*\d)",
+            "due_date": r"Dátum\s+splatnosti[^\d]*?(\d\s*\d?\s*\.\s*\d\s*\d?\s*\.\s*\d\s*\d\s*\d\s*\d)",
+            "tax_point_date": r"Dátum\s+daňovej\s+povinnosti[:\s]*(\d\s*\d?\s*\.\s*\d\s*\d?\s*\.\s*\d\s*\d\s*\d\s*\d)",
             # Sumy - presnejšie patterns pre oba formáty
-            'net_amount': r'Základ\s+DPH\s+([\d\s]+\.\s*[\d\s]+)\s*E\s*U\s*R',
-            'tax_amount': r'(?:^|\n)DPH\s+([\d\s]+\.\s*[\d\s]+)\s*E\s*U\s*R',
-            'total_amount': r'Celkom\s+k\s+úhrade\s+([\d\s]+\.[\d\s]+)\s*EUR',
-
+            "net_amount": r"Základ\s+DPH\s+([\d\s]+\.\s*[\d\s]+)\s*E\s*U\s*R",
+            "tax_amount": r"(?:^|\n)DPH\s+([\d\s]+\.\s*[\d\s]+)\s*E\s*U\s*R",
+            "total_amount": r"Celkom\s+k\s+úhrade\s+([\d\s]+\.[\d\s]+)\s*EUR",
             # Dodávateľ (L&Š)
-            'supplier_name': r'L\s*&\s*Š,\s*s\.r\.o\.',
-            'supplier_ico': r'IČO:\s*(\d{8})',
-            'supplier_dic': r'DIČ:\s*(\d{10})',
-            'supplier_icdph': r'IČ\s+DPH:\s*(SK\d{10})',
-
+            "supplier_name": r"L\s*&\s*Š,\s*s\.r\.o\.",
+            "supplier_ico": r"IČO:\s*(\d{8})",
+            "supplier_dic": r"DIČ:\s*(\d{10})",
+            "supplier_icdph": r"IČ\s+DPH:\s*(SK\d{10})",
             # Odberateľ - nájdeme riadok pred IČO odberateľ
-            'customer_name': r'([A-ZÁČĎÉÍĹĽŇÓŔŠŤÚÝŽ][^\n]{5,})\s*\n[^\n]*IČO\s+odberateľ',
-            'customer_ico': r'IČO\s+odberateľ:\s*(\d\s*\d\s*\d\s*\d\s*\d\s*\d\s*\d\s*\d)',
-            'customer_dic': r'DIČ\s+odberateľ:\s*(\d\s*\d\s*\d\s*\d\s*\d\s*\d\s*\d\s*\d\s*\d\s*\d)',
-            'customer_icdph': r'IČDPH\s+odberateľ:\s*(S\s*K\s*\d\s*\d\s*\d\s*\d\s*\d\s*\d\s*\d\s*\d\s*\d\s*\d)',
-
+            "customer_name": r"([A-ZÁČĎÉÍĹĽŇÓŔŠŤÚÝŽ][^\n]{5,})\s*\n[^\n]*IČO\s+odberateľ",
+            "customer_ico": r"IČO\s+odberateľ:\s*(\d\s*\d\s*\d\s*\d\s*\d\s*\d\s*\d\s*\d)",
+            "customer_dic": r"DIČ\s+odberateľ:\s*(\d\s*\d\s*\d\s*\d\s*\d\s*\d\s*\d\s*\d\s*\d\s*\d)",
+            "customer_icdph": r"IČDPH\s+odberateľ:\s*(S\s*K\s*\d\s*\d\s*\d\s*\d\s*\d\s*\d\s*\d\s*\d\s*\d\s*\d)",
             # Bankové údaje - s medzerami
-            'iban': r'IBAN[:\s]*(SK\s*\d\s*\d[\d\s]{20,})',
-            'bic': r'BIC[:\s]*([A-Z]{6,11})',
-            'variable_symbol': r'Variabilný\s+symbol[:\s]*(\d\s*\d\s*\d\s*\d\s*\d\s*\d\s*\d\s*\d)',
-            'constant_symbol': r'Konštantný\s+symbol[:\s]*(\d\s*\d\s*\d\s*\d)',
+            "iban": r"IBAN[:\s]*(SK\s*\d\s*\d[\d\s]{20,})",
+            "bic": r"BIC[:\s]*([A-Z]{6,11})",
+            "variable_symbol": r"Variabilný\s+symbol[:\s]*(\d\s*\d\s*\d\s*\d\s*\d\s*\d\s*\d\s*\d)",
+            "constant_symbol": r"Konštantný\s+symbol[:\s]*(\d\s*\d\s*\d\s*\d)",
         }
 
     def extract_from_pdf(self, pdf_path: str) -> Optional[InvoiceData]:
@@ -166,37 +164,39 @@ class LSInvoiceExtractor:
                 value = match.group(1).strip() if match.lastindex else match.group(0).strip()
 
                 # Cleanup hodnoty
-                if field in ['issue_date', 'due_date', 'tax_point_date']:
+                if field in ["issue_date", "due_date", "tax_point_date"]:
                     # Odstráň medzery z dátumov: "1 6 . 0 9 . 2 0 2 5" → "16.09.2025"
-                    value = re.sub(r'\s+', '', value)
+                    value = re.sub(r"\s+", "", value)
 
-                if field in ['net_amount', 'tax_amount', 'total_amount']:
+                if field in ["net_amount", "tax_amount", "total_amount"]:
                     # Odstráň medzery a zmeň čiarku na bodku
-                    value = value.replace(' ', '').replace(',', '.')
+                    value = value.replace(" ", "").replace(",", ".")
                     try:
                         value = Decimal(value)
                     except:
                         value = None
 
-                if field in ['customer_ico', 'customer_dic', 'variable_symbol', 'constant_symbol']:
+                if field in ["customer_ico", "customer_dic", "variable_symbol", "constant_symbol"]:
                     # Odstráň medzery z čísel
-                    value = re.sub(r'\s+', '', value)
+                    value = re.sub(r"\s+", "", value)
 
-                if field == 'customer_icdph':
+                if field == "customer_icdph":
                     # SK 2 0 2 0 3 6 7 1 5 1 → SK2020367151
-                    value = re.sub(r'\s+', '', value)
+                    value = re.sub(r"\s+", "", value)
 
-                if field == 'iban':
-                    value = re.sub(r'\s+', '', value)
+                if field == "iban":
+                    value = re.sub(r"\s+", "", value)
 
-                if field == 'customer_name':
+                if field == "customer_name":
                     # Odstráň prefix "Prepravca: V D" alebo podobné
-                    value = re.sub(r'^.*?(?:Prepravca|Vozidlo|Štát)[^\n]*', '', value)
+                    value = re.sub(r"^.*?(?:Prepravca|Vozidlo|Štát)[^\n]*", "", value)
                     value = value.strip()
                     # Ak stále začína 1-2 písmenami + medzera, odstráň to
-                    value = re.sub(r'^[A-Z]{1,2}\s+', '', value)
+                    value = re.sub(r"^[A-Z]{1,2}\s+", "", value)
                     # Odstráň extra medzery medzi písmenami v mene: "M Á G E RSTAV" → "MÁGERSTAV"
-                    value = re.sub(r'([A-ZÁČĎÉÍĹĽŇÓŔŠŤÚÝŽ])\s+(?=[A-ZÁČĎÉÍĹĽŇÓŔŠŤÚÝŽ])', r'\1', value)
+                    value = re.sub(
+                        r"([A-ZÁČĎÉÍĹĽŇÓŔŠŤÚÝŽ])\s+(?=[A-ZÁČĎÉÍĹĽŇÓŔŠŤÚÝŽ])", r"\1", value
+                    )
 
                 # Nastav hodnotu
                 setattr(data, field, value)
@@ -211,7 +211,11 @@ class LSInvoiceExtractor:
         # Použijeme IČO lookup (v reálnom svete by to bolo z databázy)
         if data.customer_ico == "31436871":
             # Ak názov obsahuje "OBJ:" alebo iné technické označenia, nahraď ho
-            if not data.customer_name or "OBJ:" in data.customer_name or len(data.customer_name) < 10:
+            if (
+                not data.customer_name
+                or "OBJ:" in data.customer_name
+                or len(data.customer_name) < 10
+            ):
                 data.customer_name = "MÁGERSTAV, spol. s r.o."
 
         return data
@@ -230,13 +234,13 @@ class LSInvoiceExtractor:
         items = []
 
         # Nájdi začiatok tabuľky
-        table_start = re.search(r'č\.\s+Názov.*?Spolu s DPH', text, re.IGNORECASE)
+        table_start = re.search(r"č\.\s+Názov.*?Spolu s DPH", text, re.IGNORECASE)
         if not table_start:
             logger.warning("Table start not found")
             return items
 
         # Nájdi koniec tabuľky (pred sumárom)
-        table_end = re.search(r'%\s+Základ\s+DPH', text, re.IGNORECASE)
+        table_end = re.search(r"%\s+Základ\s+DPH", text, re.IGNORECASE)
 
         # Vystrihni tabuľku
         start_pos = table_start.end()
@@ -244,7 +248,7 @@ class LSInvoiceExtractor:
         table_text = text[start_pos:end_pos]
 
         # Split na riadky
-        lines = table_text.split('\n')
+        lines = table_text.split("\n")
 
         current_item = None
         line_number = 0
@@ -256,8 +260,8 @@ class LSInvoiceExtractor:
 
             # Detekcia prvého riadku položky (začína číslom)
             first_line_match = re.match(
-                r'^(\d+)\s+(.+?)\s+(\d+(?:[,.]\d+)?)\s+(KS|L|M|KG)\s+(?:(\d+(?:[,.]\d+)?%)?\s+)?(\d+(?:[,.]\d+)?)\s+(\d+(?:[,.]\d+)?)\s+(\d+(?:[,.]\d+)?)$',
-                line
+                r"^(\d+)\s+(.+?)\s+(\d+(?:[,.]\d+)?)\s+(KS|L|M|KG)\s+(?:(\d+(?:[,.]\d+)?%)?\s+)?(\d+(?:[,.]\d+)?)\s+(\d+(?:[,.]\d+)?)\s+(\d+(?:[,.]\d+)?)$",
+                line,
             )
 
             if first_line_match:
@@ -275,15 +279,12 @@ class LSInvoiceExtractor:
                     discount_percent=self._parse_decimal(first_line_match.group(5)),
                     unit_price_no_vat=self._parse_decimal(first_line_match.group(6)),
                     unit_price_with_vat=self._parse_decimal(first_line_match.group(7)),
-                    total_with_vat=self._parse_decimal(first_line_match.group(8))
+                    total_with_vat=self._parse_decimal(first_line_match.group(8)),
                 )
 
             # Detekcia druhého riadku položky (kód, EAN, DPH)
             elif current_item:
-                second_line_match = re.match(
-                    r'^(\d+)\s+(\d{10,14})?\s*(?:AKCIA\s+)?(\d+)%',
-                    line
-                )
+                second_line_match = re.match(r"^(\d+)\s+(\d{10,14})?\s*(?:AKCIA\s+)?(\d+)%", line)
                 if second_line_match:
                     current_item.item_code = second_line_match.group(1)
                     # EAN musí mať aspoň 10 číslic, inak je to chyba
@@ -304,7 +305,7 @@ class LSInvoiceExtractor:
             return None
         try:
             # Odstráň % znak a medzery, zmeň čiarku na bodku
-            value = value.replace('%', '').replace(' ', '').replace(',', '.')
+            value = value.replace("%", "").replace(" ", "").replace(",", ".")
             return Decimal(value)
         except:
             return None

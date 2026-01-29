@@ -13,7 +13,6 @@ Encoding: cp852
 """
 
 from dataclasses import dataclass
-from typing import Optional
 
 
 @dataclass
@@ -43,11 +42,11 @@ class GSCATRecord:
         # Remove NULL bytes and strip whitespace from all string fields
         for field_name, field_value in self.__dict__.items():
             if isinstance(field_value, str):
-                cleaned = field_value.replace('\x00', '').strip()
+                cleaned = field_value.replace("\x00", "").strip()
                 setattr(self, field_name, cleaned)
 
     @classmethod
-    def from_bytes(cls, data: bytes, encoding: str = 'cp852') -> 'GSCATRecord':
+    def from_bytes(cls, data: bytes, encoding: str = "cp852") -> "GSCATRecord":
         """
         Deserialize GSCATRecord from Btrieve bytes
 
@@ -62,13 +61,13 @@ class GSCATRecord:
 
         # Helper function to read string
         def read_str(offset: int, length: int) -> str:
-            return data[offset:offset+length].decode(encoding, errors='replace').rstrip('\x00 ')
+            return data[offset : offset + length].decode(encoding, errors="replace").rstrip("\x00 ")
 
         # Helper function to read int32
         def read_int32(offset: int) -> int:
             if offset + 4 > len(data):
                 return 0
-            return struct.unpack('<i', data[offset:offset+4])[0]
+            return struct.unpack("<i", data[offset : offset + 4])[0]
 
         # Parse verified fields according to actual structure
         gs_code = read_int32(0)
@@ -78,12 +77,7 @@ class GSCATRecord:
         mg_code = read_str(92, 2)
 
         return cls(
-            GsCode=gs_code,
-            GsName=gs_name,
-            BarCode=barcode,
-            SupplierCode=supplier_code,
-            MgCode=mg_code,
-            RawData=data
+            GsCode=gs_code, GsName=gs_name, BarCode=barcode, SupplierCode=supplier_code, MgCode=mg_code, RawData=data
         )
 
     @property

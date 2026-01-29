@@ -1,12 +1,12 @@
 """Tests for BaseGrid."""
-import pytest
-import tempfile
+
 import os
+import tempfile
 from pathlib import Path
 
+import pytest
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QStandardItemModel, QStandardItem
-
+from PySide6.QtGui import QStandardItem, QStandardItemModel
 from shared_pyside6.database import SettingsRepository
 from shared_pyside6.ui import BaseGrid, GreenHeaderView
 
@@ -67,11 +67,7 @@ class TestBaseGrid:
 
     def test_create_grid(self, qtbot, repository):
         """Test creating BaseGrid."""
-        grid = BaseGrid(
-            window_name="test_window",
-            grid_name="test_grid",
-            user_id="test_user"
-        )
+        grid = BaseGrid(window_name="test_window", grid_name="test_grid", user_id="test_user")
         qtbot.addWidget(grid)
 
         assert grid.window_name == "test_window"
@@ -81,11 +77,7 @@ class TestBaseGrid:
 
     def test_set_model(self, qtbot, repository, sample_model):
         """Test setting model and loading settings."""
-        grid = BaseGrid(
-            window_name="test_window",
-            grid_name="test_grid",
-            user_id="test_user"
-        )
+        grid = BaseGrid(window_name="test_window", grid_name="test_grid", user_id="test_user")
         qtbot.addWidget(grid)
 
         grid.table_view.setModel(sample_model)
@@ -95,11 +87,7 @@ class TestBaseGrid:
 
     def test_column_visibility(self, qtbot, repository, sample_model):
         """Test column visibility."""
-        grid = BaseGrid(
-            window_name="test_window",
-            grid_name="test_grid",
-            user_id="test_user"
-        )
+        grid = BaseGrid(window_name="test_window", grid_name="test_grid", user_id="test_user")
         qtbot.addWidget(grid)
         grid.table_view.setModel(sample_model)
 
@@ -114,11 +102,7 @@ class TestBaseGrid:
 
     def test_get_visible_columns(self, qtbot, repository, sample_model):
         """Test getting visible columns."""
-        grid = BaseGrid(
-            window_name="test_window",
-            grid_name="test_grid",
-            user_id="test_user"
-        )
+        grid = BaseGrid(window_name="test_window", grid_name="test_grid", user_id="test_user")
         qtbot.addWidget(grid)
         grid.table_view.setModel(sample_model)
 
@@ -133,11 +117,7 @@ class TestBaseGrid:
 
     def test_active_column(self, qtbot, repository, sample_model):
         """Test active column."""
-        grid = BaseGrid(
-            window_name="test_window",
-            grid_name="test_grid",
-            user_id="test_user"
-        )
+        grid = BaseGrid(window_name="test_window", grid_name="test_grid", user_id="test_user")
         qtbot.addWidget(grid)
         grid.table_view.setModel(sample_model)
 
@@ -147,11 +127,7 @@ class TestBaseGrid:
 
     def test_custom_headers(self, qtbot, repository, sample_model):
         """Test custom headers."""
-        grid = BaseGrid(
-            window_name="test_window",
-            grid_name="test_grid",
-            user_id="test_user"
-        )
+        grid = BaseGrid(window_name="test_window", grid_name="test_grid", user_id="test_user")
         qtbot.addWidget(grid)
         grid.table_view.setModel(sample_model)
 
@@ -164,11 +140,7 @@ class TestBaseGrid:
 
     def test_row_id_column(self, qtbot, repository, sample_model):
         """Test row ID column for cursor memory."""
-        grid = BaseGrid(
-            window_name="test_window",
-            grid_name="test_grid",
-            user_id="test_user"
-        )
+        grid = BaseGrid(window_name="test_window", grid_name="test_grid", user_id="test_user")
         qtbot.addWidget(grid)
         grid.table_view.setModel(sample_model)
 
@@ -181,11 +153,7 @@ class TestBaseGrid:
     def test_settings_persistence(self, qtbot, repository, sample_model):
         """Test that settings are saved and loaded."""
         # Create grid and change settings
-        grid1 = BaseGrid(
-            window_name="test_window",
-            grid_name="test_grid",
-            user_id="test_user"
-        )
+        grid1 = BaseGrid(window_name="test_window", grid_name="test_grid", user_id="test_user")
         qtbot.addWidget(grid1)
         grid1.table_view.setModel(sample_model)
         grid1.apply_model_and_load_settings()
@@ -196,11 +164,7 @@ class TestBaseGrid:
         grid1.save_grid_settings_now()
 
         # Create new grid - should load saved settings
-        grid2 = BaseGrid(
-            window_name="test_window",
-            grid_name="test_grid",
-            user_id="test_user"
-        )
+        grid2 = BaseGrid(window_name="test_window", grid_name="test_grid", user_id="test_user")
         qtbot.addWidget(grid2)
         grid2.table_view.setModel(sample_model)
         grid2.apply_model_and_load_settings()

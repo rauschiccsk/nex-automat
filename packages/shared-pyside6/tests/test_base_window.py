@@ -1,11 +1,11 @@
 """Tests for BaseWindow."""
-import pytest
-import tempfile
+
 import os
+import tempfile
 from pathlib import Path
 
+import pytest
 from shared_pyside6.database import SettingsRepository
-from shared_pyside6.ui import BaseWindow
 
 
 @pytest.fixture
@@ -41,11 +41,7 @@ class TestSettingsRepository:
     def test_save_and_load_window_settings(self, repository):
         """Test saving and loading window settings."""
         repository.save_window_settings(
-            window_name="test_window",
-            user_id="user1",
-            x=100, y=200,
-            width=800, height=600,
-            is_maximized=False
+            window_name="test_window", user_id="user1", x=100, y=200, width=800, height=600, is_maximized=False
         )
 
         settings = repository.load_window_settings("test_window", "user1")
@@ -64,12 +60,8 @@ class TestSettingsRepository:
 
     def test_update_window_settings(self, repository):
         """Test updating existing settings."""
-        repository.save_window_settings(
-            "test_window", "user1", 100, 200, 800, 600, False
-        )
-        repository.save_window_settings(
-            "test_window", "user1", 150, 250, 1024, 768, True
-        )
+        repository.save_window_settings("test_window", "user1", 100, 200, 800, 600, False)
+        repository.save_window_settings("test_window", "user1", 150, 250, 1024, 768, True)
 
         settings = repository.load_window_settings("test_window", "user1")
 
@@ -81,12 +73,8 @@ class TestSettingsRepository:
 
     def test_multi_user_isolation(self, repository):
         """Test that different users have separate settings."""
-        repository.save_window_settings(
-            "test_window", "user1", 100, 100, 800, 600, False
-        )
-        repository.save_window_settings(
-            "test_window", "user2", 200, 200, 1024, 768, True
-        )
+        repository.save_window_settings("test_window", "user1", 100, 100, 800, 600, False)
+        repository.save_window_settings("test_window", "user2", 200, 200, 1024, 768, True)
 
         settings1 = repository.load_window_settings("test_window", "user1")
         settings2 = repository.load_window_settings("test_window", "user2")
@@ -96,9 +84,7 @@ class TestSettingsRepository:
 
     def test_delete_window_settings(self, repository):
         """Test deleting window settings."""
-        repository.save_window_settings(
-            "test_window", "user1", 100, 200, 800, 600, False
-        )
+        repository.save_window_settings("test_window", "user1", 100, 200, 800, 600, False)
         repository.delete_window_settings("test_window", "user1")
 
         settings = repository.load_window_settings("test_window", "user1")
@@ -107,17 +93,10 @@ class TestSettingsRepository:
     def test_save_and_load_grid_settings(self, repository):
         """Test saving and loading grid settings."""
         # Use string keys for JSON compatibility
-        grid_settings = {
-            "column_widths": {"0": 100, "1": 200},
-            "column_order": [0, 1, 2],
-            "active_column": 1
-        }
+        grid_settings = {"column_widths": {"0": 100, "1": 200}, "column_order": [0, 1, 2], "active_column": 1}
 
         repository.save_grid_settings(
-            window_name="test_window",
-            grid_name="test_grid",
-            user_id="user1",
-            settings=grid_settings
+            window_name="test_window", grid_name="test_grid", user_id="user1", settings=grid_settings
         )
 
         loaded = repository.load_grid_settings("test_window", "test_grid", "user1")

@@ -100,7 +100,9 @@ def calculate_file_hash(file_content: bytes) -> str:
     return hashlib.sha256(file_content).hexdigest()
 
 
-def is_duplicate(file_hash: str, message_id: Optional[str] = None, customer_name: Optional[str] = None) -> bool:
+def is_duplicate(
+    file_hash: str, message_id: Optional[str] = None, customer_name: Optional[str] = None
+) -> bool:
     """
     Skontroluje či faktúra už existuje v databáze
     V2.0: Kontroluje duplicity v rámci zákazníka
@@ -119,24 +121,18 @@ def is_duplicate(file_hash: str, message_id: Optional[str] = None, customer_name
     # Single-tenant architecture: if customer_name is None, check only file_hash
     if customer_name is None:
         # Check by file hash only (no customer filter)
-        cursor.execute(
-            "SELECT id FROM invoices WHERE file_hash = ?",
-            (file_hash,)
-        )
+        cursor.execute("SELECT id FROM invoices WHERE file_hash = ?", (file_hash,))
         result = cursor.fetchone()
 
         # Check by message_id (secondary) if provided
         if not result and message_id:
-            cursor.execute(
-                "SELECT id FROM invoices WHERE message_id = ?",
-                (message_id,)
-            )
+            cursor.execute("SELECT id FROM invoices WHERE message_id = ?", (message_id,))
             result = cursor.fetchone()
     else:
         # Multi-tenant: check within customer scope
         cursor.execute(
             "SELECT id FROM invoices WHERE file_hash = ? AND customer_name = ?",
-            (file_hash, customer_name)
+            (file_hash, customer_name),
         )
         result = cursor.fetchone()
 
@@ -144,7 +140,7 @@ def is_duplicate(file_hash: str, message_id: Optional[str] = None, customer_name
         if not result and message_id:
             cursor.execute(
                 "SELECT id FROM invoices WHERE message_id = ? AND customer_name = ?",
-                (message_id, customer_name)
+                (message_id, customer_name),
             )
             result = cursor.fetchone()
 
@@ -153,16 +149,16 @@ def is_duplicate(file_hash: str, message_id: Optional[str] = None, customer_name
 
 
 def insert_invoice(
-        file_hash: str,
-        pdf_path: str,
-        original_filename: str,
-        message_id: Optional[str] = None,
-        gmail_id: Optional[str] = None,
-        sender: Optional[str] = None,
-        subject: Optional[str] = None,
-        received_date: Optional[str] = None,
-        customer_name: Optional[str] = None,
-        nex_genesis_id: Optional[str] = None
+    file_hash: str,
+    pdf_path: str,
+    original_filename: str,
+    message_id: Optional[str] = None,
+    gmail_id: Optional[str] = None,
+    sender: Optional[str] = None,
+    subject: Optional[str] = None,
+    received_date: Optional[str] = None,
+    customer_name: Optional[str] = None,
+    nex_genesis_id: Optional[str] = None,
 ) -> int:
     """
     Vloží novú faktúru do databázy
@@ -178,7 +174,8 @@ def insert_invoice(
     if customer_name is None:
         customer_name = CUSTOMER_NAME
 
-    cursor.execute("""
+    cursor.execute(
+        """
         INSERT INTO invoices (
             customer_name,
             message_id, gmail_id, sender, subject, received_date,
@@ -187,28 +184,40 @@ def insert_invoice(
             nex_genesis_id, nex_status,
             migration_version
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    """, (
-        customer_name,
-        message_id, gmail_id, sender, subject, received_date,
-        file_hash, original_filename, pdf_path,
-        int(time.time()), 'received',
-        nex_genesis_id, 'pending' if not nex_genesis_id else 'synced',
-        '2.0.0'
-    ))
+    """,
+        (
+            customer_name,
+            message_id,
+            gmail_id,
+            sender,
+            subject,
+            received_date,
+            file_hash,
+            original_filename,
+            pdf_path,
+            int(time.time()),
+            "received",
+            nex_genesis_id,
+            "pending" if not nex_genesis_id else "synced",
+            "2.0.0",
+        ),
+    )
 
     invoice_id = cursor.lastrowid
     conn.commit()
     conn.close()
 
-    logger.info(f"Invoice inserted: ID={invoice_id}, customer={customer_name}, hash={file_hash[:8]}...")
+    logger.info(
+        f"Invoice inserted: ID={invoice_id}, customer={customer_name}, hash={file_hash[:8]}..."
+    )
     return invoice_id
 
 
 def update_nex_genesis_status(
-        invoice_id: int,
-        nex_genesis_id: str,
-        status: str = 'synced',
-        error_message: Optional[str] = None
+    invoice_id: int,
+    nex_genesis_id: str,
+    status: str = "synced",
+    error_message: Optional[str] = None,
 ) -> bool:
     """
     Update NEX Genesis sync status
@@ -225,27 +234,26 @@ def update_nex_genesis_status(
     conn = sqlite3.connect(DB_FILE)
     cursor = conn.cursor()
 
-    cursor.execute("""
+    cursor.execute(
+        """
         UPDATE invoices SET
             nex_genesis_id = ?,
             nex_status = ?,
             nex_sync_date = ?,
             nex_error_message = ?
         WHERE id = ?
-    """, (
-        nex_genesis_id,
-        status,
-        datetime.now().isoformat(),
-        error_message,
-        invoice_id
-    ))
+    """,
+        (nex_genesis_id, status, datetime.now().isoformat(), error_message, invoice_id),
+    )
 
     success = cursor.rowcount > 0
     conn.commit()
     conn.close()
 
     if success:
-        logger.info(f"NEX Genesis status updated: invoice_id={invoice_id}, nex_id={nex_genesis_id}, status={status}")
+        logger.info(
+            f"NEX Genesis status updated: invoice_id={invoice_id}, nex_id={nex_genesis_id}, status={status}"
+        )
     else:
         logger.warning(f"Failed to update NEX Genesis status for invoice_id={invoice_id}")
 
@@ -309,18 +317,24 @@ def get_all_invoices(limit: int = 100, customer_name: Optional[str] = None) -> L
     cursor = conn.cursor()
 
     if customer_name:
-        cursor.execute("""
+        cursor.execute(
+            """
             SELECT * FROM invoices 
             WHERE customer_name = ?
             ORDER BY created_at DESC 
             LIMIT ?
-        """, (customer_name, limit))
+        """,
+            (customer_name, limit),
+        )
     else:
-        cursor.execute("""
+        cursor.execute(
+            """
             SELECT * FROM invoices 
             ORDER BY created_at DESC 
             LIMIT ?
-        """, (limit,))
+        """,
+            (limit,),
+        )
 
     rows = cursor.fetchall()
     conn.close()
@@ -344,19 +358,25 @@ def get_pending_nex_sync(customer_name: Optional[str] = None, limit: int = 10) -
     cursor = conn.cursor()
 
     if customer_name:
-        cursor.execute("""
+        cursor.execute(
+            """
             SELECT * FROM invoices 
             WHERE nex_status = 'pending' AND customer_name = ?
             ORDER BY created_at ASC 
             LIMIT ?
-        """, (customer_name, limit))
+        """,
+            (customer_name, limit),
+        )
     else:
-        cursor.execute("""
+        cursor.execute(
+            """
             SELECT * FROM invoices 
             WHERE nex_status = 'pending'
             ORDER BY created_at ASC 
             LIMIT ?
-        """, (limit,))
+        """,
+            (limit,),
+        )
 
     rows = cursor.fetchall()
     conn.close()
@@ -390,26 +410,34 @@ def get_stats(customer_name: Optional[str] = None) -> Dict:
     total = cursor.fetchone()[0]
 
     # By status
-    cursor.execute(f"""
+    cursor.execute(
+        f"""
         SELECT status, COUNT(*) 
         FROM invoices 
         {where_clause}
         GROUP BY status
-    """, params)
+    """,
+        params,
+    )
     by_status = dict(cursor.fetchall())
 
     # By NEX sync status
-    cursor.execute(f"""
+    cursor.execute(
+        f"""
         SELECT nex_status, COUNT(*) 
         FROM invoices 
         {where_clause}
         GROUP BY nex_status
-    """, params)
+    """,
+        params,
+    )
     by_nex_status = dict(cursor.fetchall())
 
     # Duplicates
     cursor.execute(
-        f"SELECT COUNT(*) FROM invoices {where_clause} {'AND' if where_clause else 'WHERE'} is_duplicate = 1", params)
+        f"SELECT COUNT(*) FROM invoices {where_clause} {'AND' if where_clause else 'WHERE'} is_duplicate = 1",
+        params,
+    )
     duplicates = cursor.fetchone()[0]
 
     # By customer (if not filtered)
@@ -431,7 +459,7 @@ def get_stats(customer_name: Optional[str] = None) -> Dict:
         "by_nex_status": by_nex_status,
         "by_customer": by_customer,
         "duplicates": duplicates,
-        "filter": customer_name
+        "filter": customer_name,
     }
 
 
@@ -458,18 +486,16 @@ def get_customer_list() -> List[str]:
     return customers
 
 
-
-
 def save_invoice(
-        customer_name: str,
-        invoice_number: str,
-        invoice_date: str,
-        total_amount: float,
-        file_path: str,
-        file_hash: str,
-        status: str = "received",
-        message_id: Optional[str] = None,
-        gmail_id: Optional[str] = None
+    customer_name: str,
+    invoice_number: str,
+    invoice_date: str,
+    total_amount: float,
+    file_path: str,
+    file_hash: str,
+    status: str = "received",
+    message_id: Optional[str] = None,
+    gmail_id: Optional[str] = None,
 ) -> int:
     """
     Save invoice to database (simplified wrapper for insert_invoice)
@@ -495,27 +521,24 @@ def save_invoice(
         original_filename=Path(file_path).name,
         message_id=message_id,
         gmail_id=gmail_id,
-        customer_name=customer_name
+        customer_name=customer_name,
     )
 
     # Update with extracted data
     conn = sqlite3.connect(DB_FILE)
     cursor = conn.cursor()
 
-    cursor.execute("""
+    cursor.execute(
+        """
         UPDATE invoices SET
             invoice_number = ?,
             issue_date = ?,
             total_amount = ?,
             status = ?
         WHERE id = ?
-    """, (
-        invoice_number,
-        invoice_date,
-        total_amount,
-        status,
-        invoice_id
-    ))
+    """,
+        (invoice_number, invoice_date, total_amount, status, invoice_id),
+    )
 
     conn.commit()
     conn.close()

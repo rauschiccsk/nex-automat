@@ -8,20 +8,19 @@ import logging
 import os
 from dataclasses import asdict
 from datetime import date
-from typing import Any, Dict, List
-
-from temporalio import activity
+from typing import Any
 
 from adapters import MARSOAdapter, SupplierConfig
 from config.config_loader import SupplierConfigError
 from config.config_loader import load_supplier_config as _load_config
 from converters import MARSOToISDOCConverter
+from temporalio import activity
 
 logger = logging.getLogger(__name__)
 
 
 @activity.defn
-async def fetch_supplier_config_activity(supplier_id: str) -> Dict[str, Any]:
+async def fetch_supplier_config_activity(supplier_id: str) -> dict[str, Any]:
     """
     Load supplier configuration from YAML.
 
@@ -75,7 +74,7 @@ async def fetch_invoice_list_activity(
     supplier_id: str,
     date_from: str,
     date_to: str,
-) -> List[Dict[str, Any]]:
+) -> list[dict[str, Any]]:
     """
     Fetch list of invoices from supplier API.
 
@@ -87,9 +86,7 @@ async def fetch_invoice_list_activity(
     Returns:
         List of raw invoice data
     """
-    activity.logger.info(
-        f"Fetching invoices from {supplier_id}: {date_from} to {date_to}"
-    )
+    activity.logger.info(f"Fetching invoices from {supplier_id}: {date_from} to {date_to}")
 
     config = _load_config(supplier_id)
     adapter = _get_adapter(supplier_id, config)
@@ -107,7 +104,7 @@ async def fetch_invoice_list_activity(
 async def fetch_invoice_detail_activity(
     supplier_id: str,
     invoice_id: str,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Fetch single invoice details.
 
@@ -132,8 +129,8 @@ async def fetch_invoice_detail_activity(
 @activity.defn
 async def convert_to_unified_activity(
     supplier_id: str,
-    raw_invoice: Dict[str, Any],
-) -> Dict[str, Any]:
+    raw_invoice: dict[str, Any],
+) -> dict[str, Any]:
     """
     Convert raw invoice to UnifiedInvoice format.
 
@@ -159,7 +156,7 @@ async def convert_to_unified_activity(
 @activity.defn
 async def convert_to_isdoc_activity(
     supplier_id: str,
-    raw_invoice: Dict[str, Any],
+    raw_invoice: dict[str, Any],
 ) -> str:
     """
     Convert raw invoice to ISDOC XML format.
@@ -219,7 +216,7 @@ async def acknowledge_invoice_activity(
 async def archive_raw_data_activity(
     supplier_id: str,
     invoice_id: str,
-    raw_data: Dict[str, Any],
+    raw_data: dict[str, Any],
     isdoc_xml: str,
 ) -> str:
     """
@@ -243,13 +240,7 @@ async def archive_raw_data_activity(
     # Build archive path
     base_path = Path(os.environ.get("ARCHIVE_PATH", "C:/NEX/YEARACT/ARCHIV"))
     timestamp = datetime.now()
-    archive_dir = (
-        base_path
-        / "SUPPLIER-INVOICES"
-        / supplier_id.upper()
-        / str(timestamp.year)
-        / f"{timestamp.month:02d}"
-    )
+    archive_dir = base_path / "SUPPLIER-INVOICES" / supplier_id.upper() / str(timestamp.year) / f"{timestamp.month:02d}"
     archive_dir.mkdir(parents=True, exist_ok=True)
 
     # Generate filename
@@ -275,7 +266,7 @@ async def post_isdoc_to_pipeline_activity(
     isdoc_xml: str,
     invoice_id: str,
     supplier_id: str,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Post ISDOC XML to existing invoice processing pipeline.
 
@@ -291,9 +282,7 @@ async def post_isdoc_to_pipeline_activity(
 
     activity.logger.info(f"Posting ISDOC to pipeline: {invoice_id}")
 
-    pipeline_url = os.environ.get(
-        "INVOICE_PIPELINE_URL", "http://localhost:8000/api/v1/invoice"
-    )
+    pipeline_url = os.environ.get("INVOICE_PIPELINE_URL", "http://localhost:8000/api/v1/invoice")
 
     async with httpx.AsyncClient(timeout=30.0) as client:
         response = await client.post(

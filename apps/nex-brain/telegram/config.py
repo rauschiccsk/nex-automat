@@ -1,9 +1,10 @@
 """
 Telegram Multi-Bot Configuration
 """
+
 import os
 from dataclasses import dataclass
-from typing import Dict, Optional
+
 from dotenv import load_dotenv
 
 # Načítanie .env súboru
@@ -13,13 +14,14 @@ load_dotenv()
 @dataclass
 class BotConfig:
     """Konfigurácia pre jednotlivý bot"""
+
     token: str
-    tenant: Optional[str]  # None = admin bot (prepínateľný)
+    tenant: str | None  # None = admin bot (prepínateľný)
     requires_approval: bool
     name: str
 
 
-@dataclass 
+@dataclass
 class Settings:
     """Hlavná konfigurácia"""
 
@@ -39,32 +41,23 @@ class Settings:
     icc_bot_token: str = os.getenv("TELEGRAM_ICC_BOT_TOKEN", "")
     andros_bot_token: str = os.getenv("TELEGRAM_ANDROS_BOT_TOKEN", "")
 
-    def get_bots(self) -> Dict[str, BotConfig]:
+    def get_bots(self) -> dict[str, BotConfig]:
         """Vráti konfiguráciu všetkých botov"""
         bots = {}
 
         if self.admin_bot_token:
             bots["admin"] = BotConfig(
-                token=self.admin_bot_token,
-                tenant=None,
-                requires_approval=False,
-                name="NEX Brain Admin"
+                token=self.admin_bot_token, tenant=None, requires_approval=False, name="NEX Brain Admin"
             )
 
         if self.icc_bot_token:
             bots["icc"] = BotConfig(
-                token=self.icc_bot_token,
-                tenant="icc",
-                requires_approval=True,
-                name="NEX Brain ICC"
+                token=self.icc_bot_token, tenant="icc", requires_approval=True, name="NEX Brain ICC"
             )
 
         if self.andros_bot_token:
             bots["andros"] = BotConfig(
-                token=self.andros_bot_token,
-                tenant="andros",
-                requires_approval=True,
-                name="NEX Brain ANDROS"
+                token=self.andros_bot_token, tenant="andros", requires_approval=True, name="NEX Brain ANDROS"
             )
 
         return bots

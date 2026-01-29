@@ -1,4 +1,5 @@
 """Report configuration"""
+
 from dataclasses import dataclass, field
 from typing import List
 from pathlib import Path
@@ -7,6 +8,7 @@ import os
 # Load .env from supplier-invoice-worker
 try:
     from dotenv import load_dotenv
+
     env_path = Path(__file__).parent.parent.parent / "supplier-invoice-worker" / ".env"
     if env_path.exists():
         load_dotenv(env_path)
@@ -18,6 +20,7 @@ except ImportError:
 @dataclass
 class ReportConfig:
     """Daily report configuration"""
+
     # Schedule
     send_time: str = "18:00"
     workdays_only: bool = True
@@ -25,9 +28,11 @@ class ReportConfig:
 
     # Recipients
     admin_email: str = field(default_factory=lambda: os.getenv("NOTIFY_EMAIL", "rausch@icc.sk"))
-    customer_emails: List[str] = field(default_factory=lambda: [
-        e.strip() for e in os.getenv("REPORT_CUSTOMER_EMAIL", "").split(",") if e.strip()
-    ])
+    customer_emails: List[str] = field(
+        default_factory=lambda: [
+            e.strip() for e in os.getenv("REPORT_CUSTOMER_EMAIL", "").split(",") if e.strip()
+        ]
+    )
 
     # SMTP (Gmail SSL on port 465)
     smtp_host: str = field(default_factory=lambda: os.getenv("SMTP_HOST", "smtp.gmail.com"))

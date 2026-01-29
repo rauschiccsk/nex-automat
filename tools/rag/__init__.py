@@ -26,15 +26,15 @@ Modules:
     - init_prompt_helper: Init prompt context generator
 """
 
-from .config import get_config, RAGConfig
-from .api import RAGSearchAPI, search, get_context
+from .api import RAGSearchAPI, get_context, search
+from .config import RAGConfig, get_config
 
 __all__ = [
-    'get_config',
-    'RAGConfig',
-    'RAGSearchAPI',
-    'search',
-    'get_context',
+    "get_config",
+    "RAGConfig",
+    "RAGSearchAPI",
+    "search",
+    "get_context",
 ]
 
-__version__ = '1.0.0'
+__version__ = "1.0.0"

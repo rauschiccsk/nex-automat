@@ -8,10 +8,10 @@ Definition: mglst.bdf
 Record Size: ~200 bytes
 """
 
+import struct
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Optional
-import struct
 
 
 @dataclass
@@ -52,17 +52,17 @@ class MGLSTRecord:
 
     # Audit fields
     mod_user: str = ""  # Užívateľ poslednej zmeny
-    mod_date: Optional[datetime] = None  # Dátum poslednej zmeny
-    mod_time: Optional[datetime] = None  # Čas poslednej zmeny
+    mod_date: datetime | None = None  # Dátum poslednej zmeny
+    mod_time: datetime | None = None  # Čas poslednej zmeny
 
     # Indexes (constants)
-    INDEX_MGLSTCODE = 'MglstCode'  # Primary index
-    INDEX_NAME = 'MglstName'  # Index podľa názvu
-    INDEX_PARENT = 'ParentCode'  # Index podľa nadriadenej skupiny
-    INDEX_SORT = 'SortOrder'  # Index pre zoradenie
+    INDEX_MGLSTCODE = "MglstCode"  # Primary index
+    INDEX_NAME = "MglstName"  # Index podľa názvu
+    INDEX_PARENT = "ParentCode"  # Index podľa nadriadenej skupiny
+    INDEX_SORT = "SortOrder"  # Index pre zoradenie
 
     @classmethod
-    def from_bytes(cls, data: bytes, encoding: str = 'cp852') -> 'MGLSTRecord':
+    def from_bytes(cls, data: bytes, encoding: str = "cp852") -> "MGLSTRecord":
         """
         Deserialize MGLST record from bytes
 
@@ -95,23 +95,23 @@ class MGLSTRecord:
             raise ValueError(f"Invalid record size: {len(data)} bytes (expected >= 200)")
 
         # Primary key
-        mglst_code = struct.unpack('<i', data[0:4])[0]
+        mglst_code = struct.unpack("<i", data[0:4])[0]
 
         # Basic info
-        mglst_name = data[4:84].decode(encoding, errors='ignore').rstrip('\x00 ')
-        short_name = data[84:114].decode(encoding, errors='ignore').rstrip('\x00 ')
+        mglst_name = data[4:84].decode(encoding, errors="ignore").rstrip("\x00 ")
+        short_name = data[84:114].decode(encoding, errors="ignore").rstrip("\x00 ")
 
         # Hierarchy
-        parent_code = struct.unpack('<i', data[114:118])[0]
-        level = struct.unpack('<i', data[118:122])[0]
+        parent_code = struct.unpack("<i", data[114:118])[0]
+        level = struct.unpack("<i", data[118:122])[0]
 
         # Display
-        sort_order = struct.unpack('<i', data[122:126])[0]
-        color_code = data[126:136].decode(encoding, errors='ignore').rstrip('\x00 ')
+        sort_order = struct.unpack("<i", data[122:126])[0]
+        color_code = data[126:136].decode(encoding, errors="ignore").rstrip("\x00 ")
 
         # Business rules
-        default_vat_rate = struct.unpack('<d', data[136:144])[0]
-        default_unit = data[144:154].decode(encoding, errors='ignore').rstrip('\x00 ')
+        default_vat_rate = struct.unpack("<d", data[136:144])[0]
+        default_unit = data[144:154].decode(encoding, errors="ignore").rstrip("\x00 ")
 
         # Status
         active = bool(data[154])
@@ -125,17 +125,17 @@ class MGLSTRecord:
         mod_time = None
 
         if len(data) >= 256:
-            note = data[156:256].decode(encoding, errors='ignore').rstrip('\x00 ')
+            note = data[156:256].decode(encoding, errors="ignore").rstrip("\x00 ")
 
         if len(data) >= 456:
-            description = data[256:456].decode(encoding, errors='ignore').rstrip('\x00 ')
+            description = data[256:456].decode(encoding, errors="ignore").rstrip("\x00 ")
 
         # Try to extract audit fields if present
         if len(data) >= 472:
-            mod_user = data[456:464].decode(encoding, errors='ignore').rstrip('\x00 ')
-            mod_date_int = struct.unpack('<i', data[464:468])[0]
+            mod_user = data[456:464].decode(encoding, errors="ignore").rstrip("\x00 ")
+            mod_date_int = struct.unpack("<i", data[464:468])[0]
             mod_date = cls._decode_delphi_date(mod_date_int) if mod_date_int > 0 else None
-            mod_time_int = struct.unpack('<i', data[468:472])[0]
+            mod_time_int = struct.unpack("<i", data[468:472])[0]
             mod_time = cls._decode_delphi_time(mod_time_int) if mod_time_int >= 0 else None
 
         return cls(
@@ -154,13 +154,14 @@ class MGLSTRecord:
             description=description,
             mod_user=mod_user,
             mod_date=mod_date,
-            mod_time=mod_time
+            mod_time=mod_time,
         )
 
     @staticmethod
     def _decode_delphi_date(days: int) -> datetime:
         """Convert Delphi date to Python datetime"""
         from datetime import timedelta
+
         base_date = datetime(1899, 12, 30)
         return base_date + timedelta(days=days)
 
@@ -168,6 +169,7 @@ class MGLSTRecord:
     def _decode_delphi_time(milliseconds: int) -> datetime:
         """Convert Delphi time to Python datetime"""
         from datetime import timedelta
+
         base = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
         return base + timedelta(milliseconds=milliseconds)
 
@@ -196,7 +198,7 @@ class MGLSTRecord:
         """Check if this category is a child of specified parent"""
         return self.parent_code == parent_code
 
-    def get_path(self, all_categories: list['MGLSTRecord']) -> list['MGLSTRecord']:
+    def get_path(self, all_categories: list["MGLSTRecord"]) -> list["MGLSTRecord"]:
         """
         Get full path from root to this category
 
@@ -219,7 +221,9 @@ class MGLSTRecord:
 
         return path
 
-    def get_full_path_name(self, all_categories: list['MGLSTRecord'], separator: str = " > ") -> str:
+    def get_full_path_name(
+        self, all_categories: list["MGLSTRecord"], separator: str = " > "
+    ) -> str:
         """
         Get full category path as string (e.g., "Elektronika > Počítače > Notebooky")
 

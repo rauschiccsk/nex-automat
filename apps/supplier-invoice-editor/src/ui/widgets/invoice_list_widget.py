@@ -4,35 +4,36 @@ Refactored to use BaseGrid from nex-shared
 """
 
 import logging
-from pathlib import Path
-from PyQt5.QtWidgets import QHeaderView
-from PyQt5.QtCore import Qt, QAbstractTableModel, QVariant, pyqtSignal
 from decimal import Decimal
+from pathlib import Path
+
+from PyQt5.QtCore import QAbstractTableModel, Qt, QVariant, pyqtSignal
 
 # Import BaseGrid from nex-shared
 nex_shared_path = Path(__file__).parent.parent.parent.parent.parent / "packages" / "nex-shared"
 import sys
+
 sys.path.insert(0, str(nex_shared_path))
 from nex_shared.ui import BaseGrid
 
+from ...utils.constants import GRID_INVOICE_LIST, WINDOW_MAIN
+
 # Import QuickSearch components from local widgets
 from .quick_search import QuickSearchContainer, QuickSearchController
-
-from ...utils.constants import WINDOW_MAIN, GRID_INVOICE_LIST
 
 
 class InvoiceListModel(QAbstractTableModel):
     """Table model for invoice list"""
 
     COLUMNS = [
-        ('ID', 'id'),
-        ('Číslo faktúry', 'invoice_number'),
-        ('Dátum', 'invoice_date'),
-        ('Dodávateľ', 'supplier_name'),
-        ('IČO', 'supplier_ico'),
-        ('Suma', 'total_amount'),
-        ('Mena', 'currency'),
-        ('Stav', 'status')
+        ("ID", "id"),
+        ("Číslo faktúry", "invoice_number"),
+        ("Dátum", "invoice_date"),
+        ("Dodávateľ", "supplier_name"),
+        ("IČO", "supplier_ico"),
+        ("Suma", "total_amount"),
+        ("Mena", "currency"),
+        ("Stav", "status"),
     ]
 
     def __init__(self, parent=None):
@@ -67,25 +68,21 @@ class InvoiceListModel(QAbstractTableModel):
         if role == Qt.DisplayRole:
             invoice = self._invoices[index.row()]
             column_key = self.COLUMNS[index.column()][1]
-            value = invoice.get(column_key, '')
+            value = invoice.get(column_key, "")
 
             # Format values
-            if column_key == 'total_amount':
+            if column_key == "total_amount":
                 if isinstance(value, (int, float, Decimal)):
                     return f"{float(value):.2f}"
-            elif column_key == 'status':
-                status_map = {
-                    'pending': 'Čaká',
-                    'approved': 'Schválené',
-                    'rejected': 'Odmietnuté'
-                }
+            elif column_key == "status":
+                status_map = {"pending": "Čaká", "approved": "Schválené", "rejected": "Odmietnuté"}
                 return status_map.get(value, value)
 
             return str(value)
 
         elif role == Qt.TextAlignmentRole:
             column_key = self.COLUMNS[index.column()][1]
-            if column_key in ('id', 'total_amount'):
+            if column_key in ("id", "total_amount"):
                 return Qt.AlignRight | Qt.AlignVCenter
             return Qt.AlignLeft | Qt.AlignVCenter
 
@@ -109,7 +106,7 @@ class InvoiceListModel(QAbstractTableModel):
     def get_invoice_id(self, row):
         """Get invoice ID at row"""
         invoice = self.get_invoice(row)
-        return invoice['id'] if invoice else None
+        return invoice["id"] if invoice else None
 
     def sort(self, column, order=Qt.AscendingOrder):
         """Sort data by column"""
@@ -122,13 +119,10 @@ class InvoiceListModel(QAbstractTableModel):
         column_key = self.COLUMNS[column][1]
 
         # Sort invoices
-        reverse = (order == Qt.DescendingOrder)
+        reverse = order == Qt.DescendingOrder
 
         try:
-            self._invoices.sort(
-                key=lambda x: x.get(column_key, ''),
-                reverse=reverse
-            )
+            self._invoices.sort(key=lambda x: x.get(column_key, ""), reverse=reverse)
         except Exception as e:
             self.logger.error(f"Sort error: {e}")
 
@@ -145,11 +139,7 @@ class InvoiceListWidget(BaseGrid):
 
     def __init__(self, invoice_service, parent=None):
         # Initialize BaseGrid
-        super().__init__(
-            window_name=WINDOW_MAIN,
-            grid_name=GRID_INVOICE_LIST,
-            parent=parent
-        )
+        super().__init__(window_name=WINDOW_MAIN, grid_name=GRID_INVOICE_LIST, parent=parent)
 
         self.invoice_service = invoice_service
 
@@ -224,4 +214,4 @@ class InvoiceListWidget(BaseGrid):
     def get_selected_invoice_id(self):
         """Get currently selected invoice ID"""
         invoice = self.get_selected_invoice()
-        return invoice['id'] if invoice else None
+        return invoice["id"] if invoice else None

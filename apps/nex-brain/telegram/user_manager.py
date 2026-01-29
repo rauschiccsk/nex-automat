@@ -1,11 +1,9 @@
 """
 User Manager - správa používateľov a schvaľovanie
 """
-import logging
-from typing import Optional, List, Dict, Any
-from datetime import datetime
 
-import pg8000
+import logging
+from typing import Any
 
 from db import get_connection
 
@@ -16,7 +14,7 @@ class UserManager:
     """Správa Telegram používateľov"""
 
     @staticmethod
-    def get_user(user_id: int, tenant: str) -> Optional[Dict[str, Any]]:
+    def get_user(user_id: int, tenant: str) -> dict[str, Any] | None:
         """Získanie používateľa podľa user_id a tenant"""
         conn = get_connection()
         if not conn:
@@ -31,7 +29,7 @@ class UserManager:
                 FROM telegram_users 
                 WHERE user_id = %s AND tenant = %s
                 """,
-                (user_id, tenant)
+                (user_id, tenant),
             )
             row = cursor.fetchone()
             cursor.close()
@@ -47,7 +45,7 @@ class UserManager:
                     "status": row[5],
                     "requested_at": row[6],
                     "approved_at": row[7],
-                    "approved_by": row[8]
+                    "approved_by": row[8],
                 }
             return None
         except Exception as e:
@@ -83,7 +81,7 @@ class UserManager:
                 VALUES (%s, %s, %s, %s, 'pending')
                 ON CONFLICT (user_id, tenant) DO NOTHING
                 """,
-                (user_id, username, first_name, tenant)
+                (user_id, username, first_name, tenant),
             )
             conn.commit()
             cursor.close()
@@ -110,7 +108,7 @@ class UserManager:
                 SET status = 'approved', approved_at = NOW(), approved_by = %s
                 WHERE user_id = %s AND tenant = %s
                 """,
-                (approved_by, user_id, tenant)
+                (approved_by, user_id, tenant),
             )
             affected = cursor.rowcount
             conn.commit()
@@ -138,7 +136,7 @@ class UserManager:
                 SET status = 'rejected'
                 WHERE user_id = %s AND tenant = %s
                 """,
-                (user_id, tenant)
+                (user_id, tenant),
             )
             affected = cursor.rowcount
             conn.commit()
@@ -152,7 +150,7 @@ class UserManager:
             return False
 
     @staticmethod
-    def get_pending_users(tenant: Optional[str] = None) -> List[Dict[str, Any]]:
+    def get_pending_users(tenant: str | None = None) -> list[dict[str, Any]]:
         """Získanie zoznamu čakajúcich používateľov"""
         conn = get_connection()
         if not conn:
@@ -168,7 +166,7 @@ class UserManager:
                     WHERE status = 'pending' AND tenant = %s
                     ORDER BY requested_at
                     """,
-                    (tenant,)
+                    (tenant,),
                 )
             else:
                 cursor.execute(
@@ -191,7 +189,7 @@ class UserManager:
                     "username": row[2],
                     "first_name": row[3],
                     "tenant": row[4],
-                    "requested_at": row[5]
+                    "requested_at": row[5],
                 }
                 for row in rows
             ]
@@ -202,7 +200,7 @@ class UserManager:
             return []
 
     @staticmethod
-    def get_approved_users(tenant: Optional[str] = None) -> List[Dict[str, Any]]:
+    def get_approved_users(tenant: str | None = None) -> list[dict[str, Any]]:
         """Získanie zoznamu schválených používateľov"""
         conn = get_connection()
         if not conn:
@@ -218,7 +216,7 @@ class UserManager:
                     WHERE status = 'approved' AND tenant = %s
                     ORDER BY approved_at DESC
                     """,
-                    (tenant,)
+                    (tenant,),
                 )
             else:
                 cursor.execute(
@@ -241,7 +239,7 @@ class UserManager:
                     "username": row[2],
                     "first_name": row[3],
                     "tenant": row[4],
-                    "approved_at": row[5]
+                    "approved_at": row[5],
                 }
                 for row in rows
             ]
@@ -264,10 +262,7 @@ class AdminManager:
 
         try:
             cursor = conn.cursor()
-            cursor.execute(
-                "SELECT id FROM telegram_admins WHERE user_id = %s",
-                (user_id,)
-            )
+            cursor.execute("SELECT id FROM telegram_admins WHERE user_id = %s", (user_id,))
             row = cursor.fetchone()
             cursor.close()
             conn.close()
@@ -293,7 +288,7 @@ class AdminManager:
                 VALUES (%s, %s)
                 ON CONFLICT (user_id) DO NOTHING
                 """,
-                (user_id, username)
+                (user_id, username),
             )
             conn.commit()
             cursor.close()

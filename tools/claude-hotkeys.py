@@ -3,17 +3,19 @@ Claude Hotkeys - nex-automat projekt
 Klávesové skratky pre časté operácie
 """
 
+import subprocess
+from datetime import datetime
+from pathlib import Path
+
 import keyboard
 import pyperclip
-import subprocess
-from pathlib import Path
-from datetime import datetime
 
 try:
     from config import PROJECT_ROOT, SESSION_NOTES_DIR
 except ImportError:
     PROJECT_ROOT = Path("C:/Development/nex-automat")
     SESSION_NOTES_DIR = Path("/init_chat")
+
 
 class ClaudeHotkeys:
     def __init__(self):
@@ -25,25 +27,25 @@ class ClaudeHotkeys:
         """Registruj všetky hotkeys"""
 
         hotkeys = [
-            ('ctrl+windows+s', self.copy_session_notes, "Copy Session Notes"),
-            ('ctrl+windows+g', self.show_git_status, "Git Status"),
-            ('ctrl+windows+d', self.show_deployment_info, "Deployment Info"),
-            ('ctrl+windows+n', self.new_chat_template, "New Chat Template"),
-            ('ctrl+windows+i', self.show_info, "Show Info"),
+            ("ctrl+windows+s", self.copy_session_notes, "Copy Session Notes"),
+            ("ctrl+windows+g", self.show_git_status, "Git Status"),
+            ("ctrl+windows+d", self.show_deployment_info, "Deployment Info"),
+            ("ctrl+windows+n", self.new_chat_template, "New Chat Template"),
+            ("ctrl+windows+i", self.show_info, "Show Info"),
         ]
 
-        print("\n" + "="*60)
+        print("\n" + "=" * 60)
         print("⌨️  CLAUDE HOTKEYS - nex-automat")
-        print("="*60)
+        print("=" * 60)
         print("\nDostupné skratky (Ctrl+Win+...):")
 
         for hotkey, func, desc in hotkeys:
             keyboard.add_hotkey(hotkey, func)
-            key = hotkey.split('+')[-1].upper()
+            key = hotkey.split("+")[-1].upper()
             print(f"  {key} - {desc}")
 
         print("\nStlač Ctrl+C pre ukončenie")
-        print("="*60 + "\n")
+        print("=" * 60 + "\n")
 
     def copy_session_notes(self):
         """Skopíruj session notes do schránky"""
@@ -53,10 +55,10 @@ class ClaudeHotkeys:
             self.notify("❌ Session notes neexistujú")
             return
 
-        content = notes_file.read_text(encoding='utf-8')
+        content = notes_file.read_text(encoding="utf-8")
         pyperclip.copy(content)
 
-        lines = len(content.split('\n'))
+        lines = len(content.split("\n"))
         chars = len(content)
         self.notify(f"✅ Session notes v schránke ({lines} riadkov, {chars:,} znakov)")
 
@@ -65,11 +67,7 @@ class ClaudeHotkeys:
         try:
             # Git status
             result = subprocess.run(
-                ['git', 'status', '--short'],
-                cwd=self.project_root,
-                capture_output=True,
-                text=True,
-                timeout=5
+                ["git", "status", "--short"], cwd=self.project_root, capture_output=True, text=True, timeout=5
             )
 
             if result.returncode != 0:
@@ -82,16 +80,16 @@ class ClaudeHotkeys:
                 status = "✅ Žiadne zmeny (working tree clean)"
 
             # Pridaj header
-            output = f"""GIT STATUS - {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+            output = f"""GIT STATUS - {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
 Project: {self.project_root}
 
 {status}
 """
 
             pyperclip.copy(output)
-            print("\n" + "="*60)
+            print("\n" + "=" * 60)
             print(output)
-            print("="*60)
+            print("=" * 60)
             print("✅ Git status skopírovaný do schránky\n")
 
         except subprocess.TimeoutExpired:
@@ -107,12 +105,12 @@ Project: {self.project_root}
         # Zisti či deployment existuje
         deployment_exists = self.deployment_root.exists()
 
-        info = f"""DEPLOYMENT INFO - {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+        info = f"""DEPLOYMENT INFO - {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
 
 📂 CESTY:
 Development:  {self.project_root}
 Deployment:   {self.deployment_root}
-              {'✅ Existuje' if deployment_exists else '❌ Neexistuje'}
+              {"✅ Existuje" if deployment_exists else "❌ Neexistuje"}
 
 🔄 WORKFLOW:
 1. Development → úpravy v development prostredí
@@ -145,11 +143,7 @@ Deployment:   {self.deployment_root}
         # Zisti Git branch
         try:
             branch_result = subprocess.run(
-                ['git', 'branch', '--show-current'],
-                cwd=self.project_root,
-                capture_output=True,
-                text=True,
-                timeout=5
+                ["git", "branch", "--show-current"], cwd=self.project_root, capture_output=True, text=True, timeout=5
             )
             git_branch = branch_result.stdout.strip() if branch_result.returncode == 0 else "N/A"
         except:
@@ -158,11 +152,7 @@ Deployment:   {self.deployment_root}
         # Zisti posledný commit
         try:
             commit_result = subprocess.run(
-                ['git', 'log', '-1', '--oneline'],
-                cwd=self.project_root,
-                capture_output=True,
-                text=True,
-                timeout=5
+                ["git", "log", "-1", "--oneline"], cwd=self.project_root, capture_output=True, text=True, timeout=5
             )
             last_commit = commit_result.stdout.strip() if commit_result.returncode == 0 else "N/A"
         except:
@@ -178,9 +168,9 @@ Deployment:   {self.deployment_root}
             notes_info = "❌ Neexistujú"
 
         info = f"""
-{"="*60}
-PROJECT INFO - nex-automat - {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
-{"="*60}
+{"=" * 60}
+PROJECT INFO - nex-automat - {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
+{"=" * 60}
 
 📂 PROJECT:
    NEX Automat v2.0
@@ -200,7 +190,7 @@ PROJECT INFO - nex-automat - {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
    N - New Chat Template
    I - This Info
 
-{"="*60}
+{"=" * 60}
 """
 
         print(info)
@@ -209,7 +199,7 @@ PROJECT INFO - nex-automat - {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
 
     def notify(self, message: str):
         """Zobraz notifikáciu"""
-        timestamp = datetime.now().strftime('%H:%M:%S')
+        timestamp = datetime.now().strftime("%H:%M:%S")
         print(f"[{timestamp}] {message}")
 
     def run(self):
@@ -221,9 +211,11 @@ PROJECT INFO - nex-automat - {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
         except KeyboardInterrupt:
             print("\n\n👋 Claude Hotkeys ukončené")
 
+
 def main():
     hotkeys = ClaudeHotkeys()
     hotkeys.run()
+
 
 if __name__ == "__main__":
     main()

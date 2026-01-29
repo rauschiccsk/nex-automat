@@ -61,7 +61,9 @@ print("=" * 80)
 for item in data.items[:5]:
     print(f"\n{item.line_number}. {item.description}")
     print(f"   Kód: {item.item_code} | EAN: {item.ean_code or 'N/A'}")
-    print(f"   {item.quantity} {item.unit} × {item.unit_price_with_vat} EUR = {item.total_with_vat} EUR")
+    print(
+        f"   {item.quantity} {item.unit} × {item.unit_price_with_vat} EUR = {item.total_with_vat} EUR"
+    )
     print(f"   DPH: {item.vat_rate}%")
 
 if len(data.items) > 5:

@@ -12,8 +12,8 @@ def find_backup_files():
     backup_files = []
 
     # Search in root and subdirectories
-    for pattern in ['*.backup', '*.backup2']:
-        backup_files.extend(Path('.').rglob(pattern))
+    for pattern in ["*.backup", "*.backup2"]:
+        backup_files.extend(Path(".").rglob(pattern))
 
     return backup_files
 
@@ -40,7 +40,7 @@ def main():
     print(f"\n⚠️  This will DELETE {len(backup_files)} files!")
     response = input("Continue? (yes/no): ").strip().lower()
 
-    if response not in ['yes', 'y']:
+    if response not in ["yes", "y"]:
         print("\n✗ Cleanup cancelled")
         return 0
 

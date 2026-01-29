@@ -3,18 +3,23 @@ Invoice Detail Window - Display and edit invoice with items
 """
 
 import logging
-from PyQt5.QtWidgets import (
-    QWidget,
-    QDialog, QVBoxLayout, QHBoxLayout, QGroupBox, QLabel, 
-    QPushButton, QMessageBox, QFormLayout
-)
-from PyQt5.QtCore import Qt, pyqtSignal
-from PyQt5.QtGui import QKeySequence
 from decimal import Decimal
 
-from .widgets.invoice_items_grid import InvoiceItemsGrid
 from nex_shared.ui import BaseWindow
+from PyQt5.QtCore import Qt, pyqtSignal
+from PyQt5.QtWidgets import (
+    QFormLayout,
+    QGroupBox,
+    QHBoxLayout,
+    QLabel,
+    QMessageBox,
+    QPushButton,
+    QVBoxLayout,
+    QWidget,
+)
+
 from ..utils.constants import WINDOW_INVOICE_DETAIL
+from .widgets.invoice_items_grid import InvoiceItemsGrid
 
 
 class InvoiceDetailWindow(BaseWindow):
@@ -29,7 +34,7 @@ class InvoiceDetailWindow(BaseWindow):
             window_name=WINDOW_INVOICE_DETAIL,
             default_size=(900, 700),
             default_pos=(200, 100),
-            parent=parent
+            parent=parent,
         )
 
         self.invoice_service = invoice_service
@@ -59,11 +64,7 @@ class InvoiceDetailWindow(BaseWindow):
 
         except Exception as e:
             self.logger.exception("Failed to load invoice data")
-            QMessageBox.critical(
-                self,
-                "Chyba",
-                f"Nepodarilo sa načítať faktúru:\n\n{str(e)}"
-            )
+            QMessageBox.critical(self, "Chyba", f"Nepodarilo sa načítať faktúru:\n\n{str(e)}")
             self.close()
 
     def _setup_ui(self):
@@ -107,12 +108,12 @@ class InvoiceDetailWindow(BaseWindow):
         layout = QFormLayout(group)
 
         # Invoice number
-        invoice_number = QLabel(self.invoice['invoice_number'])
+        invoice_number = QLabel(self.invoice["invoice_number"])
         invoice_number.setStyleSheet("font-weight: bold;")
         layout.addRow("Číslo faktúry:", invoice_number)
 
         # Date
-        invoice_date = QLabel(self.invoice['invoice_date'])
+        invoice_date = QLabel(self.invoice["invoice_date"])
         layout.addRow("Dátum faktúry:", invoice_date)
 
         # Supplier
@@ -121,16 +122,16 @@ class InvoiceDetailWindow(BaseWindow):
         layout.addRow("Dodávateľ:", supplier)
 
         # Currency
-        currency = QLabel(self.invoice['currency'])
+        currency = QLabel(self.invoice["currency"])
         layout.addRow("Mena:", currency)
 
         # Status
         status_map = {
-            'pending': 'Čaká na schválenie',
-            'approved': 'Schválené',
-            'rejected': 'Odmietnuté'
+            "pending": "Čaká na schválenie",
+            "approved": "Schválené",
+            "rejected": "Odmietnuté",
         }
-        status_text = status_map.get(self.invoice['status'], self.invoice['status'])
+        status_text = status_map.get(self.invoice["status"], self.invoice["status"])
         status = QLabel(status_text)
         status.setStyleSheet("color: orange; font-weight: bold;")
         layout.addRow("Stav:", status)
@@ -178,9 +179,9 @@ class InvoiceDetailWindow(BaseWindow):
         """Update summary totals"""
         items = self.items_grid.get_items()
 
-        total = Decimal('0.00')
+        total = Decimal("0.00")
         for item in items:
-            item_total = Decimal(str(item.get('total_price', 0)))
+            item_total = Decimal(str(item.get("total_price", 0)))
             total += item_total
 
         self.total_label.setText(f"{float(total):.2f} {self.invoice['currency']}")
@@ -195,11 +196,7 @@ class InvoiceDetailWindow(BaseWindow):
 
             # Validate items
             if not items:
-                QMessageBox.warning(
-                    self,
-                    "Upozornenie",
-                    "Faktúra nemá žiadne položky!"
-                )
+                QMessageBox.warning(self, "Upozornenie", "Faktúra nemá žiadne položky!")
                 return
 
             # Save to database
@@ -207,29 +204,17 @@ class InvoiceDetailWindow(BaseWindow):
 
             if success:
                 self.logger.info("Invoice saved successfully")
-                QMessageBox.information(
-                    self,
-                    "Úspech",
-                    "Faktúra bola úspešne uložená."
-                )
+                QMessageBox.information(self, "Úspech", "Faktúra bola úspešne uložená.")
 
                 # Emit signal and close
                 self.invoice_saved.emit(self.invoice_id)
                 self.close()
             else:
-                QMessageBox.warning(
-                    self,
-                    "Chyba",
-                    "Nepodarilo sa uložiť faktúru."
-                )
+                QMessageBox.warning(self, "Chyba", "Nepodarilo sa uložiť faktúru.")
 
         except Exception as e:
             self.logger.exception("Failed to save invoice")
-            QMessageBox.critical(
-                self,
-                "Chyba",
-                f"Chyba pri ukladaní faktúry:\n\n{str(e)}"
-            )
+            QMessageBox.critical(self, "Chyba", f"Chyba pri ukladaní faktúry:\n\n{str(e)}")
 
     def keyPressEvent(self, event):
         """Handle key press events"""

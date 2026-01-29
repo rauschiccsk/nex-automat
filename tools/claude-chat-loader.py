@@ -3,11 +3,12 @@ Claude Chat Loader - nex-automat projekt
 Automatické načítanie a vloženie init promptu do nového chatu
 """
 
-import pyperclip
-import keyboard
 import time
-from pathlib import Path
 from datetime import datetime
+from pathlib import Path
+
+import keyboard
+import pyperclip
 
 try:
     from config import SESSION_NOTES_DIR
@@ -30,10 +31,10 @@ class ChatLoader:
                 return
 
             # Načítaj obsah
-            content = self.init_prompt_file.read_text(encoding='utf-8')
+            content = self.init_prompt_file.read_text(encoding="utf-8")
 
             # Pridaj timestamp
-            enhanced_content = f"""[Načítané: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}]
+            enhanced_content = f"""[Načítané: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}]
 
 {content}
 """
@@ -50,7 +51,7 @@ class ChatLoader:
             time.sleep(2)
 
             # Simuluj Ctrl+V
-            keyboard.send('ctrl+v')
+            keyboard.send("ctrl+v")
             print("✅ Vložené!")
 
         except Exception as e:
@@ -80,7 +81,7 @@ Pokračujem tam kde sme skončili v predchádzajúcom chate.
 """
 
         self.session_notes_dir.mkdir(parents=True, exist_ok=True)
-        self.init_prompt_file.write_text(basic_prompt, encoding='utf-8')
+        self.init_prompt_file.write_text(basic_prompt, encoding="utf-8")
         print(f"✅ Vytvorený: {self.init_prompt_file}")
 
     def quick_load_session_notes(self):
@@ -90,10 +91,10 @@ Pokračujem tam kde sme skončili v predchádzajúcom chate.
                 self.show_notification("❌ Session notes neexistujú", error=True)
                 return
 
-            content = self.session_notes_file.read_text(encoding='utf-8')
+            content = self.session_notes_file.read_text(encoding="utf-8")
             pyperclip.copy(content)
 
-            line_count = len(content.split('\n'))
+            line_count = len(content.split("\n"))
             self.show_notification(f"✅ Session notes v schránke ({line_count} riadkov)")
 
         except Exception as e:
@@ -114,10 +115,7 @@ Pokračujem tam kde sme skončili v predchádzajúcom chate.
         print("📂 CLAUDE CHAT LOADER - nex-automat")
         print("=" * 60)
 
-        files = [
-            ("Init Prompt", self.init_prompt_file),
-            ("Session Notes", self.session_notes_file)
-        ]
+        files = [("Init Prompt", self.init_prompt_file), ("Session Notes", self.session_notes_file)]
 
         for name, file_path in files:
             if file_path.exists():
@@ -149,7 +147,7 @@ def main():
     loader.get_file_info()
 
     # Registruj hotkey
-    keyboard.add_hotkey('ctrl+alt+l', loader.load_and_paste_init_prompt)
+    keyboard.add_hotkey("ctrl+alt+l", loader.load_and_paste_init_prompt)
 
     # Čakaj na stlačenie
     try:

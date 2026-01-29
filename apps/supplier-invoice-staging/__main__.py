@@ -1,4 +1,5 @@
 """Entry point: python -m supplier_invoice_staging"""
+
 import sys
 from pathlib import Path
 

@@ -1,12 +1,11 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 """Patch PostgresClient to accept dict config"""
 
 from pathlib import Path
 
-FILE = Path(__file__).parent.parent / 'src' / 'database' / 'postgres_client.py'
+FILE = Path(__file__).parent.parent / "src" / "database" / "postgres_client.py"
 
-with open(FILE, 'r', encoding='utf-8') as f:
+with open(FILE, encoding="utf-8") as f:
     content = f.read()
 
 # Replace _get_connection_params method
@@ -61,7 +60,7 @@ new_method = '''    def _get_connection_params(self) -> dict:
 
 content = content.replace(old_method, new_method)
 
-with open(FILE, 'w', encoding='utf-8') as f:
+with open(FILE, "w", encoding="utf-8") as f:
     f.write(content)
 
 print(f"OK Patched: {FILE}")

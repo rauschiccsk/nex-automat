@@ -2,33 +2,36 @@
 Main Window - Invoice Editor
 Qt5 main application window with menu, toolbar, and invoice list
 """
+
 from pathlib import Path
 
 # Add nex-shared to path
 nex_shared_path = Path(__file__).parent.parent.parent.parent.parent / "packages" / "nex-shared"
 
 import logging
-from PyQt5.QtWidgets import (
-    QMainWindow, QWidget, QVBoxLayout, QStatusBar,
-    QMenuBar, QMenu, QAction, QToolBar, QMessageBox
-)
-from PyQt5.QtCore import Qt, QTimer
-from nex_shared.ui import BaseWindow
-from PyQt5.QtGui import QIcon, QKeySequence
 
-from .widgets.invoice_list_widget import InvoiceListWidget
+from nex_shared.ui import BaseWindow
+from PyQt5.QtCore import Qt, QTimer
+from PyQt5.QtGui import QKeySequence
+from PyQt5.QtWidgets import (
+    QAction,
+    QMessageBox,
+    QStatusBar,
+    QToolBar,
+    QVBoxLayout,
+    QWidget,
+)
+
 from ..business.invoice_service import InvoiceService
 from ..utils.constants import WINDOW_MAIN
+from .widgets.invoice_list_widget import InvoiceListWidget
+
 
 class MainWindow(BaseWindow):
     """Main application window"""
 
     def __init__(self, config, parent=None):
-        super().__init__(
-            window_name=WINDOW_MAIN,
-            default_size=(1400, 900),
-            default_pos=(100, 100)
-        )
+        super().__init__(window_name=WINDOW_MAIN, default_size=(1400, 900), default_pos=(100, 100))
         self.config = config
         self.logger = logging.getLogger(__name__)
         self.invoice_service = InvoiceService(config)
@@ -169,19 +172,14 @@ class MainWindow(BaseWindow):
             self.invoice_list.update_invoices(invoices)
 
             count = len(invoices)
-            self.statusbar.showMessage(
-                f"Načítaných {count} faktúr | F5: Obnoviť | Ctrl+F: Hľadať"
-            )
+            self.statusbar.showMessage(f"Načítaných {count} faktúr | F5: Obnoviť | Ctrl+F: Hľadať")
             self.logger.info(f"Loaded {count} invoices")
 
         except Exception as e:
             self.logger.exception("Failed to load invoices")
             self.statusbar.showMessage("Chyba pri načítaní faktúr")
-            QMessageBox.warning(
-                self,
-                "Chyba",
-                f"Nepodarilo sa načítať faktúry:\n\n{str(e)}"
-            )
+            QMessageBox.warning(self, "Chyba", f"Nepodarilo sa načítať faktúry:\n\n{str(e)}")
+
     def _on_refresh(self):
         """Refresh invoice list"""
         self.logger.info("Refresh triggered")
@@ -205,11 +203,7 @@ class MainWindow(BaseWindow):
         # Open detail window
         from .invoice_detail_window import InvoiceDetailWindow
 
-        detail_window = InvoiceDetailWindow(
-            self.invoice_service,
-            invoice_id,
-            self
-        )
+        detail_window = InvoiceDetailWindow(self.invoice_service, invoice_id, self)
 
         # Connect save signal
         detail_window.invoice_saved.connect(self._on_invoice_saved)
@@ -231,18 +225,16 @@ class MainWindow(BaseWindow):
             "<p>ISDOC Invoice Approval & NEX Genesis Integration</p>"
             "<p>Version: 0.1.0 (Session 3 - UI Foundation)</p>"
             "<p>© 2025 ICC Komárno</p>"
-            "<p>Developer: Zoltán</p>"
+            "<p>Developer: Zoltán</p>",
         )
 
     def keyPressEvent(self, event):
         """Handle key press events - ESC closes application."""
-        from PyQt5.QtCore import Qt
-        
 
         # Open invoice detail on Enter/Return
         if event.key() in (Qt.Key_Return, Qt.Key_Enter):
             # Get currently selected invoice
-            if hasattr(self, 'invoice_list') and self.invoice_list:
+            if hasattr(self, "invoice_list") and self.invoice_list:
                 invoice_id = self.invoice_list.get_selected_invoice_id()
                 if invoice_id:
                     self._on_invoice_activated(invoice_id)
@@ -254,6 +246,6 @@ class MainWindow(BaseWindow):
             self.close()
             event.accept()
             return
-        
+
         # Pass other keys to parent
         super().keyPressEvent(event)

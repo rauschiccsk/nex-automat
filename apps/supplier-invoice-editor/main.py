@@ -3,9 +3,10 @@ Supplier Invoice Editor - Main Entry Point
 """
 
 import sys
+
 from PyQt5.QtWidgets import QApplication
-from src.ui.main_window import MainWindow
 from src.config import Config
+from src.ui.main_window import MainWindow
 
 
 def main():

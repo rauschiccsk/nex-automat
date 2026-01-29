@@ -2,56 +2,55 @@
 NEX Brain Multi-Bot System
 Spúšťa Admin, ICC a ANDROS boty v jednom procese
 """
+
 import asyncio
 import logging
 import time
 from datetime import datetime, timedelta
-from typing import Dict, List, Any, Optional
+from typing import Any
 
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, Bot
+import httpx
+from user_manager import UserManager
+
+from config import BotConfig, settings
+from telegram import Bot, InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import (
     Application,
-    CommandHandler,
-    MessageHandler,
     CallbackQueryHandler,
-    filters,
+    CommandHandler,
     ContextTypes,
+    MessageHandler,
+    filters,
 )
-import httpx
-
-from config import settings, BotConfig
-from user_manager import UserManager, AdminManager
 
 # Logging
 try:
     from db import log_query, update_feedback
+
     DB_AVAILABLE = True
 except ImportError:
     DB_AVAILABLE = False
     log_query = None
     update_feedback = None
 
-logging.basicConfig(
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    level=logging.INFO
-)
+logging.basicConfig(format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # NEX Brain API endpoint
 API_URL = settings.nex_brain_api_url
 
 # In-memory história konverzácií
-conversation_history: Dict[int, Dict[str, Any]] = {}
+conversation_history: dict[int, dict[str, Any]] = {}
 
 # Mapovanie message_id -> log_id pre feedback
-message_log_map: Dict[int, int] = {}
+message_log_map: dict[int, int] = {}
 
 # Reference na admin bota pre notifikácie
-admin_bot: Optional[Bot] = None
+admin_bot: Bot | None = None
 ADMIN_USER_ID: int = 7204918893  # Tvoje user_id pre notifikácie
 
 
-def get_user_history(user_id: int) -> Dict[str, Any]:
+def get_user_history(user_id: int) -> dict[str, Any]:
     """Získanie alebo vytvorenie histórie pre používateľa"""
     now = datetime.now()
 
@@ -59,20 +58,12 @@ def get_user_history(user_id: int) -> Dict[str, Any]:
         history = conversation_history[user_id]
         timeout = timedelta(minutes=settings.history_timeout_minutes)
         if now - history["last_activity"] > timeout:
-            history = {
-                "messages": [],
-                "last_activity": now,
-                "tenant": history.get("tenant", "icc")
-            }
+            history = {"messages": [], "last_activity": now, "tenant": history.get("tenant", "icc")}
             conversation_history[user_id] = history
         else:
             history["last_activity"] = now
     else:
-        history = {
-            "messages": [],
-            "last_activity": now,
-            "tenant": "icc"
-        }
+        history = {"messages": [], "last_activity": now, "tenant": "icc"}
         conversation_history[user_id] = history
 
     return history
@@ -88,12 +79,12 @@ def add_to_history(user_id: int, role: str, content: str) -> None:
         history["messages"] = history["messages"][-max_messages:]
 
 
-def format_response(answer: str, sources: List = None) -> str:
+def format_response(answer: str, sources: list = None) -> str:
     """Formátovanie odpovede"""
     formatted = f"📋 *Odpoveď:*\n\n{answer}"
 
     if sources and settings.show_sources:
-        sources_display = sources[:settings.max_sources_display]
+        sources_display = sources[: settings.max_sources_display]
         formatted += "\n\n📚 *Zdroje:*\n"
         for source in sources_display:
             if isinstance(source, dict):
@@ -108,10 +99,12 @@ def format_response(answer: str, sources: List = None) -> str:
 
 def get_feedback_keyboard() -> InlineKeyboardMarkup:
     """Inline klávesnica pre feedback"""
-    keyboard = [[
-        InlineKeyboardButton("👍 Užitočné", callback_data="feedback_good"),
-        InlineKeyboardButton("👎 Neužitočné", callback_data="feedback_bad"),
-    ]]
+    keyboard = [
+        [
+            InlineKeyboardButton("👍 Užitočné", callback_data="feedback_good"),
+            InlineKeyboardButton("👎 Neužitočné", callback_data="feedback_bad"),
+        ]
+    ]
     return InlineKeyboardMarkup(keyboard)
 
 
@@ -138,7 +131,7 @@ def create_bot_handlers(bot_config: BotConfig, bot_key: str):
                 f"/users - schválení používatelia\n"
                 f"/tenant - zmena tenant\n\n"
                 f"Alebo napíš otázku pre NEX Brain.",
-                parse_mode="Markdown"
+                parse_mode="Markdown",
             )
             return
 
@@ -148,10 +141,8 @@ def create_bot_handlers(bot_config: BotConfig, bot_key: str):
         # Kontrola či je schválený
         if UserManager.is_approved(user_id, tenant):
             await update.message.reply_text(
-                f"Vitajte späť, {first_name}! 👋\n\n"
-                f"Som *{bot_config.name}*.\n"
-                f"Napíšte svoju otázku.",
-                parse_mode="Markdown"
+                f"Vitajte späť, {first_name}! 👋\n\nSom *{bot_config.name}*.\nNapíšte svoju otázku.",
+                parse_mode="Markdown",
             )
             return
 
@@ -161,7 +152,7 @@ def create_bot_handlers(bot_config: BotConfig, bot_key: str):
                 f"⏳ *Čakáte na schválenie*\n\n"
                 f"Váša žiadosť o prístup do {bot_config.name} "
                 f"bola odoslaná a čaká na schválenie administrátorom.",
-                parse_mode="Markdown"
+                parse_mode="Markdown",
             )
             return
 
@@ -173,7 +164,7 @@ def create_bot_handlers(bot_config: BotConfig, bot_key: str):
             f"⏳ Vaša žiadosť o prístup bola odoslaná.\n"
             f"Administrátor vás čoskoro schváli.\n\n"
             f"Dostanete správu keď budete schválený.",
-            parse_mode="Markdown"
+            parse_mode="Markdown",
         )
 
         # Notifikácia adminovi
@@ -182,13 +173,13 @@ def create_bot_handlers(bot_config: BotConfig, bot_key: str):
                 await admin_bot.send_message(
                     chat_id=ADMIN_USER_ID,
                     text=f"🆕 *Nová žiadosť o prístup*\n\n"
-                         f"👤 Meno: {first_name}\n"
-                         f"📛 Username: @{username}\n"
-                         f"🆔 User ID: `{user_id}`\n"
-                         f"🏢 Tenant: *{tenant}*\n\n"
-                         f"Pre schválenie: `/approve {user_id} {tenant}`\n"
-                         f"Pre zamietnutie: `/reject {user_id} {tenant}`",
-                    parse_mode="Markdown"
+                    f"👤 Meno: {first_name}\n"
+                    f"📛 Username: @{username}\n"
+                    f"🆔 User ID: `{user_id}`\n"
+                    f"🏢 Tenant: *{tenant}*\n\n"
+                    f"Pre schválenie: `/approve {user_id} {tenant}`\n"
+                    f"Pre zamietnutie: `/reject {user_id} {tenant}`",
+                    parse_mode="Markdown",
                 )
             except Exception as e:
                 logger.error(f"Failed to send admin notification: {e}")
@@ -202,7 +193,7 @@ def create_bot_handlers(bot_config: BotConfig, bot_key: str):
             f"• Ako spracujem reklamáciu?\n"
             f"• Aké sú BOZP pravidlá?\n"
             f"• Kto schvaľuje dovolenky?",
-            parse_mode="Markdown"
+            parse_mode="Markdown",
         )
 
     async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -218,14 +209,10 @@ def create_bot_handlers(bot_config: BotConfig, bot_key: str):
             # Kontrola schválenia
             if bot_config.requires_approval and not UserManager.is_approved(user_id, tenant):
                 if UserManager.is_pending(user_id, tenant):
-                    await update.message.reply_text(
-                        "⏳ Stále čakáte na schválenie.",
-                        parse_mode="Markdown"
-                    )
+                    await update.message.reply_text("⏳ Stále čakáte na schválenie.", parse_mode="Markdown")
                 else:
                     await update.message.reply_text(
-                        "❌ Nemáte prístup. Použite /start pre žiadosť.",
-                        parse_mode="Markdown"
+                        "❌ Nemáte prístup. Použite /start pre žiadosť.", parse_mode="Markdown"
                     )
                 return
         else:
@@ -247,11 +234,7 @@ def create_bot_handlers(bot_config: BotConfig, bot_key: str):
             async with httpx.AsyncClient(timeout=60.0) as client:
                 response = await client.post(
                     f"{API_URL}/api/v1/chat",
-                    json={
-                        "question": user_message,
-                        "tenant": tenant,
-                        "history": context_messages
-                    }
+                    json={"question": user_message, "tenant": tenant, "history": context_messages},
                 )
                 response.raise_for_status()
                 data = response.json()
@@ -293,7 +276,7 @@ def create_bot_handlers(bot_config: BotConfig, bot_key: str):
                     question=user_message,
                     answer=answer[:1000] if answer else None,
                     sources=sources_str,
-                    response_time_ms=response_time_ms
+                    response_time_ms=response_time_ms,
                 )
             except Exception as e:
                 logger.warning(f"Log failed: {e}")
@@ -324,17 +307,9 @@ def create_bot_handlers(bot_config: BotConfig, bot_key: str):
             except:
                 pass
 
-        await query.edit_message_text(
-            text=f"{query.message.text}\n\n_{response_text}_",
-            parse_mode="Markdown"
-        )
+        await query.edit_message_text(text=f"{query.message.text}\n\n_{response_text}_", parse_mode="Markdown")
 
-    return {
-        "start": start,
-        "help": help_command,
-        "message": handle_message,
-        "feedback": handle_feedback
-    }
+    return {"start": start, "help": help_command, "message": handle_message, "feedback": handle_feedback}
 
 
 def create_admin_handlers():
@@ -372,7 +347,9 @@ def create_admin_handlers():
         admin_id = update.effective_user.id
 
         if UserManager.approve_user(user_id, tenant, admin_id):
-            await update.message.reply_text(f"✅ Používateľ `{user_id}` schválený pre *{tenant}*", parse_mode="Markdown")
+            await update.message.reply_text(
+                f"✅ Používateľ `{user_id}` schválený pre *{tenant}*", parse_mode="Markdown"
+            )
 
             # Notifikácia používateľovi
             bots = settings.get_bots()
@@ -383,9 +360,9 @@ def create_admin_handlers():
                     await bot.send_message(
                         chat_id=user_id,
                         text=f"🎉 *Boli ste schválení!*\n\n"
-                             f"Teraz môžete používať {bot_config.name}.\n"
-                             f"Napíšte svoju otázku.",
-                        parse_mode="Markdown"
+                        f"Teraz môžete používať {bot_config.name}.\n"
+                        f"Napíšte svoju otázku.",
+                        parse_mode="Markdown",
                     )
                 except Exception as e:
                     logger.error(f"Failed to notify user: {e}")
@@ -406,7 +383,9 @@ def create_admin_handlers():
             return
 
         if UserManager.reject_user(user_id, tenant):
-            await update.message.reply_text(f"❌ Používateľ `{user_id}` zamietnutý pre *{tenant}*", parse_mode="Markdown")
+            await update.message.reply_text(
+                f"❌ Používateľ `{user_id}` zamietnutý pre *{tenant}*", parse_mode="Markdown"
+            )
         else:
             await update.message.reply_text("❌ Chyba pri zamietnutí")
 
@@ -433,9 +412,7 @@ def create_admin_handlers():
         if not context.args:
             current = history.get("tenant", "icc")
             await update.message.reply_text(
-                f"🏢 Aktuálny tenant: `{current}`\n\n"
-                f"Použitie: /tenant icc alebo /tenant andros",
-                parse_mode="Markdown"
+                f"🏢 Aktuálny tenant: `{current}`\n\nPoužitie: /tenant icc alebo /tenant andros", parse_mode="Markdown"
             )
             return
 
@@ -447,18 +424,17 @@ def create_admin_handlers():
         history["tenant"] = tenant
         await update.message.reply_text(f"✅ Tenant: `{tenant}`", parse_mode="Markdown")
 
-
     async def status(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         """Status admin bota"""
         user_id = update.effective_user.id
         history = get_user_history(user_id)
-        
+
         current_tenant = history.get("tenant", "icc")
         message_count = len(history.get("messages", []))
-        
+
         timeout_mins = settings.history_timeout_minutes
         logging_status = "✅" if DB_AVAILABLE else "❌"
-        
+
         text = (
             f"📊 **Stav konverzácie**\n\n"
             f"🏢 Tenant: `{current_tenant}`\n"
@@ -466,7 +442,7 @@ def create_admin_handlers():
             f"⏰ Timeout: {timeout_mins} min\n"
             f"📝 Logging: {logging_status}\n"
         )
-        
+
         await update.message.reply_text(text, parse_mode="Markdown")
 
     return {
@@ -475,7 +451,7 @@ def create_admin_handlers():
         "reject": reject,
         "users": users,
         "tenant": set_tenant,
-        "status": status
+        "status": status,
     }
 
 

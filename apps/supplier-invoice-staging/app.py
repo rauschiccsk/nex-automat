@@ -1,21 +1,19 @@
 """Application setup"""
-import sys
+
 import os
+import sys
 
 # Suppress Qt6 RDP monitor detection warning
 os.environ["QT_LOGGING_RULES"] = "qt.qpa.screen=false"
 
-from PySide6.QtWidgets import QApplication
-from PySide6.QtCore import Qt
-
-from ui.main_window import MainWindow
 from config.settings import Settings
+from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QApplication
+from ui.main_window import MainWindow
 
 
 def main() -> int:
-    QApplication.setHighDpiScaleFactorRoundingPolicy(
-        Qt.HighDpiScaleFactorRoundingPolicy.PassThrough
-    )
+    QApplication.setHighDpiScaleFactorRoundingPolicy(Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)
 
     app = QApplication(sys.argv)
     app.setApplicationName("Supplier Invoice Staging")

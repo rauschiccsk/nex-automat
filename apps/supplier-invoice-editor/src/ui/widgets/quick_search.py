@@ -6,11 +6,12 @@ Note: GreenHeaderView is now in nex-shared/ui/base_grid.py
 """
 
 import logging
-from PyQt5.QtWidgets import QLineEdit, QApplication, QWidget
-from PyQt5.QtCore import Qt, pyqtSignal, QTimer, QEvent, QObject
-from PyQt5.QtGui import QPalette, QColor
 
-from ...utils.text_utils import normalize_for_search, is_numeric, normalize_numeric
+from PyQt5.QtCore import QEvent, QObject, Qt, QTimer, pyqtSignal
+from PyQt5.QtGui import QColor, QPalette
+from PyQt5.QtWidgets import QApplication, QLineEdit, QWidget
+
+from ...utils.text_utils import is_numeric, normalize_for_search, normalize_numeric
 
 
 class QuickSearchEdit(QLineEdit):
@@ -137,7 +138,9 @@ class QuickSearchContainer(QWidget):
         # Position editor under column
         self.search_edit.setGeometry(col_x, 0, col_width, 25)
 
-        self.logger.debug(f"Search editor positioned: x={col_x}, width={col_width}, column={self.current_column}")
+        self.logger.debug(
+            f"Search editor positioned: x={col_x}, width={col_width}, column={self.current_column}"
+        )
 
     def set_column(self, column):
         """Set active search column"""
@@ -153,7 +156,7 @@ class QuickSearchContainer(QWidget):
         self._active_search_column = column
 
         # Update custom header view if it has set_active_column method
-        if hasattr(header, 'set_active_column'):
+        if hasattr(header, "set_active_column"):
             header.set_active_column(column)
             self.logger.info(f"Header updated to column {column}")
 
@@ -200,7 +203,7 @@ class QuickSearchController(QObject):
         self._sort_by_column(self.current_column)
 
         # Update header highlight for initial column
-        if hasattr(self.search_container, '_highlight_header'):
+        if hasattr(self.search_container, "_highlight_header"):
             self.search_container._highlight_header(self.current_column)
 
         # Give focus to search edit
@@ -242,7 +245,7 @@ class QuickSearchController(QObject):
 
         # Method 1: Use QSortFilterProxyModel if available
         # Check if we're already using a proxy
-        if hasattr(model, 'sourceModel'):
+        if hasattr(model, "sourceModel"):
             self.logger.info("Using proxy model for sorting")
             proxy = model
             proxy.sort(column, Qt.AscendingOrder)
@@ -260,7 +263,7 @@ class QuickSearchController(QObject):
             self.table_view.sortByColumn(column, Qt.AscendingOrder)
 
             # If model has sort method, call it directly
-            if hasattr(model, 'sort'):
+            if hasattr(model, "sort"):
                 self.logger.info("Calling model.sort() directly")
                 model.sort(column, Qt.AscendingOrder)
 
@@ -328,8 +331,7 @@ class QuickSearchController(QObject):
             if model and model.rowCount() > 0:
                 first_index = model.index(0, self.current_column)
                 selection_model.setCurrentIndex(
-                    first_index,
-                    selection_model.ClearAndSelect | selection_model.Rows
+                    first_index, selection_model.ClearAndSelect | selection_model.Rows
                 )
             return
 
@@ -347,8 +349,7 @@ class QuickSearchController(QObject):
         # Select new row
         new_index = model.index(new_row, self.current_column)
         selection_model.setCurrentIndex(
-            new_index,
-            selection_model.ClearAndSelect | selection_model.Rows
+            new_index, selection_model.ClearAndSelect | selection_model.Rows
         )
 
         # Ensure visible
@@ -376,8 +377,7 @@ class QuickSearchController(QObject):
             match_index = model.index(match_row, self.current_column)
             selection_model = self.table_view.selectionModel()
             selection_model.setCurrentIndex(
-                match_index,
-                selection_model.ClearAndSelect | selection_model.Rows
+                match_index, selection_model.ClearAndSelect | selection_model.Rows
             )
 
             # Ensure visible

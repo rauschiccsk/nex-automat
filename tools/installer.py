@@ -6,7 +6,7 @@ Automatická inštalácia všetkých nástrojov pre efektívnu prácu s claude.a
 import subprocess
 import sys
 from pathlib import Path
-import shutil
+
 
 class ClaudeToolsInstaller:
     def __init__(self):
@@ -33,7 +33,7 @@ class ClaudeToolsInstaller:
             self.project_root,
             self.tools_dir,
             self.session_notes_dir,
-            self.tools_dir / "browser-extension" / "claude-artifact-saver"
+            self.tools_dir / "browser-extension" / "claude-artifact-saver",
         ]
 
         for d in dirs:
@@ -49,22 +49,13 @@ class ClaudeToolsInstaller:
         """Nainštaluj Python dependencies"""
         print("\n📦 Inštalujem dependencies...")
 
-        packages = [
-            "pyperclip",
-            "keyboard",
-            "anthropic",
-            "fastapi",
-            "uvicorn",
-            "pydantic"
-        ]
+        packages = ["pyperclip", "keyboard", "anthropic", "fastapi", "uvicorn", "pydantic"]
 
         for pkg in packages:
             print(f"   Inštalujem {pkg}...")
             try:
                 subprocess.check_call(
-                    [sys.executable, "-m", "pip", "install", pkg],
-                    stdout=subprocess.DEVNULL,
-                    stderr=subprocess.DEVNULL
+                    [sys.executable, "-m", "pip", "install", pkg], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
                 )
                 print(f"   ✅ {pkg}")
             except subprocess.CalledProcessError:
@@ -80,9 +71,9 @@ class ClaudeToolsInstaller:
         config_content = f"""# Claude Tools Configuration - nex-automat
 # Generované: {Path(__file__).name}
 
-PROJECT_ROOT = r"C:\Development\nex-automat"
-TOOLS_DIR = r"C:\Development\nex-automat\tools"
-SESSION_NOTES_DIR = r"C:\Development\nex-automat\SESSION_NOTES"
+PROJECT_ROOT = r"C:\\Development\nex-automat"
+TOOLS_DIR = r"C:\\Development\nex-automat\tools"
+SESSION_NOTES_DIR = r"C:\\Development\nex-automat\\SESSION_NOTES"
 
 # Artifact Server
 ARTIFACT_SERVER_PORT = 8765
@@ -100,7 +91,7 @@ HOTKEY_NEW_CHAT = "n"
 """
 
         config_file = self.tools_dir / "config.py"
-        config_file.write_text(config_content, encoding='utf-8')
+        config_file.write_text(config_content, encoding="utf-8")
         print(f"✅ Konfigurácia: {config_file}")
         return True
 
@@ -125,7 +116,7 @@ HOTKEY_NEW_CHAT = "n"
 
         notes_file = self.session_notes_dir / "SESSION_NOTES.md"
         if not notes_file.exists():
-            notes_file.write_text(template, encoding='utf-8')
+            notes_file.write_text(template, encoding="utf-8")
             print(f"✅ Template: {notes_file}")
         else:
             print(f"⏭️ Preskakujem (už existuje): {notes_file}")
@@ -142,7 +133,7 @@ HOTKEY_NEW_CHAT = "n"
             self.tools_dir / "claude-hotkeys.py",
             self.tools_dir / "artifact-server.py",
             self.tools_dir / "session-notes-manager.py",
-            self.tools_dir / "start-claude-tools.ps1"
+            self.tools_dir / "start-claude-tools.ps1",
         ]
 
         all_ok = True
@@ -157,13 +148,13 @@ HOTKEY_NEW_CHAT = "n"
 
     def print_next_steps(self):
         """Vypíš ďalšie kroky"""
-        print("\n" + "="*60)
+        print("\n" + "=" * 60)
         print("🎉 INŠTALÁCIA DOKONČENÁ!")
-        print("="*60)
+        print("=" * 60)
         print("\nĎALŠIE KROKY:")
         print("\n1. SPUSTI NÁSTROJE:")
         print(f"   cd {self.tools_dir}")
-        print(f"   .\\start-claude-tools.ps1")
+        print("   .\\start-claude-tools.ps1")
         print("\n2. HOTKEYS (po spustení):")
         print("   Ctrl+Alt+L - Load init prompt")
         print("   Ctrl+Alt+S - Copy session notes")
@@ -171,18 +162,18 @@ HOTKEY_NEW_CHAT = "n"
         print("   Ctrl+Alt+D - Deployment info")
         print("   Ctrl+Alt+N - New chat template")
         print("\n3. BROWSER EXTENSION (voliteľné):")
-        print(f"   Chrome → Extensions → Load unpacked")
+        print("   Chrome → Extensions → Load unpacked")
         print(f"   Vyber: {self.tools_dir / 'browser-extension' / 'claude-artifact-saver'}")
         print("\n4. CLAUDE API KEY (voliteľné - pre compressor):")
         print(f"   Uprav: {self.tools_dir / 'config.py'}")
         print("   Pridaj: ANTHROPIC_API_KEY = 'sk-ant-...'")
-        print("\n" + "="*60)
+        print("\n" + "=" * 60)
 
     def run(self):
         """Spusti inštaláciu"""
-        print("="*60)
+        print("=" * 60)
         print("Claude Tools - nex-automat projekt")
-        print("="*60)
+        print("=" * 60)
 
         steps = [
             ("Kontrola Python", self.check_python),
@@ -207,6 +198,7 @@ HOTKEY_NEW_CHAT = "n"
 
         self.print_next_steps()
         return True
+
 
 if __name__ == "__main__":
     installer = ClaudeToolsInstaller()

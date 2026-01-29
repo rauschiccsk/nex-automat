@@ -1,15 +1,15 @@
 """Invoice Items Window with QuickSearch"""
-from typing import Optional, List, Dict, Any
-from decimal import Decimal
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton
-from PySide6.QtGui import QStandardItemModel, QStandardItem
-from PySide6.QtCore import Signal, Slot, Qt
 
-from shared_pyside6.ui import BaseWindow, BaseGrid
-from shared_pyside6.ui.quick_search import QuickSearchContainer, QuickSearchController
+from decimal import Decimal
+from typing import Any
 
 from config.settings import Settings
 from nex_staging import InvoiceRepository
+from PySide6.QtCore import Qt, Signal, Slot
+from PySide6.QtGui import QStandardItem, QStandardItemModel
+from PySide6.QtWidgets import QHBoxLayout, QLabel, QPushButton, QVBoxLayout, QWidget
+from shared_pyside6.ui import BaseGrid, BaseWindow
+from shared_pyside6.ui.quick_search import QuickSearchContainer, QuickSearchController
 
 
 class InvoiceItemsWindow(BaseWindow):
@@ -44,15 +44,11 @@ class InvoiceItemsWindow(BaseWindow):
         self.invoice = invoice
         self.settings = settings
         self.repository = repository
-        self._data: List[Dict[str, Any]] = []
-        self._filtered_data: List[Dict[str, Any]] = []
+        self._data: list[dict[str, Any]] = []
+        self._filtered_data: list[dict[str, Any]] = []
 
         super().__init__(
-            window_name=self.WINDOW_ID,
-            default_size=(1200, 600),
-            default_pos=(150, 150),
-            auto_load=True,
-            parent=parent
+            window_name=self.WINDOW_ID, default_size=(1200, 600), default_pos=(150, 150), auto_load=True, parent=parent
         )
 
         self.setWindowTitle(f"Polozky faktury: {invoice['xml_invoice_number']} - {invoice['xml_supplier_name']}")
@@ -71,10 +67,12 @@ class InvoiceItemsWindow(BaseWindow):
         # Header info
         header_layout = QHBoxLayout()
 
-        info_text = (f"Dodavatel: {self.invoice['xml_supplier_name']} | "
-                     f"Faktura: {self.invoice['xml_invoice_number']} | "
-                     f"Datum: {self.invoice['xml_issue_date']} | "
-                     f"Suma: {self.invoice['xml_total_with_vat']} {self.invoice['xml_currency']}")
+        info_text = (
+            f"Dodavatel: {self.invoice['xml_supplier_name']} | "
+            f"Faktura: {self.invoice['xml_invoice_number']} | "
+            f"Datum: {self.invoice['xml_issue_date']} | "
+            f"Suma: {self.invoice['xml_total_with_vat']} {self.invoice['xml_currency']}"
+        )
         self.info_label = QLabel(info_text)
         self.info_label.setStyleSheet("font-weight: bold;")
         header_layout.addWidget(self.info_label)
@@ -92,7 +90,7 @@ class InvoiceItemsWindow(BaseWindow):
             window_name=self.WINDOW_ID,
             grid_name=self.GRID_NAME,
             settings_db_path=self.settings.get_settings_db_path(),
-            parent=self
+            parent=self,
         )
 
         self.model = QStandardItemModel()
@@ -117,11 +115,7 @@ class InvoiceItemsWindow(BaseWindow):
         self.search_container = QuickSearchContainer(self.grid.table_view, self)
         layout.addWidget(self.search_container)
 
-        self.search_controller = QuickSearchController(
-            self.grid.table_view,
-            self.search_container,
-            self.grid.header
-        )
+        self.search_controller = QuickSearchController(self.grid.table_view, self.search_container, self.grid.header)
         # Load saved column or default to 2 (EAN)
         saved_column = self.grid.get_active_column()
         if saved_column == 0:  # ID column is hidden
@@ -163,7 +157,7 @@ class InvoiceItemsWindow(BaseWindow):
 
         self._update_status()
 
-    def _recalc_from_margin(self, item: Dict, margin_percent: Any):
+    def _recalc_from_margin(self, item: dict, margin_percent: Any):
         try:
             margin = Decimal(str(margin_percent or 0))
             nc = Decimal(str(item.get("xml_unit_price", 0)))
@@ -174,7 +168,7 @@ class InvoiceItemsWindow(BaseWindow):
         except (ValueError, TypeError):
             pass
 
-    def _recalc_from_price(self, item: Dict, selling_price: Any):
+    def _recalc_from_price(self, item: dict, selling_price: Any):
         try:
             pc = Decimal(str(selling_price or 0))
             nc = Decimal(str(item.get("xml_unit_price", 0)))
@@ -223,8 +217,10 @@ class InvoiceItemsWindow(BaseWindow):
         matched = sum(1 for i in self._data if i.get("in_nex"))
         priced = sum(1 for i in self._data if (i.get("margin_percent") or 0) > 0)
         self.status_label.setText(
-            f"Poloziek: {total} | Matched: {matched} ({matched/total*100:.0f}%) | "
-            f"S marzou: {priced} ({priced/total*100:.0f}%){extra}" if total else ""
+            f"Poloziek: {total} | Matched: {matched} ({matched / total * 100:.0f}%) | "
+            f"S marzou: {priced} ({priced / total * 100:.0f}%){extra}"
+            if total
+            else ""
         )
 
     def _load_items(self):

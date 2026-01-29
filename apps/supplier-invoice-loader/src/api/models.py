@@ -5,11 +5,11 @@ L&Š Invoice Loader - Pydantic Models
 
 from pydantic import BaseModel, Field
 from typing import Optional
-from datetime import datetime
 
 
 class InvoiceRequest(BaseModel):
     """Request model pre príjem faktúry z n8n"""
+
     file_b64: str = Field(..., description="PDF súbor v base64")
     filename: Optional[str] = Field("invoice.pdf", description="Názov súboru")
     message_id: Optional[str] = Field(None, description="Gmail message ID")
@@ -24,6 +24,7 @@ class InvoiceRequest(BaseModel):
 
 class InvoiceResponse(BaseModel):
     """Response model pre API"""
+
     status: str = Field(..., description="success alebo error")
     message: str = Field(..., description="Správa")
     invoice_id: Optional[int] = Field(None, description="ID faktúry v DB")
@@ -34,6 +35,7 @@ class InvoiceResponse(BaseModel):
 
 class HealthResponse(BaseModel):
     """Response model pre health check"""
+
     status: str
     timestamp: str
     storage_ok: bool

@@ -1,9 +1,9 @@
 """
 Database module pre Telegram Bot logging
 """
-import os
+
 import logging
-from typing import Optional
+import os
 
 import pg8000
 
@@ -31,14 +31,14 @@ def get_connection():
 
 def log_query(
     user_id: int,
-    username: Optional[str],
+    username: str | None,
     tenant: str,
     question: str,
-    answer: Optional[str] = None,
-    sources: Optional[str] = None,
-    response_time_ms: Optional[int] = None,
-    feedback: Optional[str] = None
-) -> Optional[int]:
+    answer: str | None = None,
+    sources: str | None = None,
+    response_time_ms: int | None = None,
+    feedback: str | None = None,
+) -> int | None:
     """Uloženie dotazu do databázy, vracia log_id"""
     conn = get_connection()
     if not conn:
@@ -53,7 +53,7 @@ def log_query(
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
             RETURNING id
             """,
-            (user_id, username, tenant, question, answer, sources, response_time_ms, feedback)
+            (user_id, username, tenant, question, answer, sources, response_time_ms, feedback),
         )
         result = cursor.fetchone()
         log_id = result[0] if result else None
@@ -76,10 +76,7 @@ def update_feedback(log_id: int, feedback: str) -> bool:
 
     try:
         cursor = conn.cursor()
-        cursor.execute(
-            "UPDATE telegram_logs SET feedback = %s WHERE id = %s",
-            (feedback, log_id)
-        )
+        cursor.execute("UPDATE telegram_logs SET feedback = %s WHERE id = %s", (feedback, log_id))
         conn.commit()
         cursor.close()
         conn.close()

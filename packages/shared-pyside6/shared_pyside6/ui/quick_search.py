@@ -2,14 +2,15 @@
 QuickSearch - NEX Genesis style incremental search.
 PySide6 version for NEX Automat.
 """
+
 import winsound
 from typing import TYPE_CHECKING
 
-from PySide6.QtWidgets import QLineEdit, QWidget, QTableView
-from PySide6.QtCore import Qt, QObject, Signal, QEvent
+from PySide6.QtCore import QEvent, QObject, Qt, Signal
 from PySide6.QtGui import QKeyEvent
+from PySide6.QtWidgets import QLineEdit, QTableView, QWidget
 
-from shared_pyside6.utils.text_utils import normalize_for_search, is_numeric
+from shared_pyside6.utils.text_utils import is_numeric, normalize_for_search
 
 if TYPE_CHECKING:
     from shared_pyside6.ui.base_grid import GreenHeaderView
@@ -34,7 +35,7 @@ class QuickSearchEdit(QLineEdit):
 
     search_text_changed = Signal(str)
     column_change_requested = Signal(int)  # -1 = left, +1 = right
-    row_change_requested = Signal(int)     # -1 = up, +1 = down
+    row_change_requested = Signal(int)  # -1 = up, +1 = down
 
     def __init__(self, parent: QWidget | None = None):
         super().__init__(parent)
@@ -107,11 +108,7 @@ class QuickSearchContainer(QWidget):
     Container for quick search that positions editor under active column.
     """
 
-    def __init__(
-        self, 
-        table_view: QTableView,
-        parent: QWidget | None = None
-    ):
+    def __init__(self, table_view: QTableView, parent: QWidget | None = None):
         super().__init__(parent)
         self._table_view = table_view
         self._current_column = 0
@@ -168,10 +165,7 @@ class QuickSearchController(QObject):
     active_column_changed = Signal(int)
 
     def __init__(
-        self,
-        table_view: QTableView,
-        search_container: QuickSearchContainer,
-        header: "GreenHeaderView | None" = None
+        self, table_view: QTableView, search_container: QuickSearchContainer, header: "GreenHeaderView | None" = None
     ):
         """
         Initialize quick search controller.
@@ -317,9 +311,9 @@ class QuickSearchController(QObject):
             # Numeric comparison
             if search_is_numeric and is_numeric(cell_str):
                 try:
-                    search_num = float(search_text.replace(',', '.'))
-                    cell_num = float(cell_str.replace(',', '.'))
-                    if str(cell_num).startswith(str(search_num).rstrip('0').rstrip('.')):
+                    search_num = float(search_text.replace(",", "."))
+                    cell_num = float(cell_str.replace(",", "."))
+                    if str(cell_num).startswith(str(search_num).rstrip("0").rstrip(".")):
                         return row
                 except ValueError:
                     pass
@@ -351,7 +345,7 @@ class QuickSearchController(QObject):
     def _sort_by_column(self, column: int) -> None:
         """Sort table by column ascending."""
         model = self._table_view.model()
-        if model and hasattr(model, 'sort'):
+        if model and hasattr(model, "sort"):
             model.sort(column, Qt.SortOrder.AscendingOrder)
 
     def set_column(self, column: int) -> None:

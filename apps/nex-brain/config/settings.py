@@ -3,8 +3,6 @@ NEX Brain Configuration - Multi-tenant support.
 """
 
 from pydantic_settings import BaseSettings
-from pydantic import Field
-from typing import Optional, List
 
 
 class Settings(BaseSettings):
@@ -35,10 +33,10 @@ class Settings(BaseSettings):
         return self.MODE == "multi-tenant"
 
     @property
-    def tenant_list(self) -> List[str]:
+    def tenant_list(self) -> list[str]:
         return [t.strip() for t in self.TENANTS.split(",") if t.strip()]
 
-    def get_tenant(self, request_tenant: Optional[str] = None) -> str:
+    def get_tenant(self, request_tenant: str | None = None) -> str:
         """Get tenant - from request (multi) or config (single)."""
         if self.is_multi_tenant:
             if not request_tenant:

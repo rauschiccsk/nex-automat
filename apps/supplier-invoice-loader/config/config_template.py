@@ -349,7 +349,6 @@ SEND_DAILY_SUMMARY = True
 HEARTBEAT_ENABLED = True
 
 
-
 # POSTGRESQL STAGING CONFIGURATION (for invoice-editor integration):
 # ------------------------------------------------------------------
 #
@@ -440,10 +439,10 @@ POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD", "")
 # Different customers may have different permissions
 
 STAGING_WEB_CONFIG = {
-    "customer_name": CUSTOMER_NAME,           # Displayed in UI header
-    "allow_price_edit": False,                # ANDROS=False, MAGERSTAV=True
-    "allow_margin_edit": False,               # ANDROS=False, MAGERSTAV=True
-    "allow_approve": True,                    # Can approve invoices
-    "allow_reject": True,                     # Can reject invoices
-    "show_nex_columns": True,                 # Show NEX Genesis matched data
+    "customer_name": CUSTOMER_NAME,  # Displayed in UI header
+    "allow_price_edit": False,  # ANDROS=False, MAGERSTAV=True
+    "allow_margin_edit": False,  # ANDROS=False, MAGERSTAV=True
+    "allow_approve": True,  # Can approve invoices
+    "allow_reject": True,  # Can reject invoices
+    "show_nex_columns": True,  # Show NEX Genesis matched data
 }

@@ -2,11 +2,12 @@
 LLM Service - Integration with Ollama.
 """
 
-import httpx
-from typing import Tuple, List, Dict, Any, Optional
-from config.settings import settings
-from api.services.rag_service import RAGService
+from typing import Any
 
+import httpx
+from config.settings import settings
+
+from api.services.rag_service import RAGService
 
 SYSTEM_PROMPT = """Si NEX Brain asistent. Odpovedaj STRUCNE po slovensky.
 
@@ -27,11 +28,8 @@ class LLMService:
         self.rag_service = RAGService()
 
     async def generate(
-        self, 
-        question: str, 
-        context: Optional[List[Dict[str, Any]]] = None,
-        tenant: str = "default"
-    ) -> Tuple[str, int]:
+        self, question: str, context: list[dict[str, Any]] | None = None, tenant: str = "default"
+    ) -> tuple[str, int]:
         """Generate answer using Ollama."""
 
         if context:
@@ -63,8 +61,8 @@ Odpoved:"""
                             "top_p": 0.1,
                             "repeat_penalty": 1.2,
                             "stop": ["Otazka:", "KONTEXT:", "\n\n\n"],
-                        }
-                    }
+                        },
+                    },
                 )
                 response.raise_for_status()
                 data = response.json()

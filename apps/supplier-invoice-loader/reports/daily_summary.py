@@ -1,10 +1,11 @@
 """Daily Summary Report Generator"""
+
 import os
 import logging
-from datetime import date, datetime, timedelta
+from datetime import date, timedelta
 from decimal import Decimal
 from pathlib import Path
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Optional
 from dataclasses import dataclass
 import smtplib
 from email.mime.text import MIMEText
@@ -20,6 +21,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class InvoiceSummary:
     """Single invoice summary for report"""
+
     invoice_number: str
     supplier_name: str
     issue_date: date
@@ -34,6 +36,7 @@ class InvoiceSummary:
 @dataclass
 class DailyStats:
     """Aggregated daily statistics"""
+
     report_date: date
     total_invoices: int
     total_amount: Decimal
@@ -62,7 +65,7 @@ class DailySummaryReport:
             port=self.config.db_port,
             database=self.config.db_name,
             user=self.config.db_user,
-            password=password
+            password=password,
         )
 
     def _is_workday(self, d: date) -> bool:
@@ -76,7 +79,8 @@ class DailySummaryReport:
 
         try:
             # Main query - invoices for today
-            cursor.execute("""
+            cursor.execute(
+                """
                 SELECT 
                     xml_invoice_number,
                     xml_supplier_name,
@@ -90,24 +94,29 @@ class DailySummaryReport:
                 FROM supplier_invoice_heads
                 WHERE DATE(created_at) = %s
                 ORDER BY created_at DESC
-            """, (report_date,))
+            """,
+                (report_date,),
+            )
 
             invoices = []
             for row in cursor.fetchall():
-                invoices.append(InvoiceSummary(
-                    invoice_number=row[0] or "",
-                    supplier_name=row[1] or "",
-                    issue_date=row[2],
-                    total_with_vat=Decimal(str(row[3] or 0)),
-                    status=row[4] or "pending",
-                    match_percent=Decimal(str(row[5])) if row[5] else None,
-                    item_count=row[6] or 0,
-                    validation_status=row[7],
-                    validation_errors=row[8]
-                ))
+                invoices.append(
+                    InvoiceSummary(
+                        invoice_number=row[0] or "",
+                        supplier_name=row[1] or "",
+                        issue_date=row[2],
+                        total_with_vat=Decimal(str(row[3] or 0)),
+                        status=row[4] or "pending",
+                        match_percent=Decimal(str(row[5])) if row[5] else None,
+                        item_count=row[6] or 0,
+                        validation_status=row[7],
+                        validation_errors=row[8],
+                    )
+                )
 
             # Aggregations
-            cursor.execute("""
+            cursor.execute(
+                """
                 SELECT 
                     COUNT(*) as total,
                     COALESCE(SUM(xml_total_with_vat), 0) as total_amount,
@@ -115,7 +124,9 @@ class DailySummaryReport:
                     COUNT(*) FILTER (WHERE validation_status = 'error') as errors
                 FROM supplier_invoice_heads
                 WHERE DATE(created_at) = %s
-            """, (report_date,))
+            """,
+                (report_date,),
+            )
 
             agg = cursor.fetchone()
             total_invoices = agg[0]
@@ -124,24 +135,30 @@ class DailySummaryReport:
             error_count = agg[3]
 
             # By status
-            cursor.execute("""
+            cursor.execute(
+                """
                 SELECT status, COUNT(*)
                 FROM supplier_invoice_heads
                 WHERE DATE(created_at) = %s
                 GROUP BY status
-            """, (report_date,))
+            """,
+                (report_date,),
+            )
 
             by_status = {row[0]: row[1] for row in cursor.fetchall()}
 
             # Previous day comparison
             prev_date = report_date - timedelta(days=1)
-            cursor.execute("""
+            cursor.execute(
+                """
                 SELECT 
                     COUNT(*),
                     COALESCE(SUM(xml_total_with_vat), 0)
                 FROM supplier_invoice_heads
                 WHERE DATE(created_at) = %s
-            """, (prev_date,))
+            """,
+                (prev_date,),
+            )
 
             prev = cursor.fetchone()
             prev_total = prev[0]
@@ -156,7 +173,7 @@ class DailySummaryReport:
                 error_count=error_count,
                 invoices=invoices,
                 prev_total_invoices=prev_total,
-                prev_total_amount=prev_amount
+                prev_total_amount=prev_amount,
             )
 
         finally:
@@ -172,10 +189,10 @@ class DailySummaryReport:
         for inv in stats.invoices:
             status_class = {
                 "pending": "status-pending",
-                "matched": "status-matched", 
+                "matched": "status-matched",
                 "approved": "status-approved",
                 "imported": "status-imported",
-                "error": "status-error"
+                "error": "status-error",
             }.get(inv.status, "status-pending")
 
             match_str = f"{inv.match_percent:.1f}%" if inv.match_percent else "-"
@@ -184,7 +201,7 @@ class DailySummaryReport:
             <tr>
                 <td>{inv.supplier_name}</td>
                 <td>{inv.invoice_number}</td>
-                <td>{inv.issue_date.strftime('%d.%m.%Y') if inv.issue_date else '-'}</td>
+                <td>{inv.issue_date.strftime("%d.%m.%Y") if inv.issue_date else "-"}</td>
                 <td class="amount">{inv.total_with_vat:,.2f} €</td>
                 <td><span class="{status_class}">{inv.status}</span></td>
                 <td>{match_str}</td>
@@ -201,14 +218,24 @@ class DailySummaryReport:
             error_section += "</ul>"
 
         # Trend indicators
-        inv_trend = "↑" if stats.total_invoices > stats.prev_total_invoices else ("↓" if stats.total_invoices < stats.prev_total_invoices else "→")
-        amt_trend = "↑" if stats.total_amount > stats.prev_total_amount else ("↓" if stats.total_amount < stats.prev_total_amount else "→")
+        inv_trend = (
+            "↑"
+            if stats.total_invoices > stats.prev_total_invoices
+            else ("↓" if stats.total_invoices < stats.prev_total_invoices else "→")
+        )
+        amt_trend = (
+            "↑"
+            if stats.total_amount > stats.prev_total_amount
+            else ("↓" if stats.total_amount < stats.prev_total_amount else "→")
+        )
 
         # Replace placeholders
         html = template.replace("{{REPORT_DATE}}", stats.report_date.strftime("%d.%m.%Y"))
         html = html.replace("{{TOTAL_INVOICES}}", str(stats.total_invoices))
         html = html.replace("{{TOTAL_AMOUNT}}", f"{stats.total_amount:,.2f}")
-        html = html.replace("{{AVG_MATCH}}", f"{stats.avg_match_percent:.1f}" if stats.avg_match_percent else "-")
+        html = html.replace(
+            "{{AVG_MATCH}}", f"{stats.avg_match_percent:.1f}" if stats.avg_match_percent else "-"
+        )
         html = html.replace("{{ERROR_COUNT}}", str(stats.error_count))
         html = html.replace("{{INVOICE_ROWS}}", invoice_rows)
         html = html.replace("{{ERROR_SECTION}}", error_section)
@@ -239,11 +266,7 @@ class DailySummaryReport:
         try:
             with smtplib.SMTP_SSL(self.config.smtp_host, self.config.smtp_port) as server:
                 server.login(self.config.smtp_user, self.config.smtp_password)
-                server.sendmail(
-                    self.config.from_email,
-                    self.config.all_recipients,
-                    msg.as_string()
-                )
+                server.sendmail(self.config.from_email, self.config.all_recipients, msg.as_string())
             logger.info(f"Report sent to {len(self.config.all_recipients)} recipients")
             return True
         except Exception as e:

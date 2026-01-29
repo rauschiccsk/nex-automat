@@ -1,10 +1,11 @@
-# -*- coding: utf-8 -*-
 """
 pytest configuration for supplier-invoice-editor
 """
-import pytest
+
 import sys
 from pathlib import Path
+
+import pytest
 
 # Add src to path for all tests
 sys.path.insert(0, str(Path(__file__).parent / "src"))

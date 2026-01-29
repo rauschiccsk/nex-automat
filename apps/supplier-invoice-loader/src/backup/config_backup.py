@@ -5,6 +5,7 @@ from typing import List, Optional
 import shutil
 from datetime import datetime
 
+
 class ConfigBackup:
     """Simple config file backup."""
 

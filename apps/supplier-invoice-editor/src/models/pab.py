@@ -8,10 +8,10 @@ Definition: pab.bdf
 Record Size: 1269 bytes
 """
 
+import struct
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Optional
-import struct
 
 
 @dataclass
@@ -72,19 +72,19 @@ class PABRecord:
 
     # Audit fields
     mod_user: str = ""  # Užívateľ poslednej zmeny
-    mod_date: Optional[datetime] = None  # Dátum poslednej zmeny
-    mod_time: Optional[datetime] = None  # Čas poslednej zmeny
-    created_date: Optional[datetime] = None  # Dátum vytvorenia
+    mod_date: datetime | None = None  # Dátum poslednej zmeny
+    mod_time: datetime | None = None  # Čas poslednej zmeny
+    created_date: datetime | None = None  # Dátum vytvorenia
     created_user: str = ""  # Užívateľ vytvorenia
 
     # Indexes (constants)
-    INDEX_PABCODE = 'PabCode'  # Primary index
-    INDEX_NAME = 'Name1'  # Index podľa názvu
-    INDEX_ICO = 'ICO'  # Index podľa IČO
-    INDEX_TYPE = 'PartnerType'  # Index podľa typu partnera
+    INDEX_PABCODE = "PabCode"  # Primary index
+    INDEX_NAME = "Name1"  # Index podľa názvu
+    INDEX_ICO = "ICO"  # Index podľa IČO
+    INDEX_TYPE = "PartnerType"  # Index podľa typu partnera
 
     @classmethod
-    def from_bytes(cls, data: bytes, encoding: str = 'cp852') -> 'PABRecord':
+    def from_bytes(cls, data: bytes, encoding: str = "cp852") -> "PABRecord":
         """
         Deserialize PAB record from bytes
 
@@ -131,57 +131,57 @@ class PABRecord:
             raise ValueError(f"Invalid record size: {len(data)} bytes (expected 1269)")
 
         # Primary key
-        pab_code = struct.unpack('<i', data[0:4])[0]
+        pab_code = struct.unpack("<i", data[0:4])[0]
 
         # Basic info
-        name1 = data[4:104].decode(encoding, errors='ignore').rstrip('\x00 ')
-        name2 = data[104:204].decode(encoding, errors='ignore').rstrip('\x00 ')
-        short_name = data[204:244].decode(encoding, errors='ignore').rstrip('\x00 ')
+        name1 = data[4:104].decode(encoding, errors="ignore").rstrip("\x00 ")
+        name2 = data[104:204].decode(encoding, errors="ignore").rstrip("\x00 ")
+        short_name = data[204:244].decode(encoding, errors="ignore").rstrip("\x00 ")
 
         # Address
-        street = data[244:324].decode(encoding, errors='ignore').rstrip('\x00 ')
-        city = data[324:374].decode(encoding, errors='ignore').rstrip('\x00 ')
-        zip_code = data[374:384].decode(encoding, errors='ignore').rstrip('\x00 ')
-        country = data[384:434].decode(encoding, errors='ignore').rstrip('\x00 ')
+        street = data[244:324].decode(encoding, errors="ignore").rstrip("\x00 ")
+        city = data[324:374].decode(encoding, errors="ignore").rstrip("\x00 ")
+        zip_code = data[374:384].decode(encoding, errors="ignore").rstrip("\x00 ")
+        country = data[384:434].decode(encoding, errors="ignore").rstrip("\x00 ")
 
         # Contact
-        phone = data[434:464].decode(encoding, errors='ignore').rstrip('\x00 ')
-        fax = data[464:494].decode(encoding, errors='ignore').rstrip('\x00 ')
-        email = data[494:554].decode(encoding, errors='ignore').rstrip('\x00 ')
-        web = data[554:614].decode(encoding, errors='ignore').rstrip('\x00 ')
-        contact_person = data[614:664].decode(encoding, errors='ignore').rstrip('\x00 ')
+        phone = data[434:464].decode(encoding, errors="ignore").rstrip("\x00 ")
+        fax = data[464:494].decode(encoding, errors="ignore").rstrip("\x00 ")
+        email = data[494:554].decode(encoding, errors="ignore").rstrip("\x00 ")
+        web = data[554:614].decode(encoding, errors="ignore").rstrip("\x00 ")
+        contact_person = data[614:664].decode(encoding, errors="ignore").rstrip("\x00 ")
 
         # Tax info
-        ico = data[664:684].decode(encoding, errors='ignore').rstrip('\x00 ')
-        dic = data[684:704].decode(encoding, errors='ignore').rstrip('\x00 ')
-        ic_dph = data[704:734].decode(encoding, errors='ignore').rstrip('\x00 ')
+        ico = data[664:684].decode(encoding, errors="ignore").rstrip("\x00 ")
+        dic = data[684:704].decode(encoding, errors="ignore").rstrip("\x00 ")
+        ic_dph = data[704:734].decode(encoding, errors="ignore").rstrip("\x00 ")
 
         # Bank info
-        bank_account = data[734:764].decode(encoding, errors='ignore').rstrip('\x00 ')
-        bank_code = data[764:774].decode(encoding, errors='ignore').rstrip('\x00 ')
-        bank_name = data[774:834].decode(encoding, errors='ignore').rstrip('\x00 ')
-        iban = data[834:874].decode(encoding, errors='ignore').rstrip('\x00 ')
-        swift = data[874:894].decode(encoding, errors='ignore').rstrip('\x00 ')
+        bank_account = data[734:764].decode(encoding, errors="ignore").rstrip("\x00 ")
+        bank_code = data[764:774].decode(encoding, errors="ignore").rstrip("\x00 ")
+        bank_name = data[774:834].decode(encoding, errors="ignore").rstrip("\x00 ")
+        iban = data[834:874].decode(encoding, errors="ignore").rstrip("\x00 ")
+        swift = data[874:894].decode(encoding, errors="ignore").rstrip("\x00 ")
 
         # Business info
-        partner_type = struct.unpack('<i', data[894:898])[0]
-        payment_terms = struct.unpack('<i', data[898:902])[0]
-        credit_limit = struct.unpack('<d', data[902:910])[0]
-        discount_percent = struct.unpack('<d', data[910:918])[0]
+        partner_type = struct.unpack("<i", data[894:898])[0]
+        payment_terms = struct.unpack("<i", data[898:902])[0]
+        credit_limit = struct.unpack("<d", data[902:910])[0]
+        discount_percent = struct.unpack("<d", data[910:918])[0]
 
         # Status
         active = bool(data[918])
         vat_payer = bool(data[919])
 
         # Notes
-        note = data[920:1120].decode(encoding, errors='ignore').rstrip('\x00 ')
-        note2 = data[1120:1220].decode(encoding, errors='ignore').rstrip('\x00 ')
+        note = data[920:1120].decode(encoding, errors="ignore").rstrip("\x00 ")
+        note2 = data[1120:1220].decode(encoding, errors="ignore").rstrip("\x00 ")
 
         # Internal note (may be at different offset)
         internal_note = ""
         if len(data) >= 1269:
             # Try to extract from remaining bytes
-            internal_note = data[1220:1269].decode(encoding, errors='ignore').rstrip('\x00 ')
+            internal_note = data[1220:1269].decode(encoding, errors="ignore").rstrip("\x00 ")
 
         return cls(
             pab_code=pab_code,
@@ -213,7 +213,7 @@ class PABRecord:
             vat_payer=vat_payer,
             note=note,
             note2=note2,
-            internal_note=internal_note
+            internal_note=internal_note,
         )
 
     def validate(self) -> list[str]:

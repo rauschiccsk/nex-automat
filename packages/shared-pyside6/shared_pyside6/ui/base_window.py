@@ -2,9 +2,9 @@
 BaseWindow - Base class for all windows with persistence.
 PySide6 version for NEX Automat.
 """
-from PySide6.QtWidgets import QMainWindow, QWidget, QApplication
-from PySide6.QtCore import Qt, QRect
-from PySide6.QtGui import QScreen
+
+from PySide6.QtCore import QRect
+from PySide6.QtWidgets import QApplication, QMainWindow, QWidget
 
 from shared_pyside6.database import SettingsRepository
 
@@ -38,7 +38,7 @@ class BaseWindow(QMainWindow):
         default_pos: tuple[int, int] = (100, 100),
         user_id: str = "default",
         auto_load: bool = True,
-        parent: QWidget | None = None
+        parent: QWidget | None = None,
     ):
         """
         Initialize BaseWindow.
@@ -73,10 +73,7 @@ class BaseWindow(QMainWindow):
 
     def _load_and_apply_settings(self) -> None:
         """Load and apply window settings from DB."""
-        settings = self._repository.load_window_settings(
-            self._window_name, 
-            self._user_id
-        )
+        settings = self._repository.load_window_settings(self._window_name, self._user_id)
 
         if settings:
             # Validate position is on visible screen
@@ -138,7 +135,7 @@ class BaseWindow(QMainWindow):
             y=geometry.y(),
             width=geometry.width(),
             height=geometry.height(),
-            is_maximized=is_maximized
+            is_maximized=is_maximized,
         )
 
     def closeEvent(self, event) -> None:
@@ -161,14 +158,8 @@ class BaseWindow(QMainWindow):
         Returns:
             dict: Settings or None
         """
-        return self._repository.load_window_settings(
-            self._window_name,
-            self._user_id
-        )
+        return self._repository.load_window_settings(self._window_name, self._user_id)
 
     def delete_window_settings(self) -> None:
         """Delete window settings from DB."""
-        self._repository.delete_window_settings(
-            self._window_name,
-            self._user_id
-        )
+        self._repository.delete_window_settings(self._window_name, self._user_id)

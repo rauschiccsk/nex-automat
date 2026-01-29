@@ -25,18 +25,22 @@ router = APIRouter(prefix="/staging", tags=["staging"])
 # PYDANTIC MODELS FOR API
 # ============================================================================
 
+
 class UpdateItemPriceRequest(BaseModel):
     """Request to update item price."""
+
     selling_price_excl_vat: float
 
 
 class UpdateItemsBatchRequest(BaseModel):
     """Request to update multiple items."""
+
     items: List[dict]
 
 
 class ApproveInvoiceRequest(BaseModel):
     """Request to approve invoice."""
+
     status: str = "approved"
 
 
@@ -44,15 +48,17 @@ class ApproveInvoiceRequest(BaseModel):
 # DEPENDENCY - Database Connection
 # ============================================================================
 
+
 def get_repository() -> InvoiceRepository:
     """Get invoice repository with database connection."""
     import os
+
     db = DatabaseConnection(
         host=config.POSTGRES_HOST,
         port=config.POSTGRES_PORT,
         database=config.POSTGRES_DATABASE,
         user=config.POSTGRES_USER,
-        password=os.environ.get("POSTGRES_PASSWORD", config.POSTGRES_PASSWORD or "")
+        password=os.environ.get("POSTGRES_PASSWORD", config.POSTGRES_PASSWORD or ""),
     )
     return InvoiceRepository(db)
 
@@ -60,6 +66,7 @@ def get_repository() -> InvoiceRepository:
 # ============================================================================
 # ENDPOINTS
 # ============================================================================
+
 
 @router.get("/config")
 async def get_staging_config():
@@ -76,10 +83,7 @@ async def get_staging_config():
 
 
 @router.get("/invoices")
-async def get_invoices(
-    file_status: Optional[str] = None,
-    limit: int = 100
-):
+async def get_invoices(file_status: Optional[str] = None, limit: int = 100):
     """
     Get list of staging invoices.
 
@@ -101,23 +105,29 @@ async def get_invoices(
 
         result = []
         for h in heads:
-            result.append({
-                "id": h.id,
-                "xml_invoice_number": h.xml_invoice_number,
-                "xml_issue_date": str(h.xml_issue_date) if h.xml_issue_date else None,
-                "xml_due_date": str(h.xml_due_date) if h.xml_due_date else None,
-                "xml_supplier_ico": h.xml_supplier_ico,
-                "xml_supplier_name": h.xml_supplier_name,
-                "xml_total_without_vat": float(h.xml_total_without_vat) if h.xml_total_without_vat else None,
-                "xml_total_vat": float(h.xml_total_vat) if h.xml_total_vat else None,
-                "xml_total_with_vat": float(h.xml_total_with_vat) if h.xml_total_with_vat else None,
-                "xml_currency": h.xml_currency,
-                "file_status": h.file_status.value if h.file_status else None,
-                "item_count": h.item_count,
-                "items_matched": h.items_matched,
-                "match_percent": float(h.match_percent) if h.match_percent else None,
-                "created_at": str(h.created_at) if h.created_at else None,
-            })
+            result.append(
+                {
+                    "id": h.id,
+                    "xml_invoice_number": h.xml_invoice_number,
+                    "xml_issue_date": str(h.xml_issue_date) if h.xml_issue_date else None,
+                    "xml_due_date": str(h.xml_due_date) if h.xml_due_date else None,
+                    "xml_supplier_ico": h.xml_supplier_ico,
+                    "xml_supplier_name": h.xml_supplier_name,
+                    "xml_total_without_vat": float(h.xml_total_without_vat)
+                    if h.xml_total_without_vat
+                    else None,
+                    "xml_total_vat": float(h.xml_total_vat) if h.xml_total_vat else None,
+                    "xml_total_with_vat": float(h.xml_total_with_vat)
+                    if h.xml_total_with_vat
+                    else None,
+                    "xml_currency": h.xml_currency,
+                    "file_status": h.file_status.value if h.file_status else None,
+                    "item_count": h.item_count,
+                    "items_matched": h.items_matched,
+                    "match_percent": float(h.match_percent) if h.match_percent else None,
+                    "created_at": str(h.created_at) if h.created_at else None,
+                }
+            )
 
         return {"count": len(result), "invoices": result}
 
@@ -157,9 +167,13 @@ async def get_invoice_detail(invoice_id: int):
                 "xml_due_date": str(head.xml_due_date) if head.xml_due_date else None,
                 "xml_supplier_ico": head.xml_supplier_ico,
                 "xml_supplier_name": head.xml_supplier_name,
-                "xml_total_without_vat": float(head.xml_total_without_vat) if head.xml_total_without_vat else None,
+                "xml_total_without_vat": float(head.xml_total_without_vat)
+                if head.xml_total_without_vat
+                else None,
                 "xml_total_vat": float(head.xml_total_vat) if head.xml_total_vat else None,
-                "xml_total_with_vat": float(head.xml_total_with_vat) if head.xml_total_with_vat else None,
+                "xml_total_with_vat": float(head.xml_total_with_vat)
+                if head.xml_total_with_vat
+                else None,
                 "xml_currency": head.xml_currency,
                 "file_status": head.file_status.value if head.file_status else None,
                 "item_count": head.item_count,
@@ -176,18 +190,24 @@ async def get_invoice_detail(invoice_id: int):
                     "xml_quantity": float(item.xml_quantity) if item.xml_quantity else None,
                     "xml_unit": item.xml_unit,
                     "xml_unit_price": float(item.xml_unit_price) if item.xml_unit_price else None,
-                    "xml_unit_price_vat": float(item.xml_unit_price_vat) if item.xml_unit_price_vat else None,
-                    "xml_total_price": float(item.xml_total_price) if item.xml_total_price else None,
+                    "xml_unit_price_vat": float(item.xml_unit_price_vat)
+                    if item.xml_unit_price_vat
+                    else None,
+                    "xml_total_price": float(item.xml_total_price)
+                    if item.xml_total_price
+                    else None,
                     "xml_vat_rate": float(item.xml_vat_rate) if item.xml_vat_rate else None,
                     "nex_product_id": item.nex_product_id,
                     "nex_product_name": item.nex_product_name,
                     "nex_ean": item.nex_ean,
                     "matched": item.matched,
                     "matched_by": item.matched_by,
-                    "edited_unit_price": float(item.edited_unit_price) if item.edited_unit_price else None,
+                    "edited_unit_price": float(item.edited_unit_price)
+                    if item.edited_unit_price
+                    else None,
                 }
                 for item in items
-            ]
+            ],
         }
 
     except HTTPException:

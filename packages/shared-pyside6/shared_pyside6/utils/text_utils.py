@@ -2,6 +2,7 @@
 Text utilities for normalization and comparison.
 Used by QuickSearch for diacritic-insensitive search.
 """
+
 import unicodedata
 
 
@@ -21,11 +22,8 @@ def remove_diacritics(text: str) -> str:
         return text
 
     # Normalize to NFD (decomposed form), remove combining marks
-    normalized = unicodedata.normalize('NFD', text)
-    return ''.join(
-        char for char in normalized 
-        if unicodedata.category(char) != 'Mn'
-    )
+    normalized = unicodedata.normalize("NFD", text)
+    return "".join(char for char in normalized if unicodedata.category(char) != "Mn")
 
 
 def normalize_for_search(text: str) -> str:
@@ -59,7 +57,7 @@ def is_numeric(text: str) -> bool:
     if not text:
         return False
     try:
-        float(str(text).replace(',', '.'))
+        float(str(text).replace(",", "."))
         return True
     except ValueError:
         return False
@@ -79,4 +77,4 @@ def normalize_numeric(text: str) -> str:
     """
     if not text:
         return ""
-    return str(text).replace(',', '.').strip()
+    return str(text).replace(",", ".").strip()

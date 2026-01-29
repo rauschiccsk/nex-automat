@@ -4,8 +4,8 @@ Adapted for production database schema from supplier_invoice_loader
 """
 
 import logging
-from typing import List, Dict, Optional
 from decimal import Decimal
+from typing import Dict, List, Optional
 
 
 class InvoiceService:
@@ -17,10 +17,12 @@ class InvoiceService:
         # Try to initialize PostgreSQL client
         self.db_client = None
         self._init_database()
+
     def _init_database(self):
         """Initialize database connection"""
         try:
             from src.database.postgres_client import PostgresClient
+
             self.db_client = PostgresClient(self.config)
 
             # Test connection
@@ -32,15 +34,14 @@ class InvoiceService:
 
         except ImportError:
             self.logger.warning(
-                "pg8000 not installed - using stub data. "
-                "Install with: pip install pg8000"
+                "pg8000 not installed - using stub data. Install with: pip install pg8000"
             )
         except Exception as e:
             self.logger.error(f"Failed to initialize database: {e}")
             self.logger.warning("Using stub data")
             self.db_client = None
 
-    def get_pending_invoices(self) -> List[Dict]:
+    def get_pending_invoices(self) -> list[dict]:
         """
         Get list of pending invoices
 
@@ -56,7 +57,7 @@ class InvoiceService:
 
         return self._get_stub_invoices()
 
-    def _get_invoices_from_database(self) -> List[Dict]:
+    def _get_invoices_from_database(self) -> list[dict]:
         """Get invoices from PostgreSQL"""
         query = """
             SELECT 
@@ -78,24 +79,24 @@ class InvoiceService:
 
         return results
 
-    def _get_stub_invoices(self) -> List[Dict]:
+    def _get_stub_invoices(self) -> list[dict]:
         """Get stub invoice data for testing"""
         self.logger.info("Using stub invoice data")
 
         return [
             {
-                'id': 1,
-                'invoice_number': 'FAV-2025-001',
-                'invoice_date': '2025-11-12',
-                'supplier_name': 'Test Dodávateľ s.r.o.',
-                'supplier_ico': '12345678',
-                'total_amount': Decimal('1200.00'),
-                'currency': 'EUR',
-                'status': 'pending'
+                "id": 1,
+                "invoice_number": "FAV-2025-001",
+                "invoice_date": "2025-11-12",
+                "supplier_name": "Test Dodávateľ s.r.o.",
+                "supplier_ico": "12345678",
+                "total_amount": Decimal("1200.00"),
+                "currency": "EUR",
+                "status": "pending",
             }
         ]
 
-    def get_invoice_by_id(self, invoice_id: int) -> Optional[Dict]:
+    def get_invoice_by_id(self, invoice_id: int) -> dict | None:
         """
         Get single invoice by ID
 
@@ -135,11 +136,11 @@ class InvoiceService:
         # Fallback to stub data
         invoices = self._get_stub_invoices()
         for invoice in invoices:
-            if invoice['id'] == invoice_id:
+            if invoice["id"] == invoice_id:
                 return invoice
         return None
 
-    def get_invoice_items(self, invoice_id: int) -> List[Dict]:
+    def get_invoice_items(self, invoice_id: int) -> list[dict]:
         """
         Get invoice line items - ADAPTED FOR PRODUCTION SCHEMA
 
@@ -158,7 +159,7 @@ class InvoiceService:
 
         return self._get_stub_items(invoice_id)
 
-    def _get_items_from_database(self, invoice_id: int) -> List[Dict]:
+    def _get_items_from_database(self, invoice_id: int) -> list[dict]:
         """
         Get items from PostgreSQL - ADAPTED FOR PRODUCTION SCHEMA
 
@@ -200,27 +201,27 @@ class InvoiceService:
 
         return results
 
-    def _get_stub_items(self, invoice_id: int) -> List[Dict]:
+    def _get_stub_items(self, invoice_id: int) -> list[dict]:
         """Get stub item data for testing"""
         self.logger.info(f"Using stub items for invoice {invoice_id}")
 
         return [
             {
-                'id': 100 + invoice_id,
-                'invoice_id': invoice_id,
-                'plu_code': f'{1000 + invoice_id}',
-                'item_name': f'Test položka {invoice_id}',
-                'category_code': '1',
-                'unit': 'ks',
-                'quantity': Decimal('1.000'),
-                'unit_price': Decimal('100.00'),
-                'rabat_percent': Decimal('0.0'),
-                'price_after_rabat': Decimal('100.00'),
-                'total_price': Decimal('100.00')
+                "id": 100 + invoice_id,
+                "invoice_id": invoice_id,
+                "plu_code": f"{1000 + invoice_id}",
+                "item_name": f"Test položka {invoice_id}",
+                "category_code": "1",
+                "unit": "ks",
+                "quantity": Decimal("1.000"),
+                "unit_price": Decimal("100.00"),
+                "rabat_percent": Decimal("0.0"),
+                "price_after_rabat": Decimal("100.00"),
+                "total_price": Decimal("100.00"),
             }
         ]
 
-    def save_invoice(self, invoice_id: int, items: List[Dict]) -> bool:
+    def save_invoice(self, invoice_id: int, items: list[dict]) -> bool:
         """
         Save invoice items - ADAPTED FOR PRODUCTION SCHEMA
 
@@ -244,11 +245,11 @@ class InvoiceService:
                     self.logger.info(f"  - {item['item_name']}: {item['total_price']}")
                 return True
 
-        except Exception as e:
+        except Exception:
             self.logger.exception(f"Failed to save invoice {invoice_id}")
             return False
 
-    def _save_to_database(self, invoice_id: int, items: List[Dict]) -> bool:
+    def _save_to_database(self, invoice_id: int, items: list[dict]) -> bool:
         """
         Save items to PostgreSQL - ADAPTED FOR PRODUCTION SCHEMA
 
@@ -280,18 +281,18 @@ class InvoiceService:
 
                 for item in items:
                     # Calculate final_price_sell (with some margin, e.g. 50%)
-                    final_price_buy = item['price_after_rabat']
-                    final_price_sell = final_price_buy * Decimal('1.5')  # 50% margin
+                    final_price_buy = item["price_after_rabat"]
+                    final_price_sell = final_price_buy * Decimal("1.5")  # 50% margin
 
                     params = (
-                        item['item_name'],
-                        int(item.get('category_code', 0)),
-                        item['unit_price'],
-                        item['rabat_percent'],
+                        item["item_name"],
+                        int(item.get("category_code", 0)),
+                        item["unit_price"],
+                        item["rabat_percent"],
                         final_price_buy,
                         final_price_sell,
-                        item['id'],
-                        invoice_id
+                        item["id"],
+                        invoice_id,
                     )
                     cur.execute(update_query, params)
 
@@ -313,12 +314,13 @@ class InvoiceService:
             self.logger.info(f"Successfully saved {len(items)} items to database")
             return True
 
-        except Exception as e:
+        except Exception:
             self.logger.exception("Database save failed")
             return False
 
-    def calculate_item_price(self, unit_price: Decimal, rabat_percent: Decimal, 
-                            quantity: Decimal) -> tuple:
+    def calculate_item_price(
+        self, unit_price: Decimal, rabat_percent: Decimal, quantity: Decimal
+    ) -> tuple:
         """
         Calculate item prices
 
@@ -330,10 +332,10 @@ class InvoiceService:
         Returns:
             Tuple (price_after_rabat, total_price)
         """
-        price_after_rabat = unit_price * (Decimal('1') - rabat_percent / Decimal('100'))
-        price_after_rabat = price_after_rabat.quantize(Decimal('0.01'))
+        price_after_rabat = unit_price * (Decimal("1") - rabat_percent / Decimal("100"))
+        price_after_rabat = price_after_rabat.quantize(Decimal("0.01"))
 
         total_price = price_after_rabat * quantity
-        total_price = total_price.quantize(Decimal('0.01'))
+        total_price = total_price.quantize(Decimal("0.01"))
 
         return (price_after_rabat, total_price)

@@ -2,9 +2,9 @@
 Staging Client - INSERT operations for invoice processing.
 Replaces PostgresStagingClient from nex-shared.
 """
+
 import logging
-from typing import Optional, Dict, List, Any
-from decimal import Decimal
+from typing import Any
 
 import pg8000.native
 
@@ -21,7 +21,7 @@ class StagingClient:
     Usage:
         from nex_staging import StagingClient
 
-        with StagingClient(host='localhost', database='supplier_invoice_staging', 
+        with StagingClient(host='localhost', database='supplier_invoice_staging',
                           user='postgres', password='...') as client:
             is_dup = client.check_duplicate_invoice(ico, number)
             invoice_id = client.insert_invoice_with_items(invoice_data, items_data, xml)
@@ -34,7 +34,7 @@ class StagingClient:
         database: str = "supplier_invoice_staging",
         user: str = "postgres",
         password: str = "",
-        config: Optional[Dict[str, Any]] = None,
+        config: dict[str, Any] | None = None,
     ):
         """
         Initialize staging client.
@@ -44,11 +44,11 @@ class StagingClient:
             config: Alternative - dict with connection parameters
         """
         if config:
-            self._host = config.get('host', 'localhost')
-            self._port = config.get('port', 5432)
-            self._database = config.get('database', 'supplier_invoice_staging')
-            self._user = config.get('user', 'postgres')
-            self._password = config.get('password', '')
+            self._host = config.get("host", "localhost")
+            self._port = config.get("port", 5432)
+            self._database = config.get("database", "supplier_invoice_staging")
+            self._user = config.get("user", "postgres")
+            self._password = config.get("password", "")
         else:
             self._host = host
             self._port = port
@@ -63,7 +63,7 @@ class StagingClient:
             user=self._user,
             password=self._password,
         )
-        self._conn: Optional[pg8000.native.Connection] = None
+        self._conn: pg8000.native.Connection | None = None
 
     def __enter__(self):
         """Context manager entry - establish connection."""
@@ -102,11 +102,7 @@ class StagingClient:
             return self._conn.run(converted_query, **param_dict)
         return self._conn.run(query)
 
-    def check_duplicate_invoice(
-        self,
-        supplier_ico: str,
-        invoice_number: str
-    ) -> bool:
+    def check_duplicate_invoice(self, supplier_ico: str, invoice_number: str) -> bool:
         """
         Check if invoice already exists in staging database.
 
@@ -120,12 +116,15 @@ class StagingClient:
         if not self._conn:
             raise RuntimeError("Not in context manager")
 
-        result = self._run("""
+        result = self._run(
+            """
             SELECT COUNT(*) 
             FROM supplier_invoice_heads 
             WHERE xml_supplier_ico = %s 
               AND xml_invoice_number = %s
-        """, (supplier_ico, invoice_number))
+        """,
+            (supplier_ico, invoice_number),
+        )
 
         count = result[0][0] if result else 0
 
@@ -135,11 +134,8 @@ class StagingClient:
         return count > 0
 
     def insert_invoice_with_items(
-        self,
-        invoice_data: Dict[str, Any],
-        items_data: List[Dict[str, Any]],
-        isdoc_xml: Optional[str] = None
-    ) -> Optional[int]:
+        self, invoice_data: dict[str, Any], items_data: list[dict[str, Any]], isdoc_xml: str | None = None
+    ) -> int | None:
         """
         Insert invoice with items into staging database.
 
@@ -155,7 +151,8 @@ class StagingClient:
             raise RuntimeError("Not in context manager")
 
         try:
-            result = self._run("""
+            result = self._run(
+                """
                 INSERT INTO supplier_invoice_heads (
                     xml_supplier_ico,
                     xml_supplier_name,
@@ -177,24 +174,26 @@ class StagingClient:
                     %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
                 )
                 RETURNING id
-            """, (
-                invoice_data.get('supplier_ico'),
-                invoice_data.get('supplier_name'),
-                invoice_data.get('supplier_dic'),
-                invoice_data.get('invoice_number'),
-                invoice_data.get('invoice_date'),
-                invoice_data.get('due_date'),
-                invoice_data.get('total_amount'),
-                invoice_data.get('total_vat'),
-                invoice_data.get('total_without_vat'),
-                invoice_data.get('currency', 'EUR'),
-                invoice_data.get('file_basename'),
-                invoice_data.get('file_status', 'received'),
-                invoice_data.get('pdf_file_path'),
-                invoice_data.get('xml_file_path'),
-                'pending',
-                len(items_data)
-            ))
+            """,
+                (
+                    invoice_data.get("supplier_ico"),
+                    invoice_data.get("supplier_name"),
+                    invoice_data.get("supplier_dic"),
+                    invoice_data.get("invoice_number"),
+                    invoice_data.get("invoice_date"),
+                    invoice_data.get("due_date"),
+                    invoice_data.get("total_amount"),
+                    invoice_data.get("total_vat"),
+                    invoice_data.get("total_without_vat"),
+                    invoice_data.get("currency", "EUR"),
+                    invoice_data.get("file_basename"),
+                    invoice_data.get("file_status", "received"),
+                    invoice_data.get("pdf_file_path"),
+                    invoice_data.get("xml_file_path"),
+                    "pending",
+                    len(items_data),
+                ),
+            )
 
             # pg8000.native.run() may return empty list for INSERT RETURNING
             if not result or len(result) == 0:
@@ -203,7 +202,8 @@ class StagingClient:
             logger.info(f"Inserted invoice: id={invoice_id}")
 
             for item in items_data:
-                self._run("""
+                self._run(
+                    """
                     INSERT INTO supplier_invoice_items (
                         head_id,
                         xml_line_number,
@@ -216,21 +216,23 @@ class StagingClient:
                     ) VALUES (
                         %s, %s, %s, %s, %s, %s, %s, %s
                     )
-                """, (
-                    invoice_id,
-                    item.get('line_number'),
-                    item.get('name'),
-                    item.get('quantity'),
-                    item.get('unit'),
-                    item.get('price_per_unit'),
-                    item.get('ean'),
-                    item.get('vat_rate')
-                ))
+                """,
+                    (
+                        invoice_id,
+                        item.get("line_number"),
+                        item.get("name"),
+                        item.get("quantity"),
+                        item.get("unit"),
+                        item.get("price_per_unit"),
+                        item.get("ean"),
+                        item.get("vat_rate"),
+                    ),
+                )
 
             logger.info(f"Inserted {len(items_data)} items for invoice {invoice_id}")
             return invoice_id
 
-        except Exception as e:
+        except Exception:
             logger.exception("Failed to insert invoice with items")
             raise
 
@@ -238,8 +240,8 @@ class StagingClient:
         self,
         invoice_id: int,
         file_status: str,
-        pdf_file_path: Optional[str] = None,
-        xml_file_path: Optional[str] = None,
+        pdf_file_path: str | None = None,
+        xml_file_path: str | None = None,
     ) -> bool:
         """Update file status and paths for an invoice."""
         if not self._conn:
@@ -271,20 +273,23 @@ class StagingClient:
 
         return success
 
-    def get_enrichment_stats(self, invoice_id: Optional[int] = None) -> Dict:
+    def get_enrichment_stats(self, invoice_id: int | None = None) -> dict:
         """Get enrichment statistics."""
         if not self._conn:
             raise RuntimeError("Not in context manager")
 
         if invoice_id:
-            result = self._run("""
+            result = self._run(
+                """
                 SELECT 
                     COUNT(*) FILTER (WHERE matched = TRUE) as matched,
                     COUNT(*) FILTER (WHERE matched = FALSE OR matched IS NULL) as not_matched,
                     COUNT(*) as total
                 FROM supplier_invoice_items
                 WHERE head_id = %s
-            """, (invoice_id,))
+            """,
+                (invoice_id,),
+            )
         else:
             result = self._run("""
                 SELECT 
@@ -296,11 +301,7 @@ class StagingClient:
 
         row = result[0] if result else (0, 0, 0)
 
-        return {
-            'matched': row[0] or 0,
-            'not_matched': row[1] or 0,
-            'total': row[2] or 0
-        }
+        return {"matched": row[0] or 0, "not_matched": row[1] or 0, "total": row[2] or 0}
 
     def test_connection(self) -> tuple:
         """Test database connection."""

@@ -6,7 +6,7 @@ Provides abstract base class and configuration models for multi-supplier support
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Dict, Optional
+from typing import Any
 
 from models import UnifiedInvoice
 
@@ -47,9 +47,9 @@ class SupplierConfig:
     product_code_type: str  # Typ: ean, marso_code, ...
 
     # Credentials (zo secure storage / .env)
-    api_key: Optional[str] = None
-    username: Optional[str] = None
-    password: Optional[str] = None
+    api_key: str | None = None
+    username: str | None = None
+    password: str | None = None
 
     # Settings
     timeout_seconds: int = 30
@@ -58,10 +58,10 @@ class SupplierConfig:
 
     # SOAP support
     protocol: str = "rest"  # "rest" | "soap"
-    wsdl_url: Optional[str] = None  # WSDL endpoint URL
-    soap_method: Optional[str] = None  # SOAP method name (e.g. "CallComax")
-    message_types: Dict[str, str] = field(default_factory=dict)  # {"invoice_list": "CustInvoiceList", ...}
-    request_params: Dict[str, Any] = field(default_factory=dict)  # Sender, Receiver, test, etc.
+    wsdl_url: str | None = None  # WSDL endpoint URL
+    soap_method: str | None = None  # SOAP method name (e.g. "CallComax")
+    message_types: dict[str, str] = field(default_factory=dict)  # {"invoice_list": "CustInvoiceList", ...}
+    request_params: dict[str, Any] = field(default_factory=dict)  # Sender, Receiver, test, etc.
     response_format: str = "xml"  # "xml" | "json"
 
 

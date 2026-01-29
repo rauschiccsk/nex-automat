@@ -1,10 +1,11 @@
-# -*- coding: utf-8 -*-
 """
 Test database functionality
 """
-import pytest
+
 import sys
 from pathlib import Path
+
+import pytest
 
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
@@ -21,6 +22,7 @@ def test_postgres_staging_import():
     """Test PostgreSQL staging client import"""
     try:
         from invoice_shared.database.postgres_staging import PostgresStagingClient
+
         assert PostgresStagingClient is not None
     except ImportError as e:
         pytest.fail(f"Failed to import PostgresStagingClient: {e}")
@@ -29,7 +31,6 @@ def test_postgres_staging_import():
 @pytest.mark.skip(reason="Requires PostgreSQL connection")
 def test_postgres_connection():
     """Test PostgreSQL connection (requires running database)"""
-    from invoice_shared.database.postgres_staging import PostgresStagingClient
 
     # Would need actual database config
     pass

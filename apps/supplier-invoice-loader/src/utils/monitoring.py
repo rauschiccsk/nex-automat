@@ -3,12 +3,13 @@
 Supplier Invoice Loader - Monitoring & Metrics
 Tracks application health, uptime, and processing statistics
 """
+
 import time
-from pathlib import Path
 
 # Optional psutil dependency
 try:
     import psutil
+
     PSUTIL_AVAILABLE = True
 except ImportError:
     PSUTIL_AVAILABLE = False
@@ -39,7 +40,7 @@ class Metrics:
                 return {
                     "cpu_percent": psutil.cpu_percent(interval=0.1),
                     "memory_percent": psutil.virtual_memory().percent,
-                    "disk_percent": psutil.disk_usage('/').percent,
+                    "disk_percent": psutil.disk_usage("/").percent,
                 }
             except Exception:
                 pass
@@ -133,15 +134,15 @@ def check_storage_health() -> dict:
         storage_healthy = pdf_dir_exists and xml_dir_exists
 
         return {
-            'pdf_dir_exists': pdf_dir_exists,
-            'xml_dir_exists': xml_dir_exists,
-            'storage_healthy': storage_healthy
+            "pdf_dir_exists": pdf_dir_exists,
+            "xml_dir_exists": xml_dir_exists,
+            "storage_healthy": storage_healthy,
         }
 
     except Exception as e:
         return {
-            'pdf_dir_exists': False,
-            'xml_dir_exists': False,
-            'storage_healthy': False,
-            'error': str(e)
+            "pdf_dir_exists": False,
+            "xml_dir_exists": False,
+            "storage_healthy": False,
+            "error": str(e),
         }

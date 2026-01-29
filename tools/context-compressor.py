@@ -4,9 +4,9 @@ Komprimuje históriu chatu pomocou Claude API
 POZNÁMKA: Vyžaduje ANTHROPIC_API_KEY v config.py
 """
 
-from pathlib import Path
-from datetime import datetime
 import sys
+from datetime import datetime
+from pathlib import Path
 
 try:
     import anthropic
@@ -21,6 +21,7 @@ except ImportError:
     print("❌ Chýba konfigurácia")
     print("   Vytvor config.py a nastav ANTHROPIC_API_KEY")
     sys.exit(1)
+
 
 class ContextCompressor:
     def __init__(self, api_key: str = None):
@@ -47,7 +48,7 @@ class ContextCompressor:
             raise FileNotFoundError(f"Súbor neexistuje: {history_file}")
 
         # Načítaj históriu
-        history = history_file.read_text(encoding='utf-8')
+        history = history_file.read_text(encoding="utf-8")
         history_length = len(history)
 
         print(f"\n📄 Komprimujem: {history_file.name}")
@@ -84,10 +85,7 @@ POZNÁMKA: Odpovedaj IBA komprimovaným obsahom, žiadny úvod ani záver!"""
                 model="claude-sonnet-4-20250514",
                 max_tokens=1500,
                 temperature=0.3,  # Nižšia temperatura = konzistentnejšie výsledky
-                messages=[{
-                    "role": "user",
-                    "content": compression_prompt
-                }]
+                messages=[{"role": "user", "content": compression_prompt}],
             )
 
             # Extrahuj odpoveď
@@ -107,7 +105,7 @@ POZNÁMKA: Odpovedaj IBA komprimovaným obsahom, žiadny úvod ani záver!"""
             output = f"""# KOMPRIMOVANÁ HISTÓRIA CHATU - nex-automat
 
 **Pôvodný súbor:** {history_file.name}
-**Komprimované:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+**Komprimované:** {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
 **Pôvodná veľkosť:** {history_length:,} znakov
 **Komprimovaná veľkosť:** {compressed_length:,} znakov
 **Kompresia:** {compression_ratio:.1f}%
@@ -121,7 +119,7 @@ POZNÁMKA: Odpovedaj IBA komprimovaným obsahom, žiadny úvod ani záver!"""
 *Komprimované pomocou Claude Sonnet 4*
 """
 
-            compressed_file.write_text(output, encoding='utf-8')
+            compressed_file.write_text(output, encoding="utf-8")
             print(f"💾 Uložené: {compressed_file}")
 
             return compressed
@@ -162,9 +160,9 @@ POZNÁMKA: Odpovedaj IBA komprimovaným obsahom, žiadny úvod ani záver!"""
             print(f"⚠️ Žiadne .md súbory v: {directory}")
             return
 
-        print(f"\n{'='*60}")
+        print(f"\n{'=' * 60}")
         print(f"📦 BATCH KOMPRESIA (nex-automat) - {len(md_files)} súborov")
-        print('='*60)
+        print("=" * 60)
 
         success_count = 0
         total_original = 0
@@ -176,7 +174,7 @@ POZNÁMKA: Odpovedaj IBA komprimovaným obsahom, žiadny úvod ani záver!"""
                 continue
 
             try:
-                original_size = len(md_file.read_text(encoding='utf-8'))
+                original_size = len(md_file.read_text(encoding="utf-8"))
                 compressed = self.compress_chat_history(md_file)
                 compressed_size = len(compressed)
 
@@ -192,10 +190,11 @@ POZNÁMKA: Odpovedaj IBA komprimovaným obsahom, žiadny úvod ani záver!"""
         # Celková štatistika
         if success_count > 0:
             total_ratio = (1 - total_compressed / total_original) * 100
-            print('='*60)
+            print("=" * 60)
             print(f"✅ Komprimovaných: {success_count}/{len(md_files)}")
             print(f"📊 Celková kompresia: {total_ratio:.1f}%")
-            print('='*60)
+            print("=" * 60)
+
 
 def main():
     """Hlavná funkcia"""
@@ -221,25 +220,26 @@ def main():
     command = sys.argv[1].lower()
 
     try:
-        if command == 'notes':
+        if command == "notes":
             compressor.compress_session_notes()
 
-        elif command == 'init':
+        elif command == "init":
             compressor.compress_init_prompt()
 
-        elif command == 'file' and len(sys.argv) > 2:
+        elif command == "file" and len(sys.argv) > 2:
             file_path = Path(sys.argv[2])
             compressor.compress_chat_history(file_path)
 
-        elif command == 'batch' and len(sys.argv) > 2:
+        elif command == "batch" and len(sys.argv) > 2:
             dir_path = Path(sys.argv[2])
             compressor.batch_compress(dir_path)
 
         else:
-            print(f"❌ Neznámy príkaz alebo chýbajúce parametre")
+            print("❌ Neznámy príkaz alebo chýbajúce parametre")
 
     except Exception as e:
         print(f"\n❌ CHYBA: {e}\n")
+
 
 if __name__ == "__main__":
     main()

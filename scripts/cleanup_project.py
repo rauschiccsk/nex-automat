@@ -3,8 +3,8 @@ Cleanup NEX Automat Project
 Odstráni nepotrebné súbory a priečinky
 """
 
-from pathlib import Path
 import shutil
+from pathlib import Path
 
 
 def remove_dir(path: Path, description: str):

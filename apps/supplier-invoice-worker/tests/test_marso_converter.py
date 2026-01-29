@@ -3,7 +3,6 @@
 from xml.etree import ElementTree as ET
 
 import pytest
-
 from converters.marso_to_isdoc import MARSOToISDOCConverter
 
 # ISDOC namespace for XPath queries

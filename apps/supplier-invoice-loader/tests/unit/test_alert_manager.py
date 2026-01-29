@@ -15,7 +15,7 @@ def alert_config():
         smtp_password="password",
         from_email="test@example.com",
         to_emails=["recipient@example.com"],
-        use_tls=True
+        use_tls=True,
     )
 
 
@@ -37,9 +37,7 @@ def test_critical_alert_creation(alert_manager):
     alert_manager._send_email = lambda **kwargs: True
 
     result = alert_manager.send_critical_alert(
-        title="Test Critical",
-        message="This is a test",
-        alert_type=AlertType.SYSTEM
+        title="Test Critical", message="This is a test", alert_type=AlertType.SYSTEM
     )
 
     assert result is True
@@ -54,9 +52,7 @@ def test_warning_alert_creation(alert_manager):
     alert_manager._send_email = lambda **kwargs: True
 
     result = alert_manager.send_warning(
-        title="Test Warning",
-        message="This is a warning",
-        alert_type=AlertType.PERFORMANCE
+        title="Test Warning", message="This is a warning", alert_type=AlertType.PERFORMANCE
     )
 
     assert result is True
@@ -92,14 +88,8 @@ def test_check_health_high_cpu(alert_manager):
     alert_manager._send_email = lambda **kwargs: True
 
     health_status = {
-        'system_metrics': {
-            'cpu_percent': 95.0,
-            'memory_percent': 50.0,
-            'disk_percent': 50.0
-        },
-        'database_status': {
-            'connected': True
-        }
+        "system_metrics": {"cpu_percent": 95.0, "memory_percent": 50.0, "disk_percent": 50.0},
+        "database_status": {"connected": True},
     }
 
     alerts = alert_manager.check_health_and_alert(health_status)
@@ -113,15 +103,8 @@ def test_check_health_database_down(alert_manager):
     alert_manager._send_email = lambda **kwargs: True
 
     health_status = {
-        'system_metrics': {
-            'cpu_percent': 50.0,
-            'memory_percent': 50.0,
-            'disk_percent': 50.0
-        },
-        'database_status': {
-            'connected': False,
-            'error': 'Connection refused'
-        }
+        "system_metrics": {"cpu_percent": 50.0, "memory_percent": 50.0, "disk_percent": 50.0},
+        "database_status": {"connected": False, "error": "Connection refused"},
     }
 
     alerts = alert_manager.check_health_and_alert(health_status)
@@ -132,24 +115,16 @@ def test_check_health_database_down(alert_manager):
 
 def test_daily_summary_format(alert_manager):
     """Test daily summary formatting"""
-    invoice_stats = {
-        'total_processed': 100,
-        'total_failed': 5,
-        'success_rate': 95.0
-    }
-    system_stats = {
-        'cpu_percent': 45.0,
-        'memory_percent': 60.0,
-        'disk_percent': 70.0
-    }
-    errors = ['Error 1', 'Error 2']
+    invoice_stats = {"total_processed": 100, "total_failed": 5, "success_rate": 95.0}
+    system_stats = {"cpu_percent": 45.0, "memory_percent": 60.0, "disk_percent": 70.0}
+    errors = ["Error 1", "Error 2"]
 
     html = alert_manager._format_daily_summary(invoice_stats, system_stats, errors)
 
-    assert 'Daily Summary' in html
-    assert '100' in html  # processed count
-    assert '95.0%' in html  # success rate
-    assert 'Error 1' in html
+    assert "Daily Summary" in html
+    assert "100" in html  # processed count
+    assert "95.0%" in html  # success rate
+    assert "Error 1" in html
 
 
 def test_alert_level_enum():

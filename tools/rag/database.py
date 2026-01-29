@@ -3,11 +3,11 @@ RAG Database Module
 PostgreSQL operations with pgvector for vector similarity search
 """
 
-from typing import List, Optional, Dict, Any, Tuple
-from datetime import datetime
+import json
+from typing import Any
+
 import asyncpg
 import numpy as np
-import json
 
 from .config import DatabaseConfig, get_config
 
@@ -19,7 +19,7 @@ class DatabaseManager:
     Handles document storage, vector operations, and search.
     """
 
-    def __init__(self, config: Optional[DatabaseConfig] = None):
+    def __init__(self, config: DatabaseConfig | None = None):
         """
         Initialize database manager
 
@@ -30,7 +30,7 @@ class DatabaseManager:
             config = get_config().database
 
         self.config = config
-        self.pool: Optional[asyncpg.Pool] = None
+        self.pool: asyncpg.Pool | None = None
 
     async def connect(self) -> None:
         """Create connection pool"""
@@ -46,7 +46,7 @@ class DatabaseManager:
             user=self.config.user,
             password=self.config.password,
             min_size=self.config.pool_min_size,
-            max_size=self.config.pool_max_size
+            max_size=self.config.pool_max_size,
         )
 
         print("[OK] Database connection pool created")
@@ -58,12 +58,7 @@ class DatabaseManager:
             self.pool = None
             print("[OK] Database connection pool closed")
 
-    async def insert_document(
-            self,
-            filename: str,
-            content: str,
-            metadata: Optional[Dict[str, Any]] = None
-    ) -> int:
+    async def insert_document(self, filename: str, content: str, metadata: dict[str, Any] | None = None) -> int:
         """
         Insert document into database
 
@@ -89,12 +84,12 @@ class DatabaseManager:
         return doc_id
 
     async def insert_chunk(
-            self,
-            document_id: int,
-            chunk_index: int,
-            content: str,
-            embedding: np.ndarray,
-            metadata: Optional[Dict[str, Any]] = None
+        self,
+        document_id: int,
+        chunk_index: int,
+        content: str,
+        embedding: np.ndarray,
+        metadata: dict[str, Any] | None = None,
     ) -> int:
         """
         Insert document chunk with embedding
@@ -118,12 +113,12 @@ class DatabaseManager:
             if embedding.ndim > 1:
                 embedding = embedding.flatten()
             embedding_list = embedding.tolist()
-        elif hasattr(embedding, 'tolist'):
+        elif hasattr(embedding, "tolist"):
             embedding_list = embedding.tolist()
         else:
             embedding_list = list(embedding)
         # Create pgvector format string
-        embedding_str = '[' + ','.join(str(float(x)) for x in embedding_list) + ']'
+        embedding_str = "[" + ",".join(str(float(x)) for x in embedding_list) + "]"
 
         query = """
             INSERT INTO chunks (document_id, chunk_index, content, embedding, metadata)
@@ -132,24 +127,17 @@ class DatabaseManager:
         """
 
         metadata_json = json.dumps(metadata) if metadata else None
-        chunk_id = await self.pool.fetchval(
-            query,
-            document_id,
-            chunk_index,
-            content,
-            embedding_str,
-            metadata_json
-        )
+        chunk_id = await self.pool.fetchval(query, document_id, chunk_index, content, embedding_str, metadata_json)
 
         return chunk_id
 
     async def search_similar(
-            self,
-            query_embedding: np.ndarray,
-            limit: int = 10,
-            similarity_threshold: float = 0.0,
-            document_ids: Optional[List[int]] = None
-    ) -> List[Dict[str, Any]]:
+        self,
+        query_embedding: np.ndarray,
+        limit: int = 10,
+        similarity_threshold: float = 0.0,
+        document_ids: list[int] | None = None,
+    ) -> list[dict[str, Any]]:
         """
         Search for similar chunks using vector similarity
 
@@ -169,11 +157,11 @@ class DatabaseManager:
             if query_embedding.ndim > 1:
                 query_embedding = query_embedding.flatten()
             embedding_list = query_embedding.tolist()
-        elif hasattr(query_embedding, 'tolist'):
+        elif hasattr(query_embedding, "tolist"):
             embedding_list = query_embedding.tolist()
         else:
             embedding_list = list(query_embedding)
-        embedding_str = '[' + ','.join(str(float(x)) for x in embedding_list) + ']'
+        embedding_str = "[" + ",".join(str(float(x)) for x in embedding_list) + "]"
 
         # Build query
         query = """
@@ -207,20 +195,22 @@ class DatabaseManager:
         # Filter by similarity threshold and convert to dicts
         results = []
         for row in rows:
-            if row['similarity'] >= similarity_threshold:
-                results.append({
-                    'chunk_id': row['id'],
-                    'document_id': row['document_id'],
-                    'chunk_index': row['chunk_index'],
-                    'content': row['content'],
-                    'metadata': row['metadata'],
-                    'filename': row['filename'],
-                    'similarity': float(row['similarity'])
-                })
+            if row["similarity"] >= similarity_threshold:
+                results.append(
+                    {
+                        "chunk_id": row["id"],
+                        "document_id": row["document_id"],
+                        "chunk_index": row["chunk_index"],
+                        "content": row["content"],
+                        "metadata": row["metadata"],
+                        "filename": row["filename"],
+                        "similarity": float(row["similarity"]),
+                    }
+                )
 
         return results
 
-    async def get_document(self, document_id: int) -> Optional[Dict[str, Any]]:
+    async def get_document(self, document_id: int) -> dict[str, Any] | None:
         """Get document by ID"""
         if self.pool is None:
             await self.connect()
@@ -233,7 +223,7 @@ class DatabaseManager:
 
         return dict(row)
 
-    async def get_chunks(self, document_id: int) -> List[Dict[str, Any]]:
+    async def get_chunks(self, document_id: int) -> list[dict[str, Any]]:
         """Get all chunks for a document"""
         if self.pool is None:
             await self.connect()
@@ -268,13 +258,9 @@ class DatabaseManager:
         result = await self.pool.execute("DELETE FROM documents WHERE id = $1", document_id)
 
         # Check if any rows were deleted
-        return result.split()[-1] != '0'
+        return result.split()[-1] != "0"
 
-    async def list_documents(
-            self,
-            limit: int = 100,
-            offset: int = 0
-    ) -> List[Dict[str, Any]]:
+    async def list_documents(self, limit: int = 100, offset: int = 0) -> list[dict[str, Any]]:
         """List documents with pagination"""
         if self.pool is None:
             await self.connect()
@@ -289,7 +275,7 @@ class DatabaseManager:
         rows = await self.pool.fetch(query, limit, offset)
         return [dict(row) for row in rows]
 
-    async def get_stats(self) -> Dict[str, Any]:
+    async def get_stats(self) -> dict[str, Any]:
         """Get database statistics"""
         if self.pool is None:
             await self.connect()
@@ -297,20 +283,16 @@ class DatabaseManager:
         stats = {}
 
         # Document count
-        stats['document_count'] = await self.pool.fetchval(
-            "SELECT COUNT(*) FROM documents"
-        )
+        stats["document_count"] = await self.pool.fetchval("SELECT COUNT(*) FROM documents")
 
         # Chunk count
-        stats['chunk_count'] = await self.pool.fetchval(
-            "SELECT COUNT(*) FROM chunks"
-        )
+        stats["chunk_count"] = await self.pool.fetchval("SELECT COUNT(*) FROM chunks")
 
         # Average chunks per document
-        if stats['document_count'] > 0:
-            stats['avg_chunks_per_doc'] = stats['chunk_count'] / stats['document_count']
+        if stats["document_count"] > 0:
+            stats["avg_chunks_per_doc"] = stats["chunk_count"] / stats["document_count"]
         else:
-            stats['avg_chunks_per_doc'] = 0.0
+            stats["avg_chunks_per_doc"] = 0.0
 
         return stats
 
@@ -325,7 +307,7 @@ class DatabaseManager:
 
 
 # Global database manager instance (lazy loaded)
-_db_manager: Optional[DatabaseManager] = None
+_db_manager: DatabaseManager | None = None
 
 
 async def get_db(reload: bool = False) -> DatabaseManager:
@@ -350,7 +332,6 @@ async def get_db(reload: bool = False) -> DatabaseManager:
 if __name__ == "__main__":
     import asyncio
 
-
     async def test():
         """Test database operations"""
         print("Testing database operations...")
@@ -366,6 +347,5 @@ if __name__ == "__main__":
 
             for doc in docs:
                 print(f"  - {doc['filename']} (ID: {doc['id']})")
-
 
     asyncio.run(test())

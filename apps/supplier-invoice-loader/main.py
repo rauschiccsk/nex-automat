@@ -18,7 +18,6 @@ from fastapi import FastAPI, Header, Depends, HTTPException
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from fastapi.responses import PlainTextResponse
-from pydantic import BaseModel
 
 from src.api import models
 from src.business.product_matcher import ProductMatcher
@@ -37,7 +36,7 @@ START_TIME = time.time()
 app = FastAPI(
     title="Supplier Invoice Loader",
     description="Automated invoice processing system",
-    version="2.0.0"
+    version="2.0.0",
 )
 
 
@@ -50,6 +49,7 @@ product_matcher: Optional[ProductMatcher] = None
 # ============================================================================
 # MIDDLEWARE
 # ============================================================================
+
 
 @app.middleware("http")
 async def track_requests(request, call_next):
@@ -67,6 +67,7 @@ async def track_requests(request, call_next):
 # AUTHENTICATION
 # ============================================================================
 
+
 async def verify_api_key(x_api_key: Optional[str] = Header(None)):
     """
     Verify API key from X-API-Key header
@@ -78,16 +79,10 @@ async def verify_api_key(x_api_key: Optional[str] = Header(None)):
         HTTPException: If API key is invalid or missing
     """
     if not x_api_key:
-        raise HTTPException(
-            status_code=422,
-            detail="Missing X-API-Key header"
-        )
+        raise HTTPException(status_code=422, detail="Missing X-API-Key header")
 
     if x_api_key != config.API_KEY:
-        raise HTTPException(
-            status_code=401,
-            detail="Invalid API key"
-        )
+        raise HTTPException(status_code=401, detail="Invalid API key")
 
     return x_api_key
 
@@ -96,23 +91,17 @@ async def verify_api_key(x_api_key: Optional[str] = Header(None)):
 # PUBLIC ENDPOINTS (no auth required)
 # ============================================================================
 
+
 @app.get("/")
 async def root():
     """Root endpoint - service information"""
-    return {
-        "service": "Supplier Invoice Loader",
-        "version": "2.0.0",
-        "status": "running"
-    }
+    return {"service": "Supplier Invoice Loader", "version": "2.0.0", "status": "running"}
 
 
 @app.get("/health")
 async def health():
     """Health check endpoint - for monitoring systems"""
-    return {
-        "status": "healthy",
-        "timestamp": datetime.now().isoformat()
-    }
+    return {"status": "healthy", "timestamp": datetime.now().isoformat()}
 
 
 @app.get("/metrics")
@@ -123,17 +112,14 @@ async def metrics():
     # Get stats from database
     try:
         stats = database.get_stats()
-        total_processed = stats.get('total', 0)
+        total_processed = stats.get("total", 0)
     except Exception:
         total_processed = 0
 
     return {
         "uptime_seconds": uptime,
         "app_invoices_processed_total": total_processed,
-        "app_info": {
-            "version": "2.0.0",
-            "customer": config.CUSTOMER_NAME
-        }
+        "app_info": {"version": "2.0.0", "customer": config.CUSTOMER_NAME},
     }
 
 
@@ -145,8 +131,8 @@ async def metrics_prometheus():
     # Get stats from database
     try:
         stats = database.get_stats()
-        total_processed = stats.get('total', 0)
-        total_errors = stats.get('by_status', {}).get('error', 0)
+        total_processed = stats.get("total", 0)
+        total_errors = stats.get("by_status", {}).get("error", 0)
     except Exception:
         total_processed = 0
         total_errors = 0
@@ -191,13 +177,14 @@ async def stats():
             "by_nex_status": {},
             "by_customer": {},
             "duplicates": 0,
-            "error": str(e)
+            "error": str(e),
         }
 
 
 # ============================================================================
 # PROTECTED ENDPOINTS (require authentication)
 # ============================================================================
+
 
 @app.get("/status")
 async def status(api_key: str = Depends(verify_api_key)):
@@ -216,7 +203,7 @@ async def status(api_key: str = Depends(verify_api_key)):
 
     # Get system health
     storage_health = monitoring.check_storage_health()
-    storage_ok = storage_health.get('storage_healthy', False)
+    storage_ok = storage_health.get("storage_healthy", False)
 
     return {
         "status": "healthy" if db_healthy and storage_ok else "degraded",
@@ -224,18 +211,15 @@ async def status(api_key: str = Depends(verify_api_key)):
         "components": {
             "database": "healthy" if db_healthy else "error",
             "storage": "healthy" if storage_ok else "warning",
-            "smtp": "unknown"  # Could add SMTP check
+            "smtp": "unknown",  # Could add SMTP check
         },
         "statistics": db_stats,
-        "uptime_seconds": int(time.time() - START_TIME)
+        "uptime_seconds": int(time.time() - START_TIME),
     }
 
 
 @app.get("/invoices")
-async def list_invoices(
-    limit: int = 100,
-    api_key: str = Depends(verify_api_key)
-):
+async def list_invoices(limit: int = 100, api_key: str = Depends(verify_api_key)):
     """
     List invoices - requires authentication
 
@@ -251,19 +235,10 @@ async def list_invoices(
         # Get invoices from database
         invoices = database.get_all_invoices(limit=limit)
 
-        return {
-            "count": len(invoices),
-            "invoices": invoices
-        }
+        return {"count": len(invoices), "invoices": invoices}
     except Exception as e:
         # Return empty list if database not available
-        return {
-            "count": 0,
-            "invoices": [],
-            "error": str(e)
-        }
-
-
+        return {"count": 0, "invoices": [], "error": str(e)}
 
 
 async def enrich_invoice_items(invoice_id: int):
@@ -283,7 +258,7 @@ async def enrich_invoice_items(invoice_id: int):
             port=config.POSTGRES_PORT,
             database=config.POSTGRES_DATABASE,
             user=config.POSTGRES_USER,
-            password=config.POSTGRES_PASSWORD
+            password=config.POSTGRES_PASSWORD,
         )
         items = pg_client.get_pending_enrichment_items(invoice_id, limit=100)
 
@@ -296,8 +271,8 @@ async def enrich_invoice_items(invoice_id: int):
             try:
                 # Prepare item data for matching
                 item_data = {
-                    'name': item.get('edited_name') or item.get('original_name'),
-                    'ean': item.get('edited_ean') or item.get('original_ean')
+                    "name": item.get("edited_name") or item.get("original_name"),
+                    "ean": item.get("edited_ean") or item.get("original_ean"),
                 }
 
                 # Match with NEX Genesis
@@ -306,17 +281,16 @@ async def enrich_invoice_items(invoice_id: int):
                 if result.is_match:
                     # Save match to database
                     pg_client.update_nex_enrichment(
-                        item_id=item['id'],
-                        gscat_record=result.product,
-                        matched_by=result.method
+                        item_id=item["id"], gscat_record=result.product, matched_by=result.method
                     )
                     matched_count += 1
-                    logger.debug(f"  [OK] Item {item['id']}: {result.product.gs_name} (confidence: {result.confidence:.2f})")
+                    logger.debug(
+                        f"  [OK] Item {item['id']}: {result.product.gs_name} (confidence: {result.confidence:.2f})"
+                    )
                 else:
                     # Mark as no match
                     pg_client.mark_no_match(
-                        item_id=item['id'],
-                        reason=f"No match found (min confidence: 0.6)"
+                        item_id=item["id"], reason="No match found (min confidence: 0.6)"
                     )
                     no_match_count += 1
                     logger.debug(f"  [WARNING] Item {item['id']}: No match")
@@ -328,15 +302,17 @@ async def enrich_invoice_items(invoice_id: int):
         # Log statistics
         stats = pg_client.get_enrichment_stats(invoice_id)
         logger.info(f"[OK] Enrichment complete: {matched_count} matched, {no_match_count} no match")
-        logger.info(f"[STATS] Stats - Total: {stats['total']}, Matched: {stats['matched']}, Pending: {stats['pending']}")
+        logger.info(
+            f"[STATS] Stats - Total: {stats['total']}, Matched: {stats['matched']}, Pending: {stats['pending']}"
+        )
 
     except Exception as e:
         logger.error(f"[ERROR] Failed to enrich invoice {invoice_id}: {e}")
 
 
-
-
-def move_files_to_staging(pdf_path: Path, xml_path: Path, file_basename: str, pg_conn, invoice_id: int) -> tuple:
+def move_files_to_staging(
+    pdf_path: Path, xml_path: Path, file_basename: str, pg_conn, invoice_id: int
+) -> tuple:
     """
     Move PDF and XML files from RECEIVED to STAGING directory.
     Update file_status in PostgreSQL.
@@ -384,7 +360,7 @@ def move_files_to_staging(pdf_path: Path, xml_path: Path, file_basename: str, pg
             """,
             pdf_path=str(staged_pdf_path) if staged_pdf_path else None,
             xml_path=str(staged_xml_path) if staged_xml_path else None,
-            inv_id=invoice_id
+            inv_id=invoice_id,
         )
         print(f"[OK] Updated file_status to 'staged' for invoice {invoice_id}")
 
@@ -396,10 +372,7 @@ def move_files_to_staging(pdf_path: Path, xml_path: Path, file_basename: str, pg
 
 
 @app.post("/invoice")
-async def process_invoice(
-    request: models.InvoiceRequest,
-    api_key: str = Depends(verify_api_key)
-):
+async def process_invoice(request: models.InvoiceRequest, api_key: str = Depends(verify_api_key)):
     """
     Process invoice - requires authentication
 
@@ -441,7 +414,7 @@ async def process_invoice(
         database.init_database()
         is_duplicate_found = database.is_duplicate(
             file_hash=file_hash,
-            customer_name=None  # Fixed: Single-tenant architecture
+            customer_name=None,  # Fixed: Single-tenant architecture
         )
 
         if is_duplicate_found:
@@ -451,7 +424,7 @@ async def process_invoice(
                 "message": "Duplicate invoice detected - already processed",
                 "duplicate": True,
                 "file_hash": file_hash,
-                "received_date": request.received_date
+                "received_date": request.received_date,
             }
 
         # 2. Extract data from PDF (with supplier auto-detection)
@@ -476,21 +449,21 @@ async def process_invoice(
             total_amount=float(invoice_data.total_amount) if invoice_data.total_amount else 0.0,
             file_path=str(pdf_path),
             file_hash=file_hash,
-            status="received"
+            status="received",
         )
         print(f"[OK] Saved to SQLite: {invoice_data.invoice_number}")
 
         # 4. Rename PDF and generate XML with same basename
         # Zjednotený basename: {timestamp}_{invoice_number}
         file_basename = f"{timestamp}_{invoice_data.invoice_number}"
-        
+
         # Premenuj PDF na finálny názov
         final_pdf_filename = f"{file_basename}.pdf"
         final_pdf_path = config.PDF_DIR / final_pdf_filename
         pdf_path.rename(final_pdf_path)
         pdf_path = final_pdf_path
         print(f"[OK] PDF renamed: {pdf_path}")
-        
+
         # Generuj XML s rovnakým basename
         xml_filename = f"{file_basename}.xml"
         xml_path = config.XML_DIR / xml_filename
@@ -506,76 +479,83 @@ async def process_invoice(
             try:
                 # Prepare PostgreSQL config
                 pg_config = {
-                    'host': config.POSTGRES_HOST,
-                    'port': config.POSTGRES_PORT,
-                    'database': config.POSTGRES_DATABASE,
-                    'user': config.POSTGRES_USER,
-                    'password': config.POSTGRES_PASSWORD
+                    "host": config.POSTGRES_HOST,
+                    "port": config.POSTGRES_PORT,
+                    "database": config.POSTGRES_DATABASE,
+                    "user": config.POSTGRES_USER,
+                    "password": config.POSTGRES_PASSWORD,
                 }
 
                 # Create PostgreSQL client
                 with StagingClient(config=pg_config) as pg_client:
                     # Check for duplicates
                     is_duplicate = pg_client.check_duplicate_invoice(
-                        invoice_data.supplier_ico,
-                        invoice_data.invoice_number
+                        invoice_data.supplier_ico, invoice_data.invoice_number
                     )
 
                     if is_duplicate:
-                        print(f"[WARN]  Invoice already exists in PostgreSQL staging: {invoice_data.invoice_number}")
+                        print(
+                            f"[WARN]  Invoice already exists in PostgreSQL staging: {invoice_data.invoice_number}"
+                        )
                     else:
                         # Prepare invoice data for PostgreSQL
                         invoice_pg_data = {
-                            'supplier_ico': invoice_data.supplier_ico,
-                            'supplier_name': invoice_data.supplier_name,
-                            'supplier_dic': invoice_data.supplier_dic,
-                            'invoice_number': invoice_data.invoice_number,
-                            'invoice_date': invoice_data.issue_date,
-                            'due_date': invoice_data.due_date,
-                            'total_amount': invoice_data.total_amount,
-                            'total_vat': invoice_data.tax_amount,
-                            'total_without_vat': invoice_data.net_amount,
-                            'currency': invoice_data.currency,
-                            'file_basename': file_basename,
-                            'file_status': 'received',
-                            'pdf_file_path': str(pdf_path),
-                            'xml_file_path': str(xml_path)
+                            "supplier_ico": invoice_data.supplier_ico,
+                            "supplier_name": invoice_data.supplier_name,
+                            "supplier_dic": invoice_data.supplier_dic,
+                            "invoice_number": invoice_data.invoice_number,
+                            "invoice_date": invoice_data.issue_date,
+                            "due_date": invoice_data.due_date,
+                            "total_amount": invoice_data.total_amount,
+                            "total_vat": invoice_data.tax_amount,
+                            "total_without_vat": invoice_data.net_amount,
+                            "currency": invoice_data.currency,
+                            "file_basename": file_basename,
+                            "file_status": "received",
+                            "pdf_file_path": str(pdf_path),
+                            "xml_file_path": str(xml_path),
                         }
 
                         # Prepare items data for PostgreSQL
                         items_pg_data = []
                         for item in invoice_data.items:
-                            items_pg_data.append({
-                                'line_number': item.line_number,
-                                'name': item.description,
-                                'quantity': item.quantity,
-                                'unit': item.unit,
-                                'price_per_unit': item.unit_price_no_vat,
-                                'ean': item.ean_code,
-                                'vat_rate': item.vat_rate
-                            })
+                            items_pg_data.append(
+                                {
+                                    "line_number": item.line_number,
+                                    "name": item.description,
+                                    "quantity": item.quantity,
+                                    "unit": item.unit,
+                                    "price_per_unit": item.unit_price_no_vat,
+                                    "ean": item.ean_code,
+                                    "vat_rate": item.vat_rate,
+                                }
+                            )
 
                         # Insert to PostgreSQL
                         postgres_invoice_id = pg_client.insert_invoice_with_items(
-                            invoice_pg_data,
-                            items_pg_data,
-                            isdoc_xml
+                            invoice_pg_data, items_pg_data, isdoc_xml
                         )
 
                         if postgres_invoice_id:
                             postgres_saved = True
-                            print(f"[OK] Saved to PostgreSQL staging: invoice_id={postgres_invoice_id}")
+                            print(
+                                f"[OK] Saved to PostgreSQL staging: invoice_id={postgres_invoice_id}"
+                            )
 
                             # Move files from RECEIVED to STAGING
                             staged_pdf, staged_xml = move_files_to_staging(
-                                pdf_path, xml_path, file_basename, pg_client._conn, postgres_invoice_id
+                                pdf_path,
+                                xml_path,
+                                file_basename,
+                                pg_client._conn,
+                                postgres_invoice_id,
                             )
                             if staged_pdf:
                                 pdf_path = staged_pdf
                             if staged_xml:
                                 xml_path = staged_xml
                         else:
-                            print(f"[FAIL] Failed to save to PostgreSQL staging")
+                            print("[FAIL] Failed to save to PostgreSQL staging")
 
             except Exception as pg_error:
                 # Log error but don't fail the whole process
@@ -597,19 +577,17 @@ async def process_invoice(
             "postgres_staging_enabled": config.POSTGRES_STAGING_ENABLED,
             "postgres_saved": postgres_saved,
             "postgres_invoice_id": postgres_invoice_id,
-            "received_date": request.received_date
+            "received_date": request.received_date,
         }
 
     except Exception as e:
         # Log error
         print(f"[FAIL] Invoice processing failed: {e}")
         import traceback
+
         traceback.print_exc()
 
-        raise HTTPException(
-            status_code=500,
-            detail=f"Invoice processing failed: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Invoice processing failed: {str(e)}")
 
 
 @app.post("/admin/test-email")
@@ -625,13 +603,10 @@ async def admin_test_email(api_key: str = Depends(verify_api_key)):
 
         return {
             "success": result,
-            "message": "Test email sent successfully" if result else "Failed to send test email"
+            "message": "Test email sent successfully" if result else "Failed to send test email",
         }
     except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail=f"Failed to send test email: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Failed to send test email: {str(e)}")
 
 
 @app.post("/admin/send-summary")
@@ -647,19 +622,17 @@ async def admin_send_summary(api_key: str = Depends(verify_api_key)):
 
         return {
             "success": result,
-            "message": "Daily summary sent successfully" if result else "Failed to send summary"
+            "message": "Daily summary sent successfully" if result else "Failed to send summary",
         }
     except Exception as e:
         # Return error but don't throw 500
-        return {
-            "success": False,
-            "message": f"Failed to send summary: {str(e)}"
-        }
+        return {"success": False, "message": f"Failed to send summary: {str(e)}"}
 
 
 # ============================================================================
 # STARTUP/SHUTDOWN EVENTS
 # ============================================================================
+
 
 @app.on_event("startup")
 async def startup_event():
@@ -673,7 +646,9 @@ async def startup_event():
     print(f"Database: {config.DB_FILE}")
     print(f"PostgreSQL Staging: {'Enabled' if config.POSTGRES_STAGING_ENABLED else 'Disabled'}")
     if config.POSTGRES_STAGING_ENABLED:
-        print(f"PostgreSQL: {config.POSTGRES_HOST}:{config.POSTGRES_PORT}/{config.POSTGRES_DATABASE}")
+        print(
+            f"PostgreSQL: {config.POSTGRES_HOST}:{config.POSTGRES_PORT}/{config.POSTGRES_DATABASE}"
+        )
     print("=" * 60)
 
     # Initialize ProductMatcher if NEX Genesis is enabled
@@ -727,20 +702,16 @@ if FRONTEND_DIR.exists():
         # Otherwise serve index.html for SPA routing
         return FileResponse(FRONTEND_DIR / "index.html")
 
+
 if __name__ == "__main__":
     import uvicorn
 
     print("=" * 60)
     print("[ROCKET] Starting Supplier Invoice Loader v2.0")
     print("=" * 60)
-    print(f" API Documentation: http://localhost:8000/docs")
-    print(f" ReDoc: http://localhost:8000/redoc")
-    print(f"[SEARCH] Health Check: http://localhost:8000/health")
+    print(" API Documentation: http://localhost:8000/docs")
+    print(" ReDoc: http://localhost:8000/redoc")
+    print("[SEARCH] Health Check: http://localhost:8000/health")
     print("=" * 60)
 
-    uvicorn.run(
-        app,
-        host="0.0.0.0",
-        port=8001,
-        log_level="info"
-    )
+    uvicorn.run(app, host="0.0.0.0", port=8001, log_level="info")

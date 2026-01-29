@@ -8,7 +8,7 @@ Tables: supplier_invoice_heads, supplier_invoice_items
 import logging
 import os
 from datetime import datetime
-from typing import Any, Dict, Optional
+from typing import Any
 
 import asyncpg
 from temporalio import activity
@@ -29,10 +29,10 @@ async def get_db_connection() -> asyncpg.Connection:
 
 @activity.defn
 async def save_invoice_to_postgres_activity(
-    invoice_data: Dict[str, Any],
+    invoice_data: dict[str, Any],
     supplier_id: str,
     customer_code: str = "ANDROS",
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Save invoice header and items to PostgreSQL.
 
@@ -70,9 +70,7 @@ async def save_invoice_to_postgres_activity(
                 await _insert_invoice_item(conn, head_id, item)
                 item_count += 1
 
-        activity.logger.info(
-            f"Invoice {invoice_number} saved: head_id={head_id}, items={item_count}"
-        )
+        activity.logger.info(f"Invoice {invoice_number} saved: head_id={head_id}, items={item_count}")
 
         return {
             "status": "success",
@@ -94,7 +92,7 @@ async def save_invoice_to_postgres_activity(
 
 async def _insert_invoice_head(
     conn: asyncpg.Connection,
-    invoice_data: Dict[str, Any],
+    invoice_data: dict[str, Any],
     customer_code: str,
     supplier_code: str,
 ) -> int:
@@ -111,11 +109,7 @@ async def _insert_invoice_head(
     fetched_at = _parse_datetime(invoice_data.get("fetched_at")) or datetime.now()
 
     # Fallback for supplier_ico (required field)
-    supplier_ico = (
-        invoice_data.get("supplier_ico")
-        or invoice_data.get("supplier_dic")
-        or "UNKNOWN"
-    )
+    supplier_ico = invoice_data.get("supplier_ico") or invoice_data.get("supplier_dic") or "UNKNOWN"
 
     sql = """
         INSERT INTO supplier_invoice_heads (
@@ -171,7 +165,7 @@ async def _insert_invoice_head(
 async def _insert_invoice_item(
     conn: asyncpg.Connection,
     head_id: int,
-    item: Dict[str, Any],
+    item: dict[str, Any],
 ) -> int:
     """
     Insert invoice item into supplier_invoice_items table.
@@ -219,7 +213,7 @@ async def _insert_invoice_item(
     return item_id
 
 
-def _parse_datetime(value: Any) -> Optional[datetime]:
+def _parse_datetime(value: Any) -> datetime | None:
     """Parse datetime from various formats."""
     if value is None:
         return None

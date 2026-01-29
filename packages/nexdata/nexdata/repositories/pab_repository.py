@@ -2,10 +2,8 @@
 Repository for PAB (Adresár)
 """
 
-from typing import Optional, List
-from nexdata.repositories.base_repository import BaseRepository
 from nexdata.models.pab import PABRecord
-from nexdata.btrieve.btrieve_client import BtrieveClient
+from nexdata.repositories.base_repository import BaseRepository
 
 
 class PABRepository(BaseRepository[PABRecord]):
@@ -14,7 +12,7 @@ class PABRepository(BaseRepository[PABRecord]):
     @property
     def table_name(self) -> str:
         """Get table file path"""
-        return 'pab'
+        return "pab"
 
     def from_bytes(self, data: bytes) -> PABRecord:
         """Convert bytes to PABRecord"""
@@ -23,7 +21,8 @@ class PABRepository(BaseRepository[PABRecord]):
     def to_bytes(self, record) -> bytes:
         """Convert record to bytes"""
         return record.to_bytes()
-    def get_by_code(self, code: str) -> Optional[PABRecord]:
+
+    def get_by_code(self, code: str) -> PABRecord | None:
         """
         Get PAB record by code
 
@@ -38,7 +37,7 @@ class PABRepository(BaseRepository[PABRecord]):
                 return record
         return None
 
-    def search_by_name(self, search_term: str) -> List[PABRecord]:
+    def search_by_name(self, search_term: str) -> list[PABRecord]:
         """
         Search addresses by name
 
@@ -57,7 +56,7 @@ class PABRepository(BaseRepository[PABRecord]):
 
         return results
 
-    def get_suppliers(self) -> List[PABRecord]:
+    def get_suppliers(self) -> list[PABRecord]:
         """
         Get all supplier records
 

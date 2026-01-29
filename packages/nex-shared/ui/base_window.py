@@ -2,10 +2,11 @@
 BaseWindow - univerzálna base trieda pre všetky okná
 Automatická window persistence (position, size, maximize state).
 """
+
 import logging
-from typing import Optional, Tuple
-from PyQt5.QtWidgets import QMainWindow
+
 from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QMainWindow
 
 from ..database.window_settings_db import WindowSettingsDB
 from .window_persistence import WindowPersistenceManager
@@ -35,13 +36,15 @@ class BaseWindow(QMainWindow):
                 self.setup_ui()  # Tvoj UI
     """
 
-    def __init__(self,
-                 window_name: str,
-                 default_size: Tuple[int, int] = (800, 600),
-                 default_pos: Tuple[int, int] = (100, 100),
-                 user_id: str = "Server",
-                 auto_load: bool = True,
-                 parent=None):
+    def __init__(
+        self,
+        window_name: str,
+        default_size: tuple[int, int] = (800, 600),
+        default_pos: tuple[int, int] = (100, 100),
+        user_id: str = "Server",
+        auto_load: bool = True,
+        parent=None,
+    ):
         """
         Inicializácia BaseWindow.
 
@@ -73,25 +76,20 @@ class BaseWindow(QMainWindow):
         """Načíta a aplikuje window settings z DB."""
         try:
             # Load settings from DB
-            settings = self._db.load(
-                window_name=self._window_name,
-                user_id=self._user_id
-            )
+            settings = self._db.load(window_name=self._window_name, user_id=self._user_id)
 
             # Get safe position (with validation and fallback)
             safe_settings = self._persistence.get_safe_position(
-                settings=settings,
-                default_size=self._default_size,
-                default_pos=self._default_pos
+                settings=settings, default_size=self._default_size, default_pos=self._default_pos
             )
 
             # Apply position and size separately to avoid frame geometry drift
             # Use move() for position and resize() for size
-            self.move(safe_settings['x'], safe_settings['y'])
-            self.resize(safe_settings['width'], safe_settings['height'])
+            self.move(safe_settings["x"], safe_settings["y"])
+            self.resize(safe_settings["width"], safe_settings["height"])
 
             # Apply window state
-            if safe_settings.get('window_state', 0) == 2:
+            if safe_settings.get("window_state", 0) == 2:
                 self.setWindowState(Qt.WindowMaximized)
                 logger.info(f"Window '{self._window_name}' loaded as maximized")
             else:
@@ -120,7 +118,7 @@ class BaseWindow(QMainWindow):
                     width=norm_geom.width(),
                     height=norm_geom.height(),
                     window_state=2,  # Maximized
-                    user_id=self._user_id
+                    user_id=self._user_id,
                 )
                 logger.info(f"Window '{self._window_name}' saved as maximized")
             else:
@@ -131,8 +129,7 @@ class BaseWindow(QMainWindow):
                 # Validate and correct position if needed
                 if not self._persistence.validate_position(x, y, width, height):
                     logger.warning(
-                        f"Invalid position for '{self._window_name}': "
-                        f"({x}, {y}) [{width}x{height}] - correcting"
+                        f"Invalid position for '{self._window_name}': ({x}, {y}) [{width}x{height}] - correcting"
                     )
                     # Correct position but keep actual size
                     x = max(0, min(x, 1920 - width))  # Keep on primary monitor
@@ -146,15 +143,13 @@ class BaseWindow(QMainWindow):
                     width=width,
                     height=height,
                     window_state=0,  # Normal
-                    user_id=self._user_id
+                    user_id=self._user_id,
                 )
-                logger.info(
-                    f"Window '{self._window_name}' saved at "
-                    f"({x}, {y}) [{width}x{height}]"
-                )
+                logger.info(f"Window '{self._window_name}' saved at ({x}, {y}) [{width}x{height}]")
 
         except Exception as e:
             logger.error(f"Error saving window settings for '{self._window_name}': {e}")
+
     def closeEvent(self, event):
         """Override closeEvent to save settings."""
         self._save_settings()
@@ -170,24 +165,18 @@ class BaseWindow(QMainWindow):
         """Manuálne reload window settings."""
         self._load_and_apply_settings()
 
-    def get_window_settings(self) -> Optional[dict]:
+    def get_window_settings(self) -> dict | None:
         """
         Získaj aktuálne window settings z DB.
 
         Returns:
             dict: Settings alebo None
         """
-        return self._db.load(
-            window_name=self._window_name,
-            user_id=self._user_id
-        )
+        return self._db.load(window_name=self._window_name, user_id=self._user_id)
 
     def delete_window_settings(self):
         """Vymaž window settings z DB."""
-        self._db.delete(
-            window_name=self._window_name,
-            user_id=self._user_id
-        )
+        self._db.delete(window_name=self._window_name, user_id=self._user_id)
         logger.info(f"Deleted settings for window '{self._window_name}'")
 
     @property

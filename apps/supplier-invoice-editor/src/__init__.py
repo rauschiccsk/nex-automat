@@ -5,8 +5,8 @@ Invoice Editor - Source Package
 Qt5 desktop aplikácia pre schvaľovanie dodávateľských faktúr
 """
 
-__version__ = '0.1.0'
-__author__ = 'Zoltán (ICC Komárno)'
+__version__ = "0.1.0"
+__author__ = "Zoltán (ICC Komárno)"
 
 # Package structure:
 # - btrieve/     Btrieve database client

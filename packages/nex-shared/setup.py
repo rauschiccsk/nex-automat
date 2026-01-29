@@ -3,7 +3,7 @@ nex-shared package setup
 Shared components for NEX Automat applications
 """
 
-from setuptools import setup, find_packages
+from setuptools import setup
 
 setup(
     name="nex-shared",
@@ -11,37 +11,31 @@ setup(
     description="Shared components for NEX Automat applications",
     author="ICC Komárno",
     python_requires=">=3.8",
-
     # Map nex_shared namespace to current directory (FLAT structure)
-    package_dir={'nex_shared': '.'},
-
+    package_dir={"nex_shared": "."},
     # Define packages with nex_shared namespace
     packages=[
-        'nex_shared.ui',
-        'nex_shared.database',
-        'nex_shared.utils',
+        "nex_shared.ui",
+        "nex_shared.database",
+        "nex_shared.utils",
     ],
-
     # Include package data
     package_data={
-        'nex_shared.ui': ['*.py'],
-        'nex_shared.database': ['*.py'],
-        'nex_shared.utils': ['*.py'],
+        "nex_shared.ui": ["*.py"],
+        "nex_shared.database": ["*.py"],
+        "nex_shared.utils": ["*.py"],
     },
-
     # Dependencies
     install_requires=[
-        'PyQt5>=5.15.0',
+        "PyQt5>=5.15.0",
     ],
-
     # Development dependencies
     extras_require={
-        'dev': [
-            'pytest>=7.0.0',
-            'pytest-qt>=4.0.0',
+        "dev": [
+            "pytest>=7.0.0",
+            "pytest-qt>=4.0.0",
         ],
     },
-
     # Project URLs
     url="https://github.com/rauschiccsk/nex-automat",
     classifiers=[

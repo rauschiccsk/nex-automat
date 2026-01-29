@@ -7,18 +7,18 @@ Usage:
   python -m tools.rag.init_prompt_helper --interactive
 """
 
-import asyncio
 import argparse
+import asyncio
 import sys
-from pathlib import Path
 from datetime import datetime
+from pathlib import Path
 
 project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root))
 
 from tools.rag.api import RAGSearchAPI
 
-CONTEXT_TEMPLATE = '''## [DOCS] RAG Context - Auto-generated
+CONTEXT_TEMPLATE = """## [DOCS] RAG Context - Auto-generated
 
 **Query:** {query}
 **Generated:** {timestamp}
@@ -31,15 +31,10 @@ CONTEXT_TEMPLATE = '''## [DOCS] RAG Context - Auto-generated
 ---
 
 **Note:** Tento kontext bol automaticky vygenerovaný z projektovej knowledge base.
-'''
+"""
 
 
-async def generate_context(
-        query: str,
-        max_chunks: int = 5,
-        max_tokens: int = 6000,
-        include_scores: bool = True
-) -> str:
+async def generate_context(query: str, max_chunks: int = 5, max_tokens: int = 6000, include_scores: bool = True) -> str:
     """
     Generate context section for init prompt.
 
@@ -52,7 +47,7 @@ async def generate_context(
         Formatted context string
     """
     async with RAGSearchAPI() as api:
-        response = await api.search(query, limit=max_chunks, mode='hybrid')
+        response = await api.search(query, limit=max_chunks, mode="hybrid")
 
         if not response.results:
             return f"No relevant context found for: {query}"
@@ -64,10 +59,10 @@ async def generate_context(
         unique_docs = set()
 
         for r in response.results:
-            if total_chars + len(r['content']) > char_limit:
+            if total_chars + len(r["content"]) > char_limit:
                 break
 
-            unique_docs.add(r['filename'])
+            unique_docs.add(r["filename"])
 
             if include_scores:
                 header = f"### [DOC] {r['filename']} (relevance: {r['score']:.2f})"
@@ -75,7 +70,7 @@ async def generate_context(
                 header = f"### [DOC] {r['filename']}"
 
             sections.append(f"{header}\n\n{r['content']}")
-            total_chars += len(r['content'])
+            total_chars += len(r["content"])
 
         context = "\n\n---\n\n".join(sections)
 
@@ -84,7 +79,7 @@ async def generate_context(
             timestamp=datetime.now().strftime("%Y-%m-%d %H:%M"),
             source_count=len(sections),
             doc_count=len(unique_docs),
-            context=context
+            context=context,
         )
 
 
@@ -95,7 +90,7 @@ async def generate_multi_context(queries: list, max_chunks_per_query: int = 3) -
 
     async with RAGSearchAPI() as api:
         for query in queries:
-            response = await api.search(query, limit=max_chunks_per_query, mode='hybrid')
+            response = await api.search(query, limit=max_chunks_per_query, mode="hybrid")
 
             if response.results:
                 section = f"## Topic: {query}\n\n"
@@ -141,25 +136,26 @@ async def interactive_mode():
         if not query:
             continue
 
-        if query == '/quit':
+        if query == "/quit":
             break
 
-        if query == '/copy' and last_context:
+        if query == "/copy" and last_context:
             try:
                 import pyperclip
+
                 pyperclip.copy(last_context)
                 print("[OK] Copied to clipboard!\n")
             except ImportError:
                 print("[WARN] pyperclip not installed. Use /save instead.\n")
             continue
 
-        if query == '/save' and last_context:
+        if query == "/save" and last_context:
             filename = f"rag_context_{datetime.now().strftime('%Y%m%d_%H%M%S')}.md"
-            Path(filename).write_text(last_context, encoding='utf-8')
+            Path(filename).write_text(last_context, encoding="utf-8")
             print(f"[OK] Saved to {filename}\n")
             continue
 
-        if query == '/multi':
+        if query == "/multi":
             print("Enter topics (one per line, empty line to finish):")
             topics = []
             while True:
@@ -184,33 +180,15 @@ async def interactive_mode():
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description='Generate RAG context for Claude init prompts'
-    )
+    parser = argparse.ArgumentParser(description="Generate RAG context for Claude init prompts")
 
-    parser.add_argument(
-        'query',
-        nargs='?',
-        help='Topic or task to generate context for'
-    )
+    parser.add_argument("query", nargs="?", help="Topic or task to generate context for")
 
-    parser.add_argument(
-        '-i', '--interactive',
-        action='store_true',
-        help='Interactive mode'
-    )
+    parser.add_argument("-i", "--interactive", action="store_true", help="Interactive mode")
 
-    parser.add_argument(
-        '-c', '--chunks',
-        type=int,
-        default=5,
-        help='Max chunks to include (default: 5)'
-    )
+    parser.add_argument("-c", "--chunks", type=int, default=5, help="Max chunks to include (default: 5)")
 
-    parser.add_argument(
-        '-o', '--output',
-        help='Save to file'
-    )
+    parser.add_argument("-o", "--output", help="Save to file")
 
     args = parser.parse_args()
 
@@ -220,7 +198,7 @@ def main():
         context = asyncio.run(generate_context(args.query, max_chunks=args.chunks))
 
         if args.output:
-            Path(args.output).write_text(context, encoding='utf-8')
+            Path(args.output).write_text(context, encoding="utf-8")
             print(f"[OK] Saved to {args.output}")
         else:
             print(context)
@@ -228,5 +206,5 @@ def main():
         parser.print_help()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

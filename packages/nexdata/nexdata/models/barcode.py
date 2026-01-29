@@ -8,10 +8,9 @@ Definition: barcode.bdf
 Record Size: ~50 bytes
 """
 
-from dataclasses import dataclass, field
-from datetime import datetime
-from typing import Optional
 import struct
+from dataclasses import dataclass
+from datetime import datetime
 
 
 @dataclass
@@ -29,16 +28,16 @@ class BarcodeRecord:
 
     # Audit fields
     mod_user: str = ""  # Užívateľ, ktorý urobil poslednú zmenu
-    mod_date: Optional[datetime] = None  # Dátum poslednej zmeny
-    mod_time: Optional[datetime] = None  # Čas poslednej zmeny
+    mod_date: datetime | None = None  # Dátum poslednej zmeny
+    mod_time: datetime | None = None  # Čas poslednej zmeny
 
     # Indexes (constants)
-    INDEX_GSCODE = 'GsCode'  # Index podľa tovarového čísla
-    INDEX_BARCODE = 'BarCode'  # Index podľa čiarového kódu
-    INDEX_GSBC = 'GsBc'  # Composite index (unique)
+    INDEX_GSCODE = "GsCode"  # Index podľa tovarového čísla
+    INDEX_BARCODE = "BarCode"  # Index podľa čiarového kódu
+    INDEX_GSBC = "GsBc"  # Composite index (unique)
 
     @classmethod
-    def from_bytes(cls, data: bytes, encoding: str = 'cp852') -> 'BarcodeRecord':
+    def from_bytes(cls, data: bytes, encoding: str = "cp852") -> "BarcodeRecord":
         """
         Deserialize Btrieve record from bytes
 
@@ -60,31 +59,25 @@ class BarcodeRecord:
             raise ValueError(f"Invalid record size: {len(data)} bytes (expected >= 35)")
 
         # GsCode (longint, 4 bytes)
-        gs_code = struct.unpack('<i', data[0:4])[0]
+        gs_code = struct.unpack("<i", data[0:4])[0]
 
         # BarCode (string, 15 bytes)
-        bar_code = data[4:19].decode(encoding, errors='ignore').rstrip('\x00 ')
+        bar_code = data[4:19].decode(encoding, errors="ignore").rstrip("\x00 ")
 
         # ModUser (string, 8 bytes)
-        mod_user = data[19:27].decode(encoding, errors='ignore').rstrip('\x00 ')
+        mod_user = data[19:27].decode(encoding, errors="ignore").rstrip("\x00 ")
 
         # ModDate (longint, 4 bytes) - days since 1899-12-30
-        mod_date_int = struct.unpack('<i', data[27:31])[0]
+        mod_date_int = struct.unpack("<i", data[27:31])[0]
         mod_date = cls._decode_delphi_date(mod_date_int) if mod_date_int > 0 else None
 
         # ModTime (longint, 4 bytes) - milliseconds since midnight
-        mod_time_int = struct.unpack('<i', data[31:35])[0]
+        mod_time_int = struct.unpack("<i", data[31:35])[0]
         mod_time = cls._decode_delphi_time(mod_time_int) if mod_time_int >= 0 else None
 
-        return cls(
-            gs_code=gs_code,
-            bar_code=bar_code,
-            mod_user=mod_user,
-            mod_date=mod_date,
-            mod_time=mod_time
-        )
+        return cls(gs_code=gs_code, bar_code=bar_code, mod_user=mod_user, mod_date=mod_date, mod_time=mod_time)
 
-    def to_bytes(self, encoding: str = 'cp852') -> bytes:
+    def to_bytes(self, encoding: str = "cp852") -> bytes:
         """
         Serialize record to bytes for Btrieve
 
@@ -97,25 +90,25 @@ class BarcodeRecord:
         result = bytearray(50)  # Fixed size record
 
         # GsCode
-        struct.pack_into('<i', result, 0, self.gs_code)
+        struct.pack_into("<i", result, 0, self.gs_code)
 
         # BarCode (pad to 15 bytes)
         bar_code_bytes = self.bar_code.encode(encoding)[:15]
-        result[4:4 + len(bar_code_bytes)] = bar_code_bytes
+        result[4 : 4 + len(bar_code_bytes)] = bar_code_bytes
 
         # ModUser (pad to 8 bytes)
         mod_user_bytes = self.mod_user.encode(encoding)[:8]
-        result[19:19 + len(mod_user_bytes)] = mod_user_bytes
+        result[19 : 19 + len(mod_user_bytes)] = mod_user_bytes
 
         # ModDate
         if self.mod_date:
             mod_date_int = self._encode_delphi_date(self.mod_date)
-            struct.pack_into('<i', result, 27, mod_date_int)
+            struct.pack_into("<i", result, 27, mod_date_int)
 
         # ModTime
         if self.mod_time:
             mod_time_int = self._encode_delphi_time(self.mod_time)
-            struct.pack_into('<i', result, 31, mod_time_int)
+            struct.pack_into("<i", result, 31, mod_time_int)
 
         return bytes(result)
 
@@ -127,6 +120,7 @@ class BarcodeRecord:
         Delphi date: days since 1899-12-30
         """
         from datetime import timedelta
+
         base_date = datetime(1899, 12, 30)
         return base_date + timedelta(days=days)
 
@@ -145,6 +139,7 @@ class BarcodeRecord:
         Delphi time: milliseconds since midnight
         """
         from datetime import timedelta
+
         base_time = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
         return base_time + timedelta(milliseconds=milliseconds)
 
@@ -187,19 +182,17 @@ class BarcodeRecord:
 
     def __repr__(self) -> str:
         """Debug representation"""
-        return (f"BarcodeRecord(gs_code={self.gs_code}, bar_code='{self.bar_code}', "
-                f"mod_user='{self.mod_user}', mod_date={self.mod_date}, mod_time={self.mod_time})")
+        return (
+            f"BarcodeRecord(gs_code={self.gs_code}, bar_code='{self.bar_code}', "
+            f"mod_user='{self.mod_user}', mod_date={self.mod_date}, mod_time={self.mod_time})"
+        )
 
 
 # Example usage
 if __name__ == "__main__":
     # Create new record
     record = BarcodeRecord(
-        gs_code=12345,
-        bar_code="8594000123456",
-        mod_user="API",
-        mod_date=datetime.now(),
-        mod_time=datetime.now()
+        gs_code=12345, bar_code="8594000123456", mod_user="API", mod_date=datetime.now(), mod_time=datetime.now()
     )
 
     print("Created:", record)

@@ -2,10 +2,8 @@
 Repository for BARCODE (Čiarové kódy)
 """
 
-from typing import Optional, List
-from nexdata.repositories.base_repository import BaseRepository
 from nexdata.models.barcode import BarcodeRecord
-from nexdata.btrieve.btrieve_client import BtrieveClient
+from nexdata.repositories.base_repository import BaseRepository
 
 
 class BARCODERepository(BaseRepository[BarcodeRecord]):
@@ -14,7 +12,7 @@ class BARCODERepository(BaseRepository[BarcodeRecord]):
     @property
     def table_name(self) -> str:
         """Get table file path"""
-        return 'barcode'
+        return "barcode"
 
     def from_bytes(self, data: bytes) -> BarcodeRecord:
         """Convert bytes to BarcodeRecord"""
@@ -23,7 +21,8 @@ class BARCODERepository(BaseRepository[BarcodeRecord]):
     def to_bytes(self, record) -> bytes:
         """Convert record to bytes"""
         return record.to_bytes()
-    def get_by_barcode(self, barcode: str) -> Optional[BarcodeRecord]:
+
+    def get_by_barcode(self, barcode: str) -> BarcodeRecord | None:
         """
         Get BARCODE record by barcode
 
@@ -38,7 +37,7 @@ class BARCODERepository(BaseRepository[BarcodeRecord]):
                 return record
         return None
 
-    def get_by_product_code(self, product_code: str) -> List[BarcodeRecord]:
+    def get_by_product_code(self, product_code: str) -> list[BarcodeRecord]:
         """
         Get all barcodes for product code
 
@@ -55,13 +54,14 @@ class BARCODERepository(BaseRepository[BarcodeRecord]):
                 results.append(record)
 
         return results
-    def find_by_barcode(self, barcode: str) -> Optional[BarcodeRecord]:
+
+    def find_by_barcode(self, barcode: str) -> BarcodeRecord | None:
         """
         Find barcode record by barcode string - LIVE query
-        
+
         Args:
             barcode: Barcode string to search for
-            
+
         Returns:
             BarcodeRecord if found, None otherwise
         """
@@ -69,20 +69,18 @@ class BARCODERepository(BaseRepository[BarcodeRecord]):
         try:
             # Open BARCODE file
             file = self.btrieve.open(self.barcode_file)
-            
+
             # Search by barcode (BAR_CODE field)
-            result = file.get_equal(barcode.encode('cp852'))
-            
+            result = file.get_equal(barcode.encode("cp852"))
+
             if result:
                 return self._parse_record(result)
-            
+
             return None
-            
-        except Exception as e:
+
+        except Exception:
             # Record not found or other error
             return None
         finally:
             if file:
                 file.close()
-
-

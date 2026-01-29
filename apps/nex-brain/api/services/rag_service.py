@@ -2,9 +2,9 @@
 RAG Service - Integration with existing RAG API.
 """
 
+from typing import Any
+
 import httpx
-import re
-from typing import List, Dict, Any, Optional
 from config.settings import settings
 
 
@@ -14,22 +14,14 @@ class RAGService:
     def __init__(self):
         self.base_url = settings.RAG_API_URL
 
-    async def search(
-        self, 
-        query: str, 
-        limit: int = 10,
-        tenant: Optional[str] = None
-    ) -> List[Dict[str, Any]]:
+    async def search(self, query: str, limit: int = 10, tenant: str | None = None) -> list[dict[str, Any]]:
         """Search RAG knowledge base."""
         try:
             async with httpx.AsyncClient(timeout=30.0) as client:
                 params = {"query": query, "limit": limit}
                 if tenant:
                     params["tenant"] = tenant
-                response = await client.get(
-                    f"{self.base_url}/search",
-                    params=params
-                )
+                response = await client.get(f"{self.base_url}/search", params=params)
                 response.raise_for_status()
                 data = response.json()
                 results = data.get("results", [])
@@ -49,11 +41,7 @@ class RAGService:
             print(f"RAG API error: {e}")
             return []
 
-    def _boost_relevant(
-        self, 
-        results: List[Dict[str, Any]], 
-        query: str
-    ) -> List[Dict[str, Any]]:
+    def _boost_relevant(self, results: list[dict[str, Any]], query: str) -> list[dict[str, Any]]:
         """Boost score for chunks that match query intent."""
         query_lower = query.lower()
 
@@ -92,7 +80,7 @@ class RAGService:
         results.sort(key=lambda x: x.get("adjusted_score", 0), reverse=True)
         return results
 
-    def _extract_keywords(self, query: str) -> List[str]:
+    def _extract_keywords(self, query: str) -> list[str]:
         """Extract meaningful keywords from query."""
         # Remove common words
         stopwords = {"ake", "su", "co", "je", "ako", "pre", "na", "do", "sa", "to", "a", "v", "s"}
@@ -100,7 +88,7 @@ class RAGService:
         keywords = [w for w in words if w not in stopwords and len(w) > 2]
         return keywords
 
-    def _deduplicate_best(self, results: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    def _deduplicate_best(self, results: list[dict[str, Any]]) -> list[dict[str, Any]]:
         """Keep only BEST chunk per unique filename (by adjusted_score)."""
         best = {}
         for r in results:
@@ -117,24 +105,16 @@ class RAGService:
         sorted_results = sorted(best.values(), key=lambda x: x.get("adjusted_score", 0), reverse=True)
         return sorted_results
 
-    def _filter_by_tenant(
-        self, 
-        results: List[Dict[str, Any]], 
-        tenant: str
-    ) -> List[Dict[str, Any]]:
+    def _filter_by_tenant(self, results: list[dict[str, Any]], tenant: str) -> list[dict[str, Any]]:
         """Filter results by tenant."""
         filtered = []
         for r in results:
             filename = r.get("filename", "").lower()
-            if (
-                f"{tenant}/" in filename or
-                "shared/" in filename or
-                "/" not in filename
-            ):
+            if f"{tenant}/" in filename or "shared/" in filename or "/" not in filename:
                 filtered.append(r)
         return filtered
 
-    def format_context(self, results: List[Dict[str, Any]]) -> str:
+    def format_context(self, results: list[dict[str, Any]]) -> str:
         """Format RAG results as context for LLM."""
         if not results:
             return ""

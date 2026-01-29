@@ -1,6 +1,7 @@
 """OAuth2 Authorization Script - Run once to authorize Gmail access."""
 
-from config.gmail_oauth import authorize_interactive, TOKEN_FILE
+from config.gmail_oauth import TOKEN_FILE, authorize_interactive
+
 
 def main():
     print("Gmail OAuth2 Authorization")
@@ -19,6 +20,7 @@ def main():
     print(f"   Tokens saved to: {TOKEN_FILE}")
     print()
     print("You can now run the worker.")
+
 
 if __name__ == "__main__":
     main()

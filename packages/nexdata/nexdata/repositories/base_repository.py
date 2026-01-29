@@ -3,14 +3,16 @@ Base Repository Pattern
 Fix: Replace BtrStatus with BtrieveClient status codes
 """
 
-from typing import Generic, TypeVar, Optional, List, Callable
-from abc import ABC, abstractmethod
-from nexdata.btrieve.btrieve_client import BtrieveClient
 import logging
+from abc import ABC, abstractmethod
+from collections.abc import Callable
+from typing import Generic, TypeVar
+
+from nexdata.btrieve.btrieve_client import BtrieveClient
 
 logger = logging.getLogger(__name__)
 
-T = TypeVar('T')
+T = TypeVar("T")
 
 
 class BaseRepository(Generic[T], ABC):
@@ -54,7 +56,7 @@ class BaseRepository(Generic[T], ABC):
 
     def close(self):
         """Close Btrieve table"""
-        if self._is_open and hasattr(self, '_pos_block'):
+        if self._is_open and hasattr(self, "_pos_block"):
             self.client.close_file(self._pos_block)
             self._is_open = False
             logger.debug(f"Closed table: {self.table_name}")
@@ -68,7 +70,7 @@ class BaseRepository(Generic[T], ABC):
         """Context manager exit"""
         self.close()
 
-    def get_first(self) -> Optional[T]:
+    def get_first(self) -> T | None:
         """Get first record in table"""
         if not self._is_open:
             if not self.open():
@@ -84,7 +86,7 @@ class BaseRepository(Generic[T], ABC):
         else:
             return None
 
-    def get_next(self) -> Optional[T]:
+    def get_next(self) -> T | None:
         """Get next record in current position"""
         if not self._is_open:
             return None
@@ -99,7 +101,7 @@ class BaseRepository(Generic[T], ABC):
         else:
             return None
 
-    def get_all(self, max_records: int = 10000) -> List[T]:
+    def get_all(self, max_records: int = 10000) -> list[T]:
         """Get all records from table"""
         records = []
 
@@ -122,7 +124,7 @@ class BaseRepository(Generic[T], ABC):
         logger.info(f"Retrieved {len(records)} records from {self.table_name}")
         return records
 
-    def find(self, predicate: Callable[[T], bool], max_results: int = 100) -> List[T]:
+    def find(self, predicate: Callable[[T], bool], max_results: int = 100) -> list[T]:
         """Find records matching predicate"""
         results = []
 
@@ -139,7 +141,7 @@ class BaseRepository(Generic[T], ABC):
         logger.debug(f"Found {len(results)} matching records in {self.table_name}")
         return results
 
-    def find_one(self, predicate: Callable[[T], bool]) -> Optional[T]:
+    def find_one(self, predicate: Callable[[T], bool]) -> T | None:
         """Find first record matching predicate"""
         if not self._is_open:
             if not self.open():
@@ -180,7 +182,7 @@ class CRUDRepository(BaseRepository[T], ABC):
                 return False
 
         # Validate before insert
-        if hasattr(record, 'validate'):
+        if hasattr(record, "validate"):
             errors = record.validate()
             if errors:
                 logger.error(f"Validation failed: {errors}")
@@ -202,7 +204,7 @@ class CRUDRepository(BaseRepository[T], ABC):
                 return False
 
         # Validate before update
-        if hasattr(record, 'validate'):
+        if hasattr(record, "validate"):
             errors = record.validate()
             if errors:
                 logger.error(f"Validation failed: {errors}")

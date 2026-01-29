@@ -4,10 +4,9 @@ These models provide a normalized representation of invoices from various source
 (API, PDF) and suppliers (MARSO, CONTINENTAL, etc.).
 """
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
-from typing import Optional
 
 
 class InvoiceStatus(str, Enum):
@@ -37,13 +36,13 @@ class InvoiceItem:
     vat_amount: float
 
     # Voliteľné - alternatívne kódy
-    ean: Optional[str] = None
-    supplier_product_code: Optional[str] = None
+    ean: str | None = None
+    supplier_product_code: str | None = None
 
     # NEX Genesis mapovanie (vyplnené po product matching)
-    nex_product_id: Optional[str] = None
-    nex_product_code: Optional[str] = None
-    match_confidence: Optional[float] = None
+    nex_product_id: str | None = None
+    nex_product_code: str | None = None
+    match_confidence: float | None = None
 
 
 @dataclass
@@ -73,17 +72,17 @@ class UnifiedInvoice:
     status: InvoiceStatus
 
     # Voliteľné - dátumy
-    due_date: Optional[datetime] = None
-    delivery_date: Optional[datetime] = None
+    due_date: datetime | None = None
+    delivery_date: datetime | None = None
 
     # Voliteľné - identifikátory dodávateľa
-    supplier_ico: Optional[str] = None
-    supplier_dic: Optional[str] = None
-    supplier_ic_dph: Optional[str] = None
+    supplier_ico: str | None = None
+    supplier_dic: str | None = None
+    supplier_ic_dph: str | None = None
 
     # Voliteľné - mena
     currency: str = "EUR"
 
     # Voliteľné - archív pôvodných dát
-    raw_xml: Optional[str] = None
-    raw_pdf_path: Optional[str] = None
+    raw_xml: str | None = None
+    raw_pdf_path: str | None = None

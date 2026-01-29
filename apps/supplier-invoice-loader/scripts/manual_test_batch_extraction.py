@@ -36,7 +36,7 @@ for pdf_path in pdf_files:
         data = extract_invoice_data(str(pdf_path))
 
         if not data:
-            print(f"  ❌ FAILED - extraction returned None")
+            print("  ❌ FAILED - extraction returned None")
             failed += 1
             results.append((pdf_path.name, "FAILED", "No data extracted"))
             continue
@@ -56,7 +56,7 @@ for pdf_path in pdf_files:
             print(f"  ⚠️  PARTIAL - {', '.join(issues)}")
             results.append((pdf_path.name, "PARTIAL", issues))
         else:
-            print(f"  ✅ SUCCESS")
+            print("  ✅ SUCCESS")
             print(f"     Invoice: {data.invoice_number}")
             print(f"     Total: {data.total_amount} {data.currency}")
             print(f"     Customer: {data.customer_name}")

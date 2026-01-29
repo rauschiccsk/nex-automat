@@ -6,17 +6,16 @@ Manages scheduled workflows for automatic invoice fetching from suppliers.
 
 import logging
 from datetime import timedelta
-from typing import Optional
 
-from temporalio.client import Client, ScheduleAlreadyRunningError
 from temporalio.client import (
+    Client,
     Schedule,
     ScheduleActionStartWorkflow,
-    ScheduleIntervalSpec,
+    ScheduleAlreadyRunningError,
+    ScheduleOverlapPolicy,
+    SchedulePolicy,
     ScheduleSpec,
     ScheduleState,
-    SchedulePolicy,
-    ScheduleOverlapPolicy,
 )
 
 logger = logging.getLogger(__name__)
@@ -57,7 +56,7 @@ class ScheduleManager:
         Returns:
             Schedule ID
         """
-        from datetime import date, timedelta
+        from datetime import date
 
         # Calculate date range
         today = date.today()
@@ -68,13 +67,13 @@ class ScheduleManager:
             action=ScheduleActionStartWorkflow(
                 "ANDROSInvoiceWorkflow",
                 args=[
-                    "marso",           # supplier_id
-                    date_from,         # date_from
-                    date_to,           # date_to
-                    customer_code,     # customer_code
-                    True,              # skip_pipeline
+                    "marso",  # supplier_id
+                    date_from,  # date_from
+                    date_to,  # date_to
+                    customer_code,  # customer_code
+                    True,  # skip_pipeline
                 ],
-                id=f"{schedule_id}-{{{{.ScheduledTime.Format \"2006-01-02\"}}}}",
+                id=f'{schedule_id}-{{{{.ScheduledTime.Format "2006-01-02"}}}}',
                 task_queue=self.task_queue,
             ),
             spec=ScheduleSpec(
@@ -107,7 +106,7 @@ class ScheduleManager:
     async def create_supplier_schedule(
         self,
         supplier_id: str,
-        schedule_id: Optional[str] = None,
+        schedule_id: str | None = None,
         cron_expression: str = "0 6 * * *",
         lookback_days: int = 7,
         customer_code: str = "ANDROS",
@@ -130,7 +129,7 @@ class ScheduleManager:
         if schedule_id is None:
             schedule_id = f"andros-{supplier_id}-daily"
 
-        from datetime import date, timedelta
+        from datetime import date
 
         today = date.today()
         date_from = (today - timedelta(days=lookback_days)).isoformat()
@@ -140,7 +139,7 @@ class ScheduleManager:
             action=ScheduleActionStartWorkflow(
                 "ANDROSInvoiceWorkflow",
                 args=[supplier_id, date_from, date_to, customer_code, False],
-                id=f"{schedule_id}-{{{{.ScheduledTime.Format \"2006-01-02\"}}}}",
+                id=f'{schedule_id}-{{{{.ScheduledTime.Format "2006-01-02"}}}}',
                 task_queue=self.task_queue,
             ),
             spec=ScheduleSpec(
@@ -195,10 +194,12 @@ class ScheduleManager:
         schedules = []
         async for schedule in self.client.list_schedules():
             if schedule.id.startswith("andros-"):
-                schedules.append({
-                    "id": schedule.id,
-                    "paused": schedule.info.paused if schedule.info else False,
-                })
+                schedules.append(
+                    {
+                        "id": schedule.id,
+                        "paused": schedule.info.paused if schedule.info else False,
+                    }
+                )
         return schedules
 
     async def get_schedule_info(self, schedule_id: str) -> dict:
@@ -211,7 +212,5 @@ class ScheduleManager:
             "paused": desc.schedule.state.paused if desc.schedule.state else False,
             "note": desc.schedule.state.note if desc.schedule.state else "",
             "recent_actions": len(desc.info.recent_actions) if desc.info else 0,
-            "next_action_times": [
-                t.isoformat() for t in (desc.info.next_action_times or [])[:3]
-            ] if desc.info else [],
+            "next_action_times": [t.isoformat() for t in (desc.info.next_action_times or [])[:3]] if desc.info else [],
         }

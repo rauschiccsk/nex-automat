@@ -11,6 +11,7 @@ from fastapi.testclient import TestClient
 def client():
     """Create test client"""
     from main import app
+
     return TestClient(app)
 
 
@@ -18,6 +19,7 @@ def client():
 def api_key():
     """Get API key from config"""
     from src.utils import config
+
     return config.API_KEY
 
 
@@ -57,10 +59,7 @@ def test_status_endpoint_requires_auth(client):
 
 def test_status_endpoint_with_auth(client, api_key):
     """Test status endpoint with valid API key"""
-    response = client.get(
-        "/status",
-        headers={"X-API-Key": api_key}
-    )
+    response = client.get("/status", headers={"X-API-Key": api_key})
 
     assert response.status_code == 200
     data = response.json()
@@ -112,10 +111,7 @@ def test_invoices_endpoint_requires_auth(client):
 
 def test_invoices_endpoint_with_auth(client, api_key):
     """Test invoices list endpoint with authentication"""
-    response = client.get(
-        "/invoices",
-        headers={"X-API-Key": api_key}
-    )
+    response = client.get("/invoices", headers={"X-API-Key": api_key})
 
     assert response.status_code == 200
     data = response.json()
@@ -127,10 +123,7 @@ def test_invoices_endpoint_with_auth(client, api_key):
 
 def test_invoice_endpoint_requires_auth(client):
     """Test invoice processing endpoint requires authentication"""
-    response = client.post(
-        "/invoice",
-        json={}
-    )
+    response = client.post("/invoice", json={})
 
     assert response.status_code in [401, 422]
 
@@ -140,7 +133,7 @@ def test_invoice_endpoint_with_invalid_data(client, api_key):
     response = client.post(
         "/invoice",
         headers={"X-API-Key": api_key},
-        json={}  # Missing required fields
+        json={},  # Missing required fields
     )
 
     # Should return validation error
@@ -159,14 +152,10 @@ def test_invoice_endpoint_with_valid_structure(client, api_key):
         "from_email": "test@example.com",
         "message_id": "test-message-123",
         "gmail_id": "gmail-123",
-        "received_date": "2025-10-06T10:00:00"
+        "received_date": "2025-10-06T10:00:00",
     }
 
-    response = client.post(
-        "/invoice",
-        headers={"X-API-Key": api_key},
-        json=request_data
-    )
+    response = client.post("/invoice", headers={"X-API-Key": api_key}, json=request_data)
 
     # Will likely fail at extraction stage, but should accept request
     # Status can be 200 (partial success) or 500 (processing error)
@@ -175,10 +164,7 @@ def test_invoice_endpoint_with_valid_structure(client, api_key):
 
 def test_admin_test_email_endpoint(client, api_key):
     """Test admin test email endpoint"""
-    response = client.post(
-        "/admin/test-email",
-        headers={"X-API-Key": api_key}
-    )
+    response = client.post("/admin/test-email", headers={"X-API-Key": api_key})
 
     assert response.status_code == 200
     data = response.json()
@@ -189,10 +175,7 @@ def test_admin_test_email_endpoint(client, api_key):
 
 def test_admin_send_summary_endpoint(client, api_key):
     """Test admin send summary endpoint"""
-    response = client.post(
-        "/admin/send-summary",
-        headers={"X-API-Key": api_key}
-    )
+    response = client.post("/admin/send-summary", headers={"X-API-Key": api_key})
 
     assert response.status_code == 200
     data = response.json()
@@ -203,10 +186,7 @@ def test_admin_send_summary_endpoint(client, api_key):
 
 def test_invalid_api_key_returns_401(client):
     """Test that invalid API key returns 401"""
-    response = client.get(
-        "/status",
-        headers={"X-API-Key": "invalid-key"}
-    )
+    response = client.get("/status", headers={"X-API-Key": "invalid-key"})
 
     assert response.status_code == 401
     data = response.json()

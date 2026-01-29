@@ -1,13 +1,11 @@
 """Tests for config/config_loader.py"""
 
 import os
-import tempfile
 from pathlib import Path
 from unittest import mock
 
 import pytest
 import yaml
-
 from adapters.base_adapter import AuthType
 from config.config_loader import (
     SupplierConfigError,
@@ -101,9 +99,7 @@ class TestLoadSupplierConfigWithTempFiles:
         config_file = config_dir / "test_supplier.yaml"
         config_file.write_text(yaml.dump(yaml_content))
 
-        with mock.patch(
-            "config.config_loader.get_suppliers_config_dir", return_value=config_dir
-        ):
+        with mock.patch("config.config_loader.get_suppliers_config_dir", return_value=config_dir):
             # Test without credentials - should fail
             with mock.patch.dict(os.environ, {}, clear=True):
                 with pytest.raises(SupplierConfigError) as exc_info:
@@ -140,9 +136,7 @@ class TestLoadSupplierConfigWithTempFiles:
         config_file = config_dir / "bad_auth.yaml"
         config_file.write_text(yaml.dump(yaml_content))
 
-        with mock.patch(
-            "config.config_loader.get_suppliers_config_dir", return_value=config_dir
-        ):
+        with mock.patch("config.config_loader.get_suppliers_config_dir", return_value=config_dir):
             with pytest.raises(SupplierConfigError) as exc_info:
                 load_supplier_config("bad_auth")
 
@@ -161,9 +155,7 @@ class TestLoadSupplierConfigWithTempFiles:
         config_file = config_dir / "incomplete.yaml"
         config_file.write_text(yaml.dump(yaml_content))
 
-        with mock.patch(
-            "config.config_loader.get_suppliers_config_dir", return_value=config_dir
-        ):
+        with mock.patch("config.config_loader.get_suppliers_config_dir", return_value=config_dir):
             with pytest.raises(SupplierConfigError) as exc_info:
                 load_supplier_config("incomplete")
 
@@ -204,9 +196,7 @@ class TestListAvailableSuppliers:
         (config_dir / "middle_supplier.yaml").write_text("supplier_id: middle")
         (config_dir / "_template.yaml").write_text("# template")
 
-        with mock.patch(
-            "config.config_loader.get_suppliers_config_dir", return_value=config_dir
-        ):
+        with mock.patch("config.config_loader.get_suppliers_config_dir", return_value=config_dir):
             suppliers = list_available_suppliers()
 
             assert suppliers == ["aaa_supplier", "middle_supplier", "zzz_supplier"]

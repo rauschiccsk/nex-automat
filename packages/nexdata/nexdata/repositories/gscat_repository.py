@@ -2,10 +2,8 @@
 Repository for GSCAT (Katalóg)
 """
 
-from typing import Optional, List
-from nexdata.repositories.base_repository import BaseRepository
 from nexdata.models.gscat import GSCATRecord
-from nexdata.btrieve.btrieve_client import BtrieveClient
+from nexdata.repositories.base_repository import BaseRepository
 
 
 class GSCATRepository(BaseRepository[GSCATRecord]):
@@ -14,7 +12,7 @@ class GSCATRepository(BaseRepository[GSCATRecord]):
     @property
     def table_name(self) -> str:
         """Get table file path"""
-        return 'gscat'
+        return "gscat"
 
     def from_bytes(self, data: bytes) -> GSCATRecord:
         """Convert bytes to GSCATRecord"""
@@ -23,7 +21,8 @@ class GSCATRepository(BaseRepository[GSCATRecord]):
     def to_bytes(self, record) -> bytes:
         """Convert record to bytes"""
         return record.to_bytes()
-    def get_by_code(self, code: str) -> Optional[GSCATRecord]:
+
+    def get_by_code(self, code: str) -> GSCATRecord | None:
         """
         Get GSCAT record by product code
 
@@ -38,7 +37,7 @@ class GSCATRepository(BaseRepository[GSCATRecord]):
                 return record
         return None
 
-    def search_by_name(self, search_term: str, limit: int = 20) -> List[GSCATRecord]:
+    def search_by_name(self, search_term: str, limit: int = 20) -> list[GSCATRecord]:
         """
         Search products by name
 
@@ -56,7 +55,8 @@ class GSCATRepository(BaseRepository[GSCATRecord]):
                 results.append(record)
 
         return results
-    def find_by_barcode(self, barcode: str) -> Optional[GSCATRecord]:
+
+    def find_by_barcode(self, barcode: str) -> GSCATRecord | None:
         """
         Find product by primary barcode in GSCAT - LIVE query
 
@@ -77,7 +77,5 @@ class GSCATRepository(BaseRepository[GSCATRecord]):
 
             return None
 
-        except Exception as e:
+        except Exception:
             return None
-
-

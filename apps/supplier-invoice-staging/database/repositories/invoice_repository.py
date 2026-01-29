@@ -1,10 +1,11 @@
 """Invoice Repository - Database access for supplier invoices"""
-from typing import List, Dict, Any, Optional
-from contextlib import contextmanager
-import psycopg2
-from psycopg2.extras import RealDictCursor
 
+from contextlib import contextmanager
+from typing import Any
+
+import psycopg2
 from config.settings import Settings
+from psycopg2.extras import RealDictCursor
 
 
 class InvoiceRepository:
@@ -20,16 +21,12 @@ class InvoiceRepository:
         try:
             db = self.settings.database
             conn = psycopg2.connect(
-                host=db.host,
-                port=db.port,
-                database=db.database,
-                user=db.user,
-                password=db.password
+                host=db.host, port=db.port, database=db.database, user=db.user, password=db.password
             )
             cursor = conn.cursor(cursor_factory=RealDictCursor)
             yield cursor
             conn.commit()
-        except Exception as e:
+        except Exception:
             if conn:
                 conn.rollback()
             raise
@@ -37,7 +34,7 @@ class InvoiceRepository:
             if conn:
                 conn.close()
 
-    def get_invoice_heads(self) -> List[Dict[str, Any]]:
+    def get_invoice_heads(self) -> list[dict[str, Any]]:
         """Get all invoice heads for main grid."""
         query = """
             SELECT 
@@ -67,7 +64,7 @@ class InvoiceRepository:
             rows = cur.fetchall()
             return [dict(row) for row in rows]
 
-    def get_invoice_items(self, invoice_head_id: int) -> List[Dict[str, Any]]:
+    def get_invoice_items(self, invoice_head_id: int) -> list[dict[str, Any]]:
         """Get items for specific invoice."""
         query = """
             SELECT 
@@ -101,8 +98,9 @@ class InvoiceRepository:
             rows = cur.fetchall()
             return [dict(row) for row in rows]
 
-    def update_item_pricing(self, item_id: int, margin_percent: float, 
-                           selling_price_excl_vat: float, selling_price_incl_vat: float) -> bool:
+    def update_item_pricing(
+        self, item_id: int, margin_percent: float, selling_price_excl_vat: float, selling_price_incl_vat: float
+    ) -> bool:
         """Update pricing for single item."""
         query = """
             UPDATE supplier_invoice_items
@@ -118,7 +116,7 @@ class InvoiceRepository:
             print(f"Error updating item {item_id}: {e}")
             return False
 
-    def save_items_batch(self, items: List[Dict[str, Any]]) -> int:
+    def save_items_batch(self, items: list[dict[str, Any]]) -> int:
         """Save multiple items at once. Returns count of updated items."""
         query = """
             UPDATE supplier_invoice_items
@@ -131,10 +129,7 @@ class InvoiceRepository:
             with self._get_cursor() as cur:
                 for item in items:
                     if item.get("margin_percent", 0) > 0:
-                        cur.execute(query, (
-                            item.get("selling_price_excl_vat", 0),
-                            item["id"]
-                        ))
+                        cur.execute(query, (item.get("selling_price_excl_vat", 0), item["id"]))
                         updated += cur.rowcount
             return updated
         except Exception as e:

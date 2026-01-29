@@ -13,13 +13,13 @@ Requirements:
 - NSSM available (C:\Tools\nssm or specified backup)
 """
 
-import os
-import sys
-import subprocess
-import shutil
 import argparse
-from pathlib import Path
+import os
+import shutil
+import subprocess
+import sys
 from datetime import datetime
+from pathlib import Path
 
 # Configuration
 REPO_URL = "https://github.com/rauschiccsk/nex-automat.git"
@@ -40,10 +40,7 @@ def log(msg, level="INFO"):
 def run_cmd(cmd, cwd=None, check=True, capture=False):
     """Run command and return result."""
     try:
-        result = subprocess.run(
-            cmd, cwd=cwd, shell=True, check=check,
-            capture_output=capture, text=True
-        )
+        result = subprocess.run(cmd, cwd=cwd, shell=True, check=check, capture_output=capture, text=True)
         return result
     except subprocess.CalledProcessError as e:
         if check:
@@ -331,10 +328,11 @@ def start_service(deploy_path: Path):
 
     # Check status
     import time
+
     time.sleep(3)
 
     result = run_cmd(f'"{nssm}" status {SERVICE_NAME}', capture=True)
-    status = result.stdout.replace('\x00', '').strip()
+    status = result.stdout.replace("\x00", "").strip()
 
     if "SERVICE_RUNNING" in status:
         log(f"Service started: {status}", "OK")
@@ -377,14 +375,10 @@ def print_summary(deploy_path: Path):
 
 def main():
     parser = argparse.ArgumentParser(description="NEX Automat Fresh Deployment")
-    parser.add_argument("--target", "-t", default="nex-automat",
-                        help="Target directory name (default: nex-automat)")
-    parser.add_argument("--backup-path", "-b", type=Path,
-                        help="Path to backup/existing deployment for config files")
-    parser.add_argument("--skip-service", action="store_true",
-                        help="Skip service installation")
-    parser.add_argument("--skip-validation", action="store_true",
-                        help="Skip validation tests")
+    parser.add_argument("--target", "-t", default="nex-automat", help="Target directory name (default: nex-automat)")
+    parser.add_argument("--backup-path", "-b", type=Path, help="Path to backup/existing deployment for config files")
+    parser.add_argument("--skip-service", action="store_true", help="Skip service installation")
+    parser.add_argument("--skip-validation", action="store_true", help="Skip validation tests")
 
     args = parser.parse_args()
 
@@ -446,6 +440,7 @@ def main():
     except Exception as e:
         log(f"Unexpected error: {e}", "FAIL")
         import traceback
+
         traceback.print_exc()
         return 1
 

@@ -12,9 +12,6 @@ from pathlib import Path
 # Add parent directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from temporalio.client import Client
-from temporalio.worker import Worker
-
 from activities.postgres_activities import (
     check_invoice_exists_activity,
     save_invoice_to_postgres_activity,
@@ -32,6 +29,8 @@ from activities.supplier_api_activities import (
     post_isdoc_to_pipeline_activity,
 )
 from config.settings import get_settings
+from temporalio.client import Client
+from temporalio.worker import Worker
 from workflows.api_invoice_workflow import ANDROSInvoiceWorkflow, SingleInvoiceWorkflow
 
 # Configure logging

@@ -15,15 +15,15 @@ Location: tools/rag/rag_reindex.py
 
 import argparse
 import asyncio
-from pathlib import Path
 import sys
+from pathlib import Path
 
 # Add project root to path
 PROJECT_ROOT = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from tools.rag.indexer import DocumentIndexer
 from tools.rag.database import DatabaseManager
+from tools.rag.indexer import DocumentIndexer
 
 
 async def get_indexed_files(db: DatabaseManager) -> set:
@@ -31,7 +31,7 @@ async def get_indexed_files(db: DatabaseManager) -> set:
     await db.connect()
     try:
         rows = await db.pool.fetch("SELECT filename FROM documents")
-        return {row['filename'] for row in rows}
+        return {row["filename"] for row in rows}
     finally:
         await db.close()
 
@@ -56,12 +56,7 @@ async def reindex_all(docs_path: Path):
 
     # Reindex all
     async with DocumentIndexer() as indexer:
-        results = await indexer.index_directory(
-            directory=docs_path,
-            pattern="*.md",
-            recursive=True,
-            show_progress=True
-        )
+        results = await indexer.index_directory(directory=docs_path, pattern="*.md", recursive=True, show_progress=True)
 
     print()
     print("=" * 60)
@@ -134,12 +129,7 @@ async def index_directory(dir_path: Path):
     print()
 
     async with DocumentIndexer() as indexer:
-        results = await indexer.index_directory(
-            directory=dir_path,
-            pattern="*.md",
-            recursive=True,
-            show_progress=True
-        )
+        results = await indexer.index_directory(directory=dir_path, pattern="*.md", recursive=True, show_progress=True)
 
     print()
     print(f"✓ Indexed {len(results)} documents")
@@ -152,9 +142,7 @@ async def show_stats():
     try:
         docs = await db.pool.fetchval("SELECT COUNT(*) FROM documents")
         chunks = await db.pool.fetchval("SELECT COUNT(*) FROM chunks")
-        tokens = await db.pool.fetchval(
-            "SELECT SUM((metadata->>'token_count')::int) FROM chunks"
-        ) or 0
+        tokens = await db.pool.fetchval("SELECT SUM((metadata->>'token_count')::int) FROM chunks") or 0
 
         print("=" * 40)
         print("RAG Database Statistics")
@@ -178,15 +166,15 @@ Examples:
   python tools/rag/rag_reindex.py --file docs/infrastructure/RAG_EXTERNAL_ACCESS.md
   python tools/rag/rag_reindex.py --dir docs/infrastructure/
   python tools/rag/rag_reindex.py --stats       # Show statistics
-        """
+        """,
     )
 
     group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument('--all', action='store_true', help='Full reindex (drop and recreate)')
-    group.add_argument('--new', action='store_true', help='Index only new files (incremental)')
-    group.add_argument('--file', type=Path, help='Index single file')
-    group.add_argument('--dir', type=Path, help='Index directory')
-    group.add_argument('--stats', action='store_true', help='Show statistics only')
+    group.add_argument("--all", action="store_true", help="Full reindex (drop and recreate)")
+    group.add_argument("--new", action="store_true", help="Index only new files (incremental)")
+    group.add_argument("--file", type=Path, help="Index single file")
+    group.add_argument("--dir", type=Path, help="Index directory")
+    group.add_argument("--stats", action="store_true", help="Show statistics only")
 
     args = parser.parse_args()
 

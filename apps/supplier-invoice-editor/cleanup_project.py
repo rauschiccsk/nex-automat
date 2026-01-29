@@ -8,7 +8,6 @@ Session: 2 - Cleanup after PRIORITY 2 completion
 """
 
 from pathlib import Path
-import os
 
 
 def confirm_deletion(file_path: Path) -> bool:
@@ -18,7 +17,7 @@ def confirm_deletion(file_path: Path) -> bool:
         size = file_path.stat().st_size
         print(f"   Size: {size} bytes")
         response = input("   Delete? (y/n): ").strip().lower()
-        return response == 'y'
+        return response == "y"
     else:
         print("   ⏭️  File not found (already deleted?)")
         return False
@@ -73,9 +72,9 @@ def main():
     # Check if scripts/ directory is empty
     scripts_dir = Path("scripts")
     if scripts_dir.exists() and not any(scripts_dir.iterdir()):
-        print(f"\n📁 Directory 'scripts/' is empty")
+        print("\n📁 Directory 'scripts/' is empty")
         response = input("   Remove empty directory? (y/n): ").strip().lower()
-        if response == 'y':
+        if response == "y":
             scripts_dir.rmdir()
             print("   ✅ Removed: scripts/")
 

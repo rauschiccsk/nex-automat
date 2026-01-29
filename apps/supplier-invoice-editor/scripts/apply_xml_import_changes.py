@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 """
 Script na aplikovanie zmien pre XML import a NEX lookup funkcionalitu
 
@@ -13,7 +12,6 @@ Modifikuje:
 - src/ui/widgets/invoice_items_grid.py - Pridá farebné označenie
 """
 
-import os
 from pathlib import Path
 
 # Zisti root projektu
@@ -26,7 +24,7 @@ def create_file(relative_path: str, content: str):
     file_path = PROJECT_ROOT / relative_path
     file_path.parent.mkdir(parents=True, exist_ok=True)
 
-    with open(file_path, 'w', encoding='utf-8') as f:
+    with open(file_path, "w", encoding="utf-8") as f:
         f.write(content)
 
     print(f"OK Created: {relative_path}")
@@ -226,7 +224,7 @@ class NexLookupService:
             return None
 '''
 
-    create_file('src/business/nex_lookup_service.py', nex_lookup_service_content)
+    create_file("src/business/nex_lookup_service.py", nex_lookup_service_content)
 
     # =========================================================================
     # 2. Import XML to Staging Script
@@ -455,14 +453,14 @@ if __name__ == '__main__':
     sys.exit(main())
 '''
 
-    create_file('scripts/import_xml_to_staging.py', import_xml_script_content)
+    create_file("scripts/import_xml_to_staging.py", import_xml_script_content)
 
     # =========================================================================
     # 3. Database Migration - Add NEX columns
     # =========================================================================
     print("\n3. Creating Database Migration...")
 
-    migration_content = '''-- 002_add_nex_columns.sql
+    migration_content = """-- 002_add_nex_columns.sql
 -- Pridanie stlpcov pre NEX Genesis lookup data
 
 -- Pridaj NEX stlpce do supplier_invoice_items
@@ -481,9 +479,9 @@ COMMENT ON COLUMN supplier_invoice_items.nex_plu IS 'PLU cislo produktu z NEX Ge
 COMMENT ON COLUMN supplier_invoice_items.nex_name IS 'Nazov produktu z NEX Genesis GSCAT';
 COMMENT ON COLUMN supplier_invoice_items.nex_category IS 'Tovarova skupina (MGLST) z NEX Genesis';
 COMMENT ON COLUMN supplier_invoice_items.in_nex IS 'Priznak ci produkt existuje v NEX Genesis';
-'''
+"""
 
-    create_file('database/schemas/002_add_nex_columns.sql', migration_content)
+    create_file("database/schemas/002_add_nex_columns.sql", migration_content)
 
     # =========================================================================
     # 4. Update invoice_service.py - Add NEX data loading
@@ -517,7 +515,7 @@ COMMENT ON COLUMN supplier_invoice_items.in_nex IS 'Priznak ci produkt existuje 
     # =========================================================================
     print("\n5. Creating UI update note...")
 
-    ui_update_note = '''
+    ui_update_note = """
 # Update invoice_items_grid.py
 
 Add color coding in data() method:
@@ -536,7 +534,7 @@ def data(self, index, role=Qt.DisplayRole):
         return QBrush(QColor(200, 255, 200))  # Light green for found
 
     # ... rest of existing code
-'''
+"""
 
     print("  NOTE: Manually update invoice_items_grid.py data() method")
     print("  Add Qt.BackgroundRole handling for color coding")
@@ -548,12 +546,14 @@ def data(self, index, role=Qt.DisplayRole):
     print("HOTOVO - Vsetky subory vytvorene")
     print("=" * 80)
     print("\nDalšie kroky:")
-    print("1. Spusti migráciu: psql -U postgres -d invoice_staging -f database/schemas/002_add_nex_columns.sql")
+    print(
+        "1. Spusti migráciu: psql -U postgres -d invoice_staging -f database/schemas/002_add_nex_columns.sql"
+    )
     print("2. Importuj XML: python scripts/import_xml_to_staging.py C:\\NEX\\IMPORT\\32501215.xml")
     print("3. Manuálne uprav invoice_service.py - pridaj get_invoice_items_with_nex() metódu")
     print("4. Manuálne uprav invoice_items_grid.py - pridaj Qt.BackgroundRole handling")
     print("5. Testuj aplikáciu")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

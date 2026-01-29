@@ -7,7 +7,6 @@ import os
 from pathlib import Path
 
 import yaml
-
 from adapters.base_adapter import AuthType, SupplierConfig
 
 
@@ -39,14 +38,11 @@ def load_supplier_config(supplier_id: str) -> SupplierConfig:
     config_file = config_dir / f"{supplier_id}.yaml"
 
     if not config_file.exists():
-        raise SupplierConfigError(
-            f"Configuration file not found: {config_file}. "
-            f"Create it from _template.yaml"
-        )
+        raise SupplierConfigError(f"Configuration file not found: {config_file}. Create it from _template.yaml")
 
     # Load YAML file
     try:
-        with open(config_file, "r", encoding="utf-8") as f:
+        with open(config_file, encoding="utf-8") as f:
             yaml_config = yaml.safe_load(f)
     except yaml.YAMLError as e:
         raise SupplierConfigError(f"Invalid YAML in {config_file}: {e}")
@@ -70,10 +66,7 @@ def load_supplier_config(supplier_id: str) -> SupplierConfig:
         auth_type = AuthType(yaml_config["auth_type"])
     except ValueError:
         valid_types = [t.value for t in AuthType]
-        raise SupplierConfigError(
-            f"Invalid auth_type '{yaml_config['auth_type']}'. "
-            f"Valid types: {valid_types}"
-        )
+        raise SupplierConfigError(f"Invalid auth_type '{yaml_config['auth_type']}'. Valid types: {valid_types}")
 
     # Load credentials from environment variables
     # Format: {SUPPLIER_ID}_API_KEY, {SUPPLIER_ID}_USERNAME, etc.

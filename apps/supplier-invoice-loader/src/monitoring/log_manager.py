@@ -16,6 +16,7 @@ import sys
 @dataclass
 class LogConfig:
     """Log manager configuration"""
+
     log_dir: Path
     log_filename: str = "supplier_invoice_loader.log"
     log_level: str = "INFO"
@@ -42,21 +43,21 @@ class JsonFormatter(logging.Formatter):
     def format(self, record: logging.LogRecord) -> str:
         """Format log record as JSON"""
         log_data = {
-            'timestamp': datetime.fromtimestamp(record.created).isoformat(),
-            'level': record.levelname,
-            'logger': record.name,
-            'message': record.getMessage(),
-            'module': record.module,
-            'function': record.funcName,
-            'line': record.lineno
+            "timestamp": datetime.fromtimestamp(record.created).isoformat(),
+            "level": record.levelname,
+            "logger": record.name,
+            "message": record.getMessage(),
+            "module": record.module,
+            "function": record.funcName,
+            "line": record.lineno,
         }
 
         # Add exception info if present
         if record.exc_info:
-            log_data['exception'] = self.formatException(record.exc_info)
+            log_data["exception"] = self.formatException(record.exc_info)
 
         # Add extra fields
-        if hasattr(record, 'extra'):
+        if hasattr(record, "extra"):
             log_data.update(record.extra)
 
         return json.dumps(log_data)
@@ -94,7 +95,7 @@ class LogManager:
             log_file,
             maxBytes=self.config.max_bytes,
             backupCount=self.config.backup_count,
-            encoding='utf-8'
+            encoding="utf-8",
         )
 
         # Set formatter
@@ -102,8 +103,7 @@ class LogManager:
             file_formatter = JsonFormatter()
         else:
             file_formatter = logging.Formatter(
-                '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-                datefmt='%Y-%m-%d %H:%M:%S'
+                "%(asctime)s - %(name)s - %(levelname)s - %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
             )
 
         file_handler.setFormatter(file_formatter)
@@ -114,8 +114,7 @@ class LogManager:
         if self.config.console_output:
             console_handler = logging.StreamHandler(sys.stdout)
             console_formatter = logging.Formatter(
-                '%(asctime)s - %(levelname)s - %(message)s',
-                datefmt='%Y-%m-%d %H:%M:%S'
+                "%(asctime)s - %(levelname)s - %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
             )
             console_handler.setFormatter(console_formatter)
             console_handler.setLevel(getattr(logging, self.config.console_level.upper()))
@@ -188,30 +187,29 @@ class LogManager:
         total_size = sum(f.stat().st_size for f in log_files)
 
         stats = {
-            'log_directory': str(self.config.log_dir),
-            'total_files': len(log_files),
-            'total_size_mb': round(total_size / (1024 * 1024), 2),
-            'current_log': str(self.config.log_dir / self.config.log_filename),
-            'retention_days': self.config.retention_days,
-            'log_level': self.config.log_level,
-            'files': []
+            "log_directory": str(self.config.log_dir),
+            "total_files": len(log_files),
+            "total_size_mb": round(total_size / (1024 * 1024), 2),
+            "current_log": str(self.config.log_dir / self.config.log_filename),
+            "retention_days": self.config.retention_days,
+            "log_level": self.config.log_level,
+            "files": [],
         }
 
         for log_file in log_files:
             file_stat = log_file.stat()
-            stats['files'].append({
-                'name': log_file.name,
-                'size_kb': round(file_stat.st_size / 1024, 2),
-                'modified': datetime.fromtimestamp(file_stat.st_mtime).isoformat()
-            })
+            stats["files"].append(
+                {
+                    "name": log_file.name,
+                    "size_kb": round(file_stat.st_size / 1024, 2),
+                    "modified": datetime.fromtimestamp(file_stat.st_mtime).isoformat(),
+                }
+            )
 
         return stats
 
     def analyze_logs(
-        self,
-        level: Optional[str] = None,
-        since: Optional[datetime] = None,
-        limit: int = 100
+        self, level: Optional[str] = None, since: Optional[datetime] = None, limit: int = 100
     ) -> List[Dict]:
         """
         Analyze log entries
@@ -231,18 +229,18 @@ class LogManager:
             return entries
 
         try:
-            with open(current_log, 'r', encoding='utf-8') as f:
+            with open(current_log, "r", encoding="utf-8") as f:
                 for line in f:
                     if self.config.use_json:
                         try:
                             entry = json.loads(line)
 
                             # Apply filters
-                            if level and entry.get('level') != level.upper():
+                            if level and entry.get("level") != level.upper():
                                 continue
 
                             if since:
-                                entry_time = datetime.fromisoformat(entry.get('timestamp', ''))
+                                entry_time = datetime.fromisoformat(entry.get("timestamp", ""))
                                 if entry_time < since:
                                     continue
 
@@ -255,7 +253,7 @@ class LogManager:
                         if level and level.upper() not in line:
                             continue
 
-                        entries.append({'raw': line.strip()})
+                        entries.append({"raw": line.strip()})
 
                     if len(entries) >= limit:
                         break
@@ -277,16 +275,16 @@ class LogManager:
         """
         since = datetime.now() - timedelta(hours=hours)
 
-        errors = self.analyze_logs(level='ERROR', since=since, limit=1000)
-        critical = self.analyze_logs(level='CRITICAL', since=since, limit=1000)
+        errors = self.analyze_logs(level="ERROR", since=since, limit=1000)
+        critical = self.analyze_logs(level="CRITICAL", since=since, limit=1000)
 
         summary = {
-            'period_hours': hours,
-            'error_count': len(errors),
-            'critical_count': len(critical),
-            'total_issues': len(errors) + len(critical),
-            'recent_errors': errors[:10],  # Last 10 errors
-            'recent_critical': critical[:10]  # Last 10 critical
+            "period_hours": hours,
+            "error_count": len(errors),
+            "critical_count": len(critical),
+            "total_issues": len(errors) + len(critical),
+            "recent_errors": errors[:10],  # Last 10 errors
+            "recent_critical": critical[:10],  # Last 10 critical
         }
 
         return summary
@@ -317,10 +315,7 @@ class LogManager:
 
 
 def setup_logging(
-    log_dir: str = "logs",
-    log_level: str = "INFO",
-    use_json: bool = False,
-    console: bool = True
+    log_dir: str = "logs", log_level: str = "INFO", use_json: bool = False, console: bool = True
 ) -> LogManager:
     """
     Quick setup for logging
@@ -335,10 +330,7 @@ def setup_logging(
         LogManager instance
     """
     config = LogConfig(
-        log_dir=Path(log_dir),
-        log_level=log_level,
-        use_json=use_json,
-        console_output=console
+        log_dir=Path(log_dir), log_level=log_level, use_json=use_json, console_output=console
     )
 
     return LogManager(config)

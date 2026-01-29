@@ -4,8 +4,8 @@
 Entry point for Daily Summary Report
 Run via Windows Task Scheduler at 18:00 on workdays
 """
+
 import sys
-import os
 import logging
 from pathlib import Path
 from datetime import date
@@ -18,6 +18,7 @@ sys.path.insert(0, str(APP_DIR.parent.parent))  # Project root for packages
 # Load .env first
 try:
     from dotenv import load_dotenv
+
     env_path = Path(__file__).parent.parent.parent / "supplier-invoice-worker" / ".env"
     if env_path.exists():
         load_dotenv(env_path)
@@ -37,8 +38,8 @@ logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     handlers=[
         logging.StreamHandler(),
-        logging.FileHandler(log_dir / "daily_report.log", encoding="utf-8")
-    ]
+        logging.FileHandler(log_dir / "daily_report.log", encoding="utf-8"),
+    ],
 )
 logger = logging.getLogger(__name__)
 
@@ -61,6 +62,7 @@ def main():
         report_date = date.today()
         if len(sys.argv) > 1:
             from datetime import datetime
+
             report_date = datetime.strptime(sys.argv[1], "%Y-%m-%d").date()
 
         success = report.run(report_date)

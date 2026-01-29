@@ -3,7 +3,6 @@
 from datetime import date
 
 import pytest
-
 from adapters.base_adapter import AuthType, SupplierConfig
 from adapters.marso_adapter import MARSOAdapter
 

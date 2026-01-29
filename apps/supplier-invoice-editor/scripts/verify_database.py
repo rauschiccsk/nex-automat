@@ -9,8 +9,8 @@ from pathlib import Path
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from utils.config import Config
 from database.postgres_client import PostgresClient
+from utils.config import Config
 
 
 def verify_connection(client: PostgresClient):
@@ -28,11 +28,7 @@ def verify_tables(client: PostgresClient):
     """Verify required tables exist"""
     print("\n2. Checking tables...")
 
-    required_tables = [
-        'supplier_invoice_heads',
-        'supplier_invoice_items',
-        'invoice_log'
-    ]
+    required_tables = ["supplier_invoice_heads", "supplier_invoice_items", "invoice_log"]
 
     query = """
         SELECT table_name
@@ -64,7 +60,7 @@ def verify_invoices(client: PostgresClient):
     """
 
     result = client.execute_query(query)
-    count = result[0]['count'] if result else 0
+    count = result[0]["count"] if result else 0
 
     if count > 0:
         print(f"   ✓ Found {count} pending invoices")
@@ -80,7 +76,9 @@ def verify_invoices(client: PostgresClient):
 
         print("\n   Sample invoices:")
         for inv in samples:
-            print(f"     • {inv['invoice_number']} - {inv['supplier_name']} - {inv['total_amount']} EUR")
+            print(
+                f"     • {inv['invoice_number']} - {inv['supplier_name']} - {inv['total_amount']} EUR"
+            )
 
         return True
     else:
@@ -99,7 +97,7 @@ def verify_items(client: PostgresClient):
     """
 
     result = client.execute_query(query)
-    count = result[0]['count'] if result else 0
+    count = result[0]["count"] if result else 0
 
     if count > 0:
         print(f"   ✓ Found {count} invoice items")
@@ -153,6 +151,7 @@ def main():
     except Exception as e:
         print(f"\n✗ ERROR: {e}")
         import traceback
+
         traceback.print_exc()
         return 1
 

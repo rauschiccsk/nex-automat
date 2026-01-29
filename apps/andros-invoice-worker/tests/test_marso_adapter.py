@@ -1,12 +1,11 @@
 """Unit tests for MARSO adapter."""
 
-import json
-import pytest
-from unittest.mock import MagicMock, patch
-from datetime import date, datetime
-
 import sys
+from datetime import date, datetime
 from pathlib import Path
+from unittest.mock import patch
+
+import pytest
 
 # Add parent to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -116,12 +115,12 @@ class TestMARSOAdapter:
         adapter = MARSOAdapter(marso_config)
 
         # Simulated MARSO response format
-        response = '''<?xml version="1.0"?>
+        response = """<?xml version="1.0"?>
         <Document>
             <Message>
                 <Invoices>[{"M-2024-001": {"InvoiceId": "M-2024-001", "Netto": 1000}}]</Invoices>
             </Message>
-        </Document>'''
+        </Document>"""
 
         result = adapter._parse_response(response)
 
@@ -143,12 +142,12 @@ class TestMARSOAdapter:
         """Test parsing response without Invoices element."""
         adapter = MARSOAdapter(marso_config)
 
-        response = '''<?xml version="1.0"?>
+        response = """<?xml version="1.0"?>
         <Document>
             <Message>
                 <Status>OK</Status>
             </Message>
-        </Document>'''
+        </Document>"""
 
         result = adapter._parse_response(response)
         assert result == []

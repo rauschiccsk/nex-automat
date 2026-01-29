@@ -1,9 +1,9 @@
 """Invoice Repository - Database access for supplier invoices."""
 
-from typing import List, Dict, Any, Optional
+from typing import Any
 
 from nex_staging.connection import DatabaseConnection
-from nex_staging.models import InvoiceHead, InvoiceItem, FileStatus
+from nex_staging.models import FileStatus, InvoiceHead, InvoiceItem
 
 
 class InvoiceRepository:
@@ -13,10 +13,10 @@ class InvoiceRepository:
         self.db = db
 
     def get_invoice_heads(
-        self, 
-        file_status: Optional[FileStatus] = None,
-        limit: Optional[int] = None,
-    ) -> List[InvoiceHead]:
+        self,
+        file_status: FileStatus | None = None,
+        limit: int | None = None,
+    ) -> list[InvoiceHead]:
         """Get invoice heads with optional filtering.
 
         Args:
@@ -72,7 +72,7 @@ class InvoiceRepository:
             FROM supplier_invoice_heads
             WHERE 1=1
         """
-        params: List[Any] = []
+        params: list[Any] = []
 
         if file_status:
             query += " AND file_status = %s"
@@ -89,12 +89,12 @@ class InvoiceRepository:
             rows = cur.fetchall()
             return [InvoiceHead(**dict(row)) for row in rows]
 
-    def get_invoice_heads_dict(self) -> List[Dict[str, Any]]:
+    def get_invoice_heads_dict(self) -> list[dict[str, Any]]:
         """Get invoice heads as dictionaries (for grid compatibility)."""
         heads = self.get_invoice_heads()
         return [h.model_dump() for h in heads]
 
-    def get_invoice_items(self, invoice_head_id: int) -> List[InvoiceItem]:
+    def get_invoice_items(self, invoice_head_id: int) -> list[InvoiceItem]:
         """Get items for specific invoice.
 
         Args:
@@ -139,17 +139,17 @@ class InvoiceRepository:
             rows = cur.fetchall()
             return [InvoiceItem(**dict(row)) for row in rows]
 
-    def get_invoice_items_dict(self, invoice_head_id: int) -> List[Dict[str, Any]]:
+    def get_invoice_items_dict(self, invoice_head_id: int) -> list[dict[str, Any]]:
         """Get invoice items as dictionaries (for grid compatibility)."""
         items = self.get_invoice_items(invoice_head_id)
         return [i.model_dump() for i in items]
 
     def update_file_status(
-        self, 
-        invoice_id: int, 
+        self,
+        invoice_id: int,
         file_status: FileStatus,
-        pdf_file_path: Optional[str] = None,
-        xml_file_path: Optional[str] = None,
+        pdf_file_path: str | None = None,
+        xml_file_path: str | None = None,
     ) -> bool:
         """Update file status and paths for an invoice.
 
@@ -167,7 +167,7 @@ class InvoiceRepository:
             SET file_status = %s,
                 updated_at = CURRENT_TIMESTAMP
         """
-        params: List[Any] = [file_status.value]
+        params: list[Any] = [file_status.value]
 
         if pdf_file_path is not None:
             query += ", pdf_file_path = %s"
@@ -189,8 +189,8 @@ class InvoiceRepository:
             return False
 
     def update_item_pricing(
-        self, 
-        item_id: int, 
+        self,
+        item_id: int,
         selling_price_excl_vat: float,
     ) -> bool:
         """Update pricing for single item.
@@ -216,7 +216,7 @@ class InvoiceRepository:
             print(f"Error updating item {item_id}: {e}")
             return False
 
-    def save_items_batch(self, items: List[Dict[str, Any]]) -> int:
+    def save_items_batch(self, items: list[dict[str, Any]]) -> int:
         """Save multiple items at once.
 
         Args:
@@ -236,10 +236,7 @@ class InvoiceRepository:
             with self.db.get_cursor() as cur:
                 for item in items:
                     if item.get("selling_price_excl_vat"):
-                        cur.execute(query, (
-                            item["selling_price_excl_vat"],
-                            item["id"]
-                        ))
+                        cur.execute(query, (item["selling_price_excl_vat"], item["id"]))
                         updated += cur.rowcount
             return updated
         except Exception as e:

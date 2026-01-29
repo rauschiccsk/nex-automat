@@ -2,10 +2,9 @@
 Repository for TSI (Dodacie listy - Items)
 """
 
-from typing import Optional, List
-from nexdata.repositories.base_repository import BaseRepository
-from nexdata.models.tsi import TSIRecord
 from nexdata.btrieve.btrieve_client import BtrieveClient
+from nexdata.models.tsi import TSIRecord
+from nexdata.repositories.base_repository import BaseRepository
 
 
 class TSIRepository(BaseRepository[TSIRecord]):
@@ -25,7 +24,7 @@ class TSIRepository(BaseRepository[TSIRecord]):
     @property
     def table_name(self) -> str:
         """Get table file path"""
-        return f'tsi-{self.book_id}'
+        return f"tsi-{self.book_id}"
 
     def from_bytes(self, data: bytes) -> TSIRecord:
         """Convert bytes to TSIRecord"""
@@ -34,7 +33,8 @@ class TSIRepository(BaseRepository[TSIRecord]):
     def to_bytes(self, record) -> bytes:
         """Convert record to bytes"""
         return record.to_bytes()
-    def get_by_document(self, doc_number: str) -> List[TSIRecord]:
+
+    def get_by_document(self, doc_number: str) -> list[TSIRecord]:
         """
         Get all items for specific document
 
@@ -52,11 +52,7 @@ class TSIRepository(BaseRepository[TSIRecord]):
 
         return items
 
-    def get_by_document_and_line(
-        self, 
-        doc_number: str, 
-        line_number: int
-    ) -> Optional[TSIRecord]:
+    def get_by_document_and_line(self, doc_number: str, line_number: int) -> TSIRecord | None:
         """
         Get specific item by document and line number
 

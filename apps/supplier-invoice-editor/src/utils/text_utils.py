@@ -22,13 +22,10 @@ def remove_diacritics(text: str) -> str:
         return ""
 
     # Normalize to NFD (decomposed form)
-    normalized = unicodedata.normalize('NFD', text)
+    normalized = unicodedata.normalize("NFD", text)
 
     # Remove combining characters (diacritics)
-    without_diacritics = ''.join(
-        char for char in normalized 
-        if unicodedata.category(char) != 'Mn'
-    )
+    without_diacritics = "".join(char for char in normalized if unicodedata.category(char) != "Mn")
 
     return without_diacritics
 
@@ -62,7 +59,7 @@ def normalize_for_search(text: str) -> str:
     text = text.lower()
 
     # Strip and normalize whitespace
-    text = ' '.join(text.split())
+    text = " ".join(text.split())
 
     return text
 
@@ -89,7 +86,7 @@ def is_numeric(text: str) -> bool:
         return False
 
     try:
-        float(text.replace(',', '.'))
+        float(text.replace(",", "."))
         return True
     except ValueError:
         return False
@@ -120,14 +117,14 @@ def normalize_numeric(text: str) -> str:
     text = text.strip()
 
     # Replace comma with dot
-    text = text.replace(',', '.')
+    text = text.replace(",", ".")
 
     try:
         # Convert to float and back to remove leading zeros
         num = float(text)
         # Keep original precision
-        if '.' in text:
-            decimals = len(text.split('.')[-1])
+        if "." in text:
+            decimals = len(text.split(".")[-1])
             return f"{num:.{decimals}f}"
         else:
             return str(int(num))

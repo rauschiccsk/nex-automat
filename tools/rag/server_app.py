@@ -3,19 +3,18 @@ FastAPI server application for RAG system.
 Provides HTTP endpoints for document search and stats.
 """
 
-from fastapi import FastAPI, Query, HTTPException
-from fastapi.responses import JSONResponse
-from typing import List, Dict, Any, Optional
 from contextlib import asynccontextmanager
 from datetime import datetime
 
-from .api import search, get_context  # Use existing API functions
-from .database import DatabaseManager
-from .config import get_config
+from fastapi import FastAPI, HTTPException, Query
+from fastapi.responses import JSONResponse
 
+from .api import get_context, search  # Use existing API functions
+from .config import get_config
+from .database import DatabaseManager
 
 # Global database manager
-db_manager: Optional[DatabaseManager] = None
+db_manager: DatabaseManager | None = None
 
 
 @asynccontextmanager
@@ -27,7 +26,7 @@ async def lifespan(app: FastAPI):
     config = get_config()
     db_manager = DatabaseManager(config.database)
     await db_manager.connect()
-    print(f"[OK] RAG API server started")
+    print("[OK] RAG API server started")
     print(f"[OK] Database: {config.database.host}:{config.database.port}/{config.database.database}")
 
     yield
@@ -43,7 +42,7 @@ app = FastAPI(
     title="NEX Automat RAG API",
     description="Retrieval-Augmented Generation system for NEX Automat project documentation",
     version="1.0.0",
-    lifespan=lifespan
+    lifespan=lifespan,
 )
 
 
@@ -57,8 +56,8 @@ async def root():
         "endpoints": {
             "search": "/search?query=<query>&max_results=<n>&format=<json|context>",
             "stats": "/stats",
-            "health": "/health"
-        }
+            "health": "/health",
+        },
     }
 
 
@@ -79,13 +78,10 @@ async def health_check():
             "status": "healthy",
             "database": "connected",
             "documents": result,
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.utcnow().isoformat(),
         }
     except Exception as e:
-        raise HTTPException(
-            status_code=503,
-            detail=f"Database health check failed: {str(e)}"
-        )
+        raise HTTPException(status_code=503, detail=f"Database health check failed: {str(e)}")
 
 
 @app.get("/search")
@@ -93,7 +89,7 @@ async def search_endpoint(
     query: str = Query(..., description="Search query"),
     max_results: int = Query(5, ge=1, le=20, description="Maximum number of results (1-20)"),
     format: str = Query("json", pattern="^(json|context)$", description="Response format: json or context"),
-    tenant: Optional[str] = Query(None, description="Tenant filter (e.g., 'icc', 'andros')")
+    tenant: str | None = Query(None, description="Tenant filter (e.g., 'icc', 'andros')"),
 ):
     """
     Search RAG database for relevant documents.
@@ -123,23 +119,22 @@ async def search_endpoint(
                     "score": r.score,
                     "chunk_id": r.chunk_id,
                     "section": r.section,
-                    "metadata": r.metadata
+                    "metadata": r.metadata,
                 }
                 for r in response.results
             ]
 
-            return JSONResponse(content={
-                "query": query,
-                "results": results_dict,
-                "count": len(results_dict),
-                "timestamp": datetime.utcnow().isoformat()
-            })
+            return JSONResponse(
+                content={
+                    "query": query,
+                    "results": results_dict,
+                    "count": len(results_dict),
+                    "timestamp": datetime.utcnow().isoformat(),
+                }
+            )
 
     except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail=f"Search failed: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Search failed: {str(e)}")
 
 
 @app.get("/stats")
@@ -157,14 +152,10 @@ async def stats_endpoint():
 
     try:
         # Get document count
-        doc_count = await db_manager.pool.fetchval(
-            "SELECT COUNT(*) FROM documents"
-        )
+        doc_count = await db_manager.pool.fetchval("SELECT COUNT(*) FROM documents")
 
         # Get chunk count
-        chunk_count = await db_manager.pool.fetchval(
-            "SELECT COUNT(*) FROM chunks"
-        )
+        chunk_count = await db_manager.pool.fetchval("SELECT COUNT(*) FROM chunks")
 
         # Get last indexed document
         last_indexed = await db_manager.pool.fetchrow(
@@ -176,13 +167,10 @@ async def stats_endpoint():
             "chunks": chunk_count,
             "last_indexed": {
                 "filename": last_indexed["filename"] if last_indexed else None,
-                "timestamp": last_indexed["updated_at"].isoformat() if last_indexed else None
+                "timestamp": last_indexed["updated_at"].isoformat() if last_indexed else None,
             },
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.utcnow().isoformat(),
         }
 
     except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail=f"Stats retrieval failed: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Stats retrieval failed: {str(e)}")

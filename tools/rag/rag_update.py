@@ -13,14 +13,14 @@ Location: tools/rag/rag_update.py
 import argparse
 import asyncio
 import sys
-from pathlib import Path
 from datetime import datetime
+from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from tools.rag.indexer import DocumentIndexer
 from tools.rag.database import DatabaseManager
+from tools.rag.indexer import DocumentIndexer
 
 
 class RAGUpdateManager:
@@ -53,7 +53,7 @@ class RAGUpdateManager:
         print("STEP 1: Find New/Modified Knowledge Files")
         print("=" * 60)
         print()
-        print(f"Scanning: docs/knowledge/")
+        print("Scanning: docs/knowledge/")
         print(f"Mode: Files modified today ({datetime.now().date()})")
         print()
 
@@ -96,10 +96,7 @@ class RAGUpdateManager:
             # Index only docs/knowledge/ folder
             async with DocumentIndexer() as indexer:
                 results = await indexer.index_directory(
-                    directory=self.knowledge_path,
-                    pattern="*.md",
-                    recursive=True,
-                    show_progress=True
+                    directory=self.knowledge_path, pattern="*.md", recursive=True, show_progress=True
                 )
             print(f"\n✓ Indexed {len(results)} documents")
 
@@ -115,7 +112,7 @@ class RAGUpdateManager:
                     print(f"[{i}/{len(self.files_to_index)}] {rel_path}")
                     try:
                         await indexer.index_file(filepath, show_progress=False)
-                        print(f"  ✓ Indexed")
+                        print("  ✓ Indexed")
                     except Exception as e:
                         print(f"  ✗ Error: {e}")
 
@@ -171,14 +168,12 @@ class RAGUpdateManager:
         try:
             docs = await db.pool.fetchval("SELECT COUNT(*) FROM documents")
             chunks = await db.pool.fetchval("SELECT COUNT(*) FROM chunks")
-            tokens = await db.pool.fetchval(
-                "SELECT SUM((metadata->>'token_count')::int) FROM chunks"
-            ) or 0
+            tokens = await db.pool.fetchval("SELECT SUM((metadata->>'token_count')::int) FROM chunks") or 0
 
             # Get knowledge docs count
-            knowledge_docs = await db.pool.fetchval(
-                "SELECT COUNT(*) FROM documents WHERE filename LIKE '%knowledge%'"
-            ) or 0
+            knowledge_docs = (
+                await db.pool.fetchval("SELECT COUNT(*) FROM documents WHERE filename LIKE '%knowledge%'") or 0
+            )
 
             print()
             print("╔" + "═" * 40 + "╗")
@@ -203,16 +198,13 @@ Examples:
   python tools/rag/rag_update.py --new      # Index today's docs/knowledge/ files
   python tools/rag/rag_update.py --all      # Full reindex docs/knowledge/
   python tools/rag/rag_update.py --stats    # Show statistics
-        """
+        """,
     )
 
     group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument('--new', action='store_true',
-                       help='Incremental: index new/modified docs/knowledge/ files')
-    group.add_argument('--all', action='store_true',
-                       help='Full: clear and reindex docs/knowledge/')
-    group.add_argument('--stats', action='store_true',
-                       help='Show RAG statistics only')
+    group.add_argument("--new", action="store_true", help="Incremental: index new/modified docs/knowledge/ files")
+    group.add_argument("--all", action="store_true", help="Full: clear and reindex docs/knowledge/")
+    group.add_argument("--stats", action="store_true", help="Show RAG statistics only")
 
     args = parser.parse_args()
 

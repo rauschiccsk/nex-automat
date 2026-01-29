@@ -2,14 +2,14 @@
 Chat endpoint for NEX Brain - Multi-tenant support.
 """
 
-from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
-from typing import Optional
 import re
 
-from api.services.rag_service import RAGService
-from api.services.llm_service import LLMService
 from config.settings import settings
+from fastapi import APIRouter, HTTPException
+from pydantic import BaseModel
+
+from api.services.llm_service import LLMService
+from api.services.rag_service import RAGService
 
 router = APIRouter()
 
@@ -37,9 +37,23 @@ def is_simple_greeting(text: str) -> bool:
     text_lower = text.lower().strip()
     # Simple diacritics removal for Slovak
     replacements = {
-        "á": "a", "ä": "a", "č": "c", "ď": "d", "é": "e", "í": "i",
-        "ĺ": "l", "ľ": "l", "ň": "n", "ó": "o", "ô": "o", "ŕ": "r",
-        "š": "s", "ť": "t", "ú": "u", "ý": "y", "ž": "z"
+        "á": "a",
+        "ä": "a",
+        "č": "c",
+        "ď": "d",
+        "é": "e",
+        "í": "i",
+        "ĺ": "l",
+        "ľ": "l",
+        "ň": "n",
+        "ó": "o",
+        "ô": "o",
+        "ŕ": "r",
+        "š": "s",
+        "ť": "t",
+        "ú": "u",
+        "ý": "y",
+        "ž": "z",
     }
     for sk, ascii_char in replacements.items():
         text_lower = text_lower.replace(sk, ascii_char)
@@ -52,7 +66,7 @@ def is_simple_greeting(text: str) -> bool:
 
 class ChatRequest(BaseModel):
     question: str
-    tenant: Optional[str] = None
+    tenant: str | None = None
     context_limit: int = 5
     include_sources: bool = True
 
@@ -60,9 +74,9 @@ class ChatRequest(BaseModel):
 class ChatResponse(BaseModel):
     answer: str
     tenant: str
-    sources: Optional[list] = None
+    sources: list | None = None
     model: str
-    tokens_used: Optional[int] = None
+    tokens_used: int | None = None
 
 
 @router.post("/chat", response_model=ChatResponse)
@@ -86,33 +100,18 @@ async def chat(request: ChatRequest):
         rag_results = None
         if needs_rag:
             # Get context from RAG (with tenant filter)
-            rag_results = await rag_service.search(
-                query=request.question, 
-                limit=request.context_limit,
-                tenant=tenant
-            )
+            rag_results = await rag_service.search(query=request.question, limit=request.context_limit, tenant=tenant)
 
         # 3. Generate answer with LLM
-        answer, tokens = await llm_service.generate(
-            question=request.question,
-            context=rag_results,
-            tenant=tenant
-        )
+        answer, tokens = await llm_service.generate(question=request.question, context=rag_results, tenant=tenant)
 
         # 4. Build response
         sources = None
         if request.include_sources and rag_results:
-            sources = [
-                {"filename": r["filename"], "score": r["score"]} 
-                for r in rag_results
-            ]
+            sources = [{"filename": r["filename"], "score": r["score"]} for r in rag_results]
 
         return ChatResponse(
-            answer=answer,
-            tenant=tenant,
-            sources=sources,
-            model=llm_service.model_name,
-            tokens_used=tokens
+            answer=answer, tenant=tenant, sources=sources, model=llm_service.model_name, tokens_used=tokens
         )
 
     except HTTPException:

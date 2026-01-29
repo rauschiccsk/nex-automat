@@ -7,20 +7,18 @@ Date: 2025-11-21
 """
 
 import os
-import sys
 import subprocess
 import gzip
 import hashlib
 import logging
 from pathlib import Path
 from datetime import datetime
-from typing import Optional, List, Dict, Tuple
+from typing import List, Dict, Tuple
 import yaml
 
 # Setup logging
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -28,23 +26,23 @@ logger = logging.getLogger(__name__)
 def load_config(config_path: str) -> dict:
     """Load configuration from YAML file with defaults."""
     try:
-        with open(config_path, 'r', encoding='utf-8') as f:
+        with open(config_path, "r", encoding="utf-8") as f:
             config = yaml.safe_load(f)
     except Exception as e:
         logger.error(f"Failed to load config from {config_path}: {e}")
         raise
 
     # Ensure database config exists with defaults
-    if 'database' not in config:
-        config['database'] = {}
+    if "database" not in config:
+        config["database"] = {}
 
-    if 'postgres' not in config['database']:
-        config['database']['postgres'] = {
-            'host': 'localhost',
-            'port': 5432,
-            'user': 'postgres',
-            'password': '',
-            'database': 'invoice_staging'
+    if "postgres" not in config["database"]:
+        config["database"]["postgres"] = {
+            "host": "localhost",
+            "port": 5432,
+            "user": "postgres",
+            "password": "",
+            "database": "invoice_staging",
         }
 
     return config
@@ -62,15 +60,15 @@ class DatabaseRestore:
         """
         self.config_path = Path(config_path)
         self.config = load_config(str(self.config_path))
-        self.backup_dir = Path(self.config.get('backup', {}).get('backup_dir', 'backups'))
+        self.backup_dir = Path(self.config.get("backup", {}).get("backup_dir", "backups"))
 
         # PostgreSQL connection parameters from config.database.postgres
-        db_config = self.config.get('database', {}).get('postgres', {})
-        self.host = db_config.get('host', 'localhost')
-        self.port = db_config.get('port', 5432)
-        self.database = db_config.get('database', 'invoice_staging')
-        self.user = db_config.get('user', 'postgres')
-        self.password = db_config.get('password', '')
+        db_config = self.config.get("database", {}).get("postgres", {})
+        self.host = db_config.get("host", "localhost")
+        self.port = db_config.get("port", 5432)
+        self.database = db_config.get("database", "invoice_staging")
+        self.user = db_config.get("user", "postgres")
+        self.password = db_config.get("password", "")
 
         if not all([self.database, self.user]):
             raise ValueError("Missing required database configuration")
@@ -98,21 +96,21 @@ class DatabaseRestore:
                 continue
 
             for backup_file in backup_dir.glob("backup_*.sql.gz"):
-                checksum_file = backup_file.with_suffix('.sql.gz.sha256')
+                checksum_file = backup_file.with_suffix(".sql.gz.sha256")
 
                 info = {
-                    'path': str(backup_file),
-                    'name': backup_file.name,
-                    'type': backup_dir.name,
-                    'size': backup_file.stat().st_size,
-                    'modified': datetime.fromtimestamp(backup_file.stat().st_mtime),
-                    'has_checksum': checksum_file.exists()
+                    "path": str(backup_file),
+                    "name": backup_file.name,
+                    "type": backup_dir.name,
+                    "size": backup_file.stat().st_size,
+                    "modified": datetime.fromtimestamp(backup_file.stat().st_mtime),
+                    "has_checksum": checksum_file.exists(),
                 }
 
                 backups.append(info)
 
         # Sort by modification time (newest first)
-        backups.sort(key=lambda x: x['modified'], reverse=True)
+        backups.sort(key=lambda x: x["modified"], reverse=True)
         return backups
 
     def verify_backup(self, backup_path: str) -> Tuple[bool, str]:
@@ -132,27 +130,30 @@ class DatabaseRestore:
 
         # Check if it's a gzip file
         try:
-            with gzip.open(backup_file, 'rb') as f:
+            with gzip.open(backup_file, "rb") as f:
                 f.read(1)
         except Exception as e:
             return False, f"Invalid gzip file: {e}"
 
         # Verify checksum if available
-        checksum_file = backup_file.with_suffix('.sql.gz.sha256')
+        checksum_file = backup_file.with_suffix(".sql.gz.sha256")
         if checksum_file.exists():
             try:
-                with open(checksum_file, 'r') as f:
+                with open(checksum_file, "r") as f:
                     expected_checksum = f.read().strip().split()[0]
 
                 # Calculate actual checksum
                 sha256 = hashlib.sha256()
-                with open(backup_file, 'rb') as f:
-                    for chunk in iter(lambda: f.read(8192), b''):
+                with open(backup_file, "rb") as f:
+                    for chunk in iter(lambda: f.read(8192), b""):
                         sha256.update(chunk)
                 actual_checksum = sha256.hexdigest()
 
                 if actual_checksum != expected_checksum:
-                    return False, f"Checksum mismatch: expected {expected_checksum}, got {actual_checksum}"
+                    return (
+                        False,
+                        f"Checksum mismatch: expected {expected_checksum}, got {actual_checksum}",
+                    )
 
                 return True, "Backup verified successfully (checksum OK)"
             except Exception as e:
@@ -161,10 +162,7 @@ class DatabaseRestore:
             return True, "Backup verified (gzip OK, no checksum available)"
 
     def restore_database(
-        self,
-        backup_path: str,
-        drop_existing: bool = False,
-        verify_first: bool = True
+        self, backup_path: str, drop_existing: bool = False, verify_first: bool = True
     ) -> Tuple[bool, str]:
         """
         Restore database from backup
@@ -208,31 +206,36 @@ class DatabaseRestore:
             # Set environment variable for password
             env = os.environ.copy()
             if self.password:
-                env['PGPASSWORD'] = self.password
+                env["PGPASSWORD"] = self.password
 
             # Build psql command
             cmd = [
-                'psql',
-                '-h', self.host,
-                '-p', str(self.port),
-                '-U', self.user,
-                '-d', self.database,
-                '-v', 'ON_ERROR_STOP=1'
+                "psql",
+                "-h",
+                self.host,
+                "-p",
+                str(self.port),
+                "-U",
+                self.user,
+                "-d",
+                self.database,
+                "-v",
+                "ON_ERROR_STOP=1",
             ]
 
             # Decompress and pipe to psql
-            with gzip.open(backup_file, 'rb') as f:
+            with gzip.open(backup_file, "rb") as f:
                 result = subprocess.run(
                     cmd,
                     stdin=f,
                     stdout=subprocess.PIPE,
                     stderr=subprocess.PIPE,
                     env=env,
-                    text=False
+                    text=False,
                 )
 
             if result.returncode != 0:
-                error_msg = result.stderr.decode('utf-8', errors='ignore')
+                error_msg = result.stderr.decode("utf-8", errors="ignore")
                 return False, f"Restore failed: {error_msg}"
 
             logger.info("Database restored successfully")
@@ -247,24 +250,25 @@ class DatabaseRestore:
         try:
             env = os.environ.copy()
             if self.password:
-                env['PGPASSWORD'] = self.password
+                env["PGPASSWORD"] = self.password
 
             # Connect to postgres database to drop target database
             cmd = [
-                'psql',
-                '-h', self.host,
-                '-p', str(self.port),
-                '-U', self.user,
-                '-d', 'postgres',
-                '-c', f'DROP DATABASE IF EXISTS "{self.database}";'
+                "psql",
+                "-h",
+                self.host,
+                "-p",
+                str(self.port),
+                "-U",
+                self.user,
+                "-d",
+                "postgres",
+                "-c",
+                f'DROP DATABASE IF EXISTS "{self.database}";',
             ]
 
             result = subprocess.run(
-                cmd,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                env=env,
-                text=True
+                cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=env, text=True
             )
 
             if result.returncode != 0:
@@ -280,24 +284,25 @@ class DatabaseRestore:
         try:
             env = os.environ.copy()
             if self.password:
-                env['PGPASSWORD'] = self.password
+                env["PGPASSWORD"] = self.password
 
             # Connect to postgres database to create target database
             cmd = [
-                'psql',
-                '-h', self.host,
-                '-p', str(self.port),
-                '-U', self.user,
-                '-d', 'postgres',
-                '-c', f'CREATE DATABASE "{self.database}";'
+                "psql",
+                "-h",
+                self.host,
+                "-p",
+                str(self.port),
+                "-U",
+                self.user,
+                "-d",
+                "postgres",
+                "-c",
+                f'CREATE DATABASE "{self.database}";',
             ]
 
             result = subprocess.run(
-                cmd,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                env=env,
-                text=True
+                cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=env, text=True
             )
 
             if result.returncode != 0:
@@ -321,12 +326,12 @@ class DatabaseRestore:
         backup_file = Path(backup_path)
 
         if not backup_file.exists():
-            return {'error': 'Backup file not found'}
+            return {"error": "Backup file not found"}
 
         # Parse timestamp from filename
         # Format: backup_YYYYMMDD_HHMMSS_dbname.sql.gz
         try:
-            parts = backup_file.stem.split('_')
+            parts = backup_file.stem.split("_")
             if len(parts) >= 3:
                 date_str = parts[1]
                 time_str = parts[2]
@@ -344,11 +349,11 @@ class DatabaseRestore:
         is_verified, verify_msg = self.verify_backup(backup_path)
 
         return {
-            'path': str(backup_file),
-            'name': backup_file.name,
-            'timestamp': timestamp,
-            'size_bytes': size_bytes,
-            'size_mb': round(size_mb, 2),
-            'verified': is_verified,
-            'verification_message': verify_msg
+            "path": str(backup_file),
+            "name": backup_file.name,
+            "timestamp": timestamp,
+            "size_bytes": size_bytes,
+            "size_mb": round(size_mb, 2),
+            "verified": is_verified,
+            "verification_message": verify_msg,
         }

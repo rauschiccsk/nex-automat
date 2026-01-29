@@ -2,11 +2,12 @@
 Window Settings Database Layer
 Univerzálne DB operácie pre window persistence.
 """
-import sqlite3
+
 import logging
-from pathlib import Path
+import sqlite3
 from datetime import datetime
-from typing import Optional, Dict, Any
+from pathlib import Path
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -21,7 +22,7 @@ class WindowSettingsDB:
     _instance = None
     _db_path = None
 
-    def __new__(cls, db_path: Optional[str] = None):
+    def __new__(cls, db_path: str | None = None):
         if cls._instance is None:
             cls._instance = super().__new__(cls)
             cls._db_path = db_path or r"C:\NEX\YEARACT\SYSTEM\SQLITE\window_settings.db"
@@ -59,14 +60,9 @@ class WindowSettingsDB:
 
         logger.info(f"Window settings database initialized: {db_path}")
 
-    def save(self, 
-             window_name: str,
-             x: int,
-             y: int,
-             width: int,
-             height: int,
-             window_state: int = 0,
-             user_id: str = "Server") -> bool:
+    def save(
+        self, window_name: str, x: int, y: int, width: int, height: int, window_state: int = 0, user_id: str = "Server"
+    ) -> bool:
         """
         Save window settings using DELETE + INSERT pattern.
 
@@ -86,17 +82,23 @@ class WindowSettingsDB:
             cursor = conn.cursor()
 
             # DELETE existing record
-            cursor.execute("""
+            cursor.execute(
+                """
                 DELETE FROM window_settings
                 WHERE user_id = ? AND window_name = ?
-            """, (user_id, window_name))
+            """,
+                (user_id, window_name),
+            )
 
             # INSERT new record
-            cursor.execute("""
+            cursor.execute(
+                """
                 INSERT INTO window_settings
                 (user_id, window_name, x, y, width, height, window_state, updated_at)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-            """, (user_id, window_name, x, y, width, height, window_state, datetime.now()))
+            """,
+                (user_id, window_name, x, y, width, height, window_state, datetime.now()),
+            )
 
             conn.commit()
             conn.close()
@@ -108,7 +110,7 @@ class WindowSettingsDB:
             logger.error(f"Error saving window settings for {window_name}: {e}")
             return False
 
-    def load(self, window_name: str, user_id: str = "Server") -> Optional[Dict[str, Any]]:
+    def load(self, window_name: str, user_id: str = "Server") -> dict[str, Any] | None:
         """
         Load window settings from database.
 
@@ -129,22 +131,25 @@ class WindowSettingsDB:
             conn = sqlite3.connect(db_path)
             cursor = conn.cursor()
 
-            cursor.execute("""
+            cursor.execute(
+                """
                 SELECT x, y, width, height, window_state
                 FROM window_settings
                 WHERE user_id = ? AND window_name = ?
-            """, (user_id, window_name))
+            """,
+                (user_id, window_name),
+            )
 
             row = cursor.fetchone()
             conn.close()
 
             if row:
                 settings = {
-                    'x': row[0],
-                    'y': row[1],
-                    'width': row[2],
-                    'height': row[3],
-                    'window_state': row[4] if len(row) > 4 else 0
+                    "x": row[0],
+                    "y": row[1],
+                    "width": row[2],
+                    "height": row[3],
+                    "window_state": row[4] if len(row) > 4 else 0,
                 }
                 logger.debug(f"Loaded window settings: {window_name} = {settings}")
                 return settings
@@ -172,10 +177,13 @@ class WindowSettingsDB:
             conn = sqlite3.connect(db_path)
             cursor = conn.cursor()
 
-            cursor.execute("""
+            cursor.execute(
+                """
                 DELETE FROM window_settings
                 WHERE user_id = ? AND window_name = ?
-            """, (user_id, window_name))
+            """,
+                (user_id, window_name),
+            )
 
             conn.commit()
             conn.close()

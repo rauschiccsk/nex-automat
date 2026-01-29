@@ -11,8 +11,9 @@ Použitie:
 
 Tento template NEMENÍME - je otestovaný a funkčný.
 """
-import sys
+
 import subprocess
+import sys
 from pathlib import Path
 
 # =============================================================================
@@ -86,6 +87,7 @@ https://rag-api.icc.sk/search?query=relevant+search+terms&limit=5
 # TEMPLATE CODE - NEMENÍME
 # =============================================================================
 
+
 def get_base_dir() -> Path:
     """Získa base directory projektu."""
     # Ak sme v nex-automat adresári
@@ -113,9 +115,9 @@ def main():
 
     # Verify we're in correct directory
     if not (BASE_DIR / "apps").exists():
-        print(f"❌ ERROR: Not in nex-automat directory!")
+        print("❌ ERROR: Not in nex-automat directory!")
         print(f"   Current: {Path.cwd()}")
-        print(f"   Expected: C:\\Development\\nex-automat")
+        print("   Expected: C:\\Development\\nex-automat")
         sys.exit(1)
 
     DOCS_DIR = BASE_DIR / "docs"
@@ -160,8 +162,8 @@ def main():
             print(f"⚠️ Main venv not found: {main_venv_python}")
             print("   Skipping RAG update. Run manually:")
             print(f"   cd {BASE_DIR}")
-            print(f"   .\\venv\\Scripts\\Activate.ps1")
-            print(f"   python tools/rag/rag_update.py --new")
+            print("   .\\venv\\Scripts\\Activate.ps1")
+            print("   python tools/rag/rag_update.py --new")
         else:
             try:
                 # Set UTF-8 encoding for subprocess
@@ -173,7 +175,7 @@ def main():
                     capture_output=True,
                     text=True,
                     encoding="utf-8",
-                    env=env
+                    env=env,
                 )
                 print(result.stdout)
                 print("✅ RAG updated")
@@ -185,8 +187,8 @@ def main():
                     print(f"STDERR: {e.stderr}")
                 print()
                 print("Run manually:")
-                print(f"   .\\venv\\Scripts\\Activate.ps1")
-                print(f"   python tools/rag/rag_update.py --new")
+                print("   .\\venv\\Scripts\\Activate.ps1")
+                print("   python tools/rag/rag_update.py --new")
 
     print()
     print("=" * 60)
@@ -194,7 +196,7 @@ def main():
     print()
     print("Next steps:")
     print(f"  1. Git commit: git add -A && git commit -m 'Session {SESSION_DATE}'")
-    print(f"  2. Start new chat with INIT_PROMPT.md")
+    print("  2. Start new chat with INIT_PROMPT.md")
     print("=" * 60)
 
 

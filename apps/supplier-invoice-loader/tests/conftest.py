@@ -17,7 +17,7 @@ def pytest_addoption(parser):
         "--run-integration",
         action="store_true",
         default=False,
-        help="Run integration tests (may send real emails, etc.)"
+        help="Run integration tests (may send real emails, etc.)",
     )
 
 
@@ -26,12 +26,8 @@ def pytest_configure(config):
     config.addinivalue_line(
         "markers", "slow: marks tests as slow (deselect with '-m \"not slow\"')"
     )
-    config.addinivalue_line(
-        "markers", "integration: marks tests as integration tests"
-    )
-    config.addinivalue_line(
-        "markers", "unit: marks tests as unit tests"
-    )
+    config.addinivalue_line("markers", "integration: marks tests as integration tests")
+    config.addinivalue_line("markers", "unit: marks tests as unit tests")
 
 
 @pytest.fixture(scope="session")
@@ -58,7 +54,7 @@ def sample_invoice_data():
         customer_name="Test Customer",
         customer_ico="12345678",
         iban="SK1234567890123456789012",
-        variable_symbol="2025001"
+        variable_symbol="2025001",
     )
 
     # Add sample items
@@ -70,7 +66,7 @@ def sample_invoice_data():
             unit="KS",
             unit_price_with_vat=Decimal("10.00"),
             total_with_vat=Decimal("50.00"),
-            vat_rate=Decimal("20")
+            vat_rate=Decimal("20"),
         ),
         InvoiceItem(
             line_number=2,
@@ -79,8 +75,8 @@ def sample_invoice_data():
             unit="KS",
             unit_price_with_vat=Decimal("20.00"),
             total_with_vat=Decimal("200.00"),
-            vat_rate=Decimal("20")
-        )
+            vat_rate=Decimal("20"),
+        ),
     ]
 
     return invoice
@@ -224,5 +220,5 @@ def pytest_report_header(config):
     return [
         "Supplier Invoice Loader - Test Suite",
         f"Python: {sys.version.split()[0]}",
-        f"Pytest: {pytest.__version__}"
+        f"Pytest: {pytest.__version__}",
     ]

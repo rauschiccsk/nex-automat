@@ -1,10 +1,9 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 """Simply overwrites import_xml_to_staging.py with fixed version"""
 
 from pathlib import Path
 
-TARGET = Path(__file__).parent / 'import_xml_to_staging.py'
+TARGET = Path(__file__).parent / "import_xml_to_staging.py"
 
 FIXED_CONTENT = '''#!/usr/bin/env python
 # -*- coding: utf-8 -*-
@@ -240,7 +239,7 @@ if __name__ == '__main__':
     sys.exit(main())
 '''
 
-with open(TARGET, 'w', encoding='utf-8') as f:
+with open(TARGET, "w", encoding="utf-8") as f:
     f.write(FIXED_CONTENT)
 
 print(f"OK Replaced: {TARGET}")

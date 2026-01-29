@@ -4,9 +4,6 @@ import asyncio
 import logging
 import sys
 
-from temporalio.client import Client
-from temporalio.worker import Worker
-
 from activities.email_activities import fetch_unread_emails, mark_email_processed
 from activities.invoice_activities import upload_invoice_to_api, validate_pdf
 from activities.supplier_api_activities import (
@@ -21,6 +18,8 @@ from activities.supplier_api_activities import (
     post_isdoc_to_pipeline_activity,
 )
 from config.settings import get_settings
+from temporalio.client import Client
+from temporalio.worker import Worker
 from workflows.api_invoice_workflow import SingleInvoiceWorkflow, SupplierAPIInvoiceWorkflow
 from workflows.pdf_invoice_workflow import InvoiceProcessingWorkflow
 

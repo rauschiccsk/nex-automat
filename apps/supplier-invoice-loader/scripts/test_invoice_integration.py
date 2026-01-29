@@ -109,11 +109,11 @@ def check_postgresql_connection():
 
         # Prepare config
         pg_config = {
-            'host': config.POSTGRES_HOST,
-            'port': config.POSTGRES_PORT,
-            'database': config.POSTGRES_DATABASE,
-            'user': config.POSTGRES_USER,
-            'password': config.POSTGRES_PASSWORD
+            "host": config.POSTGRES_HOST,
+            "port": config.POSTGRES_PORT,
+            "database": config.POSTGRES_DATABASE,
+            "user": config.POSTGRES_USER,
+            "password": config.POSTGRES_PASSWORD,
         }
 
         # Test connection using context manager
@@ -122,7 +122,7 @@ def check_postgresql_connection():
             is_dup = pg_client.check_duplicate_invoice("test", "test")
             # This will return False but proves connection works
 
-            print_success(f"PostgreSQL pripojenie OK")
+            print_success("PostgreSQL pripojenie OK")
             print(f"    Database: {config.POSTGRES_DATABASE}")
             print(f"    Host: {config.POSTGRES_HOST}:{config.POSTGRES_PORT}")
             print(f"    User: {config.POSTGRES_USER}")
@@ -180,7 +180,7 @@ def send_test_invoice(pdf_path, api_key):
             pdf_data = f.read()
 
         # Encode to base64
-        pdf_b64 = base64.b64encode(pdf_data).decode('utf-8')
+        pdf_b64 = base64.b64encode(pdf_data).decode("utf-8")
 
         # Prepare payload
         payload = {
@@ -190,40 +190,34 @@ def send_test_invoice(pdf_path, api_key):
             "message_id": f"test-{datetime.now().isoformat()}",
             "gmail_id": "test-gmail-id",
             "subject": "Test Invoice",
-            "received_date": datetime.now().isoformat()
+            "received_date": datetime.now().isoformat(),
         }
 
         # Send POST request
-        headers = {
-            "X-API-Key": api_key,
-            "Content-Type": "application/json"
-        }
+        headers = {"X-API-Key": api_key, "Content-Type": "application/json"}
 
         print("  📤 Odosielam na http://localhost:8000/invoice...")
 
         response = requests.post(
-            "http://localhost:8000/invoice",
-            json=payload,
-            headers=headers,
-            timeout=120
+            "http://localhost:8000/invoice", json=payload, headers=headers, timeout=120
         )
 
         # Check response
         if response.status_code == 200:
             data = response.json()
             print_success("Faktúra spracovaná!")
-            print(f"\n  📊 VÝSLEDOK:")
+            print("\n  📊 VÝSLEDOK:")
             print(f"    Invoice Number: {data.get('invoice_number')}")
             print(f"    Customer: {data.get('customer_name')}")
             print(f"    Total Amount: {data.get('total_amount')} EUR")
             print(f"    Items Count: {data.get('items_count')}")
-            print(f"\n  💾 ULOŽENIE:")
+            print("\n  💾 ULOŽENIE:")
             print(f"    SQLite: {data.get('sqlite_saved')}")
             print(f"    PostgreSQL Enabled: {data.get('postgres_staging_enabled')}")
             print(f"    PostgreSQL Saved: {data.get('postgres_saved')}")
-            if data.get('postgres_invoice_id'):
+            if data.get("postgres_invoice_id"):
                 print(f"    PostgreSQL ID: {data.get('postgres_invoice_id')}")
-            print(f"\n  📁 SÚBORY:")
+            print("\n  📁 SÚBORY:")
             print(f"    PDF: {data.get('pdf_saved')}")
             print(f"    XML: {data.get('xml_saved')}")
 
@@ -236,6 +230,7 @@ def send_test_invoice(pdf_path, api_key):
     except Exception as e:
         print_error(f"Chyba pri odosielaní: {e}")
         import traceback
+
         traceback.print_exc()
         return False
 
@@ -249,11 +244,11 @@ def verify_postgresql_data(invoice_number):
         from src.utils import config
 
         pg_config = {
-            'host': config.POSTGRES_HOST,
-            'port': config.POSTGRES_PORT,
-            'database': config.POSTGRES_DATABASE,
-            'user': config.POSTGRES_USER,
-            'password': config.POSTGRES_PASSWORD
+            "host": config.POSTGRES_HOST,
+            "port": config.POSTGRES_PORT,
+            "database": config.POSTGRES_DATABASE,
+            "user": config.POSTGRES_USER,
+            "password": config.POSTGRES_PASSWORD,
         }
 
         with PostgresStagingClient(pg_config) as pg_client:
@@ -264,17 +259,20 @@ def verify_postgresql_data(invoice_number):
             if is_dup:
                 print_success(f"Faktúra {invoice_number} nájdená v PostgreSQL")
                 print(f"    Invoice Number: {invoice_number}")
-                print(f"    Status: Existuje v databáze")
+                print("    Status: Existuje v databáze")
                 return True
             else:
                 print_error(f"Faktúra {invoice_number} nenájdená v PostgreSQL!")
                 print("    Skúste manuálne query v pgAdmin:")
-                print(f"    SELECT * FROM supplier_invoice_heads WHERE invoice_number = '{invoice_number}';")
+                print(
+                    f"    SELECT * FROM supplier_invoice_heads WHERE invoice_number = '{invoice_number}';"
+                )
                 return False
 
     except Exception as e:
         print_error(f"Chyba pri verifikácii: {e}")
         import traceback
+
         traceback.print_exc()
         return False
 
@@ -319,7 +317,9 @@ def main():
 
     # Verify PostgreSQL data (optional - ask for invoice number)
     print("\n" + "-" * 70)
-    invoice_number = input("Zadaj invoice_number pre verifikáciu v PostgreSQL (Enter = preskočiť): ").strip()
+    invoice_number = input(
+        "Zadaj invoice_number pre verifikáciu v PostgreSQL (Enter = preskočiť): "
+    ).strip()
 
     if invoice_number:
         verify_postgresql_data(invoice_number)
@@ -346,5 +346,6 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"\n\n❌ Neočakávaná chyba: {e}")
         import traceback
+
         traceback.print_exc()
         sys.exit(1)

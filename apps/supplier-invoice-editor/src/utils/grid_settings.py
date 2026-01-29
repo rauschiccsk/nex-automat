@@ -7,9 +7,9 @@ Databáza je zdieľaná medzi všetkými NEX aplikáciami.
 
 import os
 import sqlite3
-from pathlib import Path
-from typing import Optional, List, Dict
 from datetime import datetime
+from pathlib import Path
+from typing import Dict, List, Optional
 
 
 def get_grid_settings_db_path() -> str:
@@ -76,11 +76,12 @@ def get_current_user_id() -> str:
     Returns:
         str: Identifikátor používateľa
     """
-    return os.getenv('USERNAME', 'default_user')
+    return os.getenv("USERNAME", "default_user")
 
 
-def load_column_settings(window_name: str, grid_name: str, 
-                        user_id: Optional[str] = None) -> List[Dict]:
+def load_column_settings(
+    window_name: str, grid_name: str, user_id: str | None = None
+) -> list[dict]:
     """
     Načíta uložené nastavenia stĺpcov pre daný grid.
 
@@ -106,22 +107,25 @@ def load_column_settings(window_name: str, grid_name: str,
         conn = sqlite3.connect(db_path)
         cursor = conn.cursor()
 
-        cursor.execute("""
+        cursor.execute(
+            """
             SELECT column_name, width, visual_index, visible
             FROM grid_column_settings
             WHERE user_id = ? AND window_name = ? AND grid_name = ?
             ORDER BY visual_index
-        """, (user_id, window_name, grid_name))
+        """,
+            (user_id, window_name, grid_name),
+        )
 
         rows = cursor.fetchall()
         conn.close()
 
         return [
             {
-                'column_name': row[0],
-                'width': row[1],
-                'visual_index': row[2],
-                'visible': bool(row[3])
+                "column_name": row[0],
+                "width": row[1],
+                "visual_index": row[2],
+                "visible": bool(row[3]),
             }
             for row in rows
         ]
@@ -131,8 +135,9 @@ def load_column_settings(window_name: str, grid_name: str,
         return []
 
 
-def save_column_settings(window_name: str, grid_name: str, columns: List[Dict],
-                        user_id: Optional[str] = None) -> bool:
+def save_column_settings(
+    window_name: str, grid_name: str, columns: list[dict], user_id: str | None = None
+) -> bool:
     """
     Uloží nastavenia stĺpcov pre daný grid.
 
@@ -158,20 +163,23 @@ def save_column_settings(window_name: str, grid_name: str, columns: List[Dict],
 
         # Ulož každý stĺpec
         for col in columns:
-            cursor.execute("""
+            cursor.execute(
+                """
                 INSERT OR REPLACE INTO grid_column_settings 
                 (user_id, window_name, grid_name, column_name, width, visual_index, visible, updated_at)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-            """, (
-                user_id,
-                window_name,
-                grid_name,
-                col['column_name'],
-                col.get('width'),
-                col.get('visual_index'),
-                1 if col.get('visible', True) else 0,
-                datetime.now()
-            ))
+            """,
+                (
+                    user_id,
+                    window_name,
+                    grid_name,
+                    col["column_name"],
+                    col.get("width"),
+                    col.get("visual_index"),
+                    1 if col.get("visible", True) else 0,
+                    datetime.now(),
+                ),
+            )
 
         conn.commit()
         conn.close()
@@ -182,8 +190,9 @@ def save_column_settings(window_name: str, grid_name: str, columns: List[Dict],
         return False
 
 
-def load_grid_settings(window_name: str, grid_name: str,
-                      user_id: Optional[str] = None) -> Optional[Dict]:
+def load_grid_settings(
+    window_name: str, grid_name: str, user_id: str | None = None
+) -> dict | None:
     """
     Načíta grid-level nastavenia (aktívny stĺpec).
 
@@ -207,17 +216,20 @@ def load_grid_settings(window_name: str, grid_name: str,
         conn = sqlite3.connect(db_path)
         cursor = conn.cursor()
 
-        cursor.execute("""
+        cursor.execute(
+            """
             SELECT active_column_index
             FROM grid_settings
             WHERE user_id = ? AND window_name = ? AND grid_name = ?
-        """, (user_id, window_name, grid_name))
+        """,
+            (user_id, window_name, grid_name),
+        )
 
         row = cursor.fetchone()
         conn.close()
 
         if row:
-            return {'active_column_index': row[0]}
+            return {"active_column_index": row[0]}
         return None
 
     except sqlite3.Error as e:
@@ -225,8 +237,9 @@ def load_grid_settings(window_name: str, grid_name: str,
         return None
 
 
-def save_grid_settings(window_name: str, grid_name: str, active_column_index: int,
-                      user_id: Optional[str] = None) -> bool:
+def save_grid_settings(
+    window_name: str, grid_name: str, active_column_index: int, user_id: str | None = None
+) -> bool:
     """
     Uloží grid-level nastavenia (aktívny stĺpec).
 
@@ -249,11 +262,14 @@ def save_grid_settings(window_name: str, grid_name: str, active_column_index: in
         conn = sqlite3.connect(db_path)
         cursor = conn.cursor()
 
-        cursor.execute("""
+        cursor.execute(
+            """
             INSERT OR REPLACE INTO grid_settings 
             (user_id, window_name, grid_name, active_column_index, updated_at)
             VALUES (?, ?, ?, ?, ?)
-        """, (user_id, window_name, grid_name, active_column_index, datetime.now()))
+        """,
+            (user_id, window_name, grid_name, active_column_index, datetime.now()),
+        )
 
         conn.commit()
         conn.close()

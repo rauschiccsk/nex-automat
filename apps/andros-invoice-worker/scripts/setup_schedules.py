@@ -22,9 +22,8 @@ from pathlib import Path
 # Add parent directory to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from temporalio.client import Client
-
 from scheduler.schedule_manager import ScheduleManager
+from temporalio.client import Client
 
 logging.basicConfig(
     level=logging.INFO,
@@ -102,9 +101,7 @@ async def unpause_schedule(manager: ScheduleManager, supplier: str) -> None:
 
 
 async def main():
-    parser = argparse.ArgumentParser(
-        description="Setup and manage ANDROS invoice schedules"
-    )
+    parser = argparse.ArgumentParser(description="Setup and manage ANDROS invoice schedules")
     parser.add_argument(
         "--temporal-host",
         default=os.environ.get("TEMPORAL_HOST", "localhost"),

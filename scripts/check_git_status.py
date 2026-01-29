@@ -4,18 +4,13 @@ Overí či sú všetky zmeny pushnuté na GitHub
 """
 
 import subprocess
-from pathlib import Path
 
 
 def run_git_command(args: list) -> tuple[bool, str]:
     """Spusti git príkaz"""
     try:
         result = subprocess.run(
-            ["git"] + args,
-            capture_output=True,
-            text=True,
-            check=True,
-            cwd="C:/Development/nex-automat"
+            ["git"] + args, capture_output=True, text=True, check=True, cwd="C:/Development/nex-automat"
         )
         return True, result.stdout.strip()
     except subprocess.CalledProcessError as e:
@@ -79,8 +74,8 @@ def check_remote_url():
         print()
 
         # Extract GitHub URL
-        for line in output.split('\n'):
-            if 'github.com' in line and '(push)' in line:
+        for line in output.split("\n"):
+            if "github.com" in line and "(push)" in line:
                 parts = line.split()
                 if len(parts) >= 2:
                     github_url = parts[1]
@@ -103,12 +98,7 @@ def check_last_commits():
     print("=" * 80)
     print()
 
-    success, output = run_git_command([
-        "log",
-        "--oneline",
-        "--decorate",
-        "-5"
-    ])
+    success, output = run_git_command(["log", "--oneline", "--decorate", "-5"])
 
     if success:
         print(output)
@@ -131,15 +121,11 @@ def check_unpushed_commits():
         return
 
     # Check unpushed commits
-    success, output = run_git_command([
-        "log",
-        f"origin/{branch}..HEAD",
-        "--oneline"
-    ])
+    success, output = run_git_command(["log", f"origin/{branch}..HEAD", "--oneline"])
 
     if not success:
         print(f"⚠️  Could not compare with origin/{branch}")
-        print(f"   Maybe branch not pushed yet?")
+        print("   Maybe branch not pushed yet?")
         print()
 
         # Try to show all local commits
@@ -190,12 +176,7 @@ def check_remote_commits():
         return
 
     # Show last 5 commits on GitHub
-    success, output = run_git_command([
-        "log",
-        f"origin/{branch}",
-        "--oneline",
-        "-5"
-    ])
+    success, output = run_git_command(["log", f"origin/{branch}", "--oneline", "-5"])
 
     if success:
         print(f"Last 5 commits on GitHub (origin/{branch}):")

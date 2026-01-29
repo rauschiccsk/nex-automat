@@ -15,12 +15,6 @@ from src.monitoring import LogManager, LogConfig, setup_logging
 @pytest.fixture
 def temp_log_dir():
     """Create temporary log directory."""
-    import tempfile
-    import shutil
-    import logging
-    import gc
-    import time
-    import warnings
 
     temp_dir = tempfile.mkdtemp()
     yield Path(temp_dir)
@@ -51,10 +45,7 @@ def temp_log_dir():
 def log_config(temp_log_dir):
     """Create test log configuration"""
     return LogConfig(
-        log_dir=temp_log_dir,
-        log_filename="test.log",
-        log_level="DEBUG",
-        retention_days=7
+        log_dir=temp_log_dir, log_filename="test.log", log_level="DEBUG", retention_days=7
     )
 
 
@@ -129,10 +120,10 @@ def test_log_stats(log_manager):
 
     stats = log_manager.get_log_stats()
 
-    assert 'log_directory' in stats
-    assert 'total_files' in stats
-    assert 'total_size_mb' in stats
-    assert stats['total_files'] >= 1
+    assert "log_directory" in stats
+    assert "total_files" in stats
+    assert "total_size_mb" in stats
+    assert stats["total_files"] >= 1
 
 
 def test_cleanup_old_logs(log_manager, temp_log_dir):
@@ -145,6 +136,7 @@ def test_cleanup_old_logs(log_manager, temp_log_dir):
     old_time = (datetime.now() - timedelta(days=40)).timestamp()
     old_log.touch()
     import os
+
     os.utime(old_log, (old_time, old_time))
 
     # Run cleanup
@@ -156,11 +148,11 @@ def test_cleanup_old_logs(log_manager, temp_log_dir):
 
 def test_set_log_level(log_manager):
     """Test changing log level dynamically"""
-    log_manager.set_level('WARNING')
-    assert log_manager.config.log_level == 'WARNING'
+    log_manager.set_level("WARNING")
+    assert log_manager.config.log_level == "WARNING"
 
-    log_manager.set_level('DEBUG')
-    assert log_manager.config.log_level == 'DEBUG'
+    log_manager.set_level("DEBUG")
+    assert log_manager.config.log_level == "DEBUG"
 
 
 def test_error_summary(log_manager):
@@ -173,18 +165,14 @@ def test_error_summary(log_manager):
 
     summary = log_manager.get_error_summary(hours=1)
 
-    assert 'error_count' in summary
-    assert 'critical_count' in summary
-    assert summary['total_issues'] >= 0
+    assert "error_count" in summary
+    assert "critical_count" in summary
+    assert summary["total_issues"] >= 0
 
 
 def test_setup_logging_helper(temp_log_dir):
     """Test quick setup helper function"""
-    manager = setup_logging(
-        log_dir=str(temp_log_dir),
-        log_level="INFO",
-        console=False
-    )
+    manager = setup_logging(log_dir=str(temp_log_dir), log_level="INFO", console=False)
 
     assert manager is not None
     assert manager.config.log_dir == temp_log_dir
@@ -192,11 +180,7 @@ def test_setup_logging_helper(temp_log_dir):
 
 def test_json_logging(temp_log_dir):
     """Test JSON formatted logging"""
-    config = LogConfig(
-        log_dir=temp_log_dir,
-        log_filename="json_test.log",
-        use_json=True
-    )
+    config = LogConfig(log_dir=temp_log_dir, log_filename="json_test.log", use_json=True)
 
     manager = LogManager(config)
     logger = manager.get_logger()
@@ -207,7 +191,7 @@ def test_json_logging(temp_log_dir):
     content = log_file.read_text()
 
     # Should contain JSON structure
-    assert '"message"' in content or 'JSON test message' in content
+    assert '"message"' in content or "JSON test message" in content
 
 
 def test_named_logger(log_manager):

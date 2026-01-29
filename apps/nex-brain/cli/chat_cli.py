@@ -11,8 +11,8 @@ from pathlib import Path
 # Add parent to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from api.services.rag_service import RAGService
 from api.services.llm_service import LLMService
+from api.services.rag_service import RAGService
 from config.settings import settings
 
 
@@ -61,12 +61,12 @@ async def main():
             if not question:
                 continue
 
-            if question.lower() in ('quit', 'q', 'exit'):
+            if question.lower() in ("quit", "q", "exit"):
                 print("Dovidenia!")
                 break
 
             # Change tenant
-            if question.lower().startswith('tenant '):
+            if question.lower().startswith("tenant "):
                 new_tenant = question[7:].strip()
                 if new_tenant in settings.tenant_list:
                     current_tenant = new_tenant
@@ -77,7 +77,7 @@ async def main():
                 continue
 
             # Direct RAG search
-            if question.lower().startswith('rag '):
+            if question.lower().startswith("rag "):
                 query = question[4:].strip()
                 print(f"\nVyhľadávam v RAG: '{query}' (tenant: {current_tenant})...")
                 results = await rag.search(query, limit=5, tenant=current_tenant)
@@ -85,7 +85,7 @@ async def main():
                 if results:
                     for i, r in enumerate(results, 1):
                         print(f"\n[{i}] {r.get('filename')} (score: {r.get('score', 0):.3f})")
-                        content = r.get('content', '')[:200]
+                        content = r.get("content", "")[:200]
                         print(f"    {content}...")
                 else:
                     print("Žiadne výsledky.")

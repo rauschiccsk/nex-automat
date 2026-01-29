@@ -41,7 +41,4 @@ line-length = 100
 target-version = ['py313']
 include = '\.pyi?$'
 
-[tool.ruff]
-line-length = 100
-target-version = "py313"
-select = ["E", "F", "W", "I"]
+# Ruff config inherited from root pyproject.toml

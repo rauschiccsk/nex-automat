@@ -4,8 +4,8 @@ Usage: python -m tools.rag "your search query"
        python -m tools.rag --help
 """
 
-import asyncio
 import argparse
+import asyncio
 import sys
 from pathlib import Path
 
@@ -19,62 +19,34 @@ from tools.rag.api import RAGSearchAPI
 def create_parser() -> argparse.ArgumentParser:
     """Create argument parser."""
     parser = argparse.ArgumentParser(
-        prog='python -m tools.rag',
-        description='RAG Search Tool - Search project knowledge base',
+        prog="python -m tools.rag",
+        description="RAG Search Tool - Search project knowledge base",
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog='''
+        epilog="""
 Examples:
   python -m tools.rag "Btrieve database migration"
   python -m tools.rag "supplier invoice" --limit 5
   python -m tools.rag "stock cards" --mode vector
   python -m tools.rag --stats
   python -m tools.rag "deployment guide" --context
-'''
+""",
     )
 
-    parser.add_argument(
-        'query',
-        nargs='?',
-        help='Search query (Slovak or English)'
-    )
+    parser.add_argument("query", nargs="?", help="Search query (Slovak or English)")
+
+    parser.add_argument("-l", "--limit", type=int, default=5, help="Number of results (default: 5)")
 
     parser.add_argument(
-        '-l', '--limit',
-        type=int,
-        default=5,
-        help='Number of results (default: 5)'
+        "-m", "--mode", choices=["hybrid", "vector"], default="hybrid", help="Search mode (default: hybrid)"
     )
 
-    parser.add_argument(
-        '-m', '--mode',
-        choices=['hybrid', 'vector'],
-        default='hybrid',
-        help='Search mode (default: hybrid)'
-    )
+    parser.add_argument("-c", "--context", action="store_true", help="Output LLM-ready context format")
 
-    parser.add_argument(
-        '-c', '--context',
-        action='store_true',
-        help='Output LLM-ready context format'
-    )
+    parser.add_argument("-f", "--full", action="store_true", help="Show full chunk content")
 
-    parser.add_argument(
-        '-f', '--full',
-        action='store_true',
-        help='Show full chunk content'
-    )
+    parser.add_argument("--stats", action="store_true", help="Show database statistics")
 
-    parser.add_argument(
-        '--stats',
-        action='store_true',
-        help='Show database statistics'
-    )
-
-    parser.add_argument(
-        '-q', '--quiet',
-        action='store_true',
-        help='Minimal output (no headers)'
-    )
+    parser.add_argument("-q", "--quiet", action="store_true", help="Minimal output (no headers)")
 
     return parser
 
@@ -96,14 +68,7 @@ async def show_stats(quiet: bool = False):
         print()
 
 
-async def do_search(
-        query: str,
-        limit: int,
-        mode: str,
-        context: bool,
-        full: bool,
-        quiet: bool
-):
+async def do_search(query: str, limit: int, mode: str, context: bool, full: bool, quiet: bool):
     """Perform search and display results."""
     async with RAGSearchAPI() as api:
         if context:
@@ -116,13 +81,13 @@ async def do_search(
         response = await api.search(query, limit=limit, mode=mode)
 
     if not quiet:
-        print(f"\n[SEARCH] Query: \"{query}\"")
+        print(f'\n[SEARCH] Query: "{query}"')
         print(f"   Mode: {mode} | Results: {response.total_found}")
         print("=" * 60)
 
     for i, r in enumerate(response.results, 1):
-        score = r['score']
-        filename = r['filename']
+        score = r["score"]
+        filename = r["filename"]
 
         # Score indicator
         indicator = "[HIGH]" if score > 0.5 else "[MED]" if score > 0.3 else "[LOW]"
@@ -132,16 +97,16 @@ async def do_search(
         else:
             print(f"\n{i}. {indicator} [{score:.3f}] {filename}")
 
-            if r.get('keyword_score', 0) > 0:
+            if r.get("keyword_score", 0) > 0:
                 print(f"   (vector: {r['vector_score']:.3f}, keyword: {r['keyword_score']:.3f})")
 
             # Content preview
-            content = r['content']
+            content = r["content"]
             if full:
                 print(f"\n{content}\n")
                 print("-" * 60)
             else:
-                preview = content[:200].replace('\n', ' ')
+                preview = content[:200].replace("\n", " ")
                 if len(content) > 200:
                     preview += "..."
                 print(f"   {preview}")
@@ -157,20 +122,23 @@ def main():
 
     # Suppress connection messages for cleaner output
     import logging
-    logging.getLogger('asyncpg').setLevel(logging.WARNING)
+
+    logging.getLogger("asyncpg").setLevel(logging.WARNING)
 
     try:
         if args.stats:
             asyncio.run(show_stats(args.quiet))
         elif args.query:
-            asyncio.run(do_search(
-                query=args.query,
-                limit=args.limit,
-                mode=args.mode,
-                context=args.context,
-                full=args.full,
-                quiet=args.quiet
-            ))
+            asyncio.run(
+                do_search(
+                    query=args.query,
+                    limit=args.limit,
+                    mode=args.mode,
+                    context=args.context,
+                    full=args.full,
+                    quiet=args.quiet,
+                )
+            )
         else:
             parser.print_help()
             sys.exit(1)
@@ -182,5 +150,5 @@ def main():
         sys.exit(1)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

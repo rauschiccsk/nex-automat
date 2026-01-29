@@ -17,25 +17,25 @@ Commands:
 Location: C:\\Deployment\\nex-automat\\scripts\\manage_service.py
 """
 
-import os
-import sys
 import subprocess
+import sys
 import time
 from pathlib import Path
+
 
 def decode_nssm_output(result):
     """Decode NSSM output which may be UTF-16LE with null bytes"""
     try:
         if isinstance(result.stdout, bytes):
-            stdout = result.stdout.decode('utf-16le').rstrip('\x00')
+            stdout = result.stdout.decode("utf-16le").rstrip("\x00")
         else:
             # Already string, just remove null bytes
-            stdout = result.stdout.replace('\x00', '')
+            stdout = result.stdout.replace("\x00", "")
 
         if isinstance(result.stderr, bytes):
-            stderr = result.stderr.decode('utf-16le').rstrip('\x00')
+            stderr = result.stderr.decode("utf-16le").rstrip("\x00")
         else:
-            stderr = result.stderr.replace('\x00', '')
+            stderr = result.stderr.replace("\x00", "")
 
         class DecodedResult:
             def __init__(self, returncode, stdout, stderr):
@@ -49,11 +49,10 @@ def decode_nssm_output(result):
         class DecodedResult:
             def __init__(self, returncode, stdout, stderr):
                 self.returncode = returncode
-                self.stdout = str(stdout).replace('\x00', '')
-                self.stderr = str(stderr).replace('\x00', '')
+                self.stdout = str(stdout).replace("\x00", "")
+                self.stderr = str(stderr).replace("\x00", "")
 
         return DecodedResult(result.returncode, result.stdout, result.stderr)
-
 
 
 # Service configuration
@@ -66,6 +65,7 @@ def is_admin():
     """Check if script is running with administrator privileges"""
     try:
         import ctypes
+
         return ctypes.windll.shell32.IsUserAnAdmin() != 0
     except:
         return False
@@ -74,12 +74,7 @@ def is_admin():
 def run_nssm_command(command_args):
     """Run NSSM command and return result"""
     try:
-        result = subprocess.run(
-            [str(NSSM_PATH)] + command_args,
-            capture_output=True,
-            text=True,
-            timeout=30
-        )
+        result = subprocess.run([str(NSSM_PATH)] + command_args, capture_output=True, text=True, timeout=30)
         return result.returncode, result.stdout.strip(), result.stderr.strip()
     except Exception as e:
         return -1, "", str(e)
@@ -114,7 +109,7 @@ def start_service():
             print(f"   Status: {status}")
         return 0
     else:
-        print(f"ERROR: Failed to start service")
+        print("ERROR: Failed to start service")
         if stderr:
             print(f"   Error: {stderr}")
         return 1
@@ -139,7 +134,7 @@ def stop_service():
             print(f"   Status: {status}")
         return 0
     else:
-        print(f"ERROR: Failed to stop service")
+        print("ERROR: Failed to stop service")
         if stderr:
             print(f"   Error: {stderr}")
         return 1
@@ -174,7 +169,7 @@ def restart_service():
             print(f"   Status: {status}")
         return 0
     else:
-        print(f"ERROR: Failed to restart service")
+        print("ERROR: Failed to restart service")
         if stderr:
             print(f"   Error: {stderr}")
         return 1
@@ -209,10 +204,10 @@ def show_logs(lines=50):
 
     if stdout_log.exists():
         try:
-            with open(stdout_log, 'r', encoding='utf-8', errors='ignore') as f:
+            with open(stdout_log, encoding="utf-8", errors="ignore") as f:
                 all_lines = f.readlines()
                 recent_lines = all_lines[-lines:]
-                print(''.join(recent_lines))
+                print("".join(recent_lines))
         except Exception as e:
             print(f"ERROR: Cannot read stdout log: {e}")
     else:
@@ -225,11 +220,11 @@ def show_logs(lines=50):
 
     if stderr_log.exists():
         try:
-            with open(stderr_log, 'r', encoding='utf-8', errors='ignore') as f:
+            with open(stderr_log, encoding="utf-8", errors="ignore") as f:
                 all_lines = f.readlines()
                 recent_lines = all_lines[-lines:]
                 if recent_lines:
-                    print(''.join(recent_lines))
+                    print("".join(recent_lines))
                 else:
                     print("(Empty - no errors)")
         except Exception as e:
@@ -256,7 +251,7 @@ def tail_logs():
 
     try:
         # Read existing content first
-        with open(stdout_log, 'r', encoding='utf-8', errors='ignore') as f:
+        with open(stdout_log, encoding="utf-8", errors="ignore") as f:
             # Jump to end
             f.seek(0, 2)
 

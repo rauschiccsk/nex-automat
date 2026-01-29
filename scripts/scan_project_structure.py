@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 scan_project_structure.py
 Scan and document actual project structure of nex-automat
@@ -12,15 +11,29 @@ OUTPUT_FILE = Path(__file__).parent.parent / "docs" / "knowledge" / "PROJECT_STR
 
 # Directories to skip
 SKIP_DIRS = {
-    '__pycache__', '.git', '.venv', 'venv', 'venv32', 'node_modules',
-    '.idea', '.vscode', 'dist', 'build', '*.egg-info', '.pytest_cache',
-    '.mypy_cache', 'htmlcov', '.tox', 'eggs', '.eggs'
+    "__pycache__",
+    ".git",
+    ".venv",
+    "venv",
+    "venv32",
+    "node_modules",
+    ".idea",
+    ".vscode",
+    "dist",
+    "build",
+    "*.egg-info",
+    ".pytest_cache",
+    ".mypy_cache",
+    "htmlcov",
+    ".tox",
+    "eggs",
+    ".eggs",
 }
 
 
 def should_skip(path: Path) -> bool:
     """Check if directory should be skipped."""
-    return path.name in SKIP_DIRS or path.name.startswith('.')
+    return path.name in SKIP_DIRS or path.name.startswith(".")
 
 
 def scan_directory(root: Path, prefix: str = "", max_depth: int = 4, current_depth: int = 0) -> list:
@@ -63,7 +76,7 @@ def main():
 
     lines.append("# NEX-AUTOMAT PROJECT STRUCTURE")
     lines.append("")
-    lines.append(f"Generated from: `scripts/scan_project_structure.py`")
+    lines.append("Generated from: `scripts/scan_project_structure.py`")
     lines.append("")
 
     # Scan apps/

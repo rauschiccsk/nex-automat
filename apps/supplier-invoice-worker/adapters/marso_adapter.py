@@ -9,13 +9,12 @@ import json
 import logging
 import os
 from datetime import date
-from typing import Any, Dict, List, Optional
-
-from zeep import Client
-from zeep.exceptions import Fault, TransportError
+from typing import Any
 
 from adapters.base_adapter import BaseSupplierAdapter, SupplierConfig
 from models.unified_invoice import InvoiceItem, InvoiceStatus, UnifiedInvoice
+from zeep import Client
+from zeep.exceptions import Fault, TransportError
 
 logger = logging.getLogger(__name__)
 
@@ -26,7 +25,7 @@ class MARSOAdapter(BaseSupplierAdapter):
     def __init__(self, config: SupplierConfig):
         """Initialize MARSO adapter with configuration."""
         super().__init__(config)
-        self._client: Optional[Client] = None
+        self._client: Client | None = None
         self._account_num = os.environ.get("MARSO_ACCOUNT_NUM", "339792")
         self._api_key = os.environ.get("MARSO_API_KEY") or self.config.api_key
         self._use_test = os.environ.get("MARSO_USE_TEST", "false").lower() == "true"
@@ -49,14 +48,14 @@ class MARSOAdapter(BaseSupplierAdapter):
     def _build_request_xml(
         self,
         message_type: str,
-        date_from: Optional[date] = None,
-        date_to: Optional[date] = None,
-        invoice_id: Optional[str] = None,
+        date_from: date | None = None,
+        date_to: date | None = None,
+        invoice_id: str | None = None,
     ) -> str:
         """Build SOAP request XML."""
         params = self.config.request_params
 
-        xml = f'''<?xml version="1.0" encoding="UTF-8"?>
+        xml = f"""<?xml version="1.0" encoding="UTF-8"?>
 <Document>
   <ComaxEnvelope>
     <Sender>{params.get("sender", "WebCatHU")}</Sender>
@@ -67,24 +66,24 @@ class MARSOAdapter(BaseSupplierAdapter):
     <test>{params.get("test_mode", "0")}</test>
   </ComaxEnvelope>
   <Message>
-    <AccountNum>{self._account_num}</AccountNum>'''
+    <AccountNum>{self._account_num}</AccountNum>"""
 
         if date_from and date_to:
-            xml += f'''
+            xml += f"""
     <DatumTol>{date_from.isoformat()}</DatumTol>
-    <DatumIg>{date_to.isoformat()}</DatumIg>'''
+    <DatumIg>{date_to.isoformat()}</DatumIg>"""
 
         if invoice_id:
-            xml += f'''
-    <SzlSzamResz>{invoice_id}</SzlSzamResz>'''
+            xml += f"""
+    <SzlSzamResz>{invoice_id}</SzlSzamResz>"""
         else:
-            xml += '''
-    <SzlSzamResz></SzlSzamResz>'''
+            xml += """
+    <SzlSzamResz></SzlSzamResz>"""
 
-        xml += f'''
+        xml += f"""
     <Key>{self._api_key}</Key>
   </Message>
-</Document>'''
+</Document>"""
         return xml
 
     async def authenticate(self) -> bool:
@@ -106,9 +105,9 @@ class MARSOAdapter(BaseSupplierAdapter):
 
     async def fetch_invoice_list(
         self,
-        date_from: Optional[date] = None,
-        date_to: Optional[date] = None,
-    ) -> List[Dict[str, Any]]:
+        date_from: date | None = None,
+        date_to: date | None = None,
+    ) -> list[dict[str, Any]]:
         """Fetch list of invoices from MARSO API."""
         if date_from is None:
             date_from = date.today()
@@ -138,7 +137,7 @@ class MARSOAdapter(BaseSupplierAdapter):
         data = await self.fetch_invoice_by_id(invoice_id)
         return json.dumps(data)
 
-    async def fetch_invoice_by_id(self, invoice_id: str) -> Dict[str, Any]:
+    async def fetch_invoice_by_id(self, invoice_id: str) -> dict[str, Any]:
         """Fetch single invoice details by ID."""
         message_type = self.config.message_types.get("invoice_detail", "CustInvoiceLines")
         request_xml = self._build_request_xml(
@@ -158,7 +157,7 @@ class MARSOAdapter(BaseSupplierAdapter):
             logger.error(f"MARSO fetch_invoice_by_id failed: {e}")
             raise
 
-    def _parse_response(self, response: str) -> List[Dict[str, Any]]:
+    def _parse_response(self, response: str) -> list[dict[str, Any]]:
         """Parse SOAP response (XML with JSON inside <Invoices> element)."""
         if not response:
             return []
@@ -222,7 +221,7 @@ class MARSOAdapter(BaseSupplierAdapter):
         raw_data = json.loads(json_content)
         return self.to_unified_invoice(raw_data)
 
-    def to_unified_invoice(self, raw_data: Dict[str, Any]) -> UnifiedInvoice:
+    def to_unified_invoice(self, raw_data: dict[str, Any]) -> UnifiedInvoice:
         """Convert MARSO JSON to UnifiedInvoice."""
         from datetime import datetime
 
@@ -273,13 +272,13 @@ class MARSOAdapter(BaseSupplierAdapter):
         """Map MARSO unit to ISDOC unit code."""
         unit_map = {
             "Db": "PCE",  # Piece
-            "Pr": "PR",   # Pair
+            "Pr": "PR",  # Pair
             "Kg": "KGM",  # Kilogram
-            "M": "MTR",   # Meter
+            "M": "MTR",  # Meter
         }
         return unit_map.get(marso_unit, "PCE")
 
-    def _calculate_vat_rate(self, line: Dict[str, Any]) -> float:
+    def _calculate_vat_rate(self, line: dict[str, Any]) -> float:
         """Calculate VAT rate from line amounts."""
         netto = float(line.get("Netto", 0))
         afa = float(line.get("Afa", 0))
@@ -287,7 +286,7 @@ class MARSOAdapter(BaseSupplierAdapter):
             return round((afa / netto) * 100, 2)
         return 27.0  # Default Hungarian VAT
 
-    def _parse_marso_date(self, date_str: str) -> Optional[Any]:
+    def _parse_marso_date(self, date_str: str) -> Any | None:
         """Parse MARSO date string (formats: YYYY.MM.DD or YYYY-MM-DD)."""
         from datetime import datetime
 
@@ -305,7 +304,7 @@ class MARSOAdapter(BaseSupplierAdapter):
         logger.warning(f"Could not parse MARSO date: {date_str}")
         return None
 
-    def _build_address(self, data: Dict[str, Any]) -> str:
+    def _build_address(self, data: dict[str, Any]) -> str:
         """Build address string from invoice data."""
         parts = [
             data.get("InvStreet", ""),

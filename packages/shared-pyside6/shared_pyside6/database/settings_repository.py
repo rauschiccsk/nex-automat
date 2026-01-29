@@ -2,6 +2,7 @@
 SettingsRepository - Repository for user settings persistence.
 Handles window and grid settings storage in SQLite.
 """
+
 import json
 import sqlite3
 from pathlib import Path
@@ -98,14 +99,7 @@ class SettingsRepository:
     # === Window Settings ===
 
     def save_window_settings(
-        self,
-        window_name: str,
-        user_id: str,
-        x: int,
-        y: int,
-        width: int,
-        height: int,
-        is_maximized: bool = False
+        self, window_name: str, user_id: str, x: int, y: int, width: int, height: int, is_maximized: bool = False
     ) -> bool:
         """
         Save window settings.
@@ -123,7 +117,8 @@ class SettingsRepository:
         try:
             conn = self._get_connection()
             cursor = conn.cursor()
-            cursor.execute("""
+            cursor.execute(
+                """
                 INSERT INTO window_settings 
                     (window_name, user_id, x, y, width, height, is_maximized, updated_at)
                 VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
@@ -134,7 +129,9 @@ class SettingsRepository:
                     height = excluded.height,
                     is_maximized = excluded.is_maximized,
                     updated_at = CURRENT_TIMESTAMP
-            """, (window_name, user_id, x, y, width, height, int(is_maximized)))
+            """,
+                (window_name, user_id, x, y, width, height, int(is_maximized)),
+            )
             conn.commit()
             conn.close()
             return True
@@ -142,11 +139,7 @@ class SettingsRepository:
             print(f"Error saving window settings: {e}")
             return False
 
-    def load_window_settings(
-        self,
-        window_name: str,
-        user_id: str
-    ) -> dict[str, Any] | None:
+    def load_window_settings(self, window_name: str, user_id: str) -> dict[str, Any] | None:
         """
         Load window settings.
 
@@ -160,22 +153,19 @@ class SettingsRepository:
         try:
             conn = self._get_connection()
             cursor = conn.cursor()
-            cursor.execute("""
+            cursor.execute(
+                """
                 SELECT x, y, width, height, is_maximized
                 FROM window_settings
                 WHERE window_name = ? AND user_id = ?
-            """, (window_name, user_id))
+            """,
+                (window_name, user_id),
+            )
             row = cursor.fetchone()
             conn.close()
 
             if row:
-                return {
-                    "x": row[0],
-                    "y": row[1],
-                    "width": row[2],
-                    "height": row[3],
-                    "is_maximized": bool(row[4])
-                }
+                return {"x": row[0], "y": row[1], "width": row[2], "height": row[3], "is_maximized": bool(row[4])}
             return None
         except Exception as e:
             print(f"Error loading window settings: {e}")
@@ -186,10 +176,13 @@ class SettingsRepository:
         try:
             conn = self._get_connection()
             cursor = conn.cursor()
-            cursor.execute("""
+            cursor.execute(
+                """
                 DELETE FROM window_settings
                 WHERE window_name = ? AND user_id = ?
-            """, (window_name, user_id))
+            """,
+                (window_name, user_id),
+            )
             conn.commit()
             conn.close()
             return True
@@ -199,13 +192,7 @@ class SettingsRepository:
 
     # === Grid Settings ===
 
-    def save_grid_settings(
-        self,
-        window_name: str,
-        grid_name: str,
-        user_id: str,
-        settings: dict[str, Any]
-    ) -> bool:
+    def save_grid_settings(self, window_name: str, grid_name: str, user_id: str, settings: dict[str, Any]) -> bool:
         """
         Save grid settings as JSON.
 
@@ -222,14 +209,17 @@ class SettingsRepository:
             settings_json = json.dumps(settings, ensure_ascii=False)
             conn = self._get_connection()
             cursor = conn.cursor()
-            cursor.execute("""
+            cursor.execute(
+                """
                 INSERT INTO grid_settings 
                     (window_name, grid_name, user_id, settings, updated_at)
                 VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)
                 ON CONFLICT(window_name, grid_name, user_id) DO UPDATE SET
                     settings = excluded.settings,
                     updated_at = CURRENT_TIMESTAMP
-            """, (window_name, grid_name, user_id, settings_json))
+            """,
+                (window_name, grid_name, user_id, settings_json),
+            )
             conn.commit()
             conn.close()
             return True
@@ -237,12 +227,7 @@ class SettingsRepository:
             print(f"Error saving grid settings: {e}")
             return False
 
-    def load_grid_settings(
-        self,
-        window_name: str,
-        grid_name: str,
-        user_id: str
-    ) -> dict[str, Any] | None:
+    def load_grid_settings(self, window_name: str, grid_name: str, user_id: str) -> dict[str, Any] | None:
         """
         Load grid settings.
 
@@ -257,11 +242,14 @@ class SettingsRepository:
         try:
             conn = self._get_connection()
             cursor = conn.cursor()
-            cursor.execute("""
+            cursor.execute(
+                """
                 SELECT settings
                 FROM grid_settings
                 WHERE window_name = ? AND grid_name = ? AND user_id = ?
-            """, (window_name, grid_name, user_id))
+            """,
+                (window_name, grid_name, user_id),
+            )
             row = cursor.fetchone()
             conn.close()
 
@@ -272,20 +260,18 @@ class SettingsRepository:
             print(f"Error loading grid settings: {e}")
             return None
 
-    def delete_grid_settings(
-        self,
-        window_name: str,
-        grid_name: str,
-        user_id: str
-    ) -> bool:
+    def delete_grid_settings(self, window_name: str, grid_name: str, user_id: str) -> bool:
         """Delete grid settings."""
         try:
             conn = self._get_connection()
             cursor = conn.cursor()
-            cursor.execute("""
+            cursor.execute(
+                """
                 DELETE FROM grid_settings
                 WHERE window_name = ? AND grid_name = ? AND user_id = ?
-            """, (window_name, grid_name, user_id))
+            """,
+                (window_name, grid_name, user_id),
+            )
             conn.commit()
             conn.close()
             return True

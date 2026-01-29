@@ -6,8 +6,8 @@ Spustenie: python analyze_hardware.py
 Pre vzdialený server: python analyze_hardware.py --remote SERVERNAME
 """
 
-import subprocess
 import argparse
+import subprocess
 from datetime import datetime
 
 
@@ -19,7 +19,7 @@ def run_powershell(script: str, remote_server: str = None) -> str:
     cmd = ["powershell", "-NoProfile", "-Command", script]
 
     try:
-        result = subprocess.run(cmd, capture_output=True, text=True, timeout=120, encoding='utf-8', errors='replace')
+        result = subprocess.run(cmd, capture_output=True, text=True, timeout=120, encoding="utf-8", errors="replace")
         if result.returncode != 0 and result.stderr:
             return f"ERROR: {result.stderr}"
         return result.stdout
@@ -36,10 +36,10 @@ def section_header(title: str) -> str:
 def parse_output(result: str) -> dict:
     """Parsuje key=value výstup."""
     data = {}
-    for line in result.split('\n'):
+    for line in result.split("\n"):
         line = line.strip()
-        if '=' in line:
-            key, value = line.split('=', 1)
+        if "=" in line:
+            key, value = line.split("=", 1)
             data[key.strip()] = value.strip()
     return data
 
@@ -109,7 +109,7 @@ foreach ($cpu in $cpus) {
     result = run_powershell(ps, remote)
     current = {}
 
-    for line in result.split('\n'):
+    for line in result.split("\n"):
         line = line.strip()
         if line == "CPU_START":
             current = {}
@@ -125,8 +125,8 @@ foreach ($cpu in $cpus) {
             lines.append(f"    L3 Cache:       {current.get('L3CacheSize', 'N/A')} KB")
             lines.append(f"    Využitie:       {current.get('LoadPercentage', 'N/A')}%")
             current = {}
-        elif '=' in line:
-            k, v = line.split('=', 1)
+        elif "=" in line:
+            k, v = line.split("=", 1)
             current[k] = v
 
     return lines
@@ -152,10 +152,10 @@ Write-Output "FreePhysical=$($os.FreePhysicalMemory)"
     data = parse_output(run_powershell(ps, remote))
 
     try:
-        max_gb = int(data.get('MaxCapacity', 0)) / (1024 ** 2)
-        total_gb = int(data.get('TotalInstalled', 0)) / (1024 ** 3)
-        visible_kb = int(data.get('TotalVisible', 0))
-        free_kb = int(data.get('FreePhysical', 0))
+        max_gb = int(data.get("MaxCapacity", 0)) / (1024**2)
+        total_gb = int(data.get("TotalInstalled", 0)) / (1024**3)
+        visible_kb = int(data.get("TotalVisible", 0))
+        free_kb = int(data.get("FreePhysical", 0))
         used_kb = visible_kb - free_kb
         usage_pct = (used_kb / visible_kb * 100) if visible_kb else 0
 
@@ -163,7 +163,8 @@ Write-Output "FreePhysical=$($os.FreePhysicalMemory)"
         lines.append(f"  Nainštalované:    {total_gb:.0f} GB")
         lines.append(f"  Sloty:            {data.get('UsedSlots', '?')}/{data.get('TotalSlots', '?')} obsadených")
         lines.append(
-            f"  Využitie:         {used_kb / 1024 / 1024:.1f} GB / {visible_kb / 1024 / 1024:.1f} GB ({usage_pct:.1f}%)")
+            f"  Využitie:         {used_kb / 1024 / 1024:.1f} GB / {visible_kb / 1024 / 1024:.1f} GB ({usage_pct:.1f}%)"
+        )
     except:
         lines.append("  Chyba pri načítaní súhrnu")
 
@@ -171,9 +172,16 @@ Write-Output "FreePhysical=$($os.FreePhysicalMemory)"
     lines.append("\n  Moduly:")
 
     smbios_types = {
-        0: 'Unknown', 20: 'DDR', 21: 'DDR2', 22: 'DDR2 FB-DIMM',
-        23: 'DDR3', 24: 'FBD2', 25: 'DDR4', 26: 'LPDDR',
-        33: 'DDR5', 34: 'LPDDR5'
+        0: "Unknown",
+        20: "DDR",
+        21: "DDR2",
+        22: "DDR2 FB-DIMM",
+        23: "DDR3",
+        24: "FBD2",
+        25: "DDR4",
+        26: "LPDDR",
+        33: "DDR5",
+        34: "LPDDR5",
     }
 
     ps = """
@@ -192,22 +200,23 @@ foreach ($m in $mods) {
     result = run_powershell(ps, remote)
     current = {}
 
-    for line in result.split('\n'):
+    for line in result.split("\n"):
         line = line.strip()
         if line == "MOD_START":
             current = {}
         elif line == "MOD_END" and current:
             try:
-                cap_gb = int(current.get('Capacity', 0)) / (1024 ** 3)
-                mem_type = smbios_types.get(int(current.get('SMBIOSMemoryType', 0)), 'Unknown')
+                cap_gb = int(current.get("Capacity", 0)) / (1024**3)
+                mem_type = smbios_types.get(int(current.get("SMBIOSMemoryType", 0)), "Unknown")
             except:
                 cap_gb = 0
-                mem_type = 'Unknown'
+                mem_type = "Unknown"
             lines.append(
-                f"    {current.get('Slot', 'N/A'):10} {cap_gb:5.0f} GB  {current.get('Speed', 'N/A'):>5} MHz  {mem_type:8}  {current.get('Manufacturer', '').strip():20}  {current.get('PartNumber', '').strip()}")
+                f"    {current.get('Slot', 'N/A'):10} {cap_gb:5.0f} GB  {current.get('Speed', 'N/A'):>5} MHz  {mem_type:8}  {current.get('Manufacturer', '').strip():20}  {current.get('PartNumber', '').strip()}"
+            )
             current = {}
-        elif '=' in line:
-            k, v = line.split('=', 1)
+        elif "=" in line:
+            k, v = line.split("=", 1)
             current[k] = v
 
     return lines
@@ -238,14 +247,14 @@ foreach ($d in $disks) {
     current = {}
     disk_num = 0
 
-    for line in result.split('\n'):
+    for line in result.split("\n"):
         line = line.strip()
         if line == "DISK_START":
             current = {}
         elif line == "DISK_END" and current:
             disk_num += 1
             try:
-                size_gb = int(current.get('Size', 0)) / (1024 ** 3)
+                size_gb = int(current.get("Size", 0)) / (1024**3)
             except:
                 size_gb = 0
             lines.append(f"\n    Disk #{disk_num}:")
@@ -256,8 +265,8 @@ foreach ($d in $disks) {
             lines.append(f"      Partície:   {current.get('Partitions', 'N/A')}")
             lines.append(f"      Sér. číslo: {current.get('SerialNumber', 'N/A').strip()}")
             current = {}
-        elif '=' in line:
-            k, v = line.split('=', 1)
+        elif "=" in line:
+            k, v = line.split("=", 1)
             current[k] = v
 
     # Logické disky
@@ -278,22 +287,23 @@ foreach ($v in $vols) {
     result = run_powershell(ps, remote)
     current = {}
 
-    for line in result.split('\n'):
+    for line in result.split("\n"):
         line = line.strip()
         if line == "VOL_START":
             current = {}
         elif line == "VOL_END" and current:
             try:
-                size_gb = int(current.get('Size', 0)) / (1024 ** 3)
-                free_gb = int(current.get('FreeSpace', 0)) / (1024 ** 3)
+                size_gb = int(current.get("Size", 0)) / (1024**3)
+                free_gb = int(current.get("FreeSpace", 0)) / (1024**3)
                 used_pct = ((size_gb - free_gb) / size_gb * 100) if size_gb else 0
             except:
                 size_gb = free_gb = used_pct = 0
             lines.append(
-                f"    {current.get('DeviceID', '?'):3} {current.get('VolumeName', ''):15} {size_gb:8.1f} GB  Voľné: {free_gb:8.1f} GB ({100 - used_pct:5.1f}%)  {current.get('FileSystem', 'N/A')}")
+                f"    {current.get('DeviceID', '?'):3} {current.get('VolumeName', ''):15} {size_gb:8.1f} GB  Voľné: {free_gb:8.1f} GB ({100 - used_pct:5.1f}%)  {current.get('FileSystem', 'N/A')}"
+            )
             current = {}
-        elif '=' in line:
-            k, v = line.split('=', 1)
+        elif "=" in line:
+            k, v = line.split("=", 1)
             current[k] = v
 
     return lines
@@ -321,7 +331,7 @@ foreach ($a in $adapters) {
     current = {}
     adapter_num = 0
 
-    for line in result.split('\n'):
+    for line in result.split("\n"):
         line = line.strip()
         if line == "NET_START":
             current = {}
@@ -336,8 +346,8 @@ foreach ($a in $adapters) {
             lines.append(f"    DNS:          {current.get('DNSServers', 'N/A')}")
             lines.append(f"    DHCP:         {current.get('DHCPEnabled', 'N/A')}")
             current = {}
-        elif '=' in line:
-            k, v = line.split('=', 1)
+        elif "=" in line:
+            k, v = line.split("=", 1)
             current[k] = v
 
     return lines
@@ -366,14 +376,14 @@ foreach ($g in $gpus) {
     current = {}
     gpu_num = 0
 
-    for line in result.split('\n'):
+    for line in result.split("\n"):
         line = line.strip()
         if line == "GPU_START":
             current = {}
         elif line == "GPU_END" and current:
             gpu_num += 1
             try:
-                vram_gb = int(current.get('AdapterRAM', 0)) / (1024 ** 3)
+                vram_gb = int(current.get("AdapterRAM", 0)) / (1024**3)
             except:
                 vram_gb = 0
             lines.append(f"\n  GPU #{gpu_num}:")
@@ -381,10 +391,11 @@ foreach ($g in $gpus) {
             lines.append(f"    VRAM:        {vram_gb:.1f} GB" if vram_gb > 0 else "    VRAM:        N/A")
             lines.append(f"    Driver:      {current.get('DriverVersion', 'N/A')}")
             lines.append(
-                f"    Rozlíšenie:  {current.get('CurrentResolution', 'N/A')} @ {current.get('RefreshRate', 'N/A')} Hz")
+                f"    Rozlíšenie:  {current.get('CurrentResolution', 'N/A')} @ {current.get('RefreshRate', 'N/A')} Hz"
+            )
             current = {}
-        elif '=' in line:
-            k, v = line.split('=', 1)
+        elif "=" in line:
+            k, v = line.split("=", 1)
             current[k] = v
 
     return lines
@@ -429,7 +440,7 @@ if ($bat) {
 """
     data = parse_output(run_powershell(ps, remote))
 
-    if data.get('Name'):
+    if data.get("Name"):
         lines.append(f"  Batéria:        {data.get('Name', 'N/A')}")
         lines.append(f"  Nabité:         {data.get('EstimatedChargeRemaining', 'N/A')}%")
     else:
@@ -447,9 +458,9 @@ if ($temps) {
 """
     result = run_powershell(ps, remote)
     if "Temp=" in result:
-        for line in result.split('\n'):
+        for line in result.split("\n"):
             if line.strip().startswith("Temp="):
-                temp = line.split('=')[1]
+                temp = line.split("=")[1]
                 lines.append(f"  Teplota:        {temp}°C")
     else:
         lines.append("  Teploty:        Nedostupné (vyžaduje vendor nástroje)")
@@ -469,7 +480,7 @@ foreach ($u in $usb) {
 """
     result = run_powershell(ps, remote)
 
-    for line in result.split('\n'):
+    for line in result.split("\n"):
         line = line.strip()
         if line.startswith("USB:"):
             lines.append(f"  {line[4:].strip()}")
@@ -486,7 +497,7 @@ def get_hardware_report(remote_server: str = None) -> str:
 
     lines = []
     lines.append("#" * 70)
-    lines.append(f"#  KOMPLETNÁ HARDWAROVÁ ANALÝZA")
+    lines.append("#  KOMPLETNÁ HARDWAROVÁ ANALÝZA")
     lines.append(f"#  Server: {target}")
     lines.append(f"#  Čas:    {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     lines.append("#" * 70)
@@ -516,13 +527,13 @@ def get_hardware_report(remote_server: str = None) -> str:
     lines.append("  KONIEC REPORTU")
     lines.append("=" * 70)
 
-    return '\n'.join(lines)
+    return "\n".join(lines)
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Kompletná analýza hardvéru Windows servera')
-    parser.add_argument('--remote', '-r', help='Názov alebo IP vzdialeného servera')
-    parser.add_argument('--output', '-o', help='Uložiť výstup do súboru')
+    parser = argparse.ArgumentParser(description="Kompletná analýza hardvéru Windows servera")
+    parser.add_argument("--remote", "-r", help="Názov alebo IP vzdialeného servera")
+    parser.add_argument("--output", "-o", help="Uložiť výstup do súboru")
 
     args = parser.parse_args()
 
@@ -530,7 +541,7 @@ def main():
     print(report)
 
     filename = args.output or f"hw_report_{args.remote or 'localhost'}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
-    with open(filename, 'w', encoding='utf-8') as f:
+    with open(filename, "w", encoding="utf-8") as f:
         f.write(report)
     print(f"\nReport uložený do: {filename}")
 

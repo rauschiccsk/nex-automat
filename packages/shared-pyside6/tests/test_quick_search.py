@@ -1,16 +1,10 @@
 """Tests for QuickSearch."""
+
 import pytest
-
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QStandardItemModel, QStandardItem
+from PySide6.QtGui import QStandardItem, QStandardItemModel
 from PySide6.QtWidgets import QTableView
-
-from shared_pyside6.ui import (
-    QuickSearchEdit,
-    QuickSearchContainer,
-    QuickSearchController,
-    GreenHeaderView
-)
+from shared_pyside6.ui import GreenHeaderView, QuickSearchContainer, QuickSearchController, QuickSearchEdit
 from shared_pyside6.utils import normalize_for_search, remove_diacritics
 
 
