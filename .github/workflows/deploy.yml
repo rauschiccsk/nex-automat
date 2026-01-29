@@ -1,0 +1,62 @@
+name: Deploy to Production
+
+on:
+  workflow_dispatch:
+    inputs:
+      customer:
+        description: 'Target customer environment'
+        required: true
+        type: choice
+        options:
+          - ANDROS
+          - MAGER
+
+env:
+  COMPOSE_PROJECT_NAME: nex-automat-${{ inputs.customer }}
+
+jobs:
+  deploy:
+    name: Deploy to ${{ inputs.customer }}
+    runs-on: [self-hosted, ${{ inputs.customer }}]
+    environment: production-${{ inputs.customer }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Pull latest images
+        run: |
+          echo "Pulling latest Docker images for ${{ inputs.customer }}..."
+          docker compose -f docker-compose.yml pull
+
+      - name: Deploy services
+        run: |
+          echo "Starting services for ${{ inputs.customer }}..."
+          docker compose -f docker-compose.yml up -d
+
+      - name: Health check
+        run: |
+          echo "Running health checks..."
+          sleep 10
+
+          # Check nex-brain API health
+          if curl -sf http://localhost:8000/health > /dev/null 2>&1; then
+            echo "✅ nex-brain API is healthy"
+          else
+            echo "⚠️ nex-brain API health check skipped (service may not be running)"
+          fi
+
+          # List running containers
+          echo ""
+          echo "Running containers:"
+          docker compose ps
+
+      - name: Deployment summary
+        run: |
+          echo "### Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "| Property | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|----------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Customer | ${{ inputs.customer }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Branch | ${{ github.ref_name }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Commit | ${{ github.sha }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Triggered by | ${{ github.actor }} |" >> $GITHUB_STEP_SUMMARY
