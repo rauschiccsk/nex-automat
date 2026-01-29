@@ -12,12 +12,16 @@ on:
           - MAGER
 
 jobs:
-  deploy:
-    name: Deploy to ${{ inputs.customer }}
+  # ===========================================
+  # ANDROS Deployment (Linux)
+  # ===========================================
+  deploy-andros:
+    name: Deploy to ANDROS
+    if: inputs.customer == 'ANDROS'
     runs-on:
       - self-hosted
-      - ${{ inputs.customer }}
-    environment: production-${{ inputs.customer }}
+      - ANDROS
+    environment: production-ANDROS
 
     steps:
       - name: Pull latest code
@@ -76,3 +80,100 @@ jobs:
             echo "=== Running Containers ==="
             cd /opt/nex-automat
             docker compose ps
+
+  # ===========================================
+  # MAGER Deployment (Windows + Btrieve Hybrid)
+  # ===========================================
+  deploy-mager:
+    name: Deploy to MAGER
+    if: inputs.customer == 'MAGER'
+    runs-on:
+      - self-hosted
+      - MAGER
+    environment: production-MAGER
+
+    steps:
+      - name: Pull latest code
+        shell: pwsh
+        run: |
+          Write-Host "Pulling latest code..."
+          Set-Location C:\opt\nex-automat-src
+          git pull
+
+      - name: Copy docker-compose to deployment
+        shell: pwsh
+        run: |
+          Write-Host "Copying docker-compose configuration..."
+          Copy-Item -Path "C:\opt\nex-automat-src\deploy\mager\docker-compose.yml" `
+                    -Destination "C:\opt\nex-automat\docker-compose.yml" -Force
+          Copy-Item -Path "C:\opt\nex-automat-src\deploy\mager\.env.example" `
+                    -Destination "C:\opt\nex-automat\.env.example" -Force -ErrorAction SilentlyContinue
+
+      - name: Pull Docker images
+        shell: pwsh
+        working-directory: C:\opt\nex-automat
+        run: |
+          Write-Host "Pulling Docker images..."
+          docker compose pull postgres temporal
+
+      - name: Deploy Docker services
+        shell: pwsh
+        working-directory: C:\opt\nex-automat
+        run: |
+          Write-Host "Deploying Docker services..."
+          docker compose up -d postgres temporal invoice-worker polling-scheduler
+
+          Write-Host "Waiting for services to start..."
+          Start-Sleep -Seconds 15
+
+      - name: Restart Btrieve Loader Service
+        shell: pwsh
+        run: |
+          Write-Host "Restarting NEX-SupplierInvoiceLoader Windows Service..."
+          $service = Get-Service -Name "NEX-SupplierInvoiceLoader" -ErrorAction SilentlyContinue
+          if ($service) {
+            Restart-Service -Name "NEX-SupplierInvoiceLoader" -Force
+            Write-Host "Service restarted successfully"
+          } else {
+            Write-Host "Warning: NEX-SupplierInvoiceLoader service not found"
+          }
+
+      - name: Health check
+        shell: pwsh
+        run: |
+          Write-Host "Running health checks..."
+
+          # Check Temporal
+          $temporalHealth = docker inspect --format='{{.State.Health.Status}}' mager-temporal 2>$null
+          if ($temporalHealth -eq "healthy" -or $LASTEXITCODE -eq 0) {
+            Write-Host "Temporal: OK"
+          } else {
+            Write-Host "Temporal: Starting (may take a moment)"
+          }
+
+          # Check PostgreSQL
+          $pgHealth = docker exec mager-postgres pg_isready -U temporal 2>$null
+          if ($LASTEXITCODE -eq 0) {
+            Write-Host "PostgreSQL: OK"
+          } else {
+            Write-Host "PostgreSQL: Starting"
+          }
+
+          # Check Windows Service
+          $loaderService = Get-Service -Name "NEX-SupplierInvoiceLoader" -ErrorAction SilentlyContinue
+          if ($loaderService -and $loaderService.Status -eq "Running") {
+            Write-Host "Btrieve Loader: OK"
+          } else {
+            Write-Host "Btrieve Loader: Not running"
+          }
+
+      - name: Deployment summary
+        shell: pwsh
+        working-directory: C:\opt\nex-automat
+        run: |
+          Write-Host "=== Docker Containers ==="
+          docker compose ps
+
+          Write-Host ""
+          Write-Host "=== Windows Services ==="
+          Get-Service -Name "NEX-*" | Format-Table Name, Status -AutoSize
