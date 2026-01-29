@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Test script for ISDOC XML Generator
 """
@@ -9,8 +8,8 @@ from pathlib import Path
 # PRIDAŤ TENTO RIADOK - explicitne pridá aktuálny adresár do PYTHONPATH
 sys.path.insert(0, str(Path(__file__).parent))
 
-from src.extractors.ls_extractor import extract_invoice_data
 from src.business.isdoc_service import generate_isdoc_xml
+from src.extractors.ls_extractor import extract_invoice_data
 
 # Cesta k testovaciemu PDF
 pdf_path = r"C:\NEX_AN\IMPORT\LS\PDF\20250929_232558_32510374_FAK.pdf"

@@ -1,11 +1,11 @@
-# -*- coding: utf-8 -*-
 """
 Pytest configuration and shared fixtures
 """
 
-import pytest
 import sys
 from pathlib import Path
+
+import pytest
 
 # Add parent directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -39,8 +39,9 @@ def test_data_dir():
 @pytest.fixture(scope="session")
 def sample_invoice_data():
     """Sample invoice data for testing"""
-    from src.extractors.ls_extractor import InvoiceData, InvoiceItem
     from decimal import Decimal
+
+    from src.extractors.ls_extractor import InvoiceData, InvoiceItem
 
     invoice = InvoiceData(
         invoice_number="2025001",
@@ -180,8 +181,8 @@ startxref
 @pytest.fixture
 def mock_smtp_server(monkeypatch):
     """Mock SMTP server for email testing"""
-    from unittest.mock import Mock, MagicMock
     import smtplib
+    from unittest.mock import MagicMock, Mock
 
     mock_server = MagicMock()
     mock_smtp = Mock(return_value=mock_server)

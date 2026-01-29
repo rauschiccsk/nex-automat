@@ -1,9 +1,9 @@
-# -*- coding: utf-8 -*-
 """
 Batch Test - Test extraction na všetkých PDF v priečinku
 """
 
 from pathlib import Path
+
 from src.extractors.ls_extractor import extract_invoice_data
 
 # Priečinok s PDF faktúrami

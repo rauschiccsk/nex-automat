@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 """
 Verification script for supplier-invoice-loader installation.
 Tests all core imports and basic functionality.
@@ -152,7 +151,7 @@ def test_basic_functionality():
         # Test FastAPI app creation
         from fastapi import FastAPI
 
-        app = FastAPI()
+        FastAPI()
         print("✅ FastAPI app creation")
 
         # Test Pydantic model
@@ -162,7 +161,7 @@ def test_basic_functionality():
             name: str
             value: int
 
-        test = TestModel(name="test", value=42)
+        TestModel(name="test", value=42)
         print("✅ Pydantic model validation")
 
         # Test PDF libraries
@@ -171,7 +170,7 @@ def test_basic_functionality():
         # Test XML processing
         from lxml import etree
 
-        root = etree.Element("root")
+        etree.Element("root")
         print("✅ XML processing")
 
         return True

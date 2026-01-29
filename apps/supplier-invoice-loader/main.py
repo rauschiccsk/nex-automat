@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Supplier Invoice Loader - Entry Point
 ======================================
@@ -6,28 +5,26 @@ Supplier Invoice Loader - Entry Point
 Multi-customer SaaS for automated invoice processing.
 """
 
-import time
-import hashlib
-from datetime import datetime
-from typing import Optional
-from pathlib import Path
-import shutil
 import base64
+import hashlib
+import shutil
+import time
+from datetime import datetime
+from pathlib import Path
+from typing import Optional
 
-from fastapi import FastAPI, Header, Depends, HTTPException
+from fastapi import Depends, FastAPI, Header, HTTPException
+from fastapi.responses import FileResponse, PlainTextResponse
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
-from fastapi.responses import PlainTextResponse
-
-from src.api import models
-from src.business.product_matcher import ProductMatcher
-from src.utils import config, monitoring, notifications
-from src.database import database
 from nex_staging import StagingClient
+from src.api import models
+from src.api.staging_routes import router as staging_router
+from src.business.isdoc_service import generate_isdoc_xml
+from src.business.product_matcher import ProductMatcher
+from src.database import database
 from src.extractors.ls_extractor import extract_invoice_data
 from src.extractors.marso_extractor import detect_marso_invoice_from_pdf, extract_marso_as_standard
-from src.business.isdoc_service import generate_isdoc_xml
-from src.api.staging_routes import router as staging_router
+from src.utils import config, monitoring, notifications
 
 # Start time for uptime calculation
 START_TIME = time.time()
@@ -43,7 +40,7 @@ app = FastAPI(
 # Register staging API router
 app.include_router(staging_router)
 # Global ProductMatcher instance
-product_matcher: Optional[ProductMatcher] = None
+product_matcher: ProductMatcher | None = None
 
 
 # ============================================================================
@@ -68,7 +65,7 @@ async def track_requests(request, call_next):
 # ============================================================================
 
 
-async def verify_api_key(x_api_key: Optional[str] = Header(None)):
+async def verify_api_key(x_api_key: str | None = Header(None)):
     """
     Verify API key from X-API-Key header
 

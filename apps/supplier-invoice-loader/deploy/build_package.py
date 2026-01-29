@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 """
 Supplier Invoice Loader - Deployment Package Builder
 Creates ZIP packages for customer deployments
@@ -11,12 +10,12 @@ Usage:
     python build_package.py --full            # Build full package with venv
 """
 
-import zipfile
-import shutil
 import argparse
 import json
-from pathlib import Path
+import shutil
+import zipfile
 from datetime import datetime
+from pathlib import Path
 from typing import Dict, Optional
 
 # Files to always include in package
@@ -151,7 +150,7 @@ class PackageBuilder:
 
         return "2.0.0"
 
-    def create_manifest(self, package_type: str, customer_name: Optional[str] = None) -> Dict:
+    def create_manifest(self, package_type: str, customer_name: str | None = None) -> dict:
         """Create package manifest"""
         return {
             "package_type": package_type,

@@ -3,14 +3,14 @@ Log Manager for centralized logging with rotation and retention
 Provides structured logging with automatic cleanup
 """
 
+import json
 import logging
 import logging.handlers
-import json
-from pathlib import Path
-from datetime import datetime, timedelta
-from typing import Optional, Dict, List
-from dataclasses import dataclass
 import sys
+from dataclasses import dataclass
+from datetime import datetime, timedelta
+from pathlib import Path
+from typing import Dict, List, Optional
 
 
 @dataclass
@@ -120,7 +120,7 @@ class LogManager:
             console_handler.setLevel(getattr(logging, self.config.console_level.upper()))
             self.logger.addHandler(console_handler)
 
-    def get_logger(self, name: Optional[str] = None) -> logging.Logger:
+    def get_logger(self, name: str | None = None) -> logging.Logger:
         """
         Get logger instance
 
@@ -134,7 +134,7 @@ class LogManager:
             return logging.getLogger(name)
         return self.logger
 
-    def cleanup_old_logs(self, days: Optional[int] = None) -> int:
+    def cleanup_old_logs(self, days: int | None = None) -> int:
         """
         Remove log files older than retention period
 
@@ -166,7 +166,7 @@ class LogManager:
 
         return deleted_count
 
-    def get_log_files(self) -> List[Path]:
+    def get_log_files(self) -> list[Path]:
         """
         Get list of all log files
 
@@ -175,7 +175,7 @@ class LogManager:
         """
         return sorted(self.config.log_dir.glob("*.log*"))
 
-    def get_log_stats(self) -> Dict:
+    def get_log_stats(self) -> dict:
         """
         Get log statistics
 
@@ -209,8 +209,8 @@ class LogManager:
         return stats
 
     def analyze_logs(
-        self, level: Optional[str] = None, since: Optional[datetime] = None, limit: int = 100
-    ) -> List[Dict]:
+        self, level: str | None = None, since: datetime | None = None, limit: int = 100
+    ) -> list[dict]:
         """
         Analyze log entries
 
@@ -229,7 +229,7 @@ class LogManager:
             return entries
 
         try:
-            with open(current_log, "r", encoding="utf-8") as f:
+            with open(current_log, encoding="utf-8") as f:
                 for line in f:
                     if self.config.use_json:
                         try:
@@ -263,7 +263,7 @@ class LogManager:
 
         return entries
 
-    def get_error_summary(self, hours: int = 24) -> Dict:
+    def get_error_summary(self, hours: int = 24) -> dict:
         """
         Get summary of errors in recent period
 

@@ -1,9 +1,9 @@
 """Report configuration"""
 
-from dataclasses import dataclass, field
-from typing import List
-from pathlib import Path
 import os
+from dataclasses import dataclass, field
+from pathlib import Path
+from typing import List
 
 # Load .env from supplier-invoice-worker
 try:
@@ -28,7 +28,7 @@ class ReportConfig:
 
     # Recipients
     admin_email: str = field(default_factory=lambda: os.getenv("NOTIFY_EMAIL", "rausch@icc.sk"))
-    customer_emails: List[str] = field(
+    customer_emails: list[str] = field(
         default_factory=lambda: [
             e.strip() for e in os.getenv("REPORT_CUSTOMER_EMAIL", "").split(",") if e.strip()
         ]
@@ -48,7 +48,7 @@ class ReportConfig:
     db_user: str = field(default_factory=lambda: os.getenv("DB_USER", "postgres"))
 
     @property
-    def all_recipients(self) -> List[str]:
+    def all_recipients(self) -> list[str]:
         """All email recipients"""
         recipients = [self.admin_email] if self.admin_email else []
         recipients.extend(self.customer_emails)

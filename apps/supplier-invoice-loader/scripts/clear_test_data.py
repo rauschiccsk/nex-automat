@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Clear Test Data
 ===============
@@ -8,6 +7,7 @@ Clears test invoices from SQLite database for fresh testing.
 
 import sqlite3
 from pathlib import Path
+
 from src.utils import config
 
 

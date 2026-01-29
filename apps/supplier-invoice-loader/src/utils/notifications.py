@@ -1,19 +1,18 @@
-# -*- coding: utf-8 -*-
 """
 Supplier Invoice Loader - Email Notifications
 Handles all email alerts and notifications
 """
 
-import smtplib
-import logging
 import html
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
+import logging
+import smtplib
 from datetime import datetime
-from typing import Optional, Dict, Any
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from typing import Any, Dict, Optional
 
-from src.utils import config
 from src.database import database
+from src.utils import config
 
 logger = logging.getLogger(__name__)
 
@@ -23,7 +22,7 @@ logger = logging.getLogger(__name__)
 # ============================================================================
 
 
-def _error_template(error_type: str, error_message: str, details: Dict[str, Any]) -> str:
+def _error_template(error_type: str, error_message: str, details: dict[str, Any]) -> str:
     """
     Template for error alert emails
 
@@ -100,7 +99,7 @@ def _error_template(error_type: str, error_message: str, details: Dict[str, Any]
     return html_content
 
 
-def _validation_failed_template(invoice_data: Dict[str, Any], reason: str) -> str:
+def _validation_failed_template(invoice_data: dict[str, Any], reason: str) -> str:
     """
     Template for validation failure emails
 
@@ -171,7 +170,7 @@ def _validation_failed_template(invoice_data: Dict[str, Any], reason: str) -> st
     return html_content
 
 
-def _daily_summary_template(stats: Dict[str, Any]) -> str:
+def _daily_summary_template(stats: dict[str, Any]) -> str:
     """
     Template for daily summary emails
 
@@ -291,7 +290,7 @@ def _daily_summary_template(stats: Dict[str, Any]) -> str:
 # ============================================================================
 
 
-def _send_email(to: str, subject: str, html_body: str, text_body: Optional[str] = None) -> bool:
+def _send_email(to: str, subject: str, html_body: str, text_body: str | None = None) -> bool:
     """
     Send email via SMTP
 
@@ -306,7 +305,7 @@ def _send_email(to: str, subject: str, html_body: str, text_body: Optional[str] 
     """
     try:
         # Parse recipients (support comma-separated list)
-        recipients = [r.strip() for r in to.split(",")]
+        [r.strip() for r in to.split(",")]
 
         # Create message
         msg = MIMEMultipart("alternative")
@@ -362,7 +361,7 @@ def _send_email(to: str, subject: str, html_body: str, text_body: Optional[str] 
 
 
 def send_alert_email(
-    error_type: str, error_message: str, details: Optional[Dict[str, Any]] = None
+    error_type: str, error_message: str, details: dict[str, Any] | None = None
 ) -> bool:
     """
     Send error alert email
@@ -404,7 +403,7 @@ def send_alert_email(
     return _send_email(config.ALERT_EMAIL, subject, html_body)
 
 
-def send_validation_failed_email(invoice_data: Dict[str, Any], reason: str) -> bool:
+def send_validation_failed_email(invoice_data: dict[str, Any], reason: str) -> bool:
     """
     Send validation failure notification
 

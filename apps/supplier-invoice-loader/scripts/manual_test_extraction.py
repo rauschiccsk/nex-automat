@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from src.extractors.ls_extractor import extract_invoice_data
 
 pdf_path = r"C:\NEX_AN\IMPORT\LS\PDF\20250929_232558_32510374_FAK.pdf"

@@ -3,11 +3,12 @@ Health monitoring system for supplier-invoice-loader
 Provides system metrics, database status, and application health checks
 """
 
-import psutil
+from dataclasses import asdict, dataclass
 from datetime import datetime, timedelta
-from typing import Dict, Optional, List
-from dataclasses import dataclass, asdict
+from typing import Dict, List, Optional
+
 import asyncpg
+import psutil
 from pydantic import BaseModel
 
 
@@ -36,9 +37,9 @@ class DatabaseStatus:
     connected: bool
     host: str
     database: str
-    connection_time_ms: Optional[float] = None
-    error: Optional[str] = None
-    last_check: Optional[datetime] = None
+    connection_time_ms: float | None = None
+    error: str | None = None
+    last_check: datetime | None = None
 
     def to_dict(self) -> dict:
         """Convert to dictionary"""
@@ -52,8 +53,8 @@ class DatabaseStatus:
 class InvoiceStats:
     """Invoice processing statistics"""
 
-    last_processed_at: Optional[datetime]
-    last_invoice_id: Optional[int]
+    last_processed_at: datetime | None
+    last_invoice_id: int | None
     total_processed: int
     total_failed: int
     success_rate: float
@@ -72,11 +73,11 @@ class HealthStatus(BaseModel):
     status: str  # "healthy", "degraded", "unhealthy"
     timestamp: datetime
     uptime_seconds: int
-    system_metrics: Dict
-    database_status: Dict
-    invoice_stats: Dict
-    errors: List[str]
-    warnings: List[str]
+    system_metrics: dict
+    database_status: dict
+    invoice_stats: dict
+    errors: list[str]
+    warnings: list[str]
 
     def model_dump(self, **kwargs):
         """Override model_dump to handle datetime serialization"""
@@ -89,7 +90,7 @@ class HealthStatus(BaseModel):
 class HealthMonitor:
     """Health monitoring system"""
 
-    def __init__(self, db_pool: Optional[asyncpg.Pool] = None):
+    def __init__(self, db_pool: asyncpg.Pool | None = None):
         """
         Initialize health monitor
 
@@ -98,8 +99,8 @@ class HealthMonitor:
         """
         self.db_pool = db_pool
         self.start_time = datetime.now()
-        self._last_db_check: Optional[DatabaseStatus] = None
-        self._last_invoice_stats: Optional[InvoiceStats] = None
+        self._last_db_check: DatabaseStatus | None = None
+        self._last_invoice_stats: InvoiceStats | None = None
 
     def get_uptime_seconds(self) -> int:
         """Get application uptime in seconds"""
@@ -309,7 +310,7 @@ class HealthMonitor:
             warnings=warnings,
         )
 
-    def get_quick_status(self) -> Dict:
+    def get_quick_status(self) -> dict:
         """Get quick status without async operations"""
         return {
             "status": "online",

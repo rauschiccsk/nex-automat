@@ -1,14 +1,13 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 """
 Entry point for Daily Summary Report
 Run via Windows Task Scheduler at 18:00 on workdays
 """
 
-import sys
 import logging
-from pathlib import Path
+import sys
 from datetime import date
+from pathlib import Path
 
 # Add app to path
 APP_DIR = Path(__file__).parent.parent
@@ -26,8 +25,8 @@ try:
 except ImportError:
     pass
 
-from reports.daily_summary import DailySummaryReport
 from reports.config import ReportConfig
+from reports.daily_summary import DailySummaryReport
 
 # Setup logging
 log_dir = APP_DIR / "logs"

@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 """
 Supplier Invoice Loader - Windows Service Installer
 Supports Windows 11 and Windows Server 2012 R2
@@ -17,16 +16,16 @@ Usage:
     python service_installer.py configure  # Reconfigure service
 """
 
-import sys
-import subprocess
-import platform
 import ctypes
 import json
+import logging
+import platform
 import shutil
+import subprocess
+import sys
 import time
 from pathlib import Path
 from typing import Dict, Tuple
-import logging
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
@@ -125,7 +124,7 @@ class WindowsServiceInstaller:
             )
             sys.exit(0)
 
-    def run_command(self, command: list, check: bool = True) -> Tuple[int, str, str]:
+    def run_command(self, command: list, check: bool = True) -> tuple[int, str, str]:
         """Run a command and return result"""
         try:
             result = subprocess.run(command, capture_output=True, text=True, check=check)
@@ -371,7 +370,7 @@ class WindowsServiceInstaller:
             return self.start_service()
         return False
 
-    def get_service_status(self) -> Dict[str, str]:
+    def get_service_status(self) -> dict[str, str]:
         """Get service status"""
         cmd = ["sc", "query", self.service_name]
         returncode, stdout, stderr = self.run_command(cmd, check=False)
@@ -421,7 +420,7 @@ class WindowsServiceInstaller:
             # Additional info from service_info.json
             info_file = self.project_root / "service_info.json"
             if info_file.exists():
-                with open(info_file, "r") as f:
+                with open(info_file) as f:
                     info = json.load(f)
                 print(f"\nInstalled: {info.get('installed_date', 'Unknown')}")
                 print(f"Python: {info.get('python_path', 'Unknown')}")

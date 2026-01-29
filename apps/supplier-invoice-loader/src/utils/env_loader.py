@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Environment Loader - FIXED VERSION
 Loads .env file before any other imports
@@ -10,7 +9,7 @@ from pathlib import Path
 from typing import Optional
 
 
-def find_env_file() -> Optional[Path]:
+def find_env_file() -> Path | None:
     """
     Find .env file in current directory or parent directories
 
@@ -51,7 +50,7 @@ def load_environment() -> bool:
 
         # Read .env file
         env_vars = {}
-        with open(env_path, "r", encoding="utf-8") as f:
+        with open(env_path, encoding="utf-8") as f:
             for line in f:
                 line = line.strip()
 

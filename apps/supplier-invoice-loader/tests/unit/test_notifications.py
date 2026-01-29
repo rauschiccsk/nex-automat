@@ -1,10 +1,10 @@
-# -*- coding: utf-8 -*-
 """
 Tests for email notifications module
 """
 
-import pytest
 from unittest.mock import Mock, patch
+
+import pytest
 
 
 def test_notifications_import():
@@ -101,8 +101,9 @@ def test_send_email_success(mock_smtp):
 @patch("src.utils.notifications.smtplib.SMTP")
 def test_send_email_authentication_failure(mock_smtp):
     """Test email sending with authentication failure"""
-    from src.utils import notifications
     import smtplib
+
+    from src.utils import notifications
 
     # Mock SMTP to raise authentication error
     mock_server = Mock()
@@ -192,8 +193,7 @@ def test_send_daily_summary(mock_get_stats, mock_send):
 
 def test_send_alert_email_requires_alert_email_config():
     """Test that alert email requires ALERT_EMAIL to be configured"""
-    from src.utils import notifications
-    from src.utils import config
+    from src.utils import config, notifications
 
     # Save original
     original_alert_email = config.ALERT_EMAIL
@@ -250,8 +250,7 @@ def test_send_alert_adds_timestamp_if_missing():
 @pytest.mark.integration
 def test_real_email_sending(request):
     """Integration test: Actually send test email (requires valid SMTP config)"""
-    from src.utils import notifications
-    from src.utils import config
+    from src.utils import config, notifications
 
     # Skip if not running integration tests
     if not request.config.getoption("--run-integration", default=False):

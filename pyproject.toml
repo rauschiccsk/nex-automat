@@ -39,7 +39,9 @@ ignore = [
     "W291",   # Trailing whitespace - handled by formatter
     "W293",   # Blank line whitespace - handled by formatter
     "UP008",  # Use super() - legacy code
+    "UP022",  # Prefer capture_output - backwards compat
     "UP035",  # Deprecated typing imports - gradual migration
+    "B028",   # No stacklevel in warnings - legacy code
     "B904",   # raise from - legacy code
     "B905",   # zip strict - Python 3.10+ only
     "B007",   # Unused loop variable - often intentional

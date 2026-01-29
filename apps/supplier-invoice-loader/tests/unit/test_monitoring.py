@@ -1,10 +1,10 @@
-# -*- coding: utf-8 -*-
 """
 Tests for monitoring and metrics functionality
 """
 
-import pytest
 import time
+
+import pytest
 
 
 def test_monitoring_module_imports():

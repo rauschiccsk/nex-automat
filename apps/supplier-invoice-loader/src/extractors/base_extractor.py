@@ -1,11 +1,10 @@
-# -*- coding: utf-8 -*-
 """
 Base Extractor - Abstract class for all invoice extractors
 """
 
+import logging
 from abc import ABC, abstractmethod
 from pathlib import Path
-import logging
 
 logger = logging.getLogger(__name__)
 

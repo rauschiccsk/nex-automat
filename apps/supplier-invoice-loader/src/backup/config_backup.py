@@ -1,9 +1,9 @@
 """Configuration Backup Module - Minimal Version"""
 
-from pathlib import Path
-from typing import List, Optional
 import shutil
 from datetime import datetime
+from pathlib import Path
+from typing import List, Optional
 
 
 class ConfigBackup:
@@ -14,7 +14,7 @@ class ConfigBackup:
         self.config_backup_dir = self.backup_dir / "config"
         self.config_backup_dir.mkdir(parents=True, exist_ok=True)
 
-    def create_backup(self, config_files: List[Path]) -> Optional[Path]:
+    def create_backup(self, config_files: list[Path]) -> Path | None:
         """Create config backup."""
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         backup_name = f"config_backup_{timestamp}"

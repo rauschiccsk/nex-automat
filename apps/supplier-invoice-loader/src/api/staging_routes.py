@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Staging API Routes - REST endpoints for supplier-invoice-staging-web
 ====================================================================
@@ -7,12 +6,11 @@ Staging API Routes - REST endpoints for supplier-invoice-staging-web
 from typing import List, Optional
 
 from fastapi import APIRouter, HTTPException
+from nex_staging import DatabaseConnection, InvoiceRepository
+from nex_staging.models import FileStatus
 from pydantic import BaseModel
 
 from src.utils import config
-from nex_staging import DatabaseConnection, InvoiceRepository
-from nex_staging.models import FileStatus
-
 
 # ============================================================================
 # ROUTER
@@ -35,7 +33,7 @@ class UpdateItemPriceRequest(BaseModel):
 class UpdateItemsBatchRequest(BaseModel):
     """Request to update multiple items."""
 
-    items: List[dict]
+    items: list[dict]
 
 
 class ApproveInvoiceRequest(BaseModel):
@@ -83,7 +81,7 @@ async def get_staging_config():
 
 
 @router.get("/invoices")
-async def get_invoices(file_status: Optional[str] = None, limit: int = 100):
+async def get_invoices(file_status: str | None = None, limit: int = 100):
     """
     Get list of staging invoices.
 

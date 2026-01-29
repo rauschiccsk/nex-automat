@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Supplier Invoice Loader - Monitoring & Metrics
 Tracks application health, uptime, and processing statistics

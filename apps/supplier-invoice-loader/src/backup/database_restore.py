@@ -6,14 +6,15 @@ Author: Zoltán Rausch, ICC Komárno
 Date: 2025-11-21
 """
 
-import os
-import subprocess
 import gzip
 import hashlib
 import logging
-from pathlib import Path
+import os
+import subprocess
 from datetime import datetime
-from typing import List, Dict, Tuple
+from pathlib import Path
+from typing import Dict, List, Tuple
+
 import yaml
 
 # Setup logging
@@ -26,7 +27,7 @@ logger = logging.getLogger(__name__)
 def load_config(config_path: str) -> dict:
     """Load configuration from YAML file with defaults."""
     try:
-        with open(config_path, "r", encoding="utf-8") as f:
+        with open(config_path, encoding="utf-8") as f:
             config = yaml.safe_load(f)
     except Exception as e:
         logger.error(f"Failed to load config from {config_path}: {e}")
@@ -73,7 +74,7 @@ class DatabaseRestore:
         if not all([self.database, self.user]):
             raise ValueError("Missing required database configuration")
 
-    def list_backups(self, backup_type: str = "all") -> List[Dict[str, any]]:
+    def list_backups(self, backup_type: str = "all") -> list[dict[str, any]]:
         """
         List available backup files
 
@@ -113,7 +114,7 @@ class DatabaseRestore:
         backups.sort(key=lambda x: x["modified"], reverse=True)
         return backups
 
-    def verify_backup(self, backup_path: str) -> Tuple[bool, str]:
+    def verify_backup(self, backup_path: str) -> tuple[bool, str]:
         """
         Verify backup file integrity
 
@@ -139,7 +140,7 @@ class DatabaseRestore:
         checksum_file = backup_file.with_suffix(".sql.gz.sha256")
         if checksum_file.exists():
             try:
-                with open(checksum_file, "r") as f:
+                with open(checksum_file) as f:
                     expected_checksum = f.read().strip().split()[0]
 
                 # Calculate actual checksum
@@ -163,7 +164,7 @@ class DatabaseRestore:
 
     def restore_database(
         self, backup_path: str, drop_existing: bool = False, verify_first: bool = True
-    ) -> Tuple[bool, str]:
+    ) -> tuple[bool, str]:
         """
         Restore database from backup
 
@@ -245,7 +246,7 @@ class DatabaseRestore:
             logger.error(f"Restore failed: {e}")
             return False, f"Restore failed: {e}"
 
-    def _drop_database(self) -> Tuple[bool, str]:
+    def _drop_database(self) -> tuple[bool, str]:
         """Drop existing database"""
         try:
             env = os.environ.copy()
@@ -279,7 +280,7 @@ class DatabaseRestore:
         except Exception as e:
             return False, str(e)
 
-    def _create_database(self) -> Tuple[bool, str]:
+    def _create_database(self) -> tuple[bool, str]:
         """Create new database"""
         try:
             env = os.environ.copy()
@@ -313,7 +314,7 @@ class DatabaseRestore:
         except Exception as e:
             return False, str(e)
 
-    def get_restore_point_info(self, backup_path: str) -> Dict[str, any]:
+    def get_restore_point_info(self, backup_path: str) -> dict[str, any]:
         """
         Get information about a restore point
 

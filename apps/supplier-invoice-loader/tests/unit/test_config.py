@@ -1,11 +1,11 @@
-# -*- coding: utf-8 -*-
 """
 Tests for configuration loading
 """
 
 import os
-import pytest
 from pathlib import Path
+
+import pytest
 
 
 def test_config_imports():

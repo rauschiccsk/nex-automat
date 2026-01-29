@@ -7,12 +7,12 @@ Author: Zoltán Rausch, ICC Komárno
 Date: 2025-11-21
 """
 
-import sys
-import subprocess
-import logging
-from pathlib import Path
-from datetime import datetime
 import argparse
+import logging
+import subprocess
+import sys
+from datetime import datetime
+from pathlib import Path
 
 # Setup paths
 PROJECT_ROOT = Path(__file__).parent.parent

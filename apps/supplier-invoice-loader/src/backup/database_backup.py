@@ -23,7 +23,7 @@ class DatabaseBackup:
     def __init__(
         self,
         backup_dir: str,
-        db_config: Dict[str, str],
+        db_config: dict[str, str],
         retention_days: int = 7,
         retention_weeks: int = 4,
         compression_level: int = 6,
@@ -74,7 +74,7 @@ class DatabaseBackup:
         self.weekly_dir.mkdir(parents=True, exist_ok=True)
         self.logger.info(f"Backup directories ready: {self.backup_dir}")
 
-    def create_backup(self, backup_type: str = "daily") -> Optional[Path]:
+    def create_backup(self, backup_type: str = "daily") -> Path | None:
         """
         Create database backup.
 
@@ -145,7 +145,7 @@ class DatabaseBackup:
             self.logger.error(f"Backup failed: {str(e)}", exc_info=True)
             return None
 
-    def _build_pg_dump_command(self, output_file: Path) -> List[str]:
+    def _build_pg_dump_command(self, output_file: Path) -> list[str]:
         """Build pg_dump command with connection parameters."""
         cmd = [
             "pg_dump",
@@ -167,7 +167,7 @@ class DatabaseBackup:
         os.environ["PGPASSWORD"] = self.db_config.get("password", "")
         return cmd
 
-    def _compress_backup(self, backup_file: Path) -> Optional[Path]:
+    def _compress_backup(self, backup_file: Path) -> Path | None:
         """Compress backup file with gzip."""
         try:
             compressed_file = Path(f"{backup_file}.gz")
@@ -219,7 +219,7 @@ class DatabaseBackup:
                 self.logger.warning("Checksum file not found")
                 return False
 
-            with open(checksum_file, "r", encoding="utf-8") as f:
+            with open(checksum_file, encoding="utf-8") as f:
                 stored_checksum = f.read().split()[0]
 
             current_checksum = self._generate_checksum(backup_file)
@@ -238,7 +238,7 @@ class DatabaseBackup:
             self.logger.error(f"Verification failed: {str(e)}")
             return False
 
-    def rotate_backups(self) -> Tuple[int, int]:
+    def rotate_backups(self) -> tuple[int, int]:
         """Remove old backups based on retention policy."""
         daily_removed = self._rotate_directory(self.daily_dir, self.retention_days)
         weekly_removed = self._rotate_directory(self.weekly_dir, self.retention_weeks * 7)
@@ -272,14 +272,14 @@ class DatabaseBackup:
 
         return removed
 
-    def list_backups(self) -> Dict[str, List[Dict[str, str]]]:
+    def list_backups(self) -> dict[str, list[dict[str, str]]]:
         """List all available backups."""
         return {
             "daily": self._list_directory_backups(self.daily_dir),
             "weekly": self._list_directory_backups(self.weekly_dir),
         }
 
-    def _list_directory_backups(self, directory: Path) -> List[Dict[str, str]]:
+    def _list_directory_backups(self, directory: Path) -> list[dict[str, str]]:
         """List backups in directory."""
         backups = []
 
@@ -299,7 +299,7 @@ class DatabaseBackup:
         return backups
 
 
-def load_config(config_path: str) -> Dict:
+def load_config(config_path: str) -> dict:
     """Load configuration from YAML file."""
-    with open(config_path, "r", encoding="utf-8") as f:
+    with open(config_path, encoding="utf-8") as f:
         return yaml.safe_load(f)

@@ -5,25 +5,24 @@ LIVE QUERIES - No caching, always fresh data from Btrieve
 """
 
 from dataclasses import dataclass, field
-from typing import Optional, List, Tuple, Dict
-
-from rapidfuzz import fuzz
-from unidecode import unidecode
+from typing import Dict, List, Optional, Tuple
 
 from nexdata.btrieve.btrieve_client import BtrieveClient
-from nexdata.repositories.gscat_repository import GSCATRepository
-from nexdata.repositories.barcode_repository import BARCODERepository
 from nexdata.models.gscat import GSCATRecord
+from nexdata.repositories.barcode_repository import BARCODERepository
+from nexdata.repositories.gscat_repository import GSCATRepository
+from rapidfuzz import fuzz
+from unidecode import unidecode
 
 
 @dataclass
 class MatchResult:
     """Result of product matching attempt"""
 
-    product: Optional[GSCATRecord]
+    product: GSCATRecord | None
     confidence: float  # 0.0 - 1.0
     method: str  # 'ean', 'name', 'none'
-    alternatives: List[Tuple[GSCATRecord, float]] = field(default_factory=list)
+    alternatives: list[tuple[GSCATRecord, float]] = field(default_factory=list)
 
     @property
     def is_match(self) -> bool:
@@ -64,7 +63,7 @@ class ProductMatcher:
         self.barcode_repo = BARCODERepository(self.btrieve)
 
     def match_item(
-        self, item_data: Dict, min_confidence: float = 0.6, max_name_results: int = 20
+        self, item_data: dict, min_confidence: float = 0.6, max_name_results: int = 20
     ) -> MatchResult:
         """
         Main matching logic - tries EAN first, then name matching

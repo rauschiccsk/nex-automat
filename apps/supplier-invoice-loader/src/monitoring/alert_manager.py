@@ -3,14 +3,14 @@ Alert Manager for email notifications
 Supports critical alerts, daily summaries, and weekly reports
 """
 
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
-from datetime import datetime, timedelta
-from typing import List, Dict, Optional
-from enum import Enum
-from dataclasses import dataclass, field
 import logging
+import smtplib
+from dataclasses import dataclass, field
+from datetime import datetime, timedelta
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from enum import Enum
+from typing import Dict, List, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -45,7 +45,7 @@ class Alert:
     title: str
     message: str
     timestamp: datetime = field(default_factory=datetime.now)
-    details: Dict = field(default_factory=dict)
+    details: dict = field(default_factory=dict)
 
     def to_dict(self) -> dict:
         """Convert to dictionary"""
@@ -68,7 +68,7 @@ class AlertConfig:
     smtp_user: str
     smtp_password: str
     from_email: str
-    to_emails: List[str]
+    to_emails: list[str]
     use_tls: bool = True
     use_ssl: bool = False
 
@@ -96,9 +96,9 @@ class AlertManager:
             config: Alert configuration
         """
         self.config = config
-        self._alert_history: List[Alert] = []
-        self._last_daily_summary: Optional[datetime] = None
-        self._last_weekly_report: Optional[datetime] = None
+        self._alert_history: list[Alert] = []
+        self._last_daily_summary: datetime | None = None
+        self._last_weekly_report: datetime | None = None
 
     def send_alert(self, alert: Alert) -> bool:
         """
@@ -125,7 +125,7 @@ class AlertManager:
         title: str,
         message: str,
         alert_type: AlertType = AlertType.SYSTEM,
-        details: Optional[Dict] = None,
+        details: dict | None = None,
     ) -> bool:
         """
         Send critical alert
@@ -155,7 +155,7 @@ class AlertManager:
         title: str,
         message: str,
         alert_type: AlertType = AlertType.SYSTEM,
-        details: Optional[Dict] = None,
+        details: dict | None = None,
     ) -> bool:
         """
         Send warning alert
@@ -181,7 +181,7 @@ class AlertManager:
         return self.send_alert(alert)
 
     def send_daily_summary(
-        self, invoice_stats: Dict, system_stats: Dict, errors: List[str]
+        self, invoice_stats: dict, system_stats: dict, errors: list[str]
     ) -> bool:
         """
         Send daily summary report
@@ -205,7 +205,7 @@ class AlertManager:
         return result
 
     def send_weekly_report(
-        self, weekly_stats: Dict, trends: Dict, recommendations: List[str]
+        self, weekly_stats: dict, trends: dict, recommendations: list[str]
     ) -> bool:
         """
         Send weekly report
@@ -229,7 +229,7 @@ class AlertManager:
 
         return result
 
-    def check_health_and_alert(self, health_status: Dict) -> List[Alert]:
+    def check_health_and_alert(self, health_status: dict) -> list[Alert]:
         """
         Check health status and send alerts if needed
 
@@ -303,7 +303,7 @@ class AlertManager:
 
         return alerts_sent
 
-    def _send_email(self, subject: str, body: str, recipients: List[str]) -> bool:
+    def _send_email(self, subject: str, body: str, recipients: list[str]) -> bool:
         """
         Send email via SMTP
 
@@ -389,7 +389,7 @@ class AlertManager:
 
         return html
 
-    def _format_details_html(self, details: Dict) -> str:
+    def _format_details_html(self, details: dict) -> str:
         """Format details dictionary as HTML"""
         html = '<div class="details"><h3>Details:</h3><ul>'
         for key, value in details.items():
@@ -398,7 +398,7 @@ class AlertManager:
         return html
 
     def _format_daily_summary(
-        self, invoice_stats: Dict, system_stats: Dict, errors: List[str]
+        self, invoice_stats: dict, system_stats: dict, errors: list[str]
     ) -> str:
         """Format daily summary as HTML"""
 
@@ -451,7 +451,7 @@ class AlertManager:
 
         return html
 
-    def _format_errors_html(self, errors: List[str]) -> str:
+    def _format_errors_html(self, errors: list[str]) -> str:
         """Format errors list as HTML"""
         html = '<div class="section"><h3 class="error">Errors Today:</h3><ul>'
         for error in errors:
@@ -460,7 +460,7 @@ class AlertManager:
         return html
 
     def _format_weekly_report(
-        self, weekly_stats: Dict, trends: Dict, recommendations: List[str]
+        self, weekly_stats: dict, trends: dict, recommendations: list[str]
     ) -> str:
         """Format weekly report as HTML"""
 
@@ -505,16 +505,16 @@ class AlertManager:
 
         return html
 
-    def _format_dict_as_list(self, data: Dict) -> str:
+    def _format_dict_as_list(self, data: dict) -> str:
         """Format dictionary as HTML list items"""
         return "".join([f"<li><strong>{k}:</strong> {v}</li>" for k, v in data.items()])
 
     def get_alert_history(
         self,
-        level: Optional[AlertLevel] = None,
-        alert_type: Optional[AlertType] = None,
-        since: Optional[datetime] = None,
-    ) -> List[Alert]:
+        level: AlertLevel | None = None,
+        alert_type: AlertType | None = None,
+        since: datetime | None = None,
+    ) -> list[Alert]:
         """
         Get alert history with optional filters
 

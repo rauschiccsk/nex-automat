@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Test Invoice Integration
 =========================
@@ -14,12 +13,13 @@ Usage:
     python scripts/test_invoice_integration.py
 """
 
+import base64
 import os
 import sys
-import base64
-import requests
-from pathlib import Path
 from datetime import datetime
+from pathlib import Path
+
+import requests
 
 
 def print_header(text):
@@ -90,7 +90,7 @@ def check_fastapi_server():
     except requests.exceptions.ConnectionError:
         print_error("FastAPI server nebeží!")
         print("\nSpustenie:")
-        print("  .\.venv\Scripts\Activate.ps1")
+        print(r"  .\.venv\Scripts\Activate.ps1")
         print("  python main.py")
         return False
     except Exception as e:
@@ -119,7 +119,7 @@ def check_postgresql_connection():
         # Test connection using context manager
         with PostgresStagingClient(pg_config) as pg_client:
             # Check for duplicate (simple test that connection works)
-            is_dup = pg_client.check_duplicate_invoice("test", "test")
+            pg_client.check_duplicate_invoice("test", "test")
             # This will return False but proves connection works
 
             print_success("PostgreSQL pripojenie OK")

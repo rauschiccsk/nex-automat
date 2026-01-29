@@ -1,20 +1,19 @@
-# -*- coding: utf-8 -*-
 """
 Supplier Invoice Loader - Database Operations v2.0
 Enhanced with multi-customer support
 """
 
-import sqlite3
 import hashlib
-import time
 import logging
-from pathlib import Path
-from typing import Optional, Dict, List
+import sqlite3
+import time
 from datetime import datetime
+from pathlib import Path
+from typing import Dict, List, Optional
 
 # Import customer name from config
 try:
-    from src.utils.config import DB_FILE, CUSTOMER_NAME
+    from src.utils.config import CUSTOMER_NAME, DB_FILE
 except ImportError:
     # Fallback for testing
     DB_FILE = Path("invoices.db")
@@ -101,7 +100,7 @@ def calculate_file_hash(file_content: bytes) -> str:
 
 
 def is_duplicate(
-    file_hash: str, message_id: Optional[str] = None, customer_name: Optional[str] = None
+    file_hash: str, message_id: str | None = None, customer_name: str | None = None
 ) -> bool:
     """
     Skontroluje či faktúra už existuje v databáze
@@ -152,13 +151,13 @@ def insert_invoice(
     file_hash: str,
     pdf_path: str,
     original_filename: str,
-    message_id: Optional[str] = None,
-    gmail_id: Optional[str] = None,
-    sender: Optional[str] = None,
-    subject: Optional[str] = None,
-    received_date: Optional[str] = None,
-    customer_name: Optional[str] = None,
-    nex_genesis_id: Optional[str] = None,
+    message_id: str | None = None,
+    gmail_id: str | None = None,
+    sender: str | None = None,
+    subject: str | None = None,
+    received_date: str | None = None,
+    customer_name: str | None = None,
+    nex_genesis_id: str | None = None,
 ) -> int:
     """
     Vloží novú faktúru do databázy
@@ -217,7 +216,7 @@ def update_nex_genesis_status(
     invoice_id: int,
     nex_genesis_id: str,
     status: str = "synced",
-    error_message: Optional[str] = None,
+    error_message: str | None = None,
 ) -> bool:
     """
     Update NEX Genesis sync status
@@ -260,7 +259,7 @@ def update_nex_genesis_status(
     return success
 
 
-def get_invoice_by_id(invoice_id: int) -> Optional[Dict]:
+def get_invoice_by_id(invoice_id: int) -> dict | None:
     """Vráti faktúru podľa ID"""
     conn = sqlite3.connect(DB_FILE)
     conn.row_factory = sqlite3.Row
@@ -276,7 +275,7 @@ def get_invoice_by_id(invoice_id: int) -> Optional[Dict]:
     return None
 
 
-def get_invoice_by_nex_id(nex_genesis_id: str) -> Optional[Dict]:
+def get_invoice_by_nex_id(nex_genesis_id: str) -> dict | None:
     """
     Vráti faktúru podľa NEX Genesis ID
 
@@ -300,7 +299,7 @@ def get_invoice_by_nex_id(nex_genesis_id: str) -> Optional[Dict]:
     return None
 
 
-def get_all_invoices(limit: int = 100, customer_name: Optional[str] = None) -> List[Dict]:
+def get_all_invoices(limit: int = 100, customer_name: str | None = None) -> list[dict]:
     """
     Vráti zoznam faktúr
     V2.0: Možnosť filtrovať podľa zákazníka
@@ -342,7 +341,7 @@ def get_all_invoices(limit: int = 100, customer_name: Optional[str] = None) -> L
     return [dict(row) for row in rows]
 
 
-def get_pending_nex_sync(customer_name: Optional[str] = None, limit: int = 10) -> List[Dict]:
+def get_pending_nex_sync(customer_name: str | None = None, limit: int = 10) -> list[dict]:
     """
     Get invoices pending NEX Genesis sync
 
@@ -384,7 +383,7 @@ def get_pending_nex_sync(customer_name: Optional[str] = None, limit: int = 10) -
     return [dict(row) for row in rows]
 
 
-def get_stats(customer_name: Optional[str] = None) -> Dict:
+def get_stats(customer_name: str | None = None) -> dict:
     """
     Vráti štatistiky o faktúrach
     V2.0: Možnosť získať štatistiky pre konkrétneho zákazníka
@@ -463,7 +462,7 @@ def get_stats(customer_name: Optional[str] = None) -> Dict:
     }
 
 
-def get_customer_list() -> List[str]:
+def get_customer_list() -> list[str]:
     """
     Get list of all customers in database
 
@@ -494,8 +493,8 @@ def save_invoice(
     file_path: str,
     file_hash: str,
     status: str = "received",
-    message_id: Optional[str] = None,
-    gmail_id: Optional[str] = None,
+    message_id: str | None = None,
+    gmail_id: str | None = None,
 ) -> int:
     """
     Save invoice to database (simplified wrapper for insert_invoice)
@@ -548,11 +547,11 @@ def save_invoice(
 
 
 # Backward compatibility - keep old function signatures working
-def get_all_invoices_legacy(limit: int = 100) -> List[Dict]:
+def get_all_invoices_legacy(limit: int = 100) -> list[dict]:
     """Legacy function for backward compatibility"""
     return get_all_invoices(limit, customer_name=CUSTOMER_NAME)
 
 
-def get_stats_legacy() -> Dict:
+def get_stats_legacy() -> dict:
     """Legacy function for backward compatibility"""
     return get_stats(customer_name=CUSTOMER_NAME)

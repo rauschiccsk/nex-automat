@@ -1,5 +1,5 @@
-import sys
 import os
+import sys
 
 print("Current directory:", os.getcwd())
 print("\nPython path:")

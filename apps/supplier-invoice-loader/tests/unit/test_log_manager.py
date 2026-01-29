@@ -1,15 +1,16 @@
 """Tests for log manager system"""
 
-import pytest
-import logging
-from pathlib import Path
-from datetime import datetime, timedelta
-import tempfile
 import gc
+import logging
+import shutil
+import tempfile
 import time
 import warnings
-import shutil
-from src.monitoring import LogManager, LogConfig, setup_logging
+from datetime import datetime, timedelta
+from pathlib import Path
+
+import pytest
+from src.monitoring import LogConfig, LogManager, setup_logging
 
 
 @pytest.fixture

@@ -12,7 +12,6 @@ from unittest.mock import Mock, patch
 
 import pytest
 import yaml
-
 from src.backup.database_backup import DatabaseBackup, load_config
 
 

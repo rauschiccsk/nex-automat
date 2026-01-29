@@ -6,8 +6,8 @@ Author: Zoltán Rausch, ICC Komárno
 Date: 2025-11-21
 """
 
-import sys
 import argparse
+import sys
 from pathlib import Path
 
 # Add src directory to path

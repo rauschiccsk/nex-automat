@@ -12,11 +12,11 @@ Output:
     supplier-invoice-loader_project_file_access.json
 """
 
-import os
 import json
-from pathlib import Path
-from datetime import datetime
+import os
 import subprocess
+from datetime import datetime
+from pathlib import Path
 
 
 def get_git_commit_sha():
@@ -243,7 +243,7 @@ def generate_manifest(project_root: Path):
     }
 
     # Save manifest
-    output_file = project_root / "docs\project_file_access.json"
+    output_file = project_root / r"docs\project_file_access.json"
     with open(output_file, "w", encoding="utf-8") as f:
         json.dump(manifest, f, indent=2, ensure_ascii=False)
 

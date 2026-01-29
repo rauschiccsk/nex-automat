@@ -1,15 +1,15 @@
 """Daily Summary Report Generator"""
 
-import os
 import logging
+import os
+import smtplib
+from dataclasses import dataclass
 from datetime import date, timedelta
 from decimal import Decimal
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 from pathlib import Path
 from typing import Dict, List, Optional
-from dataclasses import dataclass
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
 
 import pg8000
 
@@ -27,10 +27,10 @@ class InvoiceSummary:
     issue_date: date
     total_with_vat: Decimal
     status: str
-    match_percent: Optional[Decimal]
+    match_percent: Decimal | None
     item_count: int
-    validation_status: Optional[str]
-    validation_errors: Optional[str]
+    validation_status: str | None
+    validation_errors: str | None
 
 
 @dataclass
@@ -40,10 +40,10 @@ class DailyStats:
     report_date: date
     total_invoices: int
     total_amount: Decimal
-    by_status: Dict[str, int]
-    avg_match_percent: Optional[Decimal]
+    by_status: dict[str, int]
+    avg_match_percent: Decimal | None
     error_count: int
-    invoices: List[InvoiceSummary]
+    invoices: list[InvoiceSummary]
 
     # Comparison with previous day
     prev_total_invoices: int = 0
@@ -273,7 +273,7 @@ class DailySummaryReport:
             logger.error(f"Failed to send email: {e}")
             return False
 
-    def run(self, report_date: Optional[date] = None) -> bool:
+    def run(self, report_date: date | None = None) -> bool:
         """Run the daily report"""
         report_date = report_date or date.today()
 

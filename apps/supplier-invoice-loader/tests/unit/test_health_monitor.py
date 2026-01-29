@@ -1,8 +1,9 @@
 """Tests for health monitoring system"""
 
-import pytest
 from datetime import datetime
-from src.monitoring import HealthMonitor, SystemMetrics, HealthStatus
+
+import pytest
+from src.monitoring import HealthMonitor, HealthStatus, SystemMetrics
 
 
 def test_system_metrics():

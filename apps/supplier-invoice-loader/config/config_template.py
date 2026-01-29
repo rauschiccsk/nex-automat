@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Supplier Invoice Loader - Configuration Template
 Copy this file to config_customer.py and fill in customer-specific values
@@ -316,7 +315,7 @@ Example 2: Development/Testing:
 Example 3: Multi-location customer:
     CUSTOMER_NAME = "ANDROS_BA"
     CUSTOMER_FULL_NAME = "ANDROS Bratislava, s.r.o."
-    STORAGE_BASE = Path(r"D:\\Invoices\ANDROS_BA")
+    STORAGE_BASE = Path(r"D:\\Invoices\\ANDROS_BA")
     NEX_GENESIS_API_URL = "https://nex-ba.andros.sk/api"
 
 """

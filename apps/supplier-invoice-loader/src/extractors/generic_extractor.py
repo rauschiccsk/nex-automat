@@ -1,9 +1,9 @@
-# -*- coding: utf-8 -*-
 """
 Generic Extractor - For standard invoice formats
 """
 
 import logging
+
 from .base_extractor import BaseExtractor
 
 logger = logging.getLogger(__name__)

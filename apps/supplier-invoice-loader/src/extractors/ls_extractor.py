@@ -1,14 +1,13 @@
-# -*- coding: utf-8 -*-
 """
 L&Š Invoice Loader - PDF Data Extraction
 Extracts invoice data from L&Š PDF invoices
 """
 
-import re
 import logging
-from typing import Optional, List, Dict
+import re
 from dataclasses import dataclass, field
 from decimal import Decimal
+from typing import Dict, List, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -21,13 +20,13 @@ class InvoiceItem:
     item_code: str = ""
     ean_code: str = ""
     description: str = ""
-    quantity: Optional[Decimal] = None
+    quantity: Decimal | None = None
     unit: str = ""
-    unit_price_no_vat: Optional[Decimal] = None
-    unit_price_with_vat: Optional[Decimal] = None
-    total_with_vat: Optional[Decimal] = None
-    vat_rate: Optional[Decimal] = None
-    discount_percent: Optional[Decimal] = None
+    unit_price_no_vat: Decimal | None = None
+    unit_price_with_vat: Decimal | None = None
+    total_with_vat: Decimal | None = None
+    vat_rate: Decimal | None = None
+    discount_percent: Decimal | None = None
 
 
 @dataclass
@@ -41,9 +40,9 @@ class InvoiceData:
     tax_point_date: str = ""
 
     # Sumy
-    total_amount: Optional[Decimal] = None
-    tax_amount: Optional[Decimal] = None
-    net_amount: Optional[Decimal] = None
+    total_amount: Decimal | None = None
+    tax_amount: Decimal | None = None
+    net_amount: Decimal | None = None
     currency: str = "EUR"
 
     # Dodávateľ
@@ -68,7 +67,7 @@ class InvoiceData:
     constant_symbol: str = ""
 
     # Položky
-    items: List[InvoiceItem] = field(default_factory=list)
+    items: list[InvoiceItem] = field(default_factory=list)
 
 
 class LSInvoiceExtractor:
@@ -77,7 +76,7 @@ class LSInvoiceExtractor:
     def __init__(self):
         self.patterns = self._init_patterns()
 
-    def _init_patterns(self) -> Dict[str, str]:
+    def _init_patterns(self) -> dict[str, str]:
         """Inicializácia regex patterns pre L&Š faktúry"""
         return {
             # Hlavička - s medzerami medzi číslicami
@@ -106,7 +105,7 @@ class LSInvoiceExtractor:
             "constant_symbol": r"Konštantný\s+symbol[:\s]*(\d\s*\d\s*\d\s*\d)",
         }
 
-    def extract_from_pdf(self, pdf_path: str) -> Optional[InvoiceData]:
+    def extract_from_pdf(self, pdf_path: str) -> InvoiceData | None:
         """
         Hlavná metóda - extrahuje dáta z PDF
 
@@ -220,7 +219,7 @@ class LSInvoiceExtractor:
 
         return data
 
-    def _extract_items(self, text: str) -> List[InvoiceItem]:
+    def _extract_items(self, text: str) -> list[InvoiceItem]:
         """
         Extrahuje položky z tabuľky faktúry
 
@@ -299,7 +298,7 @@ class LSInvoiceExtractor:
         logger.info(f"Extracted {len(items)} items from table")
         return items
 
-    def _parse_decimal(self, value: Optional[str]) -> Optional[Decimal]:
+    def _parse_decimal(self, value: str | None) -> Decimal | None:
         """Parsuje string na Decimal"""
         if not value:
             return None
@@ -312,7 +311,7 @@ class LSInvoiceExtractor:
 
 
 # Pomocná funkcia pre použitie v main.py
-def extract_invoice_data(pdf_path: str) -> Optional[InvoiceData]:
+def extract_invoice_data(pdf_path: str) -> InvoiceData | None:
     """
     Wrapper funkcia pre extrahovanie dát
 

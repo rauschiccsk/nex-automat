@@ -1,15 +1,14 @@
-# -*- coding: utf-8 -*-
 """
 MARSO Invoice Loader - PDF Data Extraction
 Extracts invoice data from MARSO (Hungarian tire supplier) PDF invoices
 Bilingual HU/EN format, EU intra-community (0% VAT)
 """
 
-import re
 import logging
-from typing import Optional, List, Dict
+import re
 from dataclasses import dataclass, field
 from decimal import Decimal
+from typing import Dict, List, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -21,11 +20,11 @@ class MarsoInvoiceItem:
     line_number: int
     customs_code: str = ""  # Colný kód (4011100000)
     description: str = ""  # Popis pneumatiky
-    quantity: Optional[Decimal] = None
+    quantity: Decimal | None = None
     unit: str = "Pcs"
-    unit_price: Optional[Decimal] = None
-    total: Optional[Decimal] = None
-    vat_rate: Optional[Decimal] = Decimal("0")  # EU intra-community = 0%
+    unit_price: Decimal | None = None
+    total: Decimal | None = None
+    vat_rate: Decimal | None = Decimal("0")  # EU intra-community = 0%
 
 
 @dataclass
@@ -40,9 +39,9 @@ class MarsoInvoiceData:
     sales_order: str = ""  # VR3696263
 
     # Sumy
-    total_amount: Optional[Decimal] = None
-    tax_amount: Optional[Decimal] = Decimal("0")  # 0% VAT
-    net_amount: Optional[Decimal] = None
+    total_amount: Decimal | None = None
+    tax_amount: Decimal | None = Decimal("0")  # 0% VAT
+    net_amount: Decimal | None = None
     currency: str = "EUR"
 
     # Dodávateľ (MARSO)
@@ -59,7 +58,7 @@ class MarsoInvoiceData:
     customer_address: str = ""
 
     # Položky
-    items: List[MarsoInvoiceItem] = field(default_factory=list)
+    items: list[MarsoInvoiceItem] = field(default_factory=list)
 
 
 class MarsoInvoiceExtractor:
@@ -68,7 +67,7 @@ class MarsoInvoiceExtractor:
     def __init__(self):
         self.patterns = self._init_patterns()
 
-    def _init_patterns(self) -> Dict[str, str]:
+    def _init_patterns(self) -> dict[str, str]:
         """Inicializácia regex patterns pre MARSO faktúry"""
         return {
             # Hlavička - MARSO formát (� je pomlčka v PDF encoding)
@@ -88,7 +87,7 @@ class MarsoInvoiceExtractor:
             "customer_eu_vat": r"EU\s+VAT\s+No\.[^:]*:\s*(SK\d{10})",
         }
 
-    def extract_from_pdf(self, pdf_path: str) -> Optional[MarsoInvoiceData]:
+    def extract_from_pdf(self, pdf_path: str) -> MarsoInvoiceData | None:
         """
         Hlavná metóda - extrahuje dáta z PDF
 
@@ -211,7 +210,7 @@ class MarsoInvoiceExtractor:
 
         return data
 
-    def _extract_items(self, text: str) -> List[MarsoInvoiceItem]:
+    def _extract_items(self, text: str) -> list[MarsoInvoiceItem]:
         """
         Extrahuje položky z tabuľky faktúry
 
@@ -295,7 +294,7 @@ class MarsoInvoiceExtractor:
         except:
             return date_str
 
-    def _parse_hungarian_decimal(self, value: Optional[str]) -> Optional[Decimal]:
+    def _parse_hungarian_decimal(self, value: str | None) -> Decimal | None:
         """
         Parsuje maďarský formát čísla na Decimal
 
@@ -321,7 +320,7 @@ class MarsoInvoiceExtractor:
 
 
 # Pomocná funkcia pre použitie v main.py
-def extract_marso_invoice(pdf_path: str) -> Optional[MarsoInvoiceData]:
+def extract_marso_invoice(pdf_path: str) -> MarsoInvoiceData | None:
     """
     Wrapper funkcia pre extrahovanie MARSO faktúr
 

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 L&Š Invoice Loader - ISDOC 6.0.1 XML Generator
 Generates ISDOC XML from extracted invoice data
@@ -8,8 +7,8 @@ import logging
 from datetime import datetime
 from decimal import Decimal
 from typing import Optional
-from xml.etree.ElementTree import Element, SubElement, tostring
 from xml.dom import minidom
+from xml.etree.ElementTree import Element, SubElement, tostring
 
 from src.extractors.ls_extractor import InvoiceData
 
@@ -26,7 +25,7 @@ class ISDOCGenerator:
         self.ns = ISDOC_NS
 
     def generate_from_invoice_data(
-        self, data: InvoiceData, output_path: Optional[str] = None
+        self, data: InvoiceData, output_path: str | None = None
     ) -> str:
         """
         Hlavná metóda - vytvorí ISDOC XML z InvoiceData
@@ -370,7 +369,7 @@ class ISDOCGenerator:
         # Fallback
         return datetime.now().strftime("%Y-%m-%d")
 
-    def _format_amount(self, amount: Optional[Decimal]) -> str:
+    def _format_amount(self, amount: Decimal | None) -> str:
         """
         Konvertuje Decimal na string vo formáte ISDOC
 
@@ -400,7 +399,7 @@ class ISDOCGenerator:
 
 
 # Pomocná funkcia pre použitie v main.py
-def generate_isdoc_xml(invoice_data: InvoiceData, output_path: Optional[str] = None) -> str:
+def generate_isdoc_xml(invoice_data: InvoiceData, output_path: str | None = None) -> str:
     """
     Wrapper funkcia pre generovanie ISDOC XML
 

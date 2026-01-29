@@ -1,8 +1,9 @@
 """Tests for alert manager system"""
 
-import pytest
 from datetime import datetime, timedelta
-from src.monitoring import AlertManager, AlertLevel, AlertType, AlertConfig
+
+import pytest
+from src.monitoring import AlertConfig, AlertLevel, AlertManager, AlertType
 
 
 @pytest.fixture
