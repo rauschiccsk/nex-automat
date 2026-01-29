@@ -91,30 +91,30 @@ jobs:
 
     steps:
       - name: Git Pull
-        shell: pwsh
+        shell: powershell
         run: |
           cd C:\opt\nex-automat-src
           git pull origin develop
 
       - name: Copy Docker Compose
-        shell: pwsh
+        shell: powershell
         run: |
           Copy-Item C:\opt\nex-automat-src\deploy\mager\docker-compose.yml C:\opt\nex-automat\ -Force
 
       - name: Docker Compose Up
-        shell: pwsh
+        shell: powershell
         run: |
           cd C:\opt\nex-automat
           docker compose pull
           docker compose up -d
 
       - name: Restart Btrieve-Loader
-        shell: pwsh
+        shell: powershell
         run: |
           Restart-Service NEX-SupplierInvoiceLoader -ErrorAction SilentlyContinue
 
       - name: Health Check
-        shell: pwsh
+        shell: powershell
         run: |
           cd C:\opt\nex-automat
           docker compose ps
