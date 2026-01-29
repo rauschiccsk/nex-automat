@@ -88,9 +88,7 @@ class PostgresClient:
             if conn:
                 conn.close()
 
-    def execute_query(
-        self, query: str, params: tuple = None, fetch: bool = True
-    ) -> list[dict] | None:
+    def execute_query(self, query: str, params: tuple = None, fetch: bool = True) -> list[dict] | None:
         """
         Execute SQL query
 

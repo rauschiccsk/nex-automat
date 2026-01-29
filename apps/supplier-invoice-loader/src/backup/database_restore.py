@@ -18,9 +18,7 @@ from typing import Dict, List, Tuple
 import yaml
 
 # Setup logging
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
 
@@ -268,9 +266,7 @@ class DatabaseRestore:
                 f'DROP DATABASE IF EXISTS "{self.database}";',
             ]
 
-            result = subprocess.run(
-                cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=env, text=True
-            )
+            result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=env, text=True)
 
             if result.returncode != 0:
                 return False, result.stderr
@@ -302,9 +298,7 @@ class DatabaseRestore:
                 f'CREATE DATABASE "{self.database}";',
             ]
 
-            result = subprocess.run(
-                cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=env, text=True
-            )
+            result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=env, text=True)
 
             if result.returncode != 0:
                 return False, result.stderr

@@ -45,9 +45,7 @@ def temp_log_dir():
 @pytest.fixture
 def log_config(temp_log_dir):
     """Create test log configuration"""
-    return LogConfig(
-        log_dir=temp_log_dir, log_filename="test.log", log_level="DEBUG", retention_days=7
-    )
+    return LogConfig(log_dir=temp_log_dir, log_filename="test.log", log_level="DEBUG", retention_days=7)
 
 
 @pytest.fixture

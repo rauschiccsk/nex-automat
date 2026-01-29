@@ -29,9 +29,7 @@ class ReportConfig:
     # Recipients
     admin_email: str = field(default_factory=lambda: os.getenv("NOTIFY_EMAIL", "rausch@icc.sk"))
     customer_emails: list[str] = field(
-        default_factory=lambda: [
-            e.strip() for e in os.getenv("REPORT_CUSTOMER_EMAIL", "").split(",") if e.strip()
-        ]
+        default_factory=lambda: [e.strip() for e in os.getenv("REPORT_CUSTOMER_EMAIL", "").split(",") if e.strip()]
     )
 
     # SMTP (Gmail SSL on port 465)

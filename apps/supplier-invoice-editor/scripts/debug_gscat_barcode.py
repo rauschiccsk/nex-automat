@@ -56,9 +56,7 @@ def debug_gscat_barcodes(nex_path: str = r"C:\NEX\YEARACT", limit: int = 10):
                     # Structure: [00 00][length][data...] at offset 57
                     barcode_raw = data[57:72] if len(data) >= 72 else b""
                     barcode_length = data[59] if len(data) > 59 else 0
-                    barcode_data = (
-                        data[60 : 60 + barcode_length] if len(data) >= 60 + barcode_length else b""
-                    )
+                    barcode_data = data[60 : 60 + barcode_length] if len(data) >= 60 + barcode_length else b""
 
                     # Decode
                     barcode_str = barcode_data.decode("cp852", errors="ignore")
@@ -66,9 +64,7 @@ def debug_gscat_barcodes(nex_path: str = r"C:\NEX\YEARACT", limit: int = 10):
                     # Show hex dump of BarCode bytes
                     barcode_hex = " ".join(f"{b:02x}" for b in barcode_raw[:15])
 
-                    print(
-                        f"{count:<4} {record.gs_code:<8} {barcode_str:<18} {record.gs_name[:40]:<40} {len(data)} B"
-                    )
+                    print(f"{count:<4} {record.gs_code:<8} {barcode_str:<18} {record.gs_name[:40]:<40} {len(data)} B")
 
                     # Ak BarCode nie je prázdny, zobraz detaily
                     if barcode_str.strip():
@@ -126,11 +122,7 @@ def search_by_ean(ean: str, nex_path: str = r"C:\NEX\YEARACT"):
                     if len(data) >= 72:
                         # Read length and data
                         barcode_length = data[59] if len(data) > 59 else 0
-                        barcode_data = (
-                            data[60 : 60 + barcode_length]
-                            if len(data) >= 60 + barcode_length
-                            else b""
-                        )
+                        barcode_data = data[60 : 60 + barcode_length] if len(data) >= 60 + barcode_length else b""
                         barcode_str = barcode_data.decode("cp852", errors="ignore")
 
                         # Porovnaj

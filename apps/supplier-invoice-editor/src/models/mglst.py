@@ -221,9 +221,7 @@ class MGLSTRecord:
 
         return path
 
-    def get_full_path_name(
-        self, all_categories: list["MGLSTRecord"], separator: str = " > "
-    ) -> str:
+    def get_full_path_name(self, all_categories: list["MGLSTRecord"], separator: str = " > ") -> str:
         """
         Get full category path as string (e.g., "Elektronika > Počítače > Notebooky")
 

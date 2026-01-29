@@ -14,9 +14,7 @@ logger = logging.getLogger(__name__)
 DB_PATH = Path(r"C:\NEX\YEARACT\SYSTEM\SQLITE\window_settings.db")
 
 
-def save_grid_settings(
-    window_name: str, grid_name: str, active_column: int, user_id: str = "Server"
-) -> bool:
+def save_grid_settings(window_name: str, grid_name: str, active_column: int, user_id: str = "Server") -> bool:
     """
     Save grid settings (active column).
 

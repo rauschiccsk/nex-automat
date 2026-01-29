@@ -360,9 +360,7 @@ def _send_email(to: str, subject: str, html_body: str, text_body: str | None = N
 # ============================================================================
 
 
-def send_alert_email(
-    error_type: str, error_message: str, details: dict[str, Any] | None = None
-) -> bool:
+def send_alert_email(error_type: str, error_message: str, details: dict[str, Any] | None = None) -> bool:
     """
     Send error alert email
 

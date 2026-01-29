@@ -65,9 +65,7 @@ class ISDOCParser:
             header["due_date"] = "N/A"
 
         # Celkova suma
-        header["total_amount"] = self.get_text(
-            self.root, ".//isdoc:LegalMonetaryTotal/isdoc:TaxInclusiveAmount"
-        )
+        header["total_amount"] = self.get_text(self.root, ".//isdoc:LegalMonetaryTotal/isdoc:TaxInclusiveAmount")
 
         # Mena
         header["currency"] = "EUR"
@@ -89,9 +87,7 @@ class ISDOCParser:
                 supplier["ico"] = self.get_text(party, ".//isdoc:PartyIdentification/isdoc:ID")
 
                 # DIC
-                vat_elem = party.find(
-                    './/isdoc:PartyTaxScheme[isdoc:TaxScheme="VAT"]', self.NAMESPACE
-                )
+                vat_elem = party.find('.//isdoc:PartyTaxScheme[isdoc:TaxScheme="VAT"]', self.NAMESPACE)
                 if vat_elem is not None:
                     supplier["dic"] = self.get_text(vat_elem, ".//isdoc:CompanyID")
 
@@ -125,12 +121,8 @@ class ISDOCParser:
             item["name"] = self.get_text(line, ".//isdoc:Item/isdoc:Description")
 
             # EAN kod - moze byt v SellersItemIdentification alebo StandardItemIdentification
-            item["seller_code"] = self.get_text(
-                line, ".//isdoc:Item/isdoc:SellersItemIdentification/isdoc:ID"
-            )
-            item["ean"] = self.get_text(
-                line, ".//isdoc:Item/isdoc:StandardItemIdentification/isdoc:ID"
-            )
+            item["seller_code"] = self.get_text(line, ".//isdoc:Item/isdoc:SellersItemIdentification/isdoc:ID")
+            item["ean"] = self.get_text(line, ".//isdoc:Item/isdoc:StandardItemIdentification/isdoc:ID")
 
             # Mnozstvo
             quantity_elem = line.find(".//isdoc:InvoicedQuantity", self.NAMESPACE)
@@ -145,9 +137,7 @@ class ISDOCParser:
             item["line_total"] = self.get_text(line, ".//isdoc:LineExtensionAmount")
 
             # DPH sadzba
-            item["vat_rate"] = self.get_text(
-                line, ".//isdoc:ClassifiedTaxCategory/isdoc:Percent", "20"
-            )
+            item["vat_rate"] = self.get_text(line, ".//isdoc:ClassifiedTaxCategory/isdoc:Percent", "20")
 
             items.append(item)
 
@@ -175,9 +165,7 @@ class ISDOCParser:
         print(f"  Datum vystavenia: {header.get('issue_date', 'N/A')}")
         print(f"  Datum dodania:    {header.get('delivery_date', 'N/A')}")
         print(f"  Splatnost:        {header.get('due_date', 'N/A')}")
-        print(
-            f"  Celkova suma:     {header.get('total_amount', 'N/A')} {header.get('currency', 'EUR')}"
-        )
+        print(f"  Celkova suma:     {header.get('total_amount', 'N/A')} {header.get('currency', 'EUR')}")
 
         # Dodavatel
         print("\nDODAVATEL")

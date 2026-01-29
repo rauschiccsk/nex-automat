@@ -198,9 +198,7 @@ def send_test_invoice(pdf_path, api_key):
 
         print("  📤 Odosielam na http://localhost:8000/invoice...")
 
-        response = requests.post(
-            "http://localhost:8000/invoice", json=payload, headers=headers, timeout=120
-        )
+        response = requests.post("http://localhost:8000/invoice", json=payload, headers=headers, timeout=120)
 
         # Check response
         if response.status_code == 200:
@@ -264,9 +262,7 @@ def verify_postgresql_data(invoice_number):
             else:
                 print_error(f"Faktúra {invoice_number} nenájdená v PostgreSQL!")
                 print("    Skúste manuálne query v pgAdmin:")
-                print(
-                    f"    SELECT * FROM supplier_invoice_heads WHERE invoice_number = '{invoice_number}';"
-                )
+                print(f"    SELECT * FROM supplier_invoice_heads WHERE invoice_number = '{invoice_number}';")
                 return False
 
     except Exception as e:
@@ -317,9 +313,7 @@ def main():
 
     # Verify PostgreSQL data (optional - ask for invoice number)
     print("\n" + "-" * 70)
-    invoice_number = input(
-        "Zadaj invoice_number pre verifikáciu v PostgreSQL (Enter = preskočiť): "
-    ).strip()
+    invoice_number = input("Zadaj invoice_number pre verifikáciu v PostgreSQL (Enter = preskočiť): ").strip()
 
     if invoice_number:
         verify_postgresql_data(invoice_number)

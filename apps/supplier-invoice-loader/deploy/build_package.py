@@ -289,9 +289,7 @@ class PackageBuilder:
         try:
             # Copy all files
             package_root = temp_dir / "supplier_invoice_loader"
-            shutil.copytree(
-                self.project_root, package_root, ignore=shutil.ignore_patterns(*EXCLUDE_FILES)
-            )
+            shutil.copytree(self.project_root, package_root, ignore=shutil.ignore_patterns(*EXCLUDE_FILES))
 
             # Create deployment script
             deploy_script = package_root / "DEPLOY.bat"
@@ -316,9 +314,7 @@ class PackageBuilder:
             if "=" in line and not line.strip().startswith("#"):
                 key, value = line.split("=", 1)
                 # Keep key but remove value for sensitive fields
-                if any(
-                    sensitive in key.upper() for sensitive in ["PASSWORD", "KEY", "SECRET", "TOKEN"]
-                ):
+                if any(sensitive in key.upper() for sensitive in ["PASSWORD", "KEY", "SECRET", "TOKEN"]):
                     lines.append(f"{key}=CHANGE_ME")
                 else:
                     lines.append(line)
@@ -528,9 +524,7 @@ pause
 
 def main():
     """Main function"""
-    parser = argparse.ArgumentParser(
-        description="Build deployment packages for Supplier Invoice Loader"
-    )
+    parser = argparse.ArgumentParser(description="Build deployment packages for Supplier Invoice Loader")
     parser.add_argument("--customer", help="Build package for specific customer")
     parser.add_argument("--template", action="store_true", help="Build template package")
     parser.add_argument("--full", action="store_true", help="Build full package with dependencies")

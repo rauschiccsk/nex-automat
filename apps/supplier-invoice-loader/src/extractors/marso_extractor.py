@@ -185,9 +185,7 @@ class MarsoInvoiceExtractor:
             data.supplier_swift = swift_match.group(1)
 
         # Customer name - Andros s.r.o.
-        customer_match = re.search(
-            r"Customer\s*/\s*Vev.+?\n.+?\n.+?\n\s*(.+?)\s*\n", text, re.IGNORECASE
-        )
+        customer_match = re.search(r"Customer\s*/\s*Vev.+?\n.+?\n.+?\n\s*(.+?)\s*\n", text, re.IGNORECASE)
         if customer_match:
             data.customer_name = customer_match.group(1).strip()
 

@@ -99,9 +99,7 @@ def calculate_file_hash(file_content: bytes) -> str:
     return hashlib.sha256(file_content).hexdigest()
 
 
-def is_duplicate(
-    file_hash: str, message_id: str | None = None, customer_name: str | None = None
-) -> bool:
+def is_duplicate(file_hash: str, message_id: str | None = None, customer_name: str | None = None) -> bool:
     """
     Skontroluje či faktúra už existuje v databáze
     V2.0: Kontroluje duplicity v rámci zákazníka
@@ -206,9 +204,7 @@ def insert_invoice(
     conn.commit()
     conn.close()
 
-    logger.info(
-        f"Invoice inserted: ID={invoice_id}, customer={customer_name}, hash={file_hash[:8]}..."
-    )
+    logger.info(f"Invoice inserted: ID={invoice_id}, customer={customer_name}, hash={file_hash[:8]}...")
     return invoice_id
 
 
@@ -250,9 +246,7 @@ def update_nex_genesis_status(
     conn.close()
 
     if success:
-        logger.info(
-            f"NEX Genesis status updated: invoice_id={invoice_id}, nex_id={nex_genesis_id}, status={status}"
-        )
+        logger.info(f"NEX Genesis status updated: invoice_id={invoice_id}, nex_id={nex_genesis_id}, status={status}")
     else:
         logger.warning(f"Failed to update NEX Genesis status for invoice_id={invoice_id}")
 

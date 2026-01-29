@@ -119,9 +119,7 @@ class BtrieveClient:
         data_len = ctypes.c_uint32(0)
         key_buffer = ctypes.create_string_buffer(1)
 
-        status = self.btrcall(
-            self.B_CLOSE, pos_block_buf, data_buffer, ctypes.byref(data_len), key_buffer, 0, 0
-        )
+        status = self.btrcall(self.B_CLOSE, pos_block_buf, data_buffer, ctypes.byref(data_len), key_buffer, 0, 0)
         return status
 
     def get_first(self, pos_block: bytes, key_num: int = 0) -> tuple[int, bytes]:
@@ -152,9 +150,7 @@ class BtrieveClient:
         data_len = ctypes.c_uint32(4096)
         key_buffer = ctypes.create_string_buffer(255)
 
-        status = self.btrcall(
-            self.B_GET_NEXT, pos_block_buf, data_buffer, ctypes.byref(data_len), key_buffer, 255, 0
-        )
+        status = self.btrcall(self.B_GET_NEXT, pos_block_buf, data_buffer, ctypes.byref(data_len), key_buffer, 255, 0)
 
         if status == self.STATUS_SUCCESS:
             return status, data_buffer.raw[: data_len.value]
@@ -167,9 +163,7 @@ class BtrieveClient:
         data_len = ctypes.c_uint32(len(data))
         key_buffer = ctypes.create_string_buffer(255)
 
-        status = self.btrcall(
-            self.B_INSERT, pos_block_buf, data_buffer, ctypes.byref(data_len), key_buffer, 255, 0
-        )
+        status = self.btrcall(self.B_INSERT, pos_block_buf, data_buffer, ctypes.byref(data_len), key_buffer, 255, 0)
         return status
 
     def update(self, pos_block: bytes, data: bytes) -> int:
@@ -179,9 +173,7 @@ class BtrieveClient:
         data_len = ctypes.c_uint32(len(data))
         key_buffer = ctypes.create_string_buffer(255)
 
-        status = self.btrcall(
-            self.B_UPDATE, pos_block_buf, data_buffer, ctypes.byref(data_len), key_buffer, 255, 0
-        )
+        status = self.btrcall(self.B_UPDATE, pos_block_buf, data_buffer, ctypes.byref(data_len), key_buffer, 255, 0)
         return status
 
     def get_status_message(self, status_code: int) -> str:
@@ -202,9 +194,7 @@ class BtrieveClient:
         return messages.get(status_code, f"UNKNOWN_ERROR_{status_code}")
 
 
-def open_btrieve_file(
-    filename: str, config: dict[str, Any] | None = None
-) -> tuple[BtrieveClient, bytes]:
+def open_btrieve_file(filename: str, config: dict[str, Any] | None = None) -> tuple[BtrieveClient, bytes]:
     """Helper function to open Btrieve file"""
     client = BtrieveClient(config)
     status, pos_block = client.open_file(filename)

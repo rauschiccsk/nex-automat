@@ -138,9 +138,7 @@ class QuickSearchContainer(QWidget):
         # Position editor under column
         self.search_edit.setGeometry(col_x, 0, col_width, 25)
 
-        self.logger.debug(
-            f"Search editor positioned: x={col_x}, width={col_width}, column={self.current_column}"
-        )
+        self.logger.debug(f"Search editor positioned: x={col_x}, width={col_width}, column={self.current_column}")
 
     def set_column(self, column):
         """Set active search column"""
@@ -330,9 +328,7 @@ class QuickSearchController(QObject):
             model = self.table_view.model()
             if model and model.rowCount() > 0:
                 first_index = model.index(0, self.current_column)
-                selection_model.setCurrentIndex(
-                    first_index, selection_model.ClearAndSelect | selection_model.Rows
-                )
+                selection_model.setCurrentIndex(first_index, selection_model.ClearAndSelect | selection_model.Rows)
             return
 
         # Calculate new row
@@ -348,9 +344,7 @@ class QuickSearchController(QObject):
 
         # Select new row
         new_index = model.index(new_row, self.current_column)
-        selection_model.setCurrentIndex(
-            new_index, selection_model.ClearAndSelect | selection_model.Rows
-        )
+        selection_model.setCurrentIndex(new_index, selection_model.ClearAndSelect | selection_model.Rows)
 
         # Ensure visible
         self.table_view.scrollTo(new_index)
@@ -376,9 +370,7 @@ class QuickSearchController(QObject):
             # Select matching row
             match_index = model.index(match_row, self.current_column)
             selection_model = self.table_view.selectionModel()
-            selection_model.setCurrentIndex(
-                match_index, selection_model.ClearAndSelect | selection_model.Rows
-            )
+            selection_model.setCurrentIndex(match_index, selection_model.ClearAndSelect | selection_model.Rows)
 
             # Ensure visible
             self.table_view.scrollTo(match_index)

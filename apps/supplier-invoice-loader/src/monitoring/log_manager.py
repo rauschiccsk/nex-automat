@@ -208,9 +208,7 @@ class LogManager:
 
         return stats
 
-    def analyze_logs(
-        self, level: str | None = None, since: datetime | None = None, limit: int = 100
-    ) -> list[dict]:
+    def analyze_logs(self, level: str | None = None, since: datetime | None = None, limit: int = 100) -> list[dict]:
         """
         Analyze log entries
 
@@ -329,8 +327,6 @@ def setup_logging(
     Returns:
         LogManager instance
     """
-    config = LogConfig(
-        log_dir=Path(log_dir), log_level=log_level, use_json=use_json, console_output=console
-    )
+    config = LogConfig(log_dir=Path(log_dir), log_level=log_level, use_json=use_json, console_output=console)
 
     return LogManager(config)

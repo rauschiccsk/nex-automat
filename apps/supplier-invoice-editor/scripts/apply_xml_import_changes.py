@@ -546,9 +546,7 @@ def data(self, index, role=Qt.DisplayRole):
     print("HOTOVO - Vsetky subory vytvorene")
     print("=" * 80)
     print("\nDalšie kroky:")
-    print(
-        "1. Spusti migráciu: psql -U postgres -d invoice_staging -f database/schemas/002_add_nex_columns.sql"
-    )
+    print("1. Spusti migráciu: psql -U postgres -d invoice_staging -f database/schemas/002_add_nex_columns.sql")
     print("2. Importuj XML: python scripts/import_xml_to_staging.py C:\\NEX\\IMPORT\\32501215.xml")
     print("3. Manuálne uprav invoice_service.py - pridaj get_invoice_items_with_nex() metódu")
     print("4. Manuálne uprav invoice_items_grid.py - pridaj Qt.BackgroundRole handling")

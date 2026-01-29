@@ -33,9 +33,7 @@ class InvoiceService:
                 self.db_client = None
 
         except ImportError:
-            self.logger.warning(
-                "pg8000 not installed - using stub data. Install with: pip install pg8000"
-            )
+            self.logger.warning("pg8000 not installed - using stub data. Install with: pip install pg8000")
         except Exception as e:
             self.logger.error(f"Failed to initialize database: {e}")
             self.logger.warning("Using stub data")
@@ -318,9 +316,7 @@ class InvoiceService:
             self.logger.exception("Database save failed")
             return False
 
-    def calculate_item_price(
-        self, unit_price: Decimal, rabat_percent: Decimal, quantity: Decimal
-    ) -> tuple:
+    def calculate_item_price(self, unit_price: Decimal, rabat_percent: Decimal, quantity: Decimal) -> tuple:
         """
         Calculate item prices
 

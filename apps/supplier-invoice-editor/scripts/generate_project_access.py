@@ -77,9 +77,7 @@ CATEGORIES = {
 def get_current_commit_sha(repo_path: Path) -> str | None:
     """Get current Git commit SHA"""
     try:
-        result = subprocess.run(
-            ["git", "rev-parse", "HEAD"], cwd=repo_path, capture_output=True, text=True, check=True
-        )
+        result = subprocess.run(["git", "rev-parse", "HEAD"], cwd=repo_path, capture_output=True, text=True, check=True)
         sha = result.stdout.strip()
         return sha if sha else None
     except subprocess.CalledProcessError as e:
@@ -296,9 +294,7 @@ def generate_manifest():
         "base_url": base_url,
         "quick_access": quick_access,
         "categories": list(CATEGORIES.keys()),
-        "category_descriptions": {
-            name: config["description"] for name, config in CATEGORIES.items()
-        },
+        "category_descriptions": {name: config["description"] for name, config in CATEGORIES.items()},
         "statistics": {
             "total_files": len(all_files),
             "by_category": category_stats,

@@ -79,9 +79,7 @@ def get_current_user_id() -> str:
     return os.getenv("USERNAME", "default_user")
 
 
-def load_column_settings(
-    window_name: str, grid_name: str, user_id: str | None = None
-) -> list[dict]:
+def load_column_settings(window_name: str, grid_name: str, user_id: str | None = None) -> list[dict]:
     """
     Načíta uložené nastavenia stĺpcov pre daný grid.
 
@@ -135,9 +133,7 @@ def load_column_settings(
         return []
 
 
-def save_column_settings(
-    window_name: str, grid_name: str, columns: list[dict], user_id: str | None = None
-) -> bool:
+def save_column_settings(window_name: str, grid_name: str, columns: list[dict], user_id: str | None = None) -> bool:
     """
     Uloží nastavenia stĺpcov pre daný grid.
 
@@ -190,9 +186,7 @@ def save_column_settings(
         return False
 
 
-def load_grid_settings(
-    window_name: str, grid_name: str, user_id: str | None = None
-) -> dict | None:
+def load_grid_settings(window_name: str, grid_name: str, user_id: str | None = None) -> dict | None:
     """
     Načíta grid-level nastavenia (aktívny stĺpec).
 
@@ -237,9 +231,7 @@ def load_grid_settings(
         return None
 
 
-def save_grid_settings(
-    window_name: str, grid_name: str, active_column_index: int, user_id: str | None = None
-) -> bool:
+def save_grid_settings(window_name: str, grid_name: str, active_column_index: int, user_id: str | None = None) -> bool:
     """
     Uloží grid-level nastavenia (aktívny stĺpec).
 

@@ -41,9 +41,7 @@ def main():
     # Restore command
     restore_parser = subparsers.add_parser("restore", help="Restore database")
     restore_parser.add_argument("backup_path", help="Path to backup file")
-    restore_parser.add_argument(
-        "--drop", action="store_true", help="Drop existing database before restore"
-    )
+    restore_parser.add_argument("--drop", action="store_true", help="Drop existing database before restore")
     restore_parser.add_argument("--no-verify", action="store_true", help="Skip backup verification")
 
     args = parser.parse_args()

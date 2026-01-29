@@ -107,11 +107,7 @@ class NexLookupService:
                         if len(data) >= 72:
                             # Read BarCode: [00 00][length][data...]
                             barcode_length = data[59] if len(data) > 59 else 0
-                            barcode_data = (
-                                data[60 : 60 + barcode_length]
-                                if len(data) >= 60 + barcode_length
-                                else b""
-                            )
+                            barcode_data = data[60 : 60 + barcode_length] if len(data) >= 60 + barcode_length else b""
                             barcode_str = barcode_data.decode("cp852", errors="ignore")
 
                             if barcode_str.strip() == ean.strip():

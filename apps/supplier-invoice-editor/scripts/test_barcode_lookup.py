@@ -143,9 +143,7 @@ class BarcodeLookupService:
 
                             # Data zacinaju na offset 60
                             barcode_bytes = data[60 : 60 + barcode_length]
-                            barcode_str = barcode_bytes.decode("cp852", errors="ignore").rstrip(
-                                "\x00 "
-                            )
+                            barcode_str = barcode_bytes.decode("cp852", errors="ignore").rstrip("\x00 ")
 
                             # Porovnaj EAN
                             if barcode_str.strip() == ean.strip():
@@ -228,9 +226,7 @@ class BarcodeLookupService:
 
             if not ean:
                 print(f"  {idx}. WARNING  {name[:50]:<50} - EAN chyba")
-                results["items"].append(
-                    {"index": idx, "name": name, "ean": "", "status": "no_ean", "in_nex": False}
-                )
+                results["items"].append({"index": idx, "name": name, "ean": "", "status": "no_ean", "in_nex": False})
                 results["not_found"] += 1
                 continue
 
@@ -273,19 +269,13 @@ class BarcodeLookupService:
 
                 print(f"  {idx}. {status_icon} {name[:50]:<50} EAN: {ean} (nie je v NEX)")
 
-                results["items"].append(
-                    {"index": idx, "name": name, "ean": ean, "status": status, "in_nex": False}
-                )
+                results["items"].append({"index": idx, "name": name, "ean": ean, "status": status, "in_nex": False})
 
         print("-" * 100)
         print("\nVYSLEDKY:")
         print(f"   Celkom poloziek:   {results['total']}")
-        print(
-            f"   OK Najdene v NEX:  {results['found']} ({results['found'] / results['total'] * 100:.1f}%)"
-        )
-        print(
-            f"   MISSING Nie su v NEX: {results['not_found']} ({results['not_found'] / results['total'] * 100:.1f}%)"
-        )
+        print(f"   OK Najdene v NEX:  {results['found']} ({results['found'] / results['total'] * 100:.1f}%)")
+        print(f"   MISSING Nie su v NEX: {results['not_found']} ({results['not_found'] / results['total'] * 100:.1f}%)")
 
         return results
 

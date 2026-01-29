@@ -62,9 +62,7 @@ class ProductMatcher:
         self.gscat_repo = GSCATRepository(self.btrieve)
         self.barcode_repo = BARCODERepository(self.btrieve)
 
-    def match_item(
-        self, item_data: dict, min_confidence: float = 0.6, max_name_results: int = 20
-    ) -> MatchResult:
+    def match_item(self, item_data: dict, min_confidence: float = 0.6, max_name_results: int = 20) -> MatchResult:
         """
         Main matching logic - tries EAN first, then name matching
 
@@ -194,9 +192,7 @@ class ProductMatcher:
         # Get alternatives (top 5 excluding best)
         alternatives = matches[1:6]
 
-        return MatchResult(
-            product=best_product, confidence=best_score, method="name", alternatives=alternatives
-        )
+        return MatchResult(product=best_product, confidence=best_score, method="name", alternatives=alternatives)
 
     def _normalize_text(self, text: str) -> str:
         """

@@ -76,9 +76,7 @@ def verify_invoices(client: PostgresClient):
 
         print("\n   Sample invoices:")
         for inv in samples:
-            print(
-                f"     • {inv['invoice_number']} - {inv['supplier_name']} - {inv['total_amount']} EUR"
-            )
+            print(f"     • {inv['invoice_number']} - {inv['supplier_name']} - {inv['total_amount']} EUR")
 
         return True
     else:

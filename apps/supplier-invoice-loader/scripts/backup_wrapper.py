@@ -38,9 +38,7 @@ def setup_logging(backup_type: str) -> logging.Logger:
     ch.setLevel(logging.INFO)
 
     # Formatter
-    formatter = logging.Formatter(
-        "%(asctime)s - %(levelname)s - %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
-    )
+    formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
     fh.setFormatter(formatter)
     ch.setFormatter(formatter)
 
@@ -123,8 +121,7 @@ def main():
             # Send email notification
             send_email_notification(
                 subject=f"NEX Automat - {args.type.capitalize()} Backup Failed",
-                message=f"Backup failed with return code {result.returncode}\n\n"
-                f"Error output:\n{result.stderr}",
+                message=f"Backup failed with return code {result.returncode}\n\nError output:\n{result.stderr}",
             )
 
             return result.returncode

@@ -98,9 +98,7 @@ class WindowsServiceInstaller:
         try:
             import winreg
 
-            key = winreg.OpenKey(
-                winreg.HKEY_LOCAL_MACHINE, r"SOFTWARE\Microsoft\Windows NT\CurrentVersion"
-            )
+            key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, r"SOFTWARE\Microsoft\Windows NT\CurrentVersion")
             product_name = winreg.QueryValueEx(key, "ProductName")[0]
             build = winreg.QueryValueEx(key, "CurrentBuildNumber")[0]
             winreg.CloseKey(key)
@@ -119,9 +117,7 @@ class WindowsServiceInstaller:
         """Restart the script with administrator privileges"""
         if not self.is_admin():
             logger.info("Requesting administrator privileges...")
-            ctypes.windll.shell32.ShellExecuteW(
-                None, "runas", sys.executable, " ".join(sys.argv), None, 1
-            )
+            ctypes.windll.shell32.ShellExecuteW(None, "runas", sys.executable, " ".join(sys.argv), None, 1)
             sys.exit(0)
 
     def run_command(self, command: list, check: bool = True) -> tuple[int, str, str]:

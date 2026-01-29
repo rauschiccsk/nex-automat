@@ -235,9 +235,7 @@ def test_send_alert_adds_timestamp_if_missing():
         mock_send.return_value = True
 
         # Call without timestamp in details
-        notifications.send_alert_email(
-            error_type="Test", error_message="Test", details={"test": True}
-        )
+        notifications.send_alert_email(error_type="Test", error_message="Test", details={"test": True})
 
         # Check that HTML contains a timestamp
         call_args = mock_send.call_args
@@ -273,9 +271,7 @@ def test_email_templates_no_injection():
     # Try to inject HTML/JavaScript
     malicious_message = '<script>alert("XSS")</script>'
 
-    html = notifications._error_template(
-        error_type="Test", error_message=malicious_message, details={}
-    )
+    html = notifications._error_template(error_type="Test", error_message=malicious_message, details={})
 
     # Should not contain raw script tags (should be escaped or sanitized)
     # Note: This is a basic check, proper HTML escaping should be implemented

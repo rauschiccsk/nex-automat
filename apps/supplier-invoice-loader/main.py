@@ -286,9 +286,7 @@ async def enrich_invoice_items(invoice_id: int):
                     )
                 else:
                     # Mark as no match
-                    pg_client.mark_no_match(
-                        item_id=item["id"], reason="No match found (min confidence: 0.6)"
-                    )
+                    pg_client.mark_no_match(item_id=item["id"], reason="No match found (min confidence: 0.6)")
                     no_match_count += 1
                     logger.debug(f"  [WARNING] Item {item['id']}: No match")
 
@@ -307,9 +305,7 @@ async def enrich_invoice_items(invoice_id: int):
         logger.error(f"[ERROR] Failed to enrich invoice {invoice_id}: {e}")
 
 
-def move_files_to_staging(
-    pdf_path: Path, xml_path: Path, file_basename: str, pg_conn, invoice_id: int
-) -> tuple:
+def move_files_to_staging(pdf_path: Path, xml_path: Path, file_basename: str, pg_conn, invoice_id: int) -> tuple:
     """
     Move PDF and XML files from RECEIVED to STAGING directory.
     Update file_status in PostgreSQL.
@@ -491,9 +487,7 @@ async def process_invoice(request: models.InvoiceRequest, api_key: str = Depends
                     )
 
                     if is_duplicate:
-                        print(
-                            f"[WARN]  Invoice already exists in PostgreSQL staging: {invoice_data.invoice_number}"
-                        )
+                        print(f"[WARN]  Invoice already exists in PostgreSQL staging: {invoice_data.invoice_number}")
                     else:
                         # Prepare invoice data for PostgreSQL
                         invoice_pg_data = {
@@ -535,9 +529,7 @@ async def process_invoice(request: models.InvoiceRequest, api_key: str = Depends
 
                         if postgres_invoice_id:
                             postgres_saved = True
-                            print(
-                                f"[OK] Saved to PostgreSQL staging: invoice_id={postgres_invoice_id}"
-                            )
+                            print(f"[OK] Saved to PostgreSQL staging: invoice_id={postgres_invoice_id}")
 
                             # Move files from RECEIVED to STAGING
                             staged_pdf, staged_xml = move_files_to_staging(
@@ -643,9 +635,7 @@ async def startup_event():
     print(f"Database: {config.DB_FILE}")
     print(f"PostgreSQL Staging: {'Enabled' if config.POSTGRES_STAGING_ENABLED else 'Disabled'}")
     if config.POSTGRES_STAGING_ENABLED:
-        print(
-            f"PostgreSQL: {config.POSTGRES_HOST}:{config.POSTGRES_PORT}/{config.POSTGRES_DATABASE}"
-        )
+        print(f"PostgreSQL: {config.POSTGRES_HOST}:{config.POSTGRES_PORT}/{config.POSTGRES_DATABASE}")
     print("=" * 60)
 
     # Initialize ProductMatcher if NEX Genesis is enabled

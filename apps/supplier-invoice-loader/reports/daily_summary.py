@@ -233,9 +233,7 @@ class DailySummaryReport:
         html = template.replace("{{REPORT_DATE}}", stats.report_date.strftime("%d.%m.%Y"))
         html = html.replace("{{TOTAL_INVOICES}}", str(stats.total_invoices))
         html = html.replace("{{TOTAL_AMOUNT}}", f"{stats.total_amount:,.2f}")
-        html = html.replace(
-            "{{AVG_MATCH}}", f"{stats.avg_match_percent:.1f}" if stats.avg_match_percent else "-"
-        )
+        html = html.replace("{{AVG_MATCH}}", f"{stats.avg_match_percent:.1f}" if stats.avg_match_percent else "-")
         html = html.replace("{{ERROR_COUNT}}", str(stats.error_count))
         html = html.replace("{{INVOICE_ROWS}}", invoice_rows)
         html = html.replace("{{ERROR_SECTION}}", error_section)

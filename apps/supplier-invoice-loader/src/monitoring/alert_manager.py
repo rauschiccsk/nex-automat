@@ -180,9 +180,7 @@ class AlertManager:
         self._alert_history.append(alert)
         return self.send_alert(alert)
 
-    def send_daily_summary(
-        self, invoice_stats: dict, system_stats: dict, errors: list[str]
-    ) -> bool:
+    def send_daily_summary(self, invoice_stats: dict, system_stats: dict, errors: list[str]) -> bool:
         """
         Send daily summary report
 
@@ -204,9 +202,7 @@ class AlertManager:
 
         return result
 
-    def send_weekly_report(
-        self, weekly_stats: dict, trends: dict, recommendations: list[str]
-    ) -> bool:
+    def send_weekly_report(self, weekly_stats: dict, trends: dict, recommendations: list[str]) -> bool:
         """
         Send weekly report
 
@@ -397,9 +393,7 @@ class AlertManager:
         html += "</ul></div>"
         return html
 
-    def _format_daily_summary(
-        self, invoice_stats: dict, system_stats: dict, errors: list[str]
-    ) -> str:
+    def _format_daily_summary(self, invoice_stats: dict, system_stats: dict, errors: list[str]) -> str:
         """Format daily summary as HTML"""
 
         html = f"""
@@ -459,9 +453,7 @@ class AlertManager:
         html += "</ul></div>"
         return html
 
-    def _format_weekly_report(
-        self, weekly_stats: dict, trends: dict, recommendations: list[str]
-    ) -> str:
+    def _format_weekly_report(self, weekly_stats: dict, trends: dict, recommendations: list[str]) -> str:
         """Format weekly report as HTML"""
 
         html = f"""

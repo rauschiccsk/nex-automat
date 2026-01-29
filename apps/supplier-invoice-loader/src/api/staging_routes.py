@@ -111,13 +111,9 @@ async def get_invoices(file_status: str | None = None, limit: int = 100):
                     "xml_due_date": str(h.xml_due_date) if h.xml_due_date else None,
                     "xml_supplier_ico": h.xml_supplier_ico,
                     "xml_supplier_name": h.xml_supplier_name,
-                    "xml_total_without_vat": float(h.xml_total_without_vat)
-                    if h.xml_total_without_vat
-                    else None,
+                    "xml_total_without_vat": float(h.xml_total_without_vat) if h.xml_total_without_vat else None,
                     "xml_total_vat": float(h.xml_total_vat) if h.xml_total_vat else None,
-                    "xml_total_with_vat": float(h.xml_total_with_vat)
-                    if h.xml_total_with_vat
-                    else None,
+                    "xml_total_with_vat": float(h.xml_total_with_vat) if h.xml_total_with_vat else None,
                     "xml_currency": h.xml_currency,
                     "file_status": h.file_status.value if h.file_status else None,
                     "item_count": h.item_count,
@@ -165,13 +161,9 @@ async def get_invoice_detail(invoice_id: int):
                 "xml_due_date": str(head.xml_due_date) if head.xml_due_date else None,
                 "xml_supplier_ico": head.xml_supplier_ico,
                 "xml_supplier_name": head.xml_supplier_name,
-                "xml_total_without_vat": float(head.xml_total_without_vat)
-                if head.xml_total_without_vat
-                else None,
+                "xml_total_without_vat": float(head.xml_total_without_vat) if head.xml_total_without_vat else None,
                 "xml_total_vat": float(head.xml_total_vat) if head.xml_total_vat else None,
-                "xml_total_with_vat": float(head.xml_total_with_vat)
-                if head.xml_total_with_vat
-                else None,
+                "xml_total_with_vat": float(head.xml_total_with_vat) if head.xml_total_with_vat else None,
                 "xml_currency": head.xml_currency,
                 "file_status": head.file_status.value if head.file_status else None,
                 "item_count": head.item_count,
@@ -188,21 +180,15 @@ async def get_invoice_detail(invoice_id: int):
                     "xml_quantity": float(item.xml_quantity) if item.xml_quantity else None,
                     "xml_unit": item.xml_unit,
                     "xml_unit_price": float(item.xml_unit_price) if item.xml_unit_price else None,
-                    "xml_unit_price_vat": float(item.xml_unit_price_vat)
-                    if item.xml_unit_price_vat
-                    else None,
-                    "xml_total_price": float(item.xml_total_price)
-                    if item.xml_total_price
-                    else None,
+                    "xml_unit_price_vat": float(item.xml_unit_price_vat) if item.xml_unit_price_vat else None,
+                    "xml_total_price": float(item.xml_total_price) if item.xml_total_price else None,
                     "xml_vat_rate": float(item.xml_vat_rate) if item.xml_vat_rate else None,
                     "nex_product_id": item.nex_product_id,
                     "nex_product_name": item.nex_product_name,
                     "nex_ean": item.nex_ean,
                     "matched": item.matched,
                     "matched_by": item.matched_by,
-                    "edited_unit_price": float(item.edited_unit_price)
-                    if item.edited_unit_price
-                    else None,
+                    "edited_unit_price": float(item.edited_unit_price) if item.edited_unit_price else None,
                 }
                 for item in items
             ],

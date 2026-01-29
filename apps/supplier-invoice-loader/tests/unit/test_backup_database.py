@@ -270,9 +270,7 @@ class TestBackupRotation:
 
         for i in range(5):
             backup_date = now - timedelta(days=i)
-            backup_file = (
-                daily_dir / f"backup_{backup_date.strftime('%Y%m%d_%H%M%S')}_invoice_staging.sql.gz"
-            )
+            backup_file = daily_dir / f"backup_{backup_date.strftime('%Y%m%d_%H%M%S')}_invoice_staging.sql.gz"
             backup_file.touch()
 
         daily_removed, _ = backup_manager.rotate_backups()

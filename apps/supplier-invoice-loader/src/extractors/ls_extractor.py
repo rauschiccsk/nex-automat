@@ -193,9 +193,7 @@ class LSInvoiceExtractor:
                     # Ak stále začína 1-2 písmenami + medzera, odstráň to
                     value = re.sub(r"^[A-Z]{1,2}\s+", "", value)
                     # Odstráň extra medzery medzi písmenami v mene: "M Á G E RSTAV" → "MÁGERSTAV"
-                    value = re.sub(
-                        r"([A-ZÁČĎÉÍĹĽŇÓŔŠŤÚÝŽ])\s+(?=[A-ZÁČĎÉÍĹĽŇÓŔŠŤÚÝŽ])", r"\1", value
-                    )
+                    value = re.sub(r"([A-ZÁČĎÉÍĹĽŇÓŔŠŤÚÝŽ])\s+(?=[A-ZÁČĎÉÍĹĽŇÓŔŠŤÚÝŽ])", r"\1", value)
 
                 # Nastav hodnotu
                 setattr(data, field, value)
@@ -210,11 +208,7 @@ class LSInvoiceExtractor:
         # Použijeme IČO lookup (v reálnom svete by to bolo z databázy)
         if data.customer_ico == "31436871":
             # Ak názov obsahuje "OBJ:" alebo iné technické označenia, nahraď ho
-            if (
-                not data.customer_name
-                or "OBJ:" in data.customer_name
-                or len(data.customer_name) < 10
-            ):
+            if not data.customer_name or "OBJ:" in data.customer_name or len(data.customer_name) < 10:
                 data.customer_name = "MÁGERSTAV, spol. s r.o."
 
         return data
