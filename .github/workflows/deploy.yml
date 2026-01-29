@@ -12,7 +12,8 @@ on:
           - MAGER
 
 env:
-  COMPOSE_PROJECT_NAME: nex-automat-${{ inputs.customer }}
+  SRC_DIR: /opt/nex-automat-src
+  DEPLOY_DIR: /opt/nex-automat
 
 jobs:
   deploy:
@@ -21,37 +22,34 @@ jobs:
       - self-hosted
       - ${{ inputs.customer }}
     environment: production-${{ inputs.customer }}
+    defaults:
+      run:
+        working-directory: /opt/nex-automat
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Pull latest images
+      - name: Pull latest code
         run: |
-          echo "Pulling latest Docker images for ${{ inputs.customer }}..."
-          docker compose -f docker-compose.yml pull
+          echo "Pulling latest code from repository..."
+          cd /opt/nex-automat-src
+          git pull
+
+      - name: Build images
+        run: |
+          echo "Building Docker images..."
+          docker compose build nex-brain nex-telegram
 
       - name: Deploy services
         run: |
-          echo "Starting services for ${{ inputs.customer }}..."
-          docker compose -f docker-compose.yml up -d
+          echo "Deploying services for ${{ inputs.customer }}..."
+          docker compose up -d nex-brain nex-telegram
 
       - name: Health check
         run: |
-          echo "Running health checks..."
+          echo "Waiting for services to start..."
           sleep 10
-
-          # Check nex-brain API health
-          if curl -sf http://localhost:8000/health > /dev/null 2>&1; then
-            echo "✅ nex-brain API is healthy"
-          else
-            echo "⚠️ nex-brain API health check skipped (service may not be running)"
-          fi
-
-          # List running containers
-          echo ""
-          echo "Running containers:"
-          docker compose ps
+          echo "Running health check..."
+          curl -f http://localhost:8000/health || exit 1
+          echo "Health check passed!"
 
       - name: Deployment summary
         run: |
@@ -60,5 +58,9 @@ jobs:
           echo "|----------|-------|" >> $GITHUB_STEP_SUMMARY
           echo "| Customer | ${{ inputs.customer }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Branch | ${{ github.ref_name }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Commit | ${{ github.sha }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Triggered by | ${{ github.actor }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Running Containers" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          docker compose ps >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
