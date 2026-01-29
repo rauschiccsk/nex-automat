@@ -23,7 +23,7 @@ jobs:
       - name: Pull latest code
         uses: appleboy/ssh-action@v1
         with:
-          host: localhost
+          host: 172.17.0.1
           username: ${{ secrets.DEPLOY_SSH_USER }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           script: |
@@ -34,7 +34,7 @@ jobs:
       - name: Build images
         uses: appleboy/ssh-action@v1
         with:
-          host: localhost
+          host: 172.17.0.1
           username: ${{ secrets.DEPLOY_SSH_USER }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           script: |
@@ -45,7 +45,7 @@ jobs:
       - name: Deploy services
         uses: appleboy/ssh-action@v1
         with:
-          host: localhost
+          host: 172.17.0.1
           username: ${{ secrets.DEPLOY_SSH_USER }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           script: |
@@ -56,7 +56,7 @@ jobs:
       - name: Health check
         uses: appleboy/ssh-action@v1
         with:
-          host: localhost
+          host: 172.17.0.1
           username: ${{ secrets.DEPLOY_SSH_USER }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           script: |
@@ -69,7 +69,7 @@ jobs:
       - name: Deployment summary
         uses: appleboy/ssh-action@v1
         with:
-          host: localhost
+          host: 172.17.0.1
           username: ${{ secrets.DEPLOY_SSH_USER }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           script: |
