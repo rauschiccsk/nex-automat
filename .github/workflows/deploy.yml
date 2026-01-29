@@ -17,7 +17,9 @@ env:
 jobs:
   deploy:
     name: Deploy to ${{ inputs.customer }}
-    runs-on: [self-hosted, ${{ inputs.customer }}]
+    runs-on:
+      - self-hosted
+      - ${{ inputs.customer }}
     environment: production-${{ inputs.customer }}
 
     steps:
