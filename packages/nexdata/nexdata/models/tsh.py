@@ -173,20 +173,42 @@ class TSHRecord:
             return 0, offset + 1
         return data[offset], offset + 1
 
+    @staticmethod
+    def _read_uint16(data: bytes, offset: int) -> tuple[int, int]:
+        """Read 2-byte little-endian unsigned integer."""
+        if offset + 2 > len(data):
+            return 0, offset + 2
+        value = struct.unpack("<H", data[offset : offset + 2])[0]
+        return value, offset + 2
+
+    @staticmethod
+    def _read_uint32(data: bytes, offset: int) -> tuple[int, int]:
+        """Read 4-byte little-endian unsigned integer."""
+        if offset + 4 > len(data):
+            return 0, offset + 4
+        value = struct.unpack("<I", data[offset : offset + 4])[0]
+        return value, offset + 4
+
     @classmethod
     def from_bytes(cls, data: bytes, encoding: str = "cp852") -> "TSHRecord":
         """
         Deserialize TSH record from bytes using Pascal ShortString format.
 
-        Field sequence (based on MAGER hex dump analysis):
-        1. doc_id (int32) - internal ID
-        2. doc_number (pascal string) - document number
-        3. reference (pascal string) - reference number
-        4. pab_code (int32) - partner code
-        5. doc_type (int16) - document type
-        6. pab_name (pascal string) - partner name
-        ... more string fields (ICO, DIC, IC_DPH, address, city, ZIP, payment)
-        ... amounts as doubles at the end
+        Field sequence (based on hex dump analysis):
+        Offset  Size  Type           Field
+        0x0000  4     int32          doc_id (internal, skip)
+        0x0004  1+N   pascal string  doc_number (len=12)
+        0x0011  1+N   pascal string  reference (len=10)
+        0x001c  2     padding        skip
+        0x001e  4     int32          doc_date (Delphi TDateTime)
+        0x0022  2     int16          unknown (pab_code or doc_type)
+        0x0024  2     padding        skip
+        0x0026  1+N   pascal string  pab_name
+        ...     ...   pascal strings ICO, DIC, IC_DPH, address, city, ZIP, payment
+        ...     ...   doubles        amounts at the end
+
+        Delphi TDateTime: days since 1899-12-30
+        Example: 0x0001b3cd = 111565 → ~2025
 
         Args:
             data: Raw bytes from Btrieve
@@ -195,63 +217,68 @@ class TSHRecord:
         Returns:
             TSHRecord instance
         """
+        from datetime import timedelta
+
         if len(data) < 50:
             raise ValueError(f"Invalid record size: {len(data)} bytes (expected >= 50)")
 
         offset = 0
 
-        # 1. doc_id (int32) - internal ID, skip
-        doc_id, offset = cls._read_int32(data, offset)
+        # 0x0000: doc_id (int32) - internal ID, skip
+        _doc_id, offset = cls._read_uint32(data, offset)
 
-        # 2. doc_number (pascal string)
+        # 0x0004: doc_number (pascal string, len=12)
         doc_number, offset = cls._read_pascal_string(data, offset, encoding)
 
-        # 3. reference (pascal string)
+        # 0x0011: reference (pascal string, len=10)
         reference, offset = cls._read_pascal_string(data, offset, encoding)
 
-        # 4. pab_code (int32)
-        pab_code, offset = cls._read_int32(data, offset)
+        # 0x001c: 2 bytes padding
+        offset += 2
 
-        # 5. doc_type (int16)
-        doc_type, offset = cls._read_int16(data, offset)
+        # 0x001e: doc_date (int32 - Delphi TDateTime integer)
+        doc_date_int, offset = cls._read_uint32(data, offset)
+        doc_date = None
+        if doc_date_int > 0:
+            try:
+                base_date = datetime(1899, 12, 30)
+                doc_date = (base_date + timedelta(days=doc_date_int)).date()
+            except (ValueError, OverflowError):
+                doc_date = None
 
-        # 6. pab_name (pascal string)
+        # 0x0022: unknown field (int16) - possibly pab_code or doc_type
+        unknown_field, offset = cls._read_uint16(data, offset)
+        # For now, treat as doc_type (will be verified with more data)
+        doc_type = unknown_field if unknown_field in (1, 2, 3, 4, 5) else 1
+
+        # 0x0024: 2 bytes padding
+        offset += 2
+
+        # 0x0026: pab_name (pascal string)
         pab_name, offset = cls._read_pascal_string(data, offset, encoding)
 
-        # 7-9. ICO, DIC, IC_DPH (pascal strings)
+        # Continue with remaining pascal strings
         pab_ico, offset = cls._read_pascal_string(data, offset, encoding)
         pab_dic, offset = cls._read_pascal_string(data, offset, encoding)
         pab_ic_dph, offset = cls._read_pascal_string(data, offset, encoding)
-
-        # 10-12. address, city, ZIP (pascal strings)
         pab_address, offset = cls._read_pascal_string(data, offset, encoding)
         pab_city, offset = cls._read_pascal_string(data, offset, encoding)
         pab_zip, offset = cls._read_pascal_string(data, offset, encoding)
-
-        # 13. payment_name (pascal string)
         payment_name, offset = cls._read_pascal_string(data, offset, encoding)
 
         # Try to find the amount section (look for doubles near end of record)
-        # Amounts are typically 8-byte doubles at specific positions
         amount_base = Decimal("0.00")
         amount_vat = Decimal("0.00")
         amount_total = Decimal("0.00")
 
-        # Search for amounts in the remaining data
-        # They should be near the end as consecutive doubles
         amounts_found = cls._find_amounts(data, offset)
         if amounts_found:
             amount_base, amount_vat, amount_total = amounts_found
 
-        # Parse dates if present
-        doc_date = None
+        # Additional dates (delivery_date, due_date) - search in remaining data
         delivery_date = None
         due_date = None
-
-        # Try to find date section (usually after some fields)
-        dates_found = cls._find_dates(data, offset)
-        if dates_found:
-            doc_date, delivery_date, due_date = dates_found
+        pab_code = 0  # Will be identified in future analysis
 
         return cls(
             doc_number=doc_number,
