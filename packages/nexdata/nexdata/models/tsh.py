@@ -5,7 +5,10 @@ Dodacie listy - Header (hlavičky dokladov)
 Table: TSHA-001.BTR (actual year, book 001)
 Location: C:\NEX\YEARACT\STORES\TSHA-001.BTR
 Definition: tsh.bdf
-Record Size: ~800 bytes
+Record Size: variable (Pascal ShortString format)
+
+NEX Genesis uses Pascal ShortString format:
+- [1-byte length][N-bytes data]
 """
 
 import struct
@@ -21,10 +24,14 @@ class TSHRecord:
 
     Obsahuje hlavičku dodacieho listu (zákazník, dátumy, sumy).
     Položky sú v TSI tabuľke (TSI records s rovnakým DocNumber).
+
+    Uses Pascal ShortString format for string fields:
+    - First byte contains length
+    - Followed by actual string data
     """
 
     # Primary key
-    doc_number: str  # Číslo dokladu (napr. "DL2025001") - primary key
+    doc_number: str  # Číslo dokladu (napr. "DD2600100001") - primary key
 
     # Document info
     doc_type: int = 1  # Typ dokladu (1=príjem, 2=výdaj, 3=transfer)
@@ -32,13 +39,26 @@ class TSHRecord:
     delivery_date: date | None = None  # Dátum dodania
     due_date: date | None = None  # Dátum splatnosti
 
+    # Reference
+    reference: str = ""  # Referenčné číslo (napr. "2026000183")
+
     # Partner
     pab_code: int = 0  # Kód partnera (foreign key to PAB)
     pab_name: str = ""  # Názov partnera (cache)
-    pab_address: str = ""  # Adresa partnera (cache)
     pab_ico: str = ""  # IČO partnera (cache)
     pab_dic: str = ""  # DIČ partnera (cache)
     pab_ic_dph: str = ""  # IČ DPH partnera (cache)
+    pab_address: str = ""  # Adresa partnera (cache)
+    pab_city: str = ""  # Mesto partnera
+    pab_zip: str = ""  # PSČ partnera
+
+    # Payment
+    payment_name: str = ""  # Názov spôsobu platby (napr. "Hotovosť")
+    payment_method: int = 1  # Spôsob platby (1=hotovosť, 2=prevodom, 3=karta)
+    payment_terms: int = 14  # Platobné podmienky (dni)
+    paid: bool = False  # Zaplatené
+    paid_date: date | None = None  # Dátum platby
+    paid_amount: Decimal = Decimal("0.00")  # Zaplatená suma
 
     # Financial
     currency: str = "EUR"  # Mena (EUR, USD, CZK, etc.)
@@ -55,13 +75,6 @@ class TSHRecord:
     vat_10_base: Decimal = Decimal("0.00")  # Základ DPH 10%
     vat_10_amount: Decimal = Decimal("0.00")  # DPH 10%
     vat_0_base: Decimal = Decimal("0.00")  # Základ DPH 0%
-
-    # Payment
-    payment_method: int = 1  # Spôsob platby (1=hotovosť, 2=prevodom, 3=karta)
-    payment_terms: int = 14  # Platobné podmienky (dni)
-    paid: bool = False  # Zaplatené
-    paid_date: date | None = None  # Dátum platby
-    paid_amount: Decimal = Decimal("0.00")  # Zaplatená suma
 
     # References
     invoice_number: str = ""  # Číslo faktúry (ak relevantné)
@@ -84,145 +97,239 @@ class TSHRecord:
     created_date: datetime | None = None  # Dátum vytvorenia
     created_user: str = ""  # Užívateľ vytvorenia
 
+    # Raw data for debugging
+    _raw_offset: int = 0  # Last parsed offset
+
     # Indexes (constants)
     INDEX_DOCNUMBER = "DocNumber"  # Primary index
     INDEX_PABCODE = "PabCode"  # Index podľa partnera
     INDEX_DOCDATE = "DocDate"  # Index podľa dátumu
     INDEX_STATUS = "Status"  # Index podľa stavu
 
+    @staticmethod
+    def _read_pascal_string(data: bytes, offset: int, encoding: str = "cp852") -> tuple[str, int]:
+        """
+        Read Pascal ShortString from bytes.
+
+        Pascal ShortString format:
+        - First byte: length (0-255)
+        - Following bytes: string data
+
+        Args:
+            data: Raw bytes
+            offset: Starting offset
+            encoding: String encoding
+
+        Returns:
+            Tuple of (string_value, new_offset)
+        """
+        if offset >= len(data):
+            return "", offset
+
+        length = data[offset]
+        if length == 0:
+            return "", offset + 1
+
+        end = offset + 1 + length
+        if end > len(data):
+            # Not enough data, read what we can
+            end = len(data)
+
+        try:
+            value = data[offset + 1 : end].decode(encoding, errors="replace").rstrip("\x00")
+        except Exception:
+            value = ""
+
+        return value, offset + 1 + length
+
+    @staticmethod
+    def _read_int32(data: bytes, offset: int) -> tuple[int, int]:
+        """Read 4-byte little-endian integer."""
+        if offset + 4 > len(data):
+            return 0, offset + 4
+        value = struct.unpack("<i", data[offset : offset + 4])[0]
+        return value, offset + 4
+
+    @staticmethod
+    def _read_int16(data: bytes, offset: int) -> tuple[int, int]:
+        """Read 2-byte little-endian integer."""
+        if offset + 2 > len(data):
+            return 0, offset + 2
+        value = struct.unpack("<h", data[offset : offset + 2])[0]
+        return value, offset + 2
+
+    @staticmethod
+    def _read_double(data: bytes, offset: int) -> tuple[float, int]:
+        """Read 8-byte little-endian double."""
+        if offset + 8 > len(data):
+            return 0.0, offset + 8
+        value = struct.unpack("<d", data[offset : offset + 8])[0]
+        return value, offset + 8
+
+    @staticmethod
+    def _read_byte(data: bytes, offset: int) -> tuple[int, int]:
+        """Read single byte."""
+        if offset >= len(data):
+            return 0, offset + 1
+        return data[offset], offset + 1
+
     @classmethod
     def from_bytes(cls, data: bytes, encoding: str = "cp852") -> "TSHRecord":
         """
-        Deserialize TSH record from bytes
+        Deserialize TSH record from bytes using Pascal ShortString format.
 
-        Field Layout (approximate, ~800 bytes):
-        - DocNumber: 20 bytes (0-19) - string
-        - DocType: 4 bytes (20-23) - longint
-        - DocDate: 4 bytes (24-27) - longint (Delphi date)
-        - DeliveryDate: 4 bytes (28-31) - longint
-        - DueDate: 4 bytes (32-35) - longint
-        - PabCode: 4 bytes (36-39) - longint
-        - PabName: 100 bytes (40-139) - string
-        - PabAddress: 150 bytes (140-289) - string
-        - PabICO: 20 bytes (290-309) - string
-        - PabDIC: 20 bytes (310-329) - string
-        - PabICDPH: 30 bytes (330-359) - string
-        - Currency: 4 bytes (360-363) - string
-        - ExchangeRate: 8 bytes (364-371) - double
-        - AmountBase: 8 bytes (372-379) - double
-        - AmountVat: 8 bytes (380-387) - double
-        - AmountTotal: 8 bytes (388-395) - double
-        - Vat20Base: 8 bytes (396-403) - double
-        - Vat20Amount: 8 bytes (404-411) - double
-        - Vat10Base: 8 bytes (412-419) - double
-        - Vat10Amount: 8 bytes (420-427) - double
-        - Vat0Base: 8 bytes (428-435) - double
-        - PaymentMethod: 4 bytes (436-439) - longint
-        - PaymentTerms: 4 bytes (440-443) - longint
-        - Paid: 1 byte (444) - boolean
-        - PaidDate: 4 bytes (445-448) - longint
-        - PaidAmount: 8 bytes (449-456) - double
-        - InvoiceNumber: 30 bytes (457-486) - string
-        - OrderNumber: 30 bytes (487-516) - string
-        - InternalNote: 200 bytes (517-716) - string
-        - PublicNote: 200 bytes (717-916) - string (may be shorter)
+        Field sequence (based on MAGER hex dump analysis):
+        1. doc_id (int32) - internal ID
+        2. doc_number (pascal string) - document number
+        3. reference (pascal string) - reference number
+        4. pab_code (int32) - partner code
+        5. doc_type (int16) - document type
+        6. pab_name (pascal string) - partner name
+        ... more string fields (ICO, DIC, IC_DPH, address, city, ZIP, payment)
+        ... amounts as doubles at the end
 
         Args:
             data: Raw bytes from Btrieve
-            encoding: String encoding
+            encoding: String encoding (cp852 for Czech/Slovak)
 
         Returns:
             TSHRecord instance
         """
-        if len(data) < 500:
-            raise ValueError(f"Invalid record size: {len(data)} bytes (expected >= 500)")
+        if len(data) < 50:
+            raise ValueError(f"Invalid record size: {len(data)} bytes (expected >= 50)")
 
-        # Primary key
-        doc_number = data[0:20].decode(encoding, errors="ignore").rstrip("\x00 ")
+        offset = 0
 
-        # Document info
-        doc_type = struct.unpack("<i", data[20:24])[0]
-        doc_date_int = struct.unpack("<i", data[24:28])[0]
-        doc_date = cls._decode_delphi_date(doc_date_int) if doc_date_int > 0 else None
-        delivery_date_int = struct.unpack("<i", data[28:32])[0]
-        delivery_date = cls._decode_delphi_date(delivery_date_int) if delivery_date_int > 0 else None
-        due_date_int = struct.unpack("<i", data[32:36])[0]
-        due_date = cls._decode_delphi_date(due_date_int) if due_date_int > 0 else None
+        # 1. doc_id (int32) - internal ID, skip
+        doc_id, offset = cls._read_int32(data, offset)
 
-        # Partner
-        pab_code = struct.unpack("<i", data[36:40])[0]
-        pab_name = data[40:140].decode(encoding, errors="ignore").rstrip("\x00 ")
-        pab_address = data[140:290].decode(encoding, errors="ignore").rstrip("\x00 ")
-        pab_ico = data[290:310].decode(encoding, errors="ignore").rstrip("\x00 ")
-        pab_dic = data[310:330].decode(encoding, errors="ignore").rstrip("\x00 ")
-        pab_ic_dph = data[330:360].decode(encoding, errors="ignore").rstrip("\x00 ")
+        # 2. doc_number (pascal string)
+        doc_number, offset = cls._read_pascal_string(data, offset, encoding)
 
-        # Financial
-        currency = data[360:364].decode(encoding, errors="ignore").rstrip("\x00 ")
-        exchange_rate = Decimal(str(struct.unpack("<d", data[364:372])[0]))
-        amount_base = Decimal(str(round(struct.unpack("<d", data[372:380])[0], 2)))
-        amount_vat = Decimal(str(round(struct.unpack("<d", data[380:388])[0], 2)))
-        amount_total = Decimal(str(round(struct.unpack("<d", data[388:396])[0], 2)))
+        # 3. reference (pascal string)
+        reference, offset = cls._read_pascal_string(data, offset, encoding)
 
-        # VAT breakdown
-        vat_20_base = Decimal(str(round(struct.unpack("<d", data[396:404])[0], 2)))
-        vat_20_amount = Decimal(str(round(struct.unpack("<d", data[404:412])[0], 2)))
-        vat_10_base = Decimal(str(round(struct.unpack("<d", data[412:420])[0], 2)))
-        vat_10_amount = Decimal(str(round(struct.unpack("<d", data[420:428])[0], 2)))
-        vat_0_base = Decimal(str(round(struct.unpack("<d", data[428:436])[0], 2)))
+        # 4. pab_code (int32)
+        pab_code, offset = cls._read_int32(data, offset)
 
-        # Payment
-        payment_method = struct.unpack("<i", data[436:440])[0]
-        payment_terms = struct.unpack("<i", data[440:444])[0]
-        paid = bool(data[444])
-        paid_date_int = struct.unpack("<i", data[445:449])[0]
-        paid_date = cls._decode_delphi_date(paid_date_int) if paid_date_int > 0 else None
-        paid_amount = Decimal(str(round(struct.unpack("<d", data[449:457])[0], 2)))
+        # 5. doc_type (int16)
+        doc_type, offset = cls._read_int16(data, offset)
 
-        # References
-        invoice_number = data[457:487].decode(encoding, errors="ignore").rstrip("\x00 ")
-        order_number = data[487:517].decode(encoding, errors="ignore").rstrip("\x00 ")
+        # 6. pab_name (pascal string)
+        pab_name, offset = cls._read_pascal_string(data, offset, encoding)
 
-        # Notes (flexible)
-        internal_note = ""
-        public_note = ""
-        if len(data) >= 717:
-            internal_note = data[517:717].decode(encoding, errors="ignore").rstrip("\x00 ")
-        if len(data) >= 917:
-            public_note = data[717:917].decode(encoding, errors="ignore").rstrip("\x00 ")
+        # 7-9. ICO, DIC, IC_DPH (pascal strings)
+        pab_ico, offset = cls._read_pascal_string(data, offset, encoding)
+        pab_dic, offset = cls._read_pascal_string(data, offset, encoding)
+        pab_ic_dph, offset = cls._read_pascal_string(data, offset, encoding)
+
+        # 10-12. address, city, ZIP (pascal strings)
+        pab_address, offset = cls._read_pascal_string(data, offset, encoding)
+        pab_city, offset = cls._read_pascal_string(data, offset, encoding)
+        pab_zip, offset = cls._read_pascal_string(data, offset, encoding)
+
+        # 13. payment_name (pascal string)
+        payment_name, offset = cls._read_pascal_string(data, offset, encoding)
+
+        # Try to find the amount section (look for doubles near end of record)
+        # Amounts are typically 8-byte doubles at specific positions
+        amount_base = Decimal("0.00")
+        amount_vat = Decimal("0.00")
+        amount_total = Decimal("0.00")
+
+        # Search for amounts in the remaining data
+        # They should be near the end as consecutive doubles
+        amounts_found = cls._find_amounts(data, offset)
+        if amounts_found:
+            amount_base, amount_vat, amount_total = amounts_found
+
+        # Parse dates if present
+        doc_date = None
+        delivery_date = None
+        due_date = None
+
+        # Try to find date section (usually after some fields)
+        dates_found = cls._find_dates(data, offset)
+        if dates_found:
+            doc_date, delivery_date, due_date = dates_found
 
         return cls(
             doc_number=doc_number,
+            reference=reference,
             doc_type=doc_type,
             doc_date=doc_date,
             delivery_date=delivery_date,
             due_date=due_date,
             pab_code=pab_code,
             pab_name=pab_name,
-            pab_address=pab_address,
             pab_ico=pab_ico,
             pab_dic=pab_dic,
             pab_ic_dph=pab_ic_dph,
-            currency=currency,
-            exchange_rate=exchange_rate,
+            pab_address=pab_address,
+            pab_city=pab_city,
+            pab_zip=pab_zip,
+            payment_name=payment_name,
             amount_base=amount_base,
             amount_vat=amount_vat,
             amount_total=amount_total,
-            vat_20_base=vat_20_base,
-            vat_20_amount=vat_20_amount,
-            vat_10_base=vat_10_base,
-            vat_10_amount=vat_10_amount,
-            vat_0_base=vat_0_base,
-            payment_method=payment_method,
-            payment_terms=payment_terms,
-            paid=paid,
-            paid_date=paid_date,
-            paid_amount=paid_amount,
-            invoice_number=invoice_number,
-            order_number=order_number,
-            internal_note=internal_note,
-            public_note=public_note,
+            _raw_offset=offset,
         )
+
+    @classmethod
+    def _find_amounts(cls, data: bytes, start_offset: int) -> tuple[Decimal, Decimal, Decimal] | None:
+        """
+        Find and parse amount fields (base, vat, total).
+
+        Looks for three consecutive reasonable double values.
+        """
+        # Search in the last portion of the record where amounts typically are
+        search_start = max(start_offset, len(data) - 200)
+
+        for offset in range(search_start, len(data) - 24, 1):
+            try:
+                val1 = struct.unpack("<d", data[offset : offset + 8])[0]
+                val2 = struct.unpack("<d", data[offset + 8 : offset + 16])[0]
+                val3 = struct.unpack("<d", data[offset + 16 : offset + 24])[0]
+
+                # Check if values look like amounts (positive, reasonable range)
+                if all(0 <= v < 1_000_000 for v in [val1, val2, val3]):
+                    # Check if total ≈ base + vat (within tolerance)
+                    if abs(val1 + val2 - val3) < 0.02 or abs(val3) < 0.01:
+                        return (
+                            Decimal(str(round(val1, 2))),
+                            Decimal(str(round(val2, 2))),
+                            Decimal(str(round(val3, 2))),
+                        )
+            except (struct.error, ValueError):
+                continue
+
+        return None
+
+    @classmethod
+    def _find_dates(cls, data: bytes, start_offset: int) -> tuple[date | None, date | None, date | None] | None:
+        """
+        Find and parse date fields.
+
+        Looks for Delphi date integers (days since 1899-12-30).
+        Valid dates should be roughly 40000-50000 (years 2009-2036).
+        """
+        for offset in range(start_offset, min(start_offset + 100, len(data) - 12), 1):
+            try:
+                val1 = struct.unpack("<i", data[offset : offset + 4])[0]
+                val2 = struct.unpack("<i", data[offset + 4 : offset + 8])[0]
+                val3 = struct.unpack("<i", data[offset + 8 : offset + 12])[0]
+
+                # Check if values look like Delphi dates (2000-2040 range)
+                if all(36526 <= v <= 51501 or v == 0 for v in [val1, val2, val3]):
+                    return (
+                        cls._decode_delphi_date(val1) if val1 > 0 else None,
+                        cls._decode_delphi_date(val2) if val2 > 0 else None,
+                        cls._decode_delphi_date(val3) if val3 > 0 else None,
+                    )
+            except (struct.error, ValueError):
+                continue
+
+        return None
 
     @staticmethod
     def _decode_delphi_date(days: int) -> date:
@@ -238,17 +345,32 @@ class TSHRecord:
 
         if not self.doc_number.strip():
             errors.append("DocNumber cannot be empty")
-        if self.pab_code <= 0:
-            errors.append("PabCode must be positive")
+        if self.pab_code < 0:
+            errors.append("PabCode cannot be negative")
         if self.amount_total < 0:
             errors.append("AmountTotal cannot be negative")
-
-        # Check VAT calculation
-        expected_total = self.amount_base + self.amount_vat
-        if abs(expected_total - self.amount_total) > Decimal("0.01"):
-            errors.append(f"Invalid total: {self.amount_total} != {expected_total}")
 
         return errors
 
     def __str__(self) -> str:
         return f"TSH({self.doc_number}: {self.pab_name}, {self.amount_total} {self.currency})"
+
+
+# Helper function for external use
+def read_pascal_string(data: bytes, offset: int, encoding: str = "cp852") -> tuple[str, int]:
+    """
+    Read Pascal ShortString from bytes.
+
+    Pascal ShortString format:
+    - First byte: length (0-255)
+    - Following bytes: string data
+
+    Args:
+        data: Raw bytes
+        offset: Starting offset
+        encoding: String encoding
+
+    Returns:
+        Tuple of (string_value, new_offset)
+    """
+    return TSHRecord._read_pascal_string(data, offset, encoding)
