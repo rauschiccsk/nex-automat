@@ -117,7 +117,7 @@ class DocumentHeader(DocumentHeaderBase):
             pab_address=record.pab_address,
             pab_ico=record.pab_ico,
             pab_dic=record.pab_dic,
-            pab_ic_dph=record.pab_ic_dph if hasattr(record, 'pab_ic_dph') else "",
+            pab_ic_dph=record.pab_ic_dph if hasattr(record, "pab_ic_dph") else "",
             currency=record.currency,
             exchange_rate=record.exchange_rate,
             amount_base=record.amount_base,
@@ -128,7 +128,9 @@ class DocumentHeader(DocumentHeaderBase):
             vat_10_base=record.vat_10_base,
             vat_10_amount=record.vat_10_amount,
             vat_0_base=record.vat_0_base,
-            payment_method=PaymentMethod(record.payment_method) if record.payment_method in [1, 2, 3] else PaymentMethod.TRANSFER,
+            payment_method=PaymentMethod(record.payment_method)
+            if record.payment_method in [1, 2, 3]
+            else PaymentMethod.TRANSFER,
             payment_terms=record.payment_terms,
             paid=record.paid,
             paid_date=record.paid_date,
@@ -137,12 +139,14 @@ class DocumentHeader(DocumentHeaderBase):
             order_number=record.order_number,
             internal_note=record.internal_note,
             public_note=record.public_note,
-            status=DocumentStatus(record.status) if hasattr(record, 'status') and record.status in [1, 2, 3, 4] else DocumentStatus.DRAFT,
-            locked=record.locked if hasattr(record, 'locked') else False,
-            posted=record.posted if hasattr(record, 'posted') else False,
+            status=DocumentStatus(record.status)
+            if hasattr(record, "status") and record.status in [1, 2, 3, 4]
+            else DocumentStatus.DRAFT,
+            locked=record.locked if hasattr(record, "locked") else False,
+            posted=record.posted if hasattr(record, "posted") else False,
             warehouse_code=record.warehouse_code,
-            mod_user=record.mod_user if hasattr(record, 'mod_user') else "",
-            mod_date=record.mod_date if hasattr(record, 'mod_date') else None,
+            mod_user=record.mod_user if hasattr(record, "mod_user") else "",
+            mod_date=record.mod_date if hasattr(record, "mod_date") else None,
         )
 
 
@@ -218,8 +222,8 @@ class DocumentItem(DocumentItemBase):
             note=record.note,
             supplier_item_code=record.supplier_item_code,
             status=record.status,
-            mod_user=record.mod_user if hasattr(record, 'mod_user') else "",
-            mod_date=record.mod_date if hasattr(record, 'mod_date') else None,
+            mod_user=record.mod_user if hasattr(record, "mod_user") else "",
+            mod_date=record.mod_date if hasattr(record, "mod_date") else None,
         )
 
 
