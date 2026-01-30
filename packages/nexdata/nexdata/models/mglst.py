@@ -5,7 +5,7 @@ Tovarové skupiny (hierarchická kategorizácia produktov)
 Table: MGLST.BTR
 Location: C:\NEX\YEARACT\STORES\MGLST.BTR
 Definition: mglst.bdf
-Record Size: ~200 bytes
+Record Size: 134 bytes (compact) or ~200+ bytes (extended)
 """
 
 import struct
@@ -60,12 +60,34 @@ class MGLSTRecord:
     INDEX_PARENT = "ParentCode"  # Index podľa nadriadenej skupiny
     INDEX_SORT = "SortOrder"  # Index pre zoradenie
 
+    # Minimum record sizes for different layouts
+    COMPACT_SIZE = 134  # Compact layout (older NEX versions)
+    EXTENDED_SIZE = 200  # Extended layout with more fields
+
     @classmethod
     def from_bytes(cls, data: bytes, encoding: str = "cp852") -> "MGLSTRecord":
         """
-        Deserialize MGLST record from bytes
+        Deserialize MGLST record from bytes.
 
-        Field Layout (approximate, ~200 bytes):
+        Supports two record layouts:
+
+        COMPACT Layout (134 bytes):
+        - MglstCode: 4 bytes (0-3) - longint
+        - MglstName: 60 bytes (4-63) - string
+        - ShortName: 20 bytes (64-83) - string
+        - ParentCode: 4 bytes (84-87) - longint
+        - Level: 2 bytes (88-89) - smallint
+        - SortOrder: 2 bytes (90-91) - smallint
+        - Active: 1 byte (92) - boolean
+        - ShowInCatalog: 1 byte (93) - boolean
+        - DefaultVatRate: 8 bytes (94-101) - double
+        - DefaultUnit: 10 bytes (102-111) - string
+        - ModUser: 8 bytes (112-119) - string
+        - ModDate: 4 bytes (120-123) - longint
+        - ModTime: 4 bytes (124-127) - longint
+        - Reserved: 6 bytes (128-133)
+
+        EXTENDED Layout (~200+ bytes):
         - MglstCode: 4 bytes (0-3) - longint
         - MglstName: 80 bytes (4-83) - string
         - ShortName: 30 bytes (84-113) - string
@@ -78,10 +100,7 @@ class MGLSTRecord:
         - Active: 1 byte (154) - boolean
         - ShowInCatalog: 1 byte (155) - boolean
         - Note: 100 bytes (156-255) - string
-        - Description: 200 bytes (256-455) - string (may be shorter)
-        - ModUser: 8 bytes - string
-        - ModDate: 4 bytes - longint
-        - ModTime: 4 bytes - longint
+        - ... additional fields
 
         Args:
             data: Raw bytes from Btrieve
@@ -90,9 +109,90 @@ class MGLSTRecord:
         Returns:
             MGLSTRecord instance
         """
-        if len(data) < 200:
-            raise ValueError(f"Invalid record size: {len(data)} bytes (expected >= 200)")
+        if len(data) < cls.COMPACT_SIZE:
+            raise ValueError(f"Invalid record size: {len(data)} bytes (expected >= {cls.COMPACT_SIZE})")
 
+        # Determine layout based on record size
+        if len(data) < cls.EXTENDED_SIZE:
+            return cls._from_bytes_compact(data, encoding)
+        else:
+            return cls._from_bytes_extended(data, encoding)
+
+    @classmethod
+    def _from_bytes_compact(cls, data: bytes, encoding: str) -> "MGLSTRecord":
+        """Parse compact 134-byte layout."""
+        # Primary key
+        mglst_code = struct.unpack("<i", data[0:4])[0]
+
+        # Basic info
+        mglst_name = data[4:64].decode(encoding, errors="ignore").rstrip("\x00 ")
+        short_name = data[64:84].decode(encoding, errors="ignore").rstrip("\x00 ")
+
+        # Hierarchy
+        parent_code = struct.unpack("<i", data[84:88])[0]
+        level = struct.unpack("<h", data[88:90])[0]  # smallint
+
+        # Display
+        sort_order = struct.unpack("<h", data[90:92])[0]  # smallint
+
+        # Status
+        active = bool(data[92])
+        show_in_catalog = bool(data[93])
+
+        # Business rules
+        default_vat_rate = 20.0  # Default
+        default_unit = "ks"
+        if len(data) >= 102:
+            try:
+                default_vat_rate = struct.unpack("<d", data[94:102])[0]
+                # Validate VAT rate - if garbage, use default
+                if default_vat_rate < 0 or default_vat_rate > 100:
+                    default_vat_rate = 20.0
+            except (struct.error, ValueError):
+                default_vat_rate = 20.0
+
+        if len(data) >= 112:
+            default_unit = data[102:112].decode(encoding, errors="ignore").rstrip("\x00 ") or "ks"
+
+        # Audit fields
+        mod_user = ""
+        mod_date = None
+        mod_time = None
+
+        if len(data) >= 120:
+            mod_user = data[112:120].decode(encoding, errors="ignore").rstrip("\x00 ")
+
+        if len(data) >= 128:
+            try:
+                mod_date_int = struct.unpack("<i", data[120:124])[0]
+                mod_date = cls._decode_delphi_date(mod_date_int) if mod_date_int > 0 else None
+                mod_time_int = struct.unpack("<i", data[124:128])[0]
+                mod_time = cls._decode_delphi_time(mod_time_int) if mod_time_int >= 0 else None
+            except (struct.error, ValueError):
+                pass
+
+        return cls(
+            mglst_code=mglst_code,
+            mglst_name=mglst_name,
+            short_name=short_name,
+            parent_code=parent_code,
+            level=level,
+            sort_order=sort_order,
+            color_code="",  # Not in compact layout
+            default_vat_rate=default_vat_rate,
+            default_unit=default_unit,
+            active=active,
+            show_in_catalog=show_in_catalog,
+            note="",  # Not in compact layout
+            description="",  # Not in compact layout
+            mod_user=mod_user,
+            mod_date=mod_date,
+            mod_time=mod_time,
+        )
+
+    @classmethod
+    def _from_bytes_extended(cls, data: bytes, encoding: str) -> "MGLSTRecord":
+        """Parse extended 200+ byte layout."""
         # Primary key
         mglst_code = struct.unpack("<i", data[0:4])[0]
 
@@ -233,6 +333,11 @@ class MGLSTRecord:
         """
         path = self.get_path(all_categories)
         return separator.join([c.mglst_name for c in path])
+
+    @property
+    def name(self) -> str:
+        """Alias for mglst_name (compatibility)."""
+        return self.mglst_name
 
     def __str__(self) -> str:
         return f"MGLST({self.mglst_code}: {self.mglst_name})"

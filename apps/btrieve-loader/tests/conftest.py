@@ -294,11 +294,25 @@ class MockMGLSTRecord:
     """Mock MGLST (Product Group) record."""
 
     mglst_code: int
-    name: str
+    name: str  # Also accessible as mglst_name
     parent_code: int = 0
     level: int = 1
     sort_order: int = 0
     active: bool = True
+    short_name: str = ""
+    show_in_catalog: bool = True
+    color_code: str = ""
+    default_vat_rate: float = 20.0
+    default_unit: str = "ks"
+    note: str = ""
+    description: str = ""
+    mod_user: str = ""
+    mod_date: datetime | None = None
+
+    @property
+    def mglst_name(self) -> str:
+        """Alias for name field."""
+        return self.name
 
 
 @dataclass
