@@ -6,11 +6,14 @@ Table: MGLST.BTR
 Location: C:\NEX\YEARACT\STORES\MGLST.BTR
 Definition: mglst.bdf
 Record Size: 134 bytes (compact) or ~200+ bytes (extended)
+Encoding: Kamenický (KEYBCS2)
 """
 
 import struct
 from dataclasses import dataclass
 from datetime import datetime
+
+from ..utils.encoding import decode_keybcs2
 
 
 @dataclass
@@ -65,9 +68,9 @@ class MGLSTRecord:
     EXTENDED_SIZE = 200  # Extended layout with more fields
 
     @classmethod
-    def from_bytes(cls, data: bytes, encoding: str = "cp852") -> "MGLSTRecord":
+    def from_bytes(cls, data: bytes) -> "MGLSTRecord":
         """
-        Deserialize MGLST record from bytes.
+        Deserialize MGLST record from bytes (Kamenický encoding).
 
         Supports two record layouts:
 
@@ -103,8 +106,7 @@ class MGLSTRecord:
         - ... additional fields
 
         Args:
-            data: Raw bytes from Btrieve
-            encoding: String encoding (cp852 for Czech/Slovak)
+            data: Raw bytes from Btrieve (Kamenický/KEYBCS2 encoding)
 
         Returns:
             MGLSTRecord instance
@@ -114,19 +116,19 @@ class MGLSTRecord:
 
         # Determine layout based on record size
         if len(data) < cls.EXTENDED_SIZE:
-            return cls._from_bytes_compact(data, encoding)
+            return cls._from_bytes_compact(data)
         else:
-            return cls._from_bytes_extended(data, encoding)
+            return cls._from_bytes_extended(data)
 
     @classmethod
-    def _from_bytes_compact(cls, data: bytes, encoding: str) -> "MGLSTRecord":
+    def _from_bytes_compact(cls, data: bytes) -> "MGLSTRecord":
         """Parse compact 134-byte layout."""
         # Primary key
         mglst_code = struct.unpack("<i", data[0:4])[0]
 
         # Basic info
-        mglst_name = data[4:64].decode(encoding, errors="ignore").rstrip("\x00 ")
-        short_name = data[64:84].decode(encoding, errors="ignore").rstrip("\x00 ")
+        mglst_name = decode_keybcs2(data[4:64]).rstrip("\x00 ")
+        short_name = decode_keybcs2(data[64:84]).rstrip("\x00 ")
 
         # Hierarchy
         parent_code = struct.unpack("<i", data[84:88])[0]
@@ -152,7 +154,7 @@ class MGLSTRecord:
                 default_vat_rate = 20.0
 
         if len(data) >= 112:
-            default_unit = data[102:112].decode(encoding, errors="ignore").rstrip("\x00 ") or "ks"
+            default_unit = decode_keybcs2(data[102:112]).rstrip("\x00 ") or "ks"
 
         # Audit fields
         mod_user = ""
@@ -160,7 +162,7 @@ class MGLSTRecord:
         mod_time = None
 
         if len(data) >= 120:
-            mod_user = data[112:120].decode(encoding, errors="ignore").rstrip("\x00 ")
+            mod_user = decode_keybcs2(data[112:120]).rstrip("\x00 ")
 
         if len(data) >= 128:
             try:
@@ -191,14 +193,14 @@ class MGLSTRecord:
         )
 
     @classmethod
-    def _from_bytes_extended(cls, data: bytes, encoding: str) -> "MGLSTRecord":
+    def _from_bytes_extended(cls, data: bytes) -> "MGLSTRecord":
         """Parse extended 200+ byte layout."""
         # Primary key
         mglst_code = struct.unpack("<i", data[0:4])[0]
 
         # Basic info
-        mglst_name = data[4:84].decode(encoding, errors="ignore").rstrip("\x00 ")
-        short_name = data[84:114].decode(encoding, errors="ignore").rstrip("\x00 ")
+        mglst_name = decode_keybcs2(data[4:84]).rstrip("\x00 ")
+        short_name = decode_keybcs2(data[84:114]).rstrip("\x00 ")
 
         # Hierarchy
         parent_code = struct.unpack("<i", data[114:118])[0]
@@ -206,11 +208,11 @@ class MGLSTRecord:
 
         # Display
         sort_order = struct.unpack("<i", data[122:126])[0]
-        color_code = data[126:136].decode(encoding, errors="ignore").rstrip("\x00 ")
+        color_code = decode_keybcs2(data[126:136]).rstrip("\x00 ")
 
         # Business rules
         default_vat_rate = struct.unpack("<d", data[136:144])[0]
-        default_unit = data[144:154].decode(encoding, errors="ignore").rstrip("\x00 ")
+        default_unit = decode_keybcs2(data[144:154]).rstrip("\x00 ")
 
         # Status
         active = bool(data[154])
@@ -224,14 +226,14 @@ class MGLSTRecord:
         mod_time = None
 
         if len(data) >= 256:
-            note = data[156:256].decode(encoding, errors="ignore").rstrip("\x00 ")
+            note = decode_keybcs2(data[156:256]).rstrip("\x00 ")
 
         if len(data) >= 456:
-            description = data[256:456].decode(encoding, errors="ignore").rstrip("\x00 ")
+            description = decode_keybcs2(data[256:456]).rstrip("\x00 ")
 
         # Try to extract audit fields if present
         if len(data) >= 472:
-            mod_user = data[456:464].decode(encoding, errors="ignore").rstrip("\x00 ")
+            mod_user = decode_keybcs2(data[456:464]).rstrip("\x00 ")
             mod_date_int = struct.unpack("<i", data[464:468])[0]
             mod_date = cls._decode_delphi_date(mod_date_int) if mod_date_int > 0 else None
             mod_time_int = struct.unpack("<i", data[468:472])[0]

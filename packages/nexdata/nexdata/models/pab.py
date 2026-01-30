@@ -12,6 +12,8 @@ import struct
 from dataclasses import dataclass
 from datetime import datetime
 
+from ..utils.encoding import decode_keybcs2
+
 
 @dataclass
 class PABRecord:
@@ -83,7 +85,7 @@ class PABRecord:
     INDEX_TYPE = "PartnerType"  # Index podľa typu partnera
 
     @classmethod
-    def from_bytes(cls, data: bytes, encoding: str = "cp852") -> "PABRecord":
+    def from_bytes(cls, data: bytes) -> "PABRecord":
         """
         Deserialize PAB record from bytes
 
@@ -120,8 +122,7 @@ class PABRecord:
         - InternalNote: 100 bytes (1220-1319) - string (may overflow)
 
         Args:
-            data: Raw bytes from Btrieve
-            encoding: String encoding (cp852 for Czech/Slovak)
+            data: Raw bytes from Btrieve (Kamenický/KEYBCS2 encoding)
 
         Returns:
             PABRecord instance
@@ -133,34 +134,34 @@ class PABRecord:
         pab_code = struct.unpack("<i", data[0:4])[0]
 
         # Basic info
-        name1 = data[4:104].decode(encoding, errors="ignore").rstrip("\x00 ")
-        name2 = data[104:204].decode(encoding, errors="ignore").rstrip("\x00 ")
-        short_name = data[204:244].decode(encoding, errors="ignore").rstrip("\x00 ")
+        name1 = decode_keybcs2(data[4:104]).rstrip("\x00 ")
+        name2 = decode_keybcs2(data[104:204]).rstrip("\x00 ")
+        short_name = decode_keybcs2(data[204:244]).rstrip("\x00 ")
 
         # Address
-        street = data[244:324].decode(encoding, errors="ignore").rstrip("\x00 ")
-        city = data[324:374].decode(encoding, errors="ignore").rstrip("\x00 ")
-        zip_code = data[374:384].decode(encoding, errors="ignore").rstrip("\x00 ")
-        country = data[384:434].decode(encoding, errors="ignore").rstrip("\x00 ")
+        street = decode_keybcs2(data[244:324]).rstrip("\x00 ")
+        city = decode_keybcs2(data[324:374]).rstrip("\x00 ")
+        zip_code = decode_keybcs2(data[374:384]).rstrip("\x00 ")
+        country = decode_keybcs2(data[384:434]).rstrip("\x00 ")
 
         # Contact
-        phone = data[434:464].decode(encoding, errors="ignore").rstrip("\x00 ")
-        fax = data[464:494].decode(encoding, errors="ignore").rstrip("\x00 ")
-        email = data[494:554].decode(encoding, errors="ignore").rstrip("\x00 ")
-        web = data[554:614].decode(encoding, errors="ignore").rstrip("\x00 ")
-        contact_person = data[614:664].decode(encoding, errors="ignore").rstrip("\x00 ")
+        phone = decode_keybcs2(data[434:464]).rstrip("\x00 ")
+        fax = decode_keybcs2(data[464:494]).rstrip("\x00 ")
+        email = decode_keybcs2(data[494:554]).rstrip("\x00 ")
+        web = decode_keybcs2(data[554:614]).rstrip("\x00 ")
+        contact_person = decode_keybcs2(data[614:664]).rstrip("\x00 ")
 
         # Tax info
-        ico = data[664:684].decode(encoding, errors="ignore").rstrip("\x00 ")
-        dic = data[684:704].decode(encoding, errors="ignore").rstrip("\x00 ")
-        ic_dph = data[704:734].decode(encoding, errors="ignore").rstrip("\x00 ")
+        ico = decode_keybcs2(data[664:684]).rstrip("\x00 ")
+        dic = decode_keybcs2(data[684:704]).rstrip("\x00 ")
+        ic_dph = decode_keybcs2(data[704:734]).rstrip("\x00 ")
 
         # Bank info
-        bank_account = data[734:764].decode(encoding, errors="ignore").rstrip("\x00 ")
-        bank_code = data[764:774].decode(encoding, errors="ignore").rstrip("\x00 ")
-        bank_name = data[774:834].decode(encoding, errors="ignore").rstrip("\x00 ")
-        iban = data[834:874].decode(encoding, errors="ignore").rstrip("\x00 ")
-        swift = data[874:894].decode(encoding, errors="ignore").rstrip("\x00 ")
+        bank_account = decode_keybcs2(data[734:764]).rstrip("\x00 ")
+        bank_code = decode_keybcs2(data[764:774]).rstrip("\x00 ")
+        bank_name = decode_keybcs2(data[774:834]).rstrip("\x00 ")
+        iban = decode_keybcs2(data[834:874]).rstrip("\x00 ")
+        swift = decode_keybcs2(data[874:894]).rstrip("\x00 ")
 
         # Business info
         partner_type = struct.unpack("<i", data[894:898])[0]
@@ -173,14 +174,14 @@ class PABRecord:
         vat_payer = bool(data[919])
 
         # Notes
-        note = data[920:1120].decode(encoding, errors="ignore").rstrip("\x00 ")
-        note2 = data[1120:1220].decode(encoding, errors="ignore").rstrip("\x00 ")
+        note = decode_keybcs2(data[920:1120]).rstrip("\x00 ")
+        note2 = decode_keybcs2(data[1120:1220]).rstrip("\x00 ")
 
         # Internal note (may be at different offset)
         internal_note = ""
         if len(data) >= 1269:
             # Try to extract from remaining bytes
-            internal_note = data[1220:1269].decode(encoding, errors="ignore").rstrip("\x00 ")
+            internal_note = decode_keybcs2(data[1220:1269]).rstrip("\x00 ")
 
         return cls(
             pab_code=pab_code,

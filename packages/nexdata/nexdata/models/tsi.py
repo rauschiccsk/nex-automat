@@ -6,12 +6,15 @@ Table: TSIA-001.BTR (actual year, book 001)
 Location: C:\NEX\YEARACT\STORES\TSIA-001.BTR
 Definition: tsi.bdf
 Record Size: ~400 bytes
+Encoding: Kamenický (KEYBCS2)
 """
 
 import struct
 from dataclasses import dataclass
 from datetime import datetime
 from decimal import Decimal
+
+from ..utils.encoding import decode_keybcs2
 
 
 @dataclass
@@ -73,9 +76,9 @@ class TSIRecord:
     INDEX_BARCODE = "BarCode"  # Index podľa čiarového kódu
 
     @classmethod
-    def from_bytes(cls, data: bytes, encoding: str = "cp852") -> "TSIRecord":
+    def from_bytes(cls, data: bytes) -> "TSIRecord":
         """
-        Deserialize TSI record from bytes
+        Deserialize TSI record from bytes (Kamenický encoding)
 
         Field Layout (approximate, ~400 bytes):
         - DocNumber: 20 bytes (0-19) - string
@@ -104,8 +107,7 @@ class TSIRecord:
         - ModTime: 4 bytes (415-418) - longint
 
         Args:
-            data: Raw bytes from Btrieve
-            encoding: String encoding
+            data: Raw bytes from Btrieve (Kamenický/KEYBCS2 encoding)
 
         Returns:
             TSIRecord instance
@@ -114,17 +116,17 @@ class TSIRecord:
             raise ValueError(f"Invalid record size: {len(data)} bytes (expected >= 400)")
 
         # Primary key
-        doc_number = data[0:20].decode(encoding, errors="ignore").rstrip("\x00 ")
+        doc_number = decode_keybcs2(data[0:20]).rstrip("\x00 ")
         line_number = struct.unpack("<i", data[20:24])[0]
 
         # Product
         gs_code = struct.unpack("<i", data[24:28])[0]
-        gs_name = data[28:108].decode(encoding, errors="ignore").rstrip("\x00 ")
-        bar_code = data[108:123].decode(encoding, errors="ignore").rstrip("\x00 ")
+        gs_name = decode_keybcs2(data[28:108]).rstrip("\x00 ")
+        bar_code = decode_keybcs2(data[108:123]).rstrip("\x00 ")
 
         # Quantity
         quantity = Decimal(str(round(struct.unpack("<d", data[123:131])[0], 3)))
-        unit = data[131:141].decode(encoding, errors="ignore").rstrip("\x00 ")
+        unit = decode_keybcs2(data[131:141]).rstrip("\x00 ")
         unit_coef = Decimal(str(struct.unpack("<d", data[141:149])[0]))
 
         # Pricing
@@ -140,12 +142,12 @@ class TSIRecord:
 
         # Stock
         warehouse_code = struct.unpack("<i", data[205:209])[0]
-        batch_number = data[209:239].decode(encoding, errors="ignore").rstrip("\x00 ")
-        serial_number = data[239:269].decode(encoding, errors="ignore").rstrip("\x00 ")
+        batch_number = decode_keybcs2(data[209:239]).rstrip("\x00 ")
+        serial_number = decode_keybcs2(data[239:269]).rstrip("\x00 ")
 
         # Additional
-        note = data[269:369].decode(encoding, errors="ignore").rstrip("\x00 ")
-        supplier_item_code = data[369:399].decode(encoding, errors="ignore").rstrip("\x00 ")
+        note = decode_keybcs2(data[269:369]).rstrip("\x00 ")
+        supplier_item_code = decode_keybcs2(data[369:399]).rstrip("\x00 ")
 
         # Status
         status = struct.unpack("<i", data[399:403])[0]
@@ -155,7 +157,7 @@ class TSIRecord:
         mod_date = None
         mod_time = None
         if len(data) >= 419:
-            mod_user = data[403:411].decode(encoding, errors="ignore").rstrip("\x00 ")
+            mod_user = decode_keybcs2(data[403:411]).rstrip("\x00 ")
             mod_date_int = struct.unpack("<i", data[411:415])[0]
             mod_date = cls._decode_delphi_date(mod_date_int) if mod_date_int > 0 else None
             mod_time_int = struct.unpack("<i", data[415:419])[0]

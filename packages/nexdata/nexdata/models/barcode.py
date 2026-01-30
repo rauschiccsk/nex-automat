@@ -12,6 +12,8 @@ import struct
 from dataclasses import dataclass
 from datetime import datetime
 
+from ..utils.encoding import decode_keybcs2
+
 
 @dataclass
 class BarcodeRecord:
@@ -37,7 +39,7 @@ class BarcodeRecord:
     INDEX_GSBC = "GsBc"  # Composite index (unique)
 
     @classmethod
-    def from_bytes(cls, data: bytes, encoding: str = "cp852") -> "BarcodeRecord":
+    def from_bytes(cls, data: bytes) -> "BarcodeRecord":
         """
         Deserialize Btrieve record from bytes
 
@@ -49,8 +51,7 @@ class BarcodeRecord:
         - ModTime: 4 bytes (31-34) - longint (milliseconds since midnight)
 
         Args:
-            data: Raw bytes from Btrieve
-            encoding: String encoding (cp852 for Czech/Slovak)
+            data: Raw bytes from Btrieve (Kamenický/KEYBCS2 encoding)
 
         Returns:
             BarcodeRecord instance
@@ -62,10 +63,10 @@ class BarcodeRecord:
         gs_code = struct.unpack("<i", data[0:4])[0]
 
         # BarCode (string, 15 bytes)
-        bar_code = data[4:19].decode(encoding, errors="ignore").rstrip("\x00 ")
+        bar_code = decode_keybcs2(data[4:19]).rstrip("\x00 ")
 
         # ModUser (string, 8 bytes)
-        mod_user = data[19:27].decode(encoding, errors="ignore").rstrip("\x00 ")
+        mod_user = decode_keybcs2(data[19:27]).rstrip("\x00 ")
 
         # ModDate (longint, 4 bytes) - days since 1899-12-30
         mod_date_int = struct.unpack("<i", data[27:31])[0]

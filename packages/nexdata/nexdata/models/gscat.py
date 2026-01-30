@@ -9,10 +9,12 @@ CRITICAL: BarCode field starts at offset 60, not 64!
 File: GSCAT.BTR
 Location: C:\\NEX\\YEARACT\\STORES\\GSCAT.BTR
 Record Size: 705 bytes
-Encoding: cp852
+Encoding: Kamenický (KEYBCS2)
 """
 
 from dataclasses import dataclass
+
+from ..utils.encoding import decode_keybcs2
 
 
 @dataclass
@@ -46,22 +48,21 @@ class GSCATRecord:
                 setattr(self, field_name, cleaned)
 
     @classmethod
-    def from_bytes(cls, data: bytes, encoding: str = "cp852") -> "GSCATRecord":
+    def from_bytes(cls, data: bytes) -> "GSCATRecord":
         """
         Deserialize GSCATRecord from Btrieve bytes
 
         Args:
             data: Raw bytes from Btrieve record (705 bytes)
-            encoding: Character encoding (default: cp852)
 
         Returns:
             GSCATRecord instance
         """
         import struct
 
-        # Helper function to read string
+        # Helper function to read string (Kamenický encoding)
         def read_str(offset: int, length: int) -> str:
-            return data[offset : offset + length].decode(encoding, errors="replace").rstrip("\x00 ")
+            return decode_keybcs2(data[offset : offset + length]).rstrip("\x00 ")
 
         # Helper function to read int32
         def read_int32(offset: int) -> int:
