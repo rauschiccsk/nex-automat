@@ -2,8 +2,9 @@
 Partner endpoints (PAB table).
 """
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from typing import Annotated
 
+from fastapi import APIRouter, HTTPException, Query
 from nexdata.btrieve.btrieve_client import BtrieveClient
 from nexdata.repositories.pab_repository import PABRepository
 
@@ -11,7 +12,7 @@ from src.api.schemas.common import PaginatedResponse, PaginationParams
 from src.api.schemas.partners import Partner, PartnerList, PartnerSearch, PartnerType
 from src.core.config import settings
 
-from .dependencies import get_pagination, verify_api_key
+from .dependencies import ApiKey, Pagination
 
 router = APIRouter()
 
@@ -25,10 +26,10 @@ def get_pab_repository() -> PABRepository:
 
 @router.get("", response_model=PartnerList)
 async def list_partners(
-    partner_type: PartnerType | None = Query(default=None, description="Filter by type"),
-    active: bool | None = Query(default=None, description="Filter by active status"),
-    pagination: PaginationParams = Depends(get_pagination),
-    _api_key: str = Depends(verify_api_key),
+    pagination: Pagination,
+    _api_key: ApiKey,
+    partner_type: Annotated[PartnerType | None, Query(description="Filter by type")] = None,
+    active: Annotated[bool | None, Query(description="Filter by active status")] = None,
 ):
     """
     List all partners with pagination.
@@ -70,9 +71,9 @@ async def list_partners(
 
 @router.get("/search", response_model=PartnerList)
 async def search_partners(
-    q: str = Query(..., min_length=2, description="Search query"),
-    pagination: PaginationParams = Depends(get_pagination),
-    _api_key: str = Depends(verify_api_key),
+    q: Annotated[str, Query(min_length=2, description="Search query")],
+    pagination: Pagination,
+    _api_key: ApiKey,
 ):
     """
     Search partners by name, ICO, or other fields.
@@ -120,7 +121,7 @@ async def search_partners(
 @router.get("/{pab_code}", response_model=Partner)
 async def get_partner(
     pab_code: int,
-    _api_key: str = Depends(verify_api_key),
+    _api_key: ApiKey,
 ):
     """
     Get partner by code.

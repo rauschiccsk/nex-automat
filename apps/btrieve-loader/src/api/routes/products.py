@@ -2,19 +2,19 @@
 Product endpoints (GSCAT table).
 """
 
-from fastapi import APIRouter, Depends, HTTPException, Query
-from pydantic import BaseModel
+from typing import Annotated
 
+from fastapi import APIRouter, HTTPException, Query
 from nexdata.btrieve.btrieve_client import BtrieveClient
 from nexdata.repositories.gscat_repository import GSCATRepository
+from pydantic import BaseModel
 
 from src.api.schemas.common import PaginatedResponse, PaginationParams
 from src.api.schemas.products import Product, ProductList, ProductSearch
 from src.business.product_matcher import MatchResult, ProductMatcher
-from src.core.btrieve import get_btrieve_manager
 from src.core.config import settings
 
-from .dependencies import get_pagination, verify_api_key
+from .dependencies import ApiKey, Pagination
 
 router = APIRouter()
 
@@ -58,8 +58,8 @@ class MatchResponse(BaseModel):
 
 @router.get("", response_model=ProductList)
 async def list_products(
-    pagination: PaginationParams = Depends(get_pagination),
-    _api_key: str = Depends(verify_api_key),
+    pagination: Pagination,
+    _api_key: ApiKey,
 ):
     """
     List all products with pagination.
@@ -94,9 +94,9 @@ async def list_products(
 
 @router.get("/search", response_model=ProductList)
 async def search_products(
-    q: str = Query(..., min_length=2, description="Search query"),
-    pagination: PaginationParams = Depends(get_pagination),
-    _api_key: str = Depends(verify_api_key),
+    q: Annotated[str, Query(min_length=2, description="Search query")],
+    pagination: Pagination,
+    _api_key: ApiKey,
 ):
     """
     Search products by name or barcode.
@@ -138,7 +138,7 @@ async def search_products(
 @router.get("/{code}", response_model=Product)
 async def get_product(
     code: int,
-    _api_key: str = Depends(verify_api_key),
+    _api_key: ApiKey,
 ):
     """
     Get product by code.
@@ -164,7 +164,7 @@ async def get_product(
 @router.post("/match", response_model=MatchResponse)
 async def match_product(
     request: MatchRequest,
-    _api_key: str = Depends(verify_api_key),
+    _api_key: ApiKey,
 ):
     """
     Match invoice item to NEX Genesis product.

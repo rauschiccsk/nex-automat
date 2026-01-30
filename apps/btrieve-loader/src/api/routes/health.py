@@ -46,13 +46,13 @@ async def prometheus_metrics():
     metrics = []
 
     # Service info
-    metrics.append(f"# HELP btrieve_loader_info Service information")
-    metrics.append(f"# TYPE btrieve_loader_info gauge")
+    metrics.append("# HELP btrieve_loader_info Service information")
+    metrics.append("# TYPE btrieve_loader_info gauge")
     metrics.append(f'btrieve_loader_info{{version="{settings.api_version}"}} 1')
 
     # Uptime
-    metrics.append(f"# HELP btrieve_loader_uptime_seconds Service uptime in seconds")
-    metrics.append(f"# TYPE btrieve_loader_uptime_seconds counter")
+    metrics.append("# HELP btrieve_loader_uptime_seconds Service uptime in seconds")
+    metrics.append("# TYPE btrieve_loader_uptime_seconds counter")
     metrics.append(f"btrieve_loader_uptime_seconds {uptime_seconds}")
 
     return Response(content="\n".join(metrics), media_type="text/plain")

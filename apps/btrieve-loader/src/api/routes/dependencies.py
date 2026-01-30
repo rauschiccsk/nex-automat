@@ -2,6 +2,8 @@
 Common dependencies for API routes.
 """
 
+from typing import Annotated
+
 from fastapi import Depends, Header, HTTPException, Query
 
 from src.api.schemas.common import PaginationParams
@@ -9,7 +11,9 @@ from src.core.btrieve import get_btrieve_manager
 from src.core.config import settings
 
 
-async def verify_api_key(x_api_key: str | None = Header(None)) -> str:
+async def verify_api_key(
+    x_api_key: Annotated[str | None, Header()] = None,
+) -> str:
     """
     Verify API key from X-API-Key header.
 
@@ -36,10 +40,10 @@ async def verify_api_key(x_api_key: str | None = Header(None)) -> str:
 
 
 def get_pagination(
-    page: int = Query(default=1, ge=1, description="Page number"),
-    page_size: int = Query(default=50, ge=1, le=1000, description="Items per page"),
-    sort_by: str | None = Query(default=None, description="Field to sort by"),
-    sort_desc: bool = Query(default=False, description="Sort descending"),
+    page: Annotated[int, Query(ge=1, description="Page number")] = 1,
+    page_size: Annotated[int, Query(ge=1, le=1000, description="Items per page")] = 50,
+    sort_by: Annotated[str | None, Query(description="Field to sort by")] = None,
+    sort_desc: Annotated[bool, Query(description="Sort descending")] = False,
 ) -> PaginationParams:
     """Get pagination parameters from query string."""
     return PaginationParams(
@@ -53,3 +57,8 @@ def get_pagination(
 def get_btrieve():
     """Dependency to get BtrieveClientManager."""
     return get_btrieve_manager()
+
+
+# Annotated type aliases for use in route parameters
+ApiKey = Annotated[str, Depends(verify_api_key)]
+Pagination = Annotated[PaginationParams, Depends(get_pagination)]

@@ -2,8 +2,7 @@
 Barcode endpoints (BARCODE table).
 """
 
-from fastapi import APIRouter, Depends, HTTPException
-
+from fastapi import APIRouter, HTTPException
 from nexdata.btrieve.btrieve_client import BtrieveClient
 from nexdata.repositories.barcode_repository import BARCODERepository
 from nexdata.repositories.gscat_repository import GSCATRepository
@@ -12,7 +11,7 @@ from src.api.schemas.barcodes import Barcode, BarcodeList, BarcodeWithProduct
 from src.api.schemas.common import PaginatedResponse
 from src.core.config import settings
 
-from .dependencies import verify_api_key
+from .dependencies import ApiKey
 
 router = APIRouter()
 
@@ -34,7 +33,7 @@ def get_gscat_repository() -> GSCATRepository:
 @router.get("/{ean}", response_model=BarcodeWithProduct)
 async def lookup_barcode(
     ean: str,
-    _api_key: str = Depends(verify_api_key),
+    _api_key: ApiKey,
 ):
     """
     Lookup product by EAN barcode.
@@ -94,7 +93,7 @@ async def lookup_barcode(
 @router.get("/product/{product_code}", response_model=BarcodeList)
 async def get_product_barcodes(
     product_code: int,
-    _api_key: str = Depends(verify_api_key),
+    _api_key: ApiKey,
 ):
     """
     Get all barcodes for a product.

@@ -2,8 +2,9 @@
 Product group/store endpoints (MGLST table).
 """
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from typing import Annotated
 
+from fastapi import APIRouter, HTTPException, Query
 from nexdata.btrieve.btrieve_client import BtrieveClient
 from nexdata.repositories.mglst_repository import MGLSTRepository
 
@@ -11,7 +12,7 @@ from src.api.schemas.common import PaginatedResponse, PaginationParams
 from src.api.schemas.stores import ProductGroup, ProductGroupList, ProductGroupTree
 from src.core.config import settings
 
-from .dependencies import get_pagination, verify_api_key
+from .dependencies import ApiKey, Pagination
 
 router = APIRouter()
 
@@ -25,11 +26,11 @@ def get_mglst_repository() -> MGLSTRepository:
 
 @router.get("", response_model=ProductGroupList)
 async def list_product_groups(
-    parent_code: int | None = Query(default=None, description="Filter by parent"),
-    active: bool | None = Query(default=None, description="Filter by active status"),
-    level: int | None = Query(default=None, description="Filter by level"),
-    pagination: PaginationParams = Depends(get_pagination),
-    _api_key: str = Depends(verify_api_key),
+    pagination: Pagination,
+    _api_key: ApiKey,
+    parent_code: Annotated[int | None, Query(description="Filter by parent")] = None,
+    active: Annotated[bool | None, Query(description="Filter by active status")] = None,
+    level: Annotated[int | None, Query(description="Filter by level")] = None,
 ):
     """
     List product groups with pagination.
@@ -76,7 +77,7 @@ async def list_product_groups(
 
 @router.get("/tree", response_model=list[ProductGroupTree])
 async def get_product_groups_tree(
-    _api_key: str = Depends(verify_api_key),
+    _api_key: ApiKey,
 ):
     """
     Get product groups as hierarchical tree.
@@ -105,7 +106,7 @@ async def get_product_groups_tree(
 @router.get("/{mglst_code}", response_model=ProductGroup)
 async def get_product_group(
     mglst_code: int,
-    _api_key: str = Depends(verify_api_key),
+    _api_key: ApiKey,
 ):
     """
     Get product group by code.
@@ -131,7 +132,7 @@ async def get_product_group(
 @router.get("/{mglst_code}/children", response_model=ProductGroupList)
 async def get_product_group_children(
     mglst_code: int,
-    _api_key: str = Depends(verify_api_key),
+    _api_key: ApiKey,
 ):
     """
     Get child groups for a product group.

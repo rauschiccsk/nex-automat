@@ -3,9 +3,9 @@ Document endpoints (TSH/TSI tables).
 """
 
 from datetime import date
+from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Query
-
+from fastapi import APIRouter, HTTPException, Query
 from nexdata.btrieve.btrieve_client import BtrieveClient
 from nexdata.repositories.tsh_repository import TSHRepository
 from nexdata.repositories.tsi_repository import TSIRepository
@@ -22,7 +22,7 @@ from src.api.schemas.documents import (
 )
 from src.core.config import settings
 
-from .dependencies import get_pagination, verify_api_key
+from .dependencies import ApiKey, Pagination
 
 router = APIRouter()
 
@@ -43,14 +43,14 @@ def get_tsi_repository(book_id: str = "001") -> TSIRepository:
 
 @router.get("", response_model=DocumentHeaderList)
 async def list_documents(
-    book_id: str = Query(default="001", description="Book ID (e.g., 001)"),
-    doc_type: DocumentType | None = Query(default=None, description="Filter by type"),
-    status: DocumentStatus | None = Query(default=None, description="Filter by status"),
-    pab_code: int | None = Query(default=None, description="Filter by partner"),
-    date_from: date | None = Query(default=None, description="Filter from date"),
-    date_to: date | None = Query(default=None, description="Filter to date"),
-    pagination: PaginationParams = Depends(get_pagination),
-    _api_key: str = Depends(verify_api_key),
+    pagination: Pagination,
+    _api_key: ApiKey,
+    book_id: Annotated[str, Query(description="Book ID (e.g., 001)")] = "001",
+    doc_type: Annotated[DocumentType | None, Query(description="Filter by type")] = None,
+    status: Annotated[DocumentStatus | None, Query(description="Filter by status")] = None,
+    pab_code: Annotated[int | None, Query(description="Filter by partner")] = None,
+    date_from: Annotated[date | None, Query(description="Filter from date")] = None,
+    date_to: Annotated[date | None, Query(description="Filter to date")] = None,
 ):
     """
     List document headers with filtering and pagination.
@@ -107,8 +107,8 @@ async def list_documents(
 @router.get("/{doc_number}", response_model=DocumentWithItems)
 async def get_document(
     doc_number: str,
-    book_id: str = Query(default="001", description="Book ID"),
-    _api_key: str = Depends(verify_api_key),
+    _api_key: ApiKey,
+    book_id: Annotated[str, Query(description="Book ID")] = "001",
 ):
     """
     Get document header with all items.
@@ -147,8 +147,8 @@ async def get_document(
 @router.get("/{doc_number}/items", response_model=DocumentItemList)
 async def get_document_items(
     doc_number: str,
-    book_id: str = Query(default="001", description="Book ID"),
-    _api_key: str = Depends(verify_api_key),
+    _api_key: ApiKey,
+    book_id: Annotated[str, Query(description="Book ID")] = "001",
 ):
     """
     Get document items only.
