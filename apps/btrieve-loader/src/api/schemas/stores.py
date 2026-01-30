@@ -18,7 +18,7 @@ class ProductGroupBase(BaseModel):
     short_name: str = Field(default="", max_length=30, description="Short name")
 
     parent_code: int = Field(default=0, ge=0, description="Parent group code (0 = root)")
-    level: int = Field(default=1, ge=1, description="Hierarchy level")
+    level: int = Field(default=0, ge=0, description="Hierarchy level (0 = root)")
     sort_order: int = Field(default=0, ge=0, description="Sort order")
     color_code: str = Field(default="", max_length=10, description="Color code (hex)")
 
