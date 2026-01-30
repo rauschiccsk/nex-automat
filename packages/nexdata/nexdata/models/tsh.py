@@ -360,7 +360,7 @@ class TSHRecord:
         return None
 
     @classmethod
-    def from_bytes(cls, data: bytes, encoding: str = "cp1250") -> "TSHRecord":
+    def from_bytes(cls, data: bytes, encoding: str = "keybcs2") -> "TSHRecord":
         """
         Deserialize TSH record from bytes.
 
@@ -384,7 +384,7 @@ class TSHRecord:
 
         Args:
             data: Raw bytes from Btrieve
-            encoding: String encoding (cp1250 for Czech/Slovak Windows)
+            encoding: String encoding (keybcs2 for Czech/Slovak Kamenický)
 
         Returns:
             TSHRecord instance
@@ -584,7 +584,7 @@ class TSHRecord:
 
 
 # Helper function for external use
-def read_pascal_string(data: bytes, offset: int, encoding: str = "cp1250") -> tuple[str, int]:
+def read_pascal_string(data: bytes, offset: int, encoding: str = "keybcs2") -> tuple[str, int]:
     """
     Read Pascal ShortString from bytes.
 
