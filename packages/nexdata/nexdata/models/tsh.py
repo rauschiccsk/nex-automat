@@ -189,6 +189,9 @@ class TSHRecord:
         value = struct.unpack("<I", data[offset : offset + 4])[0]
         return value, offset + 4
 
+    # Control characters to strip from string fields (0x00-0x1F)
+    _CONTROL_CHARS = "".join(chr(i) for i in range(32))
+
     @staticmethod
     def _read_fixed_pascal_string(
         data: bytes, offset: int, buffer_size: int, encoding: str = "cp852"
@@ -199,7 +202,7 @@ class TSHRecord:
         NEX Genesis hybrid format:
         - [1-byte length prefix][fixed-width buffer]
         - Length prefix indicates "active" part, but full text is in buffer
-        - We read the entire buffer and strip nulls from BOTH sides
+        - We read the entire buffer and strip control chars from BOTH sides
 
         Args:
             data: Raw bytes
@@ -217,8 +220,9 @@ class TSHRecord:
         raw = data[offset + 1 : offset + buffer_size]
 
         try:
-            # Strip nulls from BOTH sides (fixes "\x00\x00\x0044298684" -> "44298684")
-            value = raw.decode(encoding, errors="replace").strip("\x00").strip()
+            # Strip control chars (0x00-0x1F) from BOTH sides
+            # Fixes "\x0eBratislavská 15" -> "Bratislavská 15"
+            value = raw.decode(encoding, errors="replace").strip(TSHRecord._CONTROL_CHARS).strip()
         except Exception:
             value = ""
 
