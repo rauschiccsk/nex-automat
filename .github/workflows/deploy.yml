@@ -111,7 +111,7 @@ jobs:
       - name: Restart Btrieve-Loader
         shell: powershell
         run: |
-          Restart-Service NEX-SupplierInvoiceLoader -ErrorAction SilentlyContinue
+          Restart-Service NEX-BtrieveLoader -ErrorAction SilentlyContinue
 
       - name: Health Check
         shell: powershell
