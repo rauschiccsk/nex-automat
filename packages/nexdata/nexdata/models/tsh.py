@@ -189,26 +189,95 @@ class TSHRecord:
         value = struct.unpack("<I", data[offset : offset + 4])[0]
         return value, offset + 4
 
+    @staticmethod
+    def _read_fixed_pascal_string(
+        data: bytes, offset: int, buffer_size: int, encoding: str = "cp852"
+    ) -> tuple[str, int]:
+        """
+        Read fixed-width buffer with length prefix (hybrid format).
+
+        NEX Genesis hybrid format:
+        - [1-byte length prefix][fixed-width buffer]
+        - Length prefix indicates "active" part, but full text is in buffer
+        - We read the entire buffer and strip trailing nulls
+
+        Args:
+            data: Raw bytes
+            offset: Starting offset (at length prefix byte)
+            buffer_size: Total buffer size INCLUDING length prefix byte
+            encoding: String encoding
+
+        Returns:
+            Tuple of (string_value, new_offset after buffer)
+        """
+        if offset + buffer_size > len(data):
+            return "", offset + buffer_size
+
+        # Skip the length prefix byte, read the rest of the buffer
+        raw = data[offset + 1 : offset + buffer_size]
+
+        try:
+            value = raw.decode(encoding, errors="replace").rstrip("\x00").strip()
+        except Exception:
+            value = ""
+
+        return value, offset + buffer_size
+
+    @staticmethod
+    def _decode_delphi_datetime(double_val: float) -> date | None:
+        """
+        Convert Delphi TDateTime (double) to Python date.
+
+        Delphi TDateTime is a double where:
+        - Integer part = days since 1899-12-30
+        - Fractional part = time of day
+
+        Args:
+            double_val: Delphi TDateTime as double
+
+        Returns:
+            Python date or None if invalid
+        """
+        from datetime import timedelta
+
+        if double_val <= 0:
+            return None
+
+        try:
+            # Extract just the date part (integer portion)
+            days = int(double_val)
+            # Delphi epoch is 1899-12-30
+            base_date = datetime(1899, 12, 30)
+            result = base_date + timedelta(days=days)
+            # Validate reasonable date range (1990-2100)
+            if 1990 <= result.year <= 2100:
+                return result.date()
+        except (ValueError, OverflowError):
+            pass
+
+        return None
+
     @classmethod
     def from_bytes(cls, data: bytes, encoding: str = "cp852") -> "TSHRecord":
         """
-        Deserialize TSH record from bytes using Pascal ShortString format.
+        Deserialize TSH record from bytes.
 
         Field sequence (based on hex dump analysis):
-        Offset  Size  Type           Field
-        0x0000  4     int32          doc_id (internal, skip)
-        0x0004  1+N   pascal string  doc_number (len=12)
-        0x0011  1+N   pascal string  reference (len=10)
-        0x001c  2     padding        skip
-        0x001e  4     int32          doc_date (Delphi TDateTime)
-        0x0022  2     int16          unknown (pab_code or doc_type)
-        0x0024  2     padding        skip
-        0x0026  1+N   pascal string  pab_name
-        ...     ...   pascal strings ICO, DIC, IC_DPH, address, city, ZIP, payment
-        ...     ...   doubles        amounts at the end
+        Offset  Size  Type                Field
+        0x0000  4     int32               doc_id (internal, skip)
+        0x0004  1+12  pascal string       doc_number
+        0x0011  1+10  pascal string       reference
+        0x001c  2     padding             skip
+        0x001e  8     double              doc_date (Delphi TDateTime as double)
+        0x0026  30    fixed pascal        pab_name1 (hybrid: length + fixed buffer)
+        0x0044  30    fixed pascal        pab_name2
+        0x0062  30    fixed pascal        pab_address
+        ...     ...   fixed pascal        ICO, DIC, IC_DPH, city, ZIP, etc.
+        ...     ...   doubles             amounts at the end
 
-        Delphi TDateTime: days since 1899-12-30
-        Example: 0x0001b3cd = 111565 → ~2025
+        Hybrid format: [1-byte length][fixed-width buffer]
+        - Length prefix indicates "active" part
+        - Full text is in the fixed-width buffer
 
         Args:
             data: Raw bytes from Btrieve
@@ -217,8 +286,6 @@ class TSHRecord:
         Returns:
             TSHRecord instance
         """
-        from datetime import timedelta
-
         if len(data) < 50:
             raise ValueError(f"Invalid record size: {len(data)} bytes (expected >= 50)")
 
@@ -236,35 +303,39 @@ class TSHRecord:
         # 0x001c: 2 bytes padding
         offset += 2
 
-        # 0x001e: doc_date (int32 - Delphi TDateTime integer)
-        doc_date_int, offset = cls._read_uint32(data, offset)
-        doc_date = None
-        if doc_date_int > 0:
-            try:
-                base_date = datetime(1899, 12, 30)
-                doc_date = (base_date + timedelta(days=doc_date_int)).date()
-            except (ValueError, OverflowError):
-                doc_date = None
+        # 0x001e: doc_date (8 bytes - Delphi TDateTime as double)
+        doc_date_double, offset = cls._read_double(data, offset)
+        doc_date = cls._decode_delphi_datetime(doc_date_double)
 
-        # 0x0022: unknown field (int16) - possibly pab_code or doc_type
-        unknown_field, offset = cls._read_uint16(data, offset)
-        # For now, treat as doc_type (will be verified with more data)
-        doc_type = unknown_field if unknown_field in (1, 2, 3, 4, 5) else 1
+        # 0x0026: pab_name1 (30 bytes - hybrid fixed pascal)
+        pab_name, offset = cls._read_fixed_pascal_string(data, offset, 30, encoding)
 
-        # 0x0024: 2 bytes padding
-        offset += 2
+        # 0x0044: pab_name2 (30 bytes - normalized name)
+        pab_name2, offset = cls._read_fixed_pascal_string(data, offset, 30, encoding)
+        # Use pab_name2 if pab_name is empty
+        if not pab_name and pab_name2:
+            pab_name = pab_name2
 
-        # 0x0026: pab_name (pascal string)
-        pab_name, offset = cls._read_pascal_string(data, offset, encoding)
+        # 0x0062: pab_address (30 bytes)
+        pab_address, offset = cls._read_fixed_pascal_string(data, offset, 30, encoding)
 
-        # Continue with remaining pascal strings
-        pab_ico, offset = cls._read_pascal_string(data, offset, encoding)
-        pab_dic, offset = cls._read_pascal_string(data, offset, encoding)
-        pab_ic_dph, offset = cls._read_pascal_string(data, offset, encoding)
-        pab_address, offset = cls._read_pascal_string(data, offset, encoding)
-        pab_city, offset = cls._read_pascal_string(data, offset, encoding)
-        pab_zip, offset = cls._read_pascal_string(data, offset, encoding)
-        payment_name, offset = cls._read_pascal_string(data, offset, encoding)
+        # 0x0080: pab_city (20 bytes)
+        pab_city, offset = cls._read_fixed_pascal_string(data, offset, 20, encoding)
+
+        # 0x0094: pab_zip (10 bytes)
+        pab_zip, offset = cls._read_fixed_pascal_string(data, offset, 10, encoding)
+
+        # 0x009e: pab_ico (15 bytes)
+        pab_ico, offset = cls._read_fixed_pascal_string(data, offset, 15, encoding)
+
+        # 0x00ad: pab_dic (15 bytes)
+        pab_dic, offset = cls._read_fixed_pascal_string(data, offset, 15, encoding)
+
+        # 0x00bc: pab_ic_dph (15 bytes)
+        pab_ic_dph, offset = cls._read_fixed_pascal_string(data, offset, 15, encoding)
+
+        # 0x00cb: payment_name (20 bytes)
+        payment_name, offset = cls._read_fixed_pascal_string(data, offset, 20, encoding)
 
         # Try to find the amount section (look for doubles near end of record)
         amount_base = Decimal("0.00")
@@ -275,10 +346,11 @@ class TSHRecord:
         if amounts_found:
             amount_base, amount_vat, amount_total = amounts_found
 
-        # Additional dates (delivery_date, due_date) - search in remaining data
+        # Fields not yet mapped - will be identified in future analysis
+        doc_type = 1
         delivery_date = None
         due_date = None
-        pab_code = 0  # Will be identified in future analysis
+        pab_code = 0
 
         return cls(
             doc_number=doc_number,
