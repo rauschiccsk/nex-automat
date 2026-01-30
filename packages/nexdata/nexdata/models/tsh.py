@@ -9,12 +9,100 @@ Record Size: variable (Pascal ShortString format)
 
 NEX Genesis uses Pascal ShortString format:
 - [1-byte length][N-bytes data]
+
+NEX Genesis uses Kamenický (KEYBCS2) encoding for Czech/Slovak text.
 """
 
 import struct
 from dataclasses import dataclass
 from datetime import date, datetime
 from decimal import Decimal
+
+# Kamenický (KEYBCS2/CP895) encoding table for bytes 128-255
+# This was the standard encoding used in Czech/Slovak DOS systems
+# Reference: https://en.wikipedia.org/wiki/Kamenický_encoding
+_KEYBCS2_TABLE: dict[int, str] = {
+    # 0x80-0x8F: Czech/Slovak letters (replacing CP437 graphics)
+    0x80: "Č",
+    0x81: "ü",
+    0x82: "é",
+    0x83: "ď",
+    0x84: "ä",
+    0x85: "Ď",
+    0x86: "Ť",
+    0x87: "č",
+    0x88: "ě",
+    0x89: "Ě",
+    0x8A: "Ĺ",
+    0x8B: "Í",
+    0x8C: "ľ",
+    0x8D: "ĺ",
+    0x8E: "Ä",
+    0x8F: "Á",
+    # 0x90-0x9F: More Czech/Slovak letters
+    0x90: "É",
+    0x91: "ž",
+    0x92: "Ž",
+    0x93: "ô",
+    0x94: "ö",
+    0x95: "Ó",
+    0x96: "ů",
+    0x97: "Ú",
+    0x98: "ý",
+    0x99: "Ö",
+    0x9A: "Ü",
+    0x9B: "Š",
+    0x9C: "Ľ",
+    0x9D: "Ý",
+    0x9E: "Ř",
+    0x9F: "ť",
+    # 0xA0-0xAB: More accented letters
+    0xA0: "á",
+    0xA1: "í",
+    0xA2: "ó",
+    0xA3: "ú",
+    0xA4: "ň",
+    0xA5: "Ň",
+    0xA6: "Ů",
+    0xA7: "Ô",
+    0xA8: "š",
+    0xA9: "ř",
+    0xAA: "ŕ",
+    0xAB: "Ŕ",
+    # 0xAC-0xFF: Keep CP437 box drawing and other characters
+    # These are passed through using CP437 fallback
+}
+
+
+def decode_keybcs2(data: bytes) -> str:
+    """
+    Decode Kamenický (KEYBCS2/CP895) encoded bytes to UTF-8 string.
+
+    NEX Genesis uses Kamenický encoding for Czech/Slovak text.
+    Bytes 0-127 are ASCII, bytes 128-171 are Czech/Slovak letters,
+    bytes 172-255 are box drawing characters (same as CP437).
+
+    Args:
+        data: Raw bytes in Kamenický encoding
+
+    Returns:
+        UTF-8 decoded string
+    """
+    result = []
+    for byte in data:
+        if byte < 128:
+            # ASCII range - direct mapping
+            result.append(chr(byte))
+        elif byte in _KEYBCS2_TABLE:
+            # Czech/Slovak characters
+            result.append(_KEYBCS2_TABLE[byte])
+        else:
+            # Box drawing and other chars - try CP437 fallback
+            try:
+                result.append(bytes([byte]).decode("cp437"))
+            except (UnicodeDecodeError, ValueError):
+                result.append("?")
+    return "".join(result)
 
 
 @dataclass
@@ -107,7 +195,7 @@ class TSHRecord:
     INDEX_STATUS = "Status"  # Index podľa stavu
 
     @staticmethod
-    def _read_pascal_string(data: bytes, offset: int, encoding: str = "cp1250") -> tuple[str, int]:
+    def _read_pascal_string(data: bytes, offset: int, encoding: str = "keybcs2") -> tuple[str, int]:
         """
         Read Pascal ShortString from bytes.
 
@@ -118,7 +206,7 @@ class TSHRecord:
         Args:
             data: Raw bytes
             offset: Starting offset
-            encoding: String encoding
+            encoding: String encoding (keybcs2 for Kamenický, or standard Python codec)
 
         Returns:
             Tuple of (string_value, new_offset)
@@ -136,7 +224,11 @@ class TSHRecord:
             end = len(data)
 
         try:
-            value = data[offset + 1 : end].decode(encoding, errors="replace").rstrip("\x00")
+            raw = data[offset + 1 : end]
+            if encoding == "keybcs2":
+                value = decode_keybcs2(raw).rstrip("\x00")
+            else:
+                value = raw.decode(encoding, errors="replace").rstrip("\x00")
         except Exception:
             value = ""
 
@@ -194,7 +286,7 @@ class TSHRecord:
 
     @staticmethod
     def _read_fixed_pascal_string(
-        data: bytes, offset: int, buffer_size: int, encoding: str = "cp1250"
+        data: bytes, offset: int, buffer_size: int, encoding: str = "keybcs2"
     ) -> tuple[str, int]:
         """
         Read fixed-width buffer with length prefix (hybrid format).
@@ -208,7 +300,7 @@ class TSHRecord:
             data: Raw bytes
             offset: Starting offset (at length prefix byte)
             buffer_size: Total buffer size INCLUDING length prefix byte
-            encoding: String encoding
+            encoding: String encoding (keybcs2 for Kamenický, or standard Python codec)
 
         Returns:
             Tuple of (string_value, new_offset after buffer)
@@ -220,9 +312,14 @@ class TSHRecord:
         raw = data[offset + 1 : offset + buffer_size]
 
         try:
+            # Use Kamenický decoder for NEX Genesis data
+            if encoding == "keybcs2":
+                value = decode_keybcs2(raw)
+            else:
+                value = raw.decode(encoding, errors="replace")
+
             # Strip control chars (0x00-0x1F) from BOTH sides
-            # Fixes "\x0eBratislavská 15" -> "Bratislavská 15"
-            value = raw.decode(encoding, errors="replace").strip(TSHRecord._CONTROL_CHARS).strip()
+            value = value.strip(TSHRecord._CONTROL_CHARS).strip()
         except Exception:
             value = ""
 
