@@ -107,7 +107,7 @@ class TSHRecord:
     INDEX_STATUS = "Status"  # Index podľa stavu
 
     @staticmethod
-    def _read_pascal_string(data: bytes, offset: int, encoding: str = "cp852") -> tuple[str, int]:
+    def _read_pascal_string(data: bytes, offset: int, encoding: str = "cp1250") -> tuple[str, int]:
         """
         Read Pascal ShortString from bytes.
 
@@ -194,7 +194,7 @@ class TSHRecord:
 
     @staticmethod
     def _read_fixed_pascal_string(
-        data: bytes, offset: int, buffer_size: int, encoding: str = "cp852"
+        data: bytes, offset: int, buffer_size: int, encoding: str = "cp1250"
     ) -> tuple[str, int]:
         """
         Read fixed-width buffer with length prefix (hybrid format).
@@ -263,7 +263,7 @@ class TSHRecord:
         return None
 
     @classmethod
-    def from_bytes(cls, data: bytes, encoding: str = "cp852") -> "TSHRecord":
+    def from_bytes(cls, data: bytes, encoding: str = "cp1250") -> "TSHRecord":
         """
         Deserialize TSH record from bytes.
 
@@ -287,7 +287,7 @@ class TSHRecord:
 
         Args:
             data: Raw bytes from Btrieve
-            encoding: String encoding (cp852 for Czech/Slovak)
+            encoding: String encoding (cp1250 for Czech/Slovak Windows)
 
         Returns:
             TSHRecord instance
@@ -487,7 +487,7 @@ class TSHRecord:
 
 
 # Helper function for external use
-def read_pascal_string(data: bytes, offset: int, encoding: str = "cp852") -> tuple[str, int]:
+def read_pascal_string(data: bytes, offset: int, encoding: str = "cp1250") -> tuple[str, int]:
     """
     Read Pascal ShortString from bytes.
 
