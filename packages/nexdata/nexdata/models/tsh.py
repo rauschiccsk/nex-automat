@@ -266,9 +266,8 @@ class TSHRecord:
         Field sequence (based on hex dump analysis):
         Offset  Size  Type                Field
         0x0000  4     int32               doc_id (internal, skip)
-        0x0004  1+12  pascal string       doc_number
-        0x0011  1+10  pascal string       reference
-        0x001c  2     padding             skip
+        0x0004  13    fixed pascal        doc_number (1+12 bytes)
+        0x0011  13    fixed pascal        ext_num/reference (1+12 bytes)
         0x001e  2     int16               doc_date (Delphi date - days since 1899-12-30)
         0x0020  2     int16               stk_num (store_id)
         0x0022  4     int32               pab_code (partner code)
@@ -299,14 +298,11 @@ class TSHRecord:
         # 0x0000: doc_id (int32) - internal ID, skip
         _doc_id, offset = cls._read_uint32(data, offset)
 
-        # 0x0004: doc_number (pascal string, len=12)
-        doc_number, offset = cls._read_pascal_string(data, offset, encoding)
+        # 0x0004: doc_number (13 bytes fixed pascal - ensures consistent offset)
+        doc_number, offset = cls._read_fixed_pascal_string(data, offset, 13, encoding)
 
-        # 0x0011: reference (pascal string, len=10)
-        reference, offset = cls._read_pascal_string(data, offset, encoding)
-
-        # 0x001c: 2 bytes padding
-        offset += 2
+        # 0x0011: ext_num/reference (13 bytes fixed pascal)
+        reference, offset = cls._read_fixed_pascal_string(data, offset, 13, encoding)
 
         # 0x001e: doc_date (int16 - Delphi date = days since 1899-12-30)
         doc_date_int, offset = cls._read_uint16(data, offset)
