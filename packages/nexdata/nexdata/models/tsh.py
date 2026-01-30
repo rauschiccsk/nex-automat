@@ -269,7 +269,9 @@ class TSHRecord:
         0x0004  1+12  pascal string       doc_number
         0x0011  1+10  pascal string       reference
         0x001c  2     padding             skip
-        0x001e  8     double              doc_date (Delphi TDateTime as double)
+        0x001e  2     int16               doc_date (Delphi date - days since 1899-12-30)
+        0x0020  2     int16               stk_num (store_id)
+        0x0022  4     int32               pab_code (partner code)
         0x0026  30    fixed pascal        pab_name1 (hybrid: length + fixed buffer)
         0x0044  30    fixed pascal        pab_name2
         0x0062  30    fixed pascal        pab_address
@@ -287,6 +289,8 @@ class TSHRecord:
         Returns:
             TSHRecord instance
         """
+        from datetime import timedelta
+
         if len(data) < 50:
             raise ValueError(f"Invalid record size: {len(data)} bytes (expected >= 50)")
 
@@ -304,10 +308,21 @@ class TSHRecord:
         # 0x001c: 2 bytes padding
         offset += 2
 
-        # 0x001e: Skip 8 bytes - contains unknown value (not doc_date)
-        # doc_date will be extracted from reference or found elsewhere
-        offset += 8
-        doc_date = None  # TODO: find actual doc_date location
+        # 0x001e: doc_date (int16 - Delphi date = days since 1899-12-30)
+        doc_date_int, offset = cls._read_uint16(data, offset)
+        doc_date = None
+        if doc_date_int > 0:
+            try:
+                base_date = date(1899, 12, 30)
+                doc_date = base_date + timedelta(days=doc_date_int)
+            except (ValueError, OverflowError):
+                doc_date = None
+
+        # 0x0020: stk_num (int16) - store/warehouse ID
+        warehouse_code, offset = cls._read_uint16(data, offset)
+
+        # 0x0022: pab_code (int32) - partner code
+        pab_code, offset = cls._read_uint32(data, offset)
 
         # 0x0026: pab_name1 (30 bytes - hybrid fixed pascal)
         pab_name, offset = cls._read_fixed_pascal_string(data, offset, 30, encoding)
@@ -366,7 +381,6 @@ class TSHRecord:
         doc_type = 1
         delivery_date = None
         due_date = None
-        pab_code = 0
 
         return cls(
             doc_number=doc_number,
@@ -387,6 +401,7 @@ class TSHRecord:
             amount_base=amount_base,
             amount_vat=amount_vat,
             amount_total=amount_total,
+            warehouse_code=warehouse_code,
             _raw_offset=offset,
         )
 
