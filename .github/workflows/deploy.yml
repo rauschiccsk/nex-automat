@@ -22,6 +22,8 @@ jobs:
       - self-hosted
       - ANDROS
     environment: production-ANDROS
+    timeout-minutes: 10
+    continue-on-error: true
 
     steps:
       - name: Pull latest code
@@ -85,9 +87,12 @@ jobs:
   # MAGER Deployment (Windows + Btrieve Hybrid)
   # ===========================================
   deploy-mager:
+    name: Deploy to MAGER
     if: github.event.inputs.customer == 'MAGER'
     runs-on: [self-hosted, MAGER]
     environment: production-MAGER
+    timeout-minutes: 10
+    continue-on-error: true
 
     steps:
       - name: Git Pull
