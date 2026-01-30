@@ -199,7 +199,7 @@ class TSHRecord:
         NEX Genesis hybrid format:
         - [1-byte length prefix][fixed-width buffer]
         - Length prefix indicates "active" part, but full text is in buffer
-        - We read the entire buffer and strip trailing nulls
+        - We read the entire buffer and strip nulls from BOTH sides
 
         Args:
             data: Raw bytes
@@ -217,7 +217,8 @@ class TSHRecord:
         raw = data[offset + 1 : offset + buffer_size]
 
         try:
-            value = raw.decode(encoding, errors="replace").rstrip("\x00").strip()
+            # Strip nulls from BOTH sides (fixes "\x00\x00\x0044298684" -> "44298684")
+            value = raw.decode(encoding, errors="replace").strip("\x00").strip()
         except Exception:
             value = ""
 
@@ -303,9 +304,10 @@ class TSHRecord:
         # 0x001c: 2 bytes padding
         offset += 2
 
-        # 0x001e: doc_date (8 bytes - Delphi TDateTime as double)
-        doc_date_double, offset = cls._read_double(data, offset)
-        doc_date = cls._decode_delphi_datetime(doc_date_double)
+        # 0x001e: Skip 8 bytes - contains unknown value (not doc_date)
+        # doc_date will be extracted from reference or found elsewhere
+        offset += 8
+        doc_date = None  # TODO: find actual doc_date location
 
         # 0x0026: pab_name1 (30 bytes - hybrid fixed pascal)
         pab_name, offset = cls._read_fixed_pascal_string(data, offset, 30, encoding)
@@ -337,14 +339,28 @@ class TSHRecord:
         # 0x00cb: payment_name (20 bytes)
         payment_name, offset = cls._read_fixed_pascal_string(data, offset, 20, encoding)
 
-        # Try to find the amount section (look for doubles near end of record)
+        # Amounts at hardcoded offsets (from hex dump analysis)
+        # These are NOT 4-byte aligned, so we use exact offsets
         amount_base = Decimal("0.00")
         amount_vat = Decimal("0.00")
         amount_total = Decimal("0.00")
 
-        amounts_found = cls._find_amounts(data, offset)
-        if amounts_found:
-            amount_base, amount_vat, amount_total = amounts_found
+        # Offset 0x0215: amount_base (8 bytes double)
+        # Offset 0x023d: amount_vat (8 bytes double)
+        # Offset 0x0245: amount_total (8 bytes double)
+        if len(data) >= 0x024D:  # Minimum size for all amounts
+            try:
+                base_val = struct.unpack("<d", data[0x0215 : 0x0215 + 8])[0]
+                vat_val = struct.unpack("<d", data[0x023D : 0x023D + 8])[0]
+                total_val = struct.unpack("<d", data[0x0245 : 0x0245 + 8])[0]
+
+                # Validate amounts are reasonable
+                if 0 <= base_val < 10_000_000 and 0 <= vat_val < 10_000_000:
+                    amount_base = Decimal(str(round(base_val, 2)))
+                    amount_vat = Decimal(str(round(vat_val, 2)))
+                    amount_total = Decimal(str(round(total_val, 2)))
+            except (struct.error, ValueError):
+                pass
 
         # Fields not yet mapped - will be identified in future analysis
         doc_type = 1
