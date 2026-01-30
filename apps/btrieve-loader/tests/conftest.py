@@ -3,7 +3,10 @@ Pytest configuration and shared fixtures
 """
 
 import sys
+from dataclasses import dataclass
+from datetime import date, datetime
 from pathlib import Path
+from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -221,3 +224,263 @@ def pytest_report_header(config):
         f"Python: {sys.version.split()[0]}",
         f"Pytest: {pytest.__version__}",
     ]
+
+
+# ============================================================================
+# BTRIEVE API TEST FIXTURES
+# ============================================================================
+
+
+@dataclass
+class MockGSCATRecord:
+    """Mock GSCAT (Product) record."""
+
+    GsCode: int
+    GsName: str
+    BarCode: str = ""
+    SupplierCode: str = ""
+    MgCode: str = "KS"
+
+
+@dataclass
+class MockPABRecord:
+    """Mock PAB (Partner) record."""
+
+    pab_code: int
+    name1: str
+    name2: str = ""
+    short_name: str = ""
+    street: str = ""
+    city: str = ""
+    zip_code: str = ""
+    country: str = "SK"
+    phone: str = ""
+    fax: str = ""
+    email: str = ""
+    web: str = ""
+    contact_person: str = ""
+    ico: str = ""
+    dic: str = ""
+    ic_dph: str = ""
+    bank_account: str = ""
+    bank_code: str = ""
+    bank_name: str = ""
+    iban: str = ""
+    swift: str = ""
+    partner_type: int = 3
+    payment_terms: int = 14
+    credit_limit: float = 0.0
+    discount_percent: float = 0.0
+    active: bool = True
+    vat_payer: bool = True
+    note: str = ""
+    mod_user: str = ""
+    mod_date: datetime | None = None
+
+
+@dataclass
+class MockBARCODERecord:
+    """Mock BARCODE record."""
+
+    gs_code: int
+    bar_code: str
+    mod_user: str = ""
+    mod_date: date | None = None
+    mod_time: str = ""
+
+
+@dataclass
+class MockMGLSTRecord:
+    """Mock MGLST (Product Group) record."""
+
+    mglst_code: int
+    name: str
+    parent_code: int = 0
+    level: int = 1
+    sort_order: int = 0
+    active: bool = True
+
+
+@dataclass
+class MockTSHRecord:
+    """Mock TSH (Document Header) record."""
+
+    doc_number: str
+    doc_type: int
+    doc_date: date | None
+    pab_code: int
+    total_amount: float = 0.0
+    tax_amount: float = 0.0
+    net_amount: float = 0.0
+    currency: str = "EUR"
+    mod_user: str = ""
+    mod_date: datetime | None = None
+
+
+@dataclass
+class MockTSIRecord:
+    """Mock TSI (Document Item) record."""
+
+    doc_number: str
+    line_number: int
+    gs_code: int
+    gs_name: str = ""
+    quantity: float = 1.0
+    unit: str = "KS"
+    unit_price: float = 0.0
+    total_price: float = 0.0
+    vat_rate: float = 20.0
+
+
+@pytest.fixture
+def sample_products():
+    """Sample product records for testing."""
+    return [
+        MockGSCATRecord(GsCode=1001, GsName="Chlieb biely 500g", BarCode="8590001000010", SupplierCode="LS001"),
+        MockGSCATRecord(GsCode=1002, GsName="Mlieko plnotučné 1L", BarCode="8590001000027", SupplierCode="LS002"),
+        MockGSCATRecord(GsCode=1003, GsName="Maslo 250g", BarCode="8590001000034", SupplierCode="LS003"),
+    ]
+
+
+@pytest.fixture
+def sample_partners():
+    """Sample partner records for testing."""
+    return [
+        MockPABRecord(pab_code=101, name1="L & Š, s.r.o.", ico="12345678", city="Bratislava", partner_type=1),
+        MockPABRecord(pab_code=102, name1="Test Customer", ico="87654321", city="Košice", partner_type=2),
+        MockPABRecord(pab_code=103, name1="Univerzálny Partner", ico="11223344", city="Žilina", partner_type=3),
+    ]
+
+
+@pytest.fixture
+def sample_barcodes():
+    """Sample barcode records for testing."""
+    return [
+        MockBARCODERecord(gs_code=1001, bar_code="8590001000099"),
+        MockBARCODERecord(gs_code=1002, bar_code="8590001000105"),
+    ]
+
+
+@pytest.fixture
+def sample_product_groups():
+    """Sample product group records for testing."""
+    return [
+        MockMGLSTRecord(mglst_code=1, name="Potraviny", parent_code=0, level=1, sort_order=1),
+        MockMGLSTRecord(mglst_code=2, name="Pečivo", parent_code=1, level=2, sort_order=1),
+        MockMGLSTRecord(mglst_code=3, name="Mliečne výrobky", parent_code=1, level=2, sort_order=2),
+    ]
+
+
+@pytest.fixture
+def sample_documents():
+    """Sample document header records for testing."""
+    return [
+        MockTSHRecord(doc_number="2025001", doc_type=1, doc_date=date(2025, 1, 15), pab_code=101, total_amount=1234.56),
+        MockTSHRecord(doc_number="2025002", doc_type=2, doc_date=date(2025, 1, 16), pab_code=102, total_amount=999.99),
+    ]
+
+
+@pytest.fixture
+def sample_document_items():
+    """Sample document item records for testing."""
+    return [
+        MockTSIRecord(
+            doc_number="2025001", line_number=1, gs_code=1001, gs_name="Chlieb", quantity=10, unit_price=1.50
+        ),
+        MockTSIRecord(doc_number="2025001", line_number=2, gs_code=1002, gs_name="Mlieko", quantity=5, unit_price=1.20),
+    ]
+
+
+@pytest.fixture
+def mock_gscat_repository(sample_products):
+    """Mock GSCATRepository."""
+    repo = MagicMock()
+    repo.get_all.return_value = sample_products
+    repo.find_one.side_effect = lambda predicate: next((p for p in sample_products if predicate(p)), None)
+    repo.find_by_barcode.side_effect = lambda bc: next((p for p in sample_products if p.BarCode == bc), None)
+    repo.search_by_name.side_effect = lambda q, limit=100: [p for p in sample_products if q.lower() in p.GsName.lower()]
+    repo.close.return_value = None
+    return repo
+
+
+@pytest.fixture
+def mock_pab_repository(sample_partners):
+    """Mock PABRepository."""
+    repo = MagicMock()
+    repo.get_all.return_value = sample_partners
+    repo.find_one.side_effect = lambda predicate: next((p for p in sample_partners if predicate(p)), None)
+    repo.close.return_value = None
+    return repo
+
+
+@pytest.fixture
+def mock_barcode_repository(sample_barcodes):
+    """Mock BARCODERepository."""
+    repo = MagicMock()
+    repo.find_by_barcode.side_effect = lambda bc: next((b for b in sample_barcodes if b.bar_code == bc), None)
+    repo.find.side_effect = lambda predicate, max_results=100: [b for b in sample_barcodes if predicate(b)]
+    repo.close.return_value = None
+    return repo
+
+
+@pytest.fixture
+def mock_mglst_repository(sample_product_groups):
+    """Mock MGLSTRepository."""
+    repo = MagicMock()
+    repo.get_all.return_value = sample_product_groups
+    repo.find_one.side_effect = lambda predicate: next((g for g in sample_product_groups if predicate(g)), None)
+    repo.find.side_effect = lambda predicate, max_results=1000: [g for g in sample_product_groups if predicate(g)]
+    repo.close.return_value = None
+    return repo
+
+
+@pytest.fixture
+def mock_tsh_repository(sample_documents):
+    """Mock TSHRepository."""
+    repo = MagicMock()
+    repo.get_all.return_value = sample_documents
+    repo.find_one.side_effect = lambda predicate: next((d for d in sample_documents if predicate(d)), None)
+    repo.close.return_value = None
+    return repo
+
+
+@pytest.fixture
+def mock_tsi_repository(sample_document_items):
+    """Mock TSIRepository."""
+    repo = MagicMock()
+    repo.find.side_effect = lambda predicate, max_results=1000: [i for i in sample_document_items if predicate(i)]
+    repo.close.return_value = None
+    return repo
+
+
+@pytest.fixture
+def api_v1_client():
+    """FastAPI test client for new API v1 routes."""
+    from fastapi.testclient import TestClient
+    from src.main import app
+
+    return TestClient(app)
+
+
+@pytest.fixture
+def api_key_header():
+    """API key header for authenticated requests."""
+    return {"X-API-Key": "test-api-key"}
+
+
+@pytest.fixture
+def mock_settings(monkeypatch):
+    """Mock settings for API tests."""
+    from src.core import config
+
+    monkeypatch.setattr(
+        config,
+        "settings",
+        config.Settings(
+            api_key="test-api-key",
+            btrieve_path=Path("/tmp/btrieve"),
+        ),
+    )
+    # Clear the cache to use new settings
+    config.get_settings.cache_clear()
+    return config.settings
