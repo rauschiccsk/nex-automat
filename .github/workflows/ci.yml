@@ -12,7 +12,7 @@ env:
 jobs:
   lint:
     name: Lint & Format
-    runs-on: self-hosted
+    runs-on: [self-hosted, ANDROS]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -38,7 +38,7 @@ jobs:
 
   test:
     name: Unit Tests
-    runs-on: self-hosted
+    runs-on: [self-hosted, ANDROS]
     needs: lint
     steps:
       - name: Checkout
@@ -59,7 +59,7 @@ jobs:
 
   security:
     name: Security Scan
-    runs-on: self-hosted
+    runs-on: [self-hosted, ANDROS]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -78,7 +78,7 @@ jobs:
 
   build:
     name: Docker Build
-    runs-on: self-hosted
+    runs-on: [self-hosted, ANDROS]
     needs: [lint, test]
     if: github.event_name == 'push'
     strategy:
