@@ -39,17 +39,20 @@ class TSIRepository(BaseRepository[TSIRecord]):
         Get all items for specific document
 
         Args:
-            doc_number: Document number (e.g., "240001")
+            doc_number: Document number (e.g., "DD2600100001")
 
         Returns:
             List of TSI records for the document
         """
         items = []
+        search_doc = doc_number.strip()
 
         for record in self.get_all():
-            if record.C_001 == doc_number:
+            if record.doc_number.strip() == search_doc:
                 items.append(record)
 
+        # Sort by line number
+        items.sort(key=lambda r: r.line_number)
         return items
 
     def get_by_document_and_line(self, doc_number: str, line_number: int) -> TSIRecord | None:
@@ -63,8 +66,10 @@ class TSIRepository(BaseRepository[TSIRecord]):
         Returns:
             TSIRecord if found, None otherwise
         """
+        search_doc = doc_number.strip()
+
         for record in self.get_all():
-            if record.C_001 == doc_number and record.P_001 == line_number:
+            if record.doc_number.strip() == search_doc and record.line_number == line_number:
                 return record
 
         return None

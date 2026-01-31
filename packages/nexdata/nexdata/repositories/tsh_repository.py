@@ -39,14 +39,16 @@ class TSHRepository(BaseRepository[TSHRecord]):
         Get TSH record by document number
 
         Args:
-            doc_number: Document number (e.g., "240001")
+            doc_number: Document number (e.g., "DD2600100001")
 
         Returns:
             TSHRecord if found, None otherwise
         """
+        search_doc = doc_number.strip()
+
         # Search through all records
         for record in self.get_all():
-            if record.C_001 == doc_number:
+            if record.doc_number.strip() == search_doc:
                 return record
         return None
 
