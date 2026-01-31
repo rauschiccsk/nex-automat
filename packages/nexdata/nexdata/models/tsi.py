@@ -24,7 +24,6 @@ from decimal import Decimal
 
 from ..utils.encoding import decode_keybcs2
 
-
 # Control characters to strip from string fields (0x00-0x1F)
 _CONTROL_CHARS = "".join(chr(i) for i in range(32))
 
