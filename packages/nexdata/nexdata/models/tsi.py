@@ -5,16 +5,27 @@ Dodacie listy - Items (položky dokladov)
 Table: TSIA-001.BTR (actual year, book 001)
 Location: C:\NEX\YEARACT\STORES\TSIA-001.BTR
 Definition: tsi.bdf
-Record Size: ~150 bytes (based on BDF analysis)
+Record Size: ~200+ bytes (based on BDF analysis)
 Encoding: Kamenický (KEYBCS2)
 
-TSI.bdf field structure (verified):
-- DocNum: Str12 (13 bytes - 1 length + 12 data)
-- ItmNum: word (2 bytes)
-- GsCode: longint (4 bytes)
-- GsName: Str30 (31 bytes - 1 length + 30 data)
-- GsQnt: double (8 bytes)
-- AcSPrice: double (8 bytes) - unit price
+TSI.bdf field structure (verified offsets):
+Offset  Size  Type      Field
+0       13    Str12     DocNum (1 length + 12 data)
+13      2     word      ItmNum (line number)
+15      2     word      MgCode (measure unit code)
+17      4     longint   GsCode (PLU)
+21      31    Str30     GsName (1 length + 30 data)
+52      16    Str15     BarCode
+68      16    Str15     StkCode
+84      31    Str30     Notice
+115     4     longint   PackGs
+119     2     Str1      GsType
+121     2     word      StkNum (warehouse)
+123     11    Str10     MsName (unit name)
+134     8     double    GsQnt (quantity) ← IMPORTANT
+142     8     double    VatPrc (VAT rate %)
+150     8     double    DscPrc (discount %)
+158     8     double    AcSPrice (unit price) ← IMPORTANT
 """
 
 import struct
@@ -86,8 +97,8 @@ class TSIRecord:
     INDEX_GSCODE = "GsCode"  # Index podľa produktu
     INDEX_BARCODE = "BarCode"  # Index podľa čiarového kódu
 
-    # Minimum record size based on BDF
-    MIN_RECORD_SIZE = 66  # DocNum(13) + ItmNum(2) + GsCode(4) + GsName(31) + GsQnt(8) + AcSPrice(8)
+    # Minimum record size based on BDF (need at least up to AcSPrice at offset 158 + 8 bytes)
+    MIN_RECORD_SIZE = 166  # Up to and including AcSPrice field
 
     @staticmethod
     def _read_fixed_pascal_string(data: bytes, offset: int, buffer_size: int) -> tuple[str, int]:
@@ -127,15 +138,24 @@ class TSIRecord:
         """
         Deserialize TSI record from bytes (Kamenický encoding)
 
-        Field Layout based on TSI.bdf:
-        Offset  Size  Type        Field
-        0x0000  13    Str12       DocNum (1 length + 12 data)
-        0x000D  2     word        ItmNum (line number)
-        0x000F  4     longint     GsCode (PLU)
-        0x0013  31    Str30       GsName (1 length + 30 data)
-        0x0032  8     double      GsQnt (quantity)
-        0x003A  8     double      AcSPrice (unit price NC/MJ)
-        ... additional fields follow
+        Uses HARDCODED OFFSETS from TSI.bdf specification:
+        Offset  Size  Type      Field
+        0       13    Str12     DocNum
+        13      2     word      ItmNum
+        15      2     word      MgCode
+        17      4     longint   GsCode
+        21      31    Str30     GsName
+        52      16    Str15     BarCode
+        68      16    Str15     StkCode
+        84      31    Str30     Notice
+        115     4     longint   PackGs
+        119     2     Str1      GsType
+        121     2     word      StkNum
+        123     11    Str10     MsName (unit)
+        134     8     double    GsQnt (quantity)
+        142     8     double    VatPrc (VAT %)
+        150     8     double    DscPrc (discount %)
+        158     8     double    AcSPrice (unit price)
 
         Args:
             data: Raw bytes from Btrieve (Kamenický/KEYBCS2 encoding)
@@ -146,72 +166,82 @@ class TSIRecord:
         if len(data) < cls.MIN_RECORD_SIZE:
             raise ValueError(f"Invalid record size: {len(data)} bytes (expected >= {cls.MIN_RECORD_SIZE})")
 
-        offset = 0
+        # === HARDCODED OFFSETS from TSI.bdf ===
 
-        # 0x0000: DocNum (Str12 - 13 bytes: 1 length + 12 data)
-        doc_number, offset = cls._read_fixed_pascal_string(data, offset, 13)
+        # Offset 0: DocNum (Str12 - 13 bytes)
+        doc_number, _ = cls._read_fixed_pascal_string(data, 0, 13)
 
-        # 0x000D: ItmNum (word - 2 bytes, unsigned)
-        line_number = struct.unpack("<H", data[offset : offset + 2])[0]
-        offset += 2
+        # Offset 13: ItmNum (word - 2 bytes)
+        line_number = struct.unpack("<H", data[13:15])[0]
 
-        # 0x000F: GsCode (longint - 4 bytes)
-        gs_code = struct.unpack("<i", data[offset : offset + 4])[0]
-        offset += 4
+        # Offset 17: GsCode (longint - 4 bytes)
+        gs_code = struct.unpack("<i", data[17:21])[0]
 
-        # 0x0013: GsName (Str30 - 31 bytes: 1 length + 30 data)
-        gs_name, offset = cls._read_fixed_pascal_string(data, offset, 31)
+        # Offset 21: GsName (Str30 - 31 bytes)
+        gs_name, _ = cls._read_fixed_pascal_string(data, 21, 31)
 
-        # 0x0032: GsQnt (double - 8 bytes)
+        # Offset 52: BarCode (Str15 - 16 bytes)
+        bar_code, _ = cls._read_fixed_pascal_string(data, 52, 16)
+
+        # Offset 84: Notice (Str30 - 31 bytes) - použijeme ako note
+        note, _ = cls._read_fixed_pascal_string(data, 84, 31)
+
+        # Offset 121: StkNum (word - 2 bytes) - warehouse code
+        warehouse_code = struct.unpack("<H", data[121:123])[0]
+
+        # Offset 123: MsName (Str10 - 11 bytes) - unit name
+        unit, _ = cls._read_fixed_pascal_string(data, 123, 11)
+        if not unit:
+            unit = "ks"
+
+        # Offset 134: GsQnt (double - 8 bytes) - QUANTITY
         quantity = Decimal("0")
-        if offset + 8 <= len(data):
-            try:
-                qty_val = struct.unpack("<d", data[offset : offset + 8])[0]
-                if 0 <= qty_val < 1_000_000:  # Sanity check
-                    quantity = Decimal(str(round(qty_val, 3)))
-            except (struct.error, ValueError):
-                pass
-        offset += 8
+        try:
+            qty_val = struct.unpack("<d", data[134:142])[0]
+            if 0 <= qty_val < 1_000_000:  # Sanity check
+                quantity = Decimal(str(round(qty_val, 3)))
+        except (struct.error, ValueError):
+            pass
 
-        # 0x003A: AcSPrice (double - 8 bytes) - unit price
-        price_unit = Decimal("0.00")
-        if offset + 8 <= len(data):
-            try:
-                price_val = struct.unpack("<d", data[offset : offset + 8])[0]
-                if 0 <= price_val < 1_000_000:  # Sanity check
-                    price_unit = Decimal(str(round(price_val, 2)))
-            except (struct.error, ValueError):
-                pass
-        offset += 8
-
-        # Additional fields - parse if data is long enough
-        unit = "ks"
+        # Offset 142: VatPrc (double - 8 bytes) - VAT rate
         vat_rate = Decimal("20.0")
-        line_total = Decimal("0.00")
-        bar_code = ""
+        try:
+            vat_val = struct.unpack("<d", data[142:150])[0]
+            if 0 <= vat_val <= 100:  # Sanity check
+                vat_rate = Decimal(str(round(vat_val, 1)))
+        except (struct.error, ValueError):
+            pass
 
-        # Try to extract more fields if record is large enough
-        # The exact layout depends on actual BDF - this is a safe minimal extraction
-        if len(data) >= 100:
-            # Look for additional known patterns
-            # Unit might be after price fields
-            if offset + 10 <= len(data):
-                try:
-                    unit_raw = decode_keybcs2(data[offset : offset + 10])
-                    unit_raw = unit_raw.strip(_CONTROL_CHARS).strip()
-                    if unit_raw and len(unit_raw) <= 5:
-                        unit = unit_raw
-                except Exception:
-                    pass
+        # Offset 150: DscPrc (double - 8 bytes) - discount %
+        discount_percent = Decimal("0.0")
+        try:
+            dsc_val = struct.unpack("<d", data[150:158])[0]
+            if 0 <= dsc_val <= 100:  # Sanity check
+                discount_percent = Decimal(str(round(dsc_val, 2)))
+        except (struct.error, ValueError):
+            pass
 
-        # Calculate line_total from quantity * price if not found
+        # Offset 158: AcSPrice (double - 8 bytes) - UNIT PRICE
+        price_unit = Decimal("0.00")
+        try:
+            price_val = struct.unpack("<d", data[158:166])[0]
+            if 0 <= price_val < 10_000_000:  # Sanity check
+                price_unit = Decimal(str(round(price_val, 2)))
+        except (struct.error, ValueError):
+            pass
+
+        # Calculate line totals
         if quantity > 0 and price_unit > 0:
-            line_base = quantity * price_unit
+            # Apply discount
+            subtotal = quantity * price_unit
+            discount_amount = subtotal * (discount_percent / Decimal("100"))
+            line_base = subtotal - discount_amount
             line_vat = line_base * (vat_rate / Decimal("100"))
             line_total = line_base + line_vat
         else:
             line_base = Decimal("0.00")
             line_vat = Decimal("0.00")
+            line_total = Decimal("0.00")
 
         return cls(
             doc_number=doc_number,
@@ -225,14 +255,14 @@ class TSIRecord:
             price_unit=price_unit,
             price_unit_vat=price_unit * (1 + vat_rate / Decimal("100")),
             vat_rate=vat_rate,
-            discount_percent=Decimal("0.0"),
+            discount_percent=discount_percent,
             line_base=round(line_base, 2),
             line_vat=round(line_vat, 2),
             line_total=round(line_total, 2),
-            warehouse_code=1,
+            warehouse_code=warehouse_code if warehouse_code > 0 else 1,
             batch_number="",
             serial_number="",
-            note="",
+            note=note,
             supplier_item_code="",
             status=1,
             mod_user="",
