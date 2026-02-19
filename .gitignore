@@ -162,3 +162,6 @@ docs/knowledge/
 # Coverage
 coverage.xml
 docs/knowledge/
+
+# Node
+node_modules/
