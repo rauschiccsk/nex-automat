@@ -132,50 +132,35 @@ jobs:
   # Electron Build
   # ===========================================
   build-electron:
-    name: Electron Build
     needs: [lint, test]
-    runs-on: [self-hosted, ANDROS]
+    runs-on: [self-hosted, ANDROS-WIN]
     if: github.event_name == 'push'
-    defaults:
-      run:
-        working-directory: apps/frontend/nex-manager
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: '20'
 
       - name: Install dependencies
+        working-directory: apps/frontend/nex-manager
+        shell: pwsh
         run: npm ci
 
-      - name: Build Electron app
-        run: npm run build
-
       - name: Build Electron app (portable)
+        working-directory: apps/frontend/nex-manager
+        shell: pwsh
         run: npx electron-builder --win --x64 --dir
 
-      - name: Upload Electron artifact
+      - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: nex-manager-electron
           path: apps/frontend/nex-manager/dist/win-unpacked/
           if-no-files-found: error
           retention-days: 7
-
-      - name: Build summary
-        run: |
-          echo "### Electron Build Summary" >> $GITHUB_STEP_SUMMARY
-          echo "| Property | Value |" >> $GITHUB_STEP_SUMMARY
-          echo "|----------|-------|" >> $GITHUB_STEP_SUMMARY
-          echo "| App | nex-manager |" >> $GITHUB_STEP_SUMMARY
-          echo "| Node | $(node --version) |" >> $GITHUB_STEP_SUMMARY
-          echo "| Commit | $(git rev-parse --short HEAD) |" >> $GITHUB_STEP_SUMMARY
 
   # ===========================================
   # Staging Deploy Backend (DEPTEST) — Linux runner, Docker compose
