@@ -1,5 +1,5 @@
 import { useState, useCallback, type ReactElement } from 'react'
-import { Bell, Moon, Sun, LogOut, ChevronDown } from 'lucide-react'
+import { Bell, Moon, Sun, LogOut, ChevronDown, PanelRightOpen } from 'lucide-react'
 import { useUiStore } from '@renderer/stores/uiStore'
 import { useAuthStore } from '@renderer/stores/authStore'
 
@@ -12,7 +12,7 @@ function getInitials(username: string): string {
 }
 
 export default function Header(): ReactElement {
-  const { theme, setTheme } = useUiStore()
+  const { theme, setTheme, toggleInfoPanel } = useUiStore()
   const { user, logout } = useAuthStore()
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
 
@@ -53,6 +53,15 @@ export default function Header(): ReactElement {
           <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-xs w-4 h-4 rounded-full flex items-center justify-center font-medium">
             3
           </span>
+        </button>
+
+        {/* Info panel toggle */}
+        <button
+          onClick={toggleInfoPanel}
+          className="p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+          aria-label="Panel s detailmi"
+        >
+          <PanelRightOpen className="h-5 w-5" />
         </button>
 
         {/* Dark mode toggle */}

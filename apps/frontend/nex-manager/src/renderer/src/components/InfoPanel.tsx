@@ -25,14 +25,9 @@ function formatDate(): string {
 }
 
 export default function InfoPanel(): ReactElement {
-  const { sidebarOpen } = useUiStore()
+  const { infoPanelOpen, setInfoPanelOpen } = useUiStore()
   const { tabs, activeTabId } = useTabStore()
   const { modules } = useModuleStore()
-
-  // Reuse sidebarOpen as infoPanelOpen toggle — however, spec says uiStore.infoPanelOpen
-  // Since uiStore has no infoPanelOpen, we use a local approach:
-  // The parent component should control visibility. We render based on props-like store usage.
-  // For now, we look for an active tab's module details.
 
   const activeTab = useMemo(() => {
     if (!activeTabId) return null
@@ -56,26 +51,18 @@ export default function InfoPanel(): ReactElement {
     ]
   }, [activeModule])
 
-  // We use sidebarOpen state inverted as a proxy — but per spec we need infoPanelOpen.
-  // Since we can't modify uiStore, we manage open state internally via a simple approach:
-  // The component is always rendered and slides based on a local state.
-  // Parent will need to conditionally render or we expose our own toggle.
-  // For maximum compatibility, we'll use a data attribute approach with CSS.
-
-  // Actually, let's accept an open/onClose prop pattern since uiStore lacks infoPanelOpen.
-  // But spec says named export, no props needed — we'll manage with internal state
-  // triggered by a custom event or we just always render (panel visible when there's an active module tab).
-
-  // DECISION: Since uiStore has no infoPanelOpen/toggleInfoPanel, and we MUST NOT modify stores,
-  // we'll use a local state. External components can trigger via a custom DOM event.
+  const handleClose = (): void => {
+    setInfoPanelOpen(false)
+  }
 
   return (
     <>
-      {/* Overlay */}
+      {/* Overlay / backdrop */}
       <div
+        onClick={handleClose}
         className={cn(
           'fixed inset-0 z-40 bg-black/30 transition-opacity duration-300',
-          sidebarOpen ? 'opacity-0 pointer-events-none' : 'opacity-0 pointer-events-none'
+          infoPanelOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
         )}
       />
 
@@ -83,7 +70,7 @@ export default function InfoPanel(): ReactElement {
       <div
         className={cn(
           'fixed top-0 right-0 h-full w-[350px] z-50 bg-white dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700 shadow-xl transition-transform duration-300 ease-in-out flex flex-col',
-          'translate-x-0'
+          infoPanelOpen ? 'translate-x-0' : 'translate-x-full'
         )}
       >
         {/* Header */}
@@ -93,6 +80,7 @@ export default function InfoPanel(): ReactElement {
             <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Detail</h2>
           </div>
           <button
+            onClick={handleClose}
             className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
             aria-label="Zavrieť panel"
           >

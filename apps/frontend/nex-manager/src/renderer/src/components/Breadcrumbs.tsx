@@ -14,7 +14,7 @@ interface BreadcrumbsProps {
 
 export default function Breadcrumbs({ items, className }: BreadcrumbsProps): ReactElement {
   return (
-    <nav className={cn('flex items-center gap-1 text-sm text-gray-500', className)}>
+    <nav className={cn('flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400', className)}>
       {items.map((item, index) => {
         const isLast = index === items.length - 1
         return (
@@ -22,16 +22,16 @@ export default function Breadcrumbs({ items, className }: BreadcrumbsProps): Rea
             {item.onClick && !isLast ? (
               <button
                 onClick={item.onClick}
-                className="hover:text-gray-700 hover:underline transition-colors"
+                className="hover:text-gray-700 dark:hover:text-gray-200 hover:underline transition-colors"
               >
                 {item.label}
               </button>
             ) : (
-              <span className={cn(isLast && 'font-medium text-gray-900')}>
+              <span className={cn(isLast && 'font-medium text-gray-900 dark:text-white')}>
                 {item.label}
               </span>
             )}
-            {!isLast && <ChevronRight className="h-4 w-4 text-gray-400" />}
+            {!isLast && <ChevronRight className="h-4 w-4 text-gray-400 dark:text-gray-500" />}
           </span>
         )
       })}
