@@ -1,0 +1,37 @@
+{
+  "name": "nex-manager",
+  "version": "0.1.0",
+  "description": "NEX Manager — Electron desktop app",
+  "main": "./out/main/index.js",
+  "scripts": {
+    "predev": "node scripts/version.js",
+    "dev": "electron-vite dev",
+    "prebuild": "node scripts/version.js",
+    "build": "electron-vite build",
+    "start": "electron-vite preview",
+    "typecheck:node": "tsc --noEmit -p tsconfig.node.json",
+    "typecheck:web": "tsc --noEmit -p tsconfig.web.json",
+    "typecheck": "npm run typecheck:node && npm run typecheck:web"
+  },
+  "dependencies": {
+    "@electron-toolkit/preload": "^3.0.1",
+    "@electron-toolkit/utils": "^3.0.0",
+    "@radix-ui/react-slot": "^1.1.2",
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.469.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "tailwind-merge": "^3.0.2",
+    "zustand": "^5.0.3"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.1.4",
+    "@types/react": "^19.0.8",
+    "@types/react-dom": "^19.0.3",
+    "@vitejs/plugin-react": "^4.3.4",
+    "electron": "^35.2.1",
+    "electron-vite": "^3.0.0",
+    "tailwindcss": "^4.1.4",
+    "typescript": "^5.9.3"
+  }
+}
