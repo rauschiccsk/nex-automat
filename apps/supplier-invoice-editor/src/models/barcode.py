@@ -11,7 +11,6 @@ Record Size: ~50 bytes
 import struct
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Optional
 
 
 @dataclass
@@ -215,4 +214,7 @@ if __name__ == "__main__":
 
     restored = BarcodeRecord.from_bytes(raw_bytes)
     print("Restored:", restored)
-    print("Match:", record.gs_code == restored.gs_code and record.bar_code == restored.bar_code)
+    print(
+        "Match:",
+        record.gs_code == restored.gs_code and record.bar_code == restored.bar_code,
+    )

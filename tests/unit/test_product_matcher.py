@@ -5,13 +5,9 @@ Note: These tests use mocks to avoid Btrieve dependencies.
 The ProductMatcher class uses live Btrieve queries in production.
 """
 
-import sys
 from dataclasses import dataclass, field
-from pathlib import Path
 from typing import Any
-from unittest.mock import MagicMock, Mock, patch
-
-import pytest
+from unittest.mock import Mock
 
 
 # Mock GSCATRecord to match actual structure
@@ -86,10 +82,22 @@ class TestMatchResult:
 
     def test_confidence_level_boundaries(self):
         """Should handle boundary values correctly."""
-        assert MatchResult(product=Mock(), confidence=0.9, method="ean").confidence_level == "high"
-        assert MatchResult(product=Mock(), confidence=0.7, method="name").confidence_level == "medium"
-        assert MatchResult(product=Mock(), confidence=0.6, method="name").confidence_level == "low"
-        assert MatchResult(product=Mock(), confidence=0.5, method="name").confidence_level == "none"
+        assert (
+            MatchResult(product=Mock(), confidence=0.9, method="ean").confidence_level
+            == "high"
+        )
+        assert (
+            MatchResult(product=Mock(), confidence=0.7, method="name").confidence_level
+            == "medium"
+        )
+        assert (
+            MatchResult(product=Mock(), confidence=0.6, method="name").confidence_level
+            == "low"
+        )
+        assert (
+            MatchResult(product=Mock(), confidence=0.5, method="name").confidence_level
+            == "none"
+        )
 
 
 class TestMockGSCATRecord:

@@ -195,7 +195,10 @@ def clear_existing_data(client: PostgresClient):
     print("  ✓ Cleared items")
 
     # Delete invoices
-    client.execute_query("DELETE FROM supplier_invoice_heads WHERE invoice_number LIKE 'FAV-2025-%'", fetch=False)
+    client.execute_query(
+        "DELETE FROM supplier_invoice_heads WHERE invoice_number LIKE 'FAV-2025-%'",
+        fetch=False,
+    )
     print("  ✓ Cleared invoices")
 
 

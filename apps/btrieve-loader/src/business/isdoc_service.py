@@ -6,7 +6,6 @@ Generates ISDOC XML from extracted invoice data
 import logging
 from datetime import datetime
 from decimal import Decimal
-from typing import Optional
 from xml.dom import minidom
 from xml.etree.ElementTree import Element, SubElement, tostring
 
@@ -24,7 +23,9 @@ class ISDOCGenerator:
     def __init__(self):
         self.ns = ISDOC_NS
 
-    def generate_from_invoice_data(self, data: InvoiceData, output_path: str | None = None) -> str:
+    def generate_from_invoice_data(
+        self, data: InvoiceData, output_path: str | None = None
+    ) -> str:
         """
         Hlavná metóda - vytvorí ISDOC XML z InvoiceData
 
@@ -57,13 +58,17 @@ class ISDOCGenerator:
         SubElement(root, "IssueDate").text = self._format_date(data.issue_date)
 
         # 6. Tax Point Date (dátum daňovej povinnosti)
-        SubElement(root, "TaxPointDate").text = self._format_date(data.tax_point_date or data.issue_date)
+        SubElement(root, "TaxPointDate").text = self._format_date(
+            data.tax_point_date or data.issue_date
+        )
 
         # 7. VAT Applicable
         SubElement(root, "VATApplicable").text = "true"
 
         # 8. Electronic Possibility Agreement Reference
-        SubElement(root, "ElectronicPossibilityAgreementReference").text = "Elektronická fakturácia"
+        SubElement(
+            root, "ElectronicPossibilityAgreementReference"
+        ).text = "Elektronická fakturácia"
 
         # 9. Note (voliteľné)
         if data.invoice_number:
@@ -208,11 +213,15 @@ class ISDOCGenerator:
         payment_elem = SubElement(payment, "Payment")
 
         # Payment Means Code (42 = SEPA transfer)
-        SubElement(payment_elem, "PaidAmount").text = self._format_amount(data.total_amount)
+        SubElement(payment_elem, "PaidAmount").text = self._format_amount(
+            data.total_amount
+        )
 
         # Payment Due Date
         if data.due_date:
-            SubElement(payment_elem, "PaymentDueDate").text = self._format_date(data.due_date)
+            SubElement(payment_elem, "PaymentDueDate").text = self._format_date(
+                data.due_date
+            )
 
         # Bank Account
         if data.iban:
@@ -245,10 +254,14 @@ class ISDOCGenerator:
         tax_subtotal = SubElement(tax_total, "TaxSubTotal")
 
         # Taxable Amount (základ DPH)
-        SubElement(tax_subtotal, "TaxableAmount").text = self._format_amount(data.net_amount)
+        SubElement(tax_subtotal, "TaxableAmount").text = self._format_amount(
+            data.net_amount
+        )
 
         # Tax Amount
-        SubElement(tax_subtotal, "TaxAmount").text = self._format_amount(data.tax_amount)
+        SubElement(tax_subtotal, "TaxAmount").text = self._format_amount(
+            data.tax_amount
+        )
 
         # Tax Category
         category = SubElement(tax_subtotal, "TaxCategory")
@@ -260,10 +273,14 @@ class ISDOCGenerator:
         monetary_total = SubElement(root, "LegalMonetaryTotal")
 
         # Tax Exclusive Amount (suma bez DPH)
-        SubElement(monetary_total, "TaxExclusiveAmount").text = self._format_amount(data.net_amount)
+        SubElement(monetary_total, "TaxExclusiveAmount").text = self._format_amount(
+            data.net_amount
+        )
 
         # Tax Inclusive Amount (suma s DPH)
-        SubElement(monetary_total, "TaxInclusiveAmount").text = self._format_amount(data.total_amount)
+        SubElement(monetary_total, "TaxInclusiveAmount").text = self._format_amount(
+            data.total_amount
+        )
 
         # Already Claimed Tax Exclusive Amount
         SubElement(monetary_total, "AlreadyClaimedTaxExclusiveAmount").text = "0.00"
@@ -272,13 +289,19 @@ class ISDOCGenerator:
         SubElement(monetary_total, "AlreadyClaimedTaxInclusiveAmount").text = "0.00"
 
         # Difference Tax Exclusive Amount
-        SubElement(monetary_total, "DifferenceTaxExclusiveAmount").text = self._format_amount(data.net_amount)
+        SubElement(
+            monetary_total, "DifferenceTaxExclusiveAmount"
+        ).text = self._format_amount(data.net_amount)
 
         # Difference Tax Inclusive Amount
-        SubElement(monetary_total, "DifferenceTaxInclusiveAmount").text = self._format_amount(data.total_amount)
+        SubElement(
+            monetary_total, "DifferenceTaxInclusiveAmount"
+        ).text = self._format_amount(data.total_amount)
 
         # Payable Amount (suma na úhradu)
-        SubElement(monetary_total, "PayableAmount").text = self._format_amount(data.total_amount)
+        SubElement(monetary_total, "PayableAmount").text = self._format_amount(
+            data.total_amount
+        )
 
     def _add_invoice_lines(self, root: Element, data: InvoiceData):
         """Pridá položky faktúry"""
@@ -295,22 +318,34 @@ class ISDOCGenerator:
 
             # Line Extension Amount (celková suma bez DPH)
             line_total_no_vat = (
-                item.quantity * item.unit_price_no_vat if item.quantity and item.unit_price_no_vat else Decimal(0)
+                item.quantity * item.unit_price_no_vat
+                if item.quantity and item.unit_price_no_vat
+                else Decimal(0)
             )
-            SubElement(line, "LineExtensionAmount").text = self._format_amount(line_total_no_vat)
+            SubElement(line, "LineExtensionAmount").text = self._format_amount(
+                line_total_no_vat
+            )
 
             # Line Extension Amount Tax Inclusive (celková suma s DPH)
-            SubElement(line, "LineExtensionAmountTaxInclusive").text = self._format_amount(item.total_with_vat)
+            SubElement(
+                line, "LineExtensionAmountTaxInclusive"
+            ).text = self._format_amount(item.total_with_vat)
 
             # Unit Price
-            SubElement(line, "UnitPrice").text = self._format_amount(item.unit_price_no_vat)
+            SubElement(line, "UnitPrice").text = self._format_amount(
+                item.unit_price_no_vat
+            )
 
             # Unit Price Tax Inclusive
-            SubElement(line, "UnitPriceTaxInclusive").text = self._format_amount(item.unit_price_with_vat)
+            SubElement(line, "UnitPriceTaxInclusive").text = self._format_amount(
+                item.unit_price_with_vat
+            )
 
             # Classified Tax Category (DPH sadzba)
             tax_category = SubElement(line, "ClassifiedTaxCategory")
-            SubElement(tax_category, "Percent").text = self._format_amount(item.vat_rate)
+            SubElement(tax_category, "Percent").text = self._format_amount(
+                item.vat_rate
+            )
             SubElement(tax_category, "VATCalculationMethod").text = "0"
 
             # Item (produkt)
@@ -383,7 +418,9 @@ class ISDOCGenerator:
 
 
 # Pomocná funkcia pre použitie v main.py
-def generate_isdoc_xml(invoice_data: InvoiceData, output_path: str | None = None) -> str:
+def generate_isdoc_xml(
+    invoice_data: InvoiceData, output_path: str | None = None
+) -> str:
     """
     Wrapper funkcia pre generovanie ISDOC XML
 

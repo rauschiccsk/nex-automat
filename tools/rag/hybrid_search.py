@@ -137,7 +137,12 @@ class HybridSearch:
         return matches / len(keywords)
 
     async def search(
-        self, query: str, limit: int = 10, min_similarity: float = 0.0, rerank: bool = True, tenant: str | None = None
+        self,
+        query: str,
+        limit: int = 10,
+        min_similarity: float = 0.0,
+        rerank: bool = True,
+        tenant: str | None = None,
     ) -> list[SearchResult]:
         """
         Perform hybrid search.
@@ -158,7 +163,9 @@ class HybridSearch:
 
         # Generate query embedding
         query_embedding = self.embedder.encode([query])[0]
-        query_str = "[" + ",".join(str(float(x)) for x in query_embedding.tolist()) + "]"
+        query_str = (
+            "[" + ",".join(str(float(x)) for x in query_embedding.tolist()) + "]"
+        )
 
         # Fetch more results than needed for reranking
         fetch_limit = limit * 3 if rerank else limit
@@ -213,7 +220,9 @@ class HybridSearch:
         search_results = []
         for r in results:
             keyword_score = self._calculate_keyword_score(r["content"], keywords)
-            combined_score = self.alpha * r["similarity"] + (1 - self.alpha) * keyword_score
+            combined_score = (
+                self.alpha * r["similarity"] + (1 - self.alpha) * keyword_score
+            )
 
             search_results.append(
                 SearchResult(
@@ -235,7 +244,9 @@ class HybridSearch:
 
         return search_results[:limit]
 
-    async def search_with_context(self, query: str, limit: int = 5, context_chunks: int = 1) -> list[dict[str, Any]]:
+    async def search_with_context(
+        self, query: str, limit: int = 5, context_chunks: int = 1
+    ) -> list[dict[str, Any]]:
         """
         Search and include surrounding chunks for context.
 
@@ -288,7 +299,9 @@ class HybridSearch:
 
 
 # Convenience function
-async def search(query: str, limit: int = 10, tenant: str | None = None, **kwargs) -> list[SearchResult]:
+async def search(
+    query: str, limit: int = 10, tenant: str | None = None, **kwargs
+) -> list[SearchResult]:
     """Quick search function."""
     async with HybridSearch() as searcher:
         return await searcher.search(query, limit=limit, tenant=tenant, **kwargs)
@@ -300,7 +313,9 @@ if __name__ == "__main__":
         print("Testing Hybrid Search...")
 
         async with HybridSearch() as searcher:
-            results = await searcher.search("Btrieve databáza migrácia PostgreSQL", limit=5)
+            results = await searcher.search(
+                "Btrieve databáza migrácia PostgreSQL", limit=5
+            )
 
             print(f"\nFound {len(results)} results:\n")
             for i, r in enumerate(results, 1):

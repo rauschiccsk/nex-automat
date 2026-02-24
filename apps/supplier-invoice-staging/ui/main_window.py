@@ -53,7 +53,12 @@ class MainWindow(BaseWindow):
         self._filtered_data = []
         self._items_windows = {}
 
-        super().__init__(window_name=self.WINDOW_ID, default_size=(900, 600), default_pos=(100, 100), auto_load=True)
+        super().__init__(
+            window_name=self.WINDOW_ID,
+            default_size=(900, 600),
+            default_pos=(100, 100),
+            auto_load=True,
+        )
 
         self.setWindowTitle("Supplier Invoice Staging v1.1")
         self._setup_ui()
@@ -145,7 +150,9 @@ class MainWindow(BaseWindow):
     def _on_row_selected(self, row: int):
         if 0 <= row < len(self._filtered_data):
             inv = self._filtered_data[row]
-            self.status_label.setText(f"Faktura: {inv['xml_invoice_number']} | {inv['xml_supplier_name']}")
+            self.status_label.setText(
+                f"Faktura: {inv['xml_invoice_number']} | {inv['xml_supplier_name']}"
+            )
 
     @Slot(int)
     def _on_row_activated(self, row: int):
@@ -163,7 +170,12 @@ class MainWindow(BaseWindow):
                 window.raise_()
                 return
 
-        window = InvoiceItemsWindow(invoice=invoice, settings=self.settings, repository=self.repository, parent=self)
+        window = InvoiceItemsWindow(
+            invoice=invoice,
+            settings=self.settings,
+            repository=self.repository,
+            parent=self,
+        )
         window.closed.connect(lambda: self._on_items_window_closed(invoice_id))
         self._items_windows[invoice_id] = window
         window.setWindowModality(Qt.WindowModality.ApplicationModal)

@@ -6,7 +6,6 @@ Vyhladavanie produktov v NEX Genesis GSCAT.BTR podla EAN
 
 import sys
 from pathlib import Path
-from typing import Dict, Optional
 
 # Add src to path for standalone usage
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -107,7 +106,11 @@ class NexLookupService:
                         if len(data) >= 72:
                             # Read BarCode: [00 00][length][data...]
                             barcode_length = data[59] if len(data) > 59 else 0
-                            barcode_data = data[60 : 60 + barcode_length] if len(data) >= 60 + barcode_length else b""
+                            barcode_data = (
+                                data[60 : 60 + barcode_length]
+                                if len(data) >= 60 + barcode_length
+                                else b""
+                            )
                             barcode_str = barcode_data.decode("cp852", errors="ignore")
 
                             if barcode_str.strip() == ean.strip():

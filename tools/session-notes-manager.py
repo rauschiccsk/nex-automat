@@ -30,8 +30,12 @@ class SessionNotesManager:
         line_count = len(lines)
 
         # Hľadaj rôzne markery
-        tasks = len([l for l in lines if re.search(r"(\[ \]|TODO|NEXT)", l, re.IGNORECASE)])
-        completed = len([l for l in lines if re.search(r"(\[x\]|DONE|COMPLETED)", l, re.IGNORECASE)])
+        tasks = len(
+            [l for l in lines if re.search(r"(\[ \]|TODO|NEXT)", l, re.IGNORECASE)]
+        )
+        completed = len(
+            [l for l in lines if re.search(r"(\[x\]|DONE|COMPLETED)", l, re.IGNORECASE)]
+        )
 
         # Zisti prioritu/status
         if re.search(r"(CRITICAL|ERROR|URGENT)", content, re.IGNORECASE):
@@ -46,7 +50,9 @@ class SessionNotesManager:
 
         # Hľadaj sekcie
         sections = {
-            "Current Status": bool(re.search(r"## CURRENT STATUS", content, re.IGNORECASE)),
+            "Current Status": bool(
+                re.search(r"## CURRENT STATUS", content, re.IGNORECASE)
+            ),
             "Next Steps": bool(re.search(r"## NEXT STEPS?", content, re.IGNORECASE)),
             "Completed": bool(re.search(r"## COMPLETED", content, re.IGNORECASE)),
             "Notes": bool(re.search(r"## NOTES", content, re.IGNORECASE)),
@@ -68,27 +74,48 @@ class SessionNotesManager:
         try:
             # Git branch
             branch = subprocess.run(
-                ["git", "branch", "--show-current"], cwd=self.project_root, capture_output=True, text=True, timeout=5
+                ["git", "branch", "--show-current"],
+                cwd=self.project_root,
+                capture_output=True,
+                text=True,
+                timeout=5,
             )
 
             # Git status
             status = subprocess.run(
-                ["git", "status", "--short"], cwd=self.project_root, capture_output=True, text=True, timeout=5
+                ["git", "status", "--short"],
+                cwd=self.project_root,
+                capture_output=True,
+                text=True,
+                timeout=5,
             )
 
             # Posledný commit
             last_commit = subprocess.run(
-                ["git", "log", "-1", "--oneline"], cwd=self.project_root, capture_output=True, text=True, timeout=5
+                ["git", "log", "-1", "--oneline"],
+                cwd=self.project_root,
+                capture_output=True,
+                text=True,
+                timeout=5,
             )
 
             return {
                 "branch": branch.stdout.strip() if branch.returncode == 0 else "N/A",
                 "status": status.stdout.strip() if status.returncode == 0 else "N/A",
-                "last_commit": last_commit.stdout.strip() if last_commit.returncode == 0 else "N/A",
-                "has_changes": bool(status.stdout.strip()) if status.returncode == 0 else False,
+                "last_commit": last_commit.stdout.strip()
+                if last_commit.returncode == 0
+                else "N/A",
+                "has_changes": bool(status.stdout.strip())
+                if status.returncode == 0
+                else False,
             }
         except:
-            return {"branch": "N/A", "status": "N/A", "last_commit": "N/A", "has_changes": False}
+            return {
+                "branch": "N/A",
+                "status": "N/A",
+                "last_commit": "N/A",
+                "has_changes": False,
+            }
 
     def enhance_notes(self):
         """Vytvor enhanced verziu notes s metadatami"""
@@ -170,7 +197,9 @@ Development → Git (commit/push) → Deployment
         print(f"Úloh: {stats['tasks']} otvorených, {stats['completed']} dokončených")
         print(f"Štruktúra: {'✅ OK' if stats['has_structure'] else '⚠️ Chýbajú sekcie'}")
         print(f"\nGit branch: {git_info['branch']}")
-        print(f"Git status: {'⚠️ Neuložené zmeny' if git_info['has_changes'] else '✅ Clean'}")
+        print(
+            f"Git status: {'⚠️ Neuložené zmeny' if git_info['has_changes'] else '✅ Clean'}"
+        )
         print(f"\n✅ Enhanced notes: {self.enhanced_file}")
         print("=" * 60 + "\n")
 
@@ -223,7 +252,10 @@ Development → Git (commit/push) → Deployment
         self.notes_dir.mkdir(parents=True, exist_ok=True)
 
         if self.notes_file.exists():
-            backup = self.notes_dir / f"SESSION_NOTES_BACKUP_{datetime.now().strftime('%Y%m%d_%H%M%S')}.md"
+            backup = (
+                self.notes_dir
+                / f"SESSION_NOTES_BACKUP_{datetime.now().strftime('%Y%m%d_%H%M%S')}.md"
+            )
             self.notes_file.rename(backup)
             print(f"📦 Záloha: {backup}")
 

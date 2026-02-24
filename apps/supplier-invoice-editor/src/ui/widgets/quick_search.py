@@ -132,13 +132,17 @@ class QuickSearchContainer(QWidget):
         vertical_header_width = self.table_view.verticalHeader().width()
 
         # Get column position and width
-        col_x = header.sectionViewportPosition(self.current_column) + vertical_header_width
+        col_x = (
+            header.sectionViewportPosition(self.current_column) + vertical_header_width
+        )
         col_width = header.sectionSize(self.current_column)
 
         # Position editor under column
         self.search_edit.setGeometry(col_x, 0, col_width, 25)
 
-        self.logger.debug(f"Search editor positioned: x={col_x}, width={col_width}, column={self.current_column}")
+        self.logger.debug(
+            f"Search editor positioned: x={col_x}, width={col_width}, column={self.current_column}"
+        )
 
     def set_column(self, column):
         """Set active search column"""
@@ -276,7 +280,9 @@ class QuickSearchController(QObject):
         # Scroll to top to see sort effect
         self.table_view.scrollToTop()
 
-        self.logger.info(f"Table sorted by column {column} (ascending) - check visually")
+        self.logger.info(
+            f"Table sorted by column {column} (ascending) - check visually"
+        )
 
     def _change_column(self, direction):
         """Change search column"""
@@ -314,7 +320,9 @@ class QuickSearchController(QObject):
         # Keep focus on search edit
         self.search_edit.setFocus()
 
-        self.logger.info(f"Changed to column {self.current_column}, sorted and repositioned")
+        self.logger.info(
+            f"Changed to column {self.current_column}, sorted and repositioned"
+        )
 
     def _change_row(self, direction):
         """Move to next/previous row"""
@@ -328,7 +336,9 @@ class QuickSearchController(QObject):
             model = self.table_view.model()
             if model and model.rowCount() > 0:
                 first_index = model.index(0, self.current_column)
-                selection_model.setCurrentIndex(first_index, selection_model.ClearAndSelect | selection_model.Rows)
+                selection_model.setCurrentIndex(
+                    first_index, selection_model.ClearAndSelect | selection_model.Rows
+                )
             return
 
         # Calculate new row
@@ -344,7 +354,9 @@ class QuickSearchController(QObject):
 
         # Select new row
         new_index = model.index(new_row, self.current_column)
-        selection_model.setCurrentIndex(new_index, selection_model.ClearAndSelect | selection_model.Rows)
+        selection_model.setCurrentIndex(
+            new_index, selection_model.ClearAndSelect | selection_model.Rows
+        )
 
         # Ensure visible
         self.table_view.scrollTo(new_index)
@@ -370,7 +382,9 @@ class QuickSearchController(QObject):
             # Select matching row
             match_index = model.index(match_row, self.current_column)
             selection_model = self.table_view.selectionModel()
-            selection_model.setCurrentIndex(match_index, selection_model.ClearAndSelect | selection_model.Rows)
+            selection_model.setCurrentIndex(
+                match_index, selection_model.ClearAndSelect | selection_model.Rows
+            )
 
             # Ensure visible
             self.table_view.scrollTo(match_index)

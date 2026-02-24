@@ -105,6 +105,12 @@ class InvoiceProcessingWorkflow:
                 retry_policy=retry_policy,
             )
 
-        workflow.logger.info(f"Workflow complete: {invoices_uploaded} invoices uploaded, {len(errors)} errors")
+        workflow.logger.info(
+            f"Workflow complete: {invoices_uploaded} invoices uploaded, {len(errors)} errors"
+        )
 
-        return WorkflowResult(emails_processed=len(emails), invoices_uploaded=invoices_uploaded, errors=errors)
+        return WorkflowResult(
+            emails_processed=len(emails),
+            invoices_uploaded=invoices_uploaded,
+            errors=errors,
+        )

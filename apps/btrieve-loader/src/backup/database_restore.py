@@ -13,12 +13,13 @@ import os
 import subprocess
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Tuple
 
 import yaml
 
 # Setup logging
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
 
 
@@ -59,7 +60,9 @@ class DatabaseRestore:
         """
         self.config_path = Path(config_path)
         self.config = load_config(str(self.config_path))
-        self.backup_dir = Path(self.config.get("backup", {}).get("backup_dir", "backups"))
+        self.backup_dir = Path(
+            self.config.get("backup", {}).get("backup_dir", "backups")
+        )
 
         # PostgreSQL connection parameters from config.database.postgres
         db_config = self.config.get("database", {}).get("postgres", {})
@@ -266,7 +269,9 @@ class DatabaseRestore:
                 f'DROP DATABASE IF EXISTS "{self.database}";',
             ]
 
-            result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=env, text=True)
+            result = subprocess.run(
+                cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=env, text=True
+            )
 
             if result.returncode != 0:
                 return False, result.stderr
@@ -298,7 +303,9 @@ class DatabaseRestore:
                 f'CREATE DATABASE "{self.database}";',
             ]
 
-            result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=env, text=True)
+            result = subprocess.run(
+                cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=env, text=True
+            )
 
             if result.returncode != 0:
                 return False, result.stderr

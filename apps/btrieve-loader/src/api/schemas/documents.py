@@ -41,15 +41,21 @@ class PaymentMethod(IntEnum):
 class DocumentHeaderBase(BaseModel):
     """Base document header fields."""
 
-    doc_type: DocumentType = Field(default=DocumentType.RECEIPT, description="Document type")
+    doc_type: DocumentType = Field(
+        default=DocumentType.RECEIPT, description="Document type"
+    )
     doc_date: date | None = Field(default=None, description="Document date")
     delivery_date: date | None = Field(default=None, description="Delivery date")
     due_date: date | None = Field(default=None, description="Due date")
 
     # Partner
     pab_code: int = Field(..., description="Partner code")
-    pab_name: str = Field(default="", max_length=100, description="Partner name (cached)")
-    pab_address: str = Field(default="", max_length=150, description="Partner address (cached)")
+    pab_name: str = Field(
+        default="", max_length=100, description="Partner name (cached)"
+    )
+    pab_address: str = Field(
+        default="", max_length=150, description="Partner address (cached)"
+    )
     pab_ico: str = Field(default="", max_length=20, description="Partner ICO (cached)")
     pab_dic: str = Field(default="", max_length=20, description="Partner DIC (cached)")
 
@@ -64,7 +70,9 @@ class DocumentHeaderBase(BaseModel):
     public_note: str = Field(default="", max_length=200, description="Public note")
 
     # Payment
-    payment_method: PaymentMethod = Field(default=PaymentMethod.TRANSFER, description="Payment method")
+    payment_method: PaymentMethod = Field(
+        default=PaymentMethod.TRANSFER, description="Payment method"
+    )
     payment_terms: int = Field(default=14, ge=0, description="Payment terms (days)")
 
     # Warehouse
@@ -83,13 +91,19 @@ class DocumentHeader(DocumentHeaderBase):
 
     # VAT breakdown
     vat_20_base: Decimal = Field(default=Decimal("0.00"), description="VAT 20% base")
-    vat_20_amount: Decimal = Field(default=Decimal("0.00"), description="VAT 20% amount")
+    vat_20_amount: Decimal = Field(
+        default=Decimal("0.00"), description="VAT 20% amount"
+    )
     vat_10_base: Decimal = Field(default=Decimal("0.00"), description="VAT 10% base")
-    vat_10_amount: Decimal = Field(default=Decimal("0.00"), description="VAT 10% amount")
+    vat_10_amount: Decimal = Field(
+        default=Decimal("0.00"), description="VAT 10% amount"
+    )
     vat_0_base: Decimal = Field(default=Decimal("0.00"), description="VAT 0% base")
 
     # Status
-    status: DocumentStatus = Field(default=DocumentStatus.DRAFT, description="Document status")
+    status: DocumentStatus = Field(
+        default=DocumentStatus.DRAFT, description="Document status"
+    )
     locked: bool = Field(default=False, description="Is locked")
     posted: bool = Field(default=False, description="Is posted")
     paid: bool = Field(default=False, description="Is paid")
@@ -108,7 +122,9 @@ class DocumentHeader(DocumentHeaderBase):
         """Create DocumentHeader from TSHRecord."""
         return cls(
             doc_number=record.doc_number,
-            doc_type=DocumentType(record.doc_type) if record.doc_type in [1, 2, 3] else DocumentType.RECEIPT,
+            doc_type=DocumentType(record.doc_type)
+            if record.doc_type in [1, 2, 3]
+            else DocumentType.RECEIPT,
             doc_date=record.doc_date,
             delivery_date=record.delivery_date,
             due_date=record.due_date,
@@ -168,15 +184,23 @@ class DocumentItemBase(BaseModel):
     unit_coef: Decimal = Field(default=Decimal("1.0"), description="Unit coefficient")
 
     price_unit: Decimal = Field(..., ge=0, description="Unit price (excl. VAT)")
-    price_unit_vat: Decimal = Field(default=Decimal("0.00"), ge=0, description="Unit price (incl. VAT)")
-    vat_rate: Decimal = Field(default=Decimal("20.0"), ge=0, le=100, description="VAT rate %")
-    discount_percent: Decimal = Field(default=Decimal("0.0"), ge=0, le=100, description="Discount %")
+    price_unit_vat: Decimal = Field(
+        default=Decimal("0.00"), ge=0, description="Unit price (incl. VAT)"
+    )
+    vat_rate: Decimal = Field(
+        default=Decimal("20.0"), ge=0, le=100, description="VAT rate %"
+    )
+    discount_percent: Decimal = Field(
+        default=Decimal("0.0"), ge=0, le=100, description="Discount %"
+    )
 
     warehouse_code: int = Field(default=1, description="Warehouse code")
     batch_number: str = Field(default="", max_length=30, description="Batch number")
     serial_number: str = Field(default="", max_length=30, description="Serial number")
     note: str = Field(default="", max_length=100, description="Item note")
-    supplier_item_code: str = Field(default="", max_length=30, description="Supplier item code")
+    supplier_item_code: str = Field(
+        default="", max_length=30, description="Supplier item code"
+    )
 
 
 class DocumentItem(DocumentItemBase):
@@ -188,7 +212,9 @@ class DocumentItem(DocumentItemBase):
     # Calculated totals
     line_base: Decimal = Field(default=Decimal("0.00"), description="Line base amount")
     line_vat: Decimal = Field(default=Decimal("0.00"), description="Line VAT amount")
-    line_total: Decimal = Field(default=Decimal("0.00"), description="Line total amount")
+    line_total: Decimal = Field(
+        default=Decimal("0.00"), description="Line total amount"
+    )
 
     status: int = Field(default=1, description="Item status")
     mod_user: str = Field(default="", description="Last modified by")

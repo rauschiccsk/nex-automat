@@ -25,7 +25,9 @@ def remove_diacritics(text: str) -> str:
     normalized = unicodedata.normalize("NFD", text)
 
     # Remove combining characters (diacritics)
-    without_diacritics = "".join(char for char in normalized if unicodedata.category(char) != "Mn")
+    without_diacritics = "".join(
+        char for char in normalized if unicodedata.category(char) != "Mn"
+    )
 
     return without_diacritics
 

@@ -140,7 +140,9 @@ class MARSOAdapter(BaseSupplierAdapter):
 
     async def fetch_invoice_by_id(self, invoice_id: str) -> dict[str, Any]:
         """Fetch single invoice details by ID."""
-        message_type = self.config.message_types.get("invoice_detail", "CustInvoiceLines")
+        message_type = self.config.message_types.get(
+            "invoice_detail", "CustInvoiceLines"
+        )
         request_xml = self._build_request_xml(
             message_type=message_type,
             invoice_id=invoice_id,
@@ -168,7 +170,9 @@ class MARSOAdapter(BaseSupplierAdapter):
             # Format: <Document><Message><Invoices>[{...}]</Invoices></Message></Document>
 
             # Extract JSON from <Invoices> element
-            invoices_match = re.search(r"<Invoices>\s*(\[.*?\])\s*</Invoices>", response, re.DOTALL)
+            invoices_match = re.search(
+                r"<Invoices>\s*(\[.*?\])\s*</Invoices>", response, re.DOTALL
+            )
             if not invoices_match:
                 # Try direct JSON parsing as fallback (for unit tests)
                 try:
@@ -232,7 +236,8 @@ class MARSOAdapter(BaseSupplierAdapter):
                 product_name=line.get("ItemName", ""),
                 quantity=float(line.get("Qty", 0)),
                 unit=self._map_unit(line.get("SalesUnit", "Db")),
-                unit_price=float(line.get("Netto", 0)) / max(float(line.get("Qty", 1)), 1),
+                unit_price=float(line.get("Netto", 0))
+                / max(float(line.get("Qty", 1)), 1),
                 total_price=float(line.get("Netto", 0)),
                 vat_rate=self._calculate_vat_rate(line),
                 vat_amount=float(line.get("Afa", 0)),

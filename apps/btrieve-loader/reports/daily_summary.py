@@ -9,7 +9,6 @@ from decimal import Decimal
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from pathlib import Path
-from typing import Dict, List, Optional
 
 import pg8000
 
@@ -230,10 +229,15 @@ class DailySummaryReport:
         )
 
         # Replace placeholders
-        html = template.replace("{{REPORT_DATE}}", stats.report_date.strftime("%d.%m.%Y"))
+        html = template.replace(
+            "{{REPORT_DATE}}", stats.report_date.strftime("%d.%m.%Y")
+        )
         html = html.replace("{{TOTAL_INVOICES}}", str(stats.total_invoices))
         html = html.replace("{{TOTAL_AMOUNT}}", f"{stats.total_amount:,.2f}")
-        html = html.replace("{{AVG_MATCH}}", f"{stats.avg_match_percent:.1f}" if stats.avg_match_percent else "-")
+        html = html.replace(
+            "{{AVG_MATCH}}",
+            f"{stats.avg_match_percent:.1f}" if stats.avg_match_percent else "-",
+        )
         html = html.replace("{{ERROR_COUNT}}", str(stats.error_count))
         html = html.replace("{{INVOICE_ROWS}}", invoice_rows)
         html = html.replace("{{ERROR_SECTION}}", error_section)
@@ -243,7 +247,9 @@ class DailySummaryReport:
         html = html.replace("{{PREV_AMOUNT}}", f"{stats.prev_total_amount:,.2f}")
 
         # Status breakdown
-        status_breakdown = ", ".join([f"{k}: {v}" for k, v in stats.by_status.items()]) or "žiadne"
+        status_breakdown = (
+            ", ".join([f"{k}: {v}" for k, v in stats.by_status.items()]) or "žiadne"
+        )
         html = html.replace("{{STATUS_BREAKDOWN}}", status_breakdown)
 
         return html
@@ -262,9 +268,13 @@ class DailySummaryReport:
         msg.attach(MIMEText(html_content, "html", "utf-8"))
 
         try:
-            with smtplib.SMTP_SSL(self.config.smtp_host, self.config.smtp_port) as server:
+            with smtplib.SMTP_SSL(
+                self.config.smtp_host, self.config.smtp_port
+            ) as server:
                 server.login(self.config.smtp_user, self.config.smtp_password)
-                server.sendmail(self.config.from_email, self.config.all_recipients, msg.as_string())
+                server.sendmail(
+                    self.config.from_email, self.config.all_recipients, msg.as_string()
+                )
             logger.info(f"Report sent to {len(self.config.all_recipients)} recipients")
             return True
         except Exception as e:

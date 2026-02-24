@@ -16,7 +16,12 @@ from .grid_settings import (
     save_column_settings,
     save_grid_settings,
 )
-from .text_utils import is_numeric, normalize_for_search, normalize_numeric, remove_diacritics
+from .text_utils import (
+    is_numeric,
+    normalize_for_search,
+    normalize_numeric,
+    remove_diacritics,
+)
 
 __all__ = [
     # text_utils

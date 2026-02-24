@@ -13,9 +13,8 @@ import sqlite3
 # Import from nex-shared package
 import sys
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
-import pytest
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "packages" / "nex-shared"))
 
@@ -124,7 +123,9 @@ class TestGridSettingsDatabase:
         """Should create required tables on init."""
         from utils.grid_settings import init_grid_settings_db
 
-        with patch("utils.grid_settings.get_grid_settings_db_path", return_value=temp_sqlite_db):
+        with patch(
+            "utils.grid_settings.get_grid_settings_db_path", return_value=temp_sqlite_db
+        ):
             init_grid_settings_db()
 
             # Verify tables exist
@@ -140,22 +141,37 @@ class TestGridSettingsDatabase:
     def test_save_and_load_column_settings(self, temp_sqlite_db):
         """Should save and load column settings correctly."""
         from utils.grid_settings import (
-            init_grid_settings_db,
             load_column_settings,
             save_column_settings,
         )
 
-        with patch("utils.grid_settings.get_grid_settings_db_path", return_value=temp_sqlite_db):
+        with patch(
+            "utils.grid_settings.get_grid_settings_db_path", return_value=temp_sqlite_db
+        ):
             columns = [
                 {"column_name": "id", "width": 50, "visual_index": 0, "visible": True},
-                {"column_name": "name", "width": 200, "visual_index": 1, "visible": True},
-                {"column_name": "hidden", "width": 100, "visual_index": 2, "visible": False},
+                {
+                    "column_name": "name",
+                    "width": 200,
+                    "visual_index": 1,
+                    "visible": True,
+                },
+                {
+                    "column_name": "hidden",
+                    "width": 100,
+                    "visual_index": 2,
+                    "visible": False,
+                },
             ]
 
-            result = save_column_settings("test_window", "test_grid", columns, user_id="test_user")
+            result = save_column_settings(
+                "test_window", "test_grid", columns, user_id="test_user"
+            )
             assert result is True
 
-            loaded = load_column_settings("test_window", "test_grid", user_id="test_user")
+            loaded = load_column_settings(
+                "test_window", "test_grid", user_id="test_user"
+            )
             assert len(loaded) == 3
             assert loaded[0]["column_name"] == "id"
             assert loaded[0]["width"] == 50
@@ -165,20 +181,27 @@ class TestGridSettingsDatabase:
         """Should return empty list for non-existent settings."""
         from utils.grid_settings import load_column_settings
 
-        with patch("utils.grid_settings.get_grid_settings_db_path", return_value=temp_sqlite_db):
-            loaded = load_column_settings("nonexistent", "nonexistent", user_id="nobody")
+        with patch(
+            "utils.grid_settings.get_grid_settings_db_path", return_value=temp_sqlite_db
+        ):
+            loaded = load_column_settings(
+                "nonexistent", "nonexistent", user_id="nobody"
+            )
             assert loaded == []
 
     def test_save_and_load_grid_settings(self, temp_sqlite_db):
         """Should save and load grid-level settings."""
         from utils.grid_settings import (
-            init_grid_settings_db,
             load_grid_settings,
             save_grid_settings,
         )
 
-        with patch("utils.grid_settings.get_grid_settings_db_path", return_value=temp_sqlite_db):
-            result = save_grid_settings("test_window", "test_grid", 2, user_id="test_user")
+        with patch(
+            "utils.grid_settings.get_grid_settings_db_path", return_value=temp_sqlite_db
+        ):
+            result = save_grid_settings(
+                "test_window", "test_grid", 2, user_id="test_user"
+            )
             assert result is True
 
             loaded = load_grid_settings("test_window", "test_grid", user_id="test_user")
@@ -189,7 +212,9 @@ class TestGridSettingsDatabase:
         """Should return None for non-existent grid settings."""
         from utils.grid_settings import load_grid_settings
 
-        with patch("utils.grid_settings.get_grid_settings_db_path", return_value=temp_sqlite_db):
+        with patch(
+            "utils.grid_settings.get_grid_settings_db_path", return_value=temp_sqlite_db
+        ):
             loaded = load_grid_settings("nonexistent", "nonexistent", user_id="nobody")
             assert loaded is None
 

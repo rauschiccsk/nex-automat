@@ -2,7 +2,12 @@
 
 from .barcodes import Barcode, BarcodeCreate, BarcodeList
 from .common import PaginatedResponse, PaginationParams, ResponseStatus
-from .documents import DocumentHeader, DocumentHeaderList, DocumentItem, DocumentItemList
+from .documents import (
+    DocumentHeader,
+    DocumentHeaderList,
+    DocumentItem,
+    DocumentItemList,
+)
 from .partners import Partner, PartnerCreate, PartnerList
 from .products import Product, ProductCreate, ProductList
 from .stores import ProductGroup, ProductGroupList

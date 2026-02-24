@@ -55,7 +55,9 @@ class ConfigValidator:
         elif len(password) < 8:
             self.warnings.append("⚠️  Database: Password is weak (< 8 characters)")
 
-        self.info.append(f"✅ Database: {db.get('host')}:{db.get('port')}/{db.get('database')}")
+        self.info.append(
+            f"✅ Database: {db.get('host')}:{db.get('port')}/{db.get('database')}"
+        )
 
     def validate_nex_genesis(self):
         """Validate NEX Genesis configuration"""
@@ -93,13 +95,21 @@ class ConfigValidator:
         if port not in [25, 465, 587]:
             self.warnings.append(f"⚠️  Email: Unusual SMTP port {port}")
 
-        self.info.append(f"✅ Email: {smtp.get('host')}:{port} -> {email.get('operator')}")
+        self.info.append(
+            f"✅ Email: {smtp.get('host')}:{port} -> {email.get('operator')}"
+        )
 
     def validate_paths(self):
         """Validate storage paths"""
         paths = self.config.get("paths", {})
 
-        required_paths = ["pdf_storage", "xml_storage", "temp_processing", "archive", "error"]
+        required_paths = [
+            "pdf_storage",
+            "xml_storage",
+            "temp_processing",
+            "archive",
+            "error",
+        ]
 
         for path_name in required_paths:
             path = paths.get(path_name)
@@ -111,7 +121,9 @@ class ConfigValidator:
             path_obj = Path(path)
 
             if not path_obj.exists():
-                self.warnings.append(f"⚠️  Path does not exist: {path} (will be created)")
+                self.warnings.append(
+                    f"⚠️  Path does not exist: {path} (will be created)"
+                )
             else:
                 if not os.access(path, os.W_OK):
                     self.errors.append(f"❌ Path not writable: {path}")
@@ -128,7 +140,9 @@ class ConfigValidator:
         else:
             path_obj = Path(backup_dir)
             if not path_obj.exists():
-                self.warnings.append(f"⚠️  Backup directory does not exist: {backup_dir}")
+                self.warnings.append(
+                    f"⚠️  Backup directory does not exist: {backup_dir}"
+                )
             elif not os.access(backup_dir, os.W_OK):
                 self.errors.append(f"❌ Backup directory not writable: {backup_dir}")
             else:
@@ -260,7 +274,13 @@ class ConfigValidator:
 
 
 def main():
-    config_path = Path(__file__).parent.parent / "apps" / "supplier-invoice-loader" / "config" / "config.yaml"
+    config_path = (
+        Path(__file__).parent.parent
+        / "apps"
+        / "supplier-invoice-loader"
+        / "config"
+        / "config.yaml"
+    )
 
     validator = ConfigValidator(config_path)
     success = validator.validate()

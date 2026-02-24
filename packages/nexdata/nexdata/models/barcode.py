@@ -76,7 +76,13 @@ class BarcodeRecord:
         mod_time_int = struct.unpack("<i", data[31:35])[0]
         mod_time = cls._decode_delphi_time(mod_time_int) if mod_time_int >= 0 else None
 
-        return cls(gs_code=gs_code, bar_code=bar_code, mod_user=mod_user, mod_date=mod_date, mod_time=mod_time)
+        return cls(
+            gs_code=gs_code,
+            bar_code=bar_code,
+            mod_user=mod_user,
+            mod_date=mod_date,
+            mod_time=mod_time,
+        )
 
     def to_bytes(self, encoding: str = "cp852") -> bytes:
         """
@@ -193,7 +199,11 @@ class BarcodeRecord:
 if __name__ == "__main__":
     # Create new record
     record = BarcodeRecord(
-        gs_code=12345, bar_code="8594000123456", mod_user="API", mod_date=datetime.now(), mod_time=datetime.now()
+        gs_code=12345,
+        bar_code="8594000123456",
+        mod_user="API",
+        mod_date=datetime.now(),
+        mod_time=datetime.now(),
     )
 
     print("Created:", record)
@@ -205,4 +215,7 @@ if __name__ == "__main__":
 
     restored = BarcodeRecord.from_bytes(raw_bytes)
     print("Restored:", restored)
-    print("Match:", record.gs_code == restored.gs_code and record.bar_code == restored.bar_code)
+    print(
+        "Match:",
+        record.gs_code == restored.gs_code and record.bar_code == restored.bar_code,
+    )

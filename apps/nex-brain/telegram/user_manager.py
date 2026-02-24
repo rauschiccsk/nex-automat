@@ -67,7 +67,9 @@ class UserManager:
         return user is not None and user["status"] == "pending"
 
     @staticmethod
-    def request_access(user_id: int, username: str, first_name: str, tenant: str) -> bool:
+    def request_access(
+        user_id: int, username: str, first_name: str, tenant: str
+    ) -> bool:
         """Vytvorenie žiadosti o prístup"""
         conn = get_connection()
         if not conn:
@@ -262,7 +264,9 @@ class AdminManager:
 
         try:
             cursor = conn.cursor()
-            cursor.execute("SELECT id FROM telegram_admins WHERE user_id = %s", (user_id,))
+            cursor.execute(
+                "SELECT id FROM telegram_admins WHERE user_id = %s", (user_id,)
+            )
             row = cursor.fetchone()
             cursor.close()
             conn.close()

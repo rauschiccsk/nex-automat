@@ -2,8 +2,6 @@
 Tests for health check endpoints.
 """
 
-import pytest
-
 
 class TestHealthEndpoints:
     """Tests for /api/v1/health, /api/v1/metrics, /api/v1/ready endpoints."""

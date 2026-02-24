@@ -27,7 +27,9 @@ async def lifespan(app: FastAPI):
     db_manager = DatabaseManager(config.database)
     await db_manager.connect()
     print("[OK] RAG API server started")
-    print(f"[OK] Database: {config.database.host}:{config.database.port}/{config.database.database}")
+    print(
+        f"[OK] Database: {config.database.host}:{config.database.port}/{config.database.database}"
+    )
 
     yield
 
@@ -81,15 +83,25 @@ async def health_check():
             "timestamp": datetime.utcnow().isoformat(),
         }
     except Exception as e:
-        raise HTTPException(status_code=503, detail=f"Database health check failed: {str(e)}")
+        raise HTTPException(
+            status_code=503, detail=f"Database health check failed: {str(e)}"
+        )
 
 
 @app.get("/search")
 async def search_endpoint(
     query: str = Query(..., description="Search query"),
-    max_results: int = Query(5, ge=1, le=20, description="Maximum number of results (1-20)"),
-    format: str = Query("json", pattern="^(json|context)$", description="Response format: json or context"),
-    tenant: str | None = Query(None, description="Tenant filter (e.g., 'icc', 'andros')"),
+    max_results: int = Query(
+        5, ge=1, le=20, description="Maximum number of results (1-20)"
+    ),
+    format: str = Query(
+        "json",
+        pattern="^(json|context)$",
+        description="Response format: json or context",
+    ),
+    tenant: str | None = Query(
+        None, description="Tenant filter (e.g., 'icc', 'andros')"
+    ),
 ):
     """
     Search RAG database for relevant documents.
@@ -167,7 +179,9 @@ async def stats_endpoint():
             "chunks": chunk_count,
             "last_indexed": {
                 "filename": last_indexed["filename"] if last_indexed else None,
-                "timestamp": last_indexed["updated_at"].isoformat() if last_indexed else None,
+                "timestamp": last_indexed["updated_at"].isoformat()
+                if last_indexed
+                else None,
             },
             "timestamp": datetime.utcnow().isoformat(),
         }

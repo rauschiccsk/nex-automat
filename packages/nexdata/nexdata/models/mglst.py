@@ -112,7 +112,9 @@ class MGLSTRecord:
             MGLSTRecord instance
         """
         if len(data) < cls.COMPACT_SIZE:
-            raise ValueError(f"Invalid record size: {len(data)} bytes (expected >= {cls.COMPACT_SIZE})")
+            raise ValueError(
+                f"Invalid record size: {len(data)} bytes (expected >= {cls.COMPACT_SIZE})"
+            )
 
         # Determine layout based on record size
         if len(data) < cls.EXTENDED_SIZE:
@@ -167,9 +169,13 @@ class MGLSTRecord:
         if len(data) >= 128:
             try:
                 mod_date_int = struct.unpack("<i", data[120:124])[0]
-                mod_date = cls._decode_delphi_date(mod_date_int) if mod_date_int > 0 else None
+                mod_date = (
+                    cls._decode_delphi_date(mod_date_int) if mod_date_int > 0 else None
+                )
                 mod_time_int = struct.unpack("<i", data[124:128])[0]
-                mod_time = cls._decode_delphi_time(mod_time_int) if mod_time_int >= 0 else None
+                mod_time = (
+                    cls._decode_delphi_time(mod_time_int) if mod_time_int >= 0 else None
+                )
             except (struct.error, ValueError):
                 pass
 
@@ -235,9 +241,13 @@ class MGLSTRecord:
         if len(data) >= 472:
             mod_user = decode_keybcs2(data[456:464]).rstrip("\x00 ")
             mod_date_int = struct.unpack("<i", data[464:468])[0]
-            mod_date = cls._decode_delphi_date(mod_date_int) if mod_date_int > 0 else None
+            mod_date = (
+                cls._decode_delphi_date(mod_date_int) if mod_date_int > 0 else None
+            )
             mod_time_int = struct.unpack("<i", data[468:472])[0]
-            mod_time = cls._decode_delphi_time(mod_time_int) if mod_time_int >= 0 else None
+            mod_time = (
+                cls._decode_delphi_time(mod_time_int) if mod_time_int >= 0 else None
+            )
 
         return cls(
             mglst_code=mglst_code,
@@ -313,7 +323,9 @@ class MGLSTRecord:
         current = self
 
         while not current.is_root():
-            parent = next((c for c in all_categories if c.mglst_code == current.parent_code), None)
+            parent = next(
+                (c for c in all_categories if c.mglst_code == current.parent_code), None
+            )
             if parent:
                 path.insert(0, parent)
                 current = parent
@@ -322,7 +334,9 @@ class MGLSTRecord:
 
         return path
 
-    def get_full_path_name(self, all_categories: list["MGLSTRecord"], separator: str = " > ") -> str:
+    def get_full_path_name(
+        self, all_categories: list["MGLSTRecord"], separator: str = " > "
+    ) -> str:
         """
         Get full category path as string (e.g., "Elektronika > Počítače > Notebooky")
 

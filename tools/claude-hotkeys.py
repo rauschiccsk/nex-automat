@@ -67,7 +67,11 @@ class ClaudeHotkeys:
         try:
             # Git status
             result = subprocess.run(
-                ["git", "status", "--short"], cwd=self.project_root, capture_output=True, text=True, timeout=5
+                ["git", "status", "--short"],
+                cwd=self.project_root,
+                capture_output=True,
+                text=True,
+                timeout=5,
             )
 
             if result.returncode != 0:
@@ -143,18 +147,30 @@ Deployment:   {self.deployment_root}
         # Zisti Git branch
         try:
             branch_result = subprocess.run(
-                ["git", "branch", "--show-current"], cwd=self.project_root, capture_output=True, text=True, timeout=5
+                ["git", "branch", "--show-current"],
+                cwd=self.project_root,
+                capture_output=True,
+                text=True,
+                timeout=5,
             )
-            git_branch = branch_result.stdout.strip() if branch_result.returncode == 0 else "N/A"
+            git_branch = (
+                branch_result.stdout.strip() if branch_result.returncode == 0 else "N/A"
+            )
         except:
             git_branch = "N/A"
 
         # Zisti posledný commit
         try:
             commit_result = subprocess.run(
-                ["git", "log", "-1", "--oneline"], cwd=self.project_root, capture_output=True, text=True, timeout=5
+                ["git", "log", "-1", "--oneline"],
+                cwd=self.project_root,
+                capture_output=True,
+                text=True,
+                timeout=5,
             )
-            last_commit = commit_result.stdout.strip() if commit_result.returncode == 0 else "N/A"
+            last_commit = (
+                commit_result.stdout.strip() if commit_result.returncode == 0 else "N/A"
+            )
         except:
             last_commit = "N/A"
 
@@ -163,7 +179,9 @@ Deployment:   {self.deployment_root}
         if notes_file.exists():
             notes_size = notes_file.stat().st_size
             notes_modified = datetime.fromtimestamp(notes_file.stat().st_mtime)
-            notes_info = f"{notes_size:,} B | {notes_modified.strftime('%Y-%m-%d %H:%M')}"
+            notes_info = (
+                f"{notes_size:,} B | {notes_modified.strftime('%Y-%m-%d %H:%M')}"
+            )
         else:
             notes_info = "❌ Neexistujú"
 

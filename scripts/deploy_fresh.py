@@ -40,11 +40,15 @@ def log(msg, level="INFO"):
 def run_cmd(cmd, cwd=None, check=True, capture=False):
     """Run command and return result."""
     try:
-        result = subprocess.run(cmd, cwd=cwd, shell=True, check=check, capture_output=capture, text=True)
+        result = subprocess.run(
+            cmd, cwd=cwd, shell=True, check=check, capture_output=capture, text=True
+        )
         return result
     except subprocess.CalledProcessError as e:
         if check:
-            raise DeploymentError(f"Command failed: {cmd}\n{e.stderr if capture else ''}")
+            raise DeploymentError(
+                f"Command failed: {cmd}\n{e.stderr if capture else ''}"
+            )
         return e
 
 
@@ -57,7 +61,9 @@ def check_prerequisites():
         result = run_cmd(f"py -{PYTHON_VERSION} --version", capture=True)
         log(f"Python: {result.stdout.strip()}", "OK")
     except:
-        raise DeploymentError(f"Python {PYTHON_VERSION} not found. Install Python 3.13 32-bit.")
+        raise DeploymentError(
+            f"Python {PYTHON_VERSION} not found. Install Python 3.13 32-bit."
+        )
 
     # Check Git
     try:
@@ -77,7 +83,9 @@ def check_prerequisites():
     if os.environ.get("POSTGRES_PASSWORD"):
         log("POSTGRES_PASSWORD: Set", "OK")
     else:
-        log("POSTGRES_PASSWORD: Not set - will need to set before service start", "WARN")
+        log(
+            "POSTGRES_PASSWORD: Not set - will need to set before service start", "WARN"
+        )
 
 
 def clone_repository(deploy_path: Path):
@@ -229,7 +237,10 @@ def copy_from_backup(deploy_path: Path, backup_path: Path):
                     shutil.copytree(alt_nssm, dst)
                     log(f"Copied NSSM from {alt_nssm}", "OK")
                 else:
-                    log(f"NSSM not found at {backup_path / rel_path} or {alt_nssm}", "WARN")
+                    log(
+                        f"NSSM not found at {backup_path / rel_path} or {alt_nssm}",
+                        "WARN",
+                    )
             else:
                 log(f"Missing required directory: {rel_path}", "WARN")
 
@@ -256,7 +267,9 @@ def initialize_database(deploy_path: Path, venv_path: Path):
     python = venv_path / "Scripts" / "python.exe"
 
     try:
-        result = run_cmd(f'"{python}" "{init_db_script}"', cwd=deploy_path, check=False, capture=True)
+        result = run_cmd(
+            f'"{python}" "{init_db_script}"', cwd=deploy_path, check=False, capture=True
+        )
 
         if "Database initialization complete" in result.stdout:
             log("Database initialized successfully", "OK")
@@ -305,16 +318,24 @@ def install_service(deploy_path: Path, venv_path: Path):
     run_cmd(f'"{nssm}" install {SERVICE_NAME} "{python_exe}"')
     run_cmd(f'"{nssm}" set {SERVICE_NAME} AppParameters "{main_py}"')
     run_cmd(f'"{nssm}" set {SERVICE_NAME} AppDirectory "{deploy_path}"')
-    run_cmd(f'"{nssm}" set {SERVICE_NAME} AppStdout "{deploy_path}\\logs\\service-stdout.log"')
-    run_cmd(f'"{nssm}" set {SERVICE_NAME} AppStderr "{deploy_path}\\logs\\service-stderr.log"')
+    run_cmd(
+        f'"{nssm}" set {SERVICE_NAME} AppStdout "{deploy_path}\\logs\\service-stdout.log"'
+    )
+    run_cmd(
+        f'"{nssm}" set {SERVICE_NAME} AppStderr "{deploy_path}\\logs\\service-stderr.log"'
+    )
     run_cmd(f'"{nssm}" set {SERVICE_NAME} AppRestartDelay 5000')
     run_cmd(f'"{nssm}" set {SERVICE_NAME} Start SERVICE_AUTO_START')
 
     # Set environment variables
     postgres_pw = os.environ.get("POSTGRES_PASSWORD", "")
     if postgres_pw:
-        run_cmd(f'"{nssm}" set {SERVICE_NAME} AppEnvironmentExtra POSTGRES_PASSWORD={postgres_pw}')
-        run_cmd(f'"{nssm}" set {SERVICE_NAME} AppEnvironmentExtra +PYTHONIOENCODING=utf-8')
+        run_cmd(
+            f'"{nssm}" set {SERVICE_NAME} AppEnvironmentExtra POSTGRES_PASSWORD={postgres_pw}'
+        )
+        run_cmd(
+            f'"{nssm}" set {SERVICE_NAME} AppEnvironmentExtra +PYTHONIOENCODING=utf-8'
+        )
 
     log(f"Service {SERVICE_NAME} installed", "OK")
 
@@ -350,7 +371,9 @@ def run_validation(deploy_path: Path, venv_path: Path):
     # Preflight check
     preflight = deploy_path / "scripts" / "preflight_check.py"
     if preflight.exists():
-        result = run_cmd(f'"{python}" "{preflight}"', cwd=deploy_path, check=False, capture=True)
+        result = run_cmd(
+            f'"{python}" "{preflight}"', cwd=deploy_path, check=False, capture=True
+        )
         print(result.stdout)
         if "6/6 passed" in result.stdout:
             log("Preflight check: 6/6 PASS", "OK")
@@ -375,10 +398,24 @@ def print_summary(deploy_path: Path):
 
 def main():
     parser = argparse.ArgumentParser(description="NEX Automat Fresh Deployment")
-    parser.add_argument("--target", "-t", default="nex-automat", help="Target directory name (default: nex-automat)")
-    parser.add_argument("--backup-path", "-b", type=Path, help="Path to backup/existing deployment for config files")
-    parser.add_argument("--skip-service", action="store_true", help="Skip service installation")
-    parser.add_argument("--skip-validation", action="store_true", help="Skip validation tests")
+    parser.add_argument(
+        "--target",
+        "-t",
+        default="nex-automat",
+        help="Target directory name (default: nex-automat)",
+    )
+    parser.add_argument(
+        "--backup-path",
+        "-b",
+        type=Path,
+        help="Path to backup/existing deployment for config files",
+    )
+    parser.add_argument(
+        "--skip-service", action="store_true", help="Skip service installation"
+    )
+    parser.add_argument(
+        "--skip-validation", action="store_true", help="Skip validation tests"
+    )
 
     args = parser.parse_args()
 

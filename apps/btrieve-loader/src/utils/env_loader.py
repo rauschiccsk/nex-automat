@@ -6,7 +6,6 @@ Windows Console compatible - no Unicode characters
 
 import os
 from pathlib import Path
-from typing import Optional
 
 
 def find_env_file() -> Path | None:

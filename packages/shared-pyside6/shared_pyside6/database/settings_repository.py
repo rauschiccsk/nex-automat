@@ -99,7 +99,14 @@ class SettingsRepository:
     # === Window Settings ===
 
     def save_window_settings(
-        self, window_name: str, user_id: str, x: int, y: int, width: int, height: int, is_maximized: bool = False
+        self,
+        window_name: str,
+        user_id: str,
+        x: int,
+        y: int,
+        width: int,
+        height: int,
+        is_maximized: bool = False,
     ) -> bool:
         """
         Save window settings.
@@ -139,7 +146,9 @@ class SettingsRepository:
             print(f"Error saving window settings: {e}")
             return False
 
-    def load_window_settings(self, window_name: str, user_id: str) -> dict[str, Any] | None:
+    def load_window_settings(
+        self, window_name: str, user_id: str
+    ) -> dict[str, Any] | None:
         """
         Load window settings.
 
@@ -165,7 +174,13 @@ class SettingsRepository:
             conn.close()
 
             if row:
-                return {"x": row[0], "y": row[1], "width": row[2], "height": row[3], "is_maximized": bool(row[4])}
+                return {
+                    "x": row[0],
+                    "y": row[1],
+                    "width": row[2],
+                    "height": row[3],
+                    "is_maximized": bool(row[4]),
+                }
             return None
         except Exception as e:
             print(f"Error loading window settings: {e}")
@@ -192,7 +207,9 @@ class SettingsRepository:
 
     # === Grid Settings ===
 
-    def save_grid_settings(self, window_name: str, grid_name: str, user_id: str, settings: dict[str, Any]) -> bool:
+    def save_grid_settings(
+        self, window_name: str, grid_name: str, user_id: str, settings: dict[str, Any]
+    ) -> bool:
         """
         Save grid settings as JSON.
 
@@ -227,7 +244,9 @@ class SettingsRepository:
             print(f"Error saving grid settings: {e}")
             return False
 
-    def load_grid_settings(self, window_name: str, grid_name: str, user_id: str) -> dict[str, Any] | None:
+    def load_grid_settings(
+        self, window_name: str, grid_name: str, user_id: str
+    ) -> dict[str, Any] | None:
         """
         Load grid settings.
 
@@ -260,7 +279,9 @@ class SettingsRepository:
             print(f"Error loading grid settings: {e}")
             return None
 
-    def delete_grid_settings(self, window_name: str, grid_name: str, user_id: str) -> bool:
+    def delete_grid_settings(
+        self, window_name: str, grid_name: str, user_id: str
+    ) -> bool:
         """Delete grid settings."""
         try:
             conn = self._get_connection()

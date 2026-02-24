@@ -9,7 +9,6 @@ Pouzitie: python scripts/test_barcode_lookup.py [ean_code1] [ean_code2] ...
 
 import sys
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
 
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
@@ -47,7 +46,9 @@ class BarcodeLookupService:
         print(f"OK BARCODE.BTR: {self.barcode_path.name}")
         print(f"OK GSCAT.BTR: {self.gscat_path.name}")
 
-    def lookup_by_ean(self, ean: str) -> tuple[BarcodeRecord | None, GSCATRecord] | None:
+    def lookup_by_ean(
+        self, ean: str
+    ) -> tuple[BarcodeRecord | None, GSCATRecord] | None:
         """
         Vyhlada produkt podla EAN kodu
 
@@ -87,7 +88,9 @@ class BarcodeLookupService:
             # Open BARCODE.BTR
             status, pos_block = client.open_file(str(self.barcode_path))
             if status != BtrieveClient.STATUS_SUCCESS:
-                print(f"ERROR Failed to open BARCODE.BTR: {client.get_status_message(status)}")
+                print(
+                    f"ERROR Failed to open BARCODE.BTR: {client.get_status_message(status)}"
+                )
                 return None
 
             try:
@@ -126,7 +129,9 @@ class BarcodeLookupService:
             # Open GSCAT.BTR
             status, pos_block = client.open_file(str(self.gscat_path))
             if status != BtrieveClient.STATUS_SUCCESS:
-                print(f"ERROR Failed to open GSCAT.BTR: {client.get_status_message(status)}")
+                print(
+                    f"ERROR Failed to open GSCAT.BTR: {client.get_status_message(status)}"
+                )
                 return None
 
             try:
@@ -143,7 +148,9 @@ class BarcodeLookupService:
 
                             # Data zacinaju na offset 60
                             barcode_bytes = data[60 : 60 + barcode_length]
-                            barcode_str = barcode_bytes.decode("cp852", errors="ignore").rstrip("\x00 ")
+                            barcode_str = barcode_bytes.decode(
+                                "cp852", errors="ignore"
+                            ).rstrip("\x00 ")
 
                             # Porovnaj EAN
                             if barcode_str.strip() == ean.strip():
@@ -175,7 +182,9 @@ class BarcodeLookupService:
             # Open GSCAT.BTR
             status, pos_block = client.open_file(str(self.gscat_path))
             if status != BtrieveClient.STATUS_SUCCESS:
-                print(f"ERROR Failed to open GSCAT.BTR: {client.get_status_message(status)}")
+                print(
+                    f"ERROR Failed to open GSCAT.BTR: {client.get_status_message(status)}"
+                )
                 return None
 
             try:
@@ -226,7 +235,15 @@ class BarcodeLookupService:
 
             if not ean:
                 print(f"  {idx}. WARNING  {name[:50]:<50} - EAN chyba")
-                results["items"].append({"index": idx, "name": name, "ean": "", "status": "no_ean", "in_nex": False})
+                results["items"].append(
+                    {
+                        "index": idx,
+                        "name": name,
+                        "ean": "",
+                        "status": "no_ean",
+                        "in_nex": False,
+                    }
+                )
                 results["not_found"] += 1
                 continue
 
@@ -267,15 +284,29 @@ class BarcodeLookupService:
                 status = "not_found"
                 results["not_found"] += 1
 
-                print(f"  {idx}. {status_icon} {name[:50]:<50} EAN: {ean} (nie je v NEX)")
+                print(
+                    f"  {idx}. {status_icon} {name[:50]:<50} EAN: {ean} (nie je v NEX)"
+                )
 
-                results["items"].append({"index": idx, "name": name, "ean": ean, "status": status, "in_nex": False})
+                results["items"].append(
+                    {
+                        "index": idx,
+                        "name": name,
+                        "ean": ean,
+                        "status": status,
+                        "in_nex": False,
+                    }
+                )
 
         print("-" * 100)
         print("\nVYSLEDKY:")
         print(f"   Celkom poloziek:   {results['total']}")
-        print(f"   OK Najdene v NEX:  {results['found']} ({results['found'] / results['total'] * 100:.1f}%)")
-        print(f"   MISSING Nie su v NEX: {results['not_found']} ({results['not_found'] / results['total'] * 100:.1f}%)")
+        print(
+            f"   OK Najdene v NEX:  {results['found']} ({results['found'] / results['total'] * 100:.1f}%)"
+        )
+        print(
+            f"   MISSING Nie su v NEX: {results['not_found']} ({results['not_found'] / results['total'] * 100:.1f}%)"
+        )
 
         return results
 
@@ -300,7 +331,9 @@ def load_invoice_xml(xml_path: str) -> list[dict]:
         item["name"] = desc.text if desc is not None else "N/A"
 
         # EAN - StandardItemIdentification
-        standard_item = line.find(".//isdoc:Item/isdoc:StandardItemIdentification", NAMESPACE)
+        standard_item = line.find(
+            ".//isdoc:Item/isdoc:StandardItemIdentification", NAMESPACE
+        )
         if standard_item is not None:
             ean_elem = standard_item.find(".//isdoc:ID", NAMESPACE)
             item["ean"] = ean_elem.text if ean_elem is not None else ""
@@ -344,7 +377,9 @@ def main():
         # Load from XML
         if len(sys.argv) < 3:
             print("ERROR Chyba cesta k XML suboru")
-            print("Pouzitie: python scripts/test_barcode_lookup.py --from-xml <xml_path>")
+            print(
+                "Pouzitie: python scripts/test_barcode_lookup.py --from-xml <xml_path>"
+            )
             return 1
 
         xml_path = sys.argv[2]
@@ -395,7 +430,9 @@ def main():
         print("\n  1. Test jednotlivych EAN kodov:")
         print("     python scripts/test_barcode_lookup.py 8594000123456 8594000654321")
         print("\n  2. Test poloziek z XML faktury:")
-        print("     python scripts/test_barcode_lookup.py --from-xml C:\\NEX\\invoice.xml")
+        print(
+            "     python scripts/test_barcode_lookup.py --from-xml C:\\NEX\\invoice.xml"
+        )
         print("\n  3. Kombinacia s load_invoice_xml.py:")
         print("     python scripts/load_invoice_xml.py")
         print("     python scripts/test_barcode_lookup.py --from-xml <xml_path>")

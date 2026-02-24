@@ -12,7 +12,11 @@ Classes:
 
 from shared_pyside6.ui.base_grid import BaseGrid, GreenHeaderView
 from shared_pyside6.ui.base_window import BaseWindow
-from shared_pyside6.ui.quick_search import QuickSearchContainer, QuickSearchController, QuickSearchEdit
+from shared_pyside6.ui.quick_search import (
+    QuickSearchContainer,
+    QuickSearchController,
+    QuickSearchEdit,
+)
 
 __all__ = [
     "BaseWindow",

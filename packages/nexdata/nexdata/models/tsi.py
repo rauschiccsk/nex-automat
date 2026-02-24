@@ -101,7 +101,9 @@ class TSIRecord:
     MIN_RECORD_SIZE = 166  # Up to and including AcSPrice field
 
     @staticmethod
-    def _read_fixed_pascal_string(data: bytes, offset: int, buffer_size: int) -> tuple[str, int]:
+    def _read_fixed_pascal_string(
+        data: bytes, offset: int, buffer_size: int
+    ) -> tuple[str, int]:
         """
         Read fixed-width buffer with length prefix (hybrid format).
 
@@ -164,7 +166,9 @@ class TSIRecord:
             TSIRecord instance
         """
         if len(data) < cls.MIN_RECORD_SIZE:
-            raise ValueError(f"Invalid record size: {len(data)} bytes (expected >= {cls.MIN_RECORD_SIZE})")
+            raise ValueError(
+                f"Invalid record size: {len(data)} bytes (expected >= {cls.MIN_RECORD_SIZE})"
+            )
 
         # === HARDCODED OFFSETS from TSI.bdf ===
 

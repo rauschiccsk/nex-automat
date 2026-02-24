@@ -9,7 +9,7 @@ import smtplib
 from datetime import datetime
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from typing import Any, Dict, Optional
+from typing import Any
 
 from src.database import database
 from src.utils import config
@@ -22,7 +22,9 @@ logger = logging.getLogger(__name__)
 # ============================================================================
 
 
-def _error_template(error_type: str, error_message: str, details: dict[str, Any]) -> str:
+def _error_template(
+    error_type: str, error_message: str, details: dict[str, Any]
+) -> str:
     """
     Template for error alert emails
 
@@ -290,7 +292,9 @@ def _daily_summary_template(stats: dict[str, Any]) -> str:
 # ============================================================================
 
 
-def _send_email(to: str, subject: str, html_body: str, text_body: str | None = None) -> bool:
+def _send_email(
+    to: str, subject: str, html_body: str, text_body: str | None = None
+) -> bool:
     """
     Send email via SMTP
 
@@ -360,7 +364,9 @@ def _send_email(to: str, subject: str, html_body: str, text_body: str | None = N
 # ============================================================================
 
 
-def send_alert_email(error_type: str, error_message: str, details: dict[str, Any] | None = None) -> bool:
+def send_alert_email(
+    error_type: str, error_message: str, details: dict[str, Any] | None = None
+) -> bool:
     """
     Send error alert email
 
@@ -542,7 +548,9 @@ if __name__ == "__main__":
 
         elif command == "alert":
             # Send test alert
-            send_alert_email("Test Alert", "This is a test alert from command line", {"test": True})
+            send_alert_email(
+                "Test Alert", "This is a test alert from command line", {"test": True}
+            )
 
         else:
             print("Unknown command")
@@ -559,4 +567,6 @@ if __name__ == "__main__":
         print("  python notifications.py alert    - Send test alert")
         print()
         print("Or import as module:")
-        print("  from src.utils.notifications import send_alert_email, send_daily_summary")
+        print(
+            "  from src.utils.notifications import send_alert_email, send_daily_summary"
+        )

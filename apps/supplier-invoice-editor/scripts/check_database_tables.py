@@ -17,7 +17,9 @@ db_config = {
     "port": int(config_obj.get("database.postgres.port")),
     "database": config_obj.get("database.postgres.database"),
     "user": config_obj.get("database.postgres.user"),
-    "password": os.getenv("POSTGRES_PASSWORD", config_obj.get("database.postgres.password", "")),
+    "password": os.getenv(
+        "POSTGRES_PASSWORD", config_obj.get("database.postgres.password", "")
+    ),
 }
 
 print(f"Checking database: {db_config['database']}")

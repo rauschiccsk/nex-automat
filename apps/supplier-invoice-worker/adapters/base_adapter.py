@@ -60,8 +60,12 @@ class SupplierConfig:
     protocol: str = "rest"  # "rest" | "soap"
     wsdl_url: str | None = None  # WSDL endpoint URL
     soap_method: str | None = None  # SOAP method name (e.g. "CallComax")
-    message_types: dict[str, str] = field(default_factory=dict)  # {"invoice_list": "CustInvoiceList", ...}
-    request_params: dict[str, Any] = field(default_factory=dict)  # Sender, Receiver, test, etc.
+    message_types: dict[str, str] = field(
+        default_factory=dict
+    )  # {"invoice_list": "CustInvoiceList", ...}
+    request_params: dict[str, Any] = field(
+        default_factory=dict
+    )  # Sender, Receiver, test, etc.
     response_format: str = "xml"  # "xml" | "json"
 
 

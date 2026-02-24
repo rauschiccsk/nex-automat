@@ -47,14 +47,18 @@ async def lifespan(app: FastAPI):
     print(f"Customer: {config.CUSTOMER_NAME}")
     print(f"Btrieve Path: {settings.btrieve_path}")
     print(f"API Key: {'configured' if settings.api_key else 'not set'}")
-    print(f"PostgreSQL Staging: {'Enabled' if config.POSTGRES_STAGING_ENABLED else 'Disabled'}")
+    print(
+        f"PostgreSQL Staging: {'Enabled' if config.POSTGRES_STAGING_ENABLED else 'Disabled'}"
+    )
     if config.POSTGRES_STAGING_ENABLED:
-        print(f"PostgreSQL: {config.POSTGRES_HOST}:{config.POSTGRES_PORT}/{config.POSTGRES_DATABASE}")
+        print(
+            f"PostgreSQL: {config.POSTGRES_HOST}:{config.POSTGRES_PORT}/{config.POSTGRES_DATABASE}"
+        )
     print("=" * 60)
 
     # Initialize BtrieveClientManager
     try:
-        btrieve_manager = get_btrieve_manager()
+        get_btrieve_manager()  # Initialize singleton
         print("[OK] BtrieveClientManager initialized")
     except Exception as e:
         print(f"[WARNING] BtrieveClientManager not available: {e}")
@@ -208,10 +212,16 @@ async def metrics():
 # FRONTEND STATIC FILES
 # ============================================================================
 
-FRONTEND_DIR = Path(__file__).parent.parent.parent / "supplier-invoice-staging-web" / "dist"
+FRONTEND_DIR = (
+    Path(__file__).parent.parent.parent / "supplier-invoice-staging-web" / "dist"
+)
 
 if FRONTEND_DIR.exists():
-    app.mount("/app/assets", StaticFiles(directory=FRONTEND_DIR / "assets"), name="static_assets")
+    app.mount(
+        "/app/assets",
+        StaticFiles(directory=FRONTEND_DIR / "assets"),
+        name="static_assets",
+    )
 
     @app.get("/app")
     async def serve_frontend_root():

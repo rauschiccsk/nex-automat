@@ -97,7 +97,9 @@ class TestMARSOAdapter:
         """Test SOAP request XML building."""
         adapter = MARSOAdapter(marso_config)
 
-        with patch.dict("os.environ", {"MARSO_API_KEY": "test_key", "MARSO_ACCOUNT_NUM": "123456"}):
+        with patch.dict(
+            "os.environ", {"MARSO_API_KEY": "test_key", "MARSO_ACCOUNT_NUM": "123456"}
+        ):
             xml = adapter._build_request_xml(
                 message_type="CustInvoiceList",
                 date_from=date(2024, 1, 1),

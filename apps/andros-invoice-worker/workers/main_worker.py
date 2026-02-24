@@ -74,7 +74,9 @@ async def main():
         ],
     )
 
-    logger.info(f"Starting ANDROS Invoice Worker on queue: {settings.temporal_task_queue}")
+    logger.info(
+        f"Starting ANDROS Invoice Worker on queue: {settings.temporal_task_queue}"
+    )
     await worker.run()
 
 

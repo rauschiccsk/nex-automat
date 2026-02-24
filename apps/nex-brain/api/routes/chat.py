@@ -100,18 +100,28 @@ async def chat(request: ChatRequest):
         rag_results = None
         if needs_rag:
             # Get context from RAG (with tenant filter)
-            rag_results = await rag_service.search(query=request.question, limit=request.context_limit, tenant=tenant)
+            rag_results = await rag_service.search(
+                query=request.question, limit=request.context_limit, tenant=tenant
+            )
 
         # 3. Generate answer with LLM
-        answer, tokens = await llm_service.generate(question=request.question, context=rag_results, tenant=tenant)
+        answer, tokens = await llm_service.generate(
+            question=request.question, context=rag_results, tenant=tenant
+        )
 
         # 4. Build response
         sources = None
         if request.include_sources and rag_results:
-            sources = [{"filename": r["filename"], "score": r["score"]} for r in rag_results]
+            sources = [
+                {"filename": r["filename"], "score": r["score"]} for r in rag_results
+            ]
 
         return ChatResponse(
-            answer=answer, tenant=tenant, sources=sources, model=llm_service.model_name, tokens_used=tokens
+            answer=answer,
+            tenant=tenant,
+            sources=sources,
+            model=llm_service.model_name,
+            tokens_used=tokens,
         )
 
     except HTTPException:
@@ -150,12 +160,17 @@ async def ingest_document(request: IngestRequest):
     """
     try:
         success = await rag_service.add_document(
-            content=request.content, filename=request.filename, tenant=request.tenant, metadata=request.metadata
+            content=request.content,
+            filename=request.filename,
+            tenant=request.tenant,
+            metadata=request.metadata,
         )
 
         if success:
             return IngestResponse(
-                success=True, message=f"Document '{request.filename}' ingested successfully", tenant=request.tenant
+                success=True,
+                message=f"Document '{request.filename}' ingested successfully",
+                tenant=request.tenant,
             )
         else:
             raise HTTPException(status_code=500, detail="Failed to ingest document")
@@ -173,7 +188,11 @@ async def list_collections():
         for c in collections.collections:
             info = rag_service.qdrant.get_collection(c.name)
             result.append(
-                {"name": c.name, "indexed_vectors_count": info.indexed_vectors_count, "points_count": info.points_count}
+                {
+                    "name": c.name,
+                    "indexed_vectors_count": info.indexed_vectors_count,
+                    "points_count": info.points_count,
+                }
             )
         return {"collections": result}
     except Exception as e:

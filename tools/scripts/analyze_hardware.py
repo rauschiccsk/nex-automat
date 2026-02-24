@@ -14,12 +14,21 @@ from datetime import datetime
 def run_powershell(script: str, remote_server: str = None) -> str:
     """Spustí PowerShell príkaz lokálne alebo vzdialene."""
     if remote_server:
-        script = f"Invoke-Command -ComputerName {remote_server} -ScriptBlock {{ {script} }}"
+        script = (
+            f"Invoke-Command -ComputerName {remote_server} -ScriptBlock {{ {script} }}"
+        )
 
     cmd = ["powershell", "-NoProfile", "-Command", script]
 
     try:
-        result = subprocess.run(cmd, capture_output=True, text=True, timeout=120, encoding="utf-8", errors="replace")
+        result = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            timeout=120,
+            encoding="utf-8",
+            errors="replace",
+        )
         if result.returncode != 0 and result.stderr:
             return f"ERROR: {result.stderr}"
         return result.stdout
@@ -75,8 +84,12 @@ Write-Output "LastBoot=$($os.LastBootUpTime)"
     lines.append(f"  BIOS:           {data.get('BIOSVersion', 'N/A')}")
     lines.append("")
     lines.append(f"  OS:             {data.get('OSName', 'N/A')}")
-    lines.append(f"  Verzia:         {data.get('OSVersion', 'N/A')} (Build {data.get('OSBuild', 'N/A')})")
-    lines.append(f"  Posledný boot:  {data.get('LastBoot', 'N/A')[:19] if data.get('LastBoot') else 'N/A'}")
+    lines.append(
+        f"  Verzia:         {data.get('OSVersion', 'N/A')} (Build {data.get('OSBuild', 'N/A')})"
+    )
+    lines.append(
+        f"  Posledný boot:  {data.get('LastBoot', 'N/A')[:19] if data.get('LastBoot') else 'N/A'}"
+    )
 
     return lines
 
@@ -118,9 +131,15 @@ foreach ($cpu in $cpus) {
             lines.append(f"    Názov:          {current.get('Name', 'N/A')}")
             lines.append(f"    Socket:         {current.get('Socket', 'N/A')}")
             lines.append(f"    Jadrá:          {current.get('Cores', 'N/A')}")
-            lines.append(f"    Logické proc.:  {current.get('LogicalProcessors', 'N/A')}")
-            lines.append(f"    Max frekvencia: {current.get('MaxClockSpeed', 'N/A')} MHz")
-            lines.append(f"    Akt. frekvencia:{current.get('CurrentClockSpeed', 'N/A')} MHz")
+            lines.append(
+                f"    Logické proc.:  {current.get('LogicalProcessors', 'N/A')}"
+            )
+            lines.append(
+                f"    Max frekvencia: {current.get('MaxClockSpeed', 'N/A')} MHz"
+            )
+            lines.append(
+                f"    Akt. frekvencia:{current.get('CurrentClockSpeed', 'N/A')} MHz"
+            )
             lines.append(f"    L2 Cache:       {current.get('L2CacheSize', 'N/A')} KB")
             lines.append(f"    L3 Cache:       {current.get('L3CacheSize', 'N/A')} KB")
             lines.append(f"    Využitie:       {current.get('LoadPercentage', 'N/A')}%")
@@ -161,7 +180,9 @@ Write-Output "FreePhysical=$($os.FreePhysicalMemory)"
 
         lines.append(f"  Max. kapacita:    {max_gb:.0f} GB")
         lines.append(f"  Nainštalované:    {total_gb:.0f} GB")
-        lines.append(f"  Sloty:            {data.get('UsedSlots', '?')}/{data.get('TotalSlots', '?')} obsadených")
+        lines.append(
+            f"  Sloty:            {data.get('UsedSlots', '?')}/{data.get('TotalSlots', '?')} obsadených"
+        )
         lines.append(
             f"  Využitie:         {used_kb / 1024 / 1024:.1f} GB / {visible_kb / 1024 / 1024:.1f} GB ({usage_pct:.1f}%)"
         )
@@ -207,7 +228,9 @@ foreach ($m in $mods) {
         elif line == "MOD_END" and current:
             try:
                 cap_gb = int(current.get("Capacity", 0)) / (1024**3)
-                mem_type = smbios_types.get(int(current.get("SMBIOSMemoryType", 0)), "Unknown")
+                mem_type = smbios_types.get(
+                    int(current.get("SMBIOSMemoryType", 0)), "Unknown"
+                )
             except:
                 cap_gb = 0
                 mem_type = "Unknown"
@@ -263,7 +286,9 @@ foreach ($d in $disks) {
             lines.append(f"      Rozhranie:  {current.get('InterfaceType', 'N/A')}")
             lines.append(f"      Typ média:  {current.get('MediaType', 'N/A')}")
             lines.append(f"      Partície:   {current.get('Partitions', 'N/A')}")
-            lines.append(f"      Sér. číslo: {current.get('SerialNumber', 'N/A').strip()}")
+            lines.append(
+                f"      Sér. číslo: {current.get('SerialNumber', 'N/A').strip()}"
+            )
             current = {}
         elif "=" in line:
             k, v = line.split("=", 1)
@@ -388,7 +413,11 @@ foreach ($g in $gpus) {
                 vram_gb = 0
             lines.append(f"\n  GPU #{gpu_num}:")
             lines.append(f"    Názov:       {current.get('Name', 'N/A')}")
-            lines.append(f"    VRAM:        {vram_gb:.1f} GB" if vram_gb > 0 else "    VRAM:        N/A")
+            lines.append(
+                f"    VRAM:        {vram_gb:.1f} GB"
+                if vram_gb > 0
+                else "    VRAM:        N/A"
+            )
             lines.append(f"    Driver:      {current.get('DriverVersion', 'N/A')}")
             lines.append(
                 f"    Rozlíšenie:  {current.get('CurrentResolution', 'N/A')} @ {current.get('RefreshRate', 'N/A')} Hz"
@@ -442,7 +471,9 @@ if ($bat) {
 
     if data.get("Name"):
         lines.append(f"  Batéria:        {data.get('Name', 'N/A')}")
-        lines.append(f"  Nabité:         {data.get('EstimatedChargeRemaining', 'N/A')}%")
+        lines.append(
+            f"  Nabité:         {data.get('EstimatedChargeRemaining', 'N/A')}%"
+        )
     else:
         lines.append("  Batéria:        Nie je (desktop/server)")
 
@@ -531,7 +562,9 @@ def get_hardware_report(remote_server: str = None) -> str:
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Kompletná analýza hardvéru Windows servera")
+    parser = argparse.ArgumentParser(
+        description="Kompletná analýza hardvéru Windows servera"
+    )
     parser.add_argument("--remote", "-r", help="Názov alebo IP vzdialeného servera")
     parser.add_argument("--output", "-o", help="Uložiť výstup do súboru")
 
@@ -540,7 +573,10 @@ def main():
     report = get_hardware_report(args.remote)
     print(report)
 
-    filename = args.output or f"hw_report_{args.remote or 'localhost'}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
+    filename = (
+        args.output
+        or f"hw_report_{args.remote or 'localhost'}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
+    )
     with open(filename, "w", encoding="utf-8") as f:
         f.write(report)
     print(f"\nReport uložený do: {filename}")

@@ -171,7 +171,22 @@ class TestGetPendingEnrichmentItems:
     def test_get_all_pending_items(self, client, mock_cursor):
         """Should fetch all pending items"""
         mock_cursor.fetchall.return_value = [
-            (1, 100, 1, "Product A", "1234567890123", 10, "ks", 15.50, 20.0, None, None, False, None, None)
+            (
+                1,
+                100,
+                1,
+                "Product A",
+                "1234567890123",
+                10,
+                "ks",
+                15.50,
+                20.0,
+                None,
+                None,
+                False,
+                None,
+                None,
+            )
         ]
 
         result = client.get_pending_enrichment_items()
@@ -220,7 +235,15 @@ class TestUpdateNexEnrichment:
         mock_cursor.execute.assert_called_once()
         call_args = mock_cursor.execute.call_args[0]
         assert "UPDATE supplier_invoice_items" in call_args[0]
-        assert call_args[1] == (12345, 12345, "NEX Product Name", 10, "matched", "Auto-matched by ean", 1)
+        assert call_args[1] == (
+            12345,
+            12345,
+            "NEX Product Name",
+            10,
+            "matched",
+            "Auto-matched by ean",
+            1,
+        )
 
     def test_update_with_name_match(self, client, mock_cursor):
         """Should indicate name matching method"""

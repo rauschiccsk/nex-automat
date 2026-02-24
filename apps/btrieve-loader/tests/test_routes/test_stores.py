@@ -4,14 +4,14 @@ Tests for product group/store endpoints.
 
 from unittest.mock import patch
 
-import pytest
-
 
 class TestStoreEndpoints:
     """Tests for /api/v1/stores endpoints."""
 
     @patch("src.api.routes.stores.get_mglst_repository")
-    def test_list_product_groups(self, mock_get_repo, api_v1_client, mock_mglst_repository, api_key_header):
+    def test_list_product_groups(
+        self, mock_get_repo, api_v1_client, mock_mglst_repository, api_key_header
+    ):
         """Test GET /api/v1/stores returns paginated product groups."""
         mock_get_repo.return_value = mock_mglst_repository
 
@@ -30,7 +30,9 @@ class TestStoreEndpoints:
         """Test GET /api/v1/stores with parent_code filter."""
         mock_get_repo.return_value = mock_mglst_repository
 
-        response = api_v1_client.get("/api/v1/stores?parent_code=1", headers=api_key_header)
+        response = api_v1_client.get(
+            "/api/v1/stores?parent_code=1", headers=api_key_header
+        )
 
         assert response.status_code == 200
         data = response.json()
@@ -53,7 +55,9 @@ class TestStoreEndpoints:
             assert group["level"] == 1
 
     @patch("src.api.routes.stores.get_mglst_repository")
-    def test_get_product_groups_tree(self, mock_get_repo, api_v1_client, mock_mglst_repository, api_key_header):
+    def test_get_product_groups_tree(
+        self, mock_get_repo, api_v1_client, mock_mglst_repository, api_key_header
+    ):
         """Test GET /api/v1/stores/tree returns hierarchical tree."""
         mock_get_repo.return_value = mock_mglst_repository
 
@@ -68,7 +72,9 @@ class TestStoreEndpoints:
             assert "children" in data[0] or len(data) > 0
 
     @patch("src.api.routes.stores.get_mglst_repository")
-    def test_get_product_group_by_code(self, mock_get_repo, api_v1_client, mock_mglst_repository, api_key_header):
+    def test_get_product_group_by_code(
+        self, mock_get_repo, api_v1_client, mock_mglst_repository, api_key_header
+    ):
         """Test GET /api/v1/stores/{mglst_code} returns specific group."""
         mock_get_repo.return_value = mock_mglst_repository
 
@@ -80,7 +86,9 @@ class TestStoreEndpoints:
         assert data["name"] == "Potraviny"
 
     @patch("src.api.routes.stores.get_mglst_repository")
-    def test_get_product_group_not_found(self, mock_get_repo, api_v1_client, mock_mglst_repository, api_key_header):
+    def test_get_product_group_not_found(
+        self, mock_get_repo, api_v1_client, mock_mglst_repository, api_key_header
+    ):
         """Test GET /api/v1/stores/{mglst_code} returns 404 for unknown code."""
         mock_get_repo.return_value = mock_mglst_repository
 
@@ -89,11 +97,15 @@ class TestStoreEndpoints:
         assert response.status_code == 404
 
     @patch("src.api.routes.stores.get_mglst_repository")
-    def test_get_product_group_children(self, mock_get_repo, api_v1_client, mock_mglst_repository, api_key_header):
+    def test_get_product_group_children(
+        self, mock_get_repo, api_v1_client, mock_mglst_repository, api_key_header
+    ):
         """Test GET /api/v1/stores/{mglst_code}/children returns child groups."""
         mock_get_repo.return_value = mock_mglst_repository
 
-        response = api_v1_client.get("/api/v1/stores/1/children", headers=api_key_header)
+        response = api_v1_client.get(
+            "/api/v1/stores/1/children", headers=api_key_header
+        )
 
         assert response.status_code == 200
         data = response.json()

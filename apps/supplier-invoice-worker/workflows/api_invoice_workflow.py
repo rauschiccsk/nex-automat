@@ -59,7 +59,9 @@ class SupplierAPIInvoiceWorkflow:
         Returns:
             Summary of processed invoices
         """
-        workflow.logger.info(f"Starting invoice workflow for {supplier_id}: {date_from} to {date_to}")
+        workflow.logger.info(
+            f"Starting invoice workflow for {supplier_id}: {date_from} to {date_to}"
+        )
 
         # Retry policy for activities
         retry_policy = RetryPolicy(
@@ -120,10 +122,14 @@ class SupplierAPIInvoiceWorkflow:
             for invoice in invoices:
                 invoice_id = invoice.get("InvoiceId", "unknown")
                 try:
-                    await self._process_single_invoice(supplier_id, invoice_id, invoice, activity_options)
+                    await self._process_single_invoice(
+                        supplier_id, invoice_id, invoice, activity_options
+                    )
                     results["processed"] += 1
                 except Exception as e:
-                    workflow.logger.error(f"Failed to process invoice {invoice_id}: {e}")
+                    workflow.logger.error(
+                        f"Failed to process invoice {invoice_id}: {e}"
+                    )
                     results["failed"] += 1
                     results["errors"].append(
                         {
@@ -137,7 +143,9 @@ class SupplierAPIInvoiceWorkflow:
             results["errors"].append({"workflow_error": str(e)})
             raise
 
-        workflow.logger.info(f"Workflow complete: {results['processed']}/{results['total_invoices']} processed")
+        workflow.logger.info(
+            f"Workflow complete: {results['processed']}/{results['total_invoices']} processed"
+        )
         return results
 
     async def _process_single_invoice(
@@ -213,7 +221,9 @@ class SingleInvoiceWorkflow:
         Returns:
             Processing result
         """
-        workflow.logger.info(f"Processing single invoice: {invoice_id} from {supplier_id}")
+        workflow.logger.info(
+            f"Processing single invoice: {invoice_id} from {supplier_id}"
+        )
 
         retry_policy = RetryPolicy(
             initial_interval=timedelta(seconds=5),

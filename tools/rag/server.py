@@ -134,11 +134,19 @@ Examples:
 
     parser.add_argument("command", choices=["start", "status"], help="Server command")
 
-    parser.add_argument("--host", default="127.0.0.1", help="Server host (default: 127.0.0.1)")
+    parser.add_argument(
+        "--host", default="127.0.0.1", help="Server host (default: 127.0.0.1)"
+    )
 
-    parser.add_argument("--port", type=int, default=8765, help="Server port (default: 8765)")
+    parser.add_argument(
+        "--port", type=int, default=8765, help="Server port (default: 8765)"
+    )
 
-    parser.add_argument("--reload", action="store_true", help="Enable auto-reload on code changes (development mode)")
+    parser.add_argument(
+        "--reload",
+        action="store_true",
+        help="Enable auto-reload on code changes (development mode)",
+    )
 
     parser.add_argument(
         "--log-level",

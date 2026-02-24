@@ -34,19 +34,31 @@ Examples:
 
     parser.add_argument("query", nargs="?", help="Search query (Slovak or English)")
 
-    parser.add_argument("-l", "--limit", type=int, default=5, help="Number of results (default: 5)")
-
     parser.add_argument(
-        "-m", "--mode", choices=["hybrid", "vector"], default="hybrid", help="Search mode (default: hybrid)"
+        "-l", "--limit", type=int, default=5, help="Number of results (default: 5)"
     )
 
-    parser.add_argument("-c", "--context", action="store_true", help="Output LLM-ready context format")
+    parser.add_argument(
+        "-m",
+        "--mode",
+        choices=["hybrid", "vector"],
+        default="hybrid",
+        help="Search mode (default: hybrid)",
+    )
 
-    parser.add_argument("-f", "--full", action="store_true", help="Show full chunk content")
+    parser.add_argument(
+        "-c", "--context", action="store_true", help="Output LLM-ready context format"
+    )
+
+    parser.add_argument(
+        "-f", "--full", action="store_true", help="Show full chunk content"
+    )
 
     parser.add_argument("--stats", action="store_true", help="Show database statistics")
 
-    parser.add_argument("-q", "--quiet", action="store_true", help="Minimal output (no headers)")
+    parser.add_argument(
+        "-q", "--quiet", action="store_true", help="Minimal output (no headers)"
+    )
 
     return parser
 
@@ -68,7 +80,9 @@ async def show_stats(quiet: bool = False):
         print()
 
 
-async def do_search(query: str, limit: int, mode: str, context: bool, full: bool, quiet: bool):
+async def do_search(
+    query: str, limit: int, mode: str, context: bool, full: bool, quiet: bool
+):
     """Perform search and display results."""
     async with RAGSearchAPI() as api:
         if context:
@@ -98,7 +112,9 @@ async def do_search(query: str, limit: int, mode: str, context: bool, full: bool
             print(f"\n{i}. {indicator} [{score:.3f}] {filename}")
 
             if r.get("keyword_score", 0) > 0:
-                print(f"   (vector: {r['vector_score']:.3f}, keyword: {r['keyword_score']:.3f})")
+                print(
+                    f"   (vector: {r['vector_score']:.3f}, keyword: {r['keyword_score']:.3f})"
+                )
 
             # Content preview
             content = r["content"]

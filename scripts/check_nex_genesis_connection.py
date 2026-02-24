@@ -14,7 +14,13 @@ def search_in_file(filepath: Path, keywords: list) -> list:
             for line_num, line in enumerate(f, 1):
                 for keyword in keywords:
                     if keyword.upper() in line.upper():
-                        results.append({"line": line_num, "text": line.strip()[:200], "keyword": keyword})
+                        results.append(
+                            {
+                                "line": line_num,
+                                "text": line.strip()[:200],
+                                "keyword": keyword,
+                            }
+                        )
     except Exception:
         pass
     return results
@@ -64,7 +70,15 @@ def search_nex_genesis_config():
 
         # Special interest in specific files
         interesting = any(
-            x in filepath.name.upper() for x in ["BTRHAND", "DATABASE", "CONNECTION", "CONFIG", "MAIN", "DATAMODULE"]
+            x in filepath.name.upper()
+            for x in [
+                "BTRHAND",
+                "DATABASE",
+                "CONNECTION",
+                "CONFIG",
+                "MAIN",
+                "DATAMODULE",
+            ]
         )
 
         findings = search_in_file(filepath, connection_keywords)

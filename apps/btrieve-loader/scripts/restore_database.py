@@ -18,16 +18,23 @@ from backup.database_restore import DatabaseRestore
 
 def main():
     """Main CLI entry point"""
-    parser = argparse.ArgumentParser(description="Restore PostgreSQL database from backup")
+    parser = argparse.ArgumentParser(
+        description="Restore PostgreSQL database from backup"
+    )
 
-    parser.add_argument("--config", default="config/config.yaml", help="Path to configuration file")
+    parser.add_argument(
+        "--config", default="config/config.yaml", help="Path to configuration file"
+    )
 
     subparsers = parser.add_subparsers(dest="command", help="Command to execute")
 
     # List command
     list_parser = subparsers.add_parser("list", help="List available backups")
     list_parser.add_argument(
-        "--type", choices=["daily", "weekly", "all"], default="all", help="Type of backups to list"
+        "--type",
+        choices=["daily", "weekly", "all"],
+        default="all",
+        help="Type of backups to list",
     )
 
     # Info command
@@ -41,8 +48,12 @@ def main():
     # Restore command
     restore_parser = subparsers.add_parser("restore", help="Restore database")
     restore_parser.add_argument("backup_path", help="Path to backup file")
-    restore_parser.add_argument("--drop", action="store_true", help="Drop existing database before restore")
-    restore_parser.add_argument("--no-verify", action="store_true", help="Skip backup verification")
+    restore_parser.add_argument(
+        "--drop", action="store_true", help="Drop existing database before restore"
+    )
+    restore_parser.add_argument(
+        "--no-verify", action="store_true", help="Skip backup verification"
+    )
 
     args = parser.parse_args()
 
@@ -65,7 +76,9 @@ def main():
                 print(f"  {backup['name']}")
                 print(f"    Type: {backup['type']}")
                 print(f"    Size: {backup['size'] / 1024 / 1024:.2f} MB")
-                print(f"    Modified: {backup['modified'].strftime('%Y-%m-%d %H:%M:%S')}")
+                print(
+                    f"    Modified: {backup['modified'].strftime('%Y-%m-%d %H:%M:%S')}"
+                )
                 print(f"    Checksum: {'Yes' if backup['has_checksum'] else 'No'}")
                 print()
 
@@ -106,7 +119,9 @@ def main():
                     return 0
 
             success, message = restore.restore_database(
-                args.backup_path, drop_existing=args.drop, verify_first=not args.no_verify
+                args.backup_path,
+                drop_existing=args.drop,
+                verify_first=not args.no_verify,
             )
 
             if success:

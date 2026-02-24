@@ -4,7 +4,6 @@ PostgreSQL Client - Database connection using pg8000 (Pure Python)
 
 import logging
 from contextlib import contextmanager
-from typing import Dict, List, Optional
 
 try:
     import pg8000
@@ -88,7 +87,9 @@ class PostgresClient:
             if conn:
                 conn.close()
 
-    def execute_query(self, query: str, params: tuple = None, fetch: bool = True) -> list[dict] | None:
+    def execute_query(
+        self, query: str, params: tuple = None, fetch: bool = True
+    ) -> list[dict] | None:
         """
         Execute SQL query
 
@@ -107,7 +108,9 @@ class PostgresClient:
 
                 if fetch:
                     # Get column names
-                    columns = [desc[0] for desc in cur.description] if cur.description else []
+                    columns = (
+                        [desc[0] for desc in cur.description] if cur.description else []
+                    )
 
                     # Fetch rows and convert to dictionaries
                     rows = cur.fetchall()

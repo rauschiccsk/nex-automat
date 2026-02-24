@@ -213,7 +213,9 @@ def main():
         print("  python context-compressor.py notes     - Komprimuj session notes")
         print("  python context-compressor.py init      - Komprimuj init prompt")
         print("  python context-compressor.py file <path> - Komprimuj konkrétny súbor")
-        print("  python context-compressor.py batch <dir> - Komprimuj všetky .md v adresári")
+        print(
+            "  python context-compressor.py batch <dir> - Komprimuj všetky .md v adresári"
+        )
         print()
         return
 

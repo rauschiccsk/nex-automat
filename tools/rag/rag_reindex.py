@@ -56,7 +56,9 @@ async def reindex_all(docs_path: Path):
 
     # Reindex all
     async with DocumentIndexer() as indexer:
-        results = await indexer.index_directory(directory=docs_path, pattern="*.md", recursive=True, show_progress=True)
+        results = await indexer.index_directory(
+            directory=docs_path, pattern="*.md", recursive=True, show_progress=True
+        )
 
     print()
     print("=" * 60)
@@ -120,7 +122,9 @@ async def index_single_file(filepath: Path):
         result = await indexer.index_file(filepath, show_progress=True)
 
     print()
-    print(f"✓ Document indexed: {result['chunk_count']} chunks, {result['total_tokens']} tokens")
+    print(
+        f"✓ Document indexed: {result['chunk_count']} chunks, {result['total_tokens']} tokens"
+    )
 
 
 async def index_directory(dir_path: Path):
@@ -129,7 +133,9 @@ async def index_directory(dir_path: Path):
     print()
 
     async with DocumentIndexer() as indexer:
-        results = await indexer.index_directory(directory=dir_path, pattern="*.md", recursive=True, show_progress=True)
+        results = await indexer.index_directory(
+            directory=dir_path, pattern="*.md", recursive=True, show_progress=True
+        )
 
     print()
     print(f"✓ Indexed {len(results)} documents")
@@ -142,7 +148,12 @@ async def show_stats():
     try:
         docs = await db.pool.fetchval("SELECT COUNT(*) FROM documents")
         chunks = await db.pool.fetchval("SELECT COUNT(*) FROM chunks")
-        tokens = await db.pool.fetchval("SELECT SUM((metadata->>'token_count')::int) FROM chunks") or 0
+        tokens = (
+            await db.pool.fetchval(
+                "SELECT SUM((metadata->>'token_count')::int) FROM chunks"
+            )
+            or 0
+        )
 
         print("=" * 40)
         print("RAG Database Statistics")
@@ -170,8 +181,12 @@ Examples:
     )
 
     group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument("--all", action="store_true", help="Full reindex (drop and recreate)")
-    group.add_argument("--new", action="store_true", help="Index only new files (incremental)")
+    group.add_argument(
+        "--all", action="store_true", help="Full reindex (drop and recreate)"
+    )
+    group.add_argument(
+        "--new", action="store_true", help="Index only new files (incremental)"
+    )
     group.add_argument("--file", type=Path, help="Index single file")
     group.add_argument("--dir", type=Path, help="Index directory")
     group.add_argument("--stats", action="store_true", help="Show statistics only")

@@ -8,8 +8,8 @@ from fastapi import APIRouter, HTTPException, Query
 from nexdata.btrieve.btrieve_client import BtrieveClient
 from nexdata.repositories.pab_repository import PABRepository
 
-from src.api.schemas.common import PaginatedResponse, PaginationParams
-from src.api.schemas.partners import Partner, PartnerList, PartnerSearch, PartnerType
+from src.api.schemas.common import PaginatedResponse
+from src.api.schemas.partners import Partner, PartnerList, PartnerType
 from src.core.config import settings
 
 from .dependencies import ApiKey, Pagination
@@ -28,7 +28,9 @@ def get_pab_repository() -> PABRepository:
 async def list_partners(
     pagination: Pagination,
     _api_key: ApiKey,
-    partner_type: Annotated[PartnerType | None, Query(description="Filter by type")] = None,
+    partner_type: Annotated[
+        PartnerType | None, Query(description="Filter by type")
+    ] = None,
     active: Annotated[bool | None, Query(description="Filter by active status")] = None,
 ):
     """
@@ -45,7 +47,9 @@ async def list_partners(
         # Apply filters
         filtered_records = all_records
         if partner_type is not None:
-            filtered_records = [r for r in filtered_records if r.partner_type == partner_type.value]
+            filtered_records = [
+                r for r in filtered_records if r.partner_type == partner_type.value
+            ]
         if active is not None:
             filtered_records = [r for r in filtered_records if r.active == active]
 

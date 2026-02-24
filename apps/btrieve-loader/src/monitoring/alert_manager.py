@@ -10,7 +10,6 @@ from datetime import datetime, timedelta
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from enum import Enum
-from typing import Dict, List, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -114,7 +113,9 @@ class AlertManager:
             subject = f"[{alert.level.value.upper()}] {alert.title}"
             body = self._format_alert_email(alert)
 
-            return self._send_email(subject=subject, body=body, recipients=self.config.to_emails)
+            return self._send_email(
+                subject=subject, body=body, recipients=self.config.to_emails
+            )
 
         except Exception as e:
             logger.error(f"Failed to send alert: {e}")
@@ -180,7 +181,9 @@ class AlertManager:
         self._alert_history.append(alert)
         return self.send_alert(alert)
 
-    def send_daily_summary(self, invoice_stats: dict, system_stats: dict, errors: list[str]) -> bool:
+    def send_daily_summary(
+        self, invoice_stats: dict, system_stats: dict, errors: list[str]
+    ) -> bool:
         """
         Send daily summary report
 
@@ -195,14 +198,18 @@ class AlertManager:
         subject = f"Daily Summary - {datetime.now().strftime('%Y-%m-%d')}"
         body = self._format_daily_summary(invoice_stats, system_stats, errors)
 
-        result = self._send_email(subject=subject, body=body, recipients=self.config.to_emails)
+        result = self._send_email(
+            subject=subject, body=body, recipients=self.config.to_emails
+        )
 
         if result:
             self._last_daily_summary = datetime.now()
 
         return result
 
-    def send_weekly_report(self, weekly_stats: dict, trends: dict, recommendations: list[str]) -> bool:
+    def send_weekly_report(
+        self, weekly_stats: dict, trends: dict, recommendations: list[str]
+    ) -> bool:
         """
         Send weekly report
 
@@ -218,7 +225,9 @@ class AlertManager:
         subject = f"Weekly Report - Week of {week_start.strftime('%Y-%m-%d')}"
         body = self._format_weekly_report(weekly_stats, trends, recommendations)
 
-        result = self._send_email(subject=subject, body=body, recipients=self.config.to_emails)
+        result = self._send_email(
+            subject=subject, body=body, recipients=self.config.to_emails
+        )
 
         if result:
             self._last_weekly_report = datetime.now()
@@ -324,11 +333,15 @@ class AlertManager:
 
             # Send via SMTP
             if self.config.use_ssl:
-                with smtplib.SMTP_SSL(self.config.smtp_host, self.config.smtp_port) as server:
+                with smtplib.SMTP_SSL(
+                    self.config.smtp_host, self.config.smtp_port
+                ) as server:
                     server.login(self.config.smtp_user, self.config.smtp_password)
                     server.send_message(msg)
             else:
-                with smtplib.SMTP(self.config.smtp_host, self.config.smtp_port) as server:
+                with smtplib.SMTP(
+                    self.config.smtp_host, self.config.smtp_port
+                ) as server:
                     if self.config.use_tls:
                         server.starttls()
                     server.login(self.config.smtp_user, self.config.smtp_password)
@@ -393,7 +406,9 @@ class AlertManager:
         html += "</ul></div>"
         return html
 
-    def _format_daily_summary(self, invoice_stats: dict, system_stats: dict, errors: list[str]) -> str:
+    def _format_daily_summary(
+        self, invoice_stats: dict, system_stats: dict, errors: list[str]
+    ) -> str:
         """Format daily summary as HTML"""
 
         html = f"""
@@ -453,7 +468,9 @@ class AlertManager:
         html += "</ul></div>"
         return html
 
-    def _format_weekly_report(self, weekly_stats: dict, trends: dict, recommendations: list[str]) -> str:
+    def _format_weekly_report(
+        self, weekly_stats: dict, trends: dict, recommendations: list[str]
+    ) -> str:
         """Format weekly report as HTML"""
 
         html = f"""

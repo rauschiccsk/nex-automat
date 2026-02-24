@@ -45,7 +45,12 @@ def temp_log_dir():
 @pytest.fixture
 def log_config(temp_log_dir):
     """Create test log configuration"""
-    return LogConfig(log_dir=temp_log_dir, log_filename="test.log", log_level="DEBUG", retention_days=7)
+    return LogConfig(
+        log_dir=temp_log_dir,
+        log_filename="test.log",
+        log_level="DEBUG",
+        retention_days=7,
+    )
 
 
 @pytest.fixture
@@ -179,7 +184,9 @@ def test_setup_logging_helper(temp_log_dir):
 
 def test_json_logging(temp_log_dir):
     """Test JSON formatted logging"""
-    config = LogConfig(log_dir=temp_log_dir, log_filename="json_test.log", use_json=True)
+    config = LogConfig(
+        log_dir=temp_log_dir, log_filename="json_test.log", use_json=True
+    )
 
     manager = LogManager(config)
     logger = manager.get_logger()

@@ -93,7 +93,9 @@ async def fetch_unread_emails() -> list[EmailMessage]:
                     attachments=attachments,
                 )
                 messages.append(email_msg)
-                activity.logger.info(f"Email UID {uid}: {len(attachments)} PDF attachment(s)")
+                activity.logger.info(
+                    f"Email UID {uid}: {len(attachments)} PDF attachment(s)"
+                )
 
         imap.logout()
 
@@ -147,6 +149,10 @@ def _extract_pdf_attachments(msg: Message) -> list[EmailAttachment]:
         if filename and content_type == "application/pdf":
             content = part.get_payload(decode=True)
             if content:
-                attachments.append(EmailAttachment(filename=filename, content=content, content_type=content_type))
+                attachments.append(
+                    EmailAttachment(
+                        filename=filename, content=content, content_type=content_type
+                    )
+                )
 
     return attachments

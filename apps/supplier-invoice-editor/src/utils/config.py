@@ -3,7 +3,7 @@
 
 import os
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any
 
 import yaml
 
@@ -68,7 +68,9 @@ class Config:
     @property
     def nex_stores_path(self) -> Path:
         """Get NEX Genesis stores path"""
-        return Path(self.get("database.nex_genesis.stores_path", "C:\\NEX\\YEARACT\\STORES"))
+        return Path(
+            self.get("database.nex_genesis.stores_path", "C:\\NEX\\YEARACT\\STORES")
+        )
 
 
 # Singleton instance

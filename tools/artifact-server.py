@@ -106,7 +106,10 @@ async def save_artifact(data: ArtifactSave):
         logger.info(f"✅ Uložené: {data.filename} ({file_size:,} B)")
 
         return ArtifactInfo(
-            filename=data.filename, path=str(file_path), size=file_size, timestamp=datetime.now().isoformat()
+            filename=data.filename,
+            path=str(file_path),
+            size=file_size,
+            timestamp=datetime.now().isoformat(),
         )
 
     except Exception as e:
@@ -141,7 +144,13 @@ async def list_recent_artifacts(limit: int = 10):
             stat = f.stat()
             modified = datetime.fromtimestamp(stat.st_mtime)
 
-            recent.append({"filename": str(rel_path), "size": stat.st_size, "modified": modified.isoformat()})
+            recent.append(
+                {
+                    "filename": str(rel_path),
+                    "size": stat.st_size,
+                    "modified": modified.isoformat(),
+                }
+            )
 
         return {"count": len(recent), "files": recent}
 
@@ -174,7 +183,9 @@ def main():
     print("\nStlač Ctrl+C pre ukončenie")
     print("=" * 60 + "\n")
 
-    uvicorn.run(app, host=ARTIFACT_SERVER_HOST, port=ARTIFACT_SERVER_PORT, log_level="info")
+    uvicorn.run(
+        app, host=ARTIFACT_SERVER_HOST, port=ARTIFACT_SERVER_PORT, log_level="info"
+    )
 
 
 if __name__ == "__main__":

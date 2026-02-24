@@ -55,7 +55,9 @@ class TSIRepository(BaseRepository[TSIRecord]):
         items.sort(key=lambda r: r.line_number)
         return items
 
-    def get_by_document_and_line(self, doc_number: str, line_number: int) -> TSIRecord | None:
+    def get_by_document_and_line(
+        self, doc_number: str, line_number: int
+    ) -> TSIRecord | None:
         """
         Get specific item by document and line number
 
@@ -69,7 +71,10 @@ class TSIRepository(BaseRepository[TSIRecord]):
         search_doc = doc_number.strip()
 
         for record in self.get_all():
-            if record.doc_number.strip() == search_doc and record.line_number == line_number:
+            if (
+                record.doc_number.strip() == search_doc
+                and record.line_number == line_number
+            ):
                 return record
 
         return None

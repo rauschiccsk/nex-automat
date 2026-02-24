@@ -86,7 +86,9 @@ async def fetch_invoice_list_activity(
     Returns:
         List of raw invoice data
     """
-    activity.logger.info(f"Fetching invoices from {supplier_id}: {date_from} to {date_to}")
+    activity.logger.info(
+        f"Fetching invoices from {supplier_id}: {date_from} to {date_to}"
+    )
 
     config = _load_config(supplier_id)
     adapter = _get_adapter(supplier_id, config)
@@ -176,9 +178,13 @@ async def convert_to_isdoc_activity(
 
     # Validate generated XML
     if not converter.validate(isdoc_xml):
-        raise ValueError(f"Generated ISDOC XML failed validation for invoice {invoice_id}")
+        raise ValueError(
+            f"Generated ISDOC XML failed validation for invoice {invoice_id}"
+        )
 
-    activity.logger.info(f"Invoice {invoice_id} converted to ISDOC XML ({len(isdoc_xml)} bytes)")
+    activity.logger.info(
+        f"Invoice {invoice_id} converted to ISDOC XML ({len(isdoc_xml)} bytes)"
+    )
     return isdoc_xml
 
 
@@ -240,7 +246,13 @@ async def archive_raw_data_activity(
     # Build archive path
     base_path = Path(os.environ.get("ARCHIVE_PATH", "C:/NEX/YEARACT/ARCHIV"))
     timestamp = datetime.now()
-    archive_dir = base_path / "SUPPLIER-INVOICES" / supplier_id.upper() / str(timestamp.year) / f"{timestamp.month:02d}"
+    archive_dir = (
+        base_path
+        / "SUPPLIER-INVOICES"
+        / supplier_id.upper()
+        / str(timestamp.year)
+        / f"{timestamp.month:02d}"
+    )
     archive_dir.mkdir(parents=True, exist_ok=True)
 
     # Generate filename
@@ -282,7 +294,9 @@ async def post_isdoc_to_pipeline_activity(
 
     activity.logger.info(f"Posting ISDOC to pipeline: {invoice_id}")
 
-    pipeline_url = os.environ.get("INVOICE_PIPELINE_URL", "http://localhost:8000/api/v1/invoice")
+    pipeline_url = os.environ.get(
+        "INVOICE_PIPELINE_URL", "http://localhost:8000/api/v1/invoice"
+    )
 
     async with httpx.AsyncClient(timeout=30.0) as client:
         response = await client.post(

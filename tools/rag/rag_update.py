@@ -96,7 +96,10 @@ class RAGUpdateManager:
             # Index only docs/knowledge/ folder
             async with DocumentIndexer() as indexer:
                 results = await indexer.index_directory(
-                    directory=self.knowledge_path, pattern="*.md", recursive=True, show_progress=True
+                    directory=self.knowledge_path,
+                    pattern="*.md",
+                    recursive=True,
+                    show_progress=True,
                 )
             print(f"\n✓ Indexed {len(results)} documents")
 
@@ -168,11 +171,19 @@ class RAGUpdateManager:
         try:
             docs = await db.pool.fetchval("SELECT COUNT(*) FROM documents")
             chunks = await db.pool.fetchval("SELECT COUNT(*) FROM chunks")
-            tokens = await db.pool.fetchval("SELECT SUM((metadata->>'token_count')::int) FROM chunks") or 0
+            tokens = (
+                await db.pool.fetchval(
+                    "SELECT SUM((metadata->>'token_count')::int) FROM chunks"
+                )
+                or 0
+            )
 
             # Get knowledge docs count
             knowledge_docs = (
-                await db.pool.fetchval("SELECT COUNT(*) FROM documents WHERE filename LIKE '%knowledge%'") or 0
+                await db.pool.fetchval(
+                    "SELECT COUNT(*) FROM documents WHERE filename LIKE '%knowledge%'"
+                )
+                or 0
             )
 
             print()
@@ -202,8 +213,14 @@ Examples:
     )
 
     group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument("--new", action="store_true", help="Incremental: index new/modified docs/knowledge/ files")
-    group.add_argument("--all", action="store_true", help="Full: clear and reindex docs/knowledge/")
+    group.add_argument(
+        "--new",
+        action="store_true",
+        help="Incremental: index new/modified docs/knowledge/ files",
+    )
+    group.add_argument(
+        "--all", action="store_true", help="Full: clear and reindex docs/knowledge/"
+    )
     group.add_argument("--stats", action="store_true", help="Show RAG statistics only")
 
     args = parser.parse_args()

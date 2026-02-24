@@ -53,7 +53,16 @@ def log_query(
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
             RETURNING id
             """,
-            (user_id, username, tenant, question, answer, sources, response_time_ms, feedback),
+            (
+                user_id,
+                username,
+                tenant,
+                question,
+                answer,
+                sources,
+                response_time_ms,
+                feedback,
+            ),
         )
         result = cursor.fetchone()
         log_id = result[0] if result else None
@@ -76,7 +85,9 @@ def update_feedback(log_id: int, feedback: str) -> bool:
 
     try:
         cursor = conn.cursor()
-        cursor.execute("UPDATE telegram_logs SET feedback = %s WHERE id = %s", (feedback, log_id))
+        cursor.execute(
+            "UPDATE telegram_logs SET feedback = %s WHERE id = %s", (feedback, log_id)
+        )
         conn.commit()
         cursor.close()
         conn.close()

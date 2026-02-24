@@ -60,7 +60,9 @@ def get_credentials() -> Credentials:
             print(f"Warning: Could not refresh token: {e}")
 
     # No valid credentials available
-    raise RuntimeError("No valid OAuth2 credentials. Run 'python -m config.oauth_authorize' first.")
+    raise RuntimeError(
+        "No valid OAuth2 credentials. Run 'python -m config.oauth_authorize' first."
+    )
 
 
 def authorize_interactive() -> Credentials:

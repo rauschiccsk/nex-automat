@@ -34,7 +34,9 @@ CONTEXT_TEMPLATE = """## [DOCS] RAG Context - Auto-generated
 """
 
 
-async def generate_context(query: str, max_chunks: int = 5, max_tokens: int = 6000, include_scores: bool = True) -> str:
+async def generate_context(
+    query: str, max_chunks: int = 5, max_tokens: int = 6000, include_scores: bool = True
+) -> str:
     """
     Generate context section for init prompt.
 
@@ -90,7 +92,9 @@ async def generate_multi_context(queries: list, max_chunks_per_query: int = 3) -
 
     async with RAGSearchAPI() as api:
         for query in queries:
-            response = await api.search(query, limit=max_chunks_per_query, mode="hybrid")
+            response = await api.search(
+                query, limit=max_chunks_per_query, mode="hybrid"
+            )
 
             if response.results:
                 section = f"## Topic: {query}\n\n"
@@ -125,7 +129,9 @@ async def interactive_mode():
 
     async with RAGSearchAPI() as api:
         stats = await api.get_stats()
-        print(f"[STATS] Database: {stats['documents']} docs, {stats['chunks']} chunks\n")
+        print(
+            f"[STATS] Database: {stats['documents']} docs, {stats['chunks']} chunks\n"
+        )
 
     while True:
         try:
@@ -180,13 +186,21 @@ async def interactive_mode():
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Generate RAG context for Claude init prompts")
+    parser = argparse.ArgumentParser(
+        description="Generate RAG context for Claude init prompts"
+    )
 
-    parser.add_argument("query", nargs="?", help="Topic or task to generate context for")
+    parser.add_argument(
+        "query", nargs="?", help="Topic or task to generate context for"
+    )
 
-    parser.add_argument("-i", "--interactive", action="store_true", help="Interactive mode")
+    parser.add_argument(
+        "-i", "--interactive", action="store_true", help="Interactive mode"
+    )
 
-    parser.add_argument("-c", "--chunks", type=int, default=5, help="Max chunks to include (default: 5)")
+    parser.add_argument(
+        "-c", "--chunks", type=int, default=5, help="Max chunks to include (default: 5)"
+    )
 
     parser.add_argument("-o", "--output", help="Save to file")
 

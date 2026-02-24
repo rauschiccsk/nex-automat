@@ -185,7 +185,9 @@ def main():
     print("\n")
     print("╔" + "=" * 58 + "╗")
     print("║" + " " * 58 + "║")
-    print("║" + "  SUPPLIER INVOICE LOADER - Installation Verification".center(58) + "║")
+    print(
+        "║" + "  SUPPLIER INVOICE LOADER - Installation Verification".center(58) + "║"
+    )
     print("║" + " " * 58 + "║")
     print("╚" + "=" * 58 + "╝")
 

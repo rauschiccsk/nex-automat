@@ -19,7 +19,9 @@ class DatabaseConfig:
 @dataclass
 class Settings:
     app_root: Path = field(default_factory=lambda: Path(__file__).parent.parent)
-    config_file: Path = field(default_factory=lambda: Path(__file__).parent / "config.yaml")
+    config_file: Path = field(
+        default_factory=lambda: Path(__file__).parent / "config.yaml"
+    )
     database: DatabaseConfig = field(default_factory=DatabaseConfig)
     default_margin_percent: float = 25.0
     default_vat_rate: float = 20.0
@@ -39,7 +41,9 @@ class Settings:
             self.database.user = db.get("user", self.database.user)
             self.database.password = db.get("password", self.database.password)
             ui = config.get("ui", {})
-            self.default_margin_percent = ui.get("default_margin_percent", self.default_margin_percent)
+            self.default_margin_percent = ui.get(
+                "default_margin_percent", self.default_margin_percent
+            )
             self.default_vat_rate = ui.get("default_vat_rate", self.default_vat_rate)
 
     def _load_from_env(self):

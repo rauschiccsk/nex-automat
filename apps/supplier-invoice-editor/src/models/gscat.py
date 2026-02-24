@@ -12,7 +12,6 @@ import struct
 from dataclasses import dataclass
 from datetime import datetime
 from decimal import Decimal
-from typing import Optional
 
 
 @dataclass
@@ -146,7 +145,9 @@ class GSCATRecord:
 
         # Supplier
         supplier_code = struct.unpack("<i", data[266:270])[0]
-        supplier_item_code = data[270:300].decode(encoding, errors="ignore").rstrip("\x00 ")
+        supplier_item_code = (
+            data[270:300].decode(encoding, errors="ignore").rstrip("\x00 ")
+        )
 
         # Notes
         note = data[300:500].decode(encoding, errors="ignore").rstrip("\x00 ")
@@ -159,7 +160,9 @@ class GSCATRecord:
         mod_time_int = struct.unpack("<i", data[612:616])[0]
         mod_time = cls._decode_delphi_time(mod_time_int) if mod_time_int >= 0 else None
         created_date_int = struct.unpack("<i", data[616:620])[0]
-        created_date = cls._decode_delphi_date(created_date_int) if created_date_int > 0 else None
+        created_date = (
+            cls._decode_delphi_date(created_date_int) if created_date_int > 0 else None
+        )
         created_user = data[620:628].decode(encoding, errors="ignore").rstrip("\x00 ")
 
         return cls(
@@ -205,15 +208,23 @@ class GSCATRecord:
         struct.pack_into("<i", result, 0, self.gs_code)
 
         # Names
-        result[4 : 4 + len(self.gs_name.encode(encoding)[:80])] = self.gs_name.encode(encoding)[:80]
-        result[84 : 84 + len(self.gs_name2.encode(encoding)[:80])] = self.gs_name2.encode(encoding)[:80]
-        result[164 : 164 + len(self.gs_short_name.encode(encoding)[:30])] = self.gs_short_name.encode(encoding)[:30]
+        result[4 : 4 + len(self.gs_name.encode(encoding)[:80])] = self.gs_name.encode(
+            encoding
+        )[:80]
+        result[84 : 84 + len(self.gs_name2.encode(encoding)[:80])] = (
+            self.gs_name2.encode(encoding)[:80]
+        )
+        result[164 : 164 + len(self.gs_short_name.encode(encoding)[:30])] = (
+            self.gs_short_name.encode(encoding)[:30]
+        )
 
         # Classification
         struct.pack_into("<i", result, 194, self.mglst_code)
 
         # Unit
-        result[198 : 198 + len(self.unit.encode(encoding)[:10])] = self.unit.encode(encoding)[:10]
+        result[198 : 198 + len(self.unit.encode(encoding)[:10])] = self.unit.encode(
+            encoding
+        )[:10]
         struct.pack_into("<d", result, 208, float(self.unit_coef))
 
         # Pricing
@@ -232,23 +243,33 @@ class GSCATRecord:
 
         # Supplier
         struct.pack_into("<i", result, 266, self.supplier_code)
-        result[270 : 270 + len(self.supplier_item_code.encode(encoding)[:30])] = self.supplier_item_code.encode(
-            encoding
-        )[:30]
+        result[270 : 270 + len(self.supplier_item_code.encode(encoding)[:30])] = (
+            self.supplier_item_code.encode(encoding)[:30]
+        )
 
         # Notes
-        result[300 : 300 + len(self.note.encode(encoding)[:200])] = self.note.encode(encoding)[:200]
-        result[500 : 500 + len(self.note2.encode(encoding)[:100])] = self.note2.encode(encoding)[:100]
+        result[300 : 300 + len(self.note.encode(encoding)[:200])] = self.note.encode(
+            encoding
+        )[:200]
+        result[500 : 500 + len(self.note2.encode(encoding)[:100])] = self.note2.encode(
+            encoding
+        )[:100]
 
         # Audit
-        result[600 : 600 + len(self.mod_user.encode(encoding)[:8])] = self.mod_user.encode(encoding)[:8]
+        result[600 : 600 + len(self.mod_user.encode(encoding)[:8])] = (
+            self.mod_user.encode(encoding)[:8]
+        )
         if self.mod_date:
             struct.pack_into("<i", result, 608, self._encode_delphi_date(self.mod_date))
         if self.mod_time:
             struct.pack_into("<i", result, 612, self._encode_delphi_time(self.mod_time))
         if self.created_date:
-            struct.pack_into("<i", result, 616, self._encode_delphi_date(self.created_date))
-        result[620 : 620 + len(self.created_user.encode(encoding)[:8])] = self.created_user.encode(encoding)[:8]
+            struct.pack_into(
+                "<i", result, 616, self._encode_delphi_date(self.created_date)
+            )
+        result[620 : 620 + len(self.created_user.encode(encoding)[:8])] = (
+            self.created_user.encode(encoding)[:8]
+        )
 
         return bytes(result)
 

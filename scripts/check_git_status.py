@@ -10,7 +10,11 @@ def run_git_command(args: list) -> tuple[bool, str]:
     """Spusti git príkaz"""
     try:
         result = subprocess.run(
-            ["git"] + args, capture_output=True, text=True, check=True, cwd="C:/Development/nex-automat"
+            ["git"] + args,
+            capture_output=True,
+            text=True,
+            check=True,
+            cwd="C:/Development/nex-automat",
         )
         return True, result.stdout.strip()
     except subprocess.CalledProcessError as e:

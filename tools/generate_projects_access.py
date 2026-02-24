@@ -45,7 +45,17 @@ EXCLUDE_DIRS = {
     "node_modules",
 }
 
-EXCLUDE_FILES = {".pyc", ".pyo", ".pyd", ".so", ".dll", ".dylib", ".coverage", ".DS_Store", "Thumbs.db"}
+EXCLUDE_FILES = {
+    ".pyc",
+    ".pyo",
+    ".pyd",
+    ".so",
+    ".dll",
+    ".dylib",
+    ".coverage",
+    ".DS_Store",
+    "Thumbs.db",
+}
 
 
 def should_exclude(path: Path) -> bool:
@@ -216,7 +226,9 @@ def get_test_status(app_dir: Path) -> dict:
     return {
         "has_tests": True,
         "test_files": len(test_files),
-        "test_directories": len([d for d in tests_dir.rglob("*") if d.is_dir() and not should_exclude(d)]),
+        "test_directories": len(
+            [d for d in tests_dir.rglob("*") if d.is_dir() and not should_exclude(d)]
+        ),
     }
 
 
@@ -248,7 +260,9 @@ def generate_app_manifest(app_dir: Path) -> dict:
     for pattern in ["main.py", "app.py", "pyproject.toml", "README.md"]:
         for file in app_dir.rglob(pattern):
             if not should_exclude(file):
-                key_files.append(str(file.relative_to(MONOREPO_ROOT)).replace("\\", "/"))
+                key_files.append(
+                    str(file.relative_to(MONOREPO_ROOT)).replace("\\", "/")
+                )
     manifest["key_files"] = key_files
 
     return manifest
@@ -279,7 +293,9 @@ def generate_package_manifest(package_dir: Path) -> dict:
                 modules.append(
                     {
                         "name": py_file.stem,
-                        "path": str(py_file.relative_to(package_src)).replace("\\", "/"),
+                        "path": str(py_file.relative_to(package_src)).replace(
+                            "\\", "/"
+                        ),
                         "lines": count_lines(py_file),
                     }
                 )
@@ -307,7 +323,10 @@ def generate_tools_manifest(tools_dir: Path) -> dict:
             "has_log": (tools_dir / "claude-tools.log").exists(),
         },
         "components": {
-            "installer": {"file": "installer.py", "description": "Automatická inštalácia dependencies a setup"},
+            "installer": {
+                "file": "installer.py",
+                "description": "Automatická inštalácia dependencies a setup",
+            },
             "chat_loader": {
                 "file": "claude-chat-loader.py",
                 "description": "Auto-load init promptu (Ctrl+Alt+L)",
@@ -342,9 +361,14 @@ def generate_tools_manifest(tools_dir: Path) -> dict:
                 "requires": "ANTHROPIC_API_KEY",
             },
         },
-        "scripts": {"startup": "start-claude-tools.ps1", "shutdown": "stop-claude-tools.ps1"},
+        "scripts": {
+            "startup": "start-claude-tools.ps1",
+            "shutdown": "stop-claude-tools.ps1",
+        },
         "browser_extension": {
-            "available": (tools_dir / "browser-extension" / "claude-artifact-saver").exists(),
+            "available": (
+                tools_dir / "browser-extension" / "claude-artifact-saver"
+            ).exists(),
             "manifest": "browser-extension/claude-artifact-saver/manifest.json",
         },
         "files": scan_files(tools_dir, MONOREPO_ROOT),
@@ -355,7 +379,9 @@ def generate_tools_manifest(tools_dir: Path) -> dict:
     for pattern in ["*.py", "*.ps1", "config.py", "*.md"]:
         for file in tools_dir.glob(pattern):
             if not should_exclude(file):
-                key_files.append(str(file.relative_to(MONOREPO_ROOT)).replace("\\", "/"))
+                key_files.append(
+                    str(file.relative_to(MONOREPO_ROOT)).replace("\\", "/")
+                )
     manifest["key_files"] = key_files
 
     return manifest
@@ -405,7 +431,11 @@ def generate_docs_manifest(docs_dir: Path) -> dict:
         path_lower = rel_path.lower()
         if "guide" in path_lower or md_file.parent.name == "guides":
             categories["guides"].append(doc_info)
-        elif "database" in path_lower or "schema" in path_lower or md_file.parent.name == "database":
+        elif (
+            "database" in path_lower
+            or "schema" in path_lower
+            or md_file.parent.name == "database"
+        ):
             categories["database"].append(doc_info)
         elif "migration" in path_lower or md_file.parent.name == "migration":
             categories["migration"].append(doc_info)
@@ -427,7 +457,11 @@ def generate_docs_manifest(docs_dir: Path) -> dict:
     for readme in docs_dir.rglob("README.md"):
         if not should_exclude(readme):
             rel_path = str(readme.relative_to(docs_dir)).replace("\\", "/")
-            key_name = "main_readme" if rel_path == "README.md" else f"readme_{readme.parent.name}"
+            key_name = (
+                "main_readme"
+                if rel_path == "README.md"
+                else f"readme_{readme.parent.name}"
+            )
             key_docs[key_name] = {
                 "path": str(readme.relative_to(MONOREPO_ROOT)).replace("\\", "/"),
                 "github_raw": f"https://raw.githubusercontent.com/{GITHUB_REPO}/{GITHUB_BRANCH}/{str(readme.relative_to(MONOREPO_ROOT)).replace(chr(92), '/')}",
@@ -584,7 +618,13 @@ def generate_root_manifest() -> dict:
             "browser_extension": "available (optional)",
         },
         "test_status": {
-            "supplier_invoice_loader": {"total": 72, "passed": 61, "failed": 0, "skipped": 11, "coverage": "85%"},
+            "supplier_invoice_loader": {
+                "total": 72,
+                "passed": 61,
+                "failed": 0,
+                "skipped": 11,
+                "coverage": "85%",
+            },
             "supplier_invoice_editor": {"status": "not_tested_yet"},
         },
     }
@@ -711,7 +751,9 @@ def main():
     print("📊 Generated manifests:")
     print(f"   Root:     {root_manifest_file}")
     print(f"   Apps:     {app_count} manifests in init_chat/apps/")  # ✅ UPDATED
-    print(f"   Packages: {package_count} manifests in init_chat/packages/")  # ✅ UPDATED
+    print(
+        f"   Packages: {package_count} manifests in init_chat/packages/"
+    )  # ✅ UPDATED
     print(f"   Tools:    {tools_count} manifest in init_chat/tools/")  # ✅ UPDATED
     print(f"   Docs:     {docs_count} manifest in init_chat/docs/")  # ✅ UPDATED
     print()

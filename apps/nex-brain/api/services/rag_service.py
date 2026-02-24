@@ -23,13 +23,16 @@ class RAGService:
         """Get embedding from Ollama."""
         async with httpx.AsyncClient(timeout=30.0) as client:
             response = await client.post(
-                f"{self.ollama_url}/api/embeddings", json={"model": self.embedding_model, "prompt": text}
+                f"{self.ollama_url}/api/embeddings",
+                json={"model": self.embedding_model, "prompt": text},
             )
             response.raise_for_status()
             data = response.json()
             return data.get("embedding", [])
 
-    async def search(self, query: str, limit: int = 5, tenant: str | None = None) -> list[dict[str, Any]]:
+    async def search(
+        self, query: str, limit: int = 5, tenant: str | None = None
+    ) -> list[dict[str, Any]]:
         """Search Qdrant knowledge base."""
         try:
             # Get query embedding
@@ -50,7 +53,10 @@ class RAGService:
 
             # Search in Qdrant using query_points
             search_response = self.qdrant.query_points(
-                collection_name=collection_name, query=query_embedding, limit=limit, with_payload=True
+                collection_name=collection_name,
+                query=query_embedding,
+                limit=limit,
+                with_payload=True,
             )
 
             # Convert to standard format
@@ -76,7 +82,9 @@ class RAGService:
             print(f"RAG search error: {e}")
             return []
 
-    async def add_document(self, content: str, filename: str, tenant: str, metadata: dict | None = None) -> bool:
+    async def add_document(
+        self, content: str, filename: str, tenant: str, metadata: dict | None = None
+    ) -> bool:
         """Add document to Qdrant."""
         try:
             collection_name = tenant
@@ -92,7 +100,9 @@ class RAGService:
             # Generate point ID
             import hashlib
 
-            point_id = hashlib.md5(f"{tenant}:{filename}:{content[:100]}".encode()).hexdigest()
+            point_id = hashlib.md5(
+                f"{tenant}:{filename}:{content[:100]}".encode()
+            ).hexdigest()
 
             # Upsert to Qdrant
             self.qdrant.upsert(
@@ -124,11 +134,15 @@ class RAGService:
         if collection_name not in collection_names:
             self.qdrant.create_collection(
                 collection_name=collection_name,
-                vectors_config=models.VectorParams(size=self.embedding_dims, distance=models.Distance.COSINE),
+                vectors_config=models.VectorParams(
+                    size=self.embedding_dims, distance=models.Distance.COSINE
+                ),
             )
             print(f"Created collection: {collection_name}")
 
-    def _boost_relevant(self, results: list[dict[str, Any]], query: str) -> list[dict[str, Any]]:
+    def _boost_relevant(
+        self, results: list[dict[str, Any]], query: str
+    ) -> list[dict[str, Any]]:
         """Boost score for chunks that match query intent."""
         query_lower = query.lower()
         keywords = self._extract_keywords(query_lower)
@@ -149,7 +163,21 @@ class RAGService:
 
     def _extract_keywords(self, query: str) -> list[str]:
         """Extract meaningful keywords from query."""
-        stopwords = {"ake", "su", "co", "je", "ako", "pre", "na", "do", "sa", "to", "a", "v", "s"}
+        stopwords = {
+            "ake",
+            "su",
+            "co",
+            "je",
+            "ako",
+            "pre",
+            "na",
+            "do",
+            "sa",
+            "to",
+            "a",
+            "v",
+            "s",
+        }
         words = query.split()
         return [w for w in words if w not in stopwords and len(w) > 2]
 
@@ -163,11 +191,15 @@ class RAGService:
             if existing is None:
                 best[filename] = r
             else:
-                existing_score = existing.get("adjusted_score", existing.get("score", 0))
+                existing_score = existing.get(
+                    "adjusted_score", existing.get("score", 0)
+                )
                 if current_score > existing_score:
                     best[filename] = r
 
-        return sorted(best.values(), key=lambda x: x.get("adjusted_score", 0), reverse=True)
+        return sorted(
+            best.values(), key=lambda x: x.get("adjusted_score", 0), reverse=True
+        )
 
     def format_context(self, results: list[dict[str, Any]]) -> str:
         """Format RAG results as context for LLM."""

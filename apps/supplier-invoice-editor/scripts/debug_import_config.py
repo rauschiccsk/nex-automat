@@ -23,8 +23,12 @@ db_config = {
 }
 
 print("Password sources:")
-print(f"  ENV POSTGRES_PASSWORD: {'***' if env_password else 'NOT SET'} (length: {len(env_password)})")
-print(f"  Config file password:  {'***' if config_password else 'NOT SET'} (length: {len(config_password)})")
+print(
+    f"  ENV POSTGRES_PASSWORD: {'***' if env_password else 'NOT SET'} (length: {len(env_password)})"
+)
+print(
+    f"  Config file password:  {'***' if config_password else 'NOT SET'} (length: {len(config_password)})"
+)
 print(f"  Using:                 {'ENV' if env_password else 'CONFIG'}")
 
 print("\nDB Config:")
@@ -57,5 +61,7 @@ except Exception as e:
     print(f"ERROR: {e}")
 
 print("\nSuggestion: Try to connect manually:")
-print(f"  psql -h {db_config['host']} -p {db_config['port']} -U {db_config['user']} -d {db_config['database']}")
+print(
+    f"  psql -h {db_config['host']} -p {db_config['port']} -U {db_config['user']} -d {db_config['database']}"
+)
 print("  Enter the same password you use in the script")

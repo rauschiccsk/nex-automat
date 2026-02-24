@@ -32,7 +32,9 @@ class CustomerDeployer:
         self.include_patterns = set(self.base_config.get("include", []))
         self.include_patterns.update(self.customer_config.get("include", []))
 
-        self.deploy_path = Path(self.customer_config.get("deploy_path", "C:\\Deployment\\nex-automat"))
+        self.deploy_path = Path(
+            self.customer_config.get("deploy_path", "C:\\Deployment\\nex-automat")
+        )
 
     def _load_config(self, filename: str) -> dict:
         """Load YAML config file"""
@@ -147,8 +149,19 @@ class CustomerDeployer:
 
 def main():
     parser = argparse.ArgumentParser(description="Customer-specific deployment")
-    parser.add_argument("--customer", "-c", required=True, choices=["magerstav", "andros"], help="Customer name")
-    parser.add_argument("--dry-run", "-n", action="store_true", help="Show what would be deployed without copying")
+    parser.add_argument(
+        "--customer",
+        "-c",
+        required=True,
+        choices=["magerstav", "andros"],
+        help="Customer name",
+    )
+    parser.add_argument(
+        "--dry-run",
+        "-n",
+        action="store_true",
+        help="Show what would be deployed without copying",
+    )
     parser.add_argument(
         "--source",
         "-s",
@@ -159,7 +172,9 @@ def main():
 
     args = parser.parse_args()
 
-    deployer = CustomerDeployer(customer=args.customer, source_dir=args.source.resolve(), dry_run=args.dry_run)
+    deployer = CustomerDeployer(
+        customer=args.customer, source_dir=args.source.resolve(), dry_run=args.dry_run
+    )
 
     deployer.deploy()
 

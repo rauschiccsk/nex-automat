@@ -29,7 +29,9 @@ async def test_marso_workflow():
     date_to = date.today()
     date_from = date_to - timedelta(days=7)
 
-    workflow_id = f"marso-api-test-{datetime.now().strftime('%Y%m%d-%H%M%S')}-{uuid4().hex[:8]}"
+    workflow_id = (
+        f"marso-api-test-{datetime.now().strftime('%Y%m%d-%H%M%S')}-{uuid4().hex[:8]}"
+    )
 
     logger.info(f"Starting MARSO workflow: {workflow_id}")
     logger.info(f"Date range: {date_from.isoformat()} to {date_to.isoformat()}")

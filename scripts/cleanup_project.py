@@ -11,7 +11,9 @@ def remove_dir(path: Path, description: str):
     """Odstráň priečinok"""
     if path.exists():
         shutil.rmtree(path)
-        print(f"✅ Removed: {path.relative_to(Path('C:/Development/nex-automat'))} - {description}")
+        print(
+            f"✅ Removed: {path.relative_to(Path('C:/Development/nex-automat'))} - {description}"
+        )
         return True
     return False
 
@@ -20,7 +22,9 @@ def remove_file(path: Path, description: str):
     """Odstráň súbor"""
     if path.exists():
         path.unlink()
-        print(f"✅ Removed: {path.relative_to(Path('C:/Development/nex-automat'))} - {description}")
+        print(
+            f"✅ Removed: {path.relative_to(Path('C:/Development/nex-automat'))} - {description}"
+        )
         return True
     return False
 

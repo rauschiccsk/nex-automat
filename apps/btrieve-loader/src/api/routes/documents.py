@@ -10,7 +10,7 @@ from nexdata.btrieve.btrieve_client import BtrieveClient
 from nexdata.repositories.tsh_repository import TSHRepository
 from nexdata.repositories.tsi_repository import TSIRepository
 
-from src.api.schemas.common import PaginatedResponse, PaginationParams
+from src.api.schemas.common import PaginatedResponse
 from src.api.schemas.documents import (
     DocumentHeader,
     DocumentHeaderList,
@@ -46,8 +46,12 @@ async def list_documents(
     pagination: Pagination,
     _api_key: ApiKey,
     book_id: Annotated[str, Query(description="Book ID (e.g., 001)")] = "001",
-    doc_type: Annotated[DocumentType | None, Query(description="Filter by type")] = None,
-    status: Annotated[DocumentStatus | None, Query(description="Filter by status")] = None,
+    doc_type: Annotated[
+        DocumentType | None, Query(description="Filter by type")
+    ] = None,
+    status: Annotated[
+        DocumentStatus | None, Query(description="Filter by status")
+    ] = None,
     pab_code: Annotated[int | None, Query(description="Filter by partner")] = None,
     date_from: Annotated[date | None, Query(description="Filter from date")] = None,
     date_to: Annotated[date | None, Query(description="Filter to date")] = None,
@@ -67,22 +71,36 @@ async def list_documents(
         filtered_records = all_records
 
         if doc_type is not None:
-            filtered_records = [r for r in filtered_records if r.doc_type == doc_type.value]
+            filtered_records = [
+                r for r in filtered_records if r.doc_type == doc_type.value
+            ]
 
-        if status is not None and hasattr(filtered_records[0] if filtered_records else None, "status"):
-            filtered_records = [r for r in filtered_records if getattr(r, "status", None) == status.value]
+        if status is not None and hasattr(
+            filtered_records[0] if filtered_records else None, "status"
+        ):
+            filtered_records = [
+                r
+                for r in filtered_records
+                if getattr(r, "status", None) == status.value
+            ]
 
         if pab_code is not None:
             filtered_records = [r for r in filtered_records if r.pab_code == pab_code]
 
         if date_from is not None:
-            filtered_records = [r for r in filtered_records if r.doc_date and r.doc_date >= date_from]
+            filtered_records = [
+                r for r in filtered_records if r.doc_date and r.doc_date >= date_from
+            ]
 
         if date_to is not None:
-            filtered_records = [r for r in filtered_records if r.doc_date and r.doc_date <= date_to]
+            filtered_records = [
+                r for r in filtered_records if r.doc_date and r.doc_date <= date_to
+            ]
 
         # Sort by date descending
-        filtered_records.sort(key=lambda r: r.doc_date if r.doc_date else date.min, reverse=True)
+        filtered_records.sort(
+            key=lambda r: r.doc_date if r.doc_date else date.min, reverse=True
+        )
 
         # Apply pagination
         total_items = len(filtered_records)
@@ -122,13 +140,19 @@ async def get_document(
 
     try:
         # Find header
-        header_record = tsh_repo.find_one(lambda r: r.doc_number.strip() == doc_number.strip())
+        header_record = tsh_repo.find_one(
+            lambda r: r.doc_number.strip() == doc_number.strip()
+        )
 
         if not header_record:
-            raise HTTPException(status_code=404, detail=f"Document {doc_number} not found")
+            raise HTTPException(
+                status_code=404, detail=f"Document {doc_number} not found"
+            )
 
         # Find items
-        item_records = tsi_repo.find(lambda r: r.doc_number.strip() == doc_number.strip(), max_results=1000)
+        item_records = tsi_repo.find(
+            lambda r: r.doc_number.strip() == doc_number.strip(), max_results=1000
+        )
 
         # Sort items by line number
         item_records.sort(key=lambda r: r.line_number)
@@ -161,10 +185,14 @@ async def get_document_items(
 
     try:
         # Find items
-        item_records = tsi_repo.find(lambda r: r.doc_number.strip() == doc_number.strip(), max_results=1000)
+        item_records = tsi_repo.find(
+            lambda r: r.doc_number.strip() == doc_number.strip(), max_results=1000
+        )
 
         if not item_records:
-            raise HTTPException(status_code=404, detail=f"No items found for document {doc_number}")
+            raise HTTPException(
+                status_code=404, detail=f"No items found for document {doc_number}"
+            )
 
         # Sort by line number
         item_records.sort(key=lambda r: r.line_number)

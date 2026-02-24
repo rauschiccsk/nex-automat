@@ -165,7 +165,10 @@ class QuickSearchController(QObject):
     active_column_changed = Signal(int)
 
     def __init__(
-        self, table_view: QTableView, search_container: QuickSearchContainer, header: "GreenHeaderView | None" = None
+        self,
+        table_view: QTableView,
+        search_container: QuickSearchContainer,
+        header: "GreenHeaderView | None" = None,
     ):
         """
         Initialize quick search controller.
@@ -313,7 +316,9 @@ class QuickSearchController(QObject):
                 try:
                     search_num = float(search_text.replace(",", "."))
                     cell_num = float(cell_str.replace(",", "."))
-                    if str(cell_num).startswith(str(search_num).rstrip("0").rstrip(".")):
+                    if str(cell_num).startswith(
+                        str(search_num).rstrip("0").rstrip(".")
+                    ):
                         return row
                 except ValueError:
                     pass

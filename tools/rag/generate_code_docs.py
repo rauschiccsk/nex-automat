@@ -75,7 +75,9 @@ class CodeDocGenerator:
                 doc["classes"].append(class_doc)
 
             # Extract top-level functions
-            elif isinstance(node, ast.FunctionDef) and isinstance(node, ast.FunctionDef):
+            elif isinstance(node, ast.FunctionDef) and isinstance(
+                node, ast.FunctionDef
+            ):
                 # Check if it's a top-level function (not inside a class)
                 if self._is_top_level(tree, node):
                     func_doc = {
@@ -130,7 +132,11 @@ class CodeDocGenerator:
                 # Simple extraction of argument names
                 if "'--" in line or '"--' in line:
                     start = line.find("--")
-                    end = line.find("'", start) if "'" in line[start:] else line.find('"', start)
+                    end = (
+                        line.find("'", start)
+                        if "'" in line[start:]
+                        else line.find('"', start)
+                    )
                     if end == -1:
                         end = line.find(",", start)
                     if start != -1 and end != -1:
@@ -206,7 +212,9 @@ class CodeDocGenerator:
                     for method in cls["methods"]:
                         async_prefix = "async " if method["is_async"] else ""
                         args_str = ", ".join(method["args"])
-                        lines.append(f"#### `{async_prefix}{method['name']}({args_str})`")
+                        lines.append(
+                            f"#### `{async_prefix}{method['name']}({args_str})`"
+                        )
                         lines.append("")
                         if method["docstring"]:
                             lines.append(method["docstring"])
@@ -258,7 +266,11 @@ class CodeDocGenerator:
             doc = self.extract_from_file(filepath)
 
             # Skip if no useful content
-            if not doc.get("classes") and not doc.get("functions") and not doc.get("module_docstring"):
+            if (
+                not doc.get("classes")
+                and not doc.get("functions")
+                and not doc.get("module_docstring")
+            ):
                 continue
 
             if "error" in doc:
@@ -269,7 +281,9 @@ class CodeDocGenerator:
 
             # Create output filename
             rel_path = filepath.relative_to(self.project_root)
-            output_name = str(rel_path).replace("/", "_").replace("\\", "_").replace(".py", ".md")
+            output_name = (
+                str(rel_path).replace("/", "_").replace("\\", "_").replace(".py", ".md")
+            )
             output_path = self.output_dir / output_name
 
             output_path.write_text(markdown, encoding="utf-8")

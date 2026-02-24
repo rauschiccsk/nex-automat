@@ -144,7 +144,9 @@ def test_config_environment_variable_override():
     from src.utils import config as reloaded_config
 
     # Check if override worked
-    assert reloaded_config.API_KEY == test_key, f"Expected {test_key}, got {reloaded_config.API_KEY}"
+    assert reloaded_config.API_KEY == test_key, (
+        f"Expected {test_key}, got {reloaded_config.API_KEY}"
+    )
 
     # Cleanup - restore original state
     if original_value is not None:

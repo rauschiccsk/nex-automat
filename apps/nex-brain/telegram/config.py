@@ -47,17 +47,26 @@ class Settings:
 
         if self.admin_bot_token:
             bots["admin"] = BotConfig(
-                token=self.admin_bot_token, tenant=None, requires_approval=False, name="NEX Brain Admin"
+                token=self.admin_bot_token,
+                tenant=None,
+                requires_approval=False,
+                name="NEX Brain Admin",
             )
 
         if self.icc_bot_token:
             bots["icc"] = BotConfig(
-                token=self.icc_bot_token, tenant="icc", requires_approval=True, name="NEX Brain ICC"
+                token=self.icc_bot_token,
+                tenant="icc",
+                requires_approval=True,
+                name="NEX Brain ICC",
             )
 
         if self.andros_bot_token:
             bots["andros"] = BotConfig(
-                token=self.andros_bot_token, tenant="andros", requires_approval=True, name="NEX Brain ANDROS"
+                token=self.andros_bot_token,
+                tenant="andros",
+                requires_approval=True,
+                name="NEX Brain ANDROS",
             )
 
         return bots

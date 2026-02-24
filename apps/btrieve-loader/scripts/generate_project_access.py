@@ -22,7 +22,9 @@ from pathlib import Path
 def get_git_commit_sha():
     """Get current git commit SHA."""
     try:
-        result = subprocess.run(["git", "rev-parse", "HEAD"], capture_output=True, text=True, check=True)
+        result = subprocess.run(
+            ["git", "rev-parse", "HEAD"], capture_output=True, text=True, check=True
+        )
         return result.stdout.strip()
     except:
         return "unknown"
@@ -31,7 +33,12 @@ def get_git_commit_sha():
 def get_git_short_sha():
     """Get short git commit SHA (12 chars)."""
     try:
-        result = subprocess.run(["git", "rev-parse", "--short=12", "HEAD"], capture_output=True, text=True, check=True)
+        result = subprocess.run(
+            ["git", "rev-parse", "--short=12", "HEAD"],
+            capture_output=True,
+            text=True,
+            check=True,
+        )
         return result.stdout.strip()
     except:
         return "unknown"
@@ -81,7 +88,9 @@ def generate_manifest(project_root: Path):
 
     # GitHub repository info
     repo_url = "https://github.com/rauschiccsk/supplier-invoice-loader"
-    base_url = f"{repo_url.replace('github.com', 'raw.githubusercontent.com')}/{commit_sha}"
+    base_url = (
+        f"{repo_url.replace('github.com', 'raw.githubusercontent.com')}/{commit_sha}"
+    )
 
     # Scan files
     files = []
@@ -141,7 +150,9 @@ def generate_manifest(project_root: Path):
                         "extension": file_path.suffix,
                         "name": file_path.name,
                         "category": categorize_file(rel_path),
-                        "modified": datetime.fromtimestamp(stat.st_mtime).strftime("%Y-%m-%d %H:%M:%S"),
+                        "modified": datetime.fromtimestamp(stat.st_mtime).strftime(
+                            "%Y-%m-%d %H:%M:%S"
+                        ),
                     }
                 )
             except Exception as e:

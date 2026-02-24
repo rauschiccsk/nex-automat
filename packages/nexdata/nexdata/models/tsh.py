@@ -111,7 +111,9 @@ class TSHRecord:
     INDEX_STATUS = "Status"  # Index podľa stavu
 
     @staticmethod
-    def _read_pascal_string(data: bytes, offset: int, encoding: str = "keybcs2") -> tuple[str, int]:
+    def _read_pascal_string(
+        data: bytes, offset: int, encoding: str = "keybcs2"
+    ) -> tuple[str, int]:
         """
         Read Pascal ShortString from bytes.
 
@@ -419,7 +421,9 @@ class TSHRecord:
         )
 
     @classmethod
-    def _find_amounts(cls, data: bytes, start_offset: int) -> tuple[Decimal, Decimal, Decimal] | None:
+    def _find_amounts(
+        cls, data: bytes, start_offset: int
+    ) -> tuple[Decimal, Decimal, Decimal] | None:
         """
         Find and parse amount fields (base, vat, total).
 
@@ -449,7 +453,9 @@ class TSHRecord:
         return None
 
     @classmethod
-    def _find_dates(cls, data: bytes, start_offset: int) -> tuple[date | None, date | None, date | None] | None:
+    def _find_dates(
+        cls, data: bytes, start_offset: int
+    ) -> tuple[date | None, date | None, date | None] | None:
         """
         Find and parse date fields.
 
@@ -500,7 +506,9 @@ class TSHRecord:
 
 
 # Helper function for external use
-def read_pascal_string(data: bytes, offset: int, encoding: str = "keybcs2") -> tuple[str, int]:
+def read_pascal_string(
+    data: bytes, offset: int, encoding: str = "keybcs2"
+) -> tuple[str, int]:
     """
     Read Pascal ShortString from bytes.
 

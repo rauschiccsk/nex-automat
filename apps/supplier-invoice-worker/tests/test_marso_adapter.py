@@ -26,7 +26,10 @@ class TestMARSOAdapter:
             protocol="soap",
             wsdl_url="http://test.wsdl",
             soap_method="CallComax",
-            message_types={"invoice_list": "CustInvoiceList", "invoice_detail": "CustInvoiceLines"},
+            message_types={
+                "invoice_list": "CustInvoiceList",
+                "invoice_detail": "CustInvoiceLines",
+            },
             request_params={"sender": "WebCatHU", "receiver": "Ax", "test_mode": "0"},
             response_format="json",
             api_key="test_api_key",

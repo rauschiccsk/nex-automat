@@ -11,7 +11,6 @@ Record Size: 1269 bytes
 import struct
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Optional
 
 
 @dataclass
@@ -181,7 +180,9 @@ class PABRecord:
         internal_note = ""
         if len(data) >= 1269:
             # Try to extract from remaining bytes
-            internal_note = data[1220:1269].decode(encoding, errors="ignore").rstrip("\x00 ")
+            internal_note = (
+                data[1220:1269].decode(encoding, errors="ignore").rstrip("\x00 ")
+            )
 
         return cls(
             pab_code=pab_code,

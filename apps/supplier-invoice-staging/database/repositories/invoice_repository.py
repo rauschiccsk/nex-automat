@@ -21,7 +21,11 @@ class InvoiceRepository:
         try:
             db = self.settings.database
             conn = psycopg2.connect(
-                host=db.host, port=db.port, database=db.database, user=db.user, password=db.password
+                host=db.host,
+                port=db.port,
+                database=db.database,
+                user=db.user,
+                password=db.password,
             )
             cursor = conn.cursor(cursor_factory=RealDictCursor)
             yield cursor
@@ -99,7 +103,11 @@ class InvoiceRepository:
             return [dict(row) for row in rows]
 
     def update_item_pricing(
-        self, item_id: int, margin_percent: float, selling_price_excl_vat: float, selling_price_incl_vat: float
+        self,
+        item_id: int,
+        margin_percent: float,
+        selling_price_excl_vat: float,
+        selling_price_incl_vat: float,
     ) -> bool:
         """Update pricing for single item."""
         query = """
@@ -129,7 +137,9 @@ class InvoiceRepository:
             with self._get_cursor() as cur:
                 for item in items:
                     if item.get("margin_percent", 0) > 0:
-                        cur.execute(query, (item.get("selling_price_excl_vat", 0), item["id"]))
+                        cur.execute(
+                            query, (item.get("selling_price_excl_vat", 0), item["id"])
+                        )
                         updated += cur.rowcount
             return updated
         except Exception as e:

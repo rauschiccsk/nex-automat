@@ -4,8 +4,6 @@ Tests for barcode endpoints.
 
 from unittest.mock import patch
 
-import pytest
-
 
 class TestBarcodeEndpoints:
     """Tests for /api/v1/barcodes endpoints."""
@@ -25,7 +23,9 @@ class TestBarcodeEndpoints:
         mock_get_gscat_repo.return_value = mock_gscat_repository
         mock_get_barcode_repo.return_value = mock_barcode_repository
 
-        response = api_v1_client.get("/api/v1/barcodes/8590001000010", headers=api_key_header)
+        response = api_v1_client.get(
+            "/api/v1/barcodes/8590001000010", headers=api_key_header
+        )
 
         assert response.status_code == 200
         data = response.json()
@@ -52,7 +52,9 @@ class TestBarcodeEndpoints:
         mock_get_gscat_repo.return_value = mock_gscat_repository
         mock_get_barcode_repo.return_value = mock_barcode_repository
 
-        response = api_v1_client.get("/api/v1/barcodes/8590001000099", headers=api_key_header)
+        response = api_v1_client.get(
+            "/api/v1/barcodes/8590001000099", headers=api_key_header
+        )
 
         assert response.status_code == 200
         data = response.json()
@@ -75,7 +77,9 @@ class TestBarcodeEndpoints:
         mock_get_gscat_repo.return_value = mock_gscat_repository
         mock_get_barcode_repo.return_value = mock_barcode_repository
 
-        response = api_v1_client.get("/api/v1/barcodes/0000000000000", headers=api_key_header)
+        response = api_v1_client.get(
+            "/api/v1/barcodes/0000000000000", headers=api_key_header
+        )
 
         assert response.status_code == 404
 
@@ -94,7 +98,9 @@ class TestBarcodeEndpoints:
         mock_get_gscat_repo.return_value = mock_gscat_repository
         mock_get_barcode_repo.return_value = mock_barcode_repository
 
-        response = api_v1_client.get("/api/v1/barcodes/859-0001-000010", headers=api_key_header)
+        response = api_v1_client.get(
+            "/api/v1/barcodes/859-0001-000010", headers=api_key_header
+        )
 
         assert response.status_code == 200
         data = response.json()
@@ -115,7 +121,9 @@ class TestBarcodeEndpoints:
         mock_get_gscat_repo.return_value = mock_gscat_repository
         mock_get_barcode_repo.return_value = mock_barcode_repository
 
-        response = api_v1_client.get("/api/v1/barcodes/product/1001", headers=api_key_header)
+        response = api_v1_client.get(
+            "/api/v1/barcodes/product/1001", headers=api_key_header
+        )
 
         assert response.status_code == 200
         data = response.json()
@@ -140,6 +148,8 @@ class TestBarcodeEndpoints:
         mock_get_gscat_repo.return_value = mock_gscat_repository
         mock_get_barcode_repo.return_value = mock_barcode_repository
 
-        response = api_v1_client.get("/api/v1/barcodes/product/99999", headers=api_key_header)
+        response = api_v1_client.get(
+            "/api/v1/barcodes/product/99999", headers=api_key_header
+        )
 
         assert response.status_code == 404

@@ -154,8 +154,14 @@ if __name__ == "__main__":
     try:
         config = load_config()
         print("✓ Config loaded successfully")
-        print(f"  Database: {config.database.host}:{config.database.port}/{config.database.database}")
-        print(f"  Embedding: {config.embedding.model_name} (dim={config.embedding.dimension})")
-        print(f"  Chunking: {config.chunking.chunk_size} chars, overlap={config.chunking.chunk_overlap}")
+        print(
+            f"  Database: {config.database.host}:{config.database.port}/{config.database.database}"
+        )
+        print(
+            f"  Embedding: {config.embedding.model_name} (dim={config.embedding.dimension})"
+        )
+        print(
+            f"  Chunking: {config.chunking.chunk_size} chars, overlap={config.chunking.chunk_overlap}"
+        )
     except Exception as e:
         print(f"✗ Error: {e}")

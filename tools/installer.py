@@ -49,13 +49,22 @@ class ClaudeToolsInstaller:
         """Nainštaluj Python dependencies"""
         print("\n📦 Inštalujem dependencies...")
 
-        packages = ["pyperclip", "keyboard", "anthropic", "fastapi", "uvicorn", "pydantic"]
+        packages = [
+            "pyperclip",
+            "keyboard",
+            "anthropic",
+            "fastapi",
+            "uvicorn",
+            "pydantic",
+        ]
 
         for pkg in packages:
             print(f"   Inštalujem {pkg}...")
             try:
                 subprocess.check_call(
-                    [sys.executable, "-m", "pip", "install", pkg], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
+                    [sys.executable, "-m", "pip", "install", pkg],
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
                 )
                 print(f"   ✅ {pkg}")
             except subprocess.CalledProcessError:
@@ -163,7 +172,9 @@ HOTKEY_NEW_CHAT = "n"
         print("   Ctrl+Alt+N - New chat template")
         print("\n3. BROWSER EXTENSION (voliteľné):")
         print("   Chrome → Extensions → Load unpacked")
-        print(f"   Vyber: {self.tools_dir / 'browser-extension' / 'claude-artifact-saver'}")
+        print(
+            f"   Vyber: {self.tools_dir / 'browser-extension' / 'claude-artifact-saver'}"
+        )
         print("\n4. CLAUDE API KEY (voliteľné - pre compressor):")
         print(f"   Uprav: {self.tools_dir / 'config.py'}")
         print("   Pridaj: ANTHROPIC_API_KEY = 'sk-ant-...'")

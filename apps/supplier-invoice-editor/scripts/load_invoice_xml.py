@@ -9,7 +9,6 @@ Ak nie je zadana cesta, hlada XML subory v C:\NEX\
 import sys
 import xml.etree.ElementTree as ET
 from pathlib import Path
-from typing import Dict, List
 
 
 class ISDOCParser:
@@ -65,7 +64,9 @@ class ISDOCParser:
             header["due_date"] = "N/A"
 
         # Celkova suma
-        header["total_amount"] = self.get_text(self.root, ".//isdoc:LegalMonetaryTotal/isdoc:TaxInclusiveAmount")
+        header["total_amount"] = self.get_text(
+            self.root, ".//isdoc:LegalMonetaryTotal/isdoc:TaxInclusiveAmount"
+        )
 
         # Mena
         header["currency"] = "EUR"
@@ -75,7 +76,9 @@ class ISDOCParser:
     def parse_supplier(self) -> dict:
         """Parsuje udaje dodavatela"""
         supplier = {}
-        supplier_elem = self.root.find(".//isdoc:AccountingSupplierParty", self.NAMESPACE)
+        supplier_elem = self.root.find(
+            ".//isdoc:AccountingSupplierParty", self.NAMESPACE
+        )
 
         if supplier_elem is not None:
             party = supplier_elem.find(".//isdoc:Party", self.NAMESPACE)
@@ -84,10 +87,14 @@ class ISDOCParser:
                 supplier["name"] = self.get_text(party, ".//isdoc:PartyName/isdoc:Name")
 
                 # ICO
-                supplier["ico"] = self.get_text(party, ".//isdoc:PartyIdentification/isdoc:ID")
+                supplier["ico"] = self.get_text(
+                    party, ".//isdoc:PartyIdentification/isdoc:ID"
+                )
 
                 # DIC
-                vat_elem = party.find('.//isdoc:PartyTaxScheme[isdoc:TaxScheme="VAT"]', self.NAMESPACE)
+                vat_elem = party.find(
+                    './/isdoc:PartyTaxScheme[isdoc:TaxScheme="VAT"]', self.NAMESPACE
+                )
                 if vat_elem is not None:
                     supplier["dic"] = self.get_text(vat_elem, ".//isdoc:CompanyID")
 
@@ -96,13 +103,17 @@ class ISDOCParser:
     def parse_customer(self) -> dict:
         """Parsuje udaje odberatela"""
         customer = {}
-        customer_elem = self.root.find(".//isdoc:AccountingCustomerParty", self.NAMESPACE)
+        customer_elem = self.root.find(
+            ".//isdoc:AccountingCustomerParty", self.NAMESPACE
+        )
 
         if customer_elem is not None:
             party = customer_elem.find(".//isdoc:Party", self.NAMESPACE)
             if party is not None:
                 customer["name"] = self.get_text(party, ".//isdoc:PartyName/isdoc:Name")
-                customer["ico"] = self.get_text(party, ".//isdoc:PartyIdentification/isdoc:ID")
+                customer["ico"] = self.get_text(
+                    party, ".//isdoc:PartyIdentification/isdoc:ID"
+                )
 
         return customer
 
@@ -121,8 +132,12 @@ class ISDOCParser:
             item["name"] = self.get_text(line, ".//isdoc:Item/isdoc:Description")
 
             # EAN kod - moze byt v SellersItemIdentification alebo StandardItemIdentification
-            item["seller_code"] = self.get_text(line, ".//isdoc:Item/isdoc:SellersItemIdentification/isdoc:ID")
-            item["ean"] = self.get_text(line, ".//isdoc:Item/isdoc:StandardItemIdentification/isdoc:ID")
+            item["seller_code"] = self.get_text(
+                line, ".//isdoc:Item/isdoc:SellersItemIdentification/isdoc:ID"
+            )
+            item["ean"] = self.get_text(
+                line, ".//isdoc:Item/isdoc:StandardItemIdentification/isdoc:ID"
+            )
 
             # Mnozstvo
             quantity_elem = line.find(".//isdoc:InvoicedQuantity", self.NAMESPACE)
@@ -137,7 +152,9 @@ class ISDOCParser:
             item["line_total"] = self.get_text(line, ".//isdoc:LineExtensionAmount")
 
             # DPH sadzba
-            item["vat_rate"] = self.get_text(line, ".//isdoc:ClassifiedTaxCategory/isdoc:Percent", "20")
+            item["vat_rate"] = self.get_text(
+                line, ".//isdoc:ClassifiedTaxCategory/isdoc:Percent", "20"
+            )
 
             items.append(item)
 
@@ -165,7 +182,9 @@ class ISDOCParser:
         print(f"  Datum vystavenia: {header.get('issue_date', 'N/A')}")
         print(f"  Datum dodania:    {header.get('delivery_date', 'N/A')}")
         print(f"  Splatnost:        {header.get('due_date', 'N/A')}")
-        print(f"  Celkova suma:     {header.get('total_amount', 'N/A')} {header.get('currency', 'EUR')}")
+        print(
+            f"  Celkova suma:     {header.get('total_amount', 'N/A')} {header.get('currency', 'EUR')}"
+        )
 
         # Dodavatel
         print("\nDODAVATEL")
@@ -181,7 +200,9 @@ class ISDOCParser:
         # Polozky
         print(f"\nPOLOZKY ({len(items)} ks)")
         print("-" * 100)
-        print(f"{'#':<3} {'EAN':<15} {'Nazov':<40} {'Mn.':<6} {'Cena':<10} {'Spolu':<10}")
+        print(
+            f"{'#':<3} {'EAN':<15} {'Nazov':<40} {'Mn.':<6} {'Cena':<10} {'Spolu':<10}"
+        )
         print("-" * 100)
 
         for idx, item in enumerate(items, 1):
@@ -191,12 +212,19 @@ class ISDOCParser:
             unit_price = item.get("unit_price", "0")
             total = item.get("line_total", "0")
 
-            print(f"{idx:<3} {ean:<15} {name:<40} {qty:<6} {unit_price:<10} {total:<10}")
+            print(
+                f"{idx:<3} {ean:<15} {name:<40} {qty:<6} {unit_price:<10} {total:<10}"
+            )
 
         print("-" * 100)
         print("=" * 100)
 
-        return {"header": header, "supplier": supplier, "customer": customer, "items": items}
+        return {
+            "header": header,
+            "supplier": supplier,
+            "customer": customer,
+            "items": items,
+        }
 
 
 def find_xml_files(base_path: str = r"C:\NEX") -> list[Path]:

@@ -28,7 +28,10 @@ class LLMService:
         self.rag_service = RAGService()
 
     async def generate(
-        self, question: str, context: list[dict[str, Any]] | None = None, tenant: str = "default"
+        self,
+        question: str,
+        context: list[dict[str, Any]] | None = None,
+        tenant: str = "default",
     ) -> tuple[str, int]:
         """Generate answer using Ollama."""
 

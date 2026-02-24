@@ -154,7 +154,9 @@ class DocumentChunker:
                 overlap_size = 0
                 overlap_sentences = []
 
-                for prev_sent in reversed(current_chunk[-3:]):  # Last 3 sentences for overlap
+                for prev_sent in reversed(
+                    current_chunk[-3:]
+                ):  # Last 3 sentences for overlap
                     prev_size = self.count_tokens(prev_sent)
                     if overlap_size + prev_size <= self.config.chunk_overlap:
                         overlap_sentences.insert(0, prev_sent)
@@ -227,7 +229,9 @@ class DocumentChunker:
 
         return chunks
 
-    def chunk_with_metadata(self, text: str, base_metadata: dict | None = None) -> list[dict]:
+    def chunk_with_metadata(
+        self, text: str, base_metadata: dict | None = None
+    ) -> list[dict]:
         """
         Chunk text and return chunks with metadata
 

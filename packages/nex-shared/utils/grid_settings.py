@@ -81,7 +81,9 @@ def get_current_user_id() -> str:
     return os.getenv("USERNAME", "default_user")
 
 
-def load_column_settings(window_name: str, grid_name: str, user_id: str | None = None) -> list[dict]:
+def load_column_settings(
+    window_name: str, grid_name: str, user_id: str | None = None
+) -> list[dict]:
     """
     Načíta uložené nastavenia stĺpcov pre daný grid.
 
@@ -121,7 +123,13 @@ def load_column_settings(window_name: str, grid_name: str, user_id: str | None =
         conn.close()
 
         return [
-            {"column_name": row[0], "width": row[1], "visual_index": row[2], "visible": bool(row[3])} for row in rows
+            {
+                "column_name": row[0],
+                "width": row[1],
+                "visual_index": row[2],
+                "visible": bool(row[3]),
+            }
+            for row in rows
         ]
 
     except sqlite3.Error as e:
@@ -129,7 +137,9 @@ def load_column_settings(window_name: str, grid_name: str, user_id: str | None =
         return []
 
 
-def save_column_settings(window_name: str, grid_name: str, columns: list[dict], user_id: str | None = None) -> bool:
+def save_column_settings(
+    window_name: str, grid_name: str, columns: list[dict], user_id: str | None = None
+) -> bool:
     """
     Uloží nastavenia stĺpcov pre daný grid.
 
@@ -182,7 +192,9 @@ def save_column_settings(window_name: str, grid_name: str, columns: list[dict], 
         return False
 
 
-def load_grid_settings(window_name: str, grid_name: str, user_id: str | None = None) -> dict | None:
+def load_grid_settings(
+    window_name: str, grid_name: str, user_id: str | None = None
+) -> dict | None:
     """
     Načíta grid-level nastavenia (aktívny stĺpec).
 
@@ -227,7 +239,12 @@ def load_grid_settings(window_name: str, grid_name: str, user_id: str | None = N
         return None
 
 
-def save_grid_settings(window_name: str, grid_name: str, active_column_index: int, user_id: str | None = None) -> bool:
+def save_grid_settings(
+    window_name: str,
+    grid_name: str,
+    active_column_index: int,
+    user_id: str | None = None,
+) -> bool:
     """
     Uloží grid-level nastavenia (aktívny stĺpec).
 

@@ -133,7 +133,9 @@ class SearchEngine:
 
         return enriched_results
 
-    async def search_documents(self, query: str, limit: int | None = None, **kwargs) -> list[dict[str, Any]]:
+    async def search_documents(
+        self, query: str, limit: int | None = None, **kwargs
+    ) -> list[dict[str, Any]]:
         """
         Search and group results by document
 
@@ -146,7 +148,9 @@ class SearchEngine:
             List of documents with their matching chunks
         """
         # Search chunks
-        chunk_results = await self.search(query, limit=limit * 3 if limit else None, **kwargs)
+        chunk_results = await self.search(
+            query, limit=limit * 3 if limit else None, **kwargs
+        )
 
         # Group by document
         docs_dict = {}
@@ -162,7 +166,9 @@ class SearchEngine:
                 }
 
             docs_dict[doc_id]["chunks"].append(result)
-            docs_dict[doc_id]["max_similarity"] = max(docs_dict[doc_id]["max_similarity"], result["similarity"])
+            docs_dict[doc_id]["max_similarity"] = max(
+                docs_dict[doc_id]["max_similarity"], result["similarity"]
+            )
 
         # Convert to list and sort by max similarity
         documents = list(docs_dict.values())
@@ -208,7 +214,9 @@ class SearchEngine:
                 "document": result["filename"],
                 "chunk_index": result["chunk_index"],
                 "similarity": result["similarity"],
-                "similarity_explanation": self._explain_similarity(result["similarity"]),
+                "similarity_explanation": self._explain_similarity(
+                    result["similarity"]
+                ),
                 "content_preview": result["content"][:200] + "..."
                 if len(result["content"]) > 200
                 else result["content"],

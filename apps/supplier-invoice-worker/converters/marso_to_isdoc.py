@@ -91,7 +91,9 @@ class MARSOToISDOCConverter:
         # Generate XML string
         return ET.tostring(root, encoding="unicode", xml_declaration=True)
 
-    def _add_element(self, parent: ET.Element, tag: str, text: str | None = None) -> ET.Element:
+    def _add_element(
+        self, parent: ET.Element, tag: str, text: str | None = None
+    ) -> ET.Element:
         """Add child element with optional text."""
         elem = ET.SubElement(parent, tag)
         if text is not None:
@@ -149,7 +151,9 @@ class MARSOToISDOCConverter:
         self._add_element(address, "CityName", data.get("InvCity", ""))
         self._add_element(address, "PostalZone", data.get("InvZipCode", ""))
         country = self._add_element(address, "Country")
-        self._add_element(country, "IdentificationCode", data.get("InvCountryRegionId", "SK"))
+        self._add_element(
+            country, "IdentificationCode", data.get("InvCountryRegionId", "SK")
+        )
 
     def _build_payment_means(self, root: ET.Element, data: dict[str, Any]):
         """Build PaymentMeans element."""
@@ -167,7 +171,9 @@ class MARSOToISDOCConverter:
 
         # Tax subtotal (assuming single VAT rate)
         subtotal = self._add_element(tax_total, "TaxSubTotal")
-        self._add_element(subtotal, "TaxableAmount", self._format_amount(data.get("Netto", 0)))
+        self._add_element(
+            subtotal, "TaxableAmount", self._format_amount(data.get("Netto", 0))
+        )
         self._add_element(subtotal, "TaxAmount", tax_amount)
 
         # Calculate VAT percent
@@ -183,15 +189,29 @@ class MARSOToISDOCConverter:
     def _build_legal_monetary_total(self, root: ET.Element, data: dict[str, Any]):
         """Build LegalMonetaryTotal element."""
         total = self._add_element(root, "LegalMonetaryTotal")
-        self._add_element(total, "TaxExclusiveAmount", self._format_amount(data.get("Netto", 0)))
-        self._add_element(total, "TaxInclusiveAmount", self._format_amount(data.get("Brutto", 0)))
+        self._add_element(
+            total, "TaxExclusiveAmount", self._format_amount(data.get("Netto", 0))
+        )
+        self._add_element(
+            total, "TaxInclusiveAmount", self._format_amount(data.get("Brutto", 0))
+        )
         self._add_element(total, "AlreadyClaimedTaxExclusiveAmount", "0.00")
         self._add_element(total, "AlreadyClaimedTaxInclusiveAmount", "0.00")
-        self._add_element(total, "DifferenceTaxExclusiveAmount", self._format_amount(data.get("Netto", 0)))
-        self._add_element(total, "DifferenceTaxInclusiveAmount", self._format_amount(data.get("Brutto", 0)))
+        self._add_element(
+            total,
+            "DifferenceTaxExclusiveAmount",
+            self._format_amount(data.get("Netto", 0)),
+        )
+        self._add_element(
+            total,
+            "DifferenceTaxInclusiveAmount",
+            self._format_amount(data.get("Brutto", 0)),
+        )
         self._add_element(total, "PayableRoundingAmount", "0.00")
         self._add_element(total, "PaidDepositsAmount", "0.00")
-        self._add_element(total, "PayableAmount", self._format_amount(data.get("Brutto", 0)))
+        self._add_element(
+            total, "PayableAmount", self._format_amount(data.get("Brutto", 0))
+        )
 
     def _build_invoice_lines(self, root: ET.Element, lines: list[dict[str, Any]]):
         """Build InvoiceLines element."""
@@ -200,7 +220,9 @@ class MARSOToISDOCConverter:
         for idx, line in enumerate(lines, start=1):
             self._build_invoice_line(lines_elem, line, idx)
 
-    def _build_invoice_line(self, parent: ET.Element, line: dict[str, Any], line_number: int):
+    def _build_invoice_line(
+        self, parent: ET.Element, line: dict[str, Any], line_number: int
+    ):
         """Build single InvoiceLine element."""
         line_elem = self._add_element(parent, "InvoiceLine")
 
@@ -209,13 +231,23 @@ class MARSOToISDOCConverter:
         # Quantity and unit
         qty = float(line.get("Qty", 0))
         unit = self._map_unit(line.get("SalesUnit", "Db"))
-        qty_elem = self._add_element(line_elem, "InvoicedQuantity", self._format_amount(qty))
+        qty_elem = self._add_element(
+            line_elem, "InvoicedQuantity", self._format_amount(qty)
+        )
         qty_elem.set("unitCode", unit)
 
         # Line extension (net amount)
-        self._add_element(line_elem, "LineExtensionAmount", self._format_amount(line.get("Netto", 0)))
-        self._add_element(line_elem, "LineExtensionAmountTaxInclusive", self._format_amount(line.get("Brutto", 0)))
-        self._add_element(line_elem, "LineExtensionTaxAmount", self._format_amount(line.get("Afa", 0)))
+        self._add_element(
+            line_elem, "LineExtensionAmount", self._format_amount(line.get("Netto", 0))
+        )
+        self._add_element(
+            line_elem,
+            "LineExtensionAmountTaxInclusive",
+            self._format_amount(line.get("Brutto", 0)),
+        )
+        self._add_element(
+            line_elem, "LineExtensionTaxAmount", self._format_amount(line.get("Afa", 0))
+        )
 
         # Unit price
         netto = float(line.get("Netto", 0))
@@ -229,7 +261,9 @@ class MARSOToISDOCConverter:
 
         # Tax category for line
         class_tax = self._add_element(line_elem, "ClassifiedTaxCategory")
-        vat_percent = round((float(line.get("Afa", 0)) / netto * 100) if netto > 0 else 27, 2)
+        vat_percent = round(
+            (float(line.get("Afa", 0)) / netto * 100) if netto > 0 else 27, 2
+        )
         self._add_element(class_tax, "Percent", str(vat_percent))
         self._add_element(class_tax, "VATCalculationMethod", "0")  # 0 = from base
         scheme = self._add_element(class_tax, "TaxScheme")
@@ -256,7 +290,9 @@ class MARSOToISDOCConverter:
 
     def _format_amount(self, value: Any) -> str:
         """Format numeric value to 2 decimal places."""
-        decimal_val = Decimal(str(value)).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+        decimal_val = Decimal(str(value)).quantize(
+            Decimal("0.01"), rounding=ROUND_HALF_UP
+        )
         return str(decimal_val)
 
     def validate(self, isdoc_xml: str) -> bool:

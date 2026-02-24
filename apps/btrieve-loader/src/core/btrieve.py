@@ -69,7 +69,9 @@ class BtrieveClientManager:
         status, pos_block = self.client.open_file(table_name, owner_name=owner_name)
 
         if status != BtrieveClient.STATUS_SUCCESS:
-            raise RuntimeError(f"Failed to open {table_name}: {self.client.get_status_message(status)}")
+            raise RuntimeError(
+                f"Failed to open {table_name}: {self.client.get_status_message(status)}"
+            )
 
         self._open_files[table_name] = pos_block
         return pos_block
@@ -86,7 +88,9 @@ class BtrieveClientManager:
             self.close_table(table_name)
 
     @contextmanager
-    def table_session(self, table_name: str, owner: str = "") -> Generator[bytes, None, None]:
+    def table_session(
+        self, table_name: str, owner: str = ""
+    ) -> Generator[bytes, None, None]:
         """
         Context manager for table access.
 

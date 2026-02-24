@@ -12,7 +12,6 @@ import subprocess
 import sys
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
 
 import yaml
 
@@ -175,7 +174,9 @@ class DatabaseBackup:
             self.logger.info(f"Compressing backup (level {self.compression_level})...")
 
             with open(backup_file, "rb") as f_in:
-                with gzip.open(compressed_file, "wb", compresslevel=self.compression_level) as f_out:
+                with gzip.open(
+                    compressed_file, "wb", compresslevel=self.compression_level
+                ) as f_out:
                     shutil.copyfileobj(f_in, f_out)
 
             backup_file.unlink()
@@ -239,9 +240,13 @@ class DatabaseBackup:
     def rotate_backups(self) -> tuple[int, int]:
         """Remove old backups based on retention policy."""
         daily_removed = self._rotate_directory(self.daily_dir, self.retention_days)
-        weekly_removed = self._rotate_directory(self.weekly_dir, self.retention_weeks * 7)
+        weekly_removed = self._rotate_directory(
+            self.weekly_dir, self.retention_weeks * 7
+        )
 
-        self.logger.info(f"Rotation complete: {daily_removed} daily, {weekly_removed} weekly removed")
+        self.logger.info(
+            f"Rotation complete: {daily_removed} daily, {weekly_removed} weekly removed"
+        )
         return daily_removed, weekly_removed
 
     def _rotate_directory(self, directory: Path, max_age_days: int) -> int:
@@ -251,7 +256,9 @@ class DatabaseBackup:
 
         for backup_file in directory.glob("backup_*.sql.gz"):
             try:
-                timestamp_str = backup_file.stem.split("_")[1] + backup_file.stem.split("_")[2]
+                timestamp_str = (
+                    backup_file.stem.split("_")[1] + backup_file.stem.split("_")[2]
+                )
                 file_date = datetime.strptime(timestamp_str, "%Y%m%d%H%M%S")
 
                 if file_date < cutoff_date:
@@ -286,7 +293,9 @@ class DatabaseBackup:
                 "filename": backup_file.name,
                 "path": str(backup_file),
                 "size": backup_file.stat().st_size,
-                "created": datetime.fromtimestamp(backup_file.stat().st_mtime).isoformat(),
+                "created": datetime.fromtimestamp(
+                    backup_file.stat().st_mtime
+                ).isoformat(),
                 "verified": checksum_file.exists(),
             }
 

@@ -5,7 +5,6 @@ Provides system metrics, database status, and application health checks
 
 from dataclasses import asdict, dataclass
 from datetime import datetime, timedelta
-from typing import Dict, List, Optional
 
 import asyncpg
 import psutil
@@ -235,7 +234,9 @@ class HealthMonitor:
                 success_rate = (approved / total * 100) if total > 0 else 0.0
 
                 invoice_stats = InvoiceStats(
-                    last_processed_at=last_invoice["created_at"] if last_invoice else None,
+                    last_processed_at=last_invoice["created_at"]
+                    if last_invoice
+                    else None,
                     last_invoice_id=last_invoice["id"] if last_invoice else None,
                     total_processed=approved,
                     total_failed=rejected,
@@ -283,7 +284,9 @@ class HealthMonitor:
         if not db_status.connected:
             errors.append(f"Database not connected: {db_status.error}")
         elif db_status.connection_time_ms and db_status.connection_time_ms > 1000:
-            warnings.append(f"Slow database connection: {db_status.connection_time_ms}ms")
+            warnings.append(
+                f"Slow database connection: {db_status.connection_time_ms}ms"
+            )
 
         # Check last invoice processing
         if invoice_stats.last_processed_at:

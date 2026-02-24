@@ -6,7 +6,6 @@ Grid settings functions (active column) - window persistence je v BaseWindow.
 import logging
 import sqlite3
 from pathlib import Path
-from typing import Optional
 
 logger = logging.getLogger(__name__)
 
@@ -14,7 +13,9 @@ logger = logging.getLogger(__name__)
 DB_PATH = Path(r"C:\NEX\YEARACT\SYSTEM\SQLITE\window_settings.db")
 
 
-def save_grid_settings(window_name: str, grid_name: str, active_column: int, user_id: str = "Server") -> bool:
+def save_grid_settings(
+    window_name: str, grid_name: str, active_column: int, user_id: str = "Server"
+) -> bool:
     """
     Save grid settings (active column).
 
@@ -65,7 +66,9 @@ def save_grid_settings(window_name: str, grid_name: str, active_column: int, use
         conn.commit()
         conn.close()
 
-        logger.debug(f"Saved grid settings: {window_name}/{grid_name} column={active_column}")
+        logger.debug(
+            f"Saved grid settings: {window_name}/{grid_name} column={active_column}"
+        )
         return True
 
     except Exception as e:
@@ -73,7 +76,9 @@ def save_grid_settings(window_name: str, grid_name: str, active_column: int, use
         return False
 
 
-def load_grid_settings(window_name: str, grid_name: str, user_id: str = "Server") -> int | None:
+def load_grid_settings(
+    window_name: str, grid_name: str, user_id: str = "Server"
+) -> int | None:
     """
     Load grid settings (active column).
 
@@ -105,7 +110,9 @@ def load_grid_settings(window_name: str, grid_name: str, user_id: str = "Server"
         conn.close()
 
         if row:
-            logger.debug(f"Loaded grid settings: {window_name}/{grid_name} column={row[0]}")
+            logger.debug(
+                f"Loaded grid settings: {window_name}/{grid_name} column={row[0]}"
+            )
             return row[0]
 
         return None

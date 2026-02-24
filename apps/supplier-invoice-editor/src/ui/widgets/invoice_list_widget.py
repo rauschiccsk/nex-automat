@@ -10,7 +10,9 @@ from pathlib import Path
 from PyQt5.QtCore import QAbstractTableModel, Qt, QVariant, pyqtSignal
 
 # Import BaseGrid from nex-shared
-nex_shared_path = Path(__file__).parent.parent.parent.parent.parent / "packages" / "nex-shared"
+nex_shared_path = (
+    Path(__file__).parent.parent.parent.parent.parent / "packages" / "nex-shared"
+)
 import sys
 
 sys.path.insert(0, str(nex_shared_path))
@@ -75,7 +77,11 @@ class InvoiceListModel(QAbstractTableModel):
                 if isinstance(value, (int, float, Decimal)):
                     return f"{float(value):.2f}"
             elif column_key == "status":
-                status_map = {"pending": "Čaká", "approved": "Schválené", "rejected": "Odmietnuté"}
+                status_map = {
+                    "pending": "Čaká",
+                    "approved": "Schválené",
+                    "rejected": "Odmietnuté",
+                }
                 return status_map.get(value, value)
 
             return str(value)
@@ -139,7 +145,9 @@ class InvoiceListWidget(BaseGrid):
 
     def __init__(self, invoice_service, parent=None):
         # Initialize BaseGrid
-        super().__init__(window_name=WINDOW_MAIN, grid_name=GRID_INVOICE_LIST, parent=parent)
+        super().__init__(
+            window_name=WINDOW_MAIN, grid_name=GRID_INVOICE_LIST, parent=parent
+        )
 
         self.invoice_service = invoice_service
 

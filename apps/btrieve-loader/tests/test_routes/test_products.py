@@ -4,8 +4,6 @@ Tests for product endpoints.
 
 from unittest.mock import patch
 
-import pytest
-
 
 class TestProductEndpoints:
     """Tests for /api/v1/products endpoints."""
@@ -18,7 +16,9 @@ class TestProductEndpoints:
         assert response.status_code in [200, 422]
 
     @patch("src.api.routes.products.get_gscat_repository")
-    def test_list_products(self, mock_get_repo, api_v1_client, mock_gscat_repository, api_key_header):
+    def test_list_products(
+        self, mock_get_repo, api_v1_client, mock_gscat_repository, api_key_header
+    ):
         """Test GET /api/v1/products returns paginated products."""
         mock_get_repo.return_value = mock_gscat_repository
 
@@ -32,11 +32,15 @@ class TestProductEndpoints:
         assert data["data"][0]["gs_code"] == 1001
 
     @patch("src.api.routes.products.get_gscat_repository")
-    def test_list_products_pagination(self, mock_get_repo, api_v1_client, mock_gscat_repository, api_key_header):
+    def test_list_products_pagination(
+        self, mock_get_repo, api_v1_client, mock_gscat_repository, api_key_header
+    ):
         """Test GET /api/v1/products with pagination params."""
         mock_get_repo.return_value = mock_gscat_repository
 
-        response = api_v1_client.get("/api/v1/products?page=1&page_size=2", headers=api_key_header)
+        response = api_v1_client.get(
+            "/api/v1/products?page=1&page_size=2", headers=api_key_header
+        )
 
         assert response.status_code == 200
         data = response.json()
@@ -44,11 +48,15 @@ class TestProductEndpoints:
         assert data["pagination"]["page_size"] == 2
 
     @patch("src.api.routes.products.get_gscat_repository")
-    def test_search_products(self, mock_get_repo, api_v1_client, mock_gscat_repository, api_key_header):
+    def test_search_products(
+        self, mock_get_repo, api_v1_client, mock_gscat_repository, api_key_header
+    ):
         """Test GET /api/v1/products/search with query."""
         mock_get_repo.return_value = mock_gscat_repository
 
-        response = api_v1_client.get("/api/v1/products/search?q=Chlieb", headers=api_key_header)
+        response = api_v1_client.get(
+            "/api/v1/products/search?q=Chlieb", headers=api_key_header
+        )
 
         assert response.status_code == 200
         data = response.json()
@@ -56,17 +64,23 @@ class TestProductEndpoints:
         assert "Chlieb" in data["data"][0]["gs_name"]
 
     @patch("src.api.routes.products.get_gscat_repository")
-    def test_search_products_min_length(self, mock_get_repo, api_v1_client, mock_gscat_repository, api_key_header):
+    def test_search_products_min_length(
+        self, mock_get_repo, api_v1_client, mock_gscat_repository, api_key_header
+    ):
         """Test GET /api/v1/products/search with too short query."""
         mock_get_repo.return_value = mock_gscat_repository
 
-        response = api_v1_client.get("/api/v1/products/search?q=X", headers=api_key_header)
+        response = api_v1_client.get(
+            "/api/v1/products/search?q=X", headers=api_key_header
+        )
 
         # Query validation should fail (min_length=2)
         assert response.status_code == 422
 
     @patch("src.api.routes.products.get_gscat_repository")
-    def test_get_product_by_code(self, mock_get_repo, api_v1_client, mock_gscat_repository, api_key_header):
+    def test_get_product_by_code(
+        self, mock_get_repo, api_v1_client, mock_gscat_repository, api_key_header
+    ):
         """Test GET /api/v1/products/{code} returns specific product."""
         mock_get_repo.return_value = mock_gscat_repository
 
@@ -78,7 +92,9 @@ class TestProductEndpoints:
         assert data["gs_name"] == "Chlieb biely 500g"
 
     @patch("src.api.routes.products.get_gscat_repository")
-    def test_get_product_not_found(self, mock_get_repo, api_v1_client, mock_gscat_repository, api_key_header):
+    def test_get_product_not_found(
+        self, mock_get_repo, api_v1_client, mock_gscat_repository, api_key_header
+    ):
         """Test GET /api/v1/products/{code} returns 404 for unknown code."""
         mock_get_repo.return_value = mock_gscat_repository
 
@@ -91,7 +107,9 @@ class TestProductMatchEndpoint:
     """Tests for /api/v1/products/match endpoint."""
 
     @patch("src.api.routes.products.ProductMatcher")
-    def test_match_product_by_ean(self, mock_matcher_class, api_v1_client, api_key_header, sample_products):
+    def test_match_product_by_ean(
+        self, mock_matcher_class, api_v1_client, api_key_header, sample_products
+    ):
         """Test POST /api/v1/products/match with EAN."""
         # Setup mock matcher
         mock_matcher = mock_matcher_class.return_value
@@ -122,7 +140,9 @@ class TestProductMatchEndpoint:
         assert data["method"] == "ean"
 
     @patch("src.api.routes.products.ProductMatcher")
-    def test_match_product_no_match(self, mock_matcher_class, api_v1_client, api_key_header):
+    def test_match_product_no_match(
+        self, mock_matcher_class, api_v1_client, api_key_header
+    ):
         """Test POST /api/v1/products/match with no match."""
         mock_matcher = mock_matcher_class.return_value
         mock_result = type(

@@ -7,7 +7,9 @@ Output: docs/knowledge/PROJECT_STRUCTURE.md
 from pathlib import Path
 
 # Output file - hardcoded
-OUTPUT_FILE = Path(__file__).parent.parent / "docs" / "knowledge" / "PROJECT_STRUCTURE.md"
+OUTPUT_FILE = (
+    Path(__file__).parent.parent / "docs" / "knowledge" / "PROJECT_STRUCTURE.md"
+)
 
 # Directories to skip
 SKIP_DIRS = {
@@ -36,7 +38,9 @@ def should_skip(path: Path) -> bool:
     return path.name in SKIP_DIRS or path.name.startswith(".")
 
 
-def scan_directory(root: Path, prefix: str = "", max_depth: int = 4, current_depth: int = 0) -> list:
+def scan_directory(
+    root: Path, prefix: str = "", max_depth: int = 4, current_depth: int = 0
+) -> list:
     """Recursively scan directory and build tree."""
     output_lines = []
 
@@ -58,7 +62,9 @@ def scan_directory(root: Path, prefix: str = "", max_depth: int = 4, current_dep
         output_lines.append(f"{prefix}{connector}{d.name}/")
 
         extension = "    " if is_last_dir else "│   "
-        output_lines.extend(scan_directory(d, prefix + extension, max_depth, current_depth + 1))
+        output_lines.extend(
+            scan_directory(d, prefix + extension, max_depth, current_depth + 1)
+        )
 
     for i, f in enumerate(files):
         is_last = i == len(files) - 1

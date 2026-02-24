@@ -20,7 +20,10 @@ from activities.supplier_api_activities import (
 from config.settings import get_settings
 from temporalio.client import Client
 from temporalio.worker import Worker
-from workflows.api_invoice_workflow import SingleInvoiceWorkflow, SupplierAPIInvoiceWorkflow
+from workflows.api_invoice_workflow import (
+    SingleInvoiceWorkflow,
+    SupplierAPIInvoiceWorkflow,
+)
 from workflows.pdf_invoice_workflow import InvoiceProcessingWorkflow
 
 # Configure logging

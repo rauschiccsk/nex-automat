@@ -73,7 +73,9 @@ class BaseWindow(QMainWindow):
 
     def _load_and_apply_settings(self) -> None:
         """Load and apply window settings from DB."""
-        settings = self._repository.load_window_settings(self._window_name, self._user_id)
+        settings = self._repository.load_window_settings(
+            self._window_name, self._user_id
+        )
 
         if settings:
             # Validate position is on visible screen

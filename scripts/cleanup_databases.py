@@ -20,7 +20,9 @@ SCRIPT_DIR = Path(__file__).parent
 PROJECT_ROOT = SCRIPT_DIR.parent
 
 # Cesty k databázam
-SQLITE_DB_PATH = PROJECT_ROOT / "apps" / "supplier-invoice-loader" / "data" / "invoices.db"
+SQLITE_DB_PATH = (
+    PROJECT_ROOT / "apps" / "supplier-invoice-loader" / "data" / "invoices.db"
+)
 POSTGRES_CONFIG = {
     "host": "localhost",
     "port": 5432,
@@ -134,7 +136,9 @@ def main():
     print("Štatistika:")
     print(f"  SQLite:     {sqlite_invoices} faktúr, {sqlite_items} položiek")
     print(f"  PostgreSQL: {pg_heads} faktúr, {pg_items} položiek")
-    print(f"  TOTAL:      {sqlite_invoices + pg_heads} faktúr, {sqlite_items + pg_items} položiek")
+    print(
+        f"  TOTAL:      {sqlite_invoices + pg_heads} faktúr, {sqlite_items + pg_items} položiek"
+    )
 
 
 if __name__ == "__main__":

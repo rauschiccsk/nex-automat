@@ -5,7 +5,6 @@ LIVE QUERIES - No caching, always fresh data from Btrieve
 """
 
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Tuple
 
 from nexdata.btrieve.btrieve_client import BtrieveClient
 from nexdata.models.gscat import GSCATRecord
@@ -62,7 +61,9 @@ class ProductMatcher:
         self.gscat_repo = GSCATRepository(self.btrieve)
         self.barcode_repo = BARCODERepository(self.btrieve)
 
-    def match_item(self, item_data: dict, min_confidence: float = 0.6, max_name_results: int = 20) -> MatchResult:
+    def match_item(
+        self, item_data: dict, min_confidence: float = 0.6, max_name_results: int = 20
+    ) -> MatchResult:
         """
         Main matching logic - tries EAN first, then name matching
 
@@ -134,7 +135,9 @@ class ProductMatcher:
         # No match
         return MatchResult(product=None, confidence=0.0, method="none")
 
-    def _match_by_name(self, name: str, min_confidence: float, max_results: int) -> MatchResult:
+    def _match_by_name(
+        self, name: str, min_confidence: float, max_results: int
+    ) -> MatchResult:
         """
         Match by fuzzy name matching - LIVE query
 
@@ -192,7 +195,12 @@ class ProductMatcher:
         # Get alternatives (top 5 excluding best)
         alternatives = matches[1:6]
 
-        return MatchResult(product=best_product, confidence=best_score, method="name", alternatives=alternatives)
+        return MatchResult(
+            product=best_product,
+            confidence=best_score,
+            method="name",
+            alternatives=alternatives,
+        )
 
     def _normalize_text(self, text: str) -> str:
         """

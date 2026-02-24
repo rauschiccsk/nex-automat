@@ -47,14 +47,18 @@ class PartnerBase(BaseModel):
     ic_dph: str = Field(default="", max_length=30, description="VAT ID (IČ DPH)")
 
     # Bank info
-    bank_account: str = Field(default="", max_length=30, description="Bank account number")
+    bank_account: str = Field(
+        default="", max_length=30, description="Bank account number"
+    )
     bank_code: str = Field(default="", max_length=10, description="Bank code")
     bank_name: str = Field(default="", max_length=60, description="Bank name")
     iban: str = Field(default="", max_length=40, description="IBAN")
     swift: str = Field(default="", max_length=20, description="SWIFT/BIC")
 
     # Business info
-    partner_type: PartnerType = Field(default=PartnerType.BOTH, description="Partner type")
+    partner_type: PartnerType = Field(
+        default=PartnerType.BOTH, description="Partner type"
+    )
     payment_terms: int = Field(default=14, ge=0, description="Payment terms (days)")
     credit_limit: float = Field(default=0.0, ge=0, description="Credit limit")
     discount_percent: float = Field(default=0.0, ge=0, le=100, description="Discount %")
@@ -70,7 +74,9 @@ class PartnerBase(BaseModel):
 class PartnerCreate(PartnerBase):
     """Schema for creating a partner."""
 
-    pab_code: int | None = Field(default=None, description="Partner code (auto-generated if not provided)")
+    pab_code: int | None = Field(
+        default=None, description="Partner code (auto-generated if not provided)"
+    )
 
 
 class Partner(PartnerBase):
@@ -108,7 +114,9 @@ class Partner(PartnerBase):
             bank_name=record.bank_name,
             iban=record.iban,
             swift=record.swift,
-            partner_type=PartnerType(record.partner_type) if record.partner_type in [1, 2, 3] else PartnerType.BOTH,
+            partner_type=PartnerType(record.partner_type)
+            if record.partner_type in [1, 2, 3]
+            else PartnerType.BOTH,
             payment_terms=record.payment_terms,
             credit_limit=record.credit_limit,
             discount_percent=record.discount_percent,
@@ -152,7 +160,9 @@ class PartnerList(PaginatedResponse[Partner]):
 class PartnerSearch(BaseModel):
     """Partner search parameters."""
 
-    query: str | None = Field(default=None, description="Search query (name, ICO, etc.)")
+    query: str | None = Field(
+        default=None, description="Search query (name, ICO, etc.)"
+    )
     partner_type: PartnerType | None = Field(default=None, description="Filter by type")
     city: str | None = Field(default=None, description="Filter by city")
     active: bool | None = Field(default=None, description="Filter by active status")

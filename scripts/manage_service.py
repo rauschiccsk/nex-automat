@@ -74,7 +74,9 @@ def is_admin():
 def run_nssm_command(command_args):
     """Run NSSM command and return result"""
     try:
-        result = subprocess.run([str(NSSM_PATH)] + command_args, capture_output=True, text=True, timeout=30)
+        result = subprocess.run(
+            [str(NSSM_PATH)] + command_args, capture_output=True, text=True, timeout=30
+        )
         return result.returncode, result.stdout.strip(), result.stderr.strip()
     except Exception as e:
         return -1, "", str(e)

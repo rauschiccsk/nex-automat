@@ -96,7 +96,11 @@ def main():
     print("=" * 70)
 
     # Ask for confirmation
-    response = input(f"\nDelete all {len(backup_files)} backup files? (yes/no): ").strip().lower()
+    response = (
+        input(f"\nDelete all {len(backup_files)} backup files? (yes/no): ")
+        .strip()
+        .lower()
+    )
 
     if response != "yes":
         print("\n❌ Cancelled - no files deleted")

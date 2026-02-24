@@ -3,7 +3,6 @@
 import os
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import List
 
 # Load .env from supplier-invoice-worker
 try:
@@ -27,13 +26,21 @@ class ReportConfig:
     send_empty_report: bool = True
 
     # Recipients
-    admin_email: str = field(default_factory=lambda: os.getenv("NOTIFY_EMAIL", "rausch@icc.sk"))
+    admin_email: str = field(
+        default_factory=lambda: os.getenv("NOTIFY_EMAIL", "rausch@icc.sk")
+    )
     customer_emails: list[str] = field(
-        default_factory=lambda: [e.strip() for e in os.getenv("REPORT_CUSTOMER_EMAIL", "").split(",") if e.strip()]
+        default_factory=lambda: [
+            e.strip()
+            for e in os.getenv("REPORT_CUSTOMER_EMAIL", "").split(",")
+            if e.strip()
+        ]
     )
 
     # SMTP (Gmail SSL on port 465)
-    smtp_host: str = field(default_factory=lambda: os.getenv("SMTP_HOST", "smtp.gmail.com"))
+    smtp_host: str = field(
+        default_factory=lambda: os.getenv("SMTP_HOST", "smtp.gmail.com")
+    )
     smtp_port: int = field(default_factory=lambda: int(os.getenv("SMTP_PORT", "465")))
     smtp_user: str = field(default_factory=lambda: os.getenv("SMTP_USER", ""))
     smtp_password: str = field(default_factory=lambda: os.getenv("SMTP_PASSWORD", ""))

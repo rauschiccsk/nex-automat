@@ -61,7 +61,14 @@ class WindowSettingsDB:
         logger.info(f"Window settings database initialized: {db_path}")
 
     def save(
-        self, window_name: str, x: int, y: int, width: int, height: int, window_state: int = 0, user_id: str = "Server"
+        self,
+        window_name: str,
+        x: int,
+        y: int,
+        width: int,
+        height: int,
+        window_state: int = 0,
+        user_id: str = "Server",
     ) -> bool:
         """
         Save window settings using DELETE + INSERT pattern.
@@ -97,13 +104,24 @@ class WindowSettingsDB:
                 (user_id, window_name, x, y, width, height, window_state, updated_at)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             """,
-                (user_id, window_name, x, y, width, height, window_state, datetime.now()),
+                (
+                    user_id,
+                    window_name,
+                    x,
+                    y,
+                    width,
+                    height,
+                    window_state,
+                    datetime.now(),
+                ),
             )
 
             conn.commit()
             conn.close()
 
-            logger.debug(f"Saved window settings: {window_name} at ({x}, {y}) [{width}x{height}] state={window_state}")
+            logger.debug(
+                f"Saved window settings: {window_name} at ({x}, {y}) [{width}x{height}] state={window_state}"
+            )
             return True
 
         except Exception as e:

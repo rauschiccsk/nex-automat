@@ -78,7 +78,12 @@ class GSCATRecord:
         mg_code = read_str(92, 2)
 
         return cls(
-            GsCode=gs_code, GsName=gs_name, BarCode=barcode, SupplierCode=supplier_code, MgCode=mg_code, RawData=data
+            GsCode=gs_code,
+            GsName=gs_name,
+            BarCode=barcode,
+            SupplierCode=supplier_code,
+            MgCode=mg_code,
+            RawData=data,
         )
 
     @property

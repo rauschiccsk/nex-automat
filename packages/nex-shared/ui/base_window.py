@@ -76,11 +76,15 @@ class BaseWindow(QMainWindow):
         """Načíta a aplikuje window settings z DB."""
         try:
             # Load settings from DB
-            settings = self._db.load(window_name=self._window_name, user_id=self._user_id)
+            settings = self._db.load(
+                window_name=self._window_name, user_id=self._user_id
+            )
 
             # Get safe position (with validation and fallback)
             safe_settings = self._persistence.get_safe_position(
-                settings=settings, default_size=self._default_size, default_pos=self._default_pos
+                settings=settings,
+                default_size=self._default_size,
+                default_pos=self._default_pos,
             )
 
             # Apply position and size separately to avoid frame geometry drift
@@ -100,7 +104,9 @@ class BaseWindow(QMainWindow):
                 )
 
         except Exception as e:
-            logger.error(f"Error loading window settings for '{self._window_name}': {e}")
+            logger.error(
+                f"Error loading window settings for '{self._window_name}': {e}"
+            )
             # Fallback to defaults
             self.move(self._default_pos[0], self._default_pos[1])
             self.resize(self._default_size[0], self._default_size[1])
@@ -145,7 +151,9 @@ class BaseWindow(QMainWindow):
                     window_state=0,  # Normal
                     user_id=self._user_id,
                 )
-                logger.info(f"Window '{self._window_name}' saved at ({x}, {y}) [{width}x{height}]")
+                logger.info(
+                    f"Window '{self._window_name}' saved at ({x}, {y}) [{width}x{height}]"
+                )
 
         except Exception as e:
             logger.error(f"Error saving window settings for '{self._window_name}': {e}")

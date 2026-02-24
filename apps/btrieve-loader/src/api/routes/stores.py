@@ -8,7 +8,7 @@ from fastapi import APIRouter, HTTPException, Query
 from nexdata.btrieve.btrieve_client import BtrieveClient
 from nexdata.repositories.mglst_repository import MGLSTRepository
 
-from src.api.schemas.common import PaginatedResponse, PaginationParams
+from src.api.schemas.common import PaginatedResponse
 from src.api.schemas.stores import ProductGroup, ProductGroupList, ProductGroupTree
 from src.core.config import settings
 
@@ -46,7 +46,9 @@ async def list_product_groups(
         # Apply filters
         filtered_records = all_records
         if parent_code is not None:
-            filtered_records = [r for r in filtered_records if r.parent_code == parent_code]
+            filtered_records = [
+                r for r in filtered_records if r.parent_code == parent_code
+            ]
         if active is not None:
             filtered_records = [r for r in filtered_records if r.active == active]
         if level is not None:
@@ -121,7 +123,9 @@ async def get_product_group(
         record = repo.find_one(lambda r: r.mglst_code == mglst_code)
 
         if not record:
-            raise HTTPException(status_code=404, detail=f"Product group {mglst_code} not found")
+            raise HTTPException(
+                status_code=404, detail=f"Product group {mglst_code} not found"
+            )
 
         return ProductGroup.from_mglst_record(record)
 

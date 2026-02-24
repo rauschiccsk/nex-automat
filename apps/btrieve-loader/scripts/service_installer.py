@@ -25,7 +25,6 @@ import subprocess
 import sys
 import time
 from pathlib import Path
-from typing import Dict, Tuple
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
@@ -98,7 +97,10 @@ class WindowsServiceInstaller:
         try:
             import winreg
 
-            key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, r"SOFTWARE\Microsoft\Windows NT\CurrentVersion")
+            key = winreg.OpenKey(
+                winreg.HKEY_LOCAL_MACHINE,
+                r"SOFTWARE\Microsoft\Windows NT\CurrentVersion",
+            )
             product_name = winreg.QueryValueEx(key, "ProductName")[0]
             build = winreg.QueryValueEx(key, "CurrentBuildNumber")[0]
             winreg.CloseKey(key)
@@ -117,13 +119,17 @@ class WindowsServiceInstaller:
         """Restart the script with administrator privileges"""
         if not self.is_admin():
             logger.info("Requesting administrator privileges...")
-            ctypes.windll.shell32.ShellExecuteW(None, "runas", sys.executable, " ".join(sys.argv), None, 1)
+            ctypes.windll.shell32.ShellExecuteW(
+                None, "runas", sys.executable, " ".join(sys.argv), None, 1
+            )
             sys.exit(0)
 
     def run_command(self, command: list, check: bool = True) -> tuple[int, str, str]:
         """Run a command and return result"""
         try:
-            result = subprocess.run(command, capture_output=True, text=True, check=check)
+            result = subprocess.run(
+                command, capture_output=True, text=True, check=check
+            )
             return result.returncode, result.stdout, result.stderr
         except subprocess.CalledProcessError as e:
             return e.returncode, e.stdout, e.stderr
@@ -160,7 +166,12 @@ class WindowsServiceInstaller:
             ["set", self.service_name, "Start", "SERVICE_AUTO_START"],
             # Output redirection
             ["set", self.service_name, "AppStdout", str(self.logs_dir / "service.log")],
-            ["set", self.service_name, "AppStderr", str(self.logs_dir / "service_error.log")],
+            [
+                "set",
+                self.service_name,
+                "AppStderr",
+                str(self.logs_dir / "service_error.log"),
+            ],
             ["set", self.service_name, "AppStdoutCreationDisposition", "4"],
             ["set", self.service_name, "AppStderrCreationDisposition", "4"],
             # Log rotation
@@ -169,7 +180,12 @@ class WindowsServiceInstaller:
             ["set", self.service_name, "AppRotateSeconds", "86400"],  # Daily
             ["set", self.service_name, "AppRotateBytes", "10485760"],  # 10MB
             # Environment variables
-            ["set", self.service_name, "AppEnvironmentExtra", f"PYTHONPATH={self.project_root}"],
+            [
+                "set",
+                self.service_name,
+                "AppEnvironmentExtra",
+                f"PYTHONPATH={self.project_root}",
+            ],
             # Process priority
             ["set", self.service_name, "AppPriority", "NORMAL_PRIORITY_CLASS"],
             # Shutdown grace period
@@ -183,7 +199,9 @@ class WindowsServiceInstaller:
             cmd = [str(self.nssm_path)] + config
             returncode, stdout, stderr = self.run_command(cmd, check=False)
             if returncode != 0:
-                logger.warning(f"Configuration warning: {' '.join(config[1:])}: {stderr}")
+                logger.warning(
+                    f"Configuration warning: {' '.join(config[1:])}: {stderr}"
+                )
 
         # Set recovery actions
         self._set_recovery_actions()
@@ -524,7 +542,13 @@ class WindowsServiceInstaller:
 
         if env_vars:
             env_string = "\n".join(env_vars)
-            cmd = [str(self.nssm_path), "set", self.service_name, "AppEnvironmentExtra", env_string]
+            cmd = [
+                str(self.nssm_path),
+                "set",
+                self.service_name,
+                "AppEnvironmentExtra",
+                env_string,
+            ]
             returncode, stdout, stderr = self.run_command(cmd)
 
             if returncode == 0:
@@ -670,7 +694,9 @@ def main():
             sys.exit(0 if success else 1)
         else:
             print(f"Unknown command: {command}")
-            print("Available commands: install, remove, start, stop, restart, status, configure")
+            print(
+                "Available commands: install, remove, start, stop, restart, status, configure"
+            )
             sys.exit(1)
 
 

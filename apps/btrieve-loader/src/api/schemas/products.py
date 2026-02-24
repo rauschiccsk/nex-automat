@@ -21,7 +21,9 @@ class ProductBase(BaseModel):
 class ProductCreate(ProductBase):
     """Schema for creating a product."""
 
-    gs_code: int | None = Field(default=None, description="Product code (auto-generated if not provided)")
+    gs_code: int | None = Field(
+        default=None, description="Product code (auto-generated if not provided)"
+    )
 
 
 class Product(ProductBase):
@@ -53,7 +55,11 @@ class ProductList(PaginatedResponse[Product]):
 class ProductSearch(BaseModel):
     """Product search parameters."""
 
-    query: str | None = Field(default=None, description="Search query (name or barcode)")
+    query: str | None = Field(
+        default=None, description="Search query (name or barcode)"
+    )
     bar_code: str | None = Field(default=None, description="Filter by barcode")
-    supplier_code: str | None = Field(default=None, description="Filter by supplier code")
+    supplier_code: str | None = Field(
+        default=None, description="Filter by supplier code"
+    )
     mg_code: str | None = Field(default=None, description="Filter by unit code")

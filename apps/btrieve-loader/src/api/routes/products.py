@@ -9,8 +9,8 @@ from nexdata.btrieve.btrieve_client import BtrieveClient
 from nexdata.repositories.gscat_repository import GSCATRepository
 from pydantic import BaseModel
 
-from src.api.schemas.common import PaginatedResponse, PaginationParams
-from src.api.schemas.products import Product, ProductList, ProductSearch
+from src.api.schemas.common import PaginatedResponse
+from src.api.schemas.products import Product, ProductList
 from src.business.product_matcher import MatchResult, ProductMatcher
 from src.core.config import settings
 

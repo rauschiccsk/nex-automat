@@ -8,7 +8,6 @@ import logging
 import re
 from dataclasses import dataclass, field
 from decimal import Decimal
-from typing import Dict, List, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -118,9 +117,13 @@ class MarsoInvoiceExtractor:
 
             # Ak net_amount nie je, vypočítaj zo sumy položiek
             if not invoice_data.net_amount and items:
-                invoice_data.net_amount = sum(item.total for item in items if item.total)
+                invoice_data.net_amount = sum(
+                    item.total for item in items if item.total
+                )
 
-            logger.info(f"MARSO: Extracted: {invoice_data.invoice_number}, {len(items)} items")
+            logger.info(
+                f"MARSO: Extracted: {invoice_data.invoice_number}, {len(items)} items"
+            )
             return invoice_data
 
         except Exception as e:
@@ -185,7 +188,9 @@ class MarsoInvoiceExtractor:
             data.supplier_swift = swift_match.group(1)
 
         # Customer name - Andros s.r.o.
-        customer_match = re.search(r"Customer\s*/\s*Vev.+?\n.+?\n.+?\n\s*(.+?)\s*\n", text, re.IGNORECASE)
+        customer_match = re.search(
+            r"Customer\s*/\s*Vev.+?\n.+?\n.+?\n\s*(.+?)\s*\n", text, re.IGNORECASE
+        )
         if customer_match:
             data.customer_name = customer_match.group(1).strip()
 
@@ -241,16 +246,22 @@ class MarsoInvoiceExtractor:
             short_desc = match.group(3).strip()
             quantity = self._parse_hungarian_decimal(match.group(4))
             unit = match.group(5)
-            unit_price = self._parse_hungarian_decimal(match.group(7))  # unit price je group 7
+            unit_price = self._parse_hungarian_decimal(
+                match.group(7)
+            )  # unit price je group 7
             total = self._parse_hungarian_decimal(match.group(8))
 
             # Nájdi plný popis na nasledujúcom riadku (obsahuje značku pneumatiky)
             end_pos = match.end()
-            next_match_pos = matches[i + 1].start() if i + 1 < len(matches) else len(text)
+            next_match_pos = (
+                matches[i + 1].start() if i + 1 < len(matches) else len(text)
+            )
             between_text = text[end_pos:next_match_pos]
 
             # Prvý riadok za položkou je plný popis
-            desc_match = re.search(r"\n([A-Z][A-Z0-9\s/]+(?:R\d{2}|/\d{2})[^\n]+)", between_text)
+            desc_match = re.search(
+                r"\n([A-Z][A-Z0-9\s/]+(?:R\d{2}|/\d{2})[^\n]+)", between_text
+            )
             full_description = desc_match.group(1).strip() if desc_match else short_desc
 
             item = MarsoInvoiceItem(

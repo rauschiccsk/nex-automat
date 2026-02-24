@@ -92,7 +92,9 @@ class TestBackupCreation:
     """Test backup creation functionality."""
 
     @patch("subprocess.run")
-    def test_create_backup_success(self, mock_subprocess, backup_manager, temp_backup_dir):
+    def test_create_backup_success(
+        self, mock_subprocess, backup_manager, temp_backup_dir
+    ):
         """Test successful backup creation."""
 
         def create_mock_backup(*args, **kwargs):
@@ -124,7 +126,9 @@ class TestBackupCreation:
     @patch("subprocess.run")
     def test_create_backup_timeout(self, mock_subprocess, backup_manager):
         """Test backup creation with timeout."""
-        mock_subprocess.side_effect = subprocess.TimeoutExpired(cmd="pg_dump", timeout=3600)
+        mock_subprocess.side_effect = subprocess.TimeoutExpired(
+            cmd="pg_dump", timeout=3600
+        )
         result = backup_manager.create_backup()
         assert result is None
 
@@ -245,11 +249,16 @@ class TestBackupRotation:
         daily_dir = temp_backup_dir / "daily"
         now = datetime.now()
 
-        recent = daily_dir / f"backup_{now.strftime('%Y%m%d_%H%M%S')}_invoice_staging.sql.gz"
+        recent = (
+            daily_dir / f"backup_{now.strftime('%Y%m%d_%H%M%S')}_invoice_staging.sql.gz"
+        )
         recent.touch()
 
         old_date = now - timedelta(days=10)
-        old = daily_dir / f"backup_{old_date.strftime('%Y%m%d_%H%M%S')}_invoice_staging.sql.gz"
+        old = (
+            daily_dir
+            / f"backup_{old_date.strftime('%Y%m%d_%H%M%S')}_invoice_staging.sql.gz"
+        )
         old.touch()
 
         Path(f"{recent}.sha256").touch()
@@ -270,7 +279,10 @@ class TestBackupRotation:
 
         for i in range(5):
             backup_date = now - timedelta(days=i)
-            backup_file = daily_dir / f"backup_{backup_date.strftime('%Y%m%d_%H%M%S')}_invoice_staging.sql.gz"
+            backup_file = (
+                daily_dir
+                / f"backup_{backup_date.strftime('%Y%m%d_%H%M%S')}_invoice_staging.sql.gz"
+            )
             backup_file.touch()
 
         daily_removed, _ = backup_manager.rotate_backups()

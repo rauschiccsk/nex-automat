@@ -121,7 +121,9 @@ async def get_product_barcodes(
             )
 
         # Get secondary barcodes from BARCODE table
-        secondary_records = barcode_repo.find(lambda r: r.gs_code == product_code, max_results=100)
+        secondary_records = barcode_repo.find(
+            lambda r: r.gs_code == product_code, max_results=100
+        )
 
         for record in secondary_records:
             # Avoid duplicates
@@ -129,7 +131,9 @@ async def get_product_barcodes(
                 barcodes.append(Barcode.from_barcode_record(record))
 
         if not barcodes:
-            raise HTTPException(status_code=404, detail=f"No barcodes found for product {product_code}")
+            raise HTTPException(
+                status_code=404, detail=f"No barcodes found for product {product_code}"
+            )
 
         return PaginatedResponse.create(
             data=barcodes,

@@ -43,7 +43,9 @@ class RAGSearchAPI:
     def __init__(self, config: RAGConfig | None = None):
         self.config = config or get_config()
         self.db = DatabaseManager(self.config.database)  # Pass database config only
-        self.embeddings = EmbeddingModel(self.config.embedding)  # Pass embedding config only
+        self.embeddings = EmbeddingModel(
+            self.config.embedding
+        )  # Pass embedding config only
         self._connected = False
 
     async def __aenter__(self):
@@ -68,7 +70,13 @@ class RAGSearchAPI:
             await self.db.close()
             self._connected = False
 
-    async def search(self, query: str, limit: int = 5, mode: str = "hybrid", tenant: str | None = None) -> RAGResponse:
+    async def search(
+        self,
+        query: str,
+        limit: int = 5,
+        mode: str = "hybrid",
+        tenant: str | None = None,
+    ) -> RAGResponse:
         """
         Search documents.
 
@@ -90,7 +98,9 @@ class RAGSearchAPI:
         for r in results:
             # Start with original metadata from hybrid_search
             result_metadata = (
-                json.loads(r.metadata) if isinstance(r.metadata, str) else (r.metadata if r.metadata else {})
+                json.loads(r.metadata)
+                if isinstance(r.metadata, str)
+                else (r.metadata if r.metadata else {})
             )
             # Add search-specific metadata
             result_metadata.update(
@@ -122,7 +132,11 @@ class RAGSearchAPI:
         )
 
     async def get_context_for_llm(
-        self, query: str, max_chunks: int = 3, max_tokens: int = 4000, tenant: str | None = None
+        self,
+        query: str,
+        max_chunks: int = 3,
+        max_tokens: int = 4000,
+        tenant: str | None = None,
     ) -> str:
         """
         Get formatted context for LLM.
@@ -135,7 +149,9 @@ class RAGSearchAPI:
         Returns:
             Formatted context string
         """
-        response = await self.search(query, limit=max_chunks, mode="hybrid", tenant=tenant)
+        response = await self.search(
+            query, limit=max_chunks, mode="hybrid", tenant=tenant
+        )
 
         context_parts = []
         total_chars = 0
@@ -168,13 +184,19 @@ class RAGSearchAPI:
 
 
 # Convenience functions for quick usage
-async def search(query: str, limit: int = 5, mode: str = "hybrid", tenant: str | None = None) -> RAGResponse:
+async def search(
+    query: str, limit: int = 5, mode: str = "hybrid", tenant: str | None = None
+) -> RAGResponse:
     """Quick search function."""
     async with RAGSearchAPI() as api:
         return await api.search(query, limit=limit, mode=mode, tenant=tenant)
 
 
-async def get_context(query: str, max_chunks: int = 3, tenant: str | None = None) -> str:
+async def get_context(
+    query: str, max_chunks: int = 3, tenant: str | None = None
+) -> str:
     """Quick context retrieval for LLM."""
     async with RAGSearchAPI() as api:
-        return await api.get_context_for_llm(query, max_chunks=max_chunks, tenant=tenant)
+        return await api.get_context_for_llm(
+            query, max_chunks=max_chunks, tenant=tenant
+        )

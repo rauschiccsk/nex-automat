@@ -6,7 +6,9 @@ Qt5 main application window with menu, toolbar, and invoice list
 from pathlib import Path
 
 # Add nex-shared to path
-nex_shared_path = Path(__file__).parent.parent.parent.parent.parent / "packages" / "nex-shared"
+nex_shared_path = (
+    Path(__file__).parent.parent.parent.parent.parent / "packages" / "nex-shared"
+)
 
 import logging
 
@@ -31,7 +33,9 @@ class MainWindow(BaseWindow):
     """Main application window"""
 
     def __init__(self, config, parent=None):
-        super().__init__(window_name=WINDOW_MAIN, default_size=(1400, 900), default_pos=(100, 100))
+        super().__init__(
+            window_name=WINDOW_MAIN, default_size=(1400, 900), default_pos=(100, 100)
+        )
         self.config = config
         self.logger = logging.getLogger(__name__)
         self.invoice_service = InvoiceService(config)
@@ -94,7 +98,7 @@ class MainWindow(BaseWindow):
         edit_menu.addAction(search_action)
 
         # View menu
-        view_menu = menubar.addMenu("&Zobrazenie")
+        menubar.addMenu("&Zobrazenie")  # Placeholder for future view options
 
         # Help menu
         help_menu = menubar.addMenu("&Pomoc")
@@ -172,13 +176,17 @@ class MainWindow(BaseWindow):
             self.invoice_list.update_invoices(invoices)
 
             count = len(invoices)
-            self.statusbar.showMessage(f"Načítaných {count} faktúr | F5: Obnoviť | Ctrl+F: Hľadať")
+            self.statusbar.showMessage(
+                f"Načítaných {count} faktúr | F5: Obnoviť | Ctrl+F: Hľadať"
+            )
             self.logger.info(f"Loaded {count} invoices")
 
         except Exception as e:
             self.logger.exception("Failed to load invoices")
             self.statusbar.showMessage("Chyba pri načítaní faktúr")
-            QMessageBox.warning(self, "Chyba", f"Nepodarilo sa načítať faktúry:\n\n{str(e)}")
+            QMessageBox.warning(
+                self, "Chyba", f"Nepodarilo sa načítať faktúry:\n\n{str(e)}"
+            )
 
     def _on_refresh(self):
         """Refresh invoice list"""

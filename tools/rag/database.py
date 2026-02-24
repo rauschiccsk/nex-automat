@@ -37,7 +37,9 @@ class DatabaseManager:
         if self.pool is not None:
             return  # Already connected
 
-        print(f"Connecting to database: {self.config.host}:{self.config.port}/{self.config.database}")
+        print(
+            f"Connecting to database: {self.config.host}:{self.config.port}/{self.config.database}"
+        )
 
         self.pool = await asyncpg.create_pool(
             host=self.config.host,
@@ -58,7 +60,9 @@ class DatabaseManager:
             self.pool = None
             print("[OK] Database connection pool closed")
 
-    async def insert_document(self, filename: str, content: str, metadata: dict[str, Any] | None = None) -> int:
+    async def insert_document(
+        self, filename: str, content: str, metadata: dict[str, Any] | None = None
+    ) -> int:
         """
         Insert document into database
 
@@ -127,7 +131,9 @@ class DatabaseManager:
         """
 
         metadata_json = json.dumps(metadata) if metadata else None
-        chunk_id = await self.pool.fetchval(query, document_id, chunk_index, content, embedding_str, metadata_json)
+        chunk_id = await self.pool.fetchval(
+            query, document_id, chunk_index, content, embedding_str, metadata_json
+        )
 
         return chunk_id
 
@@ -252,15 +258,21 @@ class DatabaseManager:
             await self.connect()
 
         # Delete chunks first (cascade should handle this, but explicit is good)
-        await self.pool.execute("DELETE FROM chunks WHERE document_id = $1", document_id)
+        await self.pool.execute(
+            "DELETE FROM chunks WHERE document_id = $1", document_id
+        )
 
         # Delete document
-        result = await self.pool.execute("DELETE FROM documents WHERE id = $1", document_id)
+        result = await self.pool.execute(
+            "DELETE FROM documents WHERE id = $1", document_id
+        )
 
         # Check if any rows were deleted
         return result.split()[-1] != "0"
 
-    async def list_documents(self, limit: int = 100, offset: int = 0) -> list[dict[str, Any]]:
+    async def list_documents(
+        self, limit: int = 100, offset: int = 0
+    ) -> list[dict[str, Any]]:
         """List documents with pagination"""
         if self.pool is None:
             await self.connect()
@@ -283,7 +295,9 @@ class DatabaseManager:
         stats = {}
 
         # Document count
-        stats["document_count"] = await self.pool.fetchval("SELECT COUNT(*) FROM documents")
+        stats["document_count"] = await self.pool.fetchval(
+            "SELECT COUNT(*) FROM documents"
+        )
 
         # Chunk count
         stats["chunk_count"] = await self.pool.fetchval("SELECT COUNT(*) FROM chunks")

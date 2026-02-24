@@ -53,7 +53,9 @@ def test_warning_alert_creation(alert_manager):
     alert_manager._send_email = lambda **kwargs: True
 
     result = alert_manager.send_warning(
-        title="Test Warning", message="This is a warning", alert_type=AlertType.PERFORMANCE
+        title="Test Warning",
+        message="This is a warning",
+        alert_type=AlertType.PERFORMANCE,
     )
 
     assert result is True
@@ -80,7 +82,9 @@ def test_alert_history_filtering(alert_manager):
     assert len(system_alerts) == 1
 
     # Filter by time
-    recent = alert_manager.get_alert_history(since=datetime.now() - timedelta(minutes=1))
+    recent = alert_manager.get_alert_history(
+        since=datetime.now() - timedelta(minutes=1)
+    )
     assert len(recent) == 3
 
 
@@ -89,7 +93,11 @@ def test_check_health_high_cpu(alert_manager):
     alert_manager._send_email = lambda **kwargs: True
 
     health_status = {
-        "system_metrics": {"cpu_percent": 95.0, "memory_percent": 50.0, "disk_percent": 50.0},
+        "system_metrics": {
+            "cpu_percent": 95.0,
+            "memory_percent": 50.0,
+            "disk_percent": 50.0,
+        },
         "database_status": {"connected": True},
     }
 
@@ -104,7 +112,11 @@ def test_check_health_database_down(alert_manager):
     alert_manager._send_email = lambda **kwargs: True
 
     health_status = {
-        "system_metrics": {"cpu_percent": 50.0, "memory_percent": 50.0, "disk_percent": 50.0},
+        "system_metrics": {
+            "cpu_percent": 50.0,
+            "memory_percent": 50.0,
+            "disk_percent": 50.0,
+        },
         "database_status": {"connected": False, "error": "Connection refused"},
     }
 

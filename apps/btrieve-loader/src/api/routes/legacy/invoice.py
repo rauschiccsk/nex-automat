@@ -297,7 +297,9 @@ async def process_invoice(
             customer_name=invoice_data.customer_name,
             invoice_number=invoice_data.invoice_number,
             invoice_date=invoice_data.issue_date,
-            total_amount=float(invoice_data.total_amount) if invoice_data.total_amount else 0.0,
+            total_amount=float(invoice_data.total_amount)
+            if invoice_data.total_amount
+            else 0.0,
             file_path=str(pdf_path),
             file_hash=file_hash,
             status="received",
@@ -338,7 +340,9 @@ async def process_invoice(
                     )
 
                     if is_duplicate:
-                        print(f"[WARN] Invoice already exists in PostgreSQL: {invoice_data.invoice_number}")
+                        print(
+                            f"[WARN] Invoice already exists in PostgreSQL: {invoice_data.invoice_number}"
+                        )
                     else:
                         invoice_pg_data = {
                             "supplier_ico": invoice_data.supplier_ico,
@@ -377,7 +381,9 @@ async def process_invoice(
 
                         if postgres_invoice_id:
                             postgres_saved = True
-                            print(f"[OK] Saved to PostgreSQL: invoice_id={postgres_invoice_id}")
+                            print(
+                                f"[OK] Saved to PostgreSQL: invoice_id={postgres_invoice_id}"
+                            )
 
                             staged_pdf, staged_xml = move_files_to_staging(
                                 pdf_path,
@@ -401,7 +407,9 @@ async def process_invoice(
             "message": "Invoice processed successfully",
             "invoice_number": invoice_data.invoice_number,
             "customer_name": invoice_data.customer_name,
-            "total_amount": float(invoice_data.total_amount) if invoice_data.total_amount else 0.0,
+            "total_amount": float(invoice_data.total_amount)
+            if invoice_data.total_amount
+            else 0.0,
             "items_count": len(invoice_data.items),
             "pdf_saved": str(pdf_path),
             "xml_saved": str(xml_path),
@@ -418,7 +426,9 @@ async def process_invoice(
         import traceback
 
         traceback.print_exc()
-        raise HTTPException(status_code=500, detail=f"Invoice processing failed: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Invoice processing failed: {str(e)}"
+        )
 
 
 # ============================================================================
@@ -433,10 +443,14 @@ async def admin_test_email(_api_key: ApiKey):
         result = notifications.send_test_email()
         return {
             "success": result,
-            "message": "Test email sent successfully" if result else "Failed to send test email",
+            "message": "Test email sent successfully"
+            if result
+            else "Failed to send test email",
         }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to send test email: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Failed to send test email: {str(e)}"
+        )
 
 
 @router.post("/admin/send-summary")
@@ -446,7 +460,9 @@ async def admin_send_summary(_api_key: ApiKey):
         result = notifications.send_daily_summary()
         return {
             "success": result,
-            "message": "Daily summary sent successfully" if result else "Failed to send summary",
+            "message": "Daily summary sent successfully"
+            if result
+            else "Failed to send summary",
         }
     except Exception as e:
         return {"success": False, "message": f"Failed to send summary: {str(e)}"}

@@ -4,7 +4,6 @@ NEX Automat - Shared Test Fixtures
 This module provides common fixtures for all tests in the test suite.
 """
 
-import os
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest

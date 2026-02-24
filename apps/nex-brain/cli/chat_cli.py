@@ -55,7 +55,11 @@ async def main():
 
     while True:
         try:
-            prompt = f"[{current_tenant}] Otázka: " if settings.is_multi_tenant else "Otázka: "
+            prompt = (
+                f"[{current_tenant}] Otázka: "
+                if settings.is_multi_tenant
+                else "Otázka: "
+            )
             question = input(prompt).strip()
 
             if not question:
@@ -72,7 +76,9 @@ async def main():
                     current_tenant = new_tenant
                     print(f"✅ Tenant zmenený na: {current_tenant}")
                 else:
-                    print(f"❌ Neznámy tenant. Dostupné: {', '.join(settings.tenant_list)}")
+                    print(
+                        f"❌ Neznámy tenant. Dostupné: {', '.join(settings.tenant_list)}"
+                    )
                 print()
                 continue
 
@@ -84,7 +90,9 @@ async def main():
 
                 if results:
                     for i, r in enumerate(results, 1):
-                        print(f"\n[{i}] {r.get('filename')} (score: {r.get('score', 0):.3f})")
+                        print(
+                            f"\n[{i}] {r.get('filename')} (score: {r.get('score', 0):.3f})"
+                        )
                         content = r.get("content", "")[:200]
                         print(f"    {content}...")
                 else:
@@ -100,7 +108,9 @@ async def main():
                 print(f"Našiel som {len(context)} relevantných dokumentov.")
 
             print("Generujem odpoveď...\n")
-            answer, tokens = await llm.generate(question, context, tenant=current_tenant)
+            answer, tokens = await llm.generate(
+                question, context, tenant=current_tenant
+            )
 
             print("-" * 40)
             print(answer)

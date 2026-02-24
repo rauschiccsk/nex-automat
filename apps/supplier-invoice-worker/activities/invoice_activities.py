@@ -54,7 +54,9 @@ async def upload_invoice_to_api(filename: str, content: bytes) -> UploadResult:
                     success=True,
                     filename=filename,
                     message=data.get("message", "Upload successful"),
-                    invoice_id=str(data.get("invoice_id")) if data.get("invoice_id") else None,
+                    invoice_id=str(data.get("invoice_id"))
+                    if data.get("invoice_id")
+                    else None,
                 )
             else:
                 error_msg = f"HTTP {response.status_code}: {response.text}"

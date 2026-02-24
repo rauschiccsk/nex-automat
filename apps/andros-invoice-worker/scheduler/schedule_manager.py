@@ -212,5 +212,9 @@ class ScheduleManager:
             "paused": desc.schedule.state.paused if desc.schedule.state else False,
             "note": desc.schedule.state.note if desc.schedule.state else "",
             "recent_actions": len(desc.info.recent_actions) if desc.info else 0,
-            "next_action_times": [t.isoformat() for t in (desc.info.next_action_times or [])[:3]] if desc.info else [],
+            "next_action_times": [
+                t.isoformat() for t in (desc.info.next_action_times or [])[:3]
+            ]
+            if desc.info
+            else [],
         }

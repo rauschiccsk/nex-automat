@@ -17,13 +17,19 @@ class ProductGroupBase(BaseModel):
     mglst_name: str = Field(..., max_length=80, description="Group name")
     short_name: str = Field(default="", max_length=30, description="Short name")
 
-    parent_code: int = Field(default=0, ge=0, description="Parent group code (0 = root)")
+    parent_code: int = Field(
+        default=0, ge=0, description="Parent group code (0 = root)"
+    )
     level: int = Field(default=0, ge=0, description="Hierarchy level (0 = root)")
     sort_order: int = Field(default=0, ge=0, description="Sort order")
     color_code: str = Field(default="", max_length=10, description="Color code (hex)")
 
-    default_vat_rate: float = Field(default=20.0, ge=0, le=100, description="Default VAT rate %")
-    default_unit: str = Field(default="ks", max_length=10, description="Default unit of measure")
+    default_vat_rate: float = Field(
+        default=20.0, ge=0, le=100, description="Default VAT rate %"
+    )
+    default_unit: str = Field(
+        default="ks", max_length=10, description="Default unit of measure"
+    )
 
     active: bool = Field(default=True, description="Is active")
     show_in_catalog: bool = Field(default=True, description="Show in catalog")
@@ -35,7 +41,9 @@ class ProductGroupBase(BaseModel):
 class ProductGroupCreate(ProductGroupBase):
     """Schema for creating a product group."""
 
-    mglst_code: int | None = Field(default=None, description="Group code (auto-generated if not provided)")
+    mglst_code: int | None = Field(
+        default=None, description="Group code (auto-generated if not provided)"
+    )
 
 
 class ProductGroup(ProductGroupBase):
@@ -84,7 +92,9 @@ class ProductGroupList(PaginatedResponse[ProductGroup]):
 class ProductGroupTree(ProductGroup):
     """Product group with children for tree view."""
 
-    children: list["ProductGroupTree"] = Field(default_factory=list, description="Child groups")
+    children: list["ProductGroupTree"] = Field(
+        default_factory=list, description="Child groups"
+    )
 
     @classmethod
     def build_tree(cls, groups: list[ProductGroup]) -> list["ProductGroupTree"]:

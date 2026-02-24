@@ -15,7 +15,9 @@ class BarcodeBase(BaseModel):
     """Base barcode fields."""
 
     gs_code: int = Field(..., gt=0, description="Product code (PLU)")
-    bar_code: str = Field(..., min_length=1, max_length=15, description="Barcode string")
+    bar_code: str = Field(
+        ..., min_length=1, max_length=15, description="Barcode string"
+    )
 
     @field_validator("bar_code")
     @classmethod
@@ -67,11 +69,15 @@ class BarcodeSearch(BaseModel):
     """Barcode search parameters."""
 
     gs_code: int | None = Field(default=None, description="Filter by product code")
-    bar_code: str | None = Field(default=None, description="Search by barcode (partial match)")
+    bar_code: str | None = Field(
+        default=None, description="Search by barcode (partial match)"
+    )
 
 
 class BarcodeWithProduct(Barcode):
     """Barcode with associated product info."""
 
     product_name: str = Field(default="", description="Product name from GSCAT")
-    product_supplier_code: str = Field(default="", description="Supplier code from GSCAT")
+    product_supplier_code: str = Field(
+        default="", description="Supplier code from GSCAT"
+    )

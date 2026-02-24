@@ -6,7 +6,7 @@ import sys
 from dataclasses import dataclass
 from datetime import date, datetime
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 import pytest
 
@@ -26,7 +26,9 @@ def pytest_addoption(parser):
 
 def pytest_configure(config):
     """Configure pytest"""
-    config.addinivalue_line("markers", "slow: marks tests as slow (deselect with '-m \"not slow\"')")
+    config.addinivalue_line(
+        "markers", "slow: marks tests as slow (deselect with '-m \"not slow\"')"
+    )
     config.addinivalue_line("markers", "integration: marks tests as integration tests")
     config.addinivalue_line("markers", "unit: marks tests as unit tests")
 
@@ -350,9 +352,24 @@ class MockTSIRecord:
 def sample_products():
     """Sample product records for testing."""
     return [
-        MockGSCATRecord(GsCode=1001, GsName="Chlieb biely 500g", BarCode="8590001000010", SupplierCode="LS001"),
-        MockGSCATRecord(GsCode=1002, GsName="Mlieko plnotučné 1L", BarCode="8590001000027", SupplierCode="LS002"),
-        MockGSCATRecord(GsCode=1003, GsName="Maslo 250g", BarCode="8590001000034", SupplierCode="LS003"),
+        MockGSCATRecord(
+            GsCode=1001,
+            GsName="Chlieb biely 500g",
+            BarCode="8590001000010",
+            SupplierCode="LS001",
+        ),
+        MockGSCATRecord(
+            GsCode=1002,
+            GsName="Mlieko plnotučné 1L",
+            BarCode="8590001000027",
+            SupplierCode="LS002",
+        ),
+        MockGSCATRecord(
+            GsCode=1003,
+            GsName="Maslo 250g",
+            BarCode="8590001000034",
+            SupplierCode="LS003",
+        ),
     ]
 
 
@@ -360,9 +377,27 @@ def sample_products():
 def sample_partners():
     """Sample partner records for testing."""
     return [
-        MockPABRecord(pab_code=101, name1="L & Š, s.r.o.", ico="12345678", city="Bratislava", partner_type=1),
-        MockPABRecord(pab_code=102, name1="Test Customer", ico="87654321", city="Košice", partner_type=2),
-        MockPABRecord(pab_code=103, name1="Univerzálny Partner", ico="11223344", city="Žilina", partner_type=3),
+        MockPABRecord(
+            pab_code=101,
+            name1="L & Š, s.r.o.",
+            ico="12345678",
+            city="Bratislava",
+            partner_type=1,
+        ),
+        MockPABRecord(
+            pab_code=102,
+            name1="Test Customer",
+            ico="87654321",
+            city="Košice",
+            partner_type=2,
+        ),
+        MockPABRecord(
+            pab_code=103,
+            name1="Univerzálny Partner",
+            ico="11223344",
+            city="Žilina",
+            partner_type=3,
+        ),
     ]
 
 
@@ -379,9 +414,15 @@ def sample_barcodes():
 def sample_product_groups():
     """Sample product group records for testing."""
     return [
-        MockMGLSTRecord(mglst_code=1, name="Potraviny", parent_code=0, level=1, sort_order=1),
-        MockMGLSTRecord(mglst_code=2, name="Pečivo", parent_code=1, level=2, sort_order=1),
-        MockMGLSTRecord(mglst_code=3, name="Mliečne výrobky", parent_code=1, level=2, sort_order=2),
+        MockMGLSTRecord(
+            mglst_code=1, name="Potraviny", parent_code=0, level=1, sort_order=1
+        ),
+        MockMGLSTRecord(
+            mglst_code=2, name="Pečivo", parent_code=1, level=2, sort_order=1
+        ),
+        MockMGLSTRecord(
+            mglst_code=3, name="Mliečne výrobky", parent_code=1, level=2, sort_order=2
+        ),
     ]
 
 
@@ -389,8 +430,20 @@ def sample_product_groups():
 def sample_documents():
     """Sample document header records for testing."""
     return [
-        MockTSHRecord(doc_number="2025001", doc_type=1, doc_date=date(2025, 1, 15), pab_code=101, total_amount=1234.56),
-        MockTSHRecord(doc_number="2025002", doc_type=2, doc_date=date(2025, 1, 16), pab_code=102, total_amount=999.99),
+        MockTSHRecord(
+            doc_number="2025001",
+            doc_type=1,
+            doc_date=date(2025, 1, 15),
+            pab_code=101,
+            total_amount=1234.56,
+        ),
+        MockTSHRecord(
+            doc_number="2025002",
+            doc_type=2,
+            doc_date=date(2025, 1, 16),
+            pab_code=102,
+            total_amount=999.99,
+        ),
     ]
 
 
@@ -399,9 +452,21 @@ def sample_document_items():
     """Sample document item records for testing."""
     return [
         MockTSIRecord(
-            doc_number="2025001", line_number=1, gs_code=1001, gs_name="Chlieb", quantity=10, unit_price=1.50
+            doc_number="2025001",
+            line_number=1,
+            gs_code=1001,
+            gs_name="Chlieb",
+            quantity=10,
+            unit_price=1.50,
         ),
-        MockTSIRecord(doc_number="2025001", line_number=2, gs_code=1002, gs_name="Mlieko", quantity=5, unit_price=1.20),
+        MockTSIRecord(
+            doc_number="2025001",
+            line_number=2,
+            gs_code=1002,
+            gs_name="Mlieko",
+            quantity=5,
+            unit_price=1.20,
+        ),
     ]
 
 
@@ -410,9 +475,15 @@ def mock_gscat_repository(sample_products):
     """Mock GSCATRepository."""
     repo = MagicMock()
     repo.get_all.return_value = sample_products
-    repo.find_one.side_effect = lambda predicate: next((p for p in sample_products if predicate(p)), None)
-    repo.find_by_barcode.side_effect = lambda bc: next((p for p in sample_products if p.BarCode == bc), None)
-    repo.search_by_name.side_effect = lambda q, limit=100: [p for p in sample_products if q.lower() in p.GsName.lower()]
+    repo.find_one.side_effect = lambda predicate: next(
+        (p for p in sample_products if predicate(p)), None
+    )
+    repo.find_by_barcode.side_effect = lambda bc: next(
+        (p for p in sample_products if p.BarCode == bc), None
+    )
+    repo.search_by_name.side_effect = lambda q, limit=100: [
+        p for p in sample_products if q.lower() in p.GsName.lower()
+    ]
     repo.close.return_value = None
     return repo
 
@@ -422,7 +493,9 @@ def mock_pab_repository(sample_partners):
     """Mock PABRepository."""
     repo = MagicMock()
     repo.get_all.return_value = sample_partners
-    repo.find_one.side_effect = lambda predicate: next((p for p in sample_partners if predicate(p)), None)
+    repo.find_one.side_effect = lambda predicate: next(
+        (p for p in sample_partners if predicate(p)), None
+    )
     repo.close.return_value = None
     return repo
 
@@ -431,8 +504,12 @@ def mock_pab_repository(sample_partners):
 def mock_barcode_repository(sample_barcodes):
     """Mock BARCODERepository."""
     repo = MagicMock()
-    repo.find_by_barcode.side_effect = lambda bc: next((b for b in sample_barcodes if b.bar_code == bc), None)
-    repo.find.side_effect = lambda predicate, max_results=100: [b for b in sample_barcodes if predicate(b)]
+    repo.find_by_barcode.side_effect = lambda bc: next(
+        (b for b in sample_barcodes if b.bar_code == bc), None
+    )
+    repo.find.side_effect = lambda predicate, max_results=100: [
+        b for b in sample_barcodes if predicate(b)
+    ]
     repo.close.return_value = None
     return repo
 
@@ -442,8 +519,12 @@ def mock_mglst_repository(sample_product_groups):
     """Mock MGLSTRepository."""
     repo = MagicMock()
     repo.get_all.return_value = sample_product_groups
-    repo.find_one.side_effect = lambda predicate: next((g for g in sample_product_groups if predicate(g)), None)
-    repo.find.side_effect = lambda predicate, max_results=1000: [g for g in sample_product_groups if predicate(g)]
+    repo.find_one.side_effect = lambda predicate: next(
+        (g for g in sample_product_groups if predicate(g)), None
+    )
+    repo.find.side_effect = lambda predicate, max_results=1000: [
+        g for g in sample_product_groups if predicate(g)
+    ]
     repo.close.return_value = None
     return repo
 
@@ -453,7 +534,9 @@ def mock_tsh_repository(sample_documents):
     """Mock TSHRepository."""
     repo = MagicMock()
     repo.get_all.return_value = sample_documents
-    repo.find_one.side_effect = lambda predicate: next((d for d in sample_documents if predicate(d)), None)
+    repo.find_one.side_effect = lambda predicate: next(
+        (d for d in sample_documents if predicate(d)), None
+    )
     repo.close.return_value = None
     return repo
 
@@ -462,7 +545,9 @@ def mock_tsh_repository(sample_documents):
 def mock_tsi_repository(sample_document_items):
     """Mock TSIRepository."""
     repo = MagicMock()
-    repo.find.side_effect = lambda predicate, max_results=1000: [i for i in sample_document_items if predicate(i)]
+    repo.find.side_effect = lambda predicate, max_results=1000: [
+        i for i in sample_document_items if predicate(i)
+    ]
     repo.close.return_value = None
     return repo
 

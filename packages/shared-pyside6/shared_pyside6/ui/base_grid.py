@@ -168,8 +168,12 @@ class BaseGrid(QWidget):
         self.table_view.setHorizontalHeader(self.header)
 
         # Table view settings
-        self.table_view.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
-        self.table_view.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
+        self.table_view.setSelectionBehavior(
+            QAbstractItemView.SelectionBehavior.SelectRows
+        )
+        self.table_view.setSelectionMode(
+            QAbstractItemView.SelectionMode.SingleSelection
+        )
         self.table_view.setAlternatingRowColors(True)
         self.table_view.setSortingEnabled(True)
         self.table_view.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
@@ -227,7 +231,9 @@ class BaseGrid(QWidget):
 
     def _load_grid_settings(self) -> None:
         """Load and apply saved grid settings."""
-        settings = self._repository.load_grid_settings(self._window_name, self._grid_name, self._user_id)
+        settings = self._repository.load_grid_settings(
+            self._window_name, self._grid_name, self._user_id
+        )
 
         if not settings:
             return
@@ -279,7 +285,9 @@ class BaseGrid(QWidget):
         self._sort_column = settings.get("sort_column")
         sort_order_str = settings.get("sort_order", "ascending")
         self._sort_order = (
-            Qt.SortOrder.DescendingOrder if sort_order_str == "descending" else Qt.SortOrder.AscendingOrder
+            Qt.SortOrder.DescendingOrder
+            if sort_order_str == "descending"
+            else Qt.SortOrder.AscendingOrder
         )
 
         if self._sort_column is not None:
@@ -321,10 +329,16 @@ class BaseGrid(QWidget):
             "active_column": self._active_column,
             "last_row_id": self._last_row_id,
             "sort_column": self._sort_column,
-            "sort_order": ("descending" if self._sort_order == Qt.SortOrder.DescendingOrder else "ascending"),
+            "sort_order": (
+                "descending"
+                if self._sort_order == Qt.SortOrder.DescendingOrder
+                else "ascending"
+            ),
         }
 
-        self._repository.save_grid_settings(self._window_name, self._grid_name, self._user_id, settings)
+        self._repository.save_grid_settings(
+            self._window_name, self._grid_name, self._user_id, settings
+        )
 
         self.settings_changed.emit()
 
@@ -338,12 +352,16 @@ class BaseGrid(QWidget):
 
     # === Event Handlers ===
 
-    def _on_column_resized(self, logical_index: int, old_size: int, new_size: int) -> None:
+    def _on_column_resized(
+        self, logical_index: int, old_size: int, new_size: int
+    ) -> None:
         """Handle column resize."""
         self._column_widths[str(logical_index)] = new_size
         self._save_grid_settings()
 
-    def _on_column_moved(self, logical_index: int, old_visual_index: int, new_visual_index: int) -> None:
+    def _on_column_moved(
+        self, logical_index: int, old_visual_index: int, new_visual_index: int
+    ) -> None:
         """Handle column move (drag & drop)."""
         self._save_grid_settings()
 
@@ -387,7 +405,11 @@ class BaseGrid(QWidget):
         model = self.table_view.model()
         if not model:
             return []
-        return [col for col in range(model.columnCount()) if not self.table_view.isColumnHidden(col)]
+        return [
+            col
+            for col in range(model.columnCount())
+            if not self.table_view.isColumnHidden(col)
+        ]
 
     # === Custom Headers ===
 
@@ -505,9 +527,13 @@ class BaseGrid(QWidget):
         item.setEditable(editable)
 
         if align_right:
-            item.setTextAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
+            item.setTextAlignment(
+                Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter
+            )
         else:
-            item.setTextAlignment(Qt.AlignmentFlag.AlignCenter | Qt.AlignmentFlag.AlignVCenter) if is_boolean else None
+            item.setTextAlignment(
+                Qt.AlignmentFlag.AlignCenter | Qt.AlignmentFlag.AlignVCenter
+            ) if is_boolean else None
 
         # Set color for boolean icons
         if is_boolean:
@@ -531,7 +557,9 @@ class BaseGrid(QWidget):
             True if successful
         """
         if filepath is None:
-            filepath, _ = QFileDialog.getSaveFileName(self, "Export to CSV", "", "CSV Files (*.csv)")
+            filepath, _ = QFileDialog.getSaveFileName(
+                self, "Export to CSV", "", "CSV Files (*.csv)"
+            )
             if not filepath:
                 return False
 
@@ -554,7 +582,9 @@ class BaseGrid(QWidget):
                     if custom:
                         headers.append(custom)
                     else:
-                        headers.append(model.headerData(col, Qt.Orientation.Horizontal) or "")
+                        headers.append(
+                            model.headerData(col, Qt.Orientation.Horizontal) or ""
+                        )
                 writer.writerow(headers)
 
                 # Data
@@ -582,7 +612,9 @@ class BaseGrid(QWidget):
             True if successful
         """
         if filepath is None:
-            filepath, _ = QFileDialog.getSaveFileName(self, "Export to Excel", "", "Excel Files (*.xlsx)")
+            filepath, _ = QFileDialog.getSaveFileName(
+                self, "Export to Excel", "", "Excel Files (*.xlsx)"
+            )
             if not filepath:
                 return False
 
@@ -620,7 +652,11 @@ class BaseGrid(QWidget):
             wb.save(filepath)
             return True
         except ImportError:
-            QMessageBox.critical(self, "Export Error", "openpyxl not installed. Run: pip install openpyxl")
+            QMessageBox.critical(
+                self,
+                "Export Error",
+                "openpyxl not installed. Run: pip install openpyxl",
+            )
             return False
         except Exception as e:
             QMessageBox.critical(self, "Export Error", f"Failed to export: {e}")
@@ -643,16 +679,23 @@ class BaseGrid(QWidget):
         if clicked_col >= 0:
             current_name = self.get_custom_header(clicked_col)
             if not current_name:
-                current_name = model.headerData(clicked_col, Qt.Orientation.Horizontal) or f"Column {clicked_col}"
+                current_name = (
+                    model.headerData(clicked_col, Qt.Orientation.Horizontal)
+                    or f"Column {clicked_col}"
+                )
 
             rename_action = QAction(f"Premenovať '{current_name}'...", self)
-            rename_action.triggered.connect(lambda: self._rename_column_dialog(clicked_col))
+            rename_action.triggered.connect(
+                lambda: self._rename_column_dialog(clicked_col)
+            )
             menu.addAction(rename_action)
 
             # Reset name option (only if custom name exists)
             if self.get_custom_header(clicked_col):
                 reset_action = QAction("Obnoviť pôvodný názov", self)
-                reset_action.triggered.connect(lambda: self._reset_column_name(clicked_col))
+                reset_action.triggered.connect(
+                    lambda: self._reset_column_name(clicked_col)
+                )
                 menu.addAction(reset_action)
 
             menu.addSeparator()
@@ -665,12 +708,16 @@ class BaseGrid(QWidget):
             if custom:
                 header = custom
             else:
-                header = model.headerData(col, Qt.Orientation.Horizontal) or f"Column {col}"
+                header = (
+                    model.headerData(col, Qt.Orientation.Horizontal) or f"Column {col}"
+                )
 
             action = QAction(str(header), self)
             action.setCheckable(True)
             action.setChecked(self.is_column_visible(col))
-            action.triggered.connect(lambda checked, c=col: self.set_column_visible(c, checked))
+            action.triggered.connect(
+                lambda checked, c=col: self.set_column_visible(c, checked)
+            )
             columns_menu.addAction(action)
 
         menu.exec(self.header.mapToGlobal(position))
@@ -687,7 +734,9 @@ class BaseGrid(QWidget):
             current = model.headerData(column, Qt.Orientation.Horizontal) or ""
 
         # Show input dialog
-        new_name, ok = QInputDialog.getText(self, "Premenovať stĺpec", "Nový názov:", text=str(current))
+        new_name, ok = QInputDialog.getText(
+            self, "Premenovať stĺpec", "Nový názov:", text=str(current)
+        )
 
         if ok and new_name:
             self.set_custom_header(column, new_name)
@@ -729,11 +778,15 @@ class BaseGrid(QWidget):
         model = self.table_view.model()
         if model:
             for col in range(model.columnCount()):
-                header = model.headerData(col, Qt.Orientation.Horizontal) or f"Column {col}"
+                header = (
+                    model.headerData(col, Qt.Orientation.Horizontal) or f"Column {col}"
+                )
                 action = QAction(str(header), self)
                 action.setCheckable(True)
                 action.setChecked(self.is_column_visible(col))
-                action.triggered.connect(lambda checked, c=col: self.set_column_visible(c, checked))
+                action.triggered.connect(
+                    lambda checked, c=col: self.set_column_visible(c, checked)
+                )
                 columns_menu.addAction(action)
 
         menu.exec(self.table_view.viewport().mapToGlobal(position))

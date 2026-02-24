@@ -164,9 +164,10 @@ coverage.xml
 docs/knowledge/
 
 # Sensitive knowledge-import files (credentials, VPN configs, contacts with secrets)
-docs/knowledge-import/credentials\*
-docs/knowledge-import/deployment\*\*VPN*
-docs/knowledge-import/deployment\*\*CREDENTIALS*
+# Note: these files have literal backslashes in filenames (from Windows export)
+docs/knowledge-import/credentials\\*
+docs/knowledge-import/deployment\\*VPN*
+docs/knowledge-import/deployment\\*CREDENTIALS*
 
 # Node
 node_modules/

@@ -116,9 +116,17 @@ def get_project_root():
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Create Python virtual environment for NEX Automat project")
-    parser.add_argument("--name", default="venv", help="Name of virtual environment directory (default: venv)")
-    parser.add_argument("--force", action="store_true", help="Force recreate if venv exists (no prompt)")
+    parser = argparse.ArgumentParser(
+        description="Create Python virtual environment for NEX Automat project"
+    )
+    parser.add_argument(
+        "--name",
+        default="venv",
+        help="Name of virtual environment directory (default: venv)",
+    )
+    parser.add_argument(
+        "--force", action="store_true", help="Force recreate if venv exists (no prompt)"
+    )
     parser.add_argument("--dir", help="Project directory (default: auto-detect)")
 
     args = parser.parse_args()

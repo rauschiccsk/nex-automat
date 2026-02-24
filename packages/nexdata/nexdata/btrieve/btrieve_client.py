@@ -233,7 +233,9 @@ class BtrieveClient:
                     ]
                     self.btrcall.restype = ctypes.c_int16  # Status code (SMALLINT)
 
-                    print(f"[SUCCESS] Loaded Btrieve DLL: {dll_name} from {search_path}")
+                    print(
+                        f"[SUCCESS] Loaded Btrieve DLL: {dll_name} from {search_path}"
+                    )
                     return
 
                 except Exception as e:
@@ -242,10 +244,13 @@ class BtrieveClient:
 
         raise RuntimeError(
             "[ERROR] Could not load any Btrieve DLL from any location.\n"
-            "Searched paths:\n" + "\n".join(f"  - {p}" for p in search_paths if p.exists())
+            "Searched paths:\n"
+            + "\n".join(f"  - {p}" for p in search_paths if p.exists())
         )
 
-    def open_file(self, filename: str, owner_name: str = "", mode: int = -2) -> tuple[int, bytes]:
+    def open_file(
+        self, filename: str, owner_name: str = "", mode: int = -2
+    ) -> tuple[int, bytes]:
         """
         Otvor Btrieve súbor - FIXED with owner name support
 
@@ -289,7 +294,13 @@ class BtrieveClient:
 
         # Call BTRCALL
         status = self.btrcall(
-            self.B_OPEN, pos_block, data_buffer, ctypes.byref(data_len), key_buffer, key_len, mode & 0xFF
+            self.B_OPEN,
+            pos_block,
+            data_buffer,
+            ctypes.byref(data_len),
+            key_buffer,
+            key_len,
+            mode & 0xFF,
         )
 
         return status, pos_block.raw
@@ -409,7 +420,9 @@ class BtrieveClient:
 
 
 # Convenience functions
-def open_btrieve_file(filename: str, config_path: str | None = None) -> tuple[BtrieveClient, bytes]:
+def open_btrieve_file(
+    filename: str, config_path: str | None = None
+) -> tuple[BtrieveClient, bytes]:
     """
     Helper funkcia na otvorenie Btrieve súboru
 
@@ -424,6 +437,8 @@ def open_btrieve_file(filename: str, config_path: str | None = None) -> tuple[Bt
     status, pos_block = client.open_file(filename)
 
     if status != BtrieveClient.STATUS_SUCCESS:
-        raise RuntimeError(f"Failed to open {filename}: {client.get_status_message(status)}")
+        raise RuntimeError(
+            f"Failed to open {filename}: {client.get_status_message(status)}"
+        )
 
     return client, pos_block

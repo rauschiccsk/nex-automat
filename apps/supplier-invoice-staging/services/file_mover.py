@@ -69,7 +69,9 @@ def move_files_to_archive(
             return (None, None)
 
         if current_status != "staged":
-            print(f"[WARN] Invoice {invoice_id} status is '{current_status}', expected 'staged'")
+            print(
+                f"[WARN] Invoice {invoice_id} status is '{current_status}', expected 'staged'"
+            )
 
         # Build archive filename
         if nex_delivery_doc_id:

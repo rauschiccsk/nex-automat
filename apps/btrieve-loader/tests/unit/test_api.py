@@ -154,7 +154,9 @@ def test_invoice_endpoint_with_valid_structure(client, api_key):
         "received_date": "2025-10-06T10:00:00",
     }
 
-    response = client.post("/invoice", headers={"X-API-Key": api_key}, json=request_data)
+    response = client.post(
+        "/invoice", headers={"X-API-Key": api_key}, json=request_data
+    )
 
     # Will likely fail at extraction stage, but should accept request
     # Status can be 200 (partial success) or 500 (processing error)

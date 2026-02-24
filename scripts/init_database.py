@@ -28,9 +28,15 @@ def database_exists(password: str, db_name: str) -> bool:
     """Check if database exists"""
     try:
         conn = pg8000.native.Connection(
-            user="postgres", password=password, host="localhost", port=5432, database="postgres"
+            user="postgres",
+            password=password,
+            host="localhost",
+            port=5432,
+            database="postgres",
         )
-        result = conn.run("SELECT 1 FROM pg_database WHERE datname = :db_name", db_name=db_name)
+        result = conn.run(
+            "SELECT 1 FROM pg_database WHERE datname = :db_name", db_name=db_name
+        )
         conn.close()
         return len(result) > 0
     except Exception as e:
@@ -42,7 +48,11 @@ def create_database(password: str, db_name: str):
     """Create database if it doesn't exist"""
     try:
         conn = pg8000.native.Connection(
-            user="postgres", password=password, host="localhost", port=5432, database="postgres"
+            user="postgres",
+            password=password,
+            host="localhost",
+            port=5432,
+            database="postgres",
         )
         conn.run(f"CREATE DATABASE {db_name}")
         conn.close()
@@ -64,7 +74,11 @@ def run_schema(password: str, db_name: str, schema_file: Path):
 
         # Connect to target database
         conn = pg8000.native.Connection(
-            user="postgres", password=password, host="localhost", port=5432, database=db_name
+            user="postgres",
+            password=password,
+            host="localhost",
+            port=5432,
+            database=db_name,
         )
 
         # Split by semicolons and execute each statement
@@ -99,10 +113,15 @@ def main():
 
     # Project paths
     project_root = Path(__file__).parent.parent
-    schema_dir = project_root / "apps" / "supplier-invoice-editor" / "database" / "schemas"
+    schema_dir = (
+        project_root / "apps" / "supplier-invoice-editor" / "database" / "schemas"
+    )
 
     # Schema files in order
-    schema_files = [schema_dir / "001_initial_schema.sql", schema_dir / "002_add_nex_columns.sql"]
+    schema_files = [
+        schema_dir / "001_initial_schema.sql",
+        schema_dir / "002_add_nex_columns.sql",
+    ]
 
     print(f"Database: {db_name}")
     print(f"Schema directory: {schema_dir}")

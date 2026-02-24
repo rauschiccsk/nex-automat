@@ -70,7 +70,9 @@ async def save_invoice_to_postgres_activity(
                 await _insert_invoice_item(conn, head_id, item)
                 item_count += 1
 
-        activity.logger.info(f"Invoice {invoice_number} saved: head_id={head_id}, items={item_count}")
+        activity.logger.info(
+            f"Invoice {invoice_number} saved: head_id={head_id}, items={item_count}"
+        )
 
         return {
             "status": "success",
@@ -109,7 +111,11 @@ async def _insert_invoice_head(
     fetched_at = _parse_datetime(invoice_data.get("fetched_at")) or datetime.now()
 
     # Fallback for supplier_ico (required field)
-    supplier_ico = invoice_data.get("supplier_ico") or invoice_data.get("supplier_dic") or "UNKNOWN"
+    supplier_ico = (
+        invoice_data.get("supplier_ico")
+        or invoice_data.get("supplier_dic")
+        or "UNKNOWN"
+    )
 
     sql = """
         INSERT INTO supplier_invoice_heads (

@@ -38,7 +38,9 @@ def setup_logging(backup_type: str) -> logging.Logger:
     ch.setLevel(logging.INFO)
 
     # Formatter
-    formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
+    formatter = logging.Formatter(
+        "%(asctime)s - %(levelname)s - %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
+    )
     fh.setFormatter(formatter)
     ch.setFormatter(formatter)
 
@@ -70,7 +72,9 @@ def send_email_notification(subject: str, message: str):
 def main():
     """Main wrapper entry point"""
     parser = argparse.ArgumentParser(description="Backup wrapper with logging")
-    parser.add_argument("--type", choices=["daily", "weekly"], default="daily", help="Backup type")
+    parser.add_argument(
+        "--type", choices=["daily", "weekly"], default="daily", help="Backup type"
+    )
     args = parser.parse_args()
 
     logger = setup_logging(args.type)
@@ -83,7 +87,14 @@ def main():
     backup_script = PROJECT_ROOT / "scripts" / "backup_database.py"
     config_file = PROJECT_ROOT / "config" / "config.yaml"
 
-    cmd = [sys.executable, str(backup_script), "--config", str(config_file), "--type", args.type]
+    cmd = [
+        sys.executable,
+        str(backup_script),
+        "--config",
+        str(config_file),
+        "--type",
+        args.type,
+    ]
 
     logger.info(f"Command: {' '.join(cmd)}")
 

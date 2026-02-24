@@ -51,12 +51,18 @@ class EmbeddingModel:
         self._dimension = self.model.get_sentence_embedding_dimension()
 
         if self._dimension != self.config.dimension:
-            print(f"Warning: Model dimension {self._dimension} != config dimension {self.config.dimension}")
+            print(
+                f"Warning: Model dimension {self._dimension} != config dimension {self.config.dimension}"
+            )
 
         print(f"[OK] Model loaded (dimension: {self._dimension})")
 
     def encode(
-        self, texts: str | list[str], batch_size: int | None = None, show_progress: bool = False, normalize: bool = True
+        self,
+        texts: str | list[str],
+        batch_size: int | None = None,
+        show_progress: bool = False,
+        normalize: bool = True,
     ) -> np.ndarray:
         """
         Generate embeddings for text(s)
@@ -96,7 +102,12 @@ class EmbeddingModel:
 
         return embeddings
 
-    def encode_batch(self, texts: list[str], batch_size: int | None = None, show_progress: bool = True) -> np.ndarray:
+    def encode_batch(
+        self,
+        texts: list[str],
+        batch_size: int | None = None,
+        show_progress: bool = True,
+    ) -> np.ndarray:
         """
         Generate embeddings for batch of texts
 
@@ -110,7 +121,9 @@ class EmbeddingModel:
         Returns:
             Numpy array of embeddings (N x dimension)
         """
-        return self.encode(texts, batch_size=batch_size, show_progress=show_progress, normalize=True)
+        return self.encode(
+            texts, batch_size=batch_size, show_progress=show_progress, normalize=True
+        )
 
     @property
     def dimension(self) -> int:

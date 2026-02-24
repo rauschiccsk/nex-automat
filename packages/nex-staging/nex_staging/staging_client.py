@@ -134,7 +134,10 @@ class StagingClient:
         return count > 0
 
     def insert_invoice_with_items(
-        self, invoice_data: dict[str, Any], items_data: list[dict[str, Any]], isdoc_xml: str | None = None
+        self,
+        invoice_data: dict[str, Any],
+        items_data: list[dict[str, Any]],
+        isdoc_xml: str | None = None,
     ) -> int | None:
         """
         Insert invoice with items into staging database.
@@ -269,7 +272,9 @@ class StagingClient:
         success = self._conn.row_count > 0
 
         if success:
-            logger.info(f"Updated file_status to '{file_status}' for invoice {invoice_id}")
+            logger.info(
+                f"Updated file_status to '{file_status}' for invoice {invoice_id}"
+            )
 
         return success
 
@@ -301,7 +306,11 @@ class StagingClient:
 
         row = result[0] if result else (0, 0, 0)
 
-        return {"matched": row[0] or 0, "not_matched": row[1] or 0, "total": row[2] or 0}
+        return {
+            "matched": row[0] or 0,
+            "not_matched": row[1] or 0,
+            "total": row[2] or 0,
+        }
 
     def test_connection(self) -> tuple:
         """Test database connection."""

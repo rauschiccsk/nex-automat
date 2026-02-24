@@ -9,7 +9,11 @@ print("Testing pg8000 connection...")
 print("\nTest 1: Direct pg8000.dbapi.connect()")
 try:
     conn = pg8000.dbapi.connect(
-        host="localhost", port=5432, database="invoice_staging", user="postgres", password="Nex1968"
+        host="localhost",
+        port=5432,
+        database="invoice_staging",
+        user="postgres",
+        password="Nex1968",
     )
     print("OK Connected!")
     conn.close()

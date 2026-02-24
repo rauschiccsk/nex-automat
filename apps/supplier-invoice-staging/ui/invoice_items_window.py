@@ -40,7 +40,13 @@ class InvoiceItemsWindow(BaseWindow):
         ("validation_status", "Stav", 70, True, False),
     ]
 
-    def __init__(self, invoice: dict, settings: Settings, repository: InvoiceRepository, parent=None):
+    def __init__(
+        self,
+        invoice: dict,
+        settings: Settings,
+        repository: InvoiceRepository,
+        parent=None,
+    ):
         self.invoice = invoice
         self.settings = settings
         self.repository = repository
@@ -48,10 +54,16 @@ class InvoiceItemsWindow(BaseWindow):
         self._filtered_data: list[dict[str, Any]] = []
 
         super().__init__(
-            window_name=self.WINDOW_ID, default_size=(1200, 600), default_pos=(150, 150), auto_load=True, parent=parent
+            window_name=self.WINDOW_ID,
+            default_size=(1200, 600),
+            default_pos=(150, 150),
+            auto_load=True,
+            parent=parent,
         )
 
-        self.setWindowTitle(f"Polozky faktury: {invoice['xml_invoice_number']} - {invoice['xml_supplier_name']}")
+        self.setWindowTitle(
+            f"Polozky faktury: {invoice['xml_invoice_number']} - {invoice['xml_supplier_name']}"
+        )
         self._setup_ui()
         self._connect_signals()
         self._load_items()
@@ -115,7 +127,9 @@ class InvoiceItemsWindow(BaseWindow):
         self.search_container = QuickSearchContainer(self.grid.table_view, self)
         layout.addWidget(self.search_container)
 
-        self.search_controller = QuickSearchController(self.grid.table_view, self.search_container, self.grid.header)
+        self.search_controller = QuickSearchController(
+            self.grid.table_view, self.search_container, self.grid.header
+        )
         # Load saved column or default to 2 (EAN)
         saved_column = self.grid.get_active_column()
         if saved_column == 0:  # ID column is hidden
@@ -161,10 +175,14 @@ class InvoiceItemsWindow(BaseWindow):
         try:
             margin = Decimal(str(margin_percent or 0))
             nc = Decimal(str(item.get("xml_unit_price", 0)))
-            vat = Decimal(str(item.get("xml_vat_rate") or self.settings.default_vat_rate))
+            vat = Decimal(
+                str(item.get("xml_vat_rate") or self.settings.default_vat_rate)
+            )
             item["margin_percent"] = float(margin)
             item["selling_price_excl_vat"] = float(nc * (1 + margin / 100))
-            item["selling_price_incl_vat"] = float(Decimal(str(item["selling_price_excl_vat"])) * (1 + vat / 100))
+            item["selling_price_incl_vat"] = float(
+                Decimal(str(item["selling_price_excl_vat"])) * (1 + vat / 100)
+            )
         except (ValueError, TypeError):
             pass
 
@@ -172,7 +190,9 @@ class InvoiceItemsWindow(BaseWindow):
         try:
             pc = Decimal(str(selling_price or 0))
             nc = Decimal(str(item.get("xml_unit_price", 0)))
-            vat = Decimal(str(item.get("xml_vat_rate") or self.settings.default_vat_rate))
+            vat = Decimal(
+                str(item.get("xml_vat_rate") or self.settings.default_vat_rate)
+            )
             if nc > 0:
                 item["margin_percent"] = float(((pc / nc) - 1) * 100)
             item["selling_price_excl_vat"] = float(pc)

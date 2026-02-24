@@ -5,7 +5,6 @@ Adapted for production database schema from supplier_invoice_loader
 
 import logging
 from decimal import Decimal
-from typing import Dict, List, Optional
 
 
 class InvoiceService:
@@ -29,11 +28,15 @@ class InvoiceService:
             if self.db_client.test_connection():
                 self.logger.info("PostgreSQL client initialized and connected")
             else:
-                self.logger.warning("PostgreSQL connection test failed - using stub data")
+                self.logger.warning(
+                    "PostgreSQL connection test failed - using stub data"
+                )
                 self.db_client = None
 
         except ImportError:
-            self.logger.warning("pg8000 not installed - using stub data. Install with: pip install pg8000")
+            self.logger.warning(
+                "pg8000 not installed - using stub data. Install with: pip install pg8000"
+            )
         except Exception as e:
             self.logger.error(f"Failed to initialize database: {e}")
             self.logger.warning("Using stub data")
@@ -195,7 +198,9 @@ class InvoiceService:
         """
 
         results = self.db_client.execute_query(query, (invoice_id,))
-        self.logger.info(f"Loaded {len(results)} items for invoice {invoice_id} from database")
+        self.logger.info(
+            f"Loaded {len(results)} items for invoice {invoice_id} from database"
+        )
 
         return results
 
@@ -237,7 +242,9 @@ class InvoiceService:
                 return self._save_to_database(invoice_id, items)
             else:
                 # Stub mode - just log
-                self.logger.warning("Database not available - changes not saved (stub mode)")
+                self.logger.warning(
+                    "Database not available - changes not saved (stub mode)"
+                )
                 self.logger.info(f"Would save {len(items)} items:")
                 for item in items:
                     self.logger.info(f"  - {item['item_name']}: {item['total_price']}")
@@ -316,7 +323,9 @@ class InvoiceService:
             self.logger.exception("Database save failed")
             return False
 
-    def calculate_item_price(self, unit_price: Decimal, rabat_percent: Decimal, quantity: Decimal) -> tuple:
+    def calculate_item_price(
+        self, unit_price: Decimal, rabat_percent: Decimal, quantity: Decimal
+    ) -> tuple:
         """
         Calculate item prices
 

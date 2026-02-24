@@ -10,7 +10,6 @@ import sys
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Dict, List, Optional
 
 
 @dataclass
@@ -103,7 +102,8 @@ class LogManager:
             file_formatter = JsonFormatter()
         else:
             file_formatter = logging.Formatter(
-                "%(asctime)s - %(name)s - %(levelname)s - %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
+                "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+                datefmt="%Y-%m-%d %H:%M:%S",
             )
 
         file_handler.setFormatter(file_formatter)
@@ -117,7 +117,9 @@ class LogManager:
                 "%(asctime)s - %(levelname)s - %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
             )
             console_handler.setFormatter(console_formatter)
-            console_handler.setLevel(getattr(logging, self.config.console_level.upper()))
+            console_handler.setLevel(
+                getattr(logging, self.config.console_level.upper())
+            )
             self.logger.addHandler(console_handler)
 
     def get_logger(self, name: str | None = None) -> logging.Logger:
@@ -208,7 +210,9 @@ class LogManager:
 
         return stats
 
-    def analyze_logs(self, level: str | None = None, since: datetime | None = None, limit: int = 100) -> list[dict]:
+    def analyze_logs(
+        self, level: str | None = None, since: datetime | None = None, limit: int = 100
+    ) -> list[dict]:
         """
         Analyze log entries
 
@@ -238,7 +242,9 @@ class LogManager:
                                 continue
 
                             if since:
-                                entry_time = datetime.fromisoformat(entry.get("timestamp", ""))
+                                entry_time = datetime.fromisoformat(
+                                    entry.get("timestamp", "")
+                                )
                                 if entry_time < since:
                                     continue
 
@@ -313,7 +319,10 @@ class LogManager:
 
 
 def setup_logging(
-    log_dir: str = "logs", log_level: str = "INFO", use_json: bool = False, console: bool = True
+    log_dir: str = "logs",
+    log_level: str = "INFO",
+    use_json: bool = False,
+    console: bool = True,
 ) -> LogManager:
     """
     Quick setup for logging
@@ -327,6 +336,11 @@ def setup_logging(
     Returns:
         LogManager instance
     """
-    config = LogConfig(log_dir=Path(log_dir), log_level=log_level, use_json=use_json, console_output=console)
+    config = LogConfig(
+        log_dir=Path(log_dir),
+        log_level=log_level,
+        use_json=use_json,
+        console_output=console,
+    )
 
     return LogManager(config)

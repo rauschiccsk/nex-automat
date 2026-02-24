@@ -7,7 +7,6 @@ import logging
 import re
 from dataclasses import dataclass, field
 from decimal import Decimal
-from typing import Dict, List, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -160,7 +159,11 @@ class LSInvoiceExtractor:
         for field, pattern in self.patterns.items():
             match = re.search(pattern, text, re.IGNORECASE | re.MULTILINE)
             if match:
-                value = match.group(1).strip() if match.lastindex else match.group(0).strip()
+                value = (
+                    match.group(1).strip()
+                    if match.lastindex
+                    else match.group(0).strip()
+                )
 
                 # Cleanup hodnoty
                 if field in ["issue_date", "due_date", "tax_point_date"]:
@@ -175,7 +178,12 @@ class LSInvoiceExtractor:
                     except:
                         value = None
 
-                if field in ["customer_ico", "customer_dic", "variable_symbol", "constant_symbol"]:
+                if field in [
+                    "customer_ico",
+                    "customer_dic",
+                    "variable_symbol",
+                    "constant_symbol",
+                ]:
                     # Odstráň medzery z čísel
                     value = re.sub(r"\s+", "", value)
 
@@ -193,7 +201,11 @@ class LSInvoiceExtractor:
                     # Ak stále začína 1-2 písmenami + medzera, odstráň to
                     value = re.sub(r"^[A-Z]{1,2}\s+", "", value)
                     # Odstráň extra medzery medzi písmenami v mene: "M Á G E RSTAV" → "MÁGERSTAV"
-                    value = re.sub(r"([A-ZÁČĎÉÍĹĽŇÓŔŠŤÚÝŽ])\s+(?=[A-ZÁČĎÉÍĹĽŇÓŔŠŤÚÝŽ])", r"\1", value)
+                    value = re.sub(
+                        r"([A-ZÁČĎÉÍĹĽŇÓŔŠŤÚÝŽ])\s+(?=[A-ZÁČĎÉÍĹĽŇÓŔŠŤÚÝŽ])",
+                        r"\1",
+                        value,
+                    )
 
                 # Nastav hodnotu
                 setattr(data, field, value)
@@ -208,7 +220,11 @@ class LSInvoiceExtractor:
         # Použijeme IČO lookup (v reálnom svete by to bolo z databázy)
         if data.customer_ico == "31436871":
             # Ak názov obsahuje "OBJ:" alebo iné technické označenia, nahraď ho
-            if not data.customer_name or "OBJ:" in data.customer_name or len(data.customer_name) < 10:
+            if (
+                not data.customer_name
+                or "OBJ:" in data.customer_name
+                or len(data.customer_name) < 10
+            ):
                 data.customer_name = "MÁGERSTAV, spol. s r.o."
 
         return data
@@ -277,13 +293,20 @@ class LSInvoiceExtractor:
 
             # Detekcia druhého riadku položky (kód, EAN, DPH)
             elif current_item:
-                second_line_match = re.match(r"^(\d+)\s+(\d{10,14})?\s*(?:AKCIA\s+)?(\d+)%", line)
+                second_line_match = re.match(
+                    r"^(\d+)\s+(\d{10,14})?\s*(?:AKCIA\s+)?(\d+)%", line
+                )
                 if second_line_match:
                     current_item.item_code = second_line_match.group(1)
                     # EAN musí mať aspoň 10 číslic, inak je to chyba
-                    if second_line_match.group(2) and len(second_line_match.group(2)) >= 10:
+                    if (
+                        second_line_match.group(2)
+                        and len(second_line_match.group(2)) >= 10
+                    ):
                         current_item.ean_code = second_line_match.group(2)
-                    current_item.vat_rate = self._parse_decimal(second_line_match.group(3))
+                    current_item.vat_rate = self._parse_decimal(
+                        second_line_match.group(3)
+                    )
 
         # Ulož poslednú položku
         if current_item:

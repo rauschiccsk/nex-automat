@@ -157,7 +157,9 @@ class WindowPersistenceManager:
 
         # Ak je pozícia invalid, opraviť pozíciu ale ZACHOVAŤ rozmery z DB
         if not cls.validate_position(x, y, width, height):
-            logger.info(f"Invalid position ({x}, {y}) - correcting but keeping size {width}x{height}")
+            logger.info(
+                f"Invalid position ({x}, {y}) - correcting but keeping size {width}x{height}"
+            )
 
             # Opraviť len pozíciu - posunúť okno na viditeľnú oblasť
             screen = QApplication.primaryScreen().geometry()
@@ -171,7 +173,9 @@ class WindowPersistenceManager:
                 x = default_pos[0]
                 y = default_pos[1]
 
-            logger.info(f"Corrected position to ({x}, {y}) with original size {width}x{height}")
+            logger.info(
+                f"Corrected position to ({x}, {y}) with original size {width}x{height}"
+            )
 
             return {
                 "x": x,
@@ -181,7 +185,13 @@ class WindowPersistenceManager:
                 "window_state": window_state,  # ✅ ZACHOVANÉ z DB!
             }
 
-        return {"x": x, "y": y, "width": width, "height": height, "window_state": window_state}
+        return {
+            "x": x,
+            "y": y,
+            "width": width,
+            "height": height,
+            "window_state": window_state,
+        }
 
     @classmethod
     def log_monitor_info(cls):
@@ -197,7 +207,9 @@ class WindowPersistenceManager:
             logger.info(f"Detected {screen_count} monitor(s):")
             for i in range(screen_count):
                 geom = desktop.screenGeometry(i)
-                logger.info(f"  Monitor {i}: pos=({geom.x()}, {geom.y()}), size={geom.width()}x{geom.height()}")
+                logger.info(
+                    f"  Monitor {i}: pos=({geom.x()}, {geom.y()}), size={geom.width()}x{geom.height()}"
+                )
 
         except Exception as e:
             logger.error(f"Error logging monitor info: {e}")

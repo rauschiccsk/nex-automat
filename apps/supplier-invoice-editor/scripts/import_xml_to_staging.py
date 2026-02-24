@@ -55,7 +55,9 @@ def parse_isdoc_xml(xml_path: str):
         "uuid": root.find(".//isdoc:UUID", ns).text,
         "issue_date": root.find(".//isdoc:IssueDate", ns).text,
         "due_date": None,
-        "total_amount": Decimal(root.find(".//isdoc:LegalMonetaryTotal/isdoc:TaxInclusiveAmount", ns).text),
+        "total_amount": Decimal(
+            root.find(".//isdoc:LegalMonetaryTotal/isdoc:TaxInclusiveAmount", ns).text
+        ),
         "currency": "EUR",
     }
 
@@ -69,8 +71,12 @@ def parse_isdoc_xml(xml_path: str):
     # Supplier
     supplier_party = root.find(".//isdoc:AccountingSupplierParty/isdoc:Party", ns)
     if supplier_party is not None:
-        invoice["supplier_name"] = supplier_party.find(".//isdoc:PartyName/isdoc:Name", ns).text
-        invoice["supplier_ico"] = supplier_party.find(".//isdoc:PartyIdentification/isdoc:ID", ns).text
+        invoice["supplier_name"] = supplier_party.find(
+            ".//isdoc:PartyName/isdoc:Name", ns
+        ).text
+        invoice["supplier_ico"] = supplier_party.find(
+            ".//isdoc:PartyIdentification/isdoc:ID", ns
+        ).text
 
     # Items
     items = []
@@ -125,10 +131,14 @@ def import_to_database(xml_path: str, config_path: str = "config/config.yaml"):
         "port": config_obj.get("database.postgres.port"),
         "database": config_obj.get("database.postgres.database"),
         "user": config_obj.get("database.postgres.user"),
-        "password": os.getenv("POSTGRES_PASSWORD", config_obj.get("database.postgres.password", "")),
+        "password": os.getenv(
+            "POSTGRES_PASSWORD", config_obj.get("database.postgres.password", "")
+        ),
     }
 
-    print(f"Connecting to: {db_config['host']}:{db_config['port']}/{db_config['database']}")
+    print(
+        f"Connecting to: {db_config['host']}:{db_config['port']}/{db_config['database']}"
+    )
 
     # NEX lookup service
     print("Initializing NEX lookup service...")
@@ -192,7 +202,9 @@ def import_to_database(xml_path: str, config_path: str = "config/config.yaml"):
                     # Clean NEX data - CRITICAL FIX!
                     nex_name_clean = clean_string(nex_data.get("name", ""))
                     nex_category_clean = clean_string(nex_data.get("category", ""))
-                    print(f"  OK {item['description'][:40]:<40} -> PLU: {nex_data['plu']}")
+                    print(
+                        f"  OK {item['description'][:40]:<40} -> PLU: {nex_data['plu']}"
+                    )
                 else:
                     missing_count += 1
                     nex_name_clean = None

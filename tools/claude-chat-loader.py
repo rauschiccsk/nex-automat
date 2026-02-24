@@ -95,7 +95,9 @@ Pokračujem tam kde sme skončili v predchádzajúcom chate.
             pyperclip.copy(content)
 
             line_count = len(content.split("\n"))
-            self.show_notification(f"✅ Session notes v schránke ({line_count} riadkov)")
+            self.show_notification(
+                f"✅ Session notes v schránke ({line_count} riadkov)"
+            )
 
         except Exception as e:
             self.show_notification(f"❌ Chyba: {e}", error=True)
@@ -115,7 +117,10 @@ Pokračujem tam kde sme skončili v predchádzajúcom chate.
         print("📂 CLAUDE CHAT LOADER - nex-automat")
         print("=" * 60)
 
-        files = [("Init Prompt", self.init_prompt_file), ("Session Notes", self.session_notes_file)]
+        files = [
+            ("Init Prompt", self.init_prompt_file),
+            ("Session Notes", self.session_notes_file),
+        ]
 
         for name, file_path in files:
             if file_path.exists():

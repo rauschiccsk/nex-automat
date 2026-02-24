@@ -10,7 +10,9 @@ from pathlib import Path
 from PyQt5.QtCore import QAbstractTableModel, Qt, QVariant, pyqtSignal
 
 # Import BaseGrid from nex-shared
-nex_shared_path = Path(__file__).parent.parent.parent.parent.parent / "packages" / "nex-shared"
+nex_shared_path = (
+    Path(__file__).parent.parent.parent.parent.parent / "packages" / "nex-shared"
+)
 import sys
 
 sys.path.insert(0, str(nex_shared_path))
@@ -160,7 +162,9 @@ class InvoiceItemsModel(QAbstractTableModel):
                         return False
                 elif column_key in ("quantity", "unit_price"):
                     if decimal_value < 0:
-                        self.logger.warning(f"Negative value not allowed: {decimal_value}")
+                        self.logger.warning(
+                            f"Negative value not allowed: {decimal_value}"
+                        )
                         return False
 
                 item[column_key] = decimal_value
@@ -197,7 +201,9 @@ class InvoiceItemsModel(QAbstractTableModel):
             quantity = Decimal(str(item.get("quantity", 0)))
 
             # Price after rabat = unit_price * (1 - rabat_percent/100)
-            price_after_rabat = unit_price * (Decimal("1") - rabat_percent / Decimal("100"))
+            price_after_rabat = unit_price * (
+                Decimal("1") - rabat_percent / Decimal("100")
+            )
             price_after_rabat = price_after_rabat.quantize(Decimal("0.01"))
 
             # Total price = price_after_rabat * quantity
@@ -265,7 +271,9 @@ class InvoiceItemsGrid(BaseGrid):
 
     def __init__(self, invoice_service, parent=None):
         # Initialize BaseGrid
-        super().__init__(window_name=WINDOW_MAIN, grid_name=GRID_INVOICE_ITEMS, parent=parent)
+        super().__init__(
+            window_name=WINDOW_MAIN, grid_name=GRID_INVOICE_ITEMS, parent=parent
+        )
 
         self.invoice_service = invoice_service
 

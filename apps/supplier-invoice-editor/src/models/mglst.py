@@ -11,7 +11,6 @@ Record Size: ~200 bytes
 import struct
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Optional
 
 
 @dataclass
@@ -92,7 +91,9 @@ class MGLSTRecord:
             MGLSTRecord instance
         """
         if len(data) < 200:
-            raise ValueError(f"Invalid record size: {len(data)} bytes (expected >= 200)")
+            raise ValueError(
+                f"Invalid record size: {len(data)} bytes (expected >= 200)"
+            )
 
         # Primary key
         mglst_code = struct.unpack("<i", data[0:4])[0]
@@ -128,15 +129,21 @@ class MGLSTRecord:
             note = data[156:256].decode(encoding, errors="ignore").rstrip("\x00 ")
 
         if len(data) >= 456:
-            description = data[256:456].decode(encoding, errors="ignore").rstrip("\x00 ")
+            description = (
+                data[256:456].decode(encoding, errors="ignore").rstrip("\x00 ")
+            )
 
         # Try to extract audit fields if present
         if len(data) >= 472:
             mod_user = data[456:464].decode(encoding, errors="ignore").rstrip("\x00 ")
             mod_date_int = struct.unpack("<i", data[464:468])[0]
-            mod_date = cls._decode_delphi_date(mod_date_int) if mod_date_int > 0 else None
+            mod_date = (
+                cls._decode_delphi_date(mod_date_int) if mod_date_int > 0 else None
+            )
             mod_time_int = struct.unpack("<i", data[468:472])[0]
-            mod_time = cls._decode_delphi_time(mod_time_int) if mod_time_int >= 0 else None
+            mod_time = (
+                cls._decode_delphi_time(mod_time_int) if mod_time_int >= 0 else None
+            )
 
         return cls(
             mglst_code=mglst_code,
@@ -212,7 +219,9 @@ class MGLSTRecord:
         current = self
 
         while not current.is_root():
-            parent = next((c for c in all_categories if c.mglst_code == current.parent_code), None)
+            parent = next(
+                (c for c in all_categories if c.mglst_code == current.parent_code), None
+            )
             if parent:
                 path.insert(0, parent)
                 current = parent
@@ -221,7 +230,9 @@ class MGLSTRecord:
 
         return path
 
-    def get_full_path_name(self, all_categories: list["MGLSTRecord"], separator: str = " > ") -> str:
+    def get_full_path_name(
+        self, all_categories: list["MGLSTRecord"], separator: str = " > "
+    ) -> str:
         """
         Get full category path as string (e.g., "Elektronika > Počítače > Notebooky")
 

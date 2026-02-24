@@ -72,7 +72,9 @@ class ANDROSInvoiceWorkflow:
         Returns:
             Summary of processed invoices
         """
-        workflow.logger.info(f"Starting ANDROS invoice workflow for {supplier_id}: {date_from} to {date_to}")
+        workflow.logger.info(
+            f"Starting ANDROS invoice workflow for {supplier_id}: {date_from} to {date_to}"
+        )
 
         # Retry policy for activities
         retry_policy = RetryPolicy(
@@ -150,7 +152,9 @@ class ANDROSInvoiceWorkflow:
                     else:
                         results["skipped"] += 1
                 except Exception as e:
-                    workflow.logger.error(f"Failed to process invoice {invoice_id}: {e}")
+                    workflow.logger.error(
+                        f"Failed to process invoice {invoice_id}: {e}"
+                    )
                     results["failed"] += 1
                     results["errors"].append(
                         {
@@ -220,7 +224,9 @@ class ANDROSInvoiceWorkflow:
             args=[unified_data, supplier_id, customer_code],
             **activity_options,
         )
-        workflow.logger.info(f"Invoice {invoice_id} saved to DB: head_id={db_result['head_id']}")
+        workflow.logger.info(
+            f"Invoice {invoice_id} saved to DB: head_id={db_result['head_id']}"
+        )
 
         # Convert to ISDOC XML
         isdoc_xml = await workflow.execute_activity(
@@ -292,7 +298,9 @@ class SingleInvoiceWorkflow:
         Returns:
             Processing result
         """
-        workflow.logger.info(f"Processing single invoice: {invoice_id} from {supplier_id}")
+        workflow.logger.info(
+            f"Processing single invoice: {invoice_id} from {supplier_id}"
+        )
 
         retry_policy = RetryPolicy(
             initial_interval=timedelta(seconds=5),

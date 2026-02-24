@@ -7,7 +7,13 @@ import logging
 
 from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtGui import QColor, QPen
-from PyQt5.QtWidgets import QAbstractItemView, QHeaderView, QTableView, QVBoxLayout, QWidget
+from PyQt5.QtWidgets import (
+    QAbstractItemView,
+    QHeaderView,
+    QTableView,
+    QVBoxLayout,
+    QWidget,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -74,7 +80,14 @@ class BaseGrid(QWidget):
                 self._setup_custom_stuff()
     """
 
-    def __init__(self, window_name: str, grid_name: str, user_id: str = "Server", auto_load: bool = True, parent=None):
+    def __init__(
+        self,
+        window_name: str,
+        grid_name: str,
+        user_id: str = "Server",
+        auto_load: bool = True,
+        parent=None,
+    ):
         """
         Inicializácia BaseGrid.
 
@@ -119,7 +132,9 @@ class BaseGrid(QWidget):
         self.table_view.setAlternatingRowColors(True)
         self.table_view.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.table_view.setSelectionMode(QAbstractItemView.SingleSelection)
-        self.table_view.setSortingEnabled(False)  # QuickSearchController enabled sorting
+        self.table_view.setSortingEnabled(
+            False
+        )  # QuickSearchController enabled sorting
 
         layout.addWidget(self.table_view)
 
@@ -147,10 +162,14 @@ class BaseGrid(QWidget):
         self.layout().addWidget(self.quick_search_container)
 
         # Create quick search controller
-        self.search_controller = QuickSearchController(self.table_view, self.quick_search_container)
+        self.search_controller = QuickSearchController(
+            self.table_view, self.quick_search_container
+        )
 
         # Connect active column changed signal to save
-        self.search_controller.active_column_changed.connect(self._on_active_column_changed)
+        self.search_controller.active_column_changed.connect(
+            self._on_active_column_changed
+        )
         self.logger.info(f"Quick search setup complete for {self._grid_name}")
 
     def _load_grid_settings(self):
@@ -171,7 +190,9 @@ class BaseGrid(QWidget):
                 return
 
             # Load column settings
-            column_settings = load_column_settings(self._window_name, self._grid_name, self._user_id)
+            column_settings = load_column_settings(
+                self._window_name, self._grid_name, self._user_id
+            )
 
             if column_settings:
                 # Aplikuj nastavenia pre každý stĺpec
@@ -180,7 +201,14 @@ class BaseGrid(QWidget):
                     col_name = model.headerData(col_idx, Qt.Horizontal, Qt.DisplayRole)
 
                     # Nájdi nastavenia pre tento stĺpec
-                    col_settings = next((s for s in column_settings if s.get("column_name") == col_name), None)
+                    col_settings = next(
+                        (
+                            s
+                            for s in column_settings
+                            if s.get("column_name") == col_name
+                        ),
+                        None,
+                    )
 
                     if col_settings:
                         # Šírka stĺpca
@@ -189,16 +217,25 @@ class BaseGrid(QWidget):
 
                         # Vizuálny index (poradie)
                         if "visual_index" in col_settings:
-                            header.moveSection(header.visualIndex(col_idx), col_settings["visual_index"])
+                            header.moveSection(
+                                header.visualIndex(col_idx),
+                                col_settings["visual_index"],
+                            )
 
                         # Viditeľnosť
                         if "visible" in col_settings:
-                            self.table_view.setColumnHidden(col_idx, not col_settings["visible"])
+                            self.table_view.setColumnHidden(
+                                col_idx, not col_settings["visible"]
+                            )
 
-                self.logger.info(f"Loaded column settings for {self._window_name}/{self._grid_name}")
+                self.logger.info(
+                    f"Loaded column settings for {self._window_name}/{self._grid_name}"
+                )
 
             # Load grid settings (active column pre quick search)
-            grid_settings = load_grid_settings(self._window_name, self._grid_name, self._user_id)
+            grid_settings = load_grid_settings(
+                self._window_name, self._grid_name, self._user_id
+            )
 
             if grid_settings and "active_column_index" in grid_settings:
                 active_col = grid_settings["active_column_index"]
@@ -206,7 +243,9 @@ class BaseGrid(QWidget):
                 # Nastav aktívny stĺpec v quick search
                 if self.search_controller:
                     self.search_controller.set_active_column(active_col)
-                    self.logger.info(f"Loaded active column: {active_col} for {self._grid_name}")
+                    self.logger.info(
+                        f"Loaded active column: {active_col} for {self._grid_name}"
+                    )
 
         except Exception as e:
             self.logger.error(f"Error loading grid settings: {e}")
@@ -243,7 +282,9 @@ class BaseGrid(QWidget):
                 )
 
             # Ulož column settings
-            save_column_settings(self._window_name, self._grid_name, column_settings, self._user_id)
+            save_column_settings(
+                self._window_name, self._grid_name, column_settings, self._user_id
+            )
 
             # Zozbieraj grid settings (active column)
             active_column = None
@@ -252,9 +293,13 @@ class BaseGrid(QWidget):
 
             # Ulož grid settings
             if active_column is not None:
-                save_grid_settings(self._window_name, self._grid_name, active_column, self._user_id)
+                save_grid_settings(
+                    self._window_name, self._grid_name, active_column, self._user_id
+                )
 
-            self.logger.debug(f"Saved grid settings for {self._window_name}/{self._grid_name}")
+            self.logger.debug(
+                f"Saved grid settings for {self._window_name}/{self._grid_name}"
+            )
 
         except Exception as e:
             self.logger.error(f"Error saving grid settings: {e}")

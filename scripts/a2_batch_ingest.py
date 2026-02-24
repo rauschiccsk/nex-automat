@@ -10,7 +10,6 @@ import json
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Optional
 
 import httpx
 
@@ -57,7 +56,8 @@ async def get_embedding(text: str) -> list[float]:
         # Truncate to ~2000 tokens (~8000 chars) for nomic-embed-text
         truncated = text[:8000]
         response = await client.post(
-            f"{OLLAMA_URL}/api/embeddings", json={"model": EMBEDDING_MODEL, "prompt": truncated}
+            f"{OLLAMA_URL}/api/embeddings",
+            json={"model": EMBEDDING_MODEL, "prompt": truncated},
         )
         response.raise_for_status()
         return response.json()["embedding"]
@@ -92,7 +92,9 @@ async def ingest_to_qdrant(collection: str, doc_id: str, text: str, metadata: di
         response.raise_for_status()
 
 
-def chunk_document(text: str, chunk_size: int = CHUNK_SIZE, overlap: int = CHUNK_OVERLAP) -> list[str]:
+def chunk_document(
+    text: str, chunk_size: int = CHUNK_SIZE, overlap: int = CHUNK_OVERLAP
+) -> list[str]:
     """Split document into chunks for better RAG retrieval."""
     # Split by sections (## headers) first
     sections = text.split("\n## ")
@@ -217,7 +219,9 @@ async def main():
 
                 # Progress reporting
                 if i % 50 == 0 or i == len(files):
-                    print(f"  [{i:3d}/{len(files)}] Progress: {stats['success']} files, {stats['chunks']} chunks")
+                    print(
+                        f"  [{i:3d}/{len(files)}] Progress: {stats['success']} files, {stats['chunks']} chunks"
+                    )
 
             except Exception as e:
                 error_msg = f"{rel_path}: {str(e)[:50]}"
@@ -253,7 +257,9 @@ async def main():
             try:
                 resp = await client.get(f"{QDRANT_URL}/collections/{tenant}")
                 info = resp.json()["result"]
-                print(f"  {tenant}: {info['points_count']} points, status={info['status']}")
+                print(
+                    f"  {tenant}: {info['points_count']} points, status={info['status']}"
+                )
             except Exception as e:
                 print(f"  {tenant}: ERROR - {e}")
 

@@ -64,7 +64,9 @@ class InvoiceDetailWindow(BaseWindow):
 
         except Exception as e:
             self.logger.exception("Failed to load invoice data")
-            QMessageBox.critical(self, "Chyba", f"Nepodarilo sa načítať faktúru:\n\n{str(e)}")
+            QMessageBox.critical(
+                self, "Chyba", f"Nepodarilo sa načítať faktúru:\n\n{str(e)}"
+            )
             self.close()
 
     def _setup_ui(self):
@@ -117,7 +119,9 @@ class InvoiceDetailWindow(BaseWindow):
         layout.addRow("Dátum faktúry:", invoice_date)
 
         # Supplier
-        supplier_text = f"{self.invoice['supplier_name']} (IČO: {self.invoice['supplier_ico']})"
+        supplier_text = (
+            f"{self.invoice['supplier_name']} (IČO: {self.invoice['supplier_ico']})"
+        )
         supplier = QLabel(supplier_text)
         layout.addRow("Dodávateľ:", supplier)
 
@@ -214,7 +218,9 @@ class InvoiceDetailWindow(BaseWindow):
 
         except Exception as e:
             self.logger.exception("Failed to save invoice")
-            QMessageBox.critical(self, "Chyba", f"Chyba pri ukladaní faktúry:\n\n{str(e)}")
+            QMessageBox.critical(
+                self, "Chyba", f"Chyba pri ukladaní faktúry:\n\n{str(e)}"
+            )
 
     def keyPressEvent(self, event):
         """Handle key press events"""

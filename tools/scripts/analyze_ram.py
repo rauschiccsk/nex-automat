@@ -15,12 +15,21 @@ from datetime import datetime
 def run_powershell(script: str, remote_server: str = None) -> str:
     """Spustí PowerShell príkaz lokálne alebo vzdialene."""
     if remote_server:
-        script = f"Invoke-Command -ComputerName {remote_server} -ScriptBlock {{ {script} }}"
+        script = (
+            f"Invoke-Command -ComputerName {remote_server} -ScriptBlock {{ {script} }}"
+        )
 
     cmd = ["powershell", "-NoProfile", "-Command", script]
 
     try:
-        result = subprocess.run(cmd, capture_output=True, text=True, timeout=60, encoding="utf-8", errors="replace")
+        result = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            timeout=60,
+            encoding="utf-8",
+            errors="replace",
+        )
         if result.returncode != 0 and result.stderr:
             return f"ERROR: {result.stderr}"
         return result.stdout
@@ -149,7 +158,9 @@ foreach ($m in $modules) {
                 current_module = {}
             elif line == "MODUL_END" and current_module:
                 module_count += 1
-                output_lines.append(f"\n  Modul #{current_module.get('Num', module_count)}:")
+                output_lines.append(
+                    f"\n  Modul #{current_module.get('Num', module_count)}:"
+                )
 
                 # Kapacita
                 try:
@@ -160,24 +171,40 @@ foreach ($m in $modules) {
                 except:
                     output_lines.append("    Kapacita:       N/A")
 
-                output_lines.append(f"    Slot:           {current_module.get('DeviceLocator', 'N/A')}")
-                output_lines.append(f"    Bank:           {current_module.get('BankLabel', 'N/A')}")
-                output_lines.append(f"    Rýchlosť:       {current_module.get('Speed', 'N/A')} MHz")
-                output_lines.append(f"    Výrobca:        {current_module.get('Manufacturer', 'N/A').strip()}")
-                output_lines.append(f"    Part Number:    {current_module.get('PartNumber', 'N/A').strip()}")
-                output_lines.append(f"    Sériové číslo:  {current_module.get('SerialNumber', 'N/A').strip()}")
+                output_lines.append(
+                    f"    Slot:           {current_module.get('DeviceLocator', 'N/A')}"
+                )
+                output_lines.append(
+                    f"    Bank:           {current_module.get('BankLabel', 'N/A')}"
+                )
+                output_lines.append(
+                    f"    Rýchlosť:       {current_module.get('Speed', 'N/A')} MHz"
+                )
+                output_lines.append(
+                    f"    Výrobca:        {current_module.get('Manufacturer', 'N/A').strip()}"
+                )
+                output_lines.append(
+                    f"    Part Number:    {current_module.get('PartNumber', 'N/A').strip()}"
+                )
+                output_lines.append(
+                    f"    Sériové číslo:  {current_module.get('SerialNumber', 'N/A').strip()}"
+                )
 
                 # Form Factor
                 try:
                     ff = int(current_module.get("FormFactor", 0))
-                    output_lines.append(f"    Form Factor:    {form_factors.get(ff, f'Unknown ({ff})')}")
+                    output_lines.append(
+                        f"    Form Factor:    {form_factors.get(ff, f'Unknown ({ff})')}"
+                    )
                 except:
                     output_lines.append("    Form Factor:    N/A")
 
                 # Memory Type (SMBIOS je presnejší)
                 try:
                     smbios = int(current_module.get("SMBIOSMemoryType", 0))
-                    output_lines.append(f"    Typ pamäte:     {smbios_types.get(smbios, f'Unknown ({smbios})')}")
+                    output_lines.append(
+                        f"    Typ pamäte:     {smbios_types.get(smbios, f'Unknown ({smbios})')}"
+                    )
                 except:
                     output_lines.append("    Typ pamäte:     N/A")
 
@@ -315,8 +342,12 @@ Write-Output "FreePhysical=$($os.FreePhysicalMemory)"
                 usage_pct = (used_kb / total_kb) * 100
 
                 output_lines.append(f"  Celkom:     {total_kb / 1024 / 1024:.1f} GB")
-                output_lines.append(f"  Využité:    {used_kb / 1024 / 1024:.1f} GB ({usage_pct:.1f}%)")
-                output_lines.append(f"  Voľné:      {free_kb / 1024 / 1024:.1f} GB ({100 - usage_pct:.1f}%)")
+                output_lines.append(
+                    f"  Využité:    {used_kb / 1024 / 1024:.1f} GB ({usage_pct:.1f}%)"
+                )
+                output_lines.append(
+                    f"  Voľné:      {free_kb / 1024 / 1024:.1f} GB ({100 - usage_pct:.1f}%)"
+                )
             except:
                 pass
 
@@ -339,8 +370,14 @@ Write-Output "FreePhysical=$($os.FreePhysicalMemory)"
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Analyzuje RAM pre účely objednávky kompatibilnej pamäte")
-    parser.add_argument("--remote", "-r", help="Názov alebo IP vzdialeného servera (vyžaduje admin práva)")
+    parser = argparse.ArgumentParser(
+        description="Analyzuje RAM pre účely objednávky kompatibilnej pamäte"
+    )
+    parser.add_argument(
+        "--remote",
+        "-r",
+        help="Názov alebo IP vzdialeného servera (vyžaduje admin práva)",
+    )
     parser.add_argument("--output", "-o", help="Uložiť výstup do súboru")
 
     args = parser.parse_args()
@@ -352,7 +389,10 @@ def main():
     print(report)
 
     # Uloženie do súboru
-    filename = args.output or f"ram_report_{args.remote or 'localhost'}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
+    filename = (
+        args.output
+        or f"ram_report_{args.remote or 'localhost'}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
+    )
     with open(filename, "w", encoding="utf-8") as f:
         f.write(report)
     print(f"\nReport uložený do: {filename}")

@@ -87,7 +87,11 @@ def check_database_connectivity() -> bool:
         pg_password = os.environ.get("POSTGRES_PASSWORD", "postgres")
 
         conn = pg8000.native.Connection(
-            host="localhost", port=5432, database="invoice_staging", user="postgres", password=pg_password
+            host="localhost",
+            port=5432,
+            database="invoice_staging",
+            user="postgres",
+            password=pg_password,
         )
         conn.close()
         print("✅ PostgreSQL: Connected (localhost:5432/invoice_staging)")
@@ -140,7 +144,16 @@ def check_dependencies() -> bool:
     """Verify critical dependencies are installed."""
     print_section("3. DEPENDENCIES")
 
-    required = ["fastapi", "uvicorn", "pdfplumber", "pg8000", "pypdf", "PIL", "httpx", "pydantic"]
+    required = [
+        "fastapi",
+        "uvicorn",
+        "pdfplumber",
+        "pg8000",
+        "pypdf",
+        "PIL",
+        "httpx",
+        "pydantic",
+    ]
 
     missing = []
 
@@ -177,7 +190,9 @@ def check_known_issues() -> bool:
 
         # Extract critical issues
         lines = content.split("\n")
-        critical_count = sum(1 for line in lines if "❌" in line or "CRITICAL" in line.upper())
+        critical_count = sum(
+            1 for line in lines if "❌" in line or "CRITICAL" in line.upper()
+        )
         resolved_count = sum(1 for line in lines if "✅" in line)
 
         print(f"✅ KNOWN_ISSUES.md found ({len(lines)} lines)")
@@ -261,7 +276,9 @@ def generate_summary(results: dict) -> str:
     passed = sum(1 for v in results.values() if v)
     failed = total - passed
 
-    status = "🟢 READY" if failed == 0 else "🟡 WARNINGS" if failed <= 2 else "🔴 NOT READY"
+    status = (
+        "🟢 READY" if failed == 0 else "🟡 WARNINGS" if failed <= 2 else "🔴 NOT READY"
+    )
 
     print(f"\nChecks: {passed}/{total} passed")
     print(f"Status: {status}\n")

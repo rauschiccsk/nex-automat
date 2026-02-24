@@ -11,7 +11,10 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from src.business.isdoc_service import generate_isdoc_xml
 from src.extractors.ls_extractor import extract_invoice_data
-from src.extractors.marso_extractor import detect_marso_invoice_from_pdf, extract_marso_as_standard
+from src.extractors.marso_extractor import (
+    detect_marso_invoice_from_pdf,
+    extract_marso_as_standard,
+)
 
 # Test PDF paths
 MARSO_PDF = r"C:\Test\szamla_masolat_5641876501.pdf"

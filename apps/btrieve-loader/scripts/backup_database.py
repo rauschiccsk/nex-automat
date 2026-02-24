@@ -18,7 +18,9 @@ def main():
     """Main entry point for backup script."""
     parser = argparse.ArgumentParser(description="Database backup utility")
     parser.add_argument("--config", required=True, help="Path to configuration file")
-    parser.add_argument("--type", choices=["daily", "weekly"], default="daily", help="Backup type")
+    parser.add_argument(
+        "--type", choices=["daily", "weekly"], default="daily", help="Backup type"
+    )
     parser.add_argument("--backup-dir", default="backups", help="Backup directory")
     parser.add_argument("--verify", help="Verify existing backup file")
     parser.add_argument("--list", action="store_true", help="List all backups")
@@ -61,7 +63,9 @@ def main():
 
     elif args.rotate:
         daily_removed, weekly_removed = backup_manager.rotate_backups()
-        print(f"Rotation complete: {daily_removed} daily, {weekly_removed} weekly removed")
+        print(
+            f"Rotation complete: {daily_removed} daily, {weekly_removed} weekly removed"
+        )
         sys.exit(0)
 
     else:

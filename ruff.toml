@@ -1,0 +1,28 @@
+# Ruff linter configuration for nex-automat
+# https://docs.astral.sh/ruff/settings/
+
+target-version = "py311"
+
+[lint]
+# Ignore rules that require unsafe fixes or break backwards compatibility
+ignore = [
+    "UP042",  # Class inherits from both str and enum.Enum — StrEnum requires Python 3.11+
+    "E722",   # Do not use bare except — legacy code, will fix incrementally
+    "E741",   # Ambiguous variable name — acceptable in scripts
+    "E402",   # Module level import not at top of file — some scripts need path setup first
+    "F403",   # Wildcard imports — used in config pattern
+    "F402",   # Import shadowed by loop variable — acceptable pattern
+]
+
+# Per-file ignores for legacy and utility code
+[lint.per-file-ignores]
+"tools/**" = ["F841", "F401"]
+"**/deploy/**" = ["F401"]
+"**/scripts/**" = ["F841"]
+"**/__init__.py" = ["F401"]  # Re-exports in __init__ files
+"**/tests/**" = ["F401"]     # Imports for availability checks in tests
+"**/adapters/marso_adapter.py" = ["F841"]  # SOAP call result used for side effects
+"**/oauth_authorize.py" = ["F841"]  # Side-effect call
+"**/api_invoice_workflow.py" = ["F841"]  # Activity result used for side effects
+"**/base_repository.py" = ["F841"]  # Stub implementations
+"**/base_grid.py" = ["F821"]  # Forward reference in type hint
