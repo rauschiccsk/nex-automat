@@ -196,19 +196,13 @@ jobs:
     timeout-minutes: 15
 
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Copy DEPTEST compose
+      - name: Deploy DEPTEST staging
         run: |
-          cp deployment/docker/docker-compose.deptest.yml /opt/nex-automat-deptest/docker-compose.yml
-
-      - name: Deploy Backend to DEPTEST
-        run: |
-          cd /opt/nex-automat-deptest
-          docker compose pull
-          docker compose up -d
-          sleep 10
-          docker compose ps
+          cd /opt/nex-automat-src
+          git pull origin develop
+          docker compose -f deployment/docker/docker-compose.deptest.yml pull
+          docker compose -f deployment/docker/docker-compose.deptest.yml up -d
+          echo "✅ DEPTEST staging deployed"
 
       - name: Health check
         run: |
