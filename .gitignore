@@ -47,6 +47,9 @@ htmlcov/
 .env
 .env.local
 .env.*.local
+# Deployment env files (real secrets, not .example templates)
+deployment/docker/.env.*
+!deployment/docker/.env.*.example
 
 # OS
 .DS_Store
