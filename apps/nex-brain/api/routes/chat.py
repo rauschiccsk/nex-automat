@@ -150,17 +150,12 @@ async def ingest_document(request: IngestRequest):
     """
     try:
         success = await rag_service.add_document(
-            content=request.content,
-            filename=request.filename,
-            tenant=request.tenant,
-            metadata=request.metadata
+            content=request.content, filename=request.filename, tenant=request.tenant, metadata=request.metadata
         )
 
         if success:
             return IngestResponse(
-                success=True,
-                message=f"Document '{request.filename}' ingested successfully",
-                tenant=request.tenant
+                success=True, message=f"Document '{request.filename}' ingested successfully", tenant=request.tenant
             )
         else:
             raise HTTPException(status_code=500, detail="Failed to ingest document")
@@ -177,11 +172,9 @@ async def list_collections():
         result = []
         for c in collections.collections:
             info = rag_service.qdrant.get_collection(c.name)
-            result.append({
-                "name": c.name,
-                "indexed_vectors_count": info.indexed_vectors_count,
-                "points_count": info.points_count
-            })
+            result.append(
+                {"name": c.name, "indexed_vectors_count": info.indexed_vectors_count, "points_count": info.points_count}
+            )
         return {"collections": result}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

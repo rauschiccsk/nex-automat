@@ -3,14 +3,16 @@
 A2: Batch ingest knowledge documents into Qdrant via direct API.
 Reads manifest.json and ingests documents into appropriate tenant collections.
 """
-import json
-import httpx
+
 import asyncio
-import sys
 import hashlib
-from pathlib import Path
+import json
+import sys
 from datetime import datetime
+from pathlib import Path
 from typing import Optional
+
+import httpx
 
 # Configuration
 QDRANT_URL = "http://localhost:9130"
@@ -24,7 +26,7 @@ CHUNK_SIZE = 1500  # chars per chunk
 CHUNK_OVERLAP = 200  # overlap between chunks
 
 
-def resolve_filepath(rel_path: str) -> Optional[Path]:
+def resolve_filepath(rel_path: str) -> Path | None:
     """
     Resolve filepath handling both forward and backslash formats.
     ZIP extracted files have backslashes in filenames on Linux.
@@ -55,8 +57,7 @@ async def get_embedding(text: str) -> list[float]:
         # Truncate to ~2000 tokens (~8000 chars) for nomic-embed-text
         truncated = text[:8000]
         response = await client.post(
-            f"{OLLAMA_URL}/api/embeddings",
-            json={"model": EMBEDDING_MODEL, "prompt": truncated}
+            f"{OLLAMA_URL}/api/embeddings", json={"model": EMBEDDING_MODEL, "prompt": truncated}
         )
         response.raise_for_status()
         return response.json()["embedding"]
@@ -73,18 +74,20 @@ async def ingest_to_qdrant(collection: str, doc_id: str, text: str, metadata: di
         response = await client.put(
             f"{QDRANT_URL}/collections/{collection}/points",
             json={
-                "points": [{
-                    "id": point_id,
-                    "vector": embedding,
-                    "payload": {
-                        "content": text[:10000],  # Store first 10K chars
-                        "filename": doc_id,
-                        "tenant": metadata.get("tenant", ""),
-                        "ingested_at": datetime.now().isoformat(),
-                        **metadata
+                "points": [
+                    {
+                        "id": point_id,
+                        "vector": embedding,
+                        "payload": {
+                            "content": text[:10000],  # Store first 10K chars
+                            "filename": doc_id,
+                            "tenant": metadata.get("tenant", ""),
+                            "ingested_at": datetime.now().isoformat(),
+                            **metadata,
+                        },
                     }
-                }]
-            }
+                ]
+            },
         )
         response.raise_for_status()
 
@@ -138,9 +141,9 @@ async def main():
 
     manifest = json.loads(MANIFEST_PATH.read_text(encoding="utf-8"))
 
-    print(f"{'='*60}")
-    print(f"  A2: Batch Ingest Knowledge Documents")
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
+    print("  A2: Batch Ingest Knowledge Documents")
+    print(f"{'=' * 60}")
     print(f"Manifest: {MANIFEST_PATH}")
     print(f"Knowledge dir: {KNOWLEDGE_DIR}")
     print(f"Total files in manifest: {manifest['total_files']}")
@@ -173,9 +176,9 @@ async def main():
 
     for tenant, tenant_data in manifest["tenants"].items():
         files = tenant_data["files"]
-        print(f"\n{'─'*40}")
+        print(f"\n{'─' * 40}")
         print(f"Tenant: {tenant} ({len(files)} files)")
-        print(f"{'─'*40}")
+        print(f"{'─' * 40}")
 
         for i, rel_path in enumerate(files, 1):
             filepath = resolve_filepath(rel_path)
@@ -205,8 +208,8 @@ async def main():
                             "tenant": tenant,
                             "source_file": rel_path,
                             "chunk_index": j,
-                            "total_chunks": len(chunks)
-                        }
+                            "total_chunks": len(chunks),
+                        },
                     )
                     stats["chunks"] += 1
 
@@ -228,9 +231,9 @@ async def main():
     end_time = datetime.now()
     duration = end_time - start_time
 
-    print(f"\n{'='*60}")
-    print(f"  INGEST COMPLETE")
-    print(f"{'='*60}")
+    print(f"\n{'=' * 60}")
+    print("  INGEST COMPLETE")
+    print(f"{'=' * 60}")
     print(f"Duration: {duration}")
     print(f"Files processed: {stats['total']}")
     print(f"  - Success: {stats['success']}")
@@ -242,9 +245,9 @@ async def main():
         print(f"\nFirst 5 errors shown, {len(errors_list) - 5} more errors occurred")
 
     # Final verification
-    print(f"\n{'─'*40}")
-    print(f"Collection Statistics")
-    print(f"{'─'*40}")
+    print(f"\n{'─' * 40}")
+    print("Collection Statistics")
+    print(f"{'─' * 40}")
     async with httpx.AsyncClient(timeout=10) as client:
         for tenant in manifest["tenants"]:
             try:

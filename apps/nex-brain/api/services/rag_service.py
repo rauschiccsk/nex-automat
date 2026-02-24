@@ -2,11 +2,12 @@
 RAG Service - Local Qdrant + Ollama embeddings.
 """
 
-import httpx
 from typing import Any
+
+import httpx
+from config.settings import settings
 from qdrant_client import QdrantClient
 from qdrant_client.http import models
-from config.settings import settings
 
 
 class RAGService:
@@ -22,8 +23,7 @@ class RAGService:
         """Get embedding from Ollama."""
         async with httpx.AsyncClient(timeout=30.0) as client:
             response = await client.post(
-                f"{self.ollama_url}/api/embeddings",
-                json={"model": self.embedding_model, "prompt": text}
+                f"{self.ollama_url}/api/embeddings", json={"model": self.embedding_model, "prompt": text}
             )
             response.raise_for_status()
             data = response.json()
@@ -50,22 +50,21 @@ class RAGService:
 
             # Search in Qdrant using query_points
             search_response = self.qdrant.query_points(
-                collection_name=collection_name,
-                query=query_embedding,
-                limit=limit,
-                with_payload=True
+                collection_name=collection_name, query=query_embedding, limit=limit, with_payload=True
             )
 
             # Convert to standard format
             results = []
             for point in search_response.points:
-                results.append({
-                    "id": str(point.id),
-                    "content": point.payload.get("content", ""),
-                    "filename": point.payload.get("filename", ""),
-                    "score": point.score,
-                    "metadata": point.payload.get("metadata", {})
-                })
+                results.append(
+                    {
+                        "id": str(point.id),
+                        "content": point.payload.get("content", ""),
+                        "filename": point.payload.get("filename", ""),
+                        "score": point.score,
+                        "metadata": point.payload.get("metadata", {}),
+                    }
+                )
 
             # Apply boosting and deduplication
             results = self._boost_relevant(results, query)
@@ -92,6 +91,7 @@ class RAGService:
 
             # Generate point ID
             import hashlib
+
             point_id = hashlib.md5(f"{tenant}:{filename}:{content[:100]}".encode()).hexdigest()
 
             # Upsert to Qdrant
@@ -105,10 +105,10 @@ class RAGService:
                             "content": content,
                             "filename": filename,
                             "tenant": tenant,
-                            "metadata": metadata or {}
-                        }
+                            "metadata": metadata or {},
+                        },
                     )
-                ]
+                ],
             )
             return True
 
@@ -124,10 +124,7 @@ class RAGService:
         if collection_name not in collection_names:
             self.qdrant.create_collection(
                 collection_name=collection_name,
-                vectors_config=models.VectorParams(
-                    size=self.embedding_dims,
-                    distance=models.Distance.COSINE
-                )
+                vectors_config=models.VectorParams(size=self.embedding_dims, distance=models.Distance.COSINE),
             )
             print(f"Created collection: {collection_name}")
 
