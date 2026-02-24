@@ -200,21 +200,21 @@ jobs:
         run: |
           cd /opt/nex-automat-src
           git pull origin develop
-          docker compose -f deployment/docker/docker-compose.deptest.yml pull
-          docker compose -f deployment/docker/docker-compose.deptest.yml up -d
+          docker compose -f deployment/docker/docker-compose.deptest.yml --env-file deployment/docker/.env.deptest pull
+          docker compose -f deployment/docker/docker-compose.deptest.yml --env-file deployment/docker/.env.deptest up -d
           echo "✅ DEPTEST staging deployed"
 
       - name: Health check
         run: |
           sleep 15
-          running=$(docker compose -f deployment/docker/docker-compose.deptest.yml ps --status running --format "{{.Name}}" | wc -l)
-          total=$(docker compose -f deployment/docker/docker-compose.deptest.yml ps --format "{{.Name}}" | wc -l)
+          running=$(docker compose -f deployment/docker/docker-compose.deptest.yml --env-file deployment/docker/.env.deptest ps --status running --format "{{.Name}}" | wc -l)
+          total=$(docker compose -f deployment/docker/docker-compose.deptest.yml --env-file deployment/docker/.env.deptest ps --format "{{.Name}}" | wc -l)
           echo "Running: $running / Total: $total"
           if [ "$running" -eq "$total" ] && [ "$total" -gt 0 ]; then
             echo "✅ All $total DEPTEST containers running"
           else
-            docker compose -f deployment/docker/docker-compose.deptest.yml ps
-            docker compose -f deployment/docker/docker-compose.deptest.yml logs --tail=20
+            docker compose -f deployment/docker/docker-compose.deptest.yml --env-file deployment/docker/.env.deptest ps
+            docker compose -f deployment/docker/docker-compose.deptest.yml --env-file deployment/docker/.env.deptest logs --tail=20
             echo "❌ DEPTEST health check failed"
             exit 1
           fi
