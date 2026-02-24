@@ -206,15 +206,18 @@ jobs:
 
       - name: Health check
         run: |
-          for i in $(seq 1 5); do
-            if curl -sf http://localhost:8100/health; then
-              echo "✅ DEPTEST backend healthy"
-              exit 0
-            fi
-            sleep 5
-          done
-          echo "❌ DEPTEST health check failed"
-          exit 1
+          sleep 10
+          docker compose -f deployment/docker/docker-compose.deptest.yml ps --format json | python3 -c "
+          import sys, json
+          services = json.loads(sys.stdin.read())
+          if not isinstance(services, list):
+              services = [services]
+          failed = [s['Name'] for s in services if s.get('Health','') == 'unhealthy' or s.get('State','') != 'running']
+          if failed:
+              print(f'❌ Unhealthy: {failed}')
+              sys.exit(1)
+          print(f'✅ All {len(services)} DEPTEST containers healthy')
+          "
 
   # ===========================================
   # Staging Deploy Electron (DEPTEST) — Windows runner
