@@ -157,23 +157,16 @@ jobs:
       - name: Build Electron app
         run: npm run build
 
-      # TODO: electron-builder nie je nastavený v package.json
-      # Po pridaní electron-builder do devDependencies a "dist" scriptu
-      # odkomentovať nasledujúci krok:
-      # - name: Package Electron (.exe)
-      #   run: npx electron-builder --win --x64
-      #   env:
-      #     GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build Electron app (portable)
+        run: npx electron-builder --win --x64 --dir
 
       - name: Upload Electron artifact
         uses: actions/upload-artifact@v4
         with:
           name: nex-manager-electron
-          path: |
-            apps/frontend/nex-manager/dist/*.exe
-            apps/frontend/nex-manager/out/
-          retention-days: 30
-          if-no-files-found: warn
+          path: apps/frontend/nex-manager/dist/win-unpacked/
+          if-no-files-found: error
+          retention-days: 7
 
       - name: Build summary
         run: |
@@ -223,22 +216,37 @@ jobs:
   deploy-staging-electron:
     name: Deploy Electron to Staging (DEPTEST)
     needs: [build-electron]
-    if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
     runs-on: [self-hosted, ANDROS-WIN]
-    environment: staging-DEPTEST
-
+    if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
     steps:
-      - uses: actions/download-artifact@v4
+      - name: Download Electron artifact
+        uses: actions/download-artifact@v4
         with:
           name: nex-manager-electron
-          path: ./electron-dist
+          path: electron-app
 
-      - name: Deploy Electron to DEPTEST
-        shell: powershell
+      - name: Deploy to DEPTEST
+        shell: pwsh
         run: |
-          $source = ".\electron-dist\*.exe"
-          $dest = "C:\DEPTEST\"
-          if (-not (Test-Path $dest)) { New-Item -ItemType Directory -Path $dest -Force }
-          Copy-Item -Path $source -Destination $dest -Force
-          Write-Host "✅ Electron deployed to $dest"
-          Get-ChildItem $dest -Filter "*.exe" | Format-Table Name, Length, LastWriteTime
+          $target = "C:\DEPTEST\nex-manager"
+
+          # Stop running instance if any
+          Get-Process "NEX Manager" -ErrorAction SilentlyContinue | Stop-Process -Force
+
+          # Clean old deployment
+          if (Test-Path $target) {
+            Remove-Item -Path $target -Recurse -Force
+          }
+
+          # Copy new build
+          New-Item -ItemType Directory -Path $target -Force | Out-Null
+          Copy-Item -Path "electron-app\*" -Destination $target -Recurse -Force
+
+          # Verify
+          $exe = Get-ChildItem -Path $target -Filter "*.exe" -Recurse | Select-Object -First 1
+          if ($exe) {
+            Write-Host "Deployed: $($exe.FullName) ($([math]::Round($exe.Length/1MB, 1)) MB)"
+          } else {
+            Write-Error "No .exe found in $target"
+            exit 1
+          }
