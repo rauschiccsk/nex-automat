@@ -127,3 +127,123 @@ jobs:
           echo "| Dockerfile | ${{ matrix.dockerfile }} |" >> $GITHUB_STEP_SUMMARY
           echo "| SHA Tag | ${{ steps.tags.outputs.sha_tag }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Latest Tag | ${{ steps.tags.outputs.latest_tag }} |" >> $GITHUB_STEP_SUMMARY
+
+  # ===========================================
+  # Electron Build
+  # ===========================================
+  build-electron:
+    name: Electron Build
+    needs: [lint, test]
+    runs-on: [self-hosted, ANDROS]
+    if: github.event_name == 'push'
+    defaults:
+      run:
+        working-directory: apps/frontend/nex-manager
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Electron app
+        run: npm run build
+
+      # TODO: electron-builder nie je nastavený v package.json
+      # Po pridaní electron-builder do devDependencies a "dist" scriptu
+      # odkomentovať nasledujúci krok:
+      # - name: Package Electron (.exe)
+      #   run: npx electron-builder --win --x64
+      #   env:
+      #     GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload Electron artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: nex-manager-electron
+          path: |
+            apps/frontend/nex-manager/dist/*.exe
+            apps/frontend/nex-manager/out/
+          retention-days: 30
+          if-no-files-found: warn
+
+      - name: Build summary
+        run: |
+          echo "### Electron Build Summary" >> $GITHUB_STEP_SUMMARY
+          echo "| Property | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|----------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| App | nex-manager |" >> $GITHUB_STEP_SUMMARY
+          echo "| Node | $(node --version) |" >> $GITHUB_STEP_SUMMARY
+          echo "| Commit | $(git rev-parse --short HEAD) |" >> $GITHUB_STEP_SUMMARY
+
+  # ===========================================
+  # Staging Deploy Backend (DEPTEST) — Linux runner, Docker compose
+  # ===========================================
+  deploy-staging-backend:
+    name: Deploy Backend to Staging (DEPTEST)
+    needs: [lint, test, security, build, build-electron]
+    if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
+    runs-on: [self-hosted, ANDROS]
+    environment: staging-DEPTEST
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Copy DEPTEST compose
+        run: |
+          cp deployment/docker/docker-compose.deptest.yml /opt/nex-automat-deptest/docker-compose.yml
+
+      - name: Deploy Backend to DEPTEST
+        run: |
+          cd /opt/nex-automat-deptest
+          docker compose pull
+          docker compose up -d
+          sleep 10
+          docker compose ps
+
+      - name: Health check
+        run: |
+          for i in $(seq 1 5); do
+            if curl -sf http://localhost:8100/health; then
+              echo "✅ DEPTEST backend healthy"
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "❌ DEPTEST health check failed"
+          exit 1
+
+  # ===========================================
+  # Staging Deploy Electron (DEPTEST) — Windows runner
+  # ===========================================
+  deploy-staging-electron:
+    name: Deploy Electron to Staging (DEPTEST)
+    needs: [build-electron]
+    if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
+    runs-on: [self-hosted, ANDROS-WIN]
+    environment: staging-DEPTEST
+
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: nex-manager-electron
+          path: ./electron-dist
+
+      - name: Deploy Electron to DEPTEST
+        shell: powershell
+        run: |
+          $source = ".\electron-dist\*.exe"
+          $dest = "C:\DEPTEST\"
+          if (-not (Test-Path $dest)) { New-Item -ItemType Directory -Path $dest -Force }
+          Copy-Item -Path $source -Destination $dest -Force
+          Write-Host "✅ Electron deployed to $dest"
+          Get-ChildItem $dest -Filter "*.exe" | Format-Table Name, Length, LastWriteTime

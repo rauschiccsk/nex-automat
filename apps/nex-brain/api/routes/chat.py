@@ -127,3 +127,61 @@ async def list_tenants():
         return {"tenants": settings.tenant_list}
     else:
         return {"tenant": settings.TENANT, "mode": "single-tenant"}
+
+
+class IngestRequest(BaseModel):
+    content: str
+    filename: str
+    tenant: str
+    metadata: dict | None = None
+
+
+class IngestResponse(BaseModel):
+    success: bool
+    message: str
+    tenant: str
+
+
+@router.post("/ingest", response_model=IngestResponse)
+async def ingest_document(request: IngestRequest):
+    """
+    Ingest a document into the RAG knowledge base.
+    Creates the tenant collection if it doesn't exist.
+    """
+    try:
+        success = await rag_service.add_document(
+            content=request.content,
+            filename=request.filename,
+            tenant=request.tenant,
+            metadata=request.metadata
+        )
+
+        if success:
+            return IngestResponse(
+                success=True,
+                message=f"Document '{request.filename}' ingested successfully",
+                tenant=request.tenant
+            )
+        else:
+            raise HTTPException(status_code=500, detail="Failed to ingest document")
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/collections")
+async def list_collections():
+    """List all Qdrant collections (tenants with data)."""
+    try:
+        collections = rag_service.qdrant.get_collections()
+        result = []
+        for c in collections.collections:
+            info = rag_service.qdrant.get_collection(c.name)
+            result.append({
+                "name": c.name,
+                "indexed_vectors_count": info.indexed_vectors_count,
+                "points_count": info.points_count
+            })
+        return {"collections": result}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

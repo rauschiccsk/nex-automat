@@ -1,0 +1,19 @@
+appId: sk.icc.nex-manager
+productName: NEX Manager
+directories:
+  buildResources: resources
+  output: dist
+files:
+  - out/**/*
+  - "!**/*.map"
+win:
+  target:
+    - target: nsis
+      arch: [x64]
+  icon: resources/icon.ico
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  installerIcon: resources/icon.ico
+  uninstallerIcon: resources/icon.ico
+  artifactName: "NEX-Manager-${version}-setup.exe"

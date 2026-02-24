@@ -1,0 +1,72 @@
+# DEPTEST Stack - Docker Compose (Staging)
+# Usage: docker compose -f docker-compose.deptest.yml --env-file .env.deptest up -d
+# Porty s offsetom +100 od ICC (5433→5533, 7234→7334, 8082→8182)
+# aby nekolidovali s produkčnými ICC/ANDROS inštanciami
+
+services:
+  # PostgreSQL Database
+  nex-postgres-deptest:
+    image: postgres:16-alpine
+    container_name: nex-automat-deptest-postgres
+    restart: unless-stopped
+    ports:
+      - "5533:5432"
+    environment:
+      POSTGRES_USER: nex_admin
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: nex_automat
+    volumes:
+      - nex-automat-deptest_postgres:/var/lib/postgresql/data
+    networks:
+      - nex-automat-deptest
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U nex_admin -d nex_automat"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Temporal Server
+  nex-temporal-deptest:
+    image: temporalio/auto-setup:1.24.2
+    container_name: nex-automat-deptest-temporal
+    restart: unless-stopped
+    ports:
+      - "7334:7233"
+    depends_on:
+      nex-postgres-deptest:
+        condition: service_healthy
+    environment:
+      - DB=postgres12
+      - DB_PORT=5432
+      - POSTGRES_USER=nex_admin
+      - POSTGRES_PWD=${POSTGRES_PASSWORD}
+      - POSTGRES_SEEDS=nex-postgres-deptest
+      - DBNAME=temporal
+      - VISIBILITY_DBNAME=temporal_visibility
+      - SKIP_DB_CREATE=false
+    networks:
+      - nex-automat-deptest
+
+  # Temporal Web UI
+  nex-temporal-ui-deptest:
+    image: temporalio/ui:latest
+    container_name: nex-automat-deptest-temporal-ui
+    restart: unless-stopped
+    ports:
+      - "8182:8080"
+    depends_on:
+      - nex-temporal-deptest
+    environment:
+      - TEMPORAL_ADDRESS=nex-temporal-deptest:7233
+      - TEMPORAL_CORS_ORIGINS=http://localhost:3000
+    networks:
+      - nex-automat-deptest
+
+volumes:
+  nex-automat-deptest_postgres:
+    name: nex-automat-deptest_postgres
+
+networks:
+  nex-automat-deptest:
+    driver: bridge
+    name: nex-automat-deptest

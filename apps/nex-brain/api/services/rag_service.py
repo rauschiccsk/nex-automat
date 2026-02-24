@@ -1,51 +1,139 @@
 """
-RAG Service - Integration with existing RAG API.
+RAG Service - Local Qdrant + Ollama embeddings.
 """
 
-from typing import Any
-
 import httpx
+from typing import Any
+from qdrant_client import QdrantClient
+from qdrant_client.http import models
 from config.settings import settings
 
 
 class RAGService:
-    """Service for RAG queries."""
+    """Service for RAG queries using local Qdrant."""
 
     def __init__(self):
-        self.base_url = settings.RAG_API_URL
+        self.qdrant = QdrantClient(url=settings.QDRANT_URL)
+        self.ollama_url = settings.OLLAMA_URL
+        self.embedding_model = settings.EMBEDDING_MODEL
+        self.embedding_dims = settings.EMBEDDING_DIMENSIONS
 
-    async def search(self, query: str, limit: int = 10, tenant: str | None = None) -> list[dict[str, Any]]:
-        """Search RAG knowledge base."""
+    async def get_embedding(self, text: str) -> list[float]:
+        """Get embedding from Ollama."""
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            response = await client.post(
+                f"{self.ollama_url}/api/embeddings",
+                json={"model": self.embedding_model, "prompt": text}
+            )
+            response.raise_for_status()
+            data = response.json()
+            return data.get("embedding", [])
+
+    async def search(self, query: str, limit: int = 5, tenant: str | None = None) -> list[dict[str, Any]]:
+        """Search Qdrant knowledge base."""
         try:
-            async with httpx.AsyncClient(timeout=30.0) as client:
-                params = {"query": query, "limit": limit}
-                if tenant:
-                    params["tenant"] = tenant
-                response = await client.get(f"{self.base_url}/search", params=params)
-                response.raise_for_status()
-                data = response.json()
-                results = data.get("results", [])
+            # Get query embedding
+            query_embedding = await self.get_embedding(query)
+            if not query_embedding:
+                print("Failed to get query embedding")
+                return []
 
-                # Boost by query relevance
-                results = self._boost_relevant(results, query)
+            # Determine collection name (tenant = collection)
+            collection_name = tenant or "default"
 
-                if tenant:
-                    results = self._filter_by_tenant(results, tenant)
+            # Check if collection exists
+            collections = self.qdrant.get_collections()
+            collection_names = [c.name for c in collections.collections]
+            if collection_name not in collection_names:
+                print(f"Collection '{collection_name}' not found")
+                return []
 
-                # Deduplicate - keep BEST chunk per file
-                results = self._deduplicate_best(results)
+            # Search in Qdrant using query_points
+            search_response = self.qdrant.query_points(
+                collection_name=collection_name,
+                query=query_embedding,
+                limit=limit,
+                with_payload=True
+            )
 
-                return results[:2]
+            # Convert to standard format
+            results = []
+            for point in search_response.points:
+                results.append({
+                    "id": str(point.id),
+                    "content": point.payload.get("content", ""),
+                    "filename": point.payload.get("filename", ""),
+                    "score": point.score,
+                    "metadata": point.payload.get("metadata", {})
+                })
 
-        except httpx.RequestError as e:
-            print(f"RAG API error: {e}")
+            # Apply boosting and deduplication
+            results = self._boost_relevant(results, query)
+            results = self._deduplicate_best(results)
+
+            return results[:5]
+
+        except Exception as e:
+            print(f"RAG search error: {e}")
             return []
+
+    async def add_document(self, content: str, filename: str, tenant: str, metadata: dict | None = None) -> bool:
+        """Add document to Qdrant."""
+        try:
+            collection_name = tenant
+
+            # Ensure collection exists
+            await self._ensure_collection(collection_name)
+
+            # Get embedding
+            embedding = await self.get_embedding(content)
+            if not embedding:
+                return False
+
+            # Generate point ID
+            import hashlib
+            point_id = hashlib.md5(f"{tenant}:{filename}:{content[:100]}".encode()).hexdigest()
+
+            # Upsert to Qdrant
+            self.qdrant.upsert(
+                collection_name=collection_name,
+                points=[
+                    models.PointStruct(
+                        id=point_id,
+                        vector=embedding,
+                        payload={
+                            "content": content,
+                            "filename": filename,
+                            "tenant": tenant,
+                            "metadata": metadata or {}
+                        }
+                    )
+                ]
+            )
+            return True
+
+        except Exception as e:
+            print(f"Add document error: {e}")
+            return False
+
+    async def _ensure_collection(self, collection_name: str) -> None:
+        """Ensure collection exists in Qdrant."""
+        collections = self.qdrant.get_collections()
+        collection_names = [c.name for c in collections.collections]
+
+        if collection_name not in collection_names:
+            self.qdrant.create_collection(
+                collection_name=collection_name,
+                vectors_config=models.VectorParams(
+                    size=self.embedding_dims,
+                    distance=models.Distance.COSINE
+                )
+            )
+            print(f"Created collection: {collection_name}")
 
     def _boost_relevant(self, results: list[dict[str, Any]], query: str) -> list[dict[str, Any]]:
         """Boost score for chunks that match query intent."""
         query_lower = query.lower()
-
-        # Extract important keywords from query
         keywords = self._extract_keywords(query_lower)
 
         for r in results:
@@ -53,43 +141,23 @@ class RAGService:
             score = r.get("score", 0)
             boost = 0
 
-            # Boost for each keyword match in content
             for kw in keywords:
                 if kw in content:
-                    boost += 0.15
-
-            # Extra boost for structural matches
-            if "faz" in query_lower or "implementa" in query_lower:
-                raw_content = r.get("content", "")
-                # Check if section header is at START (first 200 chars) - this is the RIGHT chunk
-                start_content = raw_content[:200]
-                if "IMPLEMENTAČNÉ FÁZY" in start_content or "## 5." in start_content:
-                    boost += 0.8  # Strong boost - this is THE chunk about phases
-                elif "Fáza 1:" in start_content or "Foundation" in start_content[:300]:
-                    boost += 0.6  # Also good - starts with phase details
-                # No boost if IMPLEMENTAČNÉ is buried deep in chunk
-
-            if "co je" in query_lower or "co to je" in query_lower:
-                # Definition question - boost SUMMARY
-                if "summary" in content or "je " in content[:100]:
-                    boost += 0.2
+                    boost += 0.1
 
             r["adjusted_score"] = score + boost
 
-        # Sort by adjusted score
         results.sort(key=lambda x: x.get("adjusted_score", 0), reverse=True)
         return results
 
     def _extract_keywords(self, query: str) -> list[str]:
         """Extract meaningful keywords from query."""
-        # Remove common words
         stopwords = {"ake", "su", "co", "je", "ako", "pre", "na", "do", "sa", "to", "a", "v", "s"}
         words = query.split()
-        keywords = [w for w in words if w not in stopwords and len(w) > 2]
-        return keywords
+        return [w for w in words if w not in stopwords and len(w) > 2]
 
     def _deduplicate_best(self, results: list[dict[str, Any]]) -> list[dict[str, Any]]:
-        """Keep only BEST chunk per unique filename (by adjusted_score)."""
+        """Keep only best chunk per unique filename."""
         best = {}
         for r in results:
             filename = r.get("filename", "")
@@ -101,18 +169,8 @@ class RAGService:
                 existing_score = existing.get("adjusted_score", existing.get("score", 0))
                 if current_score > existing_score:
                     best[filename] = r
-        # Sort by adjusted_score descending
-        sorted_results = sorted(best.values(), key=lambda x: x.get("adjusted_score", 0), reverse=True)
-        return sorted_results
 
-    def _filter_by_tenant(self, results: list[dict[str, Any]], tenant: str) -> list[dict[str, Any]]:
-        """Filter results by tenant."""
-        filtered = []
-        for r in results:
-            filename = r.get("filename", "").lower()
-            if f"{tenant}/" in filename or "shared/" in filename or "/" not in filename:
-                filtered.append(r)
-        return filtered
+        return sorted(best.values(), key=lambda x: x.get("adjusted_score", 0), reverse=True)
 
     def format_context(self, results: list[dict[str, Any]]) -> str:
         """Format RAG results as context for LLM."""
@@ -122,9 +180,8 @@ class RAGService:
         context_parts = []
         for r in results:
             content = r.get("content", "")
-            # Allow longer content for better context
-            if len(content) > 1200:
-                content = content[:1200]
+            if len(content) > 3000:
+                content = content[:3000]
             content = self._clean_content(content)
             if content.strip():
                 context_parts.append(content)
@@ -146,4 +203,4 @@ class RAGService:
             if line.strip() and line.strip() != "---":
                 cleaned.append(line)
 
-        return "\n".join(cleaned[:30])  # More lines allowed
+        return "\n".join(cleaned[:60])

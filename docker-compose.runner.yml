@@ -10,7 +10,7 @@ services:
       REPO_URL: https://github.com/rauschiccsk/nex-automat
       RUNNER_NAME: nex-automat-runner
       RUNNER_TOKEN: ${RUNNER_TOKEN}
-      LABELS: self-hosted,linux,x64,nex-automat
+      LABELS: self-hosted,linux,x64,nex-automat,ANDROS
       RUNNER_WORKDIR: /tmp/runner
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock

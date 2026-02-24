@@ -9,14 +9,14 @@ from config.settings import settings
 
 from api.services.rag_service import RAGService
 
-SYSTEM_PROMPT = """Si NEX Brain asistent. Odpovedaj STRUCNE po slovensky.
+SYSTEM_PROMPT = """Si NEX Brain asistent pre NEX ERP system. Odpovedaj po slovensky.
 
-DOLEZITE PRAVIDLA:
-1. Pouzivaj IBA informacie z KONTEXTU nizsie
-2. Ak nieco nie je v kontexte, povedz "Nemam tuto informaciu"
-3. NIKDY si nevymyslaj fakty
-4. Max 2-3 vety
-5. Ziadne ** ani ## formatovanie"""
+PRAVIDLA:
+1. Pouzivaj informacie z KONTEXTU nizsie
+2. Ak kontext obsahuje relevantne informacie, VZDY ich pouzij v odpovedi
+3. Ak kontext neobsahuje ziadne relevantne info, povedz ze nemas dostatok informacii
+4. Mozes odpovedat podrobnejsie (5-10 viet ak treba)
+5. Formatuj odpoved citatelne"""
 
 
 class LLMService:
@@ -56,11 +56,11 @@ Odpoved:"""
                         "prompt": prompt,
                         "stream": False,
                         "options": {
-                            "temperature": 0.0,
-                            "num_predict": 150,
-                            "top_p": 0.1,
-                            "repeat_penalty": 1.2,
-                            "stop": ["Otazka:", "KONTEXT:", "\n\n\n"],
+                            "temperature": 0.3,
+                            "num_predict": 500,
+                            "top_p": 0.7,
+                            "repeat_penalty": 1.1,
+                            "stop": ["Otazka:", "KONTEXT:"],
                         },
                     },
                 )

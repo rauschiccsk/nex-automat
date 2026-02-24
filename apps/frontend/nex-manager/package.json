@@ -11,7 +11,9 @@
     "start": "electron-vite preview",
     "typecheck:node": "tsc --noEmit -p tsconfig.node.json",
     "typecheck:web": "tsc --noEmit -p tsconfig.web.json",
-    "typecheck": "npm run typecheck:node && npm run typecheck:web"
+    "typecheck": "npm run typecheck:node && npm run typecheck:web",
+    "predist": "node scripts/version.js",
+    "dist": "electron-vite build && electron-builder --win --x64"
   },
   "dependencies": {
     "@electron-toolkit/preload": "^3.0.1",
@@ -30,6 +32,7 @@
     "@types/react-dom": "^19.0.3",
     "@vitejs/plugin-react": "^4.3.4",
     "electron": "^35.2.1",
+    "electron-builder": "^26.8.1",
     "electron-vite": "^3.0.0",
     "tailwindcss": "^4.1.4",
     "typescript": "^5.9.3"

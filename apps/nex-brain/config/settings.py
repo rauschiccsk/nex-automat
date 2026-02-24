@@ -1,5 +1,5 @@
 """
-NEX Brain Configuration - Multi-tenant support.
+NEX Brain Configuration - Multi-tenant support with local RAG.
 """
 
 from pydantic_settings import BaseSettings
@@ -11,18 +11,20 @@ class Settings(BaseSettings):
     # Deployment mode
     MODE: str = "multi-tenant"  # "multi-tenant" or "single-tenant"
     TENANT: str = ""  # For single-tenant mode
-    TENANTS: str = "icc,andros"  # Comma-separated list for multi-tenant
+    TENANTS: str = "icc,andros,dev"  # Comma-separated list for multi-tenant
 
-    # RAG API
-    RAG_API_URL: str = "https://rag-api.icc.sk"
+    # Qdrant (vector database)
+    QDRANT_URL: str = "http://localhost:6333"
 
-    # Ollama
+    # Ollama (LLM + embeddings)
     OLLAMA_URL: str = "http://localhost:11434"
     OLLAMA_MODEL: str = "llama3.1:8b"
+    EMBEDDING_MODEL: str = "nomic-embed-text"
+    EMBEDDING_DIMENSIONS: int = 768
 
     # API
     API_HOST: str = "0.0.0.0"
-    API_PORT: int = 8100
+    API_PORT: int = 8000
 
     class Config:
         env_file = ".env"

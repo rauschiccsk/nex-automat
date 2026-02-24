@@ -35,16 +35,18 @@ Vytvor `.env` súbor:
 ```env
 # Multi-tenant mode (dev server)
 MODE=multi-tenant
-TENANTS=icc,andros
+TENANTS=icc,andros,dev
 
 # Single-tenant mode (u zákazníka)
 # MODE=single-tenant
 # TENANT=andros
 
 # Services
-RAG_API_URL=https://rag-api.icc.sk
+QDRANT_URL=http://localhost:6333
 OLLAMA_URL=http://localhost:11434
 OLLAMA_MODEL=llama3.1:8b
+EMBEDDING_MODEL=nomic-embed-text
+EMBEDDING_DIMENSIONS=768
 ```
 
 ### 4. Spustenie CLI
@@ -64,7 +66,9 @@ uvicorn api.main:app --host 0.0.0.0 --port 8100 --reload
 - `GET /` - Info o službe
 - `GET /health` - Health check
 - `GET /api/v1/tenants` - Zoznam tenantov
-- `POST /api/v1/chat` - Chat endpoint
+- `GET /api/v1/collections` - Qdrant kolekcie (tenanti s dátami)
+- `POST /api/v1/chat` - Chat endpoint (RAG + LLM)
+- `POST /api/v1/ingest` - Ingest dokumentu do knowledge base
 
 ### Príklad použitia (multi-tenant)
 
@@ -106,9 +110,10 @@ nex-brain/
 ## Technológie
 
 - **FastAPI** - REST API
-- **Ollama** - Lokálny LLM (llama3.1:8b)
-- **RAG API** - Knowledge base vyhľadávanie
+- **Ollama** - Lokálny LLM (llama3.1:8b) + embeddings (nomic-embed-text)
+- **Qdrant** - Vektorová databáza pre RAG
 - **httpx** - Async HTTP klient
+- **qdrant-client** - Python klient pre Qdrant
 
 ---
 

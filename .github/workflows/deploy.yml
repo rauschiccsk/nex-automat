@@ -3,29 +3,32 @@ name: Deploy to Production
 on:
   workflow_dispatch:
     inputs:
-      customer:
-        description: 'Target customer environment'
+      target:
+        description: 'Deploy target'
         required: true
         type: choice
         options:
-          - ANDROS
-          - MAGER
+          - icc
+          - andros
+          - mager
+          - all
 
 jobs:
   # ===========================================
-  # ANDROS Deployment (Linux)
+  # ICC Deployment (Linux / Docker)
   # ===========================================
-  deploy-andros:
-    name: Deploy to ANDROS
-    if: inputs.customer == 'ANDROS'
-    runs-on:
-      - self-hosted
-      - ANDROS
-    environment: production-ANDROS
-    timeout-minutes: 10
+  deploy-icc:
+    name: Deploy to ICC
+    if: github.ref == 'refs/heads/main' && (github.event.inputs.target == 'icc' || github.event.inputs.target == 'all')
+    runs-on: [self-hosted, ANDROS]
+    environment: production-ICC
+    timeout-minutes: 15
     continue-on-error: true
 
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
       - name: Pull latest code
         uses: appleboy/ssh-action@v1
         with:
@@ -33,20 +36,33 @@ jobs:
           username: ${{ secrets.DEPLOY_SSH_USER }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           script: |
-            echo "Pulling latest code..."
+            echo "=== ICC Production Deploy ==="
+            echo "Pulling latest main branch..."
             cd /opt/nex-automat-src
-            git pull
+            git fetch origin main
+            git checkout main
+            git pull origin main
 
-      - name: Build images
+      - name: Copy ICC compose
         uses: appleboy/ssh-action@v1
         with:
           host: 172.17.0.1
           username: ${{ secrets.DEPLOY_SSH_USER }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           script: |
-            echo "Building Docker images..."
+            echo "Copying ICC compose file..."
+            cp /opt/nex-automat-src/deployment/docker/docker-compose.icc.yml /opt/nex-automat/docker-compose.icc.yml
+
+      - name: Build Docker images
+        uses: appleboy/ssh-action@v1
+        with:
+          host: 172.17.0.1
+          username: ${{ secrets.DEPLOY_SSH_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          script: |
+            echo "Building Docker images for ICC..."
             cd /opt/nex-automat
-            docker compose build nex-brain nex-telegram
+            docker compose -f docker-compose.icc.yml build
 
       - name: Deploy services
         uses: appleboy/ssh-action@v1
@@ -55,9 +71,39 @@ jobs:
           username: ${{ secrets.DEPLOY_SSH_USER }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           script: |
-            echo "Deploying services..."
+            echo "Deploying ICC services..."
             cd /opt/nex-automat
-            docker compose up -d nex-brain nex-telegram
+            docker compose -f docker-compose.icc.yml up -d
+
+      - name: Build Electron app
+        uses: appleboy/ssh-action@v1
+        with:
+          host: 172.17.0.1
+          username: ${{ secrets.DEPLOY_SSH_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          script: |
+            echo "Building Electron app for ICC..."
+            cd /opt/nex-automat-src/apps/frontend/nex-manager
+            npm ci
+            npm run build
+            # TODO: Po pridaní electron-builder:
+            # npx electron-builder --win --x64
+
+      - name: Deploy Electron to ICC
+        uses: appleboy/ssh-action@v1
+        with:
+          host: 172.17.0.1
+          username: ${{ secrets.DEPLOY_SSH_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          script: |
+            echo "Deploying Electron to ICC..."
+            mkdir -p /opt/nex-automat/icc/electron
+            # Kopírovanie build artefaktov
+            cp -r /opt/nex-automat-src/apps/frontend/nex-manager/out/* /opt/nex-automat/icc/electron/ 2>/dev/null || true
+            # TODO: Po electron-builder — .exe bude v dist/
+            # cp /opt/nex-automat-src/apps/frontend/nex-manager/dist/*.exe /opt/nex-automat/icc/electron/ 2>/dev/null || true
+            echo "Electron artifacts deployed to /opt/nex-automat/icc/electron/"
+            ls -la /opt/nex-automat/icc/electron/ 2>/dev/null || echo "No artifacts"
 
       - name: Health check
         uses: appleboy/ssh-action@v1
@@ -79,27 +125,152 @@ jobs:
           username: ${{ secrets.DEPLOY_SSH_USER }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           script: |
+            echo "=== ICC Deployment Summary ==="
+            echo "Commit: $(cd /opt/nex-automat-src && git rev-parse --short HEAD)"
+            echo "Branch: $(cd /opt/nex-automat-src && git branch --show-current)"
+            echo "Date:   $(date '+%Y-%m-%d %H:%M:%S')"
+            echo ""
+            echo "=== Running Containers ==="
+            cd /opt/nex-automat
+            docker compose -f docker-compose.icc.yml ps
+            echo ""
+            echo "=== Electron ==="
+            ls -la /opt/nex-automat/icc/electron/ 2>/dev/null || echo "N/A"
+
+  # ===========================================
+  # ANDROS Deployment (Linux / Docker)
+  # ===========================================
+  deploy-andros:
+    name: Deploy to ANDROS
+    if: github.ref == 'refs/heads/main' && (github.event.inputs.target == 'andros' || github.event.inputs.target == 'all')
+    runs-on: [self-hosted, ANDROS]
+    environment: production-ANDROS
+    timeout-minutes: 15
+    continue-on-error: true
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Pull latest code
+        uses: appleboy/ssh-action@v1
+        with:
+          host: 172.17.0.1
+          username: ${{ secrets.DEPLOY_SSH_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          script: |
+            echo "=== ANDROS Production Deploy ==="
+            echo "Pulling latest main branch..."
+            cd /opt/nex-automat-src
+            git fetch origin main
+            git checkout main
+            git pull origin main
+
+      - name: Build Docker images
+        uses: appleboy/ssh-action@v1
+        with:
+          host: 172.17.0.1
+          username: ${{ secrets.DEPLOY_SSH_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          script: |
+            echo "Building Docker images for ANDROS..."
+            cd /opt/nex-automat
+            docker compose build nex-brain nex-telegram
+
+      - name: Deploy services
+        uses: appleboy/ssh-action@v1
+        with:
+          host: 172.17.0.1
+          username: ${{ secrets.DEPLOY_SSH_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          script: |
+            echo "Deploying ANDROS services..."
+            cd /opt/nex-automat
+            docker compose up -d nex-brain nex-telegram
+
+      - name: Build Electron app
+        uses: appleboy/ssh-action@v1
+        with:
+          host: 172.17.0.1
+          username: ${{ secrets.DEPLOY_SSH_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          script: |
+            echo "Building Electron app for ANDROS..."
+            cd /opt/nex-automat-src/apps/frontend/nex-manager
+            npm ci
+            npm run build
+            # TODO: Po pridaní electron-builder:
+            # npx electron-builder --win --x64
+
+      - name: Deploy Electron to ANDROS
+        uses: appleboy/ssh-action@v1
+        with:
+          host: 172.17.0.1
+          username: ${{ secrets.DEPLOY_SSH_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          script: |
+            echo "Deploying Electron to ANDROS..."
+            mkdir -p /opt/nex-automat/andros/electron
+            cp -r /opt/nex-automat-src/apps/frontend/nex-manager/out/* /opt/nex-automat/andros/electron/ 2>/dev/null || true
+            # TODO: Po electron-builder — .exe bude v dist/
+            # cp /opt/nex-automat-src/apps/frontend/nex-manager/dist/*.exe /opt/nex-automat/andros/electron/ 2>/dev/null || true
+            echo "Electron artifacts deployed to /opt/nex-automat/andros/electron/"
+            ls -la /opt/nex-automat/andros/electron/ 2>/dev/null || echo "No artifacts"
+
+      - name: Health check
+        uses: appleboy/ssh-action@v1
+        with:
+          host: 172.17.0.1
+          username: ${{ secrets.DEPLOY_SSH_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          script: |
+            echo "Waiting for services..."
+            sleep 10
+            echo "Running health check..."
+            curl -f http://localhost:8000/health
+            echo "Health check passed!"
+
+      - name: Deployment summary
+        uses: appleboy/ssh-action@v1
+        with:
+          host: 172.17.0.1
+          username: ${{ secrets.DEPLOY_SSH_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          script: |
+            echo "=== ANDROS Deployment Summary ==="
+            echo "Commit: $(cd /opt/nex-automat-src && git rev-parse --short HEAD)"
+            echo "Branch: $(cd /opt/nex-automat-src && git branch --show-current)"
+            echo "Date:   $(date '+%Y-%m-%d %H:%M:%S')"
+            echo ""
             echo "=== Running Containers ==="
             cd /opt/nex-automat
             docker compose ps
+            echo ""
+            echo "=== Electron ==="
+            ls -la /opt/nex-automat/andros/electron/ 2>/dev/null || echo "N/A"
 
   # ===========================================
   # MAGER Deployment (Windows + Btrieve Hybrid)
   # ===========================================
   deploy-mager:
     name: Deploy to MAGER
-    if: github.event.inputs.customer == 'MAGER'
+    if: github.ref == 'refs/heads/main' && (github.event.inputs.target == 'mager' || github.event.inputs.target == 'all')
     runs-on: [self-hosted, MAGER]
     environment: production-MAGER
-    timeout-minutes: 10
+    timeout-minutes: 15
     continue-on-error: true
 
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
       - name: Git Pull
         shell: powershell
         run: |
           cd C:\opt\nex-automat-src
-          git pull origin develop
+          git fetch origin main
+          git checkout main
+          git pull origin main
 
       - name: Copy Docker Compose
         shell: powershell
@@ -118,8 +289,87 @@ jobs:
         run: |
           Restart-Service NEX-BtrieveLoader -ErrorAction SilentlyContinue
 
+      - name: Build Electron app
+        shell: powershell
+        run: |
+          cd C:\opt\nex-automat-src\apps\frontend\nex-manager
+          npm ci
+          npm run build
+          # TODO: Po pridani electron-builder:
+          # npx electron-builder --win --x64
+
+      - name: Deploy Electron to MAGER
+        shell: powershell
+        run: |
+          echo "Deploying Electron to MAGER..."
+          $targetDir = "C:\MAGER\nex-automat"
+          if (-not (Test-Path $targetDir)) { New-Item -ItemType Directory -Path $targetDir -Force }
+          # Kopirovanie build artefaktov
+          Copy-Item -Path "C:\opt\nex-automat-src\apps\frontend\nex-manager\out\*" -Destination $targetDir -Recurse -Force -ErrorAction SilentlyContinue
+          # TODO: Po electron-builder — .exe bude v dist/
+          # Copy-Item -Path "C:\opt\nex-automat-src\apps\frontend\nex-manager\dist\*.exe" -Destination $targetDir -Force -ErrorAction SilentlyContinue
+          echo "Electron deployed to $targetDir"
+          Get-ChildItem $targetDir -ErrorAction SilentlyContinue
+
       - name: Health Check
         shell: powershell
         run: |
           cd C:\opt\nex-automat
           docker compose ps
+
+      - name: Deployment summary
+        shell: powershell
+        run: |
+          echo "=== MAGER Deployment Summary ==="
+          echo "Commit: $(cd C:\opt\nex-automat-src; git rev-parse --short HEAD)"
+          echo "Branch: $(cd C:\opt\nex-automat-src; git branch --show-current)"
+          echo "Date:   $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')"
+          echo ""
+          echo "=== Electron ==="
+          Get-ChildItem "C:\MAGER\nex-automat" -ErrorAction SilentlyContinue
+
+  # ===========================================
+  # Electron Deploy (Windows runner — ANDROS-WIN)
+  # ===========================================
+  deploy-electron:
+    name: Deploy Electron to Targets
+    if: github.ref == 'refs/heads/main'
+    runs-on: [self-hosted, ANDROS-WIN]
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        working-directory: apps/frontend/nex-manager
+        run: npm ci
+
+      - name: Build Electron
+        working-directory: apps/frontend/nex-manager
+        run: npm run dist
+
+      - name: Deploy Electron to targets
+        shell: powershell
+        run: |
+          $target = "${{ inputs.target }}"
+          $exePath = "apps\frontend\nex-manager\dist\*.exe"
+
+          $targetMap = @{
+            "icc" = @("C:\ICC\")
+            "andros" = @("C:\ANDROS\")
+            "mager" = @("C:\MAGER\")
+            "all" = @("C:\ICC\", "C:\ANDROS\", "C:\MAGER\")
+          }
+
+          $destinations = $targetMap[$target]
+          foreach ($dest in $destinations) {
+            if (-not (Test-Path $dest)) { New-Item -ItemType Directory -Path $dest -Force }
+            Copy-Item -Path $exePath -Destination $dest -Force
+            Write-Host "✅ Electron deployed to $dest"
+            Get-ChildItem $dest -Filter "*.exe" | Format-Table Name, Length, LastWriteTime
+          }
