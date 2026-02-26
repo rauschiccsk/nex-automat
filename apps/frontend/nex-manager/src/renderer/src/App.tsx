@@ -17,10 +17,10 @@ import { useTabStore } from '@renderer/stores/tabStore'
 import { useModuleStore } from '@renderer/stores/moduleStore'
 
 function App(): ReactElement {
-  const { authenticated } = useAuthStore()
+  const { authenticated, logout } = useAuthStore()
   const { theme } = useUiStore()
   const { activeTabId, tabs } = useTabStore()
-  const { modules } = useModuleStore()
+  const { modules, loadModules } = useModuleStore()
 
   // Dark mode: sync document.documentElement class
   useEffect(() => {
@@ -30,6 +30,13 @@ function App(): ReactElement {
       document.documentElement.classList.remove('dark')
     }
   }, [theme])
+
+  // After login: ensure modules are loaded (fallback if LoginScreen didn't load them)
+  useEffect(() => {
+    if (authenticated && modules.length === 0) {
+      loadModules().catch(() => logout())
+    }
+  }, [authenticated]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Find active tab and its module for breadcrumbs
   const activeTab = useMemo(() => {

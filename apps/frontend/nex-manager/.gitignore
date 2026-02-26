@@ -2,3 +2,5 @@ node_modules/
 out/
 dist/
 src/renderer/src/version.ts
+.env
+.env.local

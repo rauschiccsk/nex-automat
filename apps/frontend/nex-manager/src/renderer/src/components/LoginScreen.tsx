@@ -1,6 +1,7 @@
 import { useState, useCallback, type ReactElement, type FormEvent } from 'react'
-import { Eye, EyeOff, LogIn, Moon, Sun, User, Lock, Loader2 } from 'lucide-react'
-import { useAuthStore } from '@renderer/stores/authStore'
+import { Eye, EyeOff, LogIn, Moon, Sun, User, Lock, Loader2, AlertCircle } from 'lucide-react'
+import { useAuthStore, type ApiError } from '@renderer/stores/authStore'
+import { useModuleStore } from '@renderer/stores/moduleStore'
 import { useUiStore } from '@renderer/stores/uiStore'
 import { cn } from '@renderer/lib/utils'
 
@@ -9,8 +10,10 @@ export default function LoginScreen(): ReactElement {
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const { login } = useAuthStore()
+  const { loadModules } = useModuleStore()
   const { theme, setTheme } = useUiStore()
   const isDark = theme === 'dark'
 
@@ -25,21 +28,23 @@ export default function LoginScreen(): ReactElement {
       e.preventDefault()
       if (!isValid || loading) return
 
+      setError(null)
       setLoading(true)
-      setTimeout(() => {
-        const initials = username.trim().substring(0, 2).toUpperCase()
-        login(
-          {
-            id: `user-${Date.now()}`,
-            username: username.trim(),
-            role: 'user'
-          },
-          `mock-token-${initials.toLowerCase()}-${Date.now()}`
-        )
-        setLoading(false)
-      }, 800)
+
+      login(username.trim(), password)
+        .then(() => loadModules())
+        .catch((err: ApiError) => {
+          if (err.status === 401) {
+            setError('Nesprávne prihlasovacie údaje')
+          } else if (err.status === 0 || !err.status) {
+            setError('Server nie je dostupný. Skúste to neskôr.')
+          } else {
+            setError(err.message || 'Prihlásenie zlyhalo')
+          }
+        })
+        .finally(() => setLoading(false))
     },
-    [username, password, isValid, loading, login]
+    [username, password, isValid, loading, login, loadModules]
   )
 
   return (
@@ -83,7 +88,7 @@ export default function LoginScreen(): ReactElement {
                   id="login-username"
                   type="text"
                   value={username}
-                  onChange={(e) => setUsername(e.target.value)}
+                  onChange={(e) => { setUsername(e.target.value); setError(null) }}
                   disabled={loading}
                   placeholder="Zadajte meno"
                   autoComplete="username"
@@ -113,7 +118,7 @@ export default function LoginScreen(): ReactElement {
                   id="login-password"
                   type={showPassword ? 'text' : 'password'}
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={(e) => { setPassword(e.target.value); setError(null) }}
                   disabled={loading}
                   placeholder="Zadajte heslo"
                   autoComplete="current-password"
@@ -141,6 +146,14 @@ export default function LoginScreen(): ReactElement {
                 </button>
               </div>
             </div>
+
+            {/* Error message */}
+            {error && (
+              <div className="flex items-center gap-2 p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
+                <AlertCircle className="h-4 w-4 text-red-500 shrink-0" />
+                <span className="text-sm text-red-700 dark:text-red-400">{error}</span>
+              </div>
+            )}
 
             {/* Submit */}
             <button
