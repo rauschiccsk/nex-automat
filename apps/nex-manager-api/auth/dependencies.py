@@ -13,7 +13,15 @@ security = HTTPBearer()
 
 # Whitelist of valid permission column names in group_module_permissions
 _VALID_PERMISSIONS = frozenset(
-    {"can_view", "can_create", "can_edit", "can_delete", "can_print", "can_export", "can_admin"}
+    {
+        "can_view",
+        "can_create",
+        "can_edit",
+        "can_delete",
+        "can_print",
+        "can_export",
+        "can_admin",
+    }
 )
 
 

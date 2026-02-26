@@ -51,7 +51,9 @@ def _row_to_module(row: tuple) -> ModuleResponse:
 
 @router.get("", response_model=ModuleListResponse)
 def list_modules(
-    category: str | None = Query(None, description="Filter by category (e.g. sales, stock)"),
+    category: str | None = Query(
+        None, description="Filter by category (e.g. sales, stock)"
+    ),
     include_mock: bool | None = Query(None, description="Filter by is_mock flag"),
     _current_user=Depends(get_current_user),
     db=Depends(get_db),
@@ -98,8 +100,7 @@ def modules_by_category(
         grouped.setdefault(mod.category, []).append(mod)
 
     categories = [
-        ModuleCategoryGroup(category=cat, modules=mods)
-        for cat, mods in grouped.items()
+        ModuleCategoryGroup(category=cat, modules=mods) for cat, mods in grouped.items()
     ]
 
     total = sum(len(g.modules) for g in categories)
