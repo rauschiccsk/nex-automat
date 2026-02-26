@@ -75,14 +75,11 @@ def refresh(request: RefreshRequest, db=Depends(get_db)):
             raise HTTPException(status_code=401, detail="Neplatný typ tokenu")
         user_id = int(payload["sub"])
     except (JWTError, KeyError, ValueError):
-        raise HTTPException(
-            status_code=401, detail="Neplatný refresh token"
-        )
+        raise HTTPException(status_code=401, detail="Neplatný refresh token")
 
     cur = db.cursor()
     cur.execute(
-        "SELECT user_id, login_name, is_active "
-        "FROM users WHERE user_id = %s",
+        "SELECT user_id, login_name, is_active FROM users WHERE user_id = %s",
         (user_id,),
     )
     user = cur.fetchone()
