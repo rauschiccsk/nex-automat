@@ -6,10 +6,13 @@ REST API backend for the NEX Manager Electron desktop application.
 Provides JWT authentication, user management, and module permissions.
 
 Endpoints:
-- POST /api/auth/login    — authenticate, return JWT tokens
-- POST /api/auth/refresh  — refresh access token
-- GET  /api/auth/me       — current user info + permissions
-- GET  /health            — health check
+- POST /api/auth/login          — authenticate, return JWT tokens
+- POST /api/auth/refresh        — refresh access token
+- GET  /api/auth/me             — current user info + permissions
+- GET  /api/modules             — list all active modules
+- GET  /api/modules/by-category — modules grouped by category
+- GET  /api/modules/{code}      — single module detail
+- GET  /health                  — health check
 """
 
 from datetime import datetime
@@ -18,6 +21,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from auth.router import router as auth_router
+from modules.router import router as modules_router
 
 app = FastAPI(
     title="NEX Manager API",
@@ -40,6 +44,7 @@ app.add_middleware(
 # ROUTERS
 # ---------------------------------------------------------------------------
 app.include_router(auth_router)
+app.include_router(modules_router)
 
 
 # ---------------------------------------------------------------------------
@@ -56,6 +61,9 @@ def root():
             "auth_login": "/api/auth/login",
             "auth_refresh": "/api/auth/refresh",
             "auth_me": "/api/auth/me",
+            "modules_list": "/api/modules",
+            "modules_by_category": "/api/modules/by-category",
+            "modules_detail": "/api/modules/{code}",
             "docs": "/docs",
             "health": "/health",
         },
