@@ -20,7 +20,7 @@ function App(): ReactElement {
   const { authenticated, logout } = useAuthStore()
   const { theme } = useUiStore()
   const { activeTabId, tabs } = useTabStore()
-  const { modules, loadModules } = useModuleStore()
+  const { modules, loadModules, loading } = useModuleStore()
 
   // Dark mode: sync document.documentElement class
   useEffect(() => {
@@ -32,9 +32,18 @@ function App(): ReactElement {
   }, [theme])
 
   // After login: ensure modules are loaded (fallback if LoginScreen didn't load them)
+  // Only logout on 401 (expired token), NOT on network/transient errors
   useEffect(() => {
-    if (authenticated && modules.length === 0) {
-      loadModules().catch(() => logout())
+    if (authenticated && modules.length === 0 && !loading) {
+      console.debug('[AUTH] App.tsx: modules empty after login, loading as fallback…')
+      loadModules().catch((err: { status?: number }) => {
+        console.warn('[AUTH] App.tsx loadModules fallback failed:', err)
+        if (err?.status === 401) {
+          console.warn('[AUTH] App.tsx: 401 → logging out')
+          logout()
+        }
+        // Non-401 errors: stay authenticated, modules will be empty but user stays logged in
+      })
     }
   }, [authenticated]) // eslint-disable-line react-hooks/exhaustive-deps
 

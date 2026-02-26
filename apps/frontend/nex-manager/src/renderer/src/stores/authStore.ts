@@ -32,8 +32,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   permissions: {},
 
   login: async (username: string, password: string): Promise<void> => {
+    console.debug('[AUTH] authStore.login() called for:', username)
     // Call real API
     const loginRes = await api.login(username, password)
+    console.debug('[AUTH] authStore: login API OK, fetching /me…')
 
     // Fetch user profile (nested: me.user.*, me.permissions[])
     const me = await api.getMe()
@@ -62,6 +64,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       permissions[p.module_code] = perms
     }
 
+    console.debug('[AUTH] authStore: /me OK, setting authenticated=true, user:', user.username)
     set({
       user,
       token: loginRes.access_token,
@@ -71,6 +74,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   logout: (): void => {
+    console.debug('[AUTH] authStore.logout() called — stack:', new Error().stack?.split('\n').slice(1, 4).join(' ← '))
     api.clearTokens()
     set({
       user: null,

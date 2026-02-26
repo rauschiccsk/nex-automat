@@ -31,9 +31,17 @@ export default function LoginScreen(): ReactElement {
       setError(null)
       setLoading(true)
 
+      console.debug('[AUTH] LoginScreen: submitting login…')
       login(username.trim(), password)
-        .then(() => loadModules())
+        .then(() => {
+          console.debug('[AUTH] LoginScreen: login OK, loading modules…')
+          return loadModules()
+        })
+        .then(() => {
+          console.debug('[AUTH] LoginScreen: modules loaded OK')
+        })
         .catch((err: ApiError) => {
+          console.warn('[AUTH] LoginScreen: login/loadModules failed:', err)
           if (err.status === 401) {
             setError('Nesprávne prihlasovacie údaje')
           } else if (err.status === 0 || !err.status) {

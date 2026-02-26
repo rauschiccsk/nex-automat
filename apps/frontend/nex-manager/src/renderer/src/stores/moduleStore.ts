@@ -49,6 +49,11 @@ export const useModuleStore = create<ModuleState>((set, get) => ({
   },
 
   loadModules: async (): Promise<void> => {
+    if (get().loading) {
+      console.debug('[AUTH] moduleStore.loadModules(): already loading, skipping duplicate call')
+      return
+    }
+    console.debug('[AUTH] moduleStore.loadModules(): starting…')
     set({ loading: true })
     try {
       const categories = await api.getModulesByCategory()
@@ -69,8 +74,10 @@ export const useModuleStore = create<ModuleState>((set, get) => ({
       // Sort by order
       modules.sort((a, b) => (a.order ?? 999) - (b.order ?? 999))
 
+      console.debug('[AUTH] moduleStore.loadModules(): loaded', modules.length, 'modules')
       set({ modules, loading: false })
     } catch (err) {
+      console.warn('[AUTH] moduleStore.loadModules(): failed:', err)
       set({ loading: false })
       throw err
     }
