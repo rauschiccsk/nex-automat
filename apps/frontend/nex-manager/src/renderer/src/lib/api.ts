@@ -2,7 +2,24 @@
  * Centralized API client with JWT auth, auto-refresh, and error handling.
  */
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:9110'
+let API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:9110'
+
+/**
+ * Initializes API_BASE_URL from Electron runtime config (resources/config.json).
+ * Must be called before any API requests. Falls back to VITE_API_URL or localhost.
+ */
+export async function initApiConfig(): Promise<void> {
+  try {
+    if (window.api?.config?.getConfig) {
+      const cfg = await window.api.config.getConfig()
+      if (cfg?.apiUrl) {
+        API_BASE_URL = cfg.apiUrl
+      }
+    }
+  } catch {
+    // Fallback — keep existing value (VITE_API_URL or localhost)
+  }
+}
 
 // ─── Response types ───────────────────────────────────────────────
 

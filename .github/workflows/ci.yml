@@ -243,3 +243,12 @@ jobs:
             Write-Error "No .exe found in $target"
             exit 1
           }
+
+      - name: Create DEPTEST config
+        shell: pwsh
+        run: |
+          $configDir = "C:\DEPTEST\nex-manager\resources"
+          New-Item -ItemType Directory -Path $configDir -Force | Out-Null
+          @{apiUrl = "http://100.107.134.104:9110"} | ConvertTo-Json | Set-Content "$configDir\config.json"
+          Write-Host "DEPTEST config written to $configDir\config.json"
+          Get-Content "$configDir\config.json"

@@ -1,7 +1,11 @@
-import { contextBridge } from 'electron'
+import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
 
-const api = {}
+const api = {
+  config: {
+    getConfig: (): Promise<{ apiUrl: string }> => ipcRenderer.invoke('get-config')
+  }
+}
 
 if (process.contextIsolated) {
   try {

@@ -1,6 +1,31 @@
-import { app, shell, BrowserWindow } from 'electron'
+import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
+import { readFileSync } from 'fs'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
+
+// ─── Runtime config ──────────────────────────────────────────────
+interface AppConfig {
+  apiUrl: string
+}
+
+function loadConfig(): AppConfig {
+  const defaults: AppConfig = { apiUrl: 'http://localhost:9110' }
+  const paths = [
+    join(process.resourcesPath, 'config.json'),
+    join(app.getAppPath(), 'resources', 'config.json')
+  ]
+  for (const p of paths) {
+    try {
+      const raw = readFileSync(p, 'utf-8')
+      return { ...defaults, ...JSON.parse(raw) }
+    } catch {
+      // try next path
+    }
+  }
+  return defaults
+}
+
+const config = loadConfig()
 
 function createWindow(): void {
   const mainWindow = new BrowserWindow({
@@ -32,6 +57,9 @@ function createWindow(): void {
 
 app.whenReady().then(() => {
   electronApp.setAppUserModelId('com.icc.nex-manager')
+
+  // Expose runtime config to renderer via IPC
+  ipcMain.handle('get-config', () => config)
 
   app.on('browser-window-created', (_, window) => {
     optimizer.watchWindowShortcuts(window)
