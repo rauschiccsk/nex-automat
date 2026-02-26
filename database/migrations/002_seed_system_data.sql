@@ -11,7 +11,7 @@ INSERT INTO users (login_name, full_name, password_hash, email, created_by)
 VALUES (
     'admin',
     'Administrátor',
-    '$2b$12$LJ3m4ys3Lk8YVxqBqGJnKOFG8JLyFHpDJHr8w1YxV5IzX3wQK3Ky',
+    '$2b$12$x5AGAyWA/Td4/EGpv3PGUOSGpz1vl3aimwMgoqh6Z21iUngaqJVD.',
     'admin@icc.sk',
     'system'
 ) ON CONFLICT (login_name) DO NOTHING;

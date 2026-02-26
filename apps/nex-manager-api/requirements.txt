@@ -1,0 +1,21 @@
+# NEX Manager API - Dependencies
+# FastAPI backend for NEX Manager Electron desktop application
+# Python 3.11+
+
+# WEB FRAMEWORK
+fastapi>=0.115.0
+uvicorn>=0.32.0
+pydantic>=2.9.0
+pydantic-settings>=2.7.0
+
+# AUTHENTICATION
+python-jose[cryptography]>=3.3.0
+passlib[bcrypt]>=1.7.4
+bcrypt>=4.0.0,<5.0.0  # passlib not yet compatible with bcrypt 5.x
+python-multipart>=0.0.12
+
+# DATABASE
+pg8000>=1.29.0  # Pure Python PostgreSQL driver (32-bit compatible)
+
+# ENVIRONMENT
+python-dotenv>=1.0.1
