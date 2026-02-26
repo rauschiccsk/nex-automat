@@ -3,6 +3,7 @@ import { api, type ApiError } from '@renderer/lib/api'
 
 export interface AuthUser {
   id: string
+  name: string
   username: string
   email?: string
   role?: string
@@ -41,6 +42,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
     const user: AuthUser = {
       id: me.user_id,
+      name: me.full_name || me.username,
       username: me.username,
       email: me.email,
       fullName: me.full_name,
