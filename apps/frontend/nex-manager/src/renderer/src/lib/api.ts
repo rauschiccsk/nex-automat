@@ -30,13 +30,31 @@ export interface LoginResponse {
   expires_in: number
 }
 
-export interface MeResponse {
-  user_id: string
-  username: string
-  email: string
+export interface MeUser {
+  user_id: number
+  login_name: string
   full_name: string
+  email: string
+  is_active: boolean
+  last_login_at: string | null
   groups: string[]
-  permissions: Record<string, string[]>
+}
+
+export interface MePermission {
+  module_code: string
+  module_name: string
+  can_view: boolean
+  can_create: boolean
+  can_edit: boolean
+  can_delete: boolean
+  can_print: boolean
+  can_export: boolean
+  can_admin: boolean
+}
+
+export interface MeResponse {
+  user: MeUser
+  permissions: MePermission[]
 }
 
 export interface ApiModule {

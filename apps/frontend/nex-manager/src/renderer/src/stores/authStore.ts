@@ -2,13 +2,11 @@ import { create } from 'zustand'
 import { api, type ApiError } from '@renderer/lib/api'
 
 export interface AuthUser {
-  id: string
+  id: number
   name: string
   username: string
   email?: string
   role?: string
-  // New fields from /api/auth/me
-  userId?: string
   fullName?: string
   groups?: string[]
 }
@@ -37,24 +35,38 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     // Call real API
     const loginRes = await api.login(username, password)
 
-    // Fetch user profile
+    // Fetch user profile (nested: me.user.*, me.permissions[])
     const me = await api.getMe()
+    const u = me.user
 
     const user: AuthUser = {
-      id: me.user_id,
-      name: me.full_name || me.username,
-      username: me.username,
-      email: me.email,
-      fullName: me.full_name,
-      userId: me.user_id,
-      groups: me.groups
+      id: u.user_id,
+      name: u.full_name || u.login_name || 'Používateľ',
+      username: u.login_name,
+      email: u.email,
+      fullName: u.full_name,
+      groups: u.groups ?? []
+    }
+
+    // Transform permissions array to Record<module_code, string[]>
+    const permissions: Record<string, string[]> = {}
+    for (const p of me.permissions ?? []) {
+      const perms: string[] = []
+      if (p.can_view) perms.push('view')
+      if (p.can_create) perms.push('create')
+      if (p.can_edit) perms.push('edit')
+      if (p.can_delete) perms.push('delete')
+      if (p.can_print) perms.push('print')
+      if (p.can_export) perms.push('export')
+      if (p.can_admin) perms.push('admin')
+      permissions[p.module_code] = perms
     }
 
     set({
       user,
       token: loginRes.access_token,
       authenticated: true,
-      permissions: me.permissions
+      permissions
     })
   },
 

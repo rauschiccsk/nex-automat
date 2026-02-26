@@ -3,12 +3,14 @@ import { Bell, Moon, Sun, LogOut, ChevronDown, PanelRightOpen } from 'lucide-rea
 import { useUiStore } from '@renderer/stores/uiStore'
 import { useAuthStore } from '@renderer/stores/authStore'
 
-function getInitials(username: string): string {
-  return username
+function getInitials(name?: string | null): string {
+  if (!name) return '??'
+  return name
     .split(/[\s._-]+/)
+    .filter(Boolean)
     .map((part) => part.charAt(0).toUpperCase())
     .slice(0, 2)
-    .join('')
+    .join('') || '??'
 }
 
 export default function Header(): ReactElement {
@@ -27,8 +29,8 @@ export default function Header(): ReactElement {
     setIsUserMenuOpen(false)
   }, [logout])
 
-  const initials = user ? getInitials(user.name) : '??'
-  const displayName = user?.name ?? 'Neprihlásený'
+  const initials = getInitials(user?.name)
+  const displayName = user?.name || user?.username || 'Neprihlásený'
 
   return (
     <header className="h-14 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between px-4 shrink-0">
