@@ -2,6 +2,7 @@
   "name": "nex-manager",
   "version": "0.1.0",
   "description": "NEX Manager — Electron desktop app",
+  "author": "ICC s.r.o. <info@icc.sk>",
   "main": "./out/main/index.js",
   "scripts": {
     "predev": "node scripts/version.js",

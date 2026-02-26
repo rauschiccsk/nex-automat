@@ -137,6 +137,7 @@ jobs:
     if: github.event_name == 'push'
     env:
       CSC_IDENTITY_AUTO_DISCOVERY: "false"
+      CSC_LINK: ""
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -156,16 +157,10 @@ jobs:
         shell: pwsh
         run: npm run build
 
-      - name: Create no-op sign script (skip code signing)
+      - name: Package Electron app (portable)
         working-directory: apps/frontend/nex-manager
         shell: pwsh
-        run: |
-          'exports.default = async function(config) { /* skip signing */ }' | Out-File -FilePath sign-skip.cjs -Encoding utf8
-
-      - name: Build Electron app (portable)
-        working-directory: apps/frontend/nex-manager
-        shell: pwsh
-        run: npx electron-builder --win --x64 --dir --config.win.sign=./sign-skip.cjs
+        run: npx electron-builder --win --x64 --dir
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4

@@ -1,5 +1,6 @@
 appId: sk.icc.nex-manager
 productName: NEX Manager
+forceCodeSigning: false
 directories:
   buildResources: resources
   output: dist
