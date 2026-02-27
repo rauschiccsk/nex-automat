@@ -25,6 +25,9 @@ interface ModuleState {
   loadModules: () => Promise<void>
 }
 
+let loadingSince: number | null = null
+const STALE_LOCK_MS = 15_000
+
 export const useModuleStore = create<ModuleState>((set, get) => ({
   modules: [],
   activeModuleId: null,
@@ -50,10 +53,15 @@ export const useModuleStore = create<ModuleState>((set, get) => ({
 
   loadModules: async (): Promise<void> => {
     if (get().loading) {
-      console.debug('[MODULES] loadModules(): already loading, skipping duplicate call')
-      return
+      const elapsed = loadingSince ? Date.now() - loadingSince : 0
+      if (elapsed < STALE_LOCK_MS) {
+        console.debug('[MODULES] loadModules(): already loading (' + elapsed + 'ms), skipping')
+        return
+      }
+      console.warn('[MODULES] loadModules(): stale lock detected (' + elapsed + 'ms), resetting')
     }
     console.log('[MODULES] loadModules() called')
+    loadingSince = Date.now()
     set({ loading: true })
     try {
       const categories = await api.getModulesByCategory()
@@ -78,9 +86,11 @@ export const useModuleStore = create<ModuleState>((set, get) => ({
 
       console.log('[MODULES] Stored modules count:', modules.length)
       console.log('[MODULES] Categories:', [...new Set(modules.map((m) => m.category))])
+      loadingSince = null
       set({ modules, loading: false })
     } catch (err) {
       console.warn('[MODULES] loadModules() failed:', err)
+      loadingSince = null
       set({ loading: false })
       throw err
     }

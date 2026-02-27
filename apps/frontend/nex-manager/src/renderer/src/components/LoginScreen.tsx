@@ -35,13 +35,13 @@ export default function LoginScreen(): ReactElement {
       login(username.trim(), password)
         .then(() => {
           console.debug('[AUTH] LoginScreen: login OK, loading modules…')
-          return loadModules()
-        })
-        .then(() => {
-          console.debug('[AUTH] LoginScreen: modules loaded OK')
+          // Fire-and-forget: App.tsx useEffect handles retry if this fails
+          loadModules().catch((modErr) => {
+            console.warn('[MODULES] LoginScreen: loadModules failed (App.tsx will retry):', modErr)
+          })
         })
         .catch((err: ApiError) => {
-          console.warn('[AUTH] LoginScreen: login/loadModules failed:', err)
+          console.warn('[AUTH] LoginScreen: login failed:', err)
           if (err.status === 401) {
             setError('Nesprávne prihlasovacie údaje')
           } else if (err.status === 0 || !err.status) {

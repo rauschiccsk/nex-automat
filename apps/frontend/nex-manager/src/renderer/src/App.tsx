@@ -1,4 +1,4 @@
-import { useEffect, useMemo, type ReactElement } from 'react'
+import { useEffect, useMemo, useRef, type ReactElement } from 'react'
 import { LayoutDashboard } from 'lucide-react'
 
 import Header from '@renderer/components/Header'
@@ -31,21 +31,29 @@ function App(): ReactElement {
     }
   }, [theme])
 
-  // After login: ensure modules are loaded (fallback if LoginScreen didn't load them)
-  // Only logout on 401 (expired token), NOT on network/transient errors
+  // After login: ensure modules are loaded.
+  // Retries automatically when loading finishes but modules are still empty (max 3 attempts).
+  const retryCount = useRef(0)
   useEffect(() => {
-    if (authenticated && modules.length === 0 && !loading) {
-      console.debug('[AUTH] App.tsx: modules empty after login, loading as fallback…')
-      loadModules().catch((err: { status?: number }) => {
-        console.warn('[AUTH] App.tsx loadModules fallback failed:', err)
-        if (err?.status === 401) {
-          console.warn('[AUTH] App.tsx: 401 → logging out')
-          logout()
-        }
-        // Non-401 errors: stay authenticated, modules will be empty but user stays logged in
-      })
+    if (!authenticated) {
+      retryCount.current = 0
+      return
     }
-  }, [authenticated]) // eslint-disable-line react-hooks/exhaustive-deps
+    if (modules.length > 0 || loading) return
+    if (retryCount.current >= 3) {
+      console.warn('[MODULES] App.tsx: max retries reached, giving up')
+      return
+    }
+    retryCount.current += 1
+    console.log('[MODULES] App.tsx: modules empty, attempt', retryCount.current)
+    loadModules().catch((err: { status?: number }) => {
+      console.warn('[MODULES] App.tsx loadModules failed:', err)
+      if (err?.status === 401) {
+        console.warn('[MODULES] App.tsx: 401 → logging out')
+        logout()
+      }
+    })
+  }, [authenticated, modules.length, loading]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Find active tab and its module for breadcrumbs
   const activeTab = useMemo(() => {
