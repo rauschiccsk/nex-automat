@@ -16,21 +16,18 @@ const MIN_WIDTH = 48
 const MAX_WIDTH = 300
 const DEFAULT_WIDTH = 220
 
-// Mock category groups — moduleStore has no category field, so we map by id prefix
 const CATEGORY_GROUPS: { key: string; label: string }[] = [
   { key: 'base', label: 'Základné' },
   { key: 'stock', label: 'Sklad' },
   { key: 'sales', label: 'Predaj' },
   { key: 'purchase', label: 'Nákup' },
   { key: 'accounting', label: 'Účtovníctvo' },
+  { key: 'pos', label: 'Pokladňa' },
   { key: 'system', label: 'Systém' }
 ]
 
 function getModuleCategory(mod: NexModule): string {
-  // Derive category from module id prefix (e.g., "stock.inventory" → "stock")
-  const dotIdx = mod.id.indexOf('.')
-  if (dotIdx > 0) return mod.id.substring(0, dotIdx)
-  return 'base'
+  return mod.category ?? 'base'
 }
 
 export default function Sidebar(): ReactElement {

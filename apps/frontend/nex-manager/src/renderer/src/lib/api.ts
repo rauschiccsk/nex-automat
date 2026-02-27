@@ -72,6 +72,11 @@ export interface ModuleCategory {
   modules: ApiModule[]
 }
 
+export interface ModulesByCategoryResponse {
+  categories: ModuleCategory[]
+  total: number
+}
+
 export interface ApiError {
   status: number
   message: string
@@ -208,7 +213,8 @@ class ApiClient {
   // ── Module endpoints ──
 
   async getModulesByCategory(): Promise<ModuleCategory[]> {
-    return this.request<ModuleCategory[]>('/api/modules/by-category')
+    const data = await this.request<ModulesByCategoryResponse>('/api/modules/by-category')
+    return data.categories
   }
 }
 
