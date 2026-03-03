@@ -1,10 +1,12 @@
 {
   "compilerOptions": {
     "composite": true,
+    "target": "ES2020",
     "module": "ESNext",
     "moduleResolution": "bundler",
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
+    "skipLibCheck": true,
     "outDir": "./out/tsconfig.node",
     "declaration": true,
     "declarationMap": true

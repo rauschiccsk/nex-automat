@@ -65,7 +65,6 @@ const ICON_MAP: Record<string, LucideIcon> = {
 
 const MIN_WIDTH = 48
 const MAX_WIDTH = 300
-const DEFAULT_WIDTH = 220
 
 const CATEGORY_GROUPS: { key: string; label: string }[] = [
   { key: 'catalogs', label: 'Katalógy' },
@@ -82,11 +81,10 @@ function getModuleCategory(mod: NexModule): string {
 }
 
 export default function Sidebar(): ReactElement {
-  const { sidebarOpen, toggleSidebar } = useUiStore()
+  const { sidebarOpen, toggleSidebar, sidebarWidth, setSidebarWidth, expandedCategories, toggleCategory } = useUiStore()
   const { modules } = useModuleStore()
   const { addTab } = useTabStore()
 
-  const [sidebarWidth, setSidebarWidth] = useState(DEFAULT_WIDTH)
   const [isResizing, setIsResizing] = useState(false)
   const sidebarRef = useRef<HTMLDivElement>(null)
 
@@ -96,10 +94,6 @@ export default function Sidebar(): ReactElement {
   )
   const [recentIds] = useState<string[]>(() =>
     modules.slice(0, 10).map((m) => m.id)
-  )
-
-  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(
-    () => new Set(['catalogs'])
   )
 
   const collapsed = !sidebarOpen
@@ -133,7 +127,7 @@ export default function Sidebar(): ReactElement {
       document.removeEventListener('mousemove', handleMouseMove)
       document.removeEventListener('mouseup', handleMouseUp)
     }
-  }, [isResizing])
+  }, [isResizing, setSidebarWidth])
 
   const handleOpenTab = useCallback(
     (mod: NexModule): void => {
@@ -142,14 +136,7 @@ export default function Sidebar(): ReactElement {
     [addTab]
   )
 
-  const toggleCategory = useCallback((key: string): void => {
-    setExpandedCategories((prev) => {
-      const next = new Set(prev)
-      if (next.has(key)) next.delete(key)
-      else next.add(key)
-      return next
-    })
-  }, [])
+  const expandedSet = new Set(expandedCategories)
 
   const favorites = modules.filter((m) => favoriteIds.includes(m.id))
   const recent = modules.filter((m) => recentIds.includes(m.id)).slice(0, 10)
@@ -248,7 +235,7 @@ export default function Sidebar(): ReactElement {
                 (m) => getModuleCategory(m) === group.key
               )
               if (groupModules.length === 0) return null
-              const isExpanded = expandedCategories.has(group.key)
+              const isExpanded = expandedSet.has(group.key)
               return (
                 <div key={group.key} className="mb-1">
                   <button

@@ -76,6 +76,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   logout: (): void => {
     console.debug('[AUTH] authStore.logout() called — stack:', new Error().stack?.split('\n').slice(1, 4).join(' ← '))
     api.clearTokens()
+    // Clear persisted session state so next user starts fresh
+    localStorage.removeItem('nex-tab-store')
+    localStorage.removeItem('nex-ui-store')
     set({
       user: null,
       token: null,

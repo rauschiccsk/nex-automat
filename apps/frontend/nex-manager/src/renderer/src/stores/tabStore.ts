@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { persist } from 'zustand/middleware'
 import { useToastStore } from '@renderer/stores/toastStore'
 
 export interface Tab {
@@ -17,48 +18,59 @@ interface TabState {
   clearTabs: () => void
 }
 
-export const useTabStore = create<TabState>((set, get) => ({
-  tabs: [],
-  activeTabId: null,
+export const useTabStore = create<TabState>()(
+  persist(
+    (set, get) => ({
+      tabs: [],
+      activeTabId: null,
 
-  addTab: (tab): void => {
-    const existing = get().tabs.find((t) => t.id === tab.id)
-    if (existing) {
-      set({ activeTabId: tab.id })
-      return
-    }
-    set((state) => ({
-      tabs: [...state.tabs, tab],
-      activeTabId: tab.id
-    }))
-  },
+      addTab: (tab): void => {
+        const existing = get().tabs.find((t) => t.id === tab.id)
+        if (existing) {
+          set({ activeTabId: tab.id })
+          return
+        }
+        set((state) => ({
+          tabs: [...state.tabs, tab],
+          activeTabId: tab.id
+        }))
+      },
 
-  removeTab: (id): void => {
-    const state = get()
-    const idx = state.tabs.findIndex((t) => t.id === id)
-    if (idx === -1) return
+      removeTab: (id): void => {
+        const state = get()
+        const idx = state.tabs.findIndex((t) => t.id === id)
+        if (idx === -1) return
 
-    const newTabs = state.tabs.filter((t) => t.id !== id)
-    let newActive = state.activeTabId
+        const newTabs = state.tabs.filter((t) => t.id !== id)
+        let newActive = state.activeTabId
 
-    if (state.activeTabId === id) {
-      if (newTabs.length > 0) {
-        const newIdx = Math.min(idx, newTabs.length - 1)
-        newActive = newTabs[newIdx].id
-      } else {
-        newActive = null
+        if (state.activeTabId === id) {
+          if (newTabs.length > 0) {
+            const newIdx = Math.min(idx, newTabs.length - 1)
+            newActive = newTabs[newIdx].id
+          } else {
+            newActive = null
+          }
+        }
+
+        set({ tabs: newTabs, activeTabId: newActive })
+        useToastStore.getState().addToast(`Tab zatvorený`, 'info', 2000)
+      },
+
+      setActiveTab: (id): void => {
+        set({ activeTabId: id })
+      },
+
+      clearTabs: (): void => {
+        set({ tabs: [], activeTabId: null })
       }
+    }),
+    {
+      name: 'nex-tab-store',
+      partialize: (state) => ({
+        tabs: state.tabs,
+        activeTabId: state.activeTabId
+      })
     }
-
-    set({ tabs: newTabs, activeTabId: newActive })
-    useToastStore.getState().addToast(`Tab zatvorený`, 'info', 2000)
-  },
-
-  setActiveTab: (id): void => {
-    set({ activeTabId: id })
-  },
-
-  clearTabs: (): void => {
-    set({ tabs: [], activeTabId: null })
-  }
-}))
+  )
+)

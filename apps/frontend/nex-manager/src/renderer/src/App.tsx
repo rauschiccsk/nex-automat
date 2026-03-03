@@ -56,6 +56,23 @@ function App(): ReactElement {
     })
   }, [authenticated, modules.length, loading]) // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Validate restored tabs against loaded modules — remove tabs for modules
+  // that no longer exist or that user lost access to
+  const tabsValidated = useRef(false)
+  useEffect(() => {
+    if (tabsValidated.current || modules.length === 0 || tabs.length === 0) return
+    tabsValidated.current = true
+
+    const moduleIds = new Set(modules.map((m) => m.id))
+    const invalidTabs = tabs.filter((t) => !moduleIds.has(t.id))
+    if (invalidTabs.length > 0) {
+      console.log('[TABS] Removing', invalidTabs.length, 'invalid restored tabs:', invalidTabs.map((t) => t.id))
+      for (const t of invalidTabs) {
+        useTabStore.getState().removeTab(t.id)
+      }
+    }
+  }, [modules, tabs])
+
   // Find active tab and its module for breadcrumbs
   const activeTab = useMemo(() => {
     if (!activeTabId) return null

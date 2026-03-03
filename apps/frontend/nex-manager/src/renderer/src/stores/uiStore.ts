@@ -1,45 +1,83 @@
 import { create } from 'zustand'
+import { persist } from 'zustand/middleware'
 
 interface UiState {
   sidebarOpen: boolean
+  sidebarWidth: number
   infoPanelOpen: boolean
   theme: 'light' | 'dark' | 'system'
   loading: boolean
+  expandedCategories: string[]
+
   toggleSidebar: () => void
   setSidebarOpen: (open: boolean) => void
+  setSidebarWidth: (width: number) => void
   toggleInfoPanel: () => void
   setInfoPanelOpen: (open: boolean) => void
   setTheme: (theme: 'light' | 'dark' | 'system') => void
   setLoading: (loading: boolean) => void
+  toggleCategory: (category: string) => void
 }
 
-export const useUiStore = create<UiState>((set) => ({
-  sidebarOpen: true,
-  infoPanelOpen: false,
-  theme: 'system',
-  loading: false,
+export const useUiStore = create<UiState>()(
+  persist(
+    (set) => ({
+      sidebarOpen: true,
+      sidebarWidth: 220,
+      infoPanelOpen: false,
+      theme: 'system',
+      loading: false,
+      expandedCategories: ['catalogs'],
 
-  toggleSidebar: (): void => {
-    set((state) => ({ sidebarOpen: !state.sidebarOpen }))
-  },
+      toggleSidebar: (): void => {
+        set((state) => ({ sidebarOpen: !state.sidebarOpen }))
+      },
 
-  setSidebarOpen: (open): void => {
-    set({ sidebarOpen: open })
-  },
+      setSidebarOpen: (open): void => {
+        set({ sidebarOpen: open })
+      },
 
-  toggleInfoPanel: (): void => {
-    set((state) => ({ infoPanelOpen: !state.infoPanelOpen }))
-  },
+      setSidebarWidth: (width): void => {
+        set({ sidebarWidth: width })
+      },
 
-  setInfoPanelOpen: (open): void => {
-    set({ infoPanelOpen: open })
-  },
+      toggleInfoPanel: (): void => {
+        set((state) => ({ infoPanelOpen: !state.infoPanelOpen }))
+      },
 
-  setTheme: (theme): void => {
-    set({ theme })
-  },
+      setInfoPanelOpen: (open): void => {
+        set({ infoPanelOpen: open })
+      },
 
-  setLoading: (loading): void => {
-    set({ loading })
-  }
-}))
+      setTheme: (theme): void => {
+        set({ theme })
+      },
+
+      setLoading: (loading): void => {
+        set({ loading })
+      },
+
+      toggleCategory: (category): void => {
+        set((state) => {
+          const current = state.expandedCategories
+          const isExpanded = current.includes(category)
+          return {
+            expandedCategories: isExpanded
+              ? current.filter((c) => c !== category)
+              : [...current, category]
+          }
+        })
+      }
+    }),
+    {
+      name: 'nex-ui-store',
+      partialize: (state) => ({
+        sidebarOpen: state.sidebarOpen,
+        sidebarWidth: state.sidebarWidth,
+        infoPanelOpen: state.infoPanelOpen,
+        theme: state.theme,
+        expandedCategories: state.expandedCategories
+      })
+    }
+  )
+)
