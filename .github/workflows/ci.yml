@@ -218,105 +218,110 @@ jobs:
           name: nex-manager-electron
           path: electron-app
 
-      - name: Stop NEX Manager before deploy
-        shell: cmd
-        run: |
-          echo === Stopping NEX Manager processes ===
-          taskkill /F /IM "NEX Manager.exe" 2>nul
-          taskkill /F /IM "nex-manager.exe" 2>nul
-          taskkill /F /IM "electron.exe" 2>nul
-          echo Waiting for file locks to release...
-          timeout /t 5 /nobreak >nul
-          echo === Process cleanup complete ===
-          exit /b 0
-
-      - name: Kill NEX Manager via CIM and verify file lock
+      - name: Kill ALL Electron/NEX Manager processes
         shell: pwsh
-        continue-on-error: true
         run: |
           $ErrorActionPreference = 'Continue'
+          Write-Host "=== Phase 1: taskkill (current session) ==="
+          & cmd /c 'taskkill /F /IM "NEX Manager.exe" 2>nul & exit /b 0'
+          & cmd /c 'taskkill /F /IM "nex-manager.exe" 2>nul & exit /b 0'
+          & cmd /c 'taskkill /F /IM "electron.exe" 2>nul & exit /b 0'
+          & cmd /c 'taskkill /F /IM "Electron.exe" 2>nul & exit /b 0'
 
-          # Kill processes via CIM (works cross-session in pwsh 7)
-          $procs = Get-CimInstance Win32_Process | Where-Object { $_.Name -match 'electron|NEX Manager|nex-manager' }
+          Write-Host "=== Phase 2: CIM cross-session kill ==="
+          $procs = Get-CimInstance Win32_Process | Where-Object {
+            $_.Name -match 'electron|NEX Manager|nex-manager'
+          }
           foreach ($p in $procs) {
-            Write-Host "CIM killing: $($p.Name) PID=$($p.ProcessId)"
+            Write-Host "CIM killing: $($p.Name) PID=$($p.ProcessId) SessionId=$($p.SessionId)"
             Invoke-CimMethod -InputObject $p -MethodName Terminate -ErrorAction SilentlyContinue | Out-Null
           }
 
-          if ($procs) {
-            Write-Host "Waiting for processes to exit..."
-            Start-Sleep -Seconds 5
+          Write-Host "=== Phase 3: Stop-Process fallback ==="
+          Get-Process | Where-Object { $_.ProcessName -match 'electron|NEX Manager|nex-manager' } | ForEach-Object {
+            Write-Host "Stop-Process: $($_.ProcessName) PID=$($_.Id)"
+            Stop-Process -Id $_.Id -Force -ErrorAction SilentlyContinue
           }
 
-          # Verify file lock
-          $asarPath = "C:\DEPTEST\nex-manager\resources\app.asar"
-          if (Test-Path $asarPath) {
-            $maxRetries = 5
-            $retry = 0
-            while ($retry -lt $maxRetries) {
-              try {
-                $stream = [IO.File]::Open($asarPath, 'Open', 'ReadWrite', 'None')
-                $stream.Close()
-                Write-Host "File is accessible (attempt $($retry + 1))"
-                break
-              } catch {
-                $retry++
-                Write-Host "File still locked (attempt $retry/$maxRetries), waiting..."
-                Start-Sleep -Seconds 3
+          Write-Host "=== Waiting 8 seconds for OS to release file handles ==="
+          Start-Sleep -Seconds 8
+
+          Write-Host "=== Phase 4: Verify no Electron processes remain ==="
+          $remaining = Get-CimInstance Win32_Process | Where-Object {
+            $_.Name -match 'electron|NEX Manager|nex-manager'
+          }
+          if ($remaining) {
+            foreach ($p in $remaining) {
+              Write-Host "STILL RUNNING: $($p.Name) PID=$($p.ProcessId) SessionId=$($p.SessionId)"
+            }
+            Write-Error "Failed to kill all Electron processes — cannot deploy safely"
+            exit 1
+          }
+          Write-Host "All Electron processes terminated successfully"
+
+      - name: Verify target files are unlocked
+        shell: pwsh
+        run: |
+          $target = "C:\DEPTEST\nex-manager"
+          if (-not (Test-Path $target)) {
+            Write-Host "Target directory does not exist yet — fresh deploy, skipping lock check"
+            exit 0
+          }
+
+          # Check key files that were previously locked
+          $filesToCheck = @(
+            "$target\resources\app.asar",
+            "$target\NEX Manager.exe"
+          )
+
+          foreach ($f in $filesToCheck) {
+            if (Test-Path $f) {
+              $maxRetries = 6
+              for ($i = 1; $i -le $maxRetries; $i++) {
+                try {
+                  $stream = [IO.File]::Open($f, 'Open', 'ReadWrite', 'None')
+                  $stream.Close()
+                  Write-Host "UNLOCKED: $f (attempt $i)"
+                  break
+                } catch {
+                  Write-Host "LOCKED: $f (attempt $i/$maxRetries) — waiting 3s..."
+                  if ($i -eq $maxRetries) {
+                    Write-Error "FATAL: $f is still locked after $maxRetries attempts. Another process holds it."
+                    exit 1
+                  }
+                  Start-Sleep -Seconds 3
+                }
               }
             }
-            if ($retry -eq $maxRetries) {
-              Write-Host "WARNING: File still locked — deploy step will use overwrite fallback"
-            }
-          } else {
-            Write-Host "app.asar does not exist yet — fresh deploy"
           }
+          Write-Host "All target files are unlocked — safe to deploy"
 
       - name: Deploy to DEPTEST
         shell: pwsh
         run: |
           $target = "C:\DEPTEST\nex-manager"
 
-          # Strategy: try clean removal first, fallback to robocopy mirror
-          $cleanDeploy = $false
-
+          # Try clean removal first
           if (Test-Path $target) {
             try {
               Remove-Item -Path $target -Recurse -Force -ErrorAction Stop
-              $cleanDeploy = $true
               Write-Host "Old deployment removed successfully"
             } catch {
               Write-Host "Remove-Item failed: $($_.Exception.Message)"
               Write-Host "Trying cmd rmdir..."
               cmd /c "rmdir /s /q `"$target`"" 2>&1 | Out-Null
-              if (-not (Test-Path $target)) {
-                $cleanDeploy = $true
-                Write-Host "cmd rmdir succeeded"
-              } else {
-                Write-Host "Cannot remove locked directory — using robocopy mirror"
+              if (Test-Path $target) {
+                Write-Error "FATAL: Cannot remove $target — files are still locked"
+                exit 1
               }
+              Write-Host "cmd rmdir succeeded"
             }
-          } else {
-            $cleanDeploy = $true
           }
 
-          if ($cleanDeploy) {
-            # Fresh copy
-            New-Item -ItemType Directory -Path $target -Force | Out-Null
-            Copy-Item -Path "electron-app\*" -Destination $target -Recurse -Force
-            Write-Host "Clean deploy completed"
-          } else {
-            # Robocopy /MIR mirrors source to destination, handles locked files gracefully
-            # Exit codes 0-7 are success for robocopy
-            $src = (Resolve-Path "electron-app").Path
-            & robocopy $src $target /MIR /R:3 /W:2 /NFL /NDL /NJH /NJS
-            $rc = $LASTEXITCODE
-            if ($rc -le 7) {
-              Write-Host "Robocopy mirror completed (exit code: $rc)"
-            } else {
-              Write-Host "WARNING: Robocopy had errors (exit code: $rc), some files may not be updated"
-            }
-          }
+          # Fresh copy
+          New-Item -ItemType Directory -Path $target -Force | Out-Null
+          Copy-Item -Path "electron-app\*" -Destination $target -Recurse -Force
+          Write-Host "Clean deploy completed"
 
           # Verify
           $exe = Get-ChildItem -Path $target -Filter "*.exe" -Recurse | Select-Object -First 1
