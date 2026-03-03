@@ -223,8 +223,26 @@ jobs:
         run: |
           $target = "C:\DEPTEST\nex-manager"
 
-          # Stop running instance if any
-          Get-Process "NEX Manager" -ErrorAction SilentlyContinue | Stop-Process -Force
+          # Graceful stop NEX Manager
+          $processName = "NEX Manager"
+          $process = Get-Process -Name $processName -ErrorAction SilentlyContinue
+          if ($process) {
+            Write-Host "Stopping $processName (PID: $($process.Id))..."
+            try {
+              Stop-Process -Name $processName -Force -ErrorAction Stop
+              Write-Host "$processName stopped successfully."
+            } catch {
+              Write-Host "Stop-Process failed, trying taskkill..."
+              taskkill /IM "$processName.exe" /F 2>$null
+              if ($LASTEXITCODE -ne 0) {
+                Write-Host "WARNING: Could not stop $processName. It may not be running or requires elevated privileges. Continuing deploy..."
+              }
+            }
+            # Wait for process to fully exit
+            Start-Sleep -Seconds 3
+          } else {
+            Write-Host "$processName is not running. Skipping stop."
+          }
 
           # Clean old deployment
           if (Test-Path $target) {
