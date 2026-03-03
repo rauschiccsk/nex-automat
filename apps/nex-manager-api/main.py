@@ -12,7 +12,7 @@ Endpoints:
 - GET  /api/modules             — list all active modules
 - GET  /api/modules/by-category — modules grouped by category
 - GET  /api/modules/{code}      — single module detail
-- GET  /api/auth/change-password — change own password
+- PUT  /api/auth/change-password — change own password
 - GET  /api/users               — list users (RBAC: USR.can_view)
 - GET  /api/users/{id}          — user detail
 - POST /api/users               — create user (RBAC: USR.can_create)
