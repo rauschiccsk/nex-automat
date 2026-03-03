@@ -407,6 +407,6 @@ class PartnerListParams(BaseModel):
     @field_validator("page_size")
     @classmethod
     def page_size_valid(cls, v: int) -> int:
-        if v < 1 or v > 200:
-            raise ValueError("Veľkosť stránky musí byť 1-200")
+        if v < 1 or v > 10000:
+            raise ValueError("Veľkosť stránky musí byť 1-10000")
         return v

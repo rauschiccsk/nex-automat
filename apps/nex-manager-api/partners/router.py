@@ -132,7 +132,7 @@ def list_partners(
         None, description="Search in code, name, company_id, city, email"
     ),
     page: int = Query(1, ge=1, description="Page number"),
-    page_size: int = Query(50, ge=1, le=200, description="Items per page"),
+    page_size: int = Query(50, ge=1, le=10000, description="Items per page"),
     sort_by: str = Query(
         "code", description="Sort column: code, name, city, created_at"
     ),
