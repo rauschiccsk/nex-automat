@@ -7,6 +7,7 @@ import TabBar from '@renderer/components/TabBar'
 import Breadcrumbs, { type BreadcrumbItem } from '@renderer/components/Breadcrumbs'
 import MockModule from '@renderer/components/MockModule'
 import UserListView from '@renderer/components/modules/users/UserListView'
+import { PartnerListView } from '@renderer/components/modules/partners'
 import CommandLine from '@renderer/components/CommandLine'
 import InfoPanel from '@renderer/components/InfoPanel'
 import LoginScreen from '@renderer/components/LoginScreen'
@@ -148,6 +149,8 @@ function App(): ReactElement {
             {activeTab ? (
               activeTab.id === 'USR' ? (
                 <UserListView />
+              ) : activeTab.id === 'PAB' ? (
+                <PartnerListView />
               ) : (
                 <MockModule
                   title={activeTab.label}

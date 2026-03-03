@@ -272,6 +272,46 @@ class ApiClient {
       body: JSON.stringify({ new_password: newPassword })
     })
   }
+
+  // ── Partner endpoints ──
+
+  async getPartners(
+    params?: import('@renderer/types/partner').PartnerListParams
+  ): Promise<import('@renderer/types/partner').PartnerListResponse> {
+    const query = new URLSearchParams()
+    if (params?.partner_type) query.set('partner_type', params.partner_type)
+    if (params?.is_active != null) query.set('is_active', String(params.is_active))
+    if (params?.search) query.set('search', params.search)
+    if (params?.page != null) query.set('page', String(params.page))
+    if (params?.page_size != null) query.set('page_size', String(params.page_size))
+    if (params?.sort_by) query.set('sort_by', params.sort_by)
+    if (params?.sort_order) query.set('sort_order', params.sort_order)
+    const qs = query.toString()
+    return this.request(`/api/partners${qs ? '?' + qs : ''}`)
+  }
+
+  async getPartner(id: string): Promise<import('@renderer/types/partner').Partner> {
+    return this.request(`/api/partners/${id}`)
+  }
+
+  async createPartner(
+    data: import('@renderer/types/partner').PartnerCreate
+  ): Promise<import('@renderer/types/partner').Partner> {
+    return this.request('/api/partners', {
+      method: 'POST',
+      body: JSON.stringify(data)
+    })
+  }
+
+  async updatePartner(
+    id: string,
+    data: import('@renderer/types/partner').PartnerUpdate
+  ): Promise<import('@renderer/types/partner').Partner> {
+    return this.request(`/api/partners/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data)
+    })
+  }
 }
 
 // Singleton export

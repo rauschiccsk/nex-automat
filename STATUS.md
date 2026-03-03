@@ -15,6 +15,7 @@ Last updated: 2026-03-03
 - Migration system created: `database/migrations/` (no Alembic — custom)
 - Temporal workflows production — invoice processing
 - NEX Manager Electron app: 5 stores + 9 components, App.tsx complete, TS 0 errors, build passing (**v0.2.0**, 714 kB + 32 kB CSS)
+- **Dark mode fully operational**: Tailwind v4 `@custom-variant dark` enabled, 156 dark: utilities active, system theme detection with `prefers-color-scheme` listener
 - **App versioning pipeline**: `scripts/version.js` generates `version.ts` from git tags → Sidebar displays dynamically; CI has `fetch-depth: 0` for full tag history
 - **Frontend icon rendering**: `ICON_MAP` + `<IconComponent />` pattern across Sidebar, InfoPanel, CommandLine
 - **Login→logout loop fixed**: race condition in App.tsx resolved — selective 401-only logout, concurrent loadModules guard, debug breadcrumbs
@@ -29,16 +30,16 @@ Last updated: 2026-03-03
 - RAG: Qdrant + Ollama, 222 points
 
 ## Recent Changes
+- **2026-03-03** — ✅ Dark mode fix: Tailwind v4 `@custom-variant dark` in `index.css` (root cause), `App.tsx` system theme detection with `prefers-color-scheme` listener, `Toast.tsx` dark variants — CI 8/8 green
+- **2026-03-03** — ✅ Session persistence: window bounds (electron-store), tab persistence (Zustand persist), UI/sidebar persistence, logout cleanup, tab validation
+- **2026-03-03** — ✅ Login Enter-key UX: `useRef` + `onKeyDown` on username input → Enter focuses password field
+- **2026-03-03** — ✅ Login autoFocus on username input
 - **2026-03-03** — ✅ App versioning pipeline: `fetch-depth: 0` in CI build-electron for git tag access, version bump to **v0.2.0**, `package.json` updated, git tag pushed — CI 8/8 green
 - **2026-03-03** — ✅ Fix reserved `$pid` variable in Electron deploy job: renamed `$pid` → `$procPid` at 3 locations in ci.yml — CI 8/8 green
 - **2026-03-03** — ✅ CI Job 8 fix: cross-session process kill for Electron deploy — `taskkill /F /PID` via CIM + robocopy /MIR fallback + pwsh scope qualifier fix
 - **2026-03-03** — ✅ CI 8/8 passing: fixed electron staging deploy
 - **2026-03-03** — ✅ USR module backend: `apps/nex-manager-api/users/` — 5 CRUD endpoints + admin password reset + self change-password; Pydantic schemas, RBAC, audit log, 22 unit tests
 - **2026-03-03** — ✅ Module cleanup: PAB renamed "Katalóg partnerov", GSC renamed "Katalóg produktov", category→catalogs, VAH removed → **23 modules**; INVENTORY.md updated
-- **2026-03-03** — ✅ Frontend icon system: `ICON_MAP` + `<IconComponent />` rendering in Sidebar, InfoPanel, CommandLine
-- **2026-03-03** — ✅ CI 7/8 passing: electron staging deploy fails on `Stop-Process "NEX Manager"` (Access is denied — Windows runner permission issue, not code)
-- **2026-03-03** — ✅ Module inventory audit: verified all 23 modules across DB seed, live DB, backend schemas/router, and frontend match INVENTORY.md
-- **2026-03-03** — ✅ CI deploy diagnostics: confirmed staging deploy jobs are `develop`-only by design; `main` uses manual `deploy.yml` (workflow_dispatch)
 
 ## Known Issues
 - **`resources/icon.ico` CHÝBA** — electron-builder zlyhá bez ikony; adresár `resources/` existuje ale je prázdny
