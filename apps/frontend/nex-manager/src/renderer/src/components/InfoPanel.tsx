@@ -1,9 +1,63 @@
 import { useMemo, type ReactElement } from 'react'
-import { X, Info } from 'lucide-react'
+import {
+  X,
+  Info,
+  Users,
+  Package,
+  Layers,
+  ArrowDownToLine,
+  ArrowUpFromLine,
+  ArrowLeftRight,
+  ClipboardCheck,
+  FileText,
+  FileHeart,
+  ShoppingCart,
+  Truck,
+  FileInput,
+  ClipboardList,
+  BookOpen,
+  Calculator,
+  Receipt,
+  ListTree,
+  Banknote,
+  Lock,
+  UserCog,
+  Shield,
+  Settings,
+  ScrollText,
+  type LucideIcon
+} from 'lucide-react'
 import { useUiStore } from '@renderer/stores/uiStore'
 import { useTabStore } from '@renderer/stores/tabStore'
 import { useModuleStore, type NexModule } from '@renderer/stores/moduleStore'
 import { cn } from '@renderer/lib/utils'
+
+/** Map DB icon name → Lucide component */
+const ICON_MAP: Record<string, LucideIcon> = {
+  Users,
+  Package,
+  Layers,
+  ArrowDownToLine,
+  ArrowUpFromLine,
+  ArrowLeftRight,
+  ClipboardCheck,
+  FileText,
+  FileHeart,
+  ShoppingCart,
+  Truck,
+  FileInput,
+  ClipboardList,
+  BookOpen,
+  Calculator,
+  Receipt,
+  ListTree,
+  Banknote,
+  Lock,
+  UserCog,
+  Shield,
+  Settings,
+  ScrollText
+}
 
 interface DetailRow {
   label: string
@@ -11,9 +65,7 @@ interface DetailRow {
 }
 
 function getModuleCategory(mod: NexModule): string {
-  const dotIdx = mod.id.indexOf('.')
-  if (dotIdx > 0) return mod.id.substring(0, dotIdx)
-  return 'base'
+  return mod.category ?? 'catalogs'
 }
 
 function formatDate(): string {
@@ -94,8 +146,11 @@ export default function InfoPanel(): ReactElement {
             <div className="space-y-4">
               {/* Module header */}
               <div className="flex items-center gap-3 pb-4 border-b border-gray-200 dark:border-gray-700">
-                <div className="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center text-2xl">
-                  {activeModule.icon ?? '📦'}
+                <div className="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center">
+                  {(() => {
+                    const Icon = activeModule.icon ? ICON_MAP[activeModule.icon] : undefined
+                    return Icon ? <Icon className="h-6 w-6 text-blue-500" /> : <Package className="h-6 w-6 text-blue-500" />
+                  })()}
                 </div>
                 <div>
                   <h3 className="font-semibold text-gray-900 dark:text-white">

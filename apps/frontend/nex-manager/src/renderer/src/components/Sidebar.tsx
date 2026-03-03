@@ -4,7 +4,31 @@ import {
   Clock,
   ChevronRight,
   PanelLeftClose,
-  PanelLeftOpen
+  PanelLeftOpen,
+  Users,
+  Package,
+  Layers,
+  ArrowDownToLine,
+  ArrowUpFromLine,
+  ArrowLeftRight,
+  ClipboardCheck,
+  FileText,
+  FileHeart,
+  ShoppingCart,
+  Truck,
+  FileInput,
+  ClipboardList,
+  BookOpen,
+  Calculator,
+  Receipt,
+  ListTree,
+  Banknote,
+  Lock,
+  UserCog,
+  Shield,
+  Settings,
+  ScrollText,
+  type LucideIcon
 } from 'lucide-react'
 import { useUiStore } from '@renderer/stores/uiStore'
 import { useModuleStore, type NexModule } from '@renderer/stores/moduleStore'
@@ -12,12 +36,39 @@ import { useTabStore } from '@renderer/stores/tabStore'
 import { cn } from '@renderer/lib/utils'
 import { APP_VERSION } from '@renderer/version'
 
+/** Map DB icon name → Lucide component */
+const ICON_MAP: Record<string, LucideIcon> = {
+  Users,
+  Package,
+  Layers,
+  ArrowDownToLine,
+  ArrowUpFromLine,
+  ArrowLeftRight,
+  ClipboardCheck,
+  FileText,
+  FileHeart,
+  ShoppingCart,
+  Truck,
+  FileInput,
+  ClipboardList,
+  BookOpen,
+  Calculator,
+  Receipt,
+  ListTree,
+  Banknote,
+  Lock,
+  UserCog,
+  Shield,
+  Settings,
+  ScrollText
+}
+
 const MIN_WIDTH = 48
 const MAX_WIDTH = 300
 const DEFAULT_WIDTH = 220
 
 const CATEGORY_GROUPS: { key: string; label: string }[] = [
-  { key: 'base', label: 'Základné' },
+  { key: 'catalogs', label: 'Katalógy' },
   { key: 'stock', label: 'Sklad' },
   { key: 'sales', label: 'Predaj' },
   { key: 'purchase', label: 'Nákup' },
@@ -27,7 +78,7 @@ const CATEGORY_GROUPS: { key: string; label: string }[] = [
 ]
 
 function getModuleCategory(mod: NexModule): string {
-  return mod.category ?? 'base'
+  return mod.category ?? 'catalogs'
 }
 
 export default function Sidebar(): ReactElement {
@@ -48,7 +99,7 @@ export default function Sidebar(): ReactElement {
   )
 
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(
-    () => new Set(['base'])
+    () => new Set(['catalogs'])
   )
 
   const collapsed = !sidebarOpen
@@ -103,20 +154,29 @@ export default function Sidebar(): ReactElement {
   const favorites = modules.filter((m) => favoriteIds.includes(m.id))
   const recent = modules.filter((m) => recentIds.includes(m.id)).slice(0, 10)
 
-  const renderModuleItem = (mod: NexModule): ReactElement => (
-    <button
-      key={mod.id}
-      onClick={() => handleOpenTab(mod)}
-      className={cn(
-        'flex items-center gap-2 w-full rounded-md text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors',
-        collapsed ? 'justify-center p-2' : 'px-2 py-1.5'
-      )}
-      title={collapsed ? mod.name : undefined}
-    >
-      <span className="text-base shrink-0">{mod.icon ?? '📦'}</span>
-      {!collapsed && <span className="truncate">{mod.name}</span>}
-    </button>
-  )
+  const renderModuleItem = (mod: NexModule): ReactElement => {
+    const IconComponent = mod.icon ? ICON_MAP[mod.icon] : undefined
+    return (
+      <button
+        key={mod.id}
+        onClick={() => handleOpenTab(mod)}
+        className={cn(
+          'flex items-center gap-2 w-full rounded-md text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors',
+          collapsed ? 'justify-center p-2' : 'px-2 py-1.5'
+        )}
+        title={collapsed ? mod.name : undefined}
+      >
+        <span className="shrink-0">
+          {IconComponent ? (
+            <IconComponent className="h-4 w-4" />
+          ) : (
+            <Package className="h-4 w-4" />
+          )}
+        </span>
+        {!collapsed && <span className="truncate">{mod.name}</span>}
+      </button>
+    )
+  }
 
   return (
     <div

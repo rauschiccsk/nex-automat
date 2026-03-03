@@ -1,10 +1,64 @@
 import { useState, useEffect, useRef, useCallback, useMemo, type ReactElement } from 'react'
-import { Terminal, Search } from 'lucide-react'
+import {
+  Terminal,
+  Search,
+  Users,
+  Package,
+  Layers,
+  ArrowDownToLine,
+  ArrowUpFromLine,
+  ArrowLeftRight,
+  ClipboardCheck,
+  FileText,
+  FileHeart,
+  ShoppingCart,
+  Truck,
+  FileInput,
+  ClipboardList,
+  BookOpen,
+  Calculator,
+  Receipt,
+  ListTree,
+  Banknote,
+  Lock,
+  UserCog,
+  Shield,
+  Settings,
+  ScrollText,
+  type LucideIcon
+} from 'lucide-react'
 import { useTabStore } from '@renderer/stores/tabStore'
 import { useModuleStore, type NexModule } from '@renderer/stores/moduleStore'
 import { useToastStore } from '@renderer/stores/toastStore'
 import { useUiStore } from '@renderer/stores/uiStore'
 import { cn } from '@renderer/lib/utils'
+
+/** Map DB icon name → Lucide component */
+const ICON_MAP: Record<string, LucideIcon> = {
+  Users,
+  Package,
+  Layers,
+  ArrowDownToLine,
+  ArrowUpFromLine,
+  ArrowLeftRight,
+  ClipboardCheck,
+  FileText,
+  FileHeart,
+  ShoppingCart,
+  Truck,
+  FileInput,
+  ClipboardList,
+  BookOpen,
+  Calculator,
+  Receipt,
+  ListTree,
+  Banknote,
+  Lock,
+  UserCog,
+  Shield,
+  Settings,
+  ScrollText
+}
 
 const HELP_TEXT = [
   '/open [modul] alebo /o [modul] — otvoriť modul',
@@ -204,7 +258,12 @@ export default function CommandLine(): ReactElement {
                   : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
               )}
             >
-              <span className="text-base shrink-0">{mod.icon ?? '📦'}</span>
+              <span className="shrink-0">
+                {(() => {
+                  const Icon = mod.icon ? ICON_MAP[mod.icon] : undefined
+                  return Icon ? <Icon className="h-4 w-4" /> : <Package className="h-4 w-4" />
+                })()}
+              </span>
               <span className="font-medium">{mod.name}</span>
               <span className="text-xs text-gray-400 dark:text-gray-500 ml-auto">
                 {mod.id}

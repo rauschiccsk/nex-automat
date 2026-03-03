@@ -1,5 +1,5 @@
 -- Migration 002: Seed system data
--- Default admin, groups, 24 modules, admin permissions
+-- Default admin, groups, 23 modules, admin permissions
 
 BEGIN;
 
@@ -37,12 +37,11 @@ WHERE u.login_name = 'admin' AND g.group_name = 'Administrátori'
 ON CONFLICT (user_id, group_id) DO NOTHING;
 
 -- ============================================================
--- 24 modules
+-- 23 modules
 -- ============================================================
 INSERT INTO modules (module_code, module_name, category, icon, module_type, is_mock, sort_order, created_by) VALUES
-    ('PAB', 'Evidencia partnerov',       'base',       'Users',            'catalog',  true, 10, 'system'),
-    ('GSC', 'Evidencia tovaru',          'base',       'Package',          'catalog',  true, 20, 'system'),
-    ('VAH', 'Váhy',                      'base',       'Scale',            'catalog',  true, 30, 'system'),
+    ('PAB', 'Katalóg partnerov',         'catalogs',   'Users',            'catalog',  true, 10, 'system'),
+    ('GSC', 'Katalóg produktov',         'catalogs',   'Package',          'catalog',  true, 20, 'system'),
     ('STK', 'Skladové karty',            'stock',      'Layers',           'catalog',  true, 40, 'system'),
     ('IMB', 'Príjemky',                  'stock',      'ArrowDownToLine',  'document', true, 50, 'system'),
     ('OMB', 'Výdajky',                   'stock',      'ArrowUpFromLine',  'document', true, 60, 'system'),

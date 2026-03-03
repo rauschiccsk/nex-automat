@@ -70,7 +70,7 @@ CREATE INDEX idx_user_groups_group_id ON user_groups (group_id);
 -- ============================================================
 -- 4. MODULES
 -- ============================================================
-CREATE TYPE module_category AS ENUM ('base', 'stock', 'sales', 'purchase', 'accounting', 'pos', 'system');
+CREATE TYPE module_category AS ENUM ('catalogs', 'stock', 'sales', 'purchase', 'accounting', 'pos', 'system');
 CREATE TYPE module_type AS ENUM ('catalog', 'document', 'report', 'config');
 
 CREATE TABLE IF NOT EXISTS modules (
