@@ -218,31 +218,64 @@ jobs:
           name: nex-manager-electron
           path: electron-app
 
+      - name: Stop NEX Manager before deploy
+        shell: powershell
+        run: |
+          Write-Host "=== Stopping NEX Manager processes ==="
+
+          # Kill all possible process names
+          $processes = @("NEX Manager", "nex-manager", "electron")
+          foreach ($proc in $processes) {
+            $running = Get-Process -Name $proc -ErrorAction SilentlyContinue
+            if ($running) {
+              Write-Host "Killing process: $proc (PID: $($running.Id -join ', '))"
+              Stop-Process -Name $proc -Force -ErrorAction SilentlyContinue
+            }
+          }
+
+          # Fallback: taskkill for stubborn processes
+          taskkill /F /IM "NEX Manager.exe" 2>$null
+          taskkill /F /IM "nex-manager.exe" 2>$null
+          taskkill /F /IM "electron.exe" 2>$null
+
+          # Wait for file lock release
+          Start-Sleep -Seconds 3
+
+          Write-Host "=== Process cleanup complete ==="
+
+      - name: Verify app.asar is not locked
+        shell: powershell
+        run: |
+          $asarPath = "C:\DEPTEST\nex-manager\resources\app.asar"
+
+          if (Test-Path $asarPath) {
+            $maxRetries = 5
+            $retry = 0
+            while ($retry -lt $maxRetries) {
+              try {
+                $stream = [IO.File]::Open($asarPath, 'Open', 'ReadWrite', 'None')
+                $stream.Close()
+                Write-Host "File is accessible (attempt $($retry + 1))"
+                break
+              } catch {
+                $retry++
+                Write-Host "File still locked (attempt $retry/$maxRetries), waiting..."
+                Start-Sleep -Seconds 3
+              }
+            }
+            if ($retry -eq $maxRetries) {
+              Write-Host "WARNING: File may still be locked after $maxRetries retries"
+              # List processes that might hold the lock
+              Get-Process | Where-Object { $_.Path -like "*electron*" -or $_.Path -like "*nex*" } | Format-Table Name, Id, Path
+            }
+          } else {
+            Write-Host "app.asar does not exist yet — fresh deploy, no lock issue"
+          }
+
       - name: Deploy to DEPTEST
         shell: pwsh
         run: |
           $target = "C:\DEPTEST\nex-manager"
-
-          # Graceful stop NEX Manager
-          $processName = "NEX Manager"
-          $process = Get-Process -Name $processName -ErrorAction SilentlyContinue
-          if ($process) {
-            Write-Host "Stopping $processName (PID: $($process.Id))..."
-            try {
-              Stop-Process -Name $processName -Force -ErrorAction Stop
-              Write-Host "$processName stopped successfully."
-            } catch {
-              Write-Host "Stop-Process failed, trying taskkill..."
-              taskkill /IM "$processName.exe" /F 2>$null
-              if ($LASTEXITCODE -ne 0) {
-                Write-Host "WARNING: Could not stop $processName. It may not be running or requires elevated privileges. Continuing deploy..."
-              }
-            }
-            # Wait for process to fully exit
-            Start-Sleep -Seconds 3
-          } else {
-            Write-Host "$processName is not running. Skipping stop."
-          }
 
           # Clean old deployment
           if (Test-Path $target) {
@@ -270,3 +303,21 @@ jobs:
           @{apiUrl = "http://100.107.134.104:9110"} | ConvertTo-Json | Set-Content "$configDir\config.json"
           Write-Host "DEPTEST config written to $configDir\config.json"
           Get-Content "$configDir\config.json"
+
+      - name: Start NEX Manager after deploy
+        shell: powershell
+        run: |
+          $exePath = "C:\DEPTEST\nex-manager\NEX Manager.exe"
+          if (Test-Path $exePath) {
+            Write-Host "Starting NEX Manager..."
+            Start-Process -FilePath $exePath -WindowStyle Hidden
+            Start-Sleep -Seconds 2
+            $running = Get-Process -Name "NEX Manager" -ErrorAction SilentlyContinue
+            if ($running) {
+              Write-Host "NEX Manager started successfully (PID: $($running.Id))"
+            } else {
+              Write-Host "WARNING: NEX Manager did not start"
+            }
+          } else {
+            Write-Host "NEX Manager.exe not found at $exePath — skipping auto-start"
+          }
