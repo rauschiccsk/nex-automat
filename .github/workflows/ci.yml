@@ -182,13 +182,22 @@ jobs:
     timeout-minutes: 15
 
     steps:
-      - name: Deploy DEPTEST staging
+      - name: Pull latest source
         run: |
           cd /opt/nex-automat-src
           git pull origin develop
+
+      - name: Deploy DEPTEST staging (Temporal + PostgreSQL)
+        run: |
           docker compose -f /opt/nex-automat-src/deployment/docker/docker-compose.deptest.yml --env-file /opt/nex-automat-src/deployment/docker/.env.deptest up -d
 
-      - name: Health check
+      - name: Rebuild and restart nex-manager-api
+        run: |
+          cd /opt/nex-automat
+          docker compose build --no-cache nex-manager-api
+          docker compose up -d nex-manager-api
+
+      - name: Health check — DEPTEST containers
         run: |
           sleep 15
           unhealthy=$(docker compose -f /opt/nex-automat-src/deployment/docker/docker-compose.deptest.yml --env-file /opt/nex-automat-src/deployment/docker/.env.deptest ps --status running --format "{{.Name}}" | wc -l)
@@ -200,6 +209,19 @@ jobs:
             docker compose -f /opt/nex-automat-src/deployment/docker/docker-compose.deptest.yml --env-file /opt/nex-automat-src/deployment/docker/.env.deptest ps
             docker compose -f /opt/nex-automat-src/deployment/docker/docker-compose.deptest.yml --env-file /opt/nex-automat-src/deployment/docker/.env.deptest logs --tail=20
             echo "❌ DEPTEST health check failed"
+            exit 1
+          fi
+
+      - name: Health check — nex-manager-api
+        run: |
+          sleep 5
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:9110/health)
+          echo "nex-manager-api /health → HTTP $STATUS"
+          if [ "$STATUS" = "200" ]; then
+            echo "✅ nex-manager-api healthy"
+          else
+            docker logs nex-manager-api --tail=20
+            echo "❌ nex-manager-api health check failed"
             exit 1
           fi
 
