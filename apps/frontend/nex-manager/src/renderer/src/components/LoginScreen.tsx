@@ -100,6 +100,7 @@ export default function LoginScreen(): ReactElement {
                   disabled={loading}
                   placeholder="Zadajte meno"
                   autoComplete="username"
+                  autoFocus
                   className={cn(
                     'w-full pl-10 pr-4 py-2.5 rounded-lg border text-sm transition-colors outline-none',
                     'bg-white dark:bg-gray-700 text-gray-900 dark:text-white',
