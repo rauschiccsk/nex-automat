@@ -261,7 +261,7 @@ jobs:
               Write-Host "All processes killed after round $round"
               break
             }
-            Write-Host "Still running after round $round: $($remaining.Count) processes"
+            Write-Host "Still running after round ${round}: $($remaining.Count) processes"
             if ($round -eq 3) {
               foreach ($p in $remaining) {
                 Write-Host "SURVIVOR: $($p.Name) PID=$($p.ProcessId) Session=$($p.SessionId) User=$($p.GetOwner().User)"
