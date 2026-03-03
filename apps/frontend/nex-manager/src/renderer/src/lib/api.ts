@@ -83,6 +83,10 @@ export interface ApiError {
   detail?: string
 }
 
+export interface MessageResponse {
+  message: string
+}
+
 // ─── Client ───────────────────────────────────────────────────────
 
 class ApiClient {
@@ -210,11 +214,63 @@ class ApiClient {
     return this.request<MeResponse>('/api/auth/me')
   }
 
+  async changeSelfPassword(currentPassword: string, newPassword: string): Promise<MessageResponse> {
+    return this.request<MessageResponse>('/api/auth/change-password', {
+      method: 'PUT',
+      body: JSON.stringify({ current_password: currentPassword, new_password: newPassword })
+    })
+  }
+
   // ── Module endpoints ──
 
   async getModulesByCategory(): Promise<ModuleCategory[]> {
     const data = await this.request<ModulesByCategoryResponse>('/api/modules/by-category')
     return data.categories
+  }
+
+  // ── User endpoints ──
+
+  async getUsers(params?: {
+    group_id?: number
+    is_active?: boolean
+    search?: string
+  }): Promise<import('@renderer/types/users').UserListResponse> {
+    const query = new URLSearchParams()
+    if (params?.group_id != null) query.set('group_id', String(params.group_id))
+    if (params?.is_active != null) query.set('is_active', String(params.is_active))
+    if (params?.search) query.set('search', params.search)
+    const qs = query.toString()
+    return this.request(`/api/users${qs ? '?' + qs : ''}`)
+  }
+
+  async getUser(id: number): Promise<import('@renderer/types/users').User> {
+    return this.request(`/api/users/${id}`)
+  }
+
+  async createUser(
+    data: import('@renderer/types/users').CreateUserPayload
+  ): Promise<import('@renderer/types/users').User> {
+    return this.request('/api/users', {
+      method: 'POST',
+      body: JSON.stringify(data)
+    })
+  }
+
+  async updateUser(
+    id: number,
+    data: import('@renderer/types/users').UpdateUserPayload
+  ): Promise<import('@renderer/types/users').User> {
+    return this.request(`/api/users/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data)
+    })
+  }
+
+  async changeUserPassword(id: number, newPassword: string): Promise<MessageResponse> {
+    return this.request(`/api/users/${id}/password`, {
+      method: 'PUT',
+      body: JSON.stringify({ new_password: newPassword })
+    })
   }
 }
 

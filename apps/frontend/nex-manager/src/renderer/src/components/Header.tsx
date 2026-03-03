@@ -1,7 +1,8 @@
 import { useState, useCallback, type ReactElement } from 'react'
-import { Bell, Moon, Sun, LogOut, ChevronDown, PanelRightOpen } from 'lucide-react'
+import { Bell, Moon, Sun, LogOut, ChevronDown, PanelRightOpen, KeyRound } from 'lucide-react'
 import { useUiStore } from '@renderer/stores/uiStore'
 import { useAuthStore } from '@renderer/stores/authStore'
+import ChangePasswordDialog from '@renderer/components/modules/users/ChangePasswordDialog'
 
 function getInitials(name?: string | null): string {
   if (!name) return '??'
@@ -17,6 +18,7 @@ export default function Header(): ReactElement {
   const { theme, setTheme, toggleInfoPanel } = useUiStore()
   const { user, logout } = useAuthStore()
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
+  const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false)
 
   const isDark = theme === 'dark'
 
@@ -28,6 +30,11 @@ export default function Header(): ReactElement {
     logout()
     setIsUserMenuOpen(false)
   }, [logout])
+
+  const handleChangePassword = useCallback((): void => {
+    setIsUserMenuOpen(false)
+    setIsPasswordDialogOpen(true)
+  }, [])
 
   const initials = getInitials(user?.name)
   const displayName = user?.name || user?.username || 'Neprihlásený'
@@ -100,6 +107,13 @@ export default function Header(): ReactElement {
               {/* Dropdown */}
               <div className="absolute right-0 top-full mt-1 z-50 w-48 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 shadow-lg py-1">
                 <button
+                  onClick={handleChangePassword}
+                  className="flex items-center gap-2 w-full px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                >
+                  <KeyRound className="h-4 w-4" />
+                  Zmeniť heslo
+                </button>
+                <button
                   onClick={handleLogout}
                   className="flex items-center gap-2 w-full px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                 >
@@ -111,6 +125,10 @@ export default function Header(): ReactElement {
           )}
         </div>
       </div>
+      {/* Change password dialog (self mode) */}
+      {isPasswordDialogOpen && (
+        <ChangePasswordDialog onClose={() => setIsPasswordDialogOpen(false)} />
+      )}
     </header>
   )
 }

@@ -6,6 +6,7 @@ import Sidebar from '@renderer/components/Sidebar'
 import TabBar from '@renderer/components/TabBar'
 import Breadcrumbs, { type BreadcrumbItem } from '@renderer/components/Breadcrumbs'
 import MockModule from '@renderer/components/MockModule'
+import UserListView from '@renderer/components/modules/users/UserListView'
 import CommandLine from '@renderer/components/CommandLine'
 import InfoPanel from '@renderer/components/InfoPanel'
 import LoginScreen from '@renderer/components/LoginScreen'
@@ -113,11 +114,15 @@ function App(): ReactElement {
           {/* Content */}
           <div className="flex-1 overflow-auto p-4">
             {activeTab ? (
-              <MockModule
-                title={activeTab.label}
-                description={`Modul ${activeTab.id} \u2014 obsah bude implementovan\u00fd`}
-                icon={<LayoutDashboard className="h-8 w-8" />}
-              />
+              activeTab.id === 'USR' ? (
+                <UserListView />
+              ) : (
+                <MockModule
+                  title={activeTab.label}
+                  description={`Modul ${activeTab.id} \u2014 obsah bude implementovan\u00fd`}
+                  icon={<LayoutDashboard className="h-8 w-8" />}
+                />
+              )
             ) : (
               <div className="flex flex-col items-center justify-center h-full text-center">
                 <LayoutDashboard className="h-16 w-16 text-gray-300 dark:text-gray-600 mb-4" />
