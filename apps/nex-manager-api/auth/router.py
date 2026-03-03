@@ -1,5 +1,6 @@
-"""Authentication API endpoints — login, refresh, me."""
+"""Authentication API endpoints — login, refresh, me, change-password."""
 
+import json
 from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -13,6 +14,7 @@ from .schemas import (
     LoginRequest,
     MeResponse,
     RefreshRequest,
+    SelfChangePasswordRequest,
     TokenResponse,
     UserPermissions,
     UserResponse,
@@ -21,6 +23,7 @@ from .service import (
     create_access_token,
     create_refresh_token,
     decode_token,
+    hash_password,
     verify_password,
 )
 
@@ -159,3 +162,56 @@ def get_me(current_user=Depends(get_current_user), db=Depends(get_db)):
     )
 
     return MeResponse(user=user_response, permissions=permissions)
+
+
+@router.put("/change-password")
+def change_own_password(
+    body: SelfChangePasswordRequest,
+    current_user=Depends(get_current_user),
+    db=Depends(get_db),
+):
+    """Change own password. Requires current password verification."""
+    user_id = current_user["user_id"]
+    cur = db.cursor()
+
+    # Fetch current password hash
+    cur.execute(
+        "SELECT password_hash FROM users WHERE user_id = %s",
+        (user_id,),
+    )
+    row = cur.fetchone()
+    if not row:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Pou\u017e\u00edvate\u013e nebol n\u00e1jden\u00fd",
+        )
+
+    # Verify current password
+    if not verify_password(body.current_password, row[0]):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Nespr\u00e1vne aktu\u00e1lne heslo",
+        )
+
+    # Hash and update new password
+    pw_hash = hash_password(body.new_password)
+    cur.execute(
+        "UPDATE users SET password_hash = %s, updated_by = %s WHERE user_id = %s",
+        (pw_hash, current_user["login_name"], user_id),
+    )
+
+    # Audit log
+    cur.execute(
+        "INSERT INTO audit_log (user_id, action, entity_type, entity_id, details) "
+        "VALUES (%s, %s, %s, %s, %s)",
+        (
+            user_id,
+            "password_change",
+            "AUTH",
+            user_id,
+            json.dumps({"message": "User changed own password"}),
+        ),
+    )
+
+    db.commit()
+    return {"message": "Heslo bolo \u00faspe\u0161ne zmenen\u00e9"}

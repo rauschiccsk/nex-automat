@@ -12,6 +12,12 @@ Endpoints:
 - GET  /api/modules             — list all active modules
 - GET  /api/modules/by-category — modules grouped by category
 - GET  /api/modules/{code}      — single module detail
+- GET  /api/auth/change-password — change own password
+- GET  /api/users               — list users (RBAC: USR.can_view)
+- GET  /api/users/{id}          — user detail
+- POST /api/users               — create user (RBAC: USR.can_create)
+- PUT  /api/users/{id}          — update user (RBAC: USR.can_edit)
+- PUT  /api/users/{id}/password — admin password change
 - GET  /health                  — health check
 """
 
@@ -22,6 +28,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from auth.router import router as auth_router
 from modules.router import router as modules_router
+from users.router import router as users_router
 
 app = FastAPI(
     title="NEX Manager API",
@@ -45,6 +52,7 @@ app.add_middleware(
 # ---------------------------------------------------------------------------
 app.include_router(auth_router)
 app.include_router(modules_router)
+app.include_router(users_router)
 
 
 # ---------------------------------------------------------------------------
@@ -61,6 +69,12 @@ def root():
             "auth_login": "/api/auth/login",
             "auth_refresh": "/api/auth/refresh",
             "auth_me": "/api/auth/me",
+            "auth_change_password": "/api/auth/change-password",
+            "users_list": "/api/users",
+            "users_detail": "/api/users/{id}",
+            "users_create": "/api/users",
+            "users_update": "/api/users/{id}",
+            "users_password": "/api/users/{id}/password",
             "modules_list": "/api/modules",
             "modules_by_category": "/api/modules/by-category",
             "modules_detail": "/api/modules/{code}",

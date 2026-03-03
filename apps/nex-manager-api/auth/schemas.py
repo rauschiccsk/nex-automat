@@ -2,7 +2,7 @@
 
 from datetime import datetime
 
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 
 
 class LoginRequest(BaseModel):
@@ -51,6 +51,20 @@ class UserPermissions(BaseModel):
     can_print: bool = False
     can_export: bool = False
     can_admin: bool = False
+
+
+class SelfChangePasswordRequest(BaseModel):
+    """Request body for self password change."""
+
+    current_password: str
+    new_password: str
+
+    @field_validator("new_password")
+    @classmethod
+    def password_min_length(cls, v: str) -> str:
+        if len(v) < 6:
+            raise ValueError("Heslo mus\u00ed ma\u0165 minim\u00e1lne 6 znakov")
+        return v
 
 
 class MeResponse(BaseModel):
