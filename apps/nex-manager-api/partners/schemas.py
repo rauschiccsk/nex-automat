@@ -1,6 +1,5 @@
 """Pydantic models for partner management endpoints."""
 
-import math
 import re
 from datetime import datetime
 from typing import Literal, Optional

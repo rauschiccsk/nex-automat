@@ -103,7 +103,6 @@ def test_create_partner_success(client, fake_db):
     row = _make_partner_row()
 
     call_count = 0
-    original_fetchone = fake_db.cursor().fetchone
 
     def mock_fetchone():
         nonlocal call_count
@@ -306,7 +305,6 @@ def test_get_partner_not_found(client, fake_db):
 # ---------------------------------------------------------------------------
 def test_update_partner_success(client, fake_db):
     """PUT /api/partners/{id} — update name, verify response."""
-    original_row = _make_partner_row()
     updated_row = _make_partner_row(name="Updated Name s.r.o.")
 
     call_count = 0
