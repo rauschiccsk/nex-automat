@@ -260,9 +260,9 @@ jobs:
               $_.Name -match 'electron|NEX Manager|nex-manager'
             }
             foreach ($p in $procs) {
-              $pid = $p.ProcessId
-              Write-Host "Killing PID=$pid ($($p.Name)) SessionId=$($p.SessionId) via taskkill /F /PID"
-              & cmd /c "taskkill /F /PID $pid 2>nul & exit /b 0"
+              $procPid = $p.ProcessId
+              Write-Host "Killing PID=$procPid ($($p.Name)) SessionId=$($p.SessionId) via taskkill /F /PID"
+              & cmd /c "taskkill /F /PID $procPid 2>nul & exit /b 0"
               # Also try CIM terminate
               Invoke-CimMethod -InputObject $p -MethodName Terminate -ErrorAction SilentlyContinue | Out-Null
             }
