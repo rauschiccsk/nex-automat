@@ -13,6 +13,10 @@ Endpoints:
 - GET  /api/modules/by-category — modules grouped by category
 - GET  /api/modules/{code}      — single module detail
 - PUT  /api/auth/change-password — change own password
+- GET  /api/partners            — list partners (RBAC: PAB.can_view)
+- GET  /api/partners/{id}       — partner detail
+- POST /api/partners            — create partner (RBAC: PAB.can_create)
+- PUT  /api/partners/{id}       — update partner (RBAC: PAB.can_edit)
 - GET  /api/users               — list users (RBAC: USR.can_view)
 - GET  /api/users/{id}          — user detail
 - POST /api/users               — create user (RBAC: USR.can_create)
@@ -28,6 +32,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from auth.router import router as auth_router
 from modules.router import router as modules_router
+from partners.router import router as partners_router
 from users.router import router as users_router
 
 app = FastAPI(
@@ -52,6 +57,7 @@ app.add_middleware(
 # ---------------------------------------------------------------------------
 app.include_router(auth_router)
 app.include_router(modules_router)
+app.include_router(partners_router)
 app.include_router(users_router)
 
 
@@ -75,6 +81,10 @@ def root():
             "users_create": "/api/users",
             "users_update": "/api/users/{id}",
             "users_password": "/api/users/{id}/password",
+            "partners_list": "/api/partners",
+            "partners_detail": "/api/partners/{id}",
+            "partners_create": "/api/partners",
+            "partners_update": "/api/partners/{id}",
             "modules_list": "/api/modules",
             "modules_by_category": "/api/modules/by-category",
             "modules_detail": "/api/modules/{code}",
