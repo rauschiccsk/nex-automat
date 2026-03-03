@@ -52,46 +52,46 @@ def _make_partner_row(
     """Build a fake DB row matching _PARTNER_COLUMNS order."""
     pid = partner_id or _SAMPLE_UUID
     return (
-        pid,                # id
-        code,               # code
-        name,               # name
-        partner_type,       # partner_type
-        is_supplier,        # is_supplier
-        is_customer,        # is_customer
-        company_id,         # company_id
-        "2021234567",       # tax_id
-        "SK2021234567",     # vat_id
-        True,               # is_vat_payer
-        "Hlavná 1",         # street
-        city,               # city
-        "81101",            # zip_code
-        "SK",               # country_code
-        None,               # billing_street
-        None,               # billing_city
-        None,               # billing_zip_code
-        None,               # billing_country_code
-        None,               # shipping_street
-        None,               # shipping_city
-        None,               # shipping_zip_code
-        None,               # shipping_country_code
-        "+421901234567",    # phone
-        None,               # mobile
-        email,              # email
-        None,               # website
-        None,               # contact_person
-        14,                 # payment_due_days
-        Decimal("0.00"),    # credit_limit
-        Decimal("0.00"),    # discount_percent
-        None,               # price_category
-        "transfer",         # payment_method
-        "EUR",              # currency
-        None,               # iban
-        None,               # bank_name
-        None,               # swift_bic
-        None,               # notes
-        True,               # is_active
-        _NOW,               # created_at
-        _NOW,               # updated_at
+        pid,  # id
+        code,  # code
+        name,  # name
+        partner_type,  # partner_type
+        is_supplier,  # is_supplier
+        is_customer,  # is_customer
+        company_id,  # company_id
+        "2021234567",  # tax_id
+        "SK2021234567",  # vat_id
+        True,  # is_vat_payer
+        "Hlavná 1",  # street
+        city,  # city
+        "81101",  # zip_code
+        "SK",  # country_code
+        None,  # billing_street
+        None,  # billing_city
+        None,  # billing_zip_code
+        None,  # billing_country_code
+        None,  # shipping_street
+        None,  # shipping_city
+        None,  # shipping_zip_code
+        None,  # shipping_country_code
+        "+421901234567",  # phone
+        None,  # mobile
+        email,  # email
+        None,  # website
+        None,  # contact_person
+        14,  # payment_due_days
+        Decimal("0.00"),  # credit_limit
+        Decimal("0.00"),  # discount_percent
+        None,  # price_category
+        "transfer",  # payment_method
+        "EUR",  # currency
+        None,  # iban
+        None,  # bank_name
+        None,  # swift_bic
+        None,  # notes
+        True,  # is_active
+        _NOW,  # created_at
+        _NOW,  # updated_at
     )
 
 
@@ -116,14 +116,17 @@ def test_create_partner_success(client, fake_db):
 
     fake_db.cursor().fetchone = mock_fetchone
 
-    resp = client.post("/api/partners", json={
-        "code": "TEST001",
-        "name": "Test Partner s.r.o.",
-        "partner_type": "customer",
-        "company_id": "12345678",
-        "city": "Bratislava",
-        "email": "test@example.sk",
-    })
+    resp = client.post(
+        "/api/partners",
+        json={
+            "code": "TEST001",
+            "name": "Test Partner s.r.o.",
+            "partner_type": "customer",
+            "company_id": "12345678",
+            "city": "Bratislava",
+            "email": "test@example.sk",
+        },
+    )
 
     assert resp.status_code == 201
     data = resp.json()
@@ -141,10 +144,13 @@ def test_create_partner_duplicate_code(client, fake_db):
     # Code uniqueness check returns existing partner
     fake_db.cursor().fetchone = lambda: (_SAMPLE_UUID,)
 
-    resp = client.post("/api/partners", json={
-        "code": "EXISTING",
-        "name": "Duplicate Partner",
-    })
+    resp = client.post(
+        "/api/partners",
+        json={
+            "code": "EXISTING",
+            "name": "Duplicate Partner",
+        },
+    )
 
     assert resp.status_code == 409
     assert "už existuje" in resp.json()["detail"]
@@ -208,7 +214,9 @@ def test_get_partners_list(client, fake_db):
 # ---------------------------------------------------------------------------
 def test_get_partners_filter_by_type(client, fake_db):
     """GET /api/partners?partner_type=supplier — filter works."""
-    row = _make_partner_row(partner_type="supplier", is_supplier=True, is_customer=False)
+    row = _make_partner_row(
+        partner_type="supplier", is_supplier=True, is_customer=False
+    )
 
     fake_db.cursor().fetchone = lambda: (1,)
     fake_db.cursor().fetchall = lambda: [row]
@@ -320,9 +328,12 @@ def test_update_partner_success(client, fake_db):
 
     fake_db.cursor().fetchone = mock_fetchone
 
-    resp = client.put(f"/api/partners/{_SAMPLE_UUID}", json={
-        "name": "Updated Name s.r.o.",
-    })
+    resp = client.put(
+        f"/api/partners/{_SAMPLE_UUID}",
+        json={
+            "name": "Updated Name s.r.o.",
+        },
+    )
 
     assert resp.status_code == 200
     data = resp.json()
@@ -336,10 +347,13 @@ def test_update_partner_code_readonly(client, fake_db):
     """PUT /api/partners/{id} — code cannot be changed, returns 400."""
     fake_db.cursor().fetchone = lambda: ("TEST001",)
 
-    resp = client.put(f"/api/partners/{_SAMPLE_UUID}", json={
-        "code": "NEWCODE",
-        "name": "Updated Name",
-    })
+    resp = client.put(
+        f"/api/partners/{_SAMPLE_UUID}",
+        json={
+            "code": "NEWCODE",
+            "name": "Updated Name",
+        },
+    )
 
     assert resp.status_code == 400
     assert "nie je možné zmeniť" in resp.json()["detail"]
@@ -350,11 +364,14 @@ def test_update_partner_code_readonly(client, fake_db):
 # ---------------------------------------------------------------------------
 def test_partner_validation_ico(client):
     """POST /api/partners — invalid IČO format triggers 422."""
-    resp = client.post("/api/partners", json={
-        "code": "V001",
-        "name": "Validation Test",
-        "company_id": "ABC-not-a-number",
-    })
+    resp = client.post(
+        "/api/partners",
+        json={
+            "code": "V001",
+            "name": "Validation Test",
+            "company_id": "ABC-not-a-number",
+        },
+    )
 
     assert resp.status_code == 422
     body = resp.json()
@@ -366,11 +383,14 @@ def test_partner_validation_ico(client):
 # ---------------------------------------------------------------------------
 def test_partner_validation_email(client):
     """POST /api/partners — invalid email format triggers 422."""
-    resp = client.post("/api/partners", json={
-        "code": "V002",
-        "name": "Validation Email",
-        "email": "not-an-email",
-    })
+    resp = client.post(
+        "/api/partners",
+        json={
+            "code": "V002",
+            "name": "Validation Email",
+            "email": "not-an-email",
+        },
+    )
 
     assert resp.status_code == 422
     body = resp.json()
@@ -411,11 +431,14 @@ def test_create_partner_ico_warning(client, fake_db):
 
     fake_db.cursor().fetchone = mock_fetchone
 
-    resp = client.post("/api/partners", json={
-        "code": "W001",
-        "name": "Warning Test",
-        "company_id": "12345678",
-    })
+    resp = client.post(
+        "/api/partners",
+        json={
+            "code": "W001",
+            "name": "Warning Test",
+            "company_id": "12345678",
+        },
+    )
 
     assert resp.status_code == 201
     data = resp.json()
@@ -429,10 +452,13 @@ def test_create_partner_ico_warning(client, fake_db):
 # ---------------------------------------------------------------------------
 def test_partner_validation_discount_range(client):
     """POST /api/partners — discount_percent > 100 triggers 422."""
-    resp = client.post("/api/partners", json={
-        "code": "V003",
-        "name": "Discount Test",
-        "discount_percent": 150.0,
-    })
+    resp = client.post(
+        "/api/partners",
+        json={
+            "code": "V003",
+            "name": "Discount Test",
+            "discount_percent": 150.0,
+        },
+    )
 
     assert resp.status_code == 422

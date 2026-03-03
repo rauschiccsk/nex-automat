@@ -124,12 +124,18 @@ def _write_audit_log(
 
 @router.get("", response_model=PartnerListResponse)
 def list_partners(
-    partner_type: Optional[str] = Query(None, description="Filter: customer/supplier/both"),
+    partner_type: Optional[str] = Query(
+        None, description="Filter: customer/supplier/both"
+    ),
     is_active: Optional[bool] = Query(None, description="Filter by active status"),
-    search: Optional[str] = Query(None, description="Search in code, name, company_id, city, email"),
+    search: Optional[str] = Query(
+        None, description="Search in code, name, company_id, city, email"
+    ),
     page: int = Query(1, ge=1, description="Page number"),
     page_size: int = Query(50, ge=1, le=200, description="Items per page"),
-    sort_by: str = Query("code", description="Sort column: code, name, city, created_at"),
+    sort_by: str = Query(
+        "code", description="Sort column: code, name, city, created_at"
+    ),
     sort_order: str = Query("asc", description="Sort direction: asc, desc"),
     _current_user=Depends(require_permission("PAB", "can_view")),
     db=Depends(get_db),
