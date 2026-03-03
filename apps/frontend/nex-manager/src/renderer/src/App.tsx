@@ -25,10 +25,25 @@ function App(): ReactElement {
 
   // Dark mode: sync document.documentElement class
   useEffect(() => {
+    const root = document.documentElement
     if (theme === 'dark') {
-      document.documentElement.classList.add('dark')
+      root.classList.add('dark')
+    } else if (theme === 'light') {
+      root.classList.remove('dark')
     } else {
-      document.documentElement.classList.remove('dark')
+      // system: follow OS preference
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+      root.classList.toggle('dark', prefersDark)
+    }
+
+    // Listen for OS theme changes when using "system"
+    if (theme === 'system') {
+      const mq = window.matchMedia('(prefers-color-scheme: dark)')
+      const handler = (e: MediaQueryListEvent): void => {
+        document.documentElement.classList.toggle('dark', e.matches)
+      }
+      mq.addEventListener('change', handler)
+      return () => mq.removeEventListener('change', handler)
     }
   }, [theme])
 
