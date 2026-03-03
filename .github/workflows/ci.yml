@@ -219,8 +219,9 @@ jobs:
           path: electron-app
 
       - name: Stop NEX Manager before deploy
-        shell: powershell
+        shell: pwsh
         run: |
+          $ErrorActionPreference = 'SilentlyContinue'
           Write-Host "=== Stopping NEX Manager processes ==="
 
           # Kill all possible process names
@@ -233,18 +234,19 @@ jobs:
             }
           }
 
-          # Fallback: taskkill for stubborn processes
-          taskkill /F /IM "NEX Manager.exe" 2>$null
-          taskkill /F /IM "nex-manager.exe" 2>$null
-          taskkill /F /IM "electron.exe" 2>$null
+          # Fallback: taskkill for stubborn processes (ignore exit codes)
+          & taskkill /F /IM "NEX Manager.exe" 2>&1 | Out-Null
+          & taskkill /F /IM "nex-manager.exe" 2>&1 | Out-Null
+          & taskkill /F /IM "electron.exe" 2>&1 | Out-Null
 
           # Wait for file lock release
           Start-Sleep -Seconds 3
 
           Write-Host "=== Process cleanup complete ==="
+          exit 0
 
       - name: Verify app.asar is not locked
-        shell: powershell
+        shell: pwsh
         run: |
           $asarPath = "C:\DEPTEST\nex-manager\resources\app.asar"
 
@@ -305,7 +307,7 @@ jobs:
           Get-Content "$configDir\config.json"
 
       - name: Start NEX Manager after deploy
-        shell: powershell
+        shell: pwsh
         run: |
           $exePath = "C:\DEPTEST\nex-manager\NEX Manager.exe"
           if (Test-Path $exePath) {
