@@ -1,4 +1,4 @@
-import { useState, useCallback, type ReactElement, type FormEvent } from 'react'
+import { useState, useCallback, useRef, type ReactElement, type FormEvent } from 'react'
 import { Eye, EyeOff, LogIn, Moon, Sun, User, Lock, Loader2, AlertCircle } from 'lucide-react'
 import { useAuthStore, type ApiError } from '@renderer/stores/authStore'
 import { useModuleStore } from '@renderer/stores/moduleStore'
@@ -6,6 +6,7 @@ import { useUiStore } from '@renderer/stores/uiStore'
 import { cn } from '@renderer/lib/utils'
 
 export default function LoginScreen(): ReactElement {
+  const passwordRef = useRef<HTMLInputElement>(null)
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -101,6 +102,12 @@ export default function LoginScreen(): ReactElement {
                   placeholder="Zadajte meno"
                   autoComplete="username"
                   autoFocus
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault()
+                      passwordRef.current?.focus()
+                    }
+                  }}
                   className={cn(
                     'w-full pl-10 pr-4 py-2.5 rounded-lg border text-sm transition-colors outline-none',
                     'bg-white dark:bg-gray-700 text-gray-900 dark:text-white',
@@ -124,6 +131,7 @@ export default function LoginScreen(): ReactElement {
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                 <input
+                  ref={passwordRef}
                   id="login-password"
                   type={showPassword ? 'text' : 'password'}
                   value={password}
