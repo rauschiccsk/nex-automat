@@ -137,7 +137,7 @@ def check_postgresql_connection():
         print_error(f"PostgreSQL pripojenie zlyhalo: {e}")
         print("\nKontrola:")
         print("  1. PostgreSQL server beží?")
-        print("  2. Database 'invoice_staging' existuje?")
+        print("  2. Database 'supplier_invoice_staging' existuje?")
         print("  3. User má prístup?")
         print("  4. POSTGRES_PASSWORD je správne?")
         return False

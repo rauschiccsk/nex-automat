@@ -1,6 +1,6 @@
 """
 Initialize PostgreSQL Database
-Creates invoice_staging database and runs schema migrations
+Creates supplier_invoice_staging database and runs schema migrations
 """
 
 import os
@@ -109,7 +109,7 @@ def main():
 
     # Get password
     password = get_postgres_password()
-    db_name = "invoice_staging"
+    db_name = os.getenv("STAGING_DB_NAME", "supplier_invoice_staging")
 
     # Project paths
     project_root = Path(__file__).parent.parent

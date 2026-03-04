@@ -85,7 +85,7 @@ class DatabaseBackup:
         """
         try:
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            db_name = self.db_config.get("database", "invoice_staging")
+            db_name = self.db_config.get("database", "supplier_invoice_staging")
 
             # Determine backup directory
             target_dir = self.weekly_dir if backup_type == "weekly" else self.daily_dir
@@ -155,7 +155,7 @@ class DatabaseBackup:
             "-U",
             self.db_config.get("user", "postgres"),
             "-d",
-            self.db_config.get("database", "invoice_staging"),
+            self.db_config.get("database", "supplier_invoice_staging"),
             "-F",
             "p",
             "-f",

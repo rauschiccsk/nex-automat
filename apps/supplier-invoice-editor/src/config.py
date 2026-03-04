@@ -16,7 +16,7 @@ class Config:
         self._config = {
             "host": "localhost",
             "port": 5432,
-            "database": "invoice_staging",
+            "database": os.getenv("STAGING_DB_NAME", "supplier_invoice_staging"),
             "user": "postgres",
             "password": password,
         }
@@ -25,7 +25,7 @@ class Config:
         self._config["database.postgres"] = {
             "host": "localhost",
             "port": 5432,
-            "database": "invoice_staging",
+            "database": os.getenv("STAGING_DB_NAME", "supplier_invoice_staging"),
             "user": "postgres",
             "password": password,
         }
@@ -33,7 +33,7 @@ class Config:
         self._config["postgresql"] = {
             "host": "localhost",
             "port": 5432,
-            "database": "invoice_staging",
+            "database": os.getenv("STAGING_DB_NAME", "supplier_invoice_staging"),
             "user": "postgres",
             "password": password,
         }

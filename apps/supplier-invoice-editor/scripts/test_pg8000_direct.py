@@ -1,7 +1,17 @@
 #!/usr/bin/env python
 """Test pg8000 directly"""
 
+import os
+import sys
+
 import pg8000.dbapi
+
+POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD")
+if not POSTGRES_PASSWORD:
+    print("ERROR: POSTGRES_PASSWORD environment variable is required")
+    sys.exit(1)
+
+STAGING_DB_NAME = os.getenv("STAGING_DB_NAME", "supplier_invoice_staging")
 
 print("Testing pg8000 connection...")
 
@@ -11,9 +21,9 @@ try:
     conn = pg8000.dbapi.connect(
         host="localhost",
         port=5432,
-        database="invoice_staging",
+        database=STAGING_DB_NAME,
         user="postgres",
-        password="Nex1968",
+        password=POSTGRES_PASSWORD,
     )
     print("OK Connected!")
     conn.close()
@@ -26,9 +36,9 @@ try:
     conn = pg8000.dbapi.connect(
         host="localhost",
         port=5432,
-        database="invoice_staging",
+        database=STAGING_DB_NAME,
         user="postgres",
-        password="Nex1968",
+        password=POSTGRES_PASSWORD,
         timeout=10,
     )
     print("OK Connected!")
@@ -38,7 +48,6 @@ except Exception as e:
 
 # Test 3: Check PostgresClient implementation
 print("\nTest 3: Check how PostgresClient builds connection")
-import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
@@ -48,9 +57,9 @@ from database.postgres_client import PostgresClient
 config = {
     "host": "localhost",
     "port": 5432,
-    "database": "invoice_staging",
+    "database": STAGING_DB_NAME,
     "user": "postgres",
-    "password": "Nex1968",
+    "password": POSTGRES_PASSWORD,
 }
 
 client = PostgresClient(config)

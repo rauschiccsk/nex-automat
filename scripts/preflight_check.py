@@ -89,12 +89,12 @@ def check_database_connectivity() -> bool:
         conn = pg8000.native.Connection(
             host="localhost",
             port=5432,
-            database="invoice_staging",
+            database=os.getenv("STAGING_DB_NAME", "supplier_invoice_staging"),
             user="postgres",
             password=pg_password,
         )
         conn.close()
-        print("✅ PostgreSQL: Connected (localhost:5432/invoice_staging)")
+        print("✅ PostgreSQL: Connected (localhost:5432/supplier_invoice_staging)")
     except Exception as e:
         print(f"❌ PostgreSQL: Failed - {e}")
         print("   Hint: Set POSTGRES_PASSWORD environment variable")

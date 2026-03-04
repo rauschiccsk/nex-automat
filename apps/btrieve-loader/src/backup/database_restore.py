@@ -42,7 +42,7 @@ def load_config(config_path: str) -> dict:
             "port": 5432,
             "user": "postgres",
             "password": "",
-            "database": "invoice_staging",
+            "database": "supplier_invoice_staging",
         }
 
     return config
@@ -68,7 +68,7 @@ class DatabaseRestore:
         db_config = self.config.get("database", {}).get("postgres", {})
         self.host = db_config.get("host", "localhost")
         self.port = db_config.get("port", 5432)
-        self.database = db_config.get("database", "invoice_staging")
+        self.database = db_config.get("database", "supplier_invoice_staging")
         self.user = db_config.get("user", "postgres")
         self.password = db_config.get("password", "")
 

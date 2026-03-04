@@ -367,7 +367,7 @@ HEARTBEAT_ENABLED = True
 #
 # POSTGRES_DATABASE (str):
 #     PostgreSQL database name
-#     Default: "invoice_staging"
+#     Default: "supplier_invoice_staging"
 #
 # POSTGRES_USER (str):
 #     PostgreSQL username for connection
@@ -427,7 +427,7 @@ POSTGRES_STAGING_ENABLED = True  # Set False to disable invoice-editor integrati
 # PostgreSQL connection settings
 POSTGRES_HOST = "localhost"
 POSTGRES_PORT = 5432
-POSTGRES_DATABASE = "invoice_staging"
+POSTGRES_DATABASE = "supplier_invoice_staging"
 POSTGRES_USER = "invoice_user"
 POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD", "")
 

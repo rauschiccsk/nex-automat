@@ -31,7 +31,7 @@ def db_config():
         "port": 5432,
         "user": "postgres",
         "password": "testpass",
-        "database": "invoice_staging",
+        "database": "supplier_invoice_staging",
     }
 
 
@@ -250,14 +250,14 @@ class TestBackupRotation:
         now = datetime.now()
 
         recent = (
-            daily_dir / f"backup_{now.strftime('%Y%m%d_%H%M%S')}_invoice_staging.sql.gz"
+            daily_dir / f"backup_{now.strftime('%Y%m%d_%H%M%S')}_supplier_invoice_staging.sql.gz"
         )
         recent.touch()
 
         old_date = now - timedelta(days=10)
         old = (
             daily_dir
-            / f"backup_{old_date.strftime('%Y%m%d_%H%M%S')}_invoice_staging.sql.gz"
+            / f"backup_{old_date.strftime('%Y%m%d_%H%M%S')}_supplier_invoice_staging.sql.gz"
         )
         old.touch()
 
@@ -281,7 +281,7 @@ class TestBackupRotation:
             backup_date = now - timedelta(days=i)
             backup_file = (
                 daily_dir
-                / f"backup_{backup_date.strftime('%Y%m%d_%H%M%S')}_invoice_staging.sql.gz"
+                / f"backup_{backup_date.strftime('%Y%m%d_%H%M%S')}_supplier_invoice_staging.sql.gz"
             )
             backup_file.touch()
 
@@ -304,8 +304,8 @@ class TestBackupListing:
         daily_dir = temp_backup_dir / "daily"
         weekly_dir = temp_backup_dir / "weekly"
 
-        daily_backup = daily_dir / "backup_20251121_120000_invoice_staging.sql.gz"
-        weekly_backup = weekly_dir / "backup_20251114_120000_invoice_staging.sql.gz"
+        daily_backup = daily_dir / "backup_20251121_120000_supplier_invoice_staging.sql.gz"
+        weekly_backup = weekly_dir / "backup_20251114_120000_supplier_invoice_staging.sql.gz"
 
         daily_backup.write_bytes(b"daily backup data")
         weekly_backup.write_bytes(b"weekly backup data")
@@ -367,7 +367,7 @@ class TestCommandInterface:
         assert "-U" in cmd
         assert "postgres" in cmd
         assert "-d" in cmd
-        assert "invoice_staging" in cmd
+        assert "supplier_invoice_staging" in cmd
         assert "-f" in cmd
         assert str(test_file) in cmd
 
