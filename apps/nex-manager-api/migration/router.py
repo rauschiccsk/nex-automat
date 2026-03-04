@@ -31,7 +31,7 @@ _migration_path = Path(__file__).resolve().parents[2] / "nex-migration"
 if str(_migration_path) not in sys.path:
     sys.path.insert(0, str(_migration_path))
 
-from config.categories import CATEGORIES, get_migration_order  # noqa: E402
+from config.categories import CATEGORIES  # noqa: E402
 
 router = APIRouter(prefix="/api/migration", tags=["migration"])
 
