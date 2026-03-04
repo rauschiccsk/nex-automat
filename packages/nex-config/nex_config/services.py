@@ -1,9 +1,12 @@
 """URL adresy externých služieb a API portov."""
+
 import os
 
 # API URLs
 FASTAPI_URL = os.getenv("FASTAPI_URL", "http://localhost:8000")
-INVOICE_PIPELINE_URL = os.getenv("INVOICE_PIPELINE_URL", f"{FASTAPI_URL}/api/v1/invoice")
+INVOICE_PIPELINE_URL = os.getenv(
+    "INVOICE_PIPELINE_URL", f"{FASTAPI_URL}/api/v1/invoice"
+)
 NEX_MANAGER_API_PORT = int(os.getenv("NEX_MANAGER_PORT", "9110"))
 NEX_BRAIN_API_URL = os.getenv("NEX_BRAIN_API_URL", "http://localhost:8001")
 NEX_BRAIN_API_PORT = int(os.getenv("NEX_BRAIN_API_PORT", "8000"))

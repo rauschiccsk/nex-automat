@@ -1,4 +1,5 @@
 """Systémové cesty — Windows NEX Genesis a Linux knowledge."""
+
 import os
 
 # NEX Genesis (Windows)

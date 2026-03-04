@@ -1,4 +1,5 @@
 """Konfigurácia databázových pripojení."""
+
 import os
 
 # PostgreSQL — hlavná databáza

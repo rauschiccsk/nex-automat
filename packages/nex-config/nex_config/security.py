@@ -1,4 +1,5 @@
 """Bezpečnostná konfigurácia — JWT, CORS, SMTP."""
+
 import os
 
 # JWT
@@ -11,8 +12,7 @@ REFRESH_TOKEN_EXPIRE_DAYS = 7
 
 # CORS
 CORS_ALLOWED_ORIGINS = os.getenv(
-    "CORS_ORIGINS",
-    "http://localhost:5173,http://localhost:3000"
+    "CORS_ORIGINS", "http://localhost:5173,http://localhost:3000"
 ).split(",")
 
 # SMTP
