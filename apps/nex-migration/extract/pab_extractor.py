@@ -12,7 +12,7 @@ from datetime import datetime
 from decimal import Decimal
 from pathlib import Path
 
-from config.field_mappings import PAB_FIELD_MAPPINGS, FieldMapping
+from config.field_mappings import PAB_FIELD_MAPPINGS
 from extract.base_extractor import BaseExtractor, DateTimeEncoder
 
 
