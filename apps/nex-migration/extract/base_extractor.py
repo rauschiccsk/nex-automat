@@ -5,7 +5,6 @@ Výstup: JSON súbory v data/{category}/ adresári.
 """
 
 import json
-import os
 from abc import ABC, abstractmethod
 from datetime import date, datetime
 from decimal import Decimal

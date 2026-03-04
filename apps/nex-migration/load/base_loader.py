@@ -5,7 +5,6 @@ Používa pg8000 driver (NIKDY psycopg2, asyncpg).
 
 import json
 from abc import ABC, abstractmethod
-from datetime import datetime
 
 import pg8000
 
@@ -158,7 +157,7 @@ class BaseLoader(ABC):
             self.load(records)
             self.complete_batch()
 
-            print(f"\n  LOAD SUMMARY:")
+            print("\n  LOAD SUMMARY:")
             print(f"  Inserted: {self.stats['inserted']}")
             print(f"  Updated:  {self.stats['updated']}")
             print(f"  Errors:   {self.stats['errors']}")

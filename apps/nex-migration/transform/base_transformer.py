@@ -64,13 +64,13 @@ class BaseTransformer(ABC):
 
         records = self.transform()
 
-        print(f"\n  TRANSFORM SUMMARY:")
+        print("\n  TRANSFORM SUMMARY:")
         print(f"  Total source: {self.stats['total']}")
         print(f"  Valid:        {self.stats['valid']}")
         print(f"  Errors:       {self.stats['errors']}")
         print(f"  Warnings:     {self.stats['warnings']}")
         if self.errors:
-            print(f"\n  ERRORS (first 10):")
+            print("\n  ERRORS (first 10):")
             for err in self.errors[:10]:
                 print(f"    [{err['index']}] {err['source_key']}.{err['field']}: {err['message']}")
         print(f"{'=' * 60}\n")
