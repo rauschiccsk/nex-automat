@@ -16,7 +16,6 @@ import struct
 from dataclasses import dataclass
 from datetime import date, datetime, time as time_type, timedelta
 
-from ..utils.encoding import decode_keybcs2
 
 # ---------------------------------------------------------------------------
 # PAB_FIELDS: exact BDF field definitions (91 fields)
