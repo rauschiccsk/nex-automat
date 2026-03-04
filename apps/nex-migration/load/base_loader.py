@@ -67,7 +67,11 @@ class BaseLoader(ABC):
                    record_count = %s, last_migrated_at = NOW(),
                    first_migrated_at = COALESCE(first_migrated_at, NOW())
                WHERE category = %s""",
-            (self.batch_id, self.stats["inserted"] + self.stats["updated"], self.category),
+            (
+                self.batch_id,
+                self.stats["inserted"] + self.stats["updated"],
+                self.category,
+            ),
         )
         self.conn.commit()
 
@@ -98,7 +102,14 @@ class BaseLoader(ABC):
                VALUES (%s, %s, %s, %s, %s, %s)
                ON CONFLICT (category, source_table, source_key)
                DO UPDATE SET target_id = EXCLUDED.target_id, migrated_at = NOW()""",
-            (self.batch_id, self.category, source_table, source_key, target_table, target_id),
+            (
+                self.batch_id,
+                self.category,
+                source_table,
+                source_key,
+                target_table,
+                target_id,
+            ),
         )
         self.stats["mapped"] += 1
 

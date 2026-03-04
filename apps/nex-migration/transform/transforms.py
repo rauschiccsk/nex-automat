@@ -157,7 +157,9 @@ def map_payment_method(value) -> str:
     return mapping.get(s, "transfer")
 
 
-def combine_notes(note: str | None, note2: str | None = None, internal_note: str | None = None) -> str | None:
+def combine_notes(
+    note: str | None, note2: str | None = None, internal_note: str | None = None
+) -> str | None:
     """Skombinuje PAB note polia do jedného text poľa."""
     parts = []
     if note:

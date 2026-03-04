@@ -45,14 +45,24 @@ class BaseTransformer(ABC):
     def add_error(self, index: int, source_key: str, field: str, message: str):
         """Pridaj chybu do error logu."""
         self.errors.append(
-            {"index": index, "source_key": source_key, "field": field, "message": message}
+            {
+                "index": index,
+                "source_key": source_key,
+                "field": field,
+                "message": message,
+            }
         )
         self.stats["errors"] += 1
 
     def add_warning(self, index: int, source_key: str, field: str, message: str):
         """Pridaj varovanie do warning logu."""
         self.warnings.append(
-            {"index": index, "source_key": source_key, "field": field, "message": message}
+            {
+                "index": index,
+                "source_key": source_key,
+                "field": field,
+                "message": message,
+            }
         )
         self.stats["warnings"] += 1
 
@@ -72,7 +82,9 @@ class BaseTransformer(ABC):
         if self.errors:
             print("\n  ERRORS (first 10):")
             for err in self.errors[:10]:
-                print(f"    [{err['index']}] {err['source_key']}.{err['field']}: {err['message']}")
+                print(
+                    f"    [{err['index']}] {err['source_key']}.{err['field']}: {err['message']}"
+                )
         print(f"{'=' * 60}\n")
 
         return records, self.stats

@@ -23,15 +23,15 @@ PAB = MigrationCategory(
     name="Katalóg partnerov",
     description="Partneri (zákazníci, dodávatelia) + pomocné tabuľky",
     source_tables=[
-        "PAB",       # Partner Address Book — hlavná tabuľka
-        "PAYLST",    # Platobné metódy (HOT, KAR, FAK, PRE...)
-        "TRPLST",    # Dopravné metódy (KUR, OSO, POS, DOP...)
-        "BANKLST",   # Bankový katalóg (kódy bánk SR)
-        "PABACC",    # Bankové účty partnerov
-        "PASUBC",    # Prevádzky partnerov (pobočky, sklady)
-        "PAGLST",    # Kategórie partnerov (dodávatelia, odberatelia)
-        "PANOTI",    # Textové polia partnerov (owner_name, notice, description)
-        "PACNCT",    # Kontakty partnerov (adresy + osoby)
+        "PAB",  # Partner Address Book — hlavná tabuľka
+        "PAYLST",  # Platobné metódy (HOT, KAR, FAK, PRE...)
+        "TRPLST",  # Dopravné metódy (KUR, OSO, POS, DOP...)
+        "BANKLST",  # Bankový katalóg (kódy bánk SR)
+        "PABACC",  # Bankové účty partnerov
+        "PASUBC",  # Prevádzky partnerov (pobočky, sklady)
+        "PAGLST",  # Kategórie partnerov (dodávatelia, odberatelia)
+        "PANOTI",  # Textové polia partnerov (owner_name, notice, description)
+        "PACNCT",  # Kontakty partnerov (adresy + osoby)
     ],
     target_tables=[
         "partners",
@@ -52,12 +52,12 @@ GSC = MigrationCategory(
     name="Katalóg produktov",
     description="Produkty + skupiny, čiarové kódy, cenníky",
     source_tables=[
-        "GSCAT",     # Hlavný katalóg produktov
-        "MGLST",     # Produktové skupiny/kategórie
-        "FGLST",     # Finančné skupiny
-        "SGLST",     # Skladové skupiny
-        "BARCODE",   # Čiarové kódy (sekundárne)
-        "PLS",       # Cenníky
+        "GSCAT",  # Hlavný katalóg produktov
+        "MGLST",  # Produktové skupiny/kategórie
+        "FGLST",  # Finančné skupiny
+        "SGLST",  # Skladové skupiny
+        "BARCODE",  # Čiarové kódy (sekundárne)
+        "PLS",  # Cenníky
     ],
     target_tables=["products"],
     dependencies=[],
@@ -144,8 +144,7 @@ def get_category(code: str) -> MigrationCategory:
     """Get category by code, raise KeyError if not found."""
     if code not in CATEGORIES:
         raise KeyError(
-            f"Unknown migration category: {code}. "
-            f"Available: {list(CATEGORIES.keys())}"
+            f"Unknown migration category: {code}. Available: {list(CATEGORIES.keys())}"
         )
     return CATEGORIES[code]
 
@@ -163,13 +162,9 @@ def get_migration_order() -> list[str]:
     completed: set[str] = set()
 
     while remaining:
-        ready = [
-            code for code in remaining if not check_dependencies(code, completed)
-        ]
+        ready = [code for code in remaining if not check_dependencies(code, completed)]
         if not ready:
-            raise ValueError(
-                f"Circular dependency detected! Remaining: {remaining}"
-            )
+            raise ValueError(f"Circular dependency detected! Remaining: {remaining}")
         order.extend(sorted(ready))
         completed.update(ready)
         remaining -= set(ready)
