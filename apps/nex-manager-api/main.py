@@ -13,6 +13,13 @@ Endpoints:
 - GET  /api/modules/by-category — modules grouped by category
 - GET  /api/modules/{code}      — single module detail
 - PUT  /api/auth/change-password — change own password
+- GET  /api/migration/categories — list migration categories (RBAC: MIG.can_view)
+- GET  /api/migration/categories/{code} — category detail
+- GET  /api/migration/categories/{code}/batches — category batches
+- POST /api/migration/run        — run migration (RBAC: MIG.can_create)
+- GET  /api/migration/stats      — migration statistics
+- GET  /api/migration/mappings/{category} — ID mappings
+- POST /api/migration/categories/{code}/reset — reset category (RBAC: MIG.can_delete)
 - GET  /api/partners            — list partners (RBAC: PAB.can_view)
 - GET  /api/partners/{id}       — partner detail
 - POST /api/partners            — create partner (RBAC: PAB.can_create)
@@ -31,6 +38,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from auth.router import router as auth_router
+from migration.router import router as migration_router
 from modules.router import router as modules_router
 from partners.router import router as partners_router
 from users.router import router as users_router
@@ -56,6 +64,7 @@ app.add_middleware(
 # ROUTERS
 # ---------------------------------------------------------------------------
 app.include_router(auth_router)
+app.include_router(migration_router)
 app.include_router(modules_router)
 app.include_router(partners_router)
 app.include_router(users_router)
@@ -85,6 +94,9 @@ def root():
             "partners_detail": "/api/partners/{id}",
             "partners_create": "/api/partners",
             "partners_update": "/api/partners/{id}",
+            "migration_categories": "/api/migration/categories",
+            "migration_run": "/api/migration/run",
+            "migration_stats": "/api/migration/stats",
             "modules_list": "/api/modules",
             "modules_by_category": "/api/modules/by-category",
             "modules_detail": "/api/modules/{code}",

@@ -59,6 +59,7 @@ INSERT INTO modules (module_code, module_name, category, icon, module_type, is_m
     ('UCT', 'Účtová osnova',            'accounting', 'ListTree',         'catalog',  true, 180, 'system'),
     ('POK', 'Pokladňa',                 'pos',        'Banknote',         'document', true, 190, 'system'),
     ('UZV', 'Uzávierky',                'pos',        'Lock',             'document', true, 200, 'system'),
+    ('MIG', 'Migrácia dát',             'system',     'Database',         'config',   false, 55, 'system'),
     ('USR', 'Používatelia',             'system',     'UserCog',          'config',   true, 210, 'system'),
     ('GRP', 'Skupiny práv',             'system',     'Shield',           'config',   true, 220, 'system'),
     ('SET', 'Nastavenia',               'system',     'Settings',         'config',   true, 230, 'system'),
