@@ -156,7 +156,9 @@ def _write_audit_log(
             None,  # entity_id is INTEGER — pass category info in details
             json.dumps({**(details or {}), "category": entity_id})
             if entity_id
-            else json.dumps(details) if details else None,
+            else json.dumps(details)
+            if details
+            else None,
         ),
     )
 
@@ -470,4 +472,7 @@ def reset_category(
 
     db.commit()
 
-    return {"message": f"Kategória '{code}' bola resetovaná na 'pending'", "category": code}
+    return {
+        "message": f"Kategória '{code}' bola resetovaná na 'pending'",
+        "category": code,
+    }

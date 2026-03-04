@@ -275,7 +275,9 @@ def test_run_migration_dependencies_not_met(client, fake_db):
     )
 
     assert resp.status_code == 400
-    assert "závislosti" in resp.json()["detail"].lower() or "GSC" in resp.json()["detail"]
+    assert (
+        "závislosti" in resp.json()["detail"].lower() or "GSC" in resp.json()["detail"]
+    )
 
 
 # ---------------------------------------------------------------------------
