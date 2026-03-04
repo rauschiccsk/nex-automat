@@ -3,11 +3,15 @@ FROM python:3.12-slim
 WORKDIR /app
 
 # Install dependencies
-COPY requirements.txt .
+COPY apps/nex-manager-api/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application code
-COPY . .
+COPY apps/nex-manager-api/ .
+
+# Copy nex-migration config (needed by migration router for category definitions)
+# router.py resolves: Path(__file__).parents[2] / "nex-migration" → /nex-migration
+COPY apps/nex-migration/config/ /nex-migration/config/
 
 EXPOSE 9110
 
