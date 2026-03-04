@@ -28,6 +28,7 @@ import {
   Shield,
   Settings,
   ScrollText,
+  Database,
   type LucideIcon
 } from 'lucide-react'
 import { useUiStore } from '@renderer/stores/uiStore'
@@ -60,7 +61,8 @@ const ICON_MAP: Record<string, LucideIcon> = {
   UserCog,
   Shield,
   Settings,
-  ScrollText
+  ScrollText,
+  Database
 }
 
 const MIN_WIDTH = 48

@@ -8,6 +8,7 @@ import Breadcrumbs, { type BreadcrumbItem } from '@renderer/components/Breadcrum
 import MockModule from '@renderer/components/MockModule'
 import UserListView from '@renderer/components/modules/users/UserListView'
 import { PartnerListView } from '@renderer/components/modules/partners'
+import { MigrationDashboard } from '@renderer/components/modules/migration'
 import CommandLine from '@renderer/components/CommandLine'
 import InfoPanel from '@renderer/components/InfoPanel'
 import LoginScreen from '@renderer/components/LoginScreen'
@@ -151,6 +152,8 @@ function App(): ReactElement {
                 <UserListView />
               ) : activeTab.id === 'PAB' ? (
                 <PartnerListView />
+              ) : activeTab.id === 'MIG' ? (
+                <MigrationDashboard />
               ) : (
                 <MockModule
                   title={activeTab.label}

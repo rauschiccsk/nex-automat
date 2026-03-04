@@ -312,6 +312,58 @@ class ApiClient {
       body: JSON.stringify(data)
     })
   }
+
+  // ── Migration endpoints ──
+
+  async getMigrationCategories(): Promise<
+    import('@renderer/types/migration').CategoriesListResponse
+  > {
+    return this.request('/api/migration/categories')
+  }
+
+  async getMigrationCategory(
+    code: string
+  ): Promise<import('@renderer/types/migration').MigrationCategory> {
+    return this.request(`/api/migration/categories/${code}`)
+  }
+
+  async getMigrationBatches(
+    code: string
+  ): Promise<import('@renderer/types/migration').BatchListResponse> {
+    return this.request(`/api/migration/categories/${code}/batches`)
+  }
+
+  async runMigration(
+    data: import('@renderer/types/migration').MigrationRunRequest
+  ): Promise<import('@renderer/types/migration').MigrationRunResponse> {
+    return this.request('/api/migration/run', {
+      method: 'POST',
+      body: JSON.stringify(data)
+    })
+  }
+
+  async getMigrationStats(): Promise<import('@renderer/types/migration').MigrationStats> {
+    return this.request('/api/migration/stats')
+  }
+
+  async getMigrationMappings(
+    category: string,
+    page = 1,
+    pageSize = 50,
+    search?: string
+  ): Promise<import('@renderer/types/migration').IdMappingListResponse> {
+    const query = new URLSearchParams()
+    query.set('page', String(page))
+    query.set('page_size', String(pageSize))
+    if (search) query.set('search', search)
+    return this.request(`/api/migration/mappings/${category}?${query.toString()}`)
+  }
+
+  async resetMigrationCategory(code: string): Promise<MessageResponse> {
+    return this.request(`/api/migration/categories/${code}/reset`, {
+      method: 'POST'
+    })
+  }
 }
 
 // Singleton export
