@@ -6,6 +6,18 @@ Vstup: raw hodnota z Btrieve extraktu.
 Výstup: PostgreSQL-ready hodnota.
 """
 
+import re
+
+
+def _sanitize(value: str) -> str:
+    """Remove null bytes and non-printable control chars (except \\n, \\t) from Btrieve data."""
+    # Remove null bytes first
+    s = value.replace("\x00", "")
+    # Remove other non-printable control chars (keep \n=0x0a, \t=0x09, \r=0x0d)
+    s = re.sub(r"[\x01-\x08\x0b\x0c\x0e-\x1f\x7f]", "", s)
+    return s
+
+
 COUNTRY_MAP = {
     "slovensko": "SK",
     "slovakia": "SK",
@@ -31,18 +43,18 @@ COUNTRY_MAP = {
 
 
 def strip(value) -> str | None:
-    """Orezanie whitespace, vráti None ak je výsledok prázdny."""
+    """Orezanie whitespace + sanitizácia null bytes, vráti None ak je výsledok prázdny."""
     if value is None:
         return None
-    s = str(value).strip()
+    s = _sanitize(str(value)).strip()
     return s if s else None
 
 
 def to_str_strip(value) -> str | None:
-    """Konverzia na string + strip (pre číselné kódy)."""
+    """Konverzia na string + strip + sanitizácia null bytes (pre číselné kódy)."""
     if value is None:
         return None
-    s = str(value).strip()
+    s = _sanitize(str(value)).strip()
     return s if s else None
 
 
@@ -54,7 +66,7 @@ def to_bool(value) -> bool:
         return value
     if isinstance(value, (int, float)):
         return bool(value)
-    s = str(value).strip().lower()
+    s = _sanitize(str(value)).strip().lower()
     return s in ("true", "1", "yes", "áno", "ano", "t", "y")
 
 
@@ -82,7 +94,7 @@ def country_code(value, default: str = "SK") -> str:
     """Konverzia názvu krajiny na ISO 3166-1 alpha-2 kód."""
     if value is None:
         return default
-    s = str(value).strip().lower()
+    s = _sanitize(str(value)).strip().lower()
     return COUNTRY_MAP.get(s, default)
 
 
@@ -143,7 +155,7 @@ def map_payment_method(value) -> str:
     """Konverzia platobnej metódy zo slovenčiny na PostgreSQL enum."""
     if value is None:
         return "transfer"
-    s = str(value).strip().lower()
+    s = _sanitize(str(value)).strip().lower()
     mapping = {
         "prevod": "transfer",
         "prevodom": "transfer",
@@ -163,15 +175,15 @@ def combine_notes(
     """Skombinuje PAB note polia do jedného text poľa."""
     parts = []
     if note:
-        n = str(note).strip()
+        n = _sanitize(str(note)).strip()
         if n:
             parts.append(n)
     if note2:
-        n2 = str(note2).strip()
+        n2 = _sanitize(str(note2)).strip()
         if n2:
             parts.append(n2)
     if internal_note:
-        n3 = str(internal_note).strip()
+        n3 = _sanitize(str(internal_note)).strip()
         if n3:
             parts.append(f"[internal] {n3}")
     return "\n".join(parts) if parts else None

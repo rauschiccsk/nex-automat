@@ -99,6 +99,38 @@ class PABTransformer(BaseTransformer):
     # Internal helpers
     # ------------------------------------------------------------------
 
+    # Max field lengths matching PostgreSQL partners table schema
+    _FIELD_MAX_LEN: dict[str, int] = {
+        "code": 30,
+        "name": 100,
+        "partner_type": 20,
+        "company_id": 20,
+        "tax_id": 20,
+        "vat_id": 20,
+        "street": 100,
+        "city": 100,
+        "zip_code": 20,
+        "country_code": 2,
+        "phone": 50,
+        "mobile": 50,
+        "email": 255,
+        "website": 255,
+        "contact_person": 255,
+        "payment_method": 50,
+        "currency": 3,
+        "iban": 34,
+        "bank_name": 255,
+        "swift_bic": 11,
+    }
+
+    def _truncate_fields(self, record: dict) -> dict:
+        """Truncate string fields to match PostgreSQL column max lengths."""
+        for field, max_len in self._FIELD_MAX_LEN.items():
+            val = record.get(field)
+            if isinstance(val, str) and len(val) > max_len:
+                record[field] = val[:max_len]
+        return record
+
     def _normalize_record(self, raw: dict, index: int) -> dict | None:
         """Normalize types and validate a single record from PAB.json.
 
@@ -146,7 +178,7 @@ class PABTransformer(BaseTransformer):
             "payment_method": self._normalize_payment_method(
                 raw.get("payment_method", "transfer")
             ),
-            "currency": raw.get("currency") or "EUR",
+            "currency": transforms.strip(raw.get("currency")) or "EUR",
             # Bank info
             "iban": transforms.strip(raw.get("iban")),
             "bank_name": transforms.strip(raw.get("bank_name")),
@@ -156,6 +188,8 @@ class PABTransformer(BaseTransformer):
             # Status
             "is_active": transforms.to_bool(raw.get("is_active", True)),
         }
+
+        self._truncate_fields(result)
 
         if not self.validate_record(result, index):
             return None
@@ -191,10 +225,12 @@ class PABTransformer(BaseTransformer):
     @staticmethod
     def _normalize_notes(raw: dict) -> str | None:
         """Normalize notes — use existing notes field or combine note fields."""
-        # If JSON has pre-combined notes, use that
+        # If JSON has pre-combined notes, sanitize and use that
         notes = raw.get("notes")
-        if notes and str(notes).strip():
-            return str(notes).strip()
+        if notes:
+            sanitized = transforms.strip(notes)
+            if sanitized:
+                return sanitized
         # Otherwise try to combine from individual fields
         note = raw.get("note")
         note2 = raw.get("note2")
