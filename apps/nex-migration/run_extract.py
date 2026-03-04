@@ -1,6 +1,6 @@
-"""
+r"""
 CLI pre spustenie extrakcie.
-Použitie: python run_extract.py --category PAB [--data-dir data]
+Použitie: python run_extract.py --category PAB [--data-dir data] [--data-root C:\NEX]
 MUSÍ bežať v venv32 na Windows!
 """
 
@@ -16,6 +16,11 @@ def main():
     parser.add_argument(
         "--data-dir", default="data", help="Output directory for JSON files"
     )
+    parser.add_argument(
+        "--data-root",
+        default=r"C:\NEX",
+        help=r"Base path to NEX Genesis data (e.g. C:\DEPTEST\NEX, C:\MAGER\NEX)",
+    )
     args = parser.parse_args()
 
     category = args.category.upper()
@@ -23,7 +28,7 @@ def main():
     if category == "PAB":
         from extract.pab_extractor import PABExtractor
 
-        extractor = PABExtractor(data_dir=args.data_dir)
+        extractor = PABExtractor(data_dir=args.data_dir, data_root=args.data_root)
     else:
         print(f"ERROR: No extractor implemented for category: {category}")
         sys.exit(1)

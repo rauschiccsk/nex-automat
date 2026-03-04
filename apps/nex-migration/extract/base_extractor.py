@@ -27,16 +27,23 @@ class DateTimeEncoder(json.JSONEncoder):
 
 
 class BaseExtractor(ABC):
-    """
+    r"""
     Abstraktná trieda pre extrakciu dát z Btrieve tabuliek.
 
     Subclass musí implementovať:
     - get_source_tables() → list tabuľkových mien
     - extract_table(table_name) → list dict záznamov
+
+    Args:
+        data_dir: Output directory for JSON files.
+        data_root: Base path to NEX Genesis data (e.g. C:\NEX, C:\DEPTEST\NEX).
     """
 
-    def __init__(self, data_dir: str = "data"):
+    DEFAULT_DATA_ROOT = r"C:\NEX"
+
+    def __init__(self, data_dir: str = "data", data_root: str | None = None):
         self.data_dir = Path(data_dir)
+        self.data_root = Path(data_root) if data_root else Path(self.DEFAULT_DATA_ROOT)
         self.category: str = ""
         self.stats: dict[str, int] = {}
 
@@ -57,6 +64,7 @@ class BaseExtractor(ABC):
 
         print(f"\n{'=' * 60}")
         print(f"EXTRACT: {self.category}")
+        print(f"DATA ROOT: {self.data_root}")
         print(f"{'=' * 60}")
 
         for table_name in self.get_source_tables():

@@ -19,8 +19,8 @@ from extract.base_extractor import BaseExtractor, DateTimeEncoder
 class PABExtractor(BaseExtractor):
     """Extracts partners from Btrieve PAB table and saves as JSON."""
 
-    def __init__(self, data_dir: str = "data"):
-        super().__init__(data_dir=data_dir)
+    def __init__(self, data_dir: str = "data", data_root: str | None = None):
+        super().__init__(data_dir=data_dir, data_root=data_root)
         self.category = "PAB"
 
     def get_source_tables(self) -> list[str]:

@@ -72,8 +72,35 @@ Dvojvrstvová ETL architektúra:
 # Aktivuj 32-bit venv
 venv32\Scripts\activate
 
-# Extrahuj PAB (partneri)
+# Extrahuj PAB (partneri) — default data root C:\NEX
 python run_extract.py --category PAB --data-dir data
+
+# Extrahuj PAB s vlastným data root (napr. DEPTEST)
+python run_extract.py --category PAB --data-root C:\DEPTEST\NEX
+```
+
+### Data root
+
+Parameter `--data-root` určuje koreňový adresár NEX Genesis dát (Btrieve .BTR súbory).
+Predvolená hodnota je `C:\NEX`.
+
+| Prostredie | Data root            | Popis                        |
+|------------|----------------------|------------------------------|
+| ICC        | `C:\NEX`             | Produkcia ICC (default)      |
+| DEPTEST    | `C:\DEPTEST\NEX`     | Testovacie prostredie        |
+| MAGER      | `C:\MAGER\NEX`       | Produkcia MAGER              |
+| ANDROS     | `C:\ANDROS\NEX`      | Produkcia ANDROS             |
+
+Príklad použitia:
+```bash
+# ICC (default — netreba špecifikovať)
+python run_extract.py --category PAB
+
+# DEPTEST
+python run_extract.py --category PAB --data-root C:\DEPTEST\NEX
+
+# MAGER
+python run_extract.py --category PAB --data-root C:\MAGER\NEX
 ```
 
 ### 2. Transfer JSON súborov
