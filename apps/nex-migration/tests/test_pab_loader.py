@@ -93,14 +93,34 @@ class TestPABLoaderUpsertSQL:
     def test_upsert_columns_complete(self):
         """All expected columns should be in the UPSERT column list."""
         expected = [
-            "code", "name", "partner_type", "is_supplier", "is_customer",
-            "company_id", "tax_id", "vat_id", "is_vat_payer",
-            "street", "city", "zip_code", "country_code",
-            "phone", "mobile", "email", "website", "contact_person",
-            "payment_due_days", "credit_limit", "discount_percent",
-            "payment_method", "currency",
-            "iban", "bank_name", "swift_bic",
-            "notes", "is_active",
+            "code",
+            "name",
+            "partner_type",
+            "is_supplier",
+            "is_customer",
+            "company_id",
+            "tax_id",
+            "vat_id",
+            "is_vat_payer",
+            "street",
+            "city",
+            "zip_code",
+            "country_code",
+            "phone",
+            "mobile",
+            "email",
+            "website",
+            "contact_person",
+            "payment_due_days",
+            "credit_limit",
+            "discount_percent",
+            "payment_method",
+            "currency",
+            "iban",
+            "bank_name",
+            "swift_bic",
+            "notes",
+            "is_active",
         ]
         for col in expected:
             assert col in _UPSERT_COLUMNS, f"Missing column: {col}"
@@ -164,7 +184,8 @@ class TestPABLoaderInsert:
         # Verify add_id_mapping was called (it writes to migration_id_map)
         # The mapping execute call should contain migration_id_map
         mapping_calls = [
-            c for c in mock_cursor.execute.call_args_list
+            c
+            for c in mock_cursor.execute.call_args_list
             if "migration_id_map" in str(c)
         ]
         assert len(mapping_calls) >= 1
@@ -219,7 +240,9 @@ class TestPABLoaderBatching:
         loader.batch_id = 1
 
         # Create 250 records — should result in 3 commits (100+100+50)
-        records = [_valid_record(_source_key=f"P{i:04d}", code=f"P{i:04d}") for i in range(250)]
+        records = [
+            _valid_record(_source_key=f"P{i:04d}", code=f"P{i:04d}") for i in range(250)
+        ]
         loader.load(records)
 
         # conn.commit should be called 3 times (100 + 100 + 50)

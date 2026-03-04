@@ -58,9 +58,7 @@ def _build_upsert_sql() -> str:
     """Build the UPSERT SQL statement for partners table."""
     cols = ", ".join(_UPSERT_COLUMNS)
     placeholders = ", ".join(["%s"] * len(_UPSERT_COLUMNS))
-    update_set = ", ".join(
-        f"{col} = EXCLUDED.{col}" for col in _UPDATE_COLUMNS
-    )
+    update_set = ", ".join(f"{col} = EXCLUDED.{col}" for col in _UPDATE_COLUMNS)
 
     return (
         f"INSERT INTO partners ({cols}) "

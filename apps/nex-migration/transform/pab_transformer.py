@@ -64,7 +64,9 @@ class PABTransformer(BaseTransformer):
         partner_type = record.get("partner_type", "customer")
         if partner_type not in ("customer", "supplier", "both"):
             self.add_warning(
-                index, source_key, "partner_type",
+                index,
+                source_key,
+                "partner_type",
                 f"Invalid partner_type '{partner_type}', defaulting to 'customer'",
             )
             record["partner_type"] = "customer"
@@ -73,7 +75,9 @@ class PABTransformer(BaseTransformer):
         payment_method = record.get("payment_method", "transfer")
         if payment_method not in ("transfer", "cash", "cod"):
             self.add_warning(
-                index, source_key, "payment_method",
+                index,
+                source_key,
+                "payment_method",
                 f"Invalid payment_method '{payment_method}', defaulting to 'transfer'",
             )
             record["payment_method"] = "transfer"
@@ -82,7 +86,9 @@ class PABTransformer(BaseTransformer):
         country_code = record.get("country_code", "SK")
         if country_code and len(str(country_code)) != 2:
             self.add_warning(
-                index, source_key, "country_code",
+                index,
+                source_key,
+                "country_code",
                 f"Invalid country_code '{country_code}', defaulting to 'SK'",
             )
             record["country_code"] = "SK"
@@ -130,7 +136,9 @@ class PABTransformer(BaseTransformer):
             "website": transforms.strip(raw.get("website")),
             "contact_person": transforms.strip(raw.get("contact_person")),
             # Business terms
-            "payment_due_days": transforms.to_int(raw.get("payment_due_days"), default=14),
+            "payment_due_days": transforms.to_int(
+                raw.get("payment_due_days"), default=14
+            ),
             "credit_limit": transforms.to_decimal(raw.get("credit_limit"), default=0.0),
             "discount_percent": transforms.to_decimal(
                 raw.get("discount_percent"), default=0.0
