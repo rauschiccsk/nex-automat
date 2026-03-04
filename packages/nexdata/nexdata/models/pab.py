@@ -220,9 +220,7 @@ def parse_pab_record(raw_bytes: bytes) -> dict:
 
         if field_type == "str":
             # Pascal ShortString: field_size = max_len + 1
-            record[field_name] = _parse_pascal_string(
-                raw_bytes, offset, field_size - 1
-            )
+            record[field_name] = _parse_pascal_string(raw_bytes, offset, field_size - 1)
         elif field_type == "longint":
             record[field_name] = struct.unpack_from("<i", raw_bytes, offset)[0]
         elif field_type == "word":
@@ -392,9 +390,7 @@ class PABRecord:
         if not self.name1.strip():
             errors.append("Name1 cannot be empty")
         if self.ico and len(self.ico) not in [8, 10, 12]:
-            errors.append(
-                f"Invalid ICO length: {len(self.ico)} (expected 8, 10 or 12)"
-            )
+            errors.append(f"Invalid ICO length: {len(self.ico)} (expected 8, 10 or 12)")
         if self.payment_terms < 0:
             errors.append("PaymentTerms cannot be negative")
         if self.credit_limit < 0:
