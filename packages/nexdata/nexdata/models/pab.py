@@ -150,7 +150,7 @@ def _parse_pascal_string(buf: bytes, offset: int, max_len: int) -> str:
         length = max_len
     raw = buf[offset + 1 : offset + 1 + length]
     try:
-        return raw.decode("cp1250").strip()
+        return raw.decode("cp852").strip()
     except Exception:
         return raw.decode("latin-1", errors="replace").strip()
 
