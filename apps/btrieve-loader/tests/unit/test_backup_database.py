@@ -250,7 +250,8 @@ class TestBackupRotation:
         now = datetime.now()
 
         recent = (
-            daily_dir / f"backup_{now.strftime('%Y%m%d_%H%M%S')}_supplier_invoice_staging.sql.gz"
+            daily_dir
+            / f"backup_{now.strftime('%Y%m%d_%H%M%S')}_supplier_invoice_staging.sql.gz"
         )
         recent.touch()
 
@@ -304,8 +305,12 @@ class TestBackupListing:
         daily_dir = temp_backup_dir / "daily"
         weekly_dir = temp_backup_dir / "weekly"
 
-        daily_backup = daily_dir / "backup_20251121_120000_supplier_invoice_staging.sql.gz"
-        weekly_backup = weekly_dir / "backup_20251114_120000_supplier_invoice_staging.sql.gz"
+        daily_backup = (
+            daily_dir / "backup_20251121_120000_supplier_invoice_staging.sql.gz"
+        )
+        weekly_backup = (
+            weekly_dir / "backup_20251114_120000_supplier_invoice_staging.sql.gz"
+        )
 
         daily_backup.write_bytes(b"daily backup data")
         weekly_backup.write_bytes(b"weekly backup data")
