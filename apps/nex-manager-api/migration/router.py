@@ -2,7 +2,9 @@
 
 import json
 import math
+import os
 import sys
+import time
 from pathlib import Path
 from typing import Optional
 
@@ -272,7 +274,8 @@ def run_migration(
 ):
     """Start a migration run for a specific category.
 
-    Currently returns 501 — actual execution will be implemented in M4/M5.
+    Currently supports: PAB.
+    Other categories return 501 until their transformer/loader are implemented.
     """
     # Validate category exists
     if body.category not in CATEGORIES:
@@ -322,12 +325,97 @@ def run_migration(
     )
     db.commit()
 
-    # 501 — not yet implemented
+    # --- Dispatch to category-specific transformer + loader ---
+    if body.category == "PAB":
+        return _run_pab_migration(body, db)
+
+    # Other categories — 501 until implemented
     raise HTTPException(
         status_code=status.HTTP_501_NOT_IMPLEMENTED,
         detail=(
             f"Transformer/Loader for {body.category} not yet implemented. "
-            "Will be available in M4/M5."
+            "Will be available in future milestones."
+        ),
+    )
+
+
+def _run_pab_migration(body: MigrationRunRequest, db) -> MigrationRunResponse:
+    """Execute PAB migration: transform JSON → UPSERT into partners."""
+    from transform.pab_transformer import PABTransformer
+    from load.pab_loader import PABLoader
+
+    # Determine data directory (relative to nex-migration)
+    data_dir = str(_migration_path / "data")
+
+    # Check that PAB extract data exists
+    pab_json = Path(data_dir) / "PAB" / "PAB.json"
+    if not pab_json.exists():
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="PAB extract data not found. Run extract on Windows CC first.",
+        )
+
+    start_time = time.time()
+
+    # --- Transform ---
+    transformer = PABTransformer(data_dir=data_dir)
+    records, transform_stats = transformer.run()
+
+    if not records:
+        duration = time.time() - start_time
+        return MigrationRunResponse(
+            category="PAB",
+            status="completed",
+            source_count=transform_stats["total"],
+            target_count=0,
+            error_count=transform_stats["errors"],
+            errors=transformer.errors[:50],
+            warnings=transformer.warnings[:50],
+            duration_seconds=round(duration, 2),
+            message="No valid records to load after transform.",
+        )
+
+    if body.dry_run:
+        duration = time.time() - start_time
+        return MigrationRunResponse(
+            category="PAB",
+            status="dry_run",
+            source_count=transform_stats["total"],
+            target_count=transform_stats["valid"],
+            error_count=transform_stats["errors"],
+            errors=transformer.errors[:50],
+            warnings=transformer.warnings[:50],
+            duration_seconds=round(duration, 2),
+            message=f"Dry run: {transform_stats['valid']} records would be loaded.",
+        )
+
+    # --- Load ---
+    db_config = {
+        "host": os.getenv("POSTGRES_HOST", "localhost"),
+        "port": int(os.getenv("POSTGRES_PORT", "5432")),
+        "database": os.getenv("POSTGRES_DB", "nex_automat"),
+        "user": os.getenv("POSTGRES_USER", "nex_admin"),
+        "password": os.getenv("POSTGRES_PASSWORD", ""),
+    }
+
+    loader = PABLoader(db_config=db_config)
+    load_stats = loader.run(records)
+
+    duration = time.time() - start_time
+
+    return MigrationRunResponse(
+        batch_id=loader.batch_id,
+        category="PAB",
+        status="completed" if load_stats["errors"] == 0 else "completed_with_errors",
+        source_count=transform_stats["total"],
+        target_count=load_stats["inserted"] + load_stats["updated"],
+        error_count=load_stats["errors"],
+        errors=transformer.errors[:50],
+        warnings=transformer.warnings[:50],
+        duration_seconds=round(duration, 2),
+        message=(
+            f"PAB migration completed: {load_stats['inserted']} inserted, "
+            f"{load_stats['updated']} updated, {load_stats['errors']} errors."
         ),
     )
 
