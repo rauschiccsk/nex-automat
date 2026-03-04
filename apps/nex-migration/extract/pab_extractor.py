@@ -26,13 +26,31 @@ class PABExtractor(BaseExtractor):
     def get_source_tables(self) -> list[str]:
         return ["PAB"]
 
+    def _build_btrieve_config(self) -> dict:
+        """Build BtrieveClient config dict with table path derived from data_root."""
+        pab_path = str(self.data_root / "YEARACT" / "DIALS" / "PAB00000.BTR")
+        return {
+            "data_root": str(self.data_root),
+            "nex_genesis": {
+                "tables": {
+                    "pab": pab_path,
+                },
+            },
+        }
+
     def extract_table(self, table_name: str) -> list[dict]:
         """Extract records from PAB Btrieve table via nexdata (lazy import)."""
         # Lazy import — nexdata is only available on Windows with 32-bit Python
         import nexdata  # noqa: F811
 
-        pab = nexdata.PAB()
-        raw_records = pab.read_all()
+        config = self._build_btrieve_config()
+        client = nexdata.BtrieveClient(config)
+        repo = nexdata.PABRepository(client)
+        try:
+            repo.open()
+            raw_records = repo.get_all()
+        finally:
+            repo.close()
         return [self._map_record(rec) for rec in raw_records]
 
     # ------------------------------------------------------------------
@@ -138,8 +156,14 @@ class PABExtractor(BaseExtractor):
         # Lazy import nexdata
         import nexdata  # noqa: F811
 
-        pab = nexdata.PAB()
-        raw_records = pab.read_all()
+        config = self._build_btrieve_config()
+        client = nexdata.BtrieveClient(config)
+        repo = nexdata.PABRepository(client)
+        try:
+            repo.open()
+            raw_records = repo.get_all()
+        finally:
+            repo.close()
         total_source = len(raw_records)
 
         for raw in raw_records:
