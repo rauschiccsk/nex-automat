@@ -5,7 +5,6 @@ Activities for fetching invoices from supplier APIs and converting to ISDOC form
 """
 
 import logging
-import os
 from dataclasses import asdict
 from datetime import date
 from typing import Any
