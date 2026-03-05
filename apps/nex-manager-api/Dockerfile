@@ -2,6 +2,10 @@ FROM python:3.12-slim
 
 WORKDIR /app
 
+# Install nex-config package (centralized configuration)
+COPY packages/nex-config/ /tmp/nex-config/
+RUN pip install --no-cache-dir /tmp/nex-config/ && rm -rf /tmp/nex-config/
+
 # Install dependencies
 COPY apps/nex-manager-api/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
