@@ -197,7 +197,7 @@ jobs:
         run: |
           cd /opt/nex-automat
           docker compose build --no-cache nex-manager-api
-          docker compose up -d nex-manager-api
+          docker compose up -d --force-recreate nex-manager-api
 
       - name: Health check — DEPTEST containers
         run: |
