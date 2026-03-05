@@ -196,8 +196,9 @@ jobs:
       - name: Rebuild and restart nex-manager-api
         run: |
           cd /opt/nex-automat
+          docker rm -f nex-manager-api 2>/dev/null || true
           docker compose build --no-cache nex-manager-api
-          docker compose up -d --force-recreate nex-manager-api
+          docker compose up -d nex-manager-api
 
       - name: Health check — DEPTEST containers
         run: |
