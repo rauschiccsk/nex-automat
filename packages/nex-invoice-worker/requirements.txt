@@ -1,0 +1,34 @@
+# Shared dependencies for nex-invoice-worker
+# Union of supplier-invoice-worker and andros-invoice-worker requirements
+
+# Temporal workflow engine
+temporalio>=1.4.0
+
+# HTTP client
+httpx>=0.25.0
+
+# SOAP client (MARSO API)
+zeep>=4.2.1
+
+# Settings management
+pydantic-settings>=2.0.0
+
+# YAML config
+pyyaml>=6.0
+
+# PostgreSQL async driver (andros mode)
+asyncpg>=0.29.0
+
+# Email support (supplier mode)
+imapclient>=2.3.0
+
+# Google OAuth (supplier mode)
+google-auth>=2.0.0
+google-auth-oauthlib>=1.0.0
+google-auth-httplib2>=0.1.0
+
+# Environment
+python-dotenv>=1.0.0
+
+# Centralized config (internal dependency)
+# nex-config (installed from packages/nex-config)

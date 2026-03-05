@@ -1,0 +1,56 @@
+# MARSO Hungary Kft. - SOAP API Configuration
+# Dodávateľ pneumatík pre ANDROS s.r.o.
+
+supplier_id: marso
+supplier_name: MARSO Hungary Kft.
+supplier_country: HU
+supplier_ico: "10428342"
+supplier_vat: HU10428342
+
+# Authentication
+auth_type: api_key_body
+# Credentials from env: MARSO_API_KEY, MARSO_ACCOUNT_NUM
+
+# Connection - SOAP
+protocol: soap
+connection:
+  protocol: soap
+  wsdl_test: "http://195.228.175.10:8082/ComaxWS/Comax.asmx?wsdl"
+  wsdl_live: "http://195.228.175.10:8081/ComaxWS/Comax.asmx?wsdl"
+  method: CallComax
+  timeout: 30
+
+# Request parameters for SOAP envelope
+request:
+  sender: WebCatHU
+  receiver: Ax
+  test_mode: "0"
+  account_field: AccountNum
+  key_field: Key
+
+# API Endpoints (MessageType values)
+endpoints:
+  invoice_list: CustInvoiceList
+  invoice_detail: CustInvoiceLines
+
+# Response configuration
+response:
+  format: json
+  invoice_id_field: InvoiceId
+  lines_field: Lines
+  product_code_field: ItemId
+
+# Product code mapping
+product_code:
+  xml_field: ItemId
+  type: ean
+
+# Schedule
+schedule:
+  cron: "0 6 * * *"
+  lookback_days: 7
+
+# Retry policy
+timeout_seconds: 30
+max_retries: 3
+rate_limit_per_minute: 30
