@@ -17,11 +17,11 @@ apps/
 ├── supplier-invoice-editor/  # Desktop approval app (PyQt5)
 ├── supplier-invoice-staging/ # PySide6 staging desktop app
 ├── supplier-invoice-staging-web/ # React + Vite web frontend
-├── supplier-invoice-worker/  # Temporal.io workflow orchestration
 
 packages/
 ├── nexdata/               # NEX Genesis Btrieve models & utilities
 ├── nex-staging/           # PostgreSQL models for invoice staging
+├── nex-invoice-worker/    # Multi-tenant Temporal.io invoice worker (supplier + andros)
 ├── shared-pyside6/        # Reusable PySide6 components (BaseWindow, BaseGrid)
 ├── nex-shared/            # FLAT structure: packages/nex-shared/models/ (no nested nex_shared/)
 
@@ -81,7 +81,7 @@ npm run lint    # ESLint
 
 ### Invoice Processing Pipeline
 1. `btrieve-loader` - Receives emails, extracts PDFs, OCR
-2. `supplier-invoice-worker` - Temporal workflows for processing
+2. `nex-invoice-worker` - Multi-tenant Temporal workflows (packages/nex-invoice-worker)
 3. `supplier-invoice-staging` / `supplier-invoice-staging-web` - Review UI
 4. `supplier-invoice-editor` - Final approval (PyQt5)
 

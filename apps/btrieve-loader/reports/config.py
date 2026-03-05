@@ -7,11 +7,16 @@ from pathlib import Path
 from nex_config.database import DB_PORT
 from nex_config.security import SMTP_SSL_PORT
 
-# Load .env from supplier-invoice-worker
+# Load .env from nex-invoice-worker
 try:
     from dotenv import load_dotenv
 
-    env_path = Path(__file__).parent.parent.parent / "supplier-invoice-worker" / ".env"
+    env_path = (
+        Path(__file__).parent.parent.parent.parent
+        / "packages"
+        / "nex-invoice-worker"
+        / ".env"
+    )
     if env_path.exists():
         load_dotenv(env_path)
         print(f"Loaded .env from: {env_path}")

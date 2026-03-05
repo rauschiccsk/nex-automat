@@ -4,13 +4,11 @@
 
 ```
 apps/
-├── andros-invoice-worker/        # ANDROS-špecifický Temporal worker
 ├── btrieve-loader/               # Btrieve API (venv32 - samostatne kvôli 32-bit)
 ├── nex-brain/                    # AI/RAG systém
 ├── supplier-invoice-editor/      # Desktop PyQt5
 ├── supplier-invoice-staging/     # Desktop PySide6
 ├── supplier-invoice-staging-web/ # React frontend
-├── supplier-invoice-worker/      # Temporal workflow
 ```
 
 **Poznámka:** Existujúce priečinky zostávajú bez zmeny. Časom sa začlenia do novej štruktúry.
@@ -52,13 +50,11 @@ nex-automat/
 │   │   ├── package.json
 │   │   └── README.md
 │   │
-│   ├── andros-invoice-worker/        # ✅ Bez zmeny
 │   ├── btrieve-loader/               # ✅ Bez zmeny (venv32)
 │   ├── nex-brain/                    # ✅ Bez zmeny
 │   ├── supplier-invoice-editor/      # ✅ Bez zmeny
 │   ├── supplier-invoice-staging/     # ✅ Bez zmeny
 │   ├── supplier-invoice-staging-web/ # ✅ Bez zmeny
-│   └── supplier-invoice-worker/      # ✅ Bez zmeny
 │
 ├── packages/                       # ✅ Zdieľané balíky (bez zmeny)
 │   ├── nex-shared/
@@ -447,8 +443,8 @@ modules/base/partners/
 |------|-------|----------|
 | 1 | Vytvoriť `apps/backend/` skeleton | 🔴 Vysoká |
 | 2 | Vytvoriť `apps/web/` skeleton | 🔴 Vysoká |
-| 3 | Zlúčiť `supplier-invoice-*` | 🟡 Stredná |
-| 4 | Presunúť `andros-invoice-worker` | 🟡 Stredná |
+| 3 | ~~Zlúčiť `supplier-invoice-*`~~ DONE → `packages/nex-invoice-worker` | ✅ Hotové |
+| 4 | ~~Presunúť `andros-invoice-worker`~~ DONE → `packages/nex-invoice-worker` | ✅ Hotové |
 | 5 | Vytvoriť `docs/knowledge/architecture/` | 🟢 Nízka |
 
 ---

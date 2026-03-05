@@ -3,11 +3,12 @@ version: "3.8"
 services:
   invoice-worker:
     build:
-      context: C:/opt/nex-automat-src/apps/supplier-invoice-worker
+      context: C:/opt/nex-automat-src/packages/nex-invoice-worker
       dockerfile: Dockerfile
     container_name: mager-invoice-worker
     restart: unless-stopped
     environment:
+      - WORKER_TENANT=supplier
       - TEMPORAL_HOST=host.docker.internal
       - TEMPORAL_PORT=7233
       - POSTGRES_HOST=host.docker.internal
@@ -20,12 +21,13 @@ services:
 
   polling-scheduler:
     build:
-      context: C:/opt/nex-automat-src/apps/supplier-invoice-worker
+      context: C:/opt/nex-automat-src/packages/nex-invoice-worker
       dockerfile: Dockerfile
     container_name: mager-polling-scheduler
     command: ["python", "-m", "scheduler.polling_scheduler"]
     restart: unless-stopped
     environment:
+      - WORKER_TENANT=supplier
       - TEMPORAL_HOST=host.docker.internal
       - TEMPORAL_PORT=7233
       - POSTGRES_HOST=host.docker.internal

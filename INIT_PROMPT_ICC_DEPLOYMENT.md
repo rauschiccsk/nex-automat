@@ -42,7 +42,7 @@ Dokončiť ICC invoice processing systém na Windows VM (192.168.122.75).
 - [ ] Skopírovať NSSM: `copy C:\Tools\nssm-2.24\win64\nssm.exe C:\ICC\nex-automat\tools\nssm\win64\`
 
 ### Fáza 2: ICC Konfigurácia
-- [ ] Vytvoriť apps\supplier-invoice-worker\.env
+- [ ] Vytvoriť packages\nex-invoice-worker\.env
 - [ ] Vytvoriť apps\supplier-invoice-loader\.env
 - [ ] Doinštalovať packages do venv32:
   ```powershell
@@ -72,7 +72,7 @@ Dokončiť ICC invoice processing systém na Windows VM (192.168.122.75).
 
 ## 📋 ICC KONFIGURÁCIA
 
-### apps\supplier-invoice-worker\.env
+### packages\nex-invoice-worker\.env
 ```
 TEMPORAL_HOST=192.168.122.1
 TEMPORAL_PORT=7234

@@ -87,7 +87,7 @@ Heslá: pozri CREDENTIALS.md v RAG
 - [ ] Vytvoriť venv (64-bit): C:\ANDROS\nex-automat\venv\
 - [ ] Vytvoriť venv32 (32-bit): C:\ANDROS\nex-automat\venv32\
 - [ ] pip install dependencies
-- [ ] Vytvoriť .env pre supplier-invoice-worker
+- [ ] Vytvoriť .env pre nex-invoice-worker
 - [ ] Vytvoriť .env pre supplier-invoice-loader
 - [ ] Test konektivity na Docker služby
 

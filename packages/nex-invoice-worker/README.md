@@ -4,8 +4,8 @@ Shared multi-tenant invoice worker package for the NEX Automat platform.
 
 ## Overview
 
-This package consolidates `apps/supplier-invoice-worker/` and `apps/andros-invoice-worker/`
-into a single shared package with tenant-aware configuration.
+This package is the unified multi-tenant invoice worker (formerly `apps/supplier-invoice-worker/`
+and `apps/andros-invoice-worker/`, now consolidated) with tenant-aware configuration.
 
 ## Usage
 

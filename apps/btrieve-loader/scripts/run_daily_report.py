@@ -18,7 +18,12 @@ sys.path.insert(0, str(APP_DIR.parent.parent))  # Project root for packages
 try:
     from dotenv import load_dotenv
 
-    env_path = Path(__file__).parent.parent.parent / "supplier-invoice-worker" / ".env"
+    env_path = (
+        Path(__file__).parent.parent.parent.parent
+        / "packages"
+        / "nex-invoice-worker"
+        / ".env"
+    )
     if env_path.exists():
         load_dotenv(env_path)
         print(f"Loaded .env from: {env_path}")
