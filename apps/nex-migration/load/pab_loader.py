@@ -9,6 +9,8 @@ Processes records in batches of 100.
 import sys
 from pathlib import Path
 
+from nex_config.limits import PAB_BATCH_SIZE
+
 # Ensure nex-migration root is on sys.path for config imports
 _migration_root = str(Path(__file__).resolve().parent.parent)
 if _migration_root not in sys.path:
@@ -51,7 +53,7 @@ _UPSERT_COLUMNS = [
 # Columns to update on conflict (exclude code — that's the conflict key)
 _UPDATE_COLUMNS = [col for col in _UPSERT_COLUMNS if col != "code"]
 
-BATCH_SIZE = 100
+BATCH_SIZE = PAB_BATCH_SIZE
 
 
 def _build_upsert_sql() -> str:

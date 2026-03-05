@@ -6,6 +6,7 @@ from typing import Any
 
 import httpx
 from config.settings import settings
+from nex_config.timeouts import HTTP_DEFAULT_TIMEOUT_SECONDS
 from qdrant_client import QdrantClient
 from qdrant_client.http import models
 
@@ -21,7 +22,7 @@ class RAGService:
 
     async def get_embedding(self, text: str) -> list[float]:
         """Get embedding from Ollama."""
-        async with httpx.AsyncClient(timeout=30.0) as client:
+        async with httpx.AsyncClient(timeout=HTTP_DEFAULT_TIMEOUT_SECONDS) as client:
             response = await client.post(
                 f"{self.ollama_url}/api/embeddings",
                 json={"model": self.embedding_model, "prompt": text},

@@ -3,19 +3,19 @@ Database module pre Telegram Bot logging
 """
 
 import logging
-import os
 
 import pg8000
+from nex_config.database import DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, DB_NAME_RAG
 
 logger = logging.getLogger(__name__)
 
 # Database config
 DB_CONFIG = {
-    "host": os.getenv("POSTGRES_HOST", "localhost"),
-    "port": int(os.getenv("POSTGRES_PORT", "5432")),
-    "database": os.getenv("POSTGRES_DB", "nex_automat_rag"),
-    "user": os.getenv("POSTGRES_USER", "postgres"),
-    "password": os.getenv("POSTGRES_PASSWORD", ""),
+    "host": DB_HOST,
+    "port": DB_PORT,
+    "database": DB_NAME_RAG,
+    "user": DB_USER,
+    "password": DB_PASSWORD or "",
 }
 
 

@@ -7,6 +7,8 @@ import os
 import sys
 from pathlib import Path
 
+from nex_config.database import DB_PORT, DB_USER
+
 try:
     import pg8000.native
 except ImportError:
@@ -28,10 +30,10 @@ def database_exists(password: str, db_name: str) -> bool:
     """Check if database exists"""
     try:
         conn = pg8000.native.Connection(
-            user="postgres",
+            user=DB_USER,
             password=password,
             host="localhost",
-            port=5432,
+            port=DB_PORT,
             database="postgres",
         )
         result = conn.run(
@@ -48,10 +50,10 @@ def create_database(password: str, db_name: str):
     """Create database if it doesn't exist"""
     try:
         conn = pg8000.native.Connection(
-            user="postgres",
+            user=DB_USER,
             password=password,
             host="localhost",
-            port=5432,
+            port=DB_PORT,
             database="postgres",
         )
         conn.run(f"CREATE DATABASE {db_name}")
@@ -74,10 +76,10 @@ def run_schema(password: str, db_name: str, schema_file: Path):
 
         # Connect to target database
         conn = pg8000.native.Connection(
-            user="postgres",
+            user=DB_USER,
             password=password,
             host="localhost",
-            port=5432,
+            port=DB_PORT,
             database=db_name,
         )
 

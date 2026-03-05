@@ -19,3 +19,6 @@ pg8000>=1.29.0  # Pure Python PostgreSQL driver (32-bit compatible)
 
 # ENVIRONMENT
 python-dotenv>=1.0.1
+
+# NEX CONFIG (centralized configuration)
+-e ../../packages/nex-config

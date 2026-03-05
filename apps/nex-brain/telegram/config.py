@@ -6,6 +6,7 @@ import os
 from dataclasses import dataclass
 
 from dotenv import load_dotenv
+from nex_config.services import NEX_BRAIN_API_URL
 
 # Načítanie .env súboru
 load_dotenv()
@@ -26,7 +27,7 @@ class Settings:
     """Hlavná konfigurácia"""
 
     # NEX Brain API
-    nex_brain_api_url: str = os.getenv("NEX_BRAIN_API_URL", "http://localhost:8001")
+    nex_brain_api_url: str = NEX_BRAIN_API_URL
 
     # História konverzácie
     history_max_messages: int = 10

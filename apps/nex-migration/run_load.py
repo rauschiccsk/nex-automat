@@ -8,10 +8,12 @@ import argparse
 import os
 import sys
 
+from nex_config.database import NEX_MIGRATION_DB_PORT
+
 
 DB_CONFIG = {
     "host": os.environ.get("PG_HOST", "localhost"),
-    "port": int(os.environ.get("PG_PORT", "9150")),
+    "port": int(os.environ.get("PG_PORT", str(NEX_MIGRATION_DB_PORT))),
     "database": os.environ.get("PG_DATABASE", "andros"),
     "user": os.environ.get("PG_USER", "andros"),
     "password": os.environ.get("PG_PASSWORD", ""),

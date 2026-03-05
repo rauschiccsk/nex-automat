@@ -10,6 +10,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 
 from auth.dependencies import require_permission
 from database import get_db
+from nex_config.limits import DEFAULT_PAGE_SIZE
 
 from .schemas import (
     PartnerCreate,
@@ -132,7 +133,9 @@ def list_partners(
         None, description="Search in code, name, company_id, city, email"
     ),
     page: int = Query(1, ge=1, description="Page number"),
-    page_size: int = Query(50, ge=1, le=10000, description="Items per page"),
+    page_size: int = Query(
+        DEFAULT_PAGE_SIZE, ge=1, le=10000, description="Items per page"
+    ),
     sort_by: str = Query(
         "code", description="Sort column: code, name, city, created_at"
     ),

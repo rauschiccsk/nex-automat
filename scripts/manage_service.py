@@ -22,6 +22,12 @@ import sys
 import time
 from pathlib import Path
 
+from nex_config.timeouts import (
+    SERVICE_CMD_TIMEOUT_SECONDS,
+    SERVICE_RESTART_DELAY_SECONDS,
+    SERVICE_POLL_INTERVAL_SECONDS,
+)
+
 
 def decode_nssm_output(result):
     """Decode NSSM output which may be UTF-16LE with null bytes"""
@@ -75,7 +81,10 @@ def run_nssm_command(command_args):
     """Run NSSM command and return result"""
     try:
         result = subprocess.run(
-            [str(NSSM_PATH)] + command_args, capture_output=True, text=True, timeout=30
+            [str(NSSM_PATH)] + command_args,
+            capture_output=True,
+            text=True,
+            timeout=SERVICE_CMD_TIMEOUT_SECONDS,
         )
         return result.returncode, result.stdout.strip(), result.stderr.strip()
     except Exception as e:
@@ -105,7 +114,7 @@ def start_service():
 
     if code == 0:
         print("OK: Service started successfully")
-        time.sleep(2)
+        time.sleep(SERVICE_RESTART_DELAY_SECONDS)
         status = get_service_status()
         if status:
             print(f"   Status: {status}")
@@ -130,7 +139,7 @@ def stop_service():
 
     if code == 0:
         print("OK: Service stopped successfully")
-        time.sleep(2)
+        time.sleep(SERVICE_RESTART_DELAY_SECONDS)
         status = get_service_status()
         if status:
             print(f"   Status: {status}")
@@ -157,7 +166,7 @@ def restart_service():
     if code != 0:
         print(f"     WARNING: Stop failed: {stderr}")
 
-    time.sleep(2)
+    time.sleep(SERVICE_RESTART_DELAY_SECONDS)
 
     # Start
     print("  2. Starting...")
@@ -165,7 +174,7 @@ def restart_service():
 
     if code == 0:
         print("OK: Service restarted successfully")
-        time.sleep(2)
+        time.sleep(SERVICE_RESTART_DELAY_SECONDS)
         status = get_service_status()
         if status:
             print(f"   Status: {status}")
@@ -265,7 +274,7 @@ def tail_logs():
                 if line:
                     print(line.rstrip())
                 else:
-                    time.sleep(0.5)
+                    time.sleep(SERVICE_POLL_INTERVAL_SECONDS)
 
     except KeyboardInterrupt:
         print()

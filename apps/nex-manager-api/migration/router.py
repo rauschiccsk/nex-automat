@@ -12,6 +12,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 
 from auth.dependencies import require_permission
 from database import get_db
+from nex_config.limits import DEFAULT_PAGE_SIZE
 
 from .schemas import (
     BatchListResponse,
@@ -465,7 +466,9 @@ def get_migration_stats(
 def list_id_mappings(
     category: str,
     page: int = Query(1, ge=1, description="Page number"),
-    page_size: int = Query(50, ge=1, le=10000, description="Items per page"),
+    page_size: int = Query(
+        DEFAULT_PAGE_SIZE, ge=1, le=10000, description="Items per page"
+    ),
     search: Optional[str] = Query(None, description="Search in source_key"),
     _current_user=Depends(require_permission("MIG", "can_view")),
     db=Depends(get_db),

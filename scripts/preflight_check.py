@@ -23,6 +23,9 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
+from nex_config.database import DB_PORT, DB_USER, DB_NAME_STAGING
+from nex_config.timeouts import PREFLIGHT_TIMEOUT_SECONDS
+
 
 def print_section(title: str):
     """Print formatted section header."""
@@ -40,7 +43,7 @@ def check_service_status() -> bool:
             [sys.executable, "scripts/manage_service.py", "status"],
             capture_output=True,
             text=False,  # Get bytes to handle UTF-16
-            timeout=10,
+            timeout=PREFLIGHT_TIMEOUT_SECONDS,
         )
 
         # NSSM returns mixed encoding - just decode as UTF-8 and strip null bytes
@@ -88,13 +91,13 @@ def check_database_connectivity() -> bool:
 
         conn = pg8000.native.Connection(
             host="localhost",
-            port=5432,
-            database=os.getenv("STAGING_DB_NAME", "supplier_invoice_staging"),
-            user="postgres",
+            port=DB_PORT,
+            database=os.getenv("STAGING_DB_NAME", DB_NAME_STAGING),
+            user=DB_USER,
             password=pg_password,
         )
         conn.close()
-        print("✅ PostgreSQL: Connected (localhost:5432/supplier_invoice_staging)")
+        print(f"✅ PostgreSQL: Connected (localhost:{DB_PORT}/{DB_NAME_STAGING})")
     except Exception as e:
         print(f"❌ PostgreSQL: Failed - {e}")
         print("   Hint: Set POSTGRES_PASSWORD environment variable")

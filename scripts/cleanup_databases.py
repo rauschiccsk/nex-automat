@@ -15,6 +15,8 @@ import sqlite3
 import sys
 from pathlib import Path
 
+from nex_config.database import DB_PORT, DB_USER, DB_NAME_STAGING
+
 # Určenie root projektu
 SCRIPT_DIR = Path(__file__).parent
 PROJECT_ROOT = SCRIPT_DIR.parent
@@ -25,9 +27,9 @@ SQLITE_DB_PATH = (
 )
 POSTGRES_CONFIG = {
     "host": "localhost",
-    "port": 5432,
-    "database": "supplier_invoice_staging",
-    "user": "postgres",
+    "port": DB_PORT,
+    "database": DB_NAME_STAGING,
+    "user": DB_USER,
 }
 
 

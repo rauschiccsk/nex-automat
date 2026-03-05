@@ -10,6 +10,7 @@ from datetime import datetime, timedelta
 from typing import Any
 
 import httpx
+from nex_config.timeouts import TELEGRAM_LLM_TIMEOUT_SECONDS
 from user_manager import UserManager
 
 from config import BotConfig, settings
@@ -244,7 +245,9 @@ def create_bot_handlers(bot_config: BotConfig, bot_key: str):
             history = get_user_history(user_id)
             context_messages = history["messages"][:-1]
 
-            async with httpx.AsyncClient(timeout=60.0) as client:
+            async with httpx.AsyncClient(
+                timeout=TELEGRAM_LLM_TIMEOUT_SECONDS
+            ) as client:
                 response = await client.post(
                     f"{API_URL}/api/v1/chat",
                     json={

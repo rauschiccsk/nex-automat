@@ -6,6 +6,10 @@ from typing import Any
 
 import httpx
 from config.settings import settings
+from nex_config.timeouts import (
+    LLM_REQUEST_TIMEOUT_SECONDS,
+    HEALTH_CHECK_TIMEOUT_SECONDS,
+)
 
 from api.services.rag_service import RAGService
 
@@ -51,7 +55,7 @@ Otazka: {question}
 Odpoved:"""
 
         try:
-            async with httpx.AsyncClient(timeout=120.0) as client:
+            async with httpx.AsyncClient(timeout=LLM_REQUEST_TIMEOUT_SECONDS) as client:
                 response = await client.post(
                     f"{self.base_url}/api/generate",
                     json={
@@ -89,7 +93,9 @@ Odpoved:"""
     async def health_check(self) -> bool:
         """Check if Ollama is running."""
         try:
-            async with httpx.AsyncClient(timeout=5.0) as client:
+            async with httpx.AsyncClient(
+                timeout=HEALTH_CHECK_TIMEOUT_SECONDS
+            ) as client:
                 response = await client.get(f"{self.base_url}/api/tags")
                 return response.status_code == 200
         except:

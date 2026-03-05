@@ -21,6 +21,8 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
+from nex_config.timeouts import DEPLOY_WAIT_DELAY_SECONDS
+
 # Configuration
 REPO_URL = "https://github.com/rauschiccsk/nex-automat.git"
 SERVICE_NAME = "NEX-Automat-Loader"
@@ -350,7 +352,7 @@ def start_service(deploy_path: Path):
     # Check status
     import time
 
-    time.sleep(3)
+    time.sleep(DEPLOY_WAIT_DELAY_SECONDS)
 
     result = run_cmd(f'"{nssm}" status {SERVICE_NAME}', capture=True)
     status = result.stdout.replace("\x00", "").strip()

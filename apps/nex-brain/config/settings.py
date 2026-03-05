@@ -2,6 +2,9 @@
 NEX Brain Configuration - Multi-tenant support with local RAG.
 """
 
+from nex_config.services import OLLAMA_URL as _OLLAMA_URL
+from nex_config.services import QDRANT_URL as _QDRANT_URL
+from nex_config.services import NEX_BRAIN_API_PORT as _NEX_BRAIN_API_PORT
 from pydantic_settings import BaseSettings
 
 
@@ -14,17 +17,17 @@ class Settings(BaseSettings):
     TENANTS: str = "icc,andros,dev"  # Comma-separated list for multi-tenant
 
     # Qdrant (vector database)
-    QDRANT_URL: str = "http://localhost:6333"
+    QDRANT_URL: str = _QDRANT_URL
 
     # Ollama (LLM + embeddings)
-    OLLAMA_URL: str = "http://localhost:11434"
+    OLLAMA_URL: str = _OLLAMA_URL
     OLLAMA_MODEL: str = "llama3.1:8b"
     EMBEDDING_MODEL: str = "nomic-embed-text"
     EMBEDDING_DIMENSIONS: int = 768
 
     # API
     API_HOST: str = "0.0.0.0"
-    API_PORT: int = 8000
+    API_PORT: int = _NEX_BRAIN_API_PORT
 
     class Config:
         env_file = ".env"

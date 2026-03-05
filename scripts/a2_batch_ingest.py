@@ -12,17 +12,28 @@ from datetime import datetime
 from pathlib import Path
 
 import httpx
+from nex_config.services import QDRANT_URL, OLLAMA_URL
+from nex_config.paths import (
+    KNOWLEDGE_DIR as _KNOWLEDGE_DIR,
+    MANIFEST_PATH as _MANIFEST_PATH,
+)
+from nex_config.rag import RAG_CHUNK_OVERLAP, EMBEDDING_MODEL
+from nex_config.timeouts import (
+    INGEST_EMBED_TIMEOUT_SECONDS,
+    INGEST_UPSERT_TIMEOUT_SECONDS,
+    PREFLIGHT_TIMEOUT_SECONDS,
+)
+from nex_config.limits import EMBEDDING_MAX_CHARS
 
-# Configuration
-QDRANT_URL = "http://localhost:9130"
-OLLAMA_URL = "http://localhost:9132"
-EMBEDDING_MODEL = "nomic-embed-text"
-KNOWLEDGE_DIR = Path("/opt/nex-automat-src/docs/knowledge-import")
-MANIFEST_PATH = Path("/opt/nex-automat-src/docs/manifest.json")
+# Configuration (URLs from nex_config, resolved via env vars)
+KNOWLEDGE_DIR = Path(_KNOWLEDGE_DIR)
+MANIFEST_PATH = Path(_MANIFEST_PATH)
 
 # Chunk settings
-CHUNK_SIZE = 1500  # chars per chunk
-CHUNK_OVERLAP = 200  # overlap between chunks
+# NOTE: Script uses 1500, nex_config.rag.RAG_CHUNK_SIZE is 1000
+# Pending decision on unification — keeping local override
+CHUNK_SIZE = 1500
+CHUNK_OVERLAP = RAG_CHUNK_OVERLAP
 
 
 def resolve_filepath(rel_path: str) -> Path | None:
@@ -52,9 +63,9 @@ def resolve_filepath(rel_path: str) -> Path | None:
 
 async def get_embedding(text: str) -> list[float]:
     """Get embedding from Ollama."""
-    async with httpx.AsyncClient(timeout=120) as client:
-        # Truncate to ~2000 tokens (~8000 chars) for nomic-embed-text
-        truncated = text[:8000]
+    async with httpx.AsyncClient(timeout=INGEST_EMBED_TIMEOUT_SECONDS) as client:
+        # Truncate to ~2000 tokens for nomic-embed-text
+        truncated = text[:EMBEDDING_MAX_CHARS]
         response = await client.post(
             f"{OLLAMA_URL}/api/embeddings",
             json={"model": EMBEDDING_MODEL, "prompt": truncated},
@@ -70,7 +81,7 @@ async def ingest_to_qdrant(collection: str, doc_id: str, text: str, metadata: di
 
     embedding = await get_embedding(text)
 
-    async with httpx.AsyncClient(timeout=30) as client:
+    async with httpx.AsyncClient(timeout=INGEST_UPSERT_TIMEOUT_SECONDS) as client:
         response = await client.put(
             f"{QDRANT_URL}/collections/{collection}/points",
             json={
@@ -153,7 +164,7 @@ async def main():
 
     # Verify Qdrant connectivity
     try:
-        async with httpx.AsyncClient(timeout=10) as client:
+        async with httpx.AsyncClient(timeout=PREFLIGHT_TIMEOUT_SECONDS) as client:
             resp = await client.get(f"{QDRANT_URL}/collections")
             collections = resp.json()["result"]["collections"]
             print(f"Qdrant collections: {[c['name'] for c in collections]}")
@@ -163,7 +174,7 @@ async def main():
 
     # Verify Ollama connectivity
     try:
-        async with httpx.AsyncClient(timeout=10) as client:
+        async with httpx.AsyncClient(timeout=PREFLIGHT_TIMEOUT_SECONDS) as client:
             resp = await client.get(f"{OLLAMA_URL}/api/tags")
             models = [m["name"] for m in resp.json()["models"]]
             print(f"Ollama models: {models}")
@@ -252,7 +263,7 @@ async def main():
     print(f"\n{'─' * 40}")
     print("Collection Statistics")
     print(f"{'─' * 40}")
-    async with httpx.AsyncClient(timeout=10) as client:
+    async with httpx.AsyncClient(timeout=PREFLIGHT_TIMEOUT_SECONDS) as client:
         for tenant in manifest["tenants"]:
             try:
                 resp = await client.get(f"{QDRANT_URL}/collections/{tenant}")

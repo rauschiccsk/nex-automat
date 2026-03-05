@@ -121,9 +121,11 @@ def health():
 if __name__ == "__main__":
     import uvicorn
 
+    from nex_config.services import NEX_MANAGER_API_PORT
+
     print("=" * 60)
     print("  NEX Manager API v0.1.0")
-    print("  Docs: http://localhost:9110/docs")
+    print(f"  Docs: http://localhost:{NEX_MANAGER_API_PORT}/docs")
     print("=" * 60)
 
-    uvicorn.run(app, host="0.0.0.0", port=9110, log_level="info")
+    uvicorn.run(app, host="0.0.0.0", port=NEX_MANAGER_API_PORT, log_level="info")
