@@ -8,13 +8,15 @@ from typing import Any
 
 import pg8000.native
 
+from nex_config.database import DB_PORT
+
 
 @dataclass
 class DatabaseConfig:
     """Database connection configuration."""
 
     host: str = "localhost"
-    port: int = 5432
+    port: int = DB_PORT
     database: str = "nex_automat"
     user: str = "nex"
     password: str = ""
@@ -24,7 +26,7 @@ class DatabaseConfig:
         """Create config from environment variables."""
         return cls(
             host=os.getenv("POSTGRES_HOST", "localhost"),
-            port=int(os.getenv("POSTGRES_PORT", "5432")),
+            port=int(os.getenv("POSTGRES_PORT", str(DB_PORT))),
             database=os.getenv("POSTGRES_DATABASE", "nex_automat"),
             user=os.getenv("POSTGRES_USER", "nex"),
             password=os.getenv("POSTGRES_PASSWORD", ""),
@@ -37,7 +39,7 @@ class DatabaseConnection:
     def __init__(
         self,
         host: str = "localhost",
-        port: int = 5432,
+        port: int = DB_PORT,
         database: str = "nex_automat",
         user: str = "nex",
         password: str | None = None,

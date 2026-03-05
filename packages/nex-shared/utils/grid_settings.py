@@ -11,6 +11,8 @@ import sqlite3
 from datetime import datetime
 from pathlib import Path
 
+from nex_config.paths import NEX_SQLITE_PATH
+
 logger = logging.getLogger(__name__)
 
 
@@ -21,7 +23,7 @@ def get_grid_settings_db_path() -> str:
     Returns:
         str: Absolútna cesta k databáze
     """
-    base_path = Path("C:/NEX/YEARACT/SYSTEM/SQLITE")
+    base_path = Path(NEX_SQLITE_PATH)
     base_path.mkdir(parents=True, exist_ok=True)
     return str(base_path / "grid_settings.db")
 

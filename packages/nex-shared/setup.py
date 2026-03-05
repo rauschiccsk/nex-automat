@@ -28,6 +28,7 @@ setup(
     # Dependencies
     install_requires=[
         "PyQt5>=5.15.0",
+        "nex-config",
     ],
     # Development dependencies
     extras_require={

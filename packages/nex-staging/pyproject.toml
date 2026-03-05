@@ -10,6 +10,7 @@ requires-python = ">=3.9"
 dependencies = [
     "pg8000>=1.30.0",
     "pydantic>=2.0.0",
+    "nex-config",
 ]
 
 [tool.hatch.build.targets.wheel]

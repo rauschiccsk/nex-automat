@@ -8,6 +8,7 @@ from typing import Any
 
 import pg8000.native
 
+from nex_config.database import DB_PORT
 from nex_staging.connection import DatabaseConnection
 
 logger = logging.getLogger(__name__)
@@ -30,7 +31,7 @@ class StagingClient:
     def __init__(
         self,
         host: str = "localhost",
-        port: int = 5432,
+        port: int = DB_PORT,
         database: str = "supplier_invoice_staging",
         user: str = "postgres",
         password: str = "",
@@ -45,7 +46,7 @@ class StagingClient:
         """
         if config:
             self._host = config.get("host", "localhost")
-            self._port = config.get("port", 5432)
+            self._port = config.get("port", DB_PORT)
             self._database = config.get("database", "supplier_invoice_staging")
             self._user = config.get("user", "postgres")
             self._password = config.get("password", "")
