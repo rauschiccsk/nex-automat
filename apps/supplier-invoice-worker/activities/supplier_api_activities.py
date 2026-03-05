@@ -14,6 +14,9 @@ from adapters import MARSOAdapter, SupplierConfig
 from config.config_loader import SupplierConfigError
 from config.config_loader import load_supplier_config as _load_config
 from converters import MARSOToISDOCConverter
+from nex_config.paths import ARCHIVE_PATH
+from nex_config.services import INVOICE_PIPELINE_URL
+from nex_config.timeouts import HTTP_DEFAULT_TIMEOUT_SECONDS
 from temporalio import activity
 
 logger = logging.getLogger(__name__)
@@ -244,7 +247,7 @@ async def archive_raw_data_activity(
     activity.logger.info(f"Archiving invoice {invoice_id} from {supplier_id}")
 
     # Build archive path
-    base_path = Path(os.environ.get("ARCHIVE_PATH", "C:/NEX/YEARACT/ARCHIV"))
+    base_path = Path(ARCHIVE_PATH)
     timestamp = datetime.now()
     archive_dir = (
         base_path
@@ -294,11 +297,9 @@ async def post_isdoc_to_pipeline_activity(
 
     activity.logger.info(f"Posting ISDOC to pipeline: {invoice_id}")
 
-    pipeline_url = os.environ.get(
-        "INVOICE_PIPELINE_URL", "http://localhost:8000/api/v1/invoice"
-    )
+    pipeline_url = INVOICE_PIPELINE_URL
 
-    async with httpx.AsyncClient(timeout=30.0) as client:
+    async with httpx.AsyncClient(timeout=HTTP_DEFAULT_TIMEOUT_SECONDS) as client:
         response = await client.post(
             pipeline_url,
             content=isdoc_xml,

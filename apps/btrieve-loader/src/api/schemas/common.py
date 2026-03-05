@@ -8,6 +8,8 @@ from typing import Generic, TypeVar
 
 from pydantic import BaseModel, Field
 
+from nex_config.limits import DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE
+
 T = TypeVar("T")
 
 
@@ -23,7 +25,7 @@ class PaginationParams(BaseModel):
     """Pagination parameters for list endpoints."""
 
     page: int = Field(default=1, ge=1, description="Page number (1-indexed)")
-    page_size: int = Field(default=50, ge=1, le=1000, description="Items per page")
+    page_size: int = Field(default=DEFAULT_PAGE_SIZE, ge=1, le=MAX_PAGE_SIZE, description="Items per page")
     sort_by: str | None = Field(default=None, description="Field to sort by")
     sort_desc: bool = Field(default=False, description="Sort descending")
 

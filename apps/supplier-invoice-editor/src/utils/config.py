@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Any
 
 import yaml
+from nex_config.paths import NEX_ROOT_PATH, NEX_STORES_PATH
 
 
 class Config:
@@ -63,13 +64,13 @@ class Config:
     @property
     def nex_root_path(self) -> Path:
         """Get NEX Genesis root path"""
-        return Path(self.get("database.nex_genesis.root_path", "C:\\NEX"))
+        return Path(self.get("database.nex_genesis.root_path", NEX_ROOT_PATH))
 
     @property
     def nex_stores_path(self) -> Path:
         """Get NEX Genesis stores path"""
         return Path(
-            self.get("database.nex_genesis.stores_path", "C:\\NEX\\YEARACT\\STORES")
+            self.get("database.nex_genesis.stores_path", NEX_STORES_PATH)
         )
 
 

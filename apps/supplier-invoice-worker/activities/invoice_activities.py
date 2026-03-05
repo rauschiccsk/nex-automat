@@ -5,6 +5,7 @@ from dataclasses import dataclass
 
 import httpx
 from config.settings import get_settings
+from nex_config.timeouts import HTTP_DEFAULT_TIMEOUT_SECONDS
 from temporalio import activity
 
 
@@ -43,7 +44,7 @@ async def upload_invoice_to_api(filename: str, content: bytes) -> UploadResult:
 
     headers = {"X-API-Key": settings.ls_api_key, "Content-Type": "application/json"}
 
-    async with httpx.AsyncClient(timeout=30.0) as client:
+    async with httpx.AsyncClient(timeout=HTTP_DEFAULT_TIMEOUT_SECONDS) as client:
         try:
             response = await client.post(url, json=payload, headers=headers)
 

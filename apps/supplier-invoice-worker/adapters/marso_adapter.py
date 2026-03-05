@@ -13,6 +13,7 @@ from typing import Any
 
 from adapters.base_adapter import BaseSupplierAdapter, SupplierConfig
 from models.unified_invoice import InvoiceItem, InvoiceStatus, UnifiedInvoice
+from nex_config.services import MARSO_WSDL_URL_PROD, MARSO_WSDL_URL_TEST
 from zeep import Client
 from zeep.exceptions import Fault, TransportError
 
@@ -42,8 +43,8 @@ class MARSOAdapter(BaseSupplierAdapter):
     def _get_wsdl_url(self) -> str:
         """Get WSDL URL based on environment."""
         if self._use_test:
-            return "http://195.228.175.10:8082/ComaxWS/Comax.asmx?wsdl"
-        return "http://195.228.175.10:8081/ComaxWS/Comax.asmx?wsdl"
+            return MARSO_WSDL_URL_TEST
+        return MARSO_WSDL_URL_PROD
 
     def _build_request_xml(
         self,

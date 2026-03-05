@@ -1,6 +1,9 @@
 # Temporal Invoice Worker Dependencies
 # Generated: 2024-12-20
 
+# Centralized configuration
+nex-config
+
 # Temporal SDK
 temporalio>=1.4.0
 

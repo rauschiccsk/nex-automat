@@ -14,6 +14,8 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
+from nex_config.timeouts import BACKUP_WRAPPER_TIMEOUT_SECONDS
+
 # Setup paths
 PROJECT_ROOT = Path(__file__).parent.parent
 LOG_DIR = PROJECT_ROOT / "logs"
@@ -105,7 +107,7 @@ def main():
             cwd=str(PROJECT_ROOT),
             capture_output=True,
             text=True,
-            timeout=7200,  # 2 hour timeout
+            timeout=BACKUP_WRAPPER_TIMEOUT_SECONDS,
         )
 
         # Log stdout

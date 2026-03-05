@@ -2,6 +2,10 @@
 
 from functools import lru_cache
 
+from nex_config.database import DB_NAME_INVOICES, DB_PORT
+from nex_config.limits import MAX_RETRIES
+from nex_config.paths import ARCHIVE_PATH
+from nex_config.services import FASTAPI_URL, TEMPORAL_PORT
 from pydantic_settings import BaseSettings
 
 
@@ -10,14 +14,14 @@ class Settings(BaseSettings):
 
     # Temporal Server
     temporal_host: str = "localhost"
-    temporal_port: int = 7233
+    temporal_port: int = TEMPORAL_PORT
     temporal_namespace: str = "default"
     temporal_task_queue: str = "andros-invoice-queue"
 
     # PostgreSQL Database
     postgres_host: str = "localhost"
-    postgres_port: int = 5432
-    postgres_db: str = "nex_invoices"
+    postgres_port: int = DB_PORT
+    postgres_db: str = DB_NAME_INVOICES
     postgres_user: str = "postgres"
     postgres_password: str = ""
 
@@ -25,17 +29,17 @@ class Settings(BaseSettings):
     customer_code: str = "ANDROS"
 
     # FastAPI Invoice Service
-    fastapi_url: str = "http://localhost:8000"
+    fastapi_url: str = FASTAPI_URL
     ls_api_key: str = ""
 
     # Archive path
-    archive_path: str = "C:/NEX/YEARACT/ARCHIV"
+    archive_path: str = ARCHIVE_PATH
 
     # Logging
     log_level: str = "INFO"
 
     # Retry settings
-    max_retries: int = 3
+    max_retries: int = MAX_RETRIES
     retry_delay_seconds: int = 5
 
     @property

@@ -18,3 +18,4 @@ CORS_ALLOWED_ORIGINS = os.getenv(
 # SMTP
 SMTP_HOST = os.getenv("SMTP_HOST", "smtp.gmail.com")
 SMTP_PORT = int(os.getenv("SMTP_PORT", "587"))
+SMTP_SSL_PORT = int(os.getenv("SMTP_SSL_PORT", "465"))

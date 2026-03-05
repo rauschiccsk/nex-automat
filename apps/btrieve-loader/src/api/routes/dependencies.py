@@ -10,6 +10,8 @@ from src.api.schemas.common import PaginationParams
 from src.core.btrieve import get_btrieve_manager
 from src.core.config import settings
 
+from nex_config.limits import DEFAULT_PAGE_SIZE
+
 
 async def verify_api_key(
     x_api_key: Annotated[str | None, Header()] = None,
@@ -41,7 +43,7 @@ async def verify_api_key(
 
 def get_pagination(
     page: Annotated[int, Query(ge=1, description="Page number")] = 1,
-    page_size: Annotated[int, Query(ge=1, le=1000, description="Items per page")] = 50,
+    page_size: Annotated[int, Query(ge=1, le=1000, description="Items per page")] = DEFAULT_PAGE_SIZE,
     sort_by: Annotated[str | None, Query(description="Field to sort by")] = None,
     sort_desc: Annotated[bool, Query(description="Sort descending")] = False,
 ) -> PaginationParams:

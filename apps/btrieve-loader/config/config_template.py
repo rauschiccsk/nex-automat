@@ -323,6 +323,8 @@ Example 3: Multi-location customer:
 import os
 from pathlib import Path
 
+from nex_config.security import SMTP_PORT as _SMTP_PORT_DEFAULT
+
 # ============================================================================
 # CUSTOMER SPECIFIC CONFIGURATION - EDIT THESE VALUES
 # ============================================================================
@@ -412,7 +414,7 @@ LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
 
 # SMTP Configuration for email alerts
 SMTP_HOST = "smtp.gmail.com"
-SMTP_PORT = 587
+SMTP_PORT = _SMTP_PORT_DEFAULT
 SMTP_USER = os.getenv("SMTP_USER", "")
 SMTP_PASSWORD = os.getenv("SMTP_PASSWORD", "")
 SMTP_FROM = "noreply@icc.sk"

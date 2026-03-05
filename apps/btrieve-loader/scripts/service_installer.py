@@ -24,6 +24,8 @@ import shutil
 import subprocess
 import sys
 import time
+
+from nex_config.timeouts import INSTALLER_WAIT_DELAY_SECONDS
 from pathlib import Path
 
 # Configure logging
@@ -317,7 +319,7 @@ class WindowsServiceInstaller:
 
         # Stop service first
         self.stop_service()
-        time.sleep(2)
+        time.sleep(INSTALLER_WAIT_DELAY_SECONDS)
 
         # Remove using NSSM or SC
         if self.nssm_path:
@@ -380,7 +382,7 @@ class WindowsServiceInstaller:
         logger.info("Restarting service...")
 
         if self.stop_service():
-            time.sleep(2)
+            time.sleep(INSTALLER_WAIT_DELAY_SECONDS)
             return self.start_service()
         return False
 

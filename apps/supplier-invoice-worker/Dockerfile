@@ -12,6 +12,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
     && rm -rf /var/lib/apt/lists/*
 
+# Install centralized config package
+COPY packages/nex-config/ /tmp/nex-config/
+RUN pip install --no-cache-dir /tmp/nex-config/ && rm -rf /tmp/nex-config/
+
 # Copy requirements and install Python dependencies
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt

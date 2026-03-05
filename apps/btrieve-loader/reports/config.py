@@ -4,6 +4,9 @@ import os
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from nex_config.database import DB_PORT
+from nex_config.security import SMTP_SSL_PORT
+
 # Load .env from supplier-invoice-worker
 try:
     from dotenv import load_dotenv
@@ -41,7 +44,7 @@ class ReportConfig:
     smtp_host: str = field(
         default_factory=lambda: os.getenv("SMTP_HOST", "smtp.gmail.com")
     )
-    smtp_port: int = field(default_factory=lambda: int(os.getenv("SMTP_PORT", "465")))
+    smtp_port: int = field(default_factory=lambda: int(os.getenv("SMTP_PORT", str(SMTP_SSL_PORT))))
     smtp_user: str = field(default_factory=lambda: os.getenv("SMTP_USER", ""))
     smtp_password: str = field(default_factory=lambda: os.getenv("SMTP_PASSWORD", ""))
     from_email: str = field(default_factory=lambda: os.getenv("SMTP_FROM", ""))
@@ -49,7 +52,7 @@ class ReportConfig:
     # Database
     db_name: str = "supplier_invoice_staging"
     db_host: str = field(default_factory=lambda: os.getenv("DB_HOST", "localhost"))
-    db_port: int = field(default_factory=lambda: int(os.getenv("DB_PORT", "5432")))
+    db_port: int = field(default_factory=lambda: int(os.getenv("DB_PORT", str(DB_PORT))))
     db_user: str = field(default_factory=lambda: os.getenv("DB_USER", "postgres"))
 
     @property

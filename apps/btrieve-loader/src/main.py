@@ -28,6 +28,8 @@ from src.core.btrieve import get_btrieve_manager
 from src.core.config import settings
 from src.utils import config, monitoring
 
+from nex_config.security import CORS_ALLOWED_ORIGINS
+
 # Start time for uptime calculation
 START_TIME = time.time()
 
@@ -94,14 +96,7 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",  # Vite dev server
-        "http://localhost:3000",  # React dev server
-        "http://localhost:8001",  # Self
-        "http://127.0.0.1:5173",
-        "http://127.0.0.1:3000",
-        "http://127.0.0.1:8001",
-    ],
+    allow_origins=CORS_ALLOWED_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

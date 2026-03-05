@@ -10,6 +10,8 @@ from pathlib import Path
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+from nex_config.limits import DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE
+
 
 class Settings(BaseSettings):
     """Application settings loaded from environment variables."""
@@ -55,8 +57,8 @@ class Settings(BaseSettings):
     )
 
     # Pagination defaults
-    default_page_size: int = Field(default=50, description="Default page size")
-    max_page_size: int = Field(default=1000, description="Maximum page size")
+    default_page_size: int = Field(default=DEFAULT_PAGE_SIZE, description="Default page size")
+    max_page_size: int = Field(default=MAX_PAGE_SIZE, description="Maximum page size")
 
     @property
     def btrieve_config(self) -> dict:

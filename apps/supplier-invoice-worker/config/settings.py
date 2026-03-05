@@ -2,6 +2,9 @@
 
 from functools import lru_cache
 
+from nex_config.limits import MAX_RETRIES
+from nex_config.security import SMTP_HOST, SMTP_PORT
+from nex_config.services import FASTAPI_URL, TEMPORAL_PORT
 from pydantic_settings import BaseSettings
 
 
@@ -10,7 +13,7 @@ class Settings(BaseSettings):
 
     # Temporal Server
     temporal_host: str = "localhost"
-    temporal_port: int = 7233
+    temporal_port: int = TEMPORAL_PORT
     temporal_namespace: str = "default"
     temporal_task_queue: str = "supplier-invoice-queue"
 
@@ -22,12 +25,12 @@ class Settings(BaseSettings):
     imap_folder: str = "INBOX"
 
     # FastAPI Invoice Service
-    fastapi_url: str = "http://localhost:8000"
+    fastapi_url: str = FASTAPI_URL
     ls_api_key: str = ""
 
     # SMTP Notifications
-    smtp_host: str = "smtp.gmail.com"
-    smtp_port: int = 587
+    smtp_host: str = SMTP_HOST
+    smtp_port: int = SMTP_PORT
     smtp_user: str = ""
     smtp_password: str = ""
     notify_email: str = ""
@@ -36,7 +39,7 @@ class Settings(BaseSettings):
     log_level: str = "INFO"
 
     # Retry settings
-    max_retries: int = 3
+    max_retries: int = MAX_RETRIES
     retry_delay_seconds: int = 5
 
     @property

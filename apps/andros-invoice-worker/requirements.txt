@@ -1,5 +1,8 @@
 # ANDROS Invoice Worker - Dependencies
 
+# Centralized configuration
+nex-config
+
 # Temporal SDK
 temporalio>=1.4.0
 

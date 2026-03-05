@@ -15,6 +15,8 @@ from pathlib import Path
 
 import yaml
 
+from nex_config.timeouts import BACKUP_TIMEOUT_SECONDS
+
 
 class DatabaseBackup:
     """Handles PostgreSQL database backups with rotation and verification."""
@@ -105,7 +107,7 @@ class DatabaseBackup:
                 pg_dump_cmd,
                 capture_output=True,
                 text=True,
-                timeout=3600,
+                timeout=BACKUP_TIMEOUT_SECONDS,
             )
 
             if result.returncode != 0:

@@ -9,14 +9,17 @@ from pathlib import Path
 import yaml
 from pydantic import BaseModel, Field, field_validator
 from pydantic_settings import BaseSettings
+from nex_config.database import DB_NAME_RAG, DB_PORT
+from nex_config.limits import RAG_BATCH_SIZE
+from nex_config.rag import RAG_CHUNK_OVERLAP, RAG_CHUNK_SIZE, RAG_MIN_CHUNK_SIZE
 
 
 class DatabaseConfig(BaseModel):
     """PostgreSQL database configuration"""
 
     host: str = "localhost"
-    port: int = 5432
-    database: str = "nex_automat_rag"
+    port: int = DB_PORT
+    database: str = DB_NAME_RAG
     user: str = "postgres"
     password: str
     pool_min_size: int = Field(default=2, ge=1)
@@ -35,7 +38,7 @@ class EmbeddingConfig(BaseModel):
 
     model_name: str = "sentence-transformers/all-MiniLM-L6-v2"
     dimension: int = Field(default=384, ge=1)
-    batch_size: int = Field(default=32, ge=1)
+    batch_size: int = Field(default=RAG_BATCH_SIZE, ge=1)
     max_seq_length: int = Field(default=512, ge=1)
     device: str | None = None  # auto-detect if None
     cache_dir: Path | None = None
@@ -53,9 +56,9 @@ class VectorIndexConfig(BaseModel):
 class ChunkingConfig(BaseModel):
     """Document chunking configuration"""
 
-    chunk_size: int = Field(default=1000, ge=100)
-    chunk_overlap: int = Field(default=200, ge=0)
-    min_chunk_size: int = Field(default=100, ge=50)
+    chunk_size: int = Field(default=RAG_CHUNK_SIZE, ge=100)
+    chunk_overlap: int = Field(default=RAG_CHUNK_OVERLAP, ge=0)
+    min_chunk_size: int = Field(default=RAG_MIN_CHUNK_SIZE, ge=50)
 
     @field_validator("chunk_overlap")
     @classmethod

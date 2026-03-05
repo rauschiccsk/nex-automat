@@ -9,6 +9,7 @@ from enum import Enum
 from typing import Any
 
 from models import UnifiedInvoice
+from nex_config.limits import MAX_RETRIES
 
 
 class AuthType(Enum):
@@ -53,7 +54,7 @@ class SupplierConfig:
 
     # Settings
     timeout_seconds: int = 30
-    max_retries: int = 3
+    max_retries: int = MAX_RETRIES
     rate_limit_per_minute: int = 60
 
     # SOAP support

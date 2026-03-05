@@ -10,6 +10,7 @@ Pre vzdialený server: python analyze_ram.py --remote SERVERNAME
 import argparse
 import subprocess
 from datetime import datetime
+from nex_config.timeouts import RAM_ANALYSIS_TIMEOUT_SECONDS
 
 
 def run_powershell(script: str, remote_server: str = None) -> str:
@@ -26,7 +27,7 @@ def run_powershell(script: str, remote_server: str = None) -> str:
             cmd,
             capture_output=True,
             text=True,
-            timeout=60,
+            timeout=RAM_ANALYSIS_TIMEOUT_SECONDS,
             encoding="utf-8",
             errors="replace",
         )

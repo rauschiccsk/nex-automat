@@ -3,6 +3,7 @@ Configuration for Supplier Invoice Editor
 """
 
 import os
+from nex_config.database import DB_NAME_STAGING, DB_PORT
 
 
 class Config:
@@ -15,8 +16,8 @@ class Config:
         # Primary config - flat structure for direct access
         self._config = {
             "host": "localhost",
-            "port": 5432,
-            "database": os.getenv("STAGING_DB_NAME", "supplier_invoice_staging"),
+            "port": DB_PORT,
+            "database": os.getenv("STAGING_DB_NAME", DB_NAME_STAGING),
             "user": "postgres",
             "password": password,
         }
@@ -24,16 +25,16 @@ class Config:
         # Also provide nested structure for compatibility
         self._config["database.postgres"] = {
             "host": "localhost",
-            "port": 5432,
-            "database": os.getenv("STAGING_DB_NAME", "supplier_invoice_staging"),
+            "port": DB_PORT,
+            "database": os.getenv("STAGING_DB_NAME", DB_NAME_STAGING),
             "user": "postgres",
             "password": password,
         }
 
         self._config["postgresql"] = {
             "host": "localhost",
-            "port": 5432,
-            "database": os.getenv("STAGING_DB_NAME", "supplier_invoice_staging"),
+            "port": DB_PORT,
+            "database": os.getenv("STAGING_DB_NAME", DB_NAME_STAGING),
             "user": "postgres",
             "password": password,
         }

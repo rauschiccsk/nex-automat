@@ -9,6 +9,7 @@ from pathlib import Path
 
 import keyboard
 import pyperclip
+from nex_config.timeouts import CHAT_LOADER_DELAY_SECONDS
 
 try:
     from config import SESSION_NOTES_DIR
@@ -48,7 +49,7 @@ class ChatLoader:
 
             # Automatické vloženie po 2 sekundách
             print("⏳ Vkladám za 2 sekundy...")
-            time.sleep(2)
+            time.sleep(CHAT_LOADER_DELAY_SECONDS)
 
             # Simuluj Ctrl+V
             keyboard.send("ctrl+v")

@@ -11,6 +11,12 @@ from typing import Any
 from temporalio import workflow
 from temporalio.common import RetryPolicy
 
+from nex_config.timeouts import (
+    ACTIVITY_TIMEOUT_SECONDS,
+    WORKFLOW_RETRY_INITIAL_SECONDS,
+    WORKFLOW_RETRY_MAX_INTERVAL_SECONDS,
+)
+
 with workflow.unsafe.imports_passed_through():
     from activities.supplier_api_activities import (
         acknowledge_invoice_activity,
@@ -65,15 +71,15 @@ class SupplierAPIInvoiceWorkflow:
 
         # Retry policy for activities
         retry_policy = RetryPolicy(
-            initial_interval=timedelta(seconds=5),
+            initial_interval=timedelta(seconds=WORKFLOW_RETRY_INITIAL_SECONDS),
             backoff_coefficient=2.0,
-            maximum_interval=timedelta(minutes=1),
+            maximum_interval=timedelta(seconds=WORKFLOW_RETRY_MAX_INTERVAL_SECONDS),
             maximum_attempts=3,
         )
 
         # Activity options
         activity_options = {
-            "start_to_close_timeout": timedelta(minutes=5),
+            "start_to_close_timeout": timedelta(seconds=ACTIVITY_TIMEOUT_SECONDS),
             "retry_policy": retry_policy,
         }
 
@@ -226,12 +232,12 @@ class SingleInvoiceWorkflow:
         )
 
         retry_policy = RetryPolicy(
-            initial_interval=timedelta(seconds=5),
+            initial_interval=timedelta(seconds=WORKFLOW_RETRY_INITIAL_SECONDS),
             backoff_coefficient=2.0,
             maximum_attempts=3,
         )
         activity_options = {
-            "start_to_close_timeout": timedelta(minutes=5),
+            "start_to_close_timeout": timedelta(seconds=ACTIVITY_TIMEOUT_SECONDS),
             "retry_policy": retry_policy,
         }
 
