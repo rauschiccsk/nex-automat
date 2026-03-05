@@ -7,7 +7,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements first for caching
+# Copy and install nex-config first (centralized configuration)
+COPY packages/nex-config/ /app/packages/nex-config/
+RUN pip install --no-cache-dir /app/packages/nex-config/
+
+# Copy requirements and install (nex-config line will be skipped as already installed)
 COPY apps/nex-brain/requirements.txt /app/requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 

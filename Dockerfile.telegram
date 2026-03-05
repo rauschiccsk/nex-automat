@@ -5,6 +5,10 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
+# Copy and install nex-config first (centralized configuration)
+COPY packages/nex-config/ /app/packages/nex-config/
+RUN pip install --no-cache-dir /app/packages/nex-config/
+
 # Install dependencies
 COPY apps/nex-brain/telegram/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
