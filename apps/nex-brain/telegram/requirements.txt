@@ -5,4 +5,5 @@ pg8000>=1.30.0
 python-dotenv>=1.0.0
 
 # NEX CONFIG (centralized configuration)
--e ../../../packages/nex-config
+# Local dev: pip install -e ../../../packages/nex-config
+# Docker: installed via Dockerfile COPY + pip install

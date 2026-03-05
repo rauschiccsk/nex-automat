@@ -8,4 +8,5 @@ python-dotenv>=1.0.0
 qdrant-client>=1.7.0
 
 # NEX CONFIG (centralized configuration)
--e ../../packages/nex-config
+# Local dev: pip install -e ../../packages/nex-config
+# Docker: installed via Dockerfile COPY + pip install
