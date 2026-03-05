@@ -57,7 +57,9 @@ class Settings(BaseSettings):
     )
 
     # Pagination defaults
-    default_page_size: int = Field(default=DEFAULT_PAGE_SIZE, description="Default page size")
+    default_page_size: int = Field(
+        default=DEFAULT_PAGE_SIZE, description="Default page size"
+    )
     max_page_size: int = Field(default=MAX_PAGE_SIZE, description="Maximum page size")
 
     @property

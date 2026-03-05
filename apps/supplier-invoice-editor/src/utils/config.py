@@ -69,9 +69,7 @@ class Config:
     @property
     def nex_stores_path(self) -> Path:
         """Get NEX Genesis stores path"""
-        return Path(
-            self.get("database.nex_genesis.stores_path", NEX_STORES_PATH)
-        )
+        return Path(self.get("database.nex_genesis.stores_path", NEX_STORES_PATH))
 
 
 # Singleton instance

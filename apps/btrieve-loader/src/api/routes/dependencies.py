@@ -43,7 +43,9 @@ async def verify_api_key(
 
 def get_pagination(
     page: Annotated[int, Query(ge=1, description="Page number")] = 1,
-    page_size: Annotated[int, Query(ge=1, le=1000, description="Items per page")] = DEFAULT_PAGE_SIZE,
+    page_size: Annotated[
+        int, Query(ge=1, le=1000, description="Items per page")
+    ] = DEFAULT_PAGE_SIZE,
     sort_by: Annotated[str | None, Query(description="Field to sort by")] = None,
     sort_desc: Annotated[bool, Query(description="Sort descending")] = False,
 ) -> PaginationParams:
