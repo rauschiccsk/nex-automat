@@ -144,11 +144,11 @@ class TestOutputStructure:
             _make_pab_record(pab_code="003", name1="Partner C"),
         ]
 
-        # Mock nexdata module
+        # Mock nexdata module — extract() uses BtrieveClient + PABRepository
         mock_nexdata = MagicMock()
-        mock_pab_instance = MagicMock()
-        mock_pab_instance.read_all.return_value = fake_records
-        mock_nexdata.PAB.return_value = mock_pab_instance
+        mock_repo = MagicMock()
+        mock_repo.get_all.return_value = fake_records
+        mock_nexdata.PABRepository.return_value = mock_repo
 
         extractor = PABExtractor(data_dir=str(tmp_path))
 

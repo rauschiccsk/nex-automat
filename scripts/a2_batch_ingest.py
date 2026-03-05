@@ -17,7 +17,7 @@ from nex_config.paths import (
     KNOWLEDGE_DIR as _KNOWLEDGE_DIR,
     MANIFEST_PATH as _MANIFEST_PATH,
 )
-from nex_config.rag import RAG_CHUNK_OVERLAP, EMBEDDING_MODEL
+from nex_config.rag import RAG_CHUNK_OVERLAP, RAG_CHUNK_SIZE, EMBEDDING_MODEL
 from nex_config.timeouts import (
     INGEST_EMBED_TIMEOUT_SECONDS,
     INGEST_UPSERT_TIMEOUT_SECONDS,
@@ -29,10 +29,8 @@ from nex_config.limits import EMBEDDING_MAX_CHARS
 KNOWLEDGE_DIR = Path(_KNOWLEDGE_DIR)
 MANIFEST_PATH = Path(_MANIFEST_PATH)
 
-# Chunk settings
-# NOTE: Script uses 1500, nex_config.rag.RAG_CHUNK_SIZE is 1000
-# Pending decision on unification — keeping local override
-CHUNK_SIZE = 1500
+# Chunk settings (unified from nex_config.rag)
+CHUNK_SIZE = RAG_CHUNK_SIZE
 CHUNK_OVERLAP = RAG_CHUNK_OVERLAP
 
 
