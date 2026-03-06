@@ -341,7 +341,7 @@ def run_migration(
 
 
 def _run_pab_migration(body: MigrationRunRequest, db) -> MigrationRunResponse:
-    """Execute PAB migration: transform JSON → UPSERT into partners."""
+    """Execute PAB migration: transform JSON → INSERT into partner_catalog* tables."""
     from transform.pab_transformer import PABTransformer
     from load.pab_loader import PABLoader
 

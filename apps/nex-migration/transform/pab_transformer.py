@@ -1,10 +1,21 @@
 """
-PABTransformer — validates and normalizes extracted PAB JSON records for PostgreSQL.
+PABTransformer — validates and normalizes extracted PAB JSON records
+for the normalized partner_catalog* schema (6 tables).
 
 Reads data/PAB/PAB.json (produced by PABExtractor on Windows).
-Records in JSON are already field-mapped to target column names by the extractor.
+Records in JSON are already field-mapped to intermediate column names.
 This transformer validates required fields, normalizes types, and returns
-records ready for PABLoader UPSERT into the partners table.
+structured records ready for PABLoader INSERT into partner_catalog* tables.
+
+Output per record:
+{
+    "header": { ... partner_catalog columns ... },
+    "extensions": { ... partner_catalog_extensions columns ... } | None,
+    "addresses": [ { ... partner_catalog_addresses row ... } ],
+    "contacts": [ { ... partner_catalog_contacts row ... } ],
+    "bank_accounts": [ { ... partner_catalog_bank_accounts row ... } ],
+    "texts": [ { ... partner_catalog_texts row ... } ],
+}
 """
 
 import sys
@@ -20,7 +31,7 @@ from transform import transforms
 
 
 class PABTransformer(BaseTransformer):
-    """Validate and normalize extracted PAB records for partners table."""
+    """Validate and normalize extracted PAB records for partner_catalog* tables."""
 
     def __init__(self, data_dir: str = "data"):
         super().__init__(data_dir=data_dir)
@@ -37,21 +48,29 @@ class PABTransformer(BaseTransformer):
 
         results: list[dict] = []
         for idx, raw in enumerate(raw_records):
-            normalized = self._normalize_record(raw, idx)
-            if normalized is not None:
-                results.append(normalized)
+            structured = self._build_structured_record(raw, idx)
+            if structured is not None:
+                results.append(structured)
                 self.stats["valid"] += 1
 
         return results
 
     def validate_record(self, record: dict, index: int) -> bool:
-        """Validate a record. Returns True if valid."""
+        """Validate a raw record. Returns True if valid."""
         source_key = record.get("_source_key", f"idx:{index}")
 
-        # code is required
+        # code is required and must be numeric (used as partner_id)
         code = record.get("code")
         if not code or not str(code).strip():
             self.add_error(index, source_key, "code", "Missing or empty partner code")
+            return False
+
+        try:
+            int(str(code).strip())
+        except (ValueError, TypeError):
+            self.add_error(
+                index, source_key, "code", f"Non-numeric partner code: '{code}'"
+            )
             return False
 
         # name is required
@@ -60,7 +79,7 @@ class PABTransformer(BaseTransformer):
             self.add_error(index, source_key, "name", "Missing or empty partner name")
             return False
 
-        # partner_type must be valid enum value
+        # partner_type must be valid
         partner_type = record.get("partner_type", "customer")
         if partner_type not in ("customer", "supplier", "both"):
             self.add_warning(
@@ -70,17 +89,6 @@ class PABTransformer(BaseTransformer):
                 f"Invalid partner_type '{partner_type}', defaulting to 'customer'",
             )
             record["partner_type"] = "customer"
-
-        # payment_method must be valid enum value
-        payment_method = record.get("payment_method", "transfer")
-        if payment_method not in ("transfer", "cash", "cod"):
-            self.add_warning(
-                index,
-                source_key,
-                "payment_method",
-                f"Invalid payment_method '{payment_method}', defaulting to 'transfer'",
-            )
-            record["payment_method"] = "transfer"
 
         # country_code — must be 2 chars
         country_code = record.get("country_code", "SK")
@@ -99,11 +107,10 @@ class PABTransformer(BaseTransformer):
     # Internal helpers
     # ------------------------------------------------------------------
 
-    # Max field lengths matching PostgreSQL partners table schema
-    _FIELD_MAX_LEN: dict[str, int] = {
-        "code": 30,
-        "name": 100,
-        "partner_type": 20,
+    # Max field lengths matching PostgreSQL partner_catalog schema
+    _HEADER_MAX_LEN: dict[str, int] = {
+        "partner_code": 30,
+        "partner_name": 100,
         "company_id": 20,
         "tax_id": 20,
         "vat_id": 20,
@@ -111,90 +118,198 @@ class PABTransformer(BaseTransformer):
         "city": 100,
         "zip_code": 20,
         "country_code": 2,
-        "phone": 50,
-        "mobile": 50,
-        "email": 255,
-        "website": 255,
-        "contact_person": 255,
-        "payment_method": 50,
-        "currency": 3,
-        "iban": 34,
-        "bank_name": 255,
-        "swift_bic": 11,
     }
 
-    def _truncate_fields(self, record: dict) -> dict:
+    def _truncate_fields(self, record: dict, max_lens: dict[str, int]) -> dict:
         """Truncate string fields to match PostgreSQL column max lengths."""
-        for field, max_len in self._FIELD_MAX_LEN.items():
-            val = record.get(field)
+        for fld, max_len in max_lens.items():
+            val = record.get(fld)
             if isinstance(val, str) and len(val) > max_len:
-                record[field] = val[:max_len]
+                record[fld] = val[:max_len]
         return record
 
-    def _normalize_record(self, raw: dict, index: int) -> dict | None:
-        """Normalize types and validate a single record from PAB.json.
+    def _build_structured_record(self, raw: dict, index: int) -> dict | None:
+        """Build a structured record from a raw PAB.json entry.
 
-        Records in JSON are already field-mapped by PABExtractor.
-        Field names are target column names (code, name, partner_type, etc.).
-        This method ensures correct Python types for PostgreSQL.
+        Returns None if validation fails.
         """
+        if not self.validate_record(raw, index):
+            return None
+
         source_key = raw.get("_source_key", f"idx:{index}")
-
         partner_type = self._normalize_partner_type(raw.get("partner_type"))
+        country_code = self._normalize_country_code(raw.get("country_code", "SK"))
 
-        result: dict = {
-            "_source_key": source_key,
-            # Required string fields
-            "code": transforms.to_str_strip(raw.get("code")),
-            "name": transforms.strip(raw.get("name")),
-            # Partner type — derive booleans from normalized partner_type string
-            "partner_type": partner_type,
-            "is_supplier": partner_type in ("supplier", "both"),
-            "is_customer": partner_type in ("customer", "both"),
-            # Tax / company identifiers
+        # --- Header (partner_catalog) ---
+        header = {
+            "partner_id": int(str(raw["code"]).strip()),
+            "partner_code": transforms.to_str_strip(raw.get("code")),
+            "partner_name": transforms.strip(raw.get("name")),
             "company_id": transforms.strip(raw.get("company_id")),
             "tax_id": transforms.strip(raw.get("tax_id")),
             "vat_id": transforms.strip(raw.get("vat_id")),
             "is_vat_payer": transforms.to_bool(raw.get("is_vat_payer", False)),
-            # Address
+            "is_supplier": partner_type in ("supplier", "both"),
+            "is_customer": partner_type in ("customer", "both"),
             "street": transforms.strip(raw.get("street")),
             "city": transforms.strip(raw.get("city")),
             "zip_code": transforms.strip(raw.get("zip_code")),
-            "country_code": self._normalize_country_code(raw.get("country_code", "SK")),
-            # Contact
-            "phone": transforms.strip(raw.get("phone")),
-            "mobile": transforms.strip(raw.get("mobile")),
-            "email": transforms.strip(raw.get("email")),
-            "website": transforms.strip(raw.get("website")),
-            "contact_person": transforms.strip(raw.get("contact_person")),
-            # Business terms
-            "payment_due_days": transforms.to_int(
-                raw.get("payment_due_days"), default=14
-            ),
-            "credit_limit": transforms.to_decimal(raw.get("credit_limit"), default=0.0),
-            "discount_percent": transforms.to_decimal(
-                raw.get("discount_percent"), default=0.0
-            ),
-            "payment_method": self._normalize_payment_method(
-                raw.get("payment_method", "transfer")
-            ),
-            "currency": transforms.strip(raw.get("currency")) or "EUR",
-            # Bank info
-            "iban": transforms.strip(raw.get("iban")),
-            "bank_name": transforms.strip(raw.get("bank_name")),
-            "swift_bic": transforms.strip(raw.get("swift_bic")),
-            # Notes
-            "notes": self._normalize_notes(raw),
-            # Status
+            "country_code": country_code,
+            "partner_class": "business",
             "is_active": transforms.to_bool(raw.get("is_active", True)),
+            "created_by": "migration",
+            "updated_by": "migration",
+        }
+        self._truncate_fields(header, self._HEADER_MAX_LEN)
+
+        # --- Extensions (partner_catalog_extensions) ---
+        extensions = self._build_extensions(raw)
+
+        # --- Addresses (partner_catalog_addresses) ---
+        addresses = self._build_addresses(raw, country_code)
+
+        # --- Contacts (partner_catalog_contacts) ---
+        contacts = self._build_contacts(raw, country_code)
+
+        # --- Bank Accounts (partner_catalog_bank_accounts) ---
+        bank_accounts = self._build_bank_accounts(raw)
+
+        # --- Texts (partner_catalog_texts) ---
+        texts = self._build_texts(raw)
+
+        return {
+            "_source_key": source_key,
+            "header": header,
+            "extensions": extensions,
+            "addresses": addresses,
+            "contacts": contacts,
+            "bank_accounts": bank_accounts,
+            "texts": texts,
         }
 
-        self._truncate_fields(result)
+    def _build_extensions(self, raw: dict) -> dict | None:
+        """Build extensions dict if any business terms are present."""
+        payment_due_days = transforms.to_int(raw.get("payment_due_days"), default=0)
+        credit_limit = transforms.to_decimal(raw.get("credit_limit"), default=0.0)
+        discount_percent = transforms.to_decimal(
+            raw.get("discount_percent"), default=0.0
+        )
+        currency = transforms.strip(raw.get("currency")) or "EUR"
 
-        if not self.validate_record(result, index):
-            return None
+        # Only create extensions if there's meaningful data
+        has_data = (
+            payment_due_days > 0
+            or credit_limit > 0
+            or discount_percent > 0
+            or currency != "EUR"
+        )
 
-        return result
+        if not has_data:
+            # Still create with defaults — all partners need extensions
+            return {
+                "sale_payment_due_days": 14,
+                "sale_credit_limit": 0,
+                "sale_discount_percent": 0,
+                "sale_currency_code": "EUR",
+                "created_by": "migration",
+                "updated_by": "migration",
+            }
+
+        return {
+            "sale_payment_due_days": payment_due_days if payment_due_days > 0 else 14,
+            "sale_credit_limit": credit_limit,
+            "sale_discount_percent": discount_percent,
+            "sale_currency_code": currency,
+            "created_by": "migration",
+            "updated_by": "migration",
+        }
+
+    def _build_addresses(self, raw: dict, country_code: str) -> list[dict]:
+        """Build address list from raw record."""
+        street = transforms.strip(raw.get("street"))
+        city = transforms.strip(raw.get("city"))
+        zip_code = transforms.strip(raw.get("zip_code"))
+
+        # Only create if at least one address field is present
+        if not any([street, city, zip_code]):
+            return []
+
+        return [
+            {
+                "address_type": "registered",
+                "street": street,
+                "city": city,
+                "zip_code": zip_code,
+                "country_code": country_code,
+                "created_by": "migration",
+                "updated_by": "migration",
+            }
+        ]
+
+    def _build_contacts(self, raw: dict, country_code: str) -> list[dict]:
+        """Build contact list from raw record."""
+        phone = transforms.strip(raw.get("phone"))
+        mobile = transforms.strip(raw.get("mobile"))
+        email = transforms.strip(raw.get("email"))
+        contact_person = transforms.strip(raw.get("contact_person"))
+
+        # Only create if at least one contact field is present
+        if not any([phone, mobile, email, contact_person]):
+            return []
+
+        return [
+            {
+                "contact_type": "main",
+                "last_name": contact_person,
+                "phone_work": phone,
+                "phone_mobile": mobile,
+                "email": email,
+                "country_code": country_code,
+                "created_by": "migration",
+                "updated_by": "migration",
+            }
+        ]
+
+    @staticmethod
+    def _build_bank_accounts(raw: dict) -> list[dict]:
+        """Build bank account list from raw record."""
+        iban = transforms.strip(raw.get("iban"))
+        bank_name = transforms.strip(raw.get("bank_name"))
+        swift_bic = transforms.strip(raw.get("swift_bic"))
+
+        # Only create if at least IBAN or bank_name is present
+        if not any([iban, bank_name]):
+            return []
+
+        return [
+            {
+                "iban_code": iban,
+                "bank_name": bank_name,
+                "swift_code": swift_bic,
+                "is_primary": True,
+                "created_by": "migration",
+                "updated_by": "migration",
+            }
+        ]
+
+    @staticmethod
+    def _build_texts(raw: dict) -> list[dict]:
+        """Build text list from raw record."""
+        notes = raw.get("notes")
+        if notes:
+            sanitized = transforms.strip(notes)
+            if sanitized:
+                return [
+                    {
+                        "text_type": "notes",
+                        "line_number": 1,
+                        "language": "sk",
+                        "text_content": sanitized,
+                        "created_by": "migration",
+                        "updated_by": "migration",
+                    }
+                ]
+        return []
 
     @staticmethod
     def _normalize_partner_type(value) -> str:
@@ -214,25 +329,3 @@ class PABTransformer(BaseTransformer):
         if len(s) == 2:
             return s.upper()
         return transforms.country_code(value, default="SK")
-
-    @staticmethod
-    def _normalize_payment_method(value) -> str:
-        """Ensure payment_method is a valid enum string."""
-        if isinstance(value, str) and value in ("transfer", "cash", "cod"):
-            return value
-        return transforms.map_payment_method(value)
-
-    @staticmethod
-    def _normalize_notes(raw: dict) -> str | None:
-        """Normalize notes — use existing notes field or combine note fields."""
-        # If JSON has pre-combined notes, sanitize and use that
-        notes = raw.get("notes")
-        if notes:
-            sanitized = transforms.strip(notes)
-            if sanitized:
-                return sanitized
-        # Otherwise try to combine from individual fields
-        note = raw.get("note")
-        note2 = raw.get("note2")
-        internal_note = raw.get("internal_note")
-        return transforms.combine_notes(note, note2, internal_note)

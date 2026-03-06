@@ -34,15 +34,12 @@ PAB = MigrationCategory(
         "PACNCT",  # Kontakty partnerov (adresy + osoby)
     ],
     target_tables=[
-        "partners",
-        "partner_bank_accounts",
-        "partner_facilities",
-        "partner_categories",
-        "partner_texts",
-        "partner_contacts",
-        "payment_methods",
-        "transport_methods",
-        "bank_catalog",
+        "partner_catalog",
+        "partner_catalog_extensions",
+        "partner_catalog_addresses",
+        "partner_catalog_contacts",
+        "partner_catalog_bank_accounts",
+        "partner_catalog_texts",
     ],
     dependencies=[],
 )
