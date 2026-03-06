@@ -13,6 +13,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application code
 COPY apps/nex-manager-api/ .
 
+# Copy module registry (YAML — single source of truth for modules)
+COPY module_registry.yaml /app/module_registry.yaml
+
 # Copy nex-migration config (needed by migration router for category definitions)
 # router.py resolves: Path(__file__).parents[2] / "nex-migration" → /nex-migration
 COPY apps/nex-migration/config/ /nex-migration/config/

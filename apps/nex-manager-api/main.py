@@ -3,56 +3,40 @@ NEX Manager API — FastAPI Backend
 ==================================
 
 REST API backend for the NEX Manager Electron desktop application.
-Provides JWT authentication, user management, and module permissions.
+Provides JWT authentication, user management, module permissions,
+and dynamic module registration from module_registry.yaml.
 
-Endpoints:
-- POST /api/auth/login          — authenticate, return JWT tokens
-- POST /api/auth/refresh        — refresh access token
-- GET  /api/auth/me             — current user info + permissions
-- GET  /api/modules             — list all active modules
-- GET  /api/modules/by-category — modules grouped by category
-- GET  /api/modules/{code}      — single module detail
-- PUT  /api/auth/change-password — change own password
-- GET  /api/migration/categories — list migration categories (RBAC: MIG.can_view)
-- GET  /api/migration/categories/{code} — category detail
-- GET  /api/migration/categories/{code}/batches — category batches
-- POST /api/migration/run        — run migration (RBAC: MIG.can_create)
-- GET  /api/migration/stats      — migration statistics
-- GET  /api/migration/mappings/{category} — ID mappings
-- POST /api/migration/categories/{code}/reset — reset category (RBAC: MIG.can_delete)
-- GET  /api/partners            — list partners (RBAC: PAB.can_view)
-- GET  /api/partners/{id}       — partner detail
-- POST /api/partners            — create partner (RBAC: PAB.can_create)
-- PUT  /api/partners/{id}       — update partner (RBAC: PAB.can_edit)
-- GET  /api/pab/partners        — partner catalog list (RBAC: PAB.can_view)
-- GET  /api/pab/partners/{id}   — partner catalog detail + child data
-- POST /api/pab/partners        — create partner catalog (RBAC: PAB.can_create)
-- PUT  /api/pab/partners/{id}   — update partner catalog (RBAC: PAB.can_edit)
-- DELETE /api/pab/partners/{id} — soft delete partner catalog (RBAC: PAB.can_delete)
-- GET  /api/users               — list users (RBAC: USR.can_view)
-- GET  /api/users/{id}          — user detail
-- POST /api/users               — create user (RBAC: USR.can_create)
-- PUT  /api/users/{id}          — update user (RBAC: USR.can_edit)
-- PUT  /api/users/{id}/password — admin password change
-- GET  /health                  — health check
+Infrastructure routers (always loaded):
+- /api/auth/*              — JWT authentication
+- /api/modules/*           — module DB registry (existing)
+- /api/partners/*          — legacy partner endpoints
+- /api/system/modules      — YAML-based module registry endpoint
+- /health                  — health check
+
+Business-module routers (loaded dynamically from module_registry.yaml):
+- Active modules  → router MUST exist (hard error if missing)
+- Planned modules → router may not exist yet (warning logged, skipped)
 """
 
+import logging
 from datetime import datetime
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+# Infrastructure routers — always loaded, not managed by YAML registry
 from auth.router import router as auth_router
-from migration.router import router as migration_router
 from modules.router import router as modules_router
-from pab.router import router as pab_router
 from partners.router import router as partners_router
-from users.router import router as users_router
+from registry.module_registry import get_registry
+from system.router import router as system_router
+
+logger = logging.getLogger(__name__)
 
 app = FastAPI(
     title="NEX Manager API",
     description="Backend API for NEX Manager — authentication, users, permissions",
-    version="0.1.0",
+    version="0.2.0",
 )
 
 # ---------------------------------------------------------------------------
@@ -67,14 +51,32 @@ app.add_middleware(
 )
 
 # ---------------------------------------------------------------------------
-# ROUTERS
+# INFRASTRUCTURE ROUTERS (hardcoded — not business modules)
 # ---------------------------------------------------------------------------
 app.include_router(auth_router)
-app.include_router(migration_router)
 app.include_router(modules_router)
-app.include_router(pab_router)
 app.include_router(partners_router)
-app.include_router(users_router)
+app.include_router(system_router)
+
+# ---------------------------------------------------------------------------
+# DYNAMIC BUSINESS-MODULE ROUTERS (from module_registry.yaml)
+# ---------------------------------------------------------------------------
+_registry = get_registry()
+_loaded_routers: list[str] = []
+
+for mod in _registry.modules:
+    router_obj = _registry.import_router(mod)
+    if router_obj is not None:
+        app.include_router(router_obj)
+        _loaded_routers.append(mod.key)
+        logger.info("Registered router for module '%s' (%s)", mod.key, mod.status)
+
+logger.info(
+    "Dynamic router registration complete: %d/%d loaded (%s)",
+    len(_loaded_routers),
+    len(_registry.modules),
+    ", ".join(_loaded_routers),
+)
 
 
 # ---------------------------------------------------------------------------
@@ -83,10 +85,14 @@ app.include_router(users_router)
 @app.get("/")
 def root():
     """Service information."""
+    registry = get_registry()
     return {
         "service": "NEX Manager API",
-        "version": "0.1.0",
+        "version": "0.2.0",
         "status": "running",
+        "registry_version": registry.version,
+        "modules_loaded": len(_loaded_routers),
+        "modules_total": len(registry.modules),
         "endpoints": {
             "auth_login": "/api/auth/login",
             "auth_refresh": "/api/auth/refresh",
@@ -112,6 +118,7 @@ def root():
             "modules_list": "/api/modules",
             "modules_by_category": "/api/modules/by-category",
             "modules_detail": "/api/modules/{code}",
+            "system_modules": "/api/system/modules",
             "docs": "/docs",
             "health": "/health",
         },
@@ -136,8 +143,9 @@ if __name__ == "__main__":
     from nex_config.services import NEX_MANAGER_API_PORT
 
     print("=" * 60)
-    print("  NEX Manager API v0.1.0")
+    print("  NEX Manager API v0.2.0")
     print(f"  Docs: http://localhost:{NEX_MANAGER_API_PORT}/docs")
+    print(f"  Modules: {len(_loaded_routers)}/{len(_registry.modules)} loaded")
     print("=" * 60)
 
     uvicorn.run(app, host="0.0.0.0", port=NEX_MANAGER_API_PORT, log_level="info")

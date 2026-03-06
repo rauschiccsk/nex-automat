@@ -20,6 +20,9 @@ pg8000>=1.29.0  # Pure Python PostgreSQL driver (32-bit compatible)
 # ENVIRONMENT
 python-dotenv>=1.0.1
 
+# YAML (module registry)
+pyyaml>=6.0
+
 # NEX CONFIG (centralized configuration)
 # Local dev: pip install -e ../../packages/nex-config
 # Docker: installed via Dockerfile COPY + pip install

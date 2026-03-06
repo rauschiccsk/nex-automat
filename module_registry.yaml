@@ -1,0 +1,300 @@
+# =============================================================================
+# NEX Automat — Module Registry (Single Source of Truth)
+# =============================================================================
+# This file defines ALL business and system modules for the NEX Manager
+# platform. Backend uses it for dynamic router registration and the
+# /api/system/modules endpoint. Frontend consumes the endpoint.
+#
+# Status values:
+#   active  — fully implemented, router exists, shown in sidebar
+#   planned — not yet implemented, shown only in admin/planning views
+#
+# Roles: ri = read, ha = edit (handle), shu = admin (schvalovatel)
+# =============================================================================
+
+version: "1.0"
+
+categories:
+  - key: system
+    name: "Syst\u00e9m"
+    order: 1
+  - key: catalogs
+    name: "Katal\u00f3gy"
+    order: 2
+  - key: stock
+    name: "Sklad"
+    order: 3
+  - key: sales
+    name: "Predaj"
+    order: 4
+  - key: purchase
+    name: "N\u00e1kup"
+    order: 5
+  - key: accounting
+    name: "\u00da\u010dtovn\u00edctvo"
+    order: 6
+  - key: pos
+    name: "Poklad\u0148a"
+    order: 7
+
+modules:
+  # ---------------------------------------------------------------------------
+  # SYSTEM (order 100-199)
+  # ---------------------------------------------------------------------------
+  - key: USR
+    name: "Pou\u017e\u00edvatelia"
+    category: system
+    icon: Users
+    order: 100
+    status: active
+    backend_router: "users"
+    frontend_module: "users"
+    roles: [ri, ha, shu]
+
+  - key: MIG
+    name: "Migr\u00e1cia d\u00e1t"
+    category: system
+    icon: Database
+    order: 110
+    status: active
+    backend_router: "migration"
+    frontend_module: "migration"
+    roles: [ri, ha, shu]
+
+  - key: GRP
+    name: "Skupiny pr\u00e1v"
+    category: system
+    icon: Shield
+    order: 120
+    status: planned
+    backend_router: "groups"
+    frontend_module: "groups"
+    roles: [ri, ha, shu]
+
+  - key: SET
+    name: "Nastavenia"
+    category: system
+    icon: Settings
+    order: 130
+    status: planned
+    backend_router: "settings"
+    frontend_module: "settings"
+    roles: [ri, ha, shu]
+
+  - key: AUD
+    name: "Audit log"
+    category: system
+    icon: ScrollText
+    order: 140
+    status: planned
+    backend_router: "audit"
+    frontend_module: "audit"
+    roles: [ri, shu]
+
+  # ---------------------------------------------------------------------------
+  # CATALOGS (order 200-299)
+  # ---------------------------------------------------------------------------
+  - key: PAB
+    name: "Katal\u00f3g partnerov"
+    category: catalogs
+    icon: Building2
+    order: 200
+    status: active
+    backend_router: "pab"
+    frontend_module: "pab"
+    roles: [ri, ha, shu]
+
+  - key: GSC
+    name: "Katal\u00f3g produktov"
+    category: catalogs
+    icon: Package
+    order: 210
+    status: planned
+    backend_router: "gsc"
+    frontend_module: "gsc"
+    roles: [ri, ha, shu]
+
+  # ---------------------------------------------------------------------------
+  # STOCK (order 300-399)
+  # ---------------------------------------------------------------------------
+  - key: STK
+    name: "Skladov\u00e9 karty"
+    category: stock
+    icon: Layers
+    order: 300
+    status: planned
+    backend_router: "stk"
+    frontend_module: "stk"
+    roles: [ri, ha, shu]
+
+  - key: IMB
+    name: "Pr\u00edjemky"
+    category: stock
+    icon: ArrowDownToLine
+    order: 310
+    status: planned
+    backend_router: "imb"
+    frontend_module: "imb"
+    roles: [ri, ha, shu]
+
+  - key: OMB
+    name: "V\u00fddajky"
+    category: stock
+    icon: ArrowUpFromLine
+    order: 320
+    status: planned
+    backend_router: "omb"
+    frontend_module: "omb"
+    roles: [ri, ha, shu]
+
+  - key: PMB
+    name: "Presuny"
+    category: stock
+    icon: ArrowLeftRight
+    order: 330
+    status: planned
+    backend_router: "pmb"
+    frontend_module: "pmb"
+    roles: [ri, ha, shu]
+
+  - key: INV
+    name: "Invent\u00fary"
+    category: stock
+    icon: ClipboardCheck
+    order: 340
+    status: planned
+    backend_router: "inv"
+    frontend_module: "inv"
+    roles: [ri, ha, shu]
+
+  # ---------------------------------------------------------------------------
+  # SALES (order 400-499)
+  # ---------------------------------------------------------------------------
+  - key: ICB
+    name: "Odberateľsk\u00e9 fakt\u00fary"
+    category: sales
+    icon: FileText
+    order: 400
+    status: planned
+    backend_router: "icb"
+    frontend_module: "icb"
+    roles: [ri, ha, shu]
+
+  - key: PON
+    name: "Ponuky"
+    category: sales
+    icon: FileHeart
+    order: 410
+    status: planned
+    backend_router: "pon"
+    frontend_module: "pon"
+    roles: [ri, ha, shu]
+
+  - key: ODB
+    name: "Z\u00e1kazky"
+    category: sales
+    icon: ShoppingCart
+    order: 420
+    status: planned
+    backend_router: "odb"
+    frontend_module: "odb"
+    roles: [ri, ha, shu]
+
+  - key: DOD
+    name: "Dodacie listy"
+    category: sales
+    icon: Truck
+    order: 430
+    status: planned
+    backend_router: "dod"
+    frontend_module: "dod"
+    roles: [ri, ha, shu]
+
+  # ---------------------------------------------------------------------------
+  # PURCHASE (order 500-599)
+  # ---------------------------------------------------------------------------
+  - key: ISB
+    name: "Dodávateľsk\u00e9 fakt\u00fary"
+    category: purchase
+    icon: FileInput
+    order: 500
+    status: planned
+    backend_router: "isb"
+    frontend_module: "isb"
+    roles: [ri, ha, shu]
+
+  - key: OBJ
+    name: "Objedn\u00e1vky"
+    category: purchase
+    icon: ClipboardList
+    order: 510
+    status: planned
+    backend_router: "obj"
+    frontend_module: "obj"
+    roles: [ri, ha, shu]
+
+  # ---------------------------------------------------------------------------
+  # ACCOUNTING (order 600-699)
+  # ---------------------------------------------------------------------------
+  - key: JRN
+    name: "\u00da\u010dtovn\u00fd denn\u00edk"
+    category: accounting
+    icon: BookOpen
+    order: 600
+    status: planned
+    backend_router: "jrn"
+    frontend_module: "jrn"
+    roles: [ri, ha, shu]
+
+  - key: ACT
+    name: "Predvaha"
+    category: accounting
+    icon: Calculator
+    order: 610
+    status: planned
+    backend_router: "act"
+    frontend_module: "act"
+    roles: [ri, shu]
+
+  - key: VTR
+    name: "DPH"
+    category: accounting
+    icon: Receipt
+    order: 620
+    status: planned
+    backend_router: "vtr"
+    frontend_module: "vtr"
+    roles: [ri, shu]
+
+  - key: UCT
+    name: "\u00da\u010dtov\u00e1 osnova"
+    category: accounting
+    icon: ListTree
+    order: 630
+    status: planned
+    backend_router: "uct"
+    frontend_module: "uct"
+    roles: [ri, ha, shu]
+
+  # ---------------------------------------------------------------------------
+  # POS (order 700-799)
+  # ---------------------------------------------------------------------------
+  - key: POK
+    name: "Poklad\u0148a"
+    category: pos
+    icon: Banknote
+    order: 700
+    status: planned
+    backend_router: "pok"
+    frontend_module: "pok"
+    roles: [ri, ha, shu]
+
+  - key: UZV
+    name: "Uz\u00e1vierky"
+    category: pos
+    icon: Lock
+    order: 710
+    status: planned
+    backend_router: "uzv"
+    frontend_module: "uzv"
+    roles: [ri, shu]

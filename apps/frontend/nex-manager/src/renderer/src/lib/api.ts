@@ -77,6 +77,31 @@ export interface ModulesByCategoryResponse {
   total: number
 }
 
+export interface SystemCategory {
+  key: string
+  name: string
+  order: number
+}
+
+export interface SystemModule {
+  key: string
+  name: string
+  category: string
+  icon: string
+  order: number
+  status: 'active' | 'planned'
+  backend_router: string
+  frontend_module: string
+  roles: string[]
+}
+
+export interface SystemModulesResponse {
+  version: string
+  categories: SystemCategory[]
+  modules: SystemModule[]
+  total: number
+}
+
 export interface ApiError {
   status: number
   message: string
@@ -226,6 +251,19 @@ class ApiClient {
   async getModulesByCategory(): Promise<ModuleCategory[]> {
     const data = await this.request<ModulesByCategoryResponse>('/api/modules/by-category')
     return data.categories
+  }
+
+  // ── System endpoints (YAML registry — no auth required) ──
+
+  async getSystemModules(status?: 'active' | 'planned'): Promise<SystemModulesResponse> {
+    const query = new URLSearchParams()
+    if (status) query.set('status', status)
+    const qs = query.toString()
+    return this.request<SystemModulesResponse>(
+      `/api/system/modules${qs ? '?' + qs : ''}`,
+      {},
+      true // skipAuth — public endpoint
+    )
   }
 
   // ── User endpoints ──

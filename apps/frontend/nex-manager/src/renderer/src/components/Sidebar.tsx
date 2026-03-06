@@ -1,76 +1,25 @@
-import { useState, useCallback, useRef, useEffect, type ReactElement } from 'react'
+import { useState, useCallback, useRef, useEffect, useMemo, type ReactElement } from 'react'
 import {
   Star,
   Clock,
   ChevronRight,
   PanelLeftClose,
   PanelLeftOpen,
-  Users,
-  Package,
-  Layers,
-  ArrowDownToLine,
-  ArrowUpFromLine,
-  ArrowLeftRight,
-  ClipboardCheck,
-  FileText,
-  FileHeart,
-  ShoppingCart,
-  Truck,
-  FileInput,
-  ClipboardList,
-  BookOpen,
-  Calculator,
-  Receipt,
-  ListTree,
-  Banknote,
-  Lock,
-  UserCog,
-  Shield,
-  Settings,
-  ScrollText,
-  Database,
-  Building2,
-  type LucideIcon
+  Package
 } from 'lucide-react'
 import { useUiStore } from '@renderer/stores/uiStore'
 import { useModuleStore, type NexModule } from '@renderer/stores/moduleStore'
 import { useTabStore } from '@renderer/stores/tabStore'
+import { useModuleRegistry } from '@renderer/hooks/useModuleRegistry'
+import { ICON_MAP } from '@renderer/lib/iconMap'
 import { cn } from '@renderer/lib/utils'
 import { APP_VERSION } from '@renderer/version'
-
-/** Map DB icon name → Lucide component */
-const ICON_MAP: Record<string, LucideIcon> = {
-  Users,
-  Package,
-  Layers,
-  ArrowDownToLine,
-  ArrowUpFromLine,
-  ArrowLeftRight,
-  ClipboardCheck,
-  FileText,
-  FileHeart,
-  ShoppingCart,
-  Truck,
-  FileInput,
-  ClipboardList,
-  BookOpen,
-  Calculator,
-  Receipt,
-  ListTree,
-  Banknote,
-  Lock,
-  UserCog,
-  Shield,
-  Settings,
-  ScrollText,
-  Database,
-  Building2
-}
 
 const MIN_WIDTH = 48
 const MAX_WIDTH = 300
 
-const CATEGORY_GROUPS: { key: string; label: string }[] = [
+/** Fallback category groups used when registry hasn't loaded yet */
+const FALLBACK_CATEGORY_GROUPS: { key: string; label: string }[] = [
   { key: 'catalogs', label: 'Katalógy' },
   { key: 'stock', label: 'Sklad' },
   { key: 'sales', label: 'Predaj' },
@@ -88,9 +37,21 @@ export default function Sidebar(): ReactElement {
   const { sidebarOpen, toggleSidebar, sidebarWidth, setSidebarWidth, expandedCategories, toggleCategory } = useUiStore()
   const { modules } = useModuleStore()
   const { addTab } = useTabStore()
+  const { categories: registryCategories } = useModuleRegistry()
 
   const [isResizing, setIsResizing] = useState(false)
   const sidebarRef = useRef<HTMLDivElement>(null)
+
+  // Build category groups from registry (dynamic) or fallback (static)
+  const categoryGroups = useMemo(() => {
+    if (registryCategories.length > 0) {
+      return registryCategories
+        .slice()
+        .sort((a, b) => a.order - b.order)
+        .map((c) => ({ key: c.key, label: c.name }))
+    }
+    return FALLBACK_CATEGORY_GROUPS
+  }, [registryCategories])
 
   // Local mock state for favorites and recent (moduleStore lacks these)
   const [favoriteIds] = useState<string[]>(() =>
@@ -228,13 +189,13 @@ export default function Sidebar(): ReactElement {
           </div>
         </section>
 
-        {/* Categories */}
+        {/* Categories — dynamic from YAML registry */}
         {!collapsed && (
           <section>
             <h3 className="text-xs font-semibold uppercase text-gray-400 dark:text-gray-500 mb-1 px-1">
               Kategórie
             </h3>
-            {CATEGORY_GROUPS.map((group) => {
+            {categoryGroups.map((group) => {
               const groupModules = modules.filter(
                 (m) => getModuleCategory(m) === group.key
               )

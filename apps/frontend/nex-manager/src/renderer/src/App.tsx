@@ -13,6 +13,7 @@ import CommandLine from '@renderer/components/CommandLine'
 import InfoPanel from '@renderer/components/InfoPanel'
 import LoginScreen from '@renderer/components/LoginScreen'
 import Toast from '@renderer/components/Toast'
+import { getIcon } from '@renderer/lib/iconMap'
 
 import { useAuthStore } from '@renderer/stores/authStore'
 import { useUiStore } from '@renderer/stores/uiStore'
@@ -155,11 +156,16 @@ function App(): ReactElement {
               ) : activeTab.id === 'MIG' ? (
                 <MigrationDashboard />
               ) : (
-                <MockModule
-                  title={activeTab.label}
-                  description={`Modul ${activeTab.id} \u2014 obsah bude implementovan\u00fd`}
-                  icon={<LayoutDashboard className="h-8 w-8" />}
-                />
+                (() => {
+                  const TabIcon = activeModule?.icon ? getIcon(activeModule.icon) : LayoutDashboard
+                  return (
+                    <MockModule
+                      title={activeTab.label}
+                      description={`Modul ${activeTab.id} \u2014 obsah bude implementovan\u00fd`}
+                      icon={<TabIcon className="h-8 w-8" />}
+                    />
+                  )
+                })()
               )
             ) : (
               <div className="flex flex-col items-center justify-center h-full text-center">
