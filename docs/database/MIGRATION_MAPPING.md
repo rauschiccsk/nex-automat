@@ -346,9 +346,15 @@ CREATE TRIGGER update_{parent}_count
 
 ## KATALÓGY - PARTNERI
 
-### PAB.BTR → partners + 7 súvisiacich tabuliek
+### PAB.BTR → partner_catalog + 5 child tabuliek (NORMALIZED)
 
-**Hlavná tabuľka:** `partners`
+**Hlavná tabuľka:** `partner_catalog` (INTEGER PK = PAB code)
+**ETL pipeline:** `PABTransformer` → structured output → `PABLoader` (pg8000 raw SQL)
+**Migrácia:** Manuálne spúšťaná z MIG modulu (frontend UI)
+**Stav:** ETL pipeline aktualizovaný (Session 14), čaká na manuálne spustenie
+
+> **DÔLEŽITÉ:** Predtým sa dáta zapisovali do flat tabuľky `partners` (UUID PK).
+> Od Session 14 sa zapisujú do normalizovanej `partner_catalog*` schémy (INTEGER PK, 6 tabuliek).
 
 | Btrieve Pole | Typ | PostgreSQL Pole | Typ | Poznámka |
 |--------------|-----|-----------------|-----|----------|
