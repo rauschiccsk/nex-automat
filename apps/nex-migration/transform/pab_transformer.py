@@ -259,7 +259,7 @@ class PABTransformer(BaseTransformer):
 
         return [
             {
-                "contact_type": "main",
+                "contact_type": "person",
                 "last_name": contact_person,
                 "phone_work": phone,
                 "phone_mobile": mobile,

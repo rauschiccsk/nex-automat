@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS migration_id_map (
     source_table VARCHAR(50) NOT NULL,
     source_key VARCHAR(255) NOT NULL,
     target_table VARCHAR(50) NOT NULL,
-    target_id UUID NOT NULL,
+    target_id VARCHAR(255) NOT NULL,
     migrated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
 
     UNIQUE(category, source_table, source_key)

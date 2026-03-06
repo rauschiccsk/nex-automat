@@ -16,9 +16,13 @@ COPY apps/nex-manager-api/ .
 # Copy module registry (YAML — single source of truth for modules)
 COPY module_registry.yaml /app/module_registry.yaml
 
-# Copy nex-migration config (needed by migration router for category definitions)
+# Copy nex-migration modules (needed by migration router for PAB run)
 # router.py resolves: Path(__file__).parents[2] / "nex-migration" → /nex-migration
 COPY apps/nex-migration/config/ /nex-migration/config/
+COPY apps/nex-migration/transform/ /nex-migration/transform/
+COPY apps/nex-migration/load/ /nex-migration/load/
+COPY apps/nex-migration/data/ /nex-migration/data/
+COPY apps/nex-migration/__init__.py /nex-migration/__init__.py
 
 EXPOSE 9110
 
