@@ -9,11 +9,14 @@ import {
   XCircle,
   Clock,
   Lock,
-  BarChart3
+  BarChart3,
+  Play,
+  RefreshCw
 } from 'lucide-react'
 import { cn } from '@renderer/lib/utils'
 import { api, type ApiError } from '@renderer/lib/api'
 import { useToastStore } from '@renderer/stores/toastStore'
+import { useAuthStore } from '@renderer/stores/authStore'
 import CategoryDetail from './CategoryDetail'
 import type {
   MigrationCategory,
@@ -97,13 +100,82 @@ const STATUS_LABELS: Record<string, string> = {
   pending: 'Caka'
 }
 
+// === ConfirmDialog ===
+
+interface ConfirmDialogProps {
+  open: boolean
+  title: string
+  message: string
+  confirmLabel: string
+  onConfirm: () => void
+  onCancel: () => void
+}
+
+function ConfirmDialog({
+  open,
+  title,
+  message,
+  confirmLabel,
+  onConfirm,
+  onCancel
+}: ConfirmDialogProps): ReactElement | null {
+  if (!open) return null
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 p-6 max-w-md w-full mx-4">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">{title}</h3>
+        <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">{message}</p>
+        <div className="flex items-center justify-end gap-3">
+          <button
+            onClick={onCancel}
+            className="px-4 py-2 rounded-lg text-sm font-medium border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+          >
+            Nie
+          </button>
+          <button
+            onClick={onConfirm}
+            className="px-4 py-2 rounded-lg text-sm font-medium bg-green-600 text-white hover:bg-green-700 transition-colors"
+          >
+            {confirmLabel}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// === CategoryCard ===
+
 interface CategoryCardProps {
   category: MigrationCategory
   isSelected: boolean
   onClick: () => void
+  onRunRequest: (code: string) => void
+  runningCode: string | null
+  cardError: string | null
+  canRunMigration: boolean
 }
 
-function CategoryCard({ category, isSelected, onClick }: CategoryCardProps): ReactElement {
+function CategoryCard({
+  category,
+  isSelected,
+  onClick,
+  onRunRequest,
+  runningCode,
+  cardError,
+  canRunMigration
+}: CategoryCardProps): ReactElement {
+  const isRunning = runningCode === category.code || category.status === 'running'
+  const isLocked = !category.can_run && category.status !== 'completed'
+  const unsatisfiedDeps = category.dependencies
+    .filter((d) => !d.is_satisfied)
+    .map((d) => d.code)
+
+  const handleRunClick = (e: React.MouseEvent): void => {
+    e.stopPropagation()
+    onRunRequest(category.code)
+  }
+
   return (
     <button
       onClick={onClick}
@@ -111,7 +183,7 @@ function CategoryCard({ category, isSelected, onClick }: CategoryCardProps): Rea
         'w-full text-left p-3 rounded-lg border-2 transition-all hover:shadow-md',
         STATUS_BORDER[category.status] ?? STATUS_BORDER.pending,
         isSelected && 'ring-2 ring-blue-500 ring-offset-1 dark:ring-offset-gray-900',
-        !category.can_run && category.status === 'pending' && 'opacity-70'
+        isLocked && category.status === 'pending' && 'opacity-70'
       )}
     >
       {/* Header */}
@@ -120,7 +192,7 @@ function CategoryCard({ category, isSelected, onClick }: CategoryCardProps): Rea
           <span className="font-mono text-sm font-bold text-gray-900 dark:text-white">
             {category.code}
           </span>
-          {!category.can_run && category.status === 'pending' && (
+          {isLocked && category.status === 'pending' && (
             <Lock className="h-3.5 w-3.5 text-gray-400 dark:text-gray-500" />
           )}
         </div>
@@ -180,6 +252,50 @@ function CategoryCard({ category, isSelected, onClick }: CategoryCardProps): Rea
           {category.record_count.toLocaleString('sk-SK')} zaznamov
         </div>
       )}
+
+      {/* Error message on card */}
+      {cardError && runningCode === null && (
+        <div className="mt-2 flex items-center gap-1.5 text-xs text-red-600 dark:text-red-400">
+          <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+          <span className="line-clamp-2">{cardError}</span>
+        </div>
+      )}
+
+      {/* Run / Re-run button */}
+      {canRunMigration && (
+        <div className="mt-3 pt-2 border-t border-gray-100 dark:border-gray-700">
+          {isRunning ? (
+            <div className="flex items-center gap-2 text-xs text-blue-600 dark:text-blue-400 font-medium">
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              Prebieha...
+            </div>
+          ) : isLocked && category.status !== 'failed' ? (
+            <div
+              title={`Najprv migruj: ${unsatisfiedDeps.join(', ')}`}
+              className="flex items-center gap-2 text-xs text-gray-400 dark:text-gray-500 cursor-not-allowed"
+            >
+              <Lock className="h-3.5 w-3.5" />
+              <span>Najprv migruj: {unsatisfiedDeps.join(', ')}</span>
+            </div>
+          ) : category.status === 'completed' ? (
+            <button
+              onClick={handleRunClick}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-amber-100 text-amber-700 hover:bg-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:hover:bg-amber-900/50 transition-colors"
+            >
+              <RefreshCw className="h-3.5 w-3.5" />
+              Re-run
+            </button>
+          ) : (
+            <button
+              onClick={handleRunClick}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-green-100 text-green-700 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-400 dark:hover:bg-green-900/50 transition-colors"
+            >
+              <Play className="h-3.5 w-3.5" />
+              Spustit
+            </button>
+          )}
+        </div>
+      )}
     </button>
   )
 }
@@ -191,13 +307,21 @@ interface DependencyLevelProps {
   categories: MigrationCategory[]
   selectedCode: string | null
   onSelect: (code: string) => void
+  onRunRequest: (code: string) => void
+  runningCode: string | null
+  cardErrors: Record<string, string>
+  canRunMigration: boolean
 }
 
 function DependencyLevel({
   level,
   categories,
   selectedCode,
-  onSelect
+  onSelect,
+  onRunRequest,
+  runningCode,
+  cardErrors,
+  canRunMigration
 }: DependencyLevelProps): ReactElement | null {
   if (categories.length === 0) return null
   return (
@@ -212,6 +336,10 @@ function DependencyLevel({
             category={cat}
             isSelected={selectedCode === cat.code}
             onClick={() => onSelect(cat.code)}
+            onRunRequest={onRunRequest}
+            runningCode={runningCode}
+            cardError={cardErrors[cat.code] ?? null}
+            canRunMigration={canRunMigration}
           />
         ))}
       </div>
@@ -223,12 +351,20 @@ function DependencyLevel({
 
 export default function MigrationDashboard(): ReactElement {
   const { addToast } = useToastStore()
+  const { checkPermission } = useAuthStore()
 
   const [categories, setCategories] = useState<MigrationCategory[]>([])
   const [stats, setStats] = useState<MigrationStats | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [selectedCode, setSelectedCode] = useState<string | null>(null)
+
+  // Run migration state
+  const [runningCode, setRunningCode] = useState<string | null>(null)
+  const [confirmCode, setConfirmCode] = useState<string | null>(null)
+  const [cardErrors, setCardErrors] = useState<Record<string, string>>({})
+
+  const canRunMigration = checkPermission('MIG', 'create')
 
   // === Fetch data ===
   const fetchData = useCallback(async (): Promise<void> => {
@@ -255,6 +391,57 @@ export default function MigrationDashboard(): ReactElement {
     void fetchData()
   }, [fetchData])
 
+  // === Run migration ===
+  const handleRunRequest = useCallback((code: string): void => {
+    setCardErrors((prev) => {
+      const next = { ...prev }
+      delete next[code]
+      return next
+    })
+    setConfirmCode(code)
+  }, [])
+
+  const handleRunConfirm = useCallback(async (): Promise<void> => {
+    if (!confirmCode) return
+    const code = confirmCode
+    setConfirmCode(null)
+    setRunningCode(code)
+    setCardErrors((prev) => {
+      const next = { ...prev }
+      delete next[code]
+      return next
+    })
+    try {
+      const res = await api.runMigration({ category: code, dry_run: false })
+      if (res.status === 'completed') {
+        addToast(
+          `${code}: migracia dokoncena — ${res.target_count} zaznamov`,
+          'success'
+        )
+      } else {
+        addToast(`${code}: ${res.message || res.status}`, 'warning')
+      }
+    } catch (err) {
+      const e = err as ApiError
+      const msg = e.message || e.detail || 'Migracia zlyhala'
+      setCardErrors((prev) => ({ ...prev, [code]: msg }))
+      addToast(`${code}: ${msg}`, 'error')
+    } finally {
+      setRunningCode(null)
+      void fetchData()
+    }
+  }, [confirmCode, addToast, fetchData])
+
+  const handleRunCancel = useCallback((): void => {
+    setConfirmCode(null)
+  }, [])
+
+  // Resolve confirm category name for dialog
+  const confirmCategory = useMemo(
+    () => categories.find((c) => c.code === confirmCode) ?? null,
+    [categories, confirmCode]
+  )
+
   // Group categories by level
   const levels = useMemo(() => {
     const map = new Map<number, MigrationCategory[]>()
@@ -280,6 +467,20 @@ export default function MigrationDashboard(): ReactElement {
 
   return (
     <div className="flex flex-col h-full gap-4">
+      {/* Confirmation dialog */}
+      <ConfirmDialog
+        open={confirmCode !== null}
+        title="Spustit migraciu"
+        message={
+          confirmCategory
+            ? `Naozaj chces spustit migraciu kategorie ${confirmCategory.code} (${confirmCategory.name})?`
+            : ''
+        }
+        confirmLabel="Ano, spustit"
+        onConfirm={() => { void handleRunConfirm() }}
+        onCancel={handleRunCancel}
+      />
+
       {/* Toolbar */}
       <div className="flex items-center justify-between shrink-0">
         <h1 className="text-xl font-semibold text-gray-900 dark:text-white flex items-center gap-2">
@@ -329,6 +530,10 @@ export default function MigrationDashboard(): ReactElement {
               categories={cats}
               selectedCode={selectedCode}
               onSelect={handleSelect}
+              onRunRequest={handleRunRequest}
+              runningCode={runningCode}
+              cardErrors={cardErrors}
+              canRunMigration={canRunMigration}
             />
           ))}
 
