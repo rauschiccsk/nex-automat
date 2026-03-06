@@ -11,7 +11,7 @@ These mappings define how JSON keys map to the normalized partner_catalog schema
   - partner_catalog_texts (notes)
 """
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Any
 
 
