@@ -7,7 +7,7 @@ import TabBar from '@renderer/components/TabBar'
 import Breadcrumbs, { type BreadcrumbItem } from '@renderer/components/Breadcrumbs'
 import MockModule from '@renderer/components/MockModule'
 import UserListView from '@renderer/components/modules/users/UserListView'
-import { PartnerListView } from '@renderer/components/modules/partners'
+import { PabModuleView } from '@renderer/components/modules/pab'
 import { MigrationDashboard } from '@renderer/components/modules/migration'
 import CommandLine from '@renderer/components/CommandLine'
 import InfoPanel from '@renderer/components/InfoPanel'
@@ -151,7 +151,7 @@ function App(): ReactElement {
               activeTab.id === 'USR' ? (
                 <UserListView />
               ) : activeTab.id === 'PAB' ? (
-                <PartnerListView />
+                <PabModuleView />
               ) : activeTab.id === 'MIG' ? (
                 <MigrationDashboard />
               ) : (
