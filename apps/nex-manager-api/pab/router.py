@@ -77,6 +77,7 @@ from .schemas import (
     PartnerCatalogListResponse,
     PartnerCatalogResponse,
     PartnerCatalogUpdate,
+    PartnerHistoryResponse,
     TextResponse,
     TextUpsert,
 )
@@ -93,6 +94,7 @@ _PARTNER_COLUMNS = (
     "company_id, tax_id, vat_id, is_vat_payer, "
     "is_supplier, is_customer, "
     "street, city, zip_code, country_code, "
+    "partner_class, modify_id, "
     "bank_account_count, facility_count, "
     "is_active, created_at, updated_at"
 )
@@ -129,11 +131,13 @@ def _row_to_partner(row: tuple) -> PartnerCatalogResponse:
         city=row[11],
         zip_code=row[12],
         country_code=row[13],
-        bank_account_count=row[14],
-        facility_count=row[15],
-        is_active=row[16],
-        created_at=row[17],
-        updated_at=row[18],
+        partner_class=row[14],
+        modify_id=row[15],
+        bank_account_count=row[16],
+        facility_count=row[17],
+        is_active=row[18],
+        created_at=row[19],
+        updated_at=row[20],
     )
 
 
@@ -182,6 +186,9 @@ def list_partners(
     partner_type: Optional[str] = Query(
         None, description="Filter: supplier or customer"
     ),
+    partner_class: Optional[str] = Query(
+        None, description="Filter by partner_class: business, retail, guest"
+    ),
     is_active: Optional[bool] = Query(None, description="Filter by active status"),
     search: Optional[str] = Query(
         None, description="Search in partner_code, partner_name, company_id, city"
@@ -209,6 +216,10 @@ def list_partners(
         conditions.append("is_supplier = true")
     elif partner_type == "customer":
         conditions.append("is_customer = true")
+
+    if partner_class is not None:
+        conditions.append("partner_class = %s")
+        params.append(partner_class)
 
     if is_active is not None:
         conditions.append("is_active = %s")
@@ -465,6 +476,122 @@ def get_partner(
     return partner
 
 
+# ===================================================================
+# PARTNER HISTORY — version endpoints
+# ===================================================================
+
+_HISTORY_COLUMNS = (
+    "history_id, partner_id, modify_id, "
+    "partner_code, partner_name, reg_name, "
+    "company_id, tax_id, vat_id, is_vat_payer, "
+    "is_supplier, is_customer, "
+    "street, city, zip_code, country_code, "
+    "partner_class, "
+    "valid_from, valid_to, changed_by"
+)
+
+
+def _row_to_history(row: tuple) -> PartnerHistoryResponse:
+    """Map a database row to PartnerHistoryResponse."""
+    return PartnerHistoryResponse(
+        history_id=row[0],
+        partner_id=row[1],
+        modify_id=row[2],
+        partner_code=row[3],
+        partner_name=row[4],
+        reg_name=row[5],
+        company_id=row[6],
+        tax_id=row[7],
+        vat_id=row[8],
+        is_vat_payer=row[9],
+        is_supplier=row[10],
+        is_customer=row[11],
+        street=row[12],
+        city=row[13],
+        zip_code=row[14],
+        country_code=row[15],
+        partner_class=row[16],
+        valid_from=row[17],
+        valid_to=row[18],
+        changed_by=row[19],
+    )
+
+
+def get_partner_at_version(cur, partner_id: int, modify_id: int) -> dict | None:
+    """Získaj partnera v konkrétnej verzii z history tabuľky."""
+    cur.execute(
+        f"SELECT {_HISTORY_COLUMNS} FROM partner_catalog_history "
+        "WHERE partner_id = %s AND modify_id = %s",
+        (partner_id, modify_id),
+    )
+    row = cur.fetchone()
+    if not row:
+        return None
+    return _row_to_history(row).model_dump()
+
+
+def get_current_partner_version(cur, partner_id: int) -> dict | None:
+    """Získaj aktuálnu verziu partnera (valid_to IS NULL)."""
+    cur.execute(
+        f"SELECT {_HISTORY_COLUMNS} FROM partner_catalog_history "
+        "WHERE partner_id = %s AND valid_to IS NULL",
+        (partner_id,),
+    )
+    row = cur.fetchone()
+    if not row:
+        return None
+    return _row_to_history(row).model_dump()
+
+
+@router.get(
+    "/partners/{partner_id}/history",
+    response_model=list[PartnerHistoryResponse],
+)
+def list_partner_history(
+    partner_id: int,
+    _current_user=Depends(require_permission("PAB", "can_view")),
+    db=Depends(get_db),
+):
+    """List all versions of a partner (chronological order)."""
+    cur = db.cursor()
+    _ensure_partner_exists(cur, partner_id)
+
+    cur.execute(
+        f"SELECT {_HISTORY_COLUMNS} FROM partner_catalog_history "
+        "WHERE partner_id = %s ORDER BY modify_id ASC",
+        (partner_id,),
+    )
+    return [_row_to_history(r) for r in cur.fetchall()]
+
+
+@router.get(
+    "/partners/{partner_id}/history/{modify_id}",
+    response_model=PartnerHistoryResponse,
+)
+def get_partner_history_version(
+    partner_id: int,
+    modify_id: int,
+    _current_user=Depends(require_permission("PAB", "can_view")),
+    db=Depends(get_db),
+):
+    """Get a specific version of a partner from history."""
+    cur = db.cursor()
+    _ensure_partner_exists(cur, partner_id)
+
+    cur.execute(
+        f"SELECT {_HISTORY_COLUMNS} FROM partner_catalog_history "
+        "WHERE partner_id = %s AND modify_id = %s",
+        (partner_id, modify_id),
+    )
+    row = cur.fetchone()
+    if not row:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Verzia {modify_id} pre partnera {partner_id} neexistuje",
+        )
+    return _row_to_history(row)
+
+
 @router.post(
     "/partners",
     response_model=PartnerCatalogResponse,
@@ -506,12 +633,14 @@ def create_partner(
         "company_id, tax_id, vat_id, is_vat_payer, "
         "is_supplier, is_customer, "
         "street, city, zip_code, country_code, "
+        "partner_class, "
         "is_active, created_by, updated_by"
         f") VALUES ("
         "%s, %s, %s, %s, "
         "%s, %s, %s, %s, "
         "%s, %s, "
         "%s, %s, %s, %s, "
+        "%s, "
         "%s, %s, %s"
         f") RETURNING {_PARTNER_COLUMNS}",
         (
@@ -529,6 +658,7 @@ def create_partner(
             body.city,
             body.zip_code,
             body.country_code,
+            body.partner_class,
             body.is_active,
             current_user["login_name"],
             current_user["login_name"],

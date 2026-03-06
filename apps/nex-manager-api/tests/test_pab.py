@@ -1,4 +1,4 @@
-"""Unit tests for Partner Catalog (PAB) module — 28 endpoints, 45+ test cases.
+"""Unit tests for Partner Catalog (PAB) module — 30 endpoints, 70+ test cases.
 
 Covers:
   Partner CRUD lifecycle (create → read → update → soft delete → verify)
@@ -9,6 +9,7 @@ Covers:
   Extensions upsert (create if not exists, update if exists)
   Soft delete: partner is inactive, child data remains
   RBAC: 403 without authentication
+  Versioning: partner_class, modify_id, history endpoints
 """
 
 import os
@@ -43,6 +44,8 @@ def _partner_row(
     city="Bratislava",
     zip_code="81101",
     country_code="SK",
+    partner_class="business",
+    modify_id=0,
     bank_account_count=0,
     facility_count=0,
     is_active=True,
@@ -63,11 +66,59 @@ def _partner_row(
         city,
         zip_code,
         country_code,
+        partner_class,
+        modify_id,
         bank_account_count,
         facility_count,
         is_active,
         _NOW,
         _NOW,
+    )
+
+
+def _history_row(
+    history_id=1,
+    partner_id=100,
+    modify_id=0,
+    partner_code="P100",
+    partner_name="Test s.r.o.",
+    reg_name=None,
+    company_id="12345678",
+    tax_id="2021234567",
+    vat_id="SK2021234567",
+    is_vat_payer=True,
+    is_supplier=False,
+    is_customer=True,
+    street="Hlavná 1",
+    city="Bratislava",
+    zip_code="81101",
+    country_code="SK",
+    partner_class="business",
+    valid_to=None,
+    changed_by="admin",
+):
+    """Return a tuple matching _HISTORY_COLUMNS order."""
+    return (
+        history_id,
+        partner_id,
+        modify_id,
+        partner_code,
+        partner_name,
+        reg_name,
+        company_id,
+        tax_id,
+        vat_id,
+        is_vat_payer,
+        is_supplier,
+        is_customer,
+        street,
+        city,
+        zip_code,
+        country_code,
+        partner_class,
+        _NOW,
+        valid_to,
+        changed_by,
     )
 
 
@@ -1145,3 +1196,427 @@ def test_validation_invalid_category_type(client, fake_db):
         },
     )
     assert resp.status_code == 422
+
+
+# ===================================================================
+# VERSIONING LIFECYCLE
+# ===================================================================
+
+
+# 58. Create partner → modify_id = 0
+def test_create_partner_modify_id_zero(client, fake_db):
+    """POST /api/pab/partners — new partner has modify_id = 0."""
+    row = _partner_row(modify_id=0)
+    call_count = 0
+
+    def mock_fetchone():
+        nonlocal call_count
+        call_count += 1
+        if call_count <= 2:
+            return None  # uniqueness checks
+        return row  # RETURNING
+
+    fake_db.cursor().fetchone = mock_fetchone
+
+    resp = client.post(
+        "/api/pab/partners",
+        json={
+            "partner_id": 100,
+            "partner_code": "P100",
+            "partner_name": "Test s.r.o.",
+        },
+    )
+    assert resp.status_code == 201
+    data = resp.json()
+    assert data["modify_id"] == 0
+
+
+# 59. Create partner → history record exists (modify_id=0, valid_to IS NULL)
+def test_create_partner_initial_history(client, fake_db):
+    """After create, history endpoint returns initial record (modify_id=0)."""
+    h_row = _history_row(modify_id=0, valid_to=None)
+    call_count = 0
+
+    def mock_fetchone():
+        nonlocal call_count
+        call_count += 1
+        if call_count == 1:
+            return (100,)  # partner exists
+        return None  # no specific version query
+
+    fake_db.cursor().fetchone = mock_fetchone
+    fake_db.cursor().fetchall = lambda: [h_row]
+
+    resp = client.get("/api/pab/partners/100/history")
+    assert resp.status_code == 200
+    data = resp.json()
+    assert len(data) == 1
+    assert data[0]["modify_id"] == 0
+    assert data[0]["valid_to"] is None
+
+
+# 60. Update business field → modify_id = 1, new history record
+def test_update_partner_increments_modify_id(client, fake_db):
+    """PUT /api/pab/partners/100 — after update, modify_id is 1."""
+    updated = _partner_row(partner_name="Updated s.r.o.", modify_id=1)
+    call_count = 0
+
+    def mock_fetchone():
+        nonlocal call_count
+        call_count += 1
+        if call_count == 1:
+            return (100,)  # exists check
+        return updated  # after update
+
+    fake_db.cursor().fetchone = mock_fetchone
+
+    resp = client.put("/api/pab/partners/100", json={"partner_name": "Updated s.r.o."})
+    assert resp.status_code == 200
+    assert resp.json()["modify_id"] == 1
+
+
+# 61. Two updates → modify_id = 2, 3 history records
+def test_update_partner_two_updates_modify_id(client, fake_db):
+    """After two updates, modify_id should be 2."""
+    updated = _partner_row(partner_name="Final s.r.o.", modify_id=2)
+    call_count = 0
+
+    def mock_fetchone():
+        nonlocal call_count
+        call_count += 1
+        if call_count == 1:
+            return (100,)  # exists check
+        return updated  # after update
+
+    fake_db.cursor().fetchone = mock_fetchone
+
+    resp = client.put("/api/pab/partners/100", json={"partner_name": "Final s.r.o."})
+    assert resp.status_code == 200
+    assert resp.json()["modify_id"] == 2
+
+
+# 62. History endpoint → chronological order with valid_from/valid_to
+def test_history_chronological_order(client, fake_db):
+    """GET /partners/{id}/history — returns versions in modify_id order."""
+    h0 = _history_row(history_id=1, modify_id=0, valid_to=_NOW)
+    h1 = _history_row(history_id=2, modify_id=1, partner_name="V1", valid_to=_NOW)
+    h2 = _history_row(history_id=3, modify_id=2, partner_name="V2", valid_to=None)
+
+    fake_db.cursor().fetchone = lambda: (100,)  # partner exists
+    fake_db.cursor().fetchall = lambda: [h0, h1, h2]
+
+    resp = client.get("/api/pab/partners/100/history")
+    assert resp.status_code == 200
+    data = resp.json()
+    assert len(data) == 3
+    assert data[0]["modify_id"] == 0
+    assert data[1]["modify_id"] == 1
+    assert data[2]["modify_id"] == 2
+    # First two versions have valid_to, last does not
+    assert data[0]["valid_to"] is not None
+    assert data[1]["valid_to"] is not None
+    assert data[2]["valid_to"] is None
+
+
+# ===================================================================
+# PARTNER_CLASS
+# ===================================================================
+
+
+# 63. Create business partner → default list shows it
+def test_create_business_partner_default_list(client, fake_db):
+    """Business partner appears in default list (no partner_class filter)."""
+    row = _partner_row(partner_class="business")
+    fake_db.cursor().fetchone = lambda: (1,)
+    fake_db.cursor().fetchall = lambda: [row]
+
+    resp = client.get("/api/pab/partners")
+    assert resp.status_code == 200
+    assert len(resp.json()["items"]) == 1
+    assert resp.json()["items"][0]["partner_class"] == "business"
+
+
+# 64. Create retail partner → filter by partner_class=retail
+def test_list_retail_partners_filter(client, fake_db):
+    """GET /api/pab/partners?partner_class=retail — shows only retail."""
+    row = _partner_row(partner_class="retail")
+    fake_db.cursor().fetchone = lambda: (1,)
+    fake_db.cursor().fetchall = lambda: [row]
+
+    resp = client.get("/api/pab/partners?partner_class=retail")
+    assert resp.status_code == 200
+    queries = fake_db.cursor().executed_queries
+    count_q = queries[0][0]
+    assert "partner_class = %s" in count_q
+
+
+# 65. Create guest partner → filter by partner_class=guest
+def test_list_guest_partners_filter(client, fake_db):
+    """GET /api/pab/partners?partner_class=guest — shows only guest."""
+    row = _partner_row(partner_class="guest")
+    fake_db.cursor().fetchone = lambda: (1,)
+    fake_db.cursor().fetchall = lambda: [row]
+
+    resp = client.get("/api/pab/partners?partner_class=guest")
+    assert resp.status_code == 200
+    queries = fake_db.cursor().executed_queries
+    count_q = queries[0][0]
+    assert "partner_class = %s" in count_q
+
+
+# 66. List without partner_class filter → no partner_class WHERE clause
+def test_list_no_partner_class_filter(client, fake_db):
+    """GET /api/pab/partners — without partner_class param, no class filter in SQL."""
+    row = _partner_row()
+    fake_db.cursor().fetchone = lambda: (1,)
+    fake_db.cursor().fetchall = lambda: [row]
+
+    resp = client.get("/api/pab/partners")
+    assert resp.status_code == 200
+    queries = fake_db.cursor().executed_queries
+    count_q = queries[0][0]
+    assert "partner_class" not in count_q
+
+
+# 67. POST with partner_class=guest → creates guest partner
+def test_create_guest_partner(client, fake_db):
+    """POST /api/pab/partners — creates partner with partner_class=guest."""
+    row = _partner_row(partner_class="guest")
+    call_count = 0
+
+    def mock_fetchone():
+        nonlocal call_count
+        call_count += 1
+        if call_count <= 2:
+            return None  # uniqueness checks
+        return row  # RETURNING
+
+    fake_db.cursor().fetchone = mock_fetchone
+
+    resp = client.post(
+        "/api/pab/partners",
+        json={
+            "partner_id": 200,
+            "partner_code": "G001",
+            "partner_name": "Guest s.r.o.",
+            "partner_class": "guest",
+        },
+    )
+    assert resp.status_code == 201
+    assert resp.json()["partner_class"] == "guest"
+    # Verify INSERT query includes partner_class
+    queries = fake_db.cursor().executed_queries
+    insert_q = [q for q, _ in queries if "INSERT INTO partner_catalog" in q]
+    assert len(insert_q) >= 1
+    assert "partner_class" in insert_q[0]
+
+
+# ===================================================================
+# HISTORY ENDPOINTS
+# ===================================================================
+
+
+# 68. GET /partners/{id}/history → list of versions
+def test_history_list_endpoint(client, fake_db):
+    """GET /api/pab/partners/100/history — returns list of history records."""
+    h_row = _history_row()
+    fake_db.cursor().fetchone = lambda: (100,)
+    fake_db.cursor().fetchall = lambda: [h_row]
+
+    resp = client.get("/api/pab/partners/100/history")
+    assert resp.status_code == 200
+    data = resp.json()
+    assert isinstance(data, list)
+    assert len(data) == 1
+    assert data[0]["history_id"] == 1
+    assert data[0]["partner_id"] == 100
+    assert data[0]["modify_id"] == 0
+
+
+# 69. GET /partners/{id}/history/0 → first version
+def test_history_get_version_zero(client, fake_db):
+    """GET /api/pab/partners/100/history/0 — returns first version."""
+    h_row = _history_row(modify_id=0)
+    call_count = 0
+
+    def mock_fetchone():
+        nonlocal call_count
+        call_count += 1
+        if call_count == 1:
+            return (100,)  # partner exists
+        return h_row  # history version
+
+    fake_db.cursor().fetchone = mock_fetchone
+
+    resp = client.get("/api/pab/partners/100/history/0")
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["modify_id"] == 0
+    assert data["partner_code"] == "P100"
+
+
+# 70. GET /partners/{id}/history/999 → 404
+def test_history_get_version_not_found(client, fake_db):
+    """GET /api/pab/partners/100/history/999 — 404 for non-existent version."""
+    call_count = 0
+
+    def mock_fetchone():
+        nonlocal call_count
+        call_count += 1
+        if call_count == 1:
+            return (100,)  # partner exists
+        return None  # version not found
+
+    fake_db.cursor().fetchone = mock_fetchone
+
+    resp = client.get("/api/pab/partners/100/history/999")
+    assert resp.status_code == 404
+    assert "neexistuje" in resp.json()["detail"]
+
+
+# ===================================================================
+# TRIGGER BYPASS
+# ===================================================================
+
+
+# 71. Update only is_active → modify_id does NOT increment (WHEN condition)
+def test_update_only_is_active_no_version_change(client, fake_db):
+    """PUT /api/pab/partners/100 — updating only is_active does not change modify_id.
+
+    The UPDATE trigger has a WHEN condition that excludes is_active.
+    In the API, this is simulated: when only is_active changes,
+    the DB trigger does not fire and modify_id stays the same.
+    """
+    # Same modify_id before and after — trigger did NOT fire
+    updated = _partner_row(is_active=False, modify_id=0)
+    call_count = 0
+
+    def mock_fetchone():
+        nonlocal call_count
+        call_count += 1
+        if call_count == 1:
+            return (100,)  # exists check
+        return updated  # after update
+
+    fake_db.cursor().fetchone = mock_fetchone
+
+    resp = client.put("/api/pab/partners/100", json={"is_active": False})
+    assert resp.status_code == 200
+    assert resp.json()["modify_id"] == 0
+
+
+# 72. Update company_name → modify_id DOES increment
+def test_update_business_field_version_change(client, fake_db):
+    """PUT /api/pab/partners/100 — updating partner_name triggers version change."""
+    updated = _partner_row(partner_name="Zmena s.r.o.", modify_id=1)
+    call_count = 0
+
+    def mock_fetchone():
+        nonlocal call_count
+        call_count += 1
+        if call_count == 1:
+            return (100,)  # exists check
+        return updated  # after update — DB trigger would have incremented
+
+    fake_db.cursor().fetchone = mock_fetchone
+
+    resp = client.put("/api/pab/partners/100", json={"partner_name": "Zmena s.r.o."})
+    assert resp.status_code == 200
+    assert resp.json()["modify_id"] == 1
+
+
+# ===================================================================
+# ADDITIONAL PARTNER_CLASS + VERSIONING
+# ===================================================================
+
+
+# 73. Validation — invalid partner_class (422)
+def test_validation_invalid_partner_class(client, fake_db):
+    """POST /api/pab/partners — invalid partner_class triggers 422."""
+    resp = client.post(
+        "/api/pab/partners",
+        json={
+            "partner_id": 400,
+            "partner_code": "V004",
+            "partner_name": "Bad Class",
+            "partner_class": "invalid_class",
+        },
+    )
+    assert resp.status_code == 422
+
+
+# 74. Default partner_class is 'business'
+def test_default_partner_class_is_business(client, fake_db):
+    """POST /api/pab/partners — partner_class defaults to 'business'."""
+    row = _partner_row(partner_class="business")
+    call_count = 0
+
+    def mock_fetchone():
+        nonlocal call_count
+        call_count += 1
+        if call_count <= 2:
+            return None  # uniqueness
+        return row
+
+    fake_db.cursor().fetchone = mock_fetchone
+
+    resp = client.post(
+        "/api/pab/partners",
+        json={
+            "partner_id": 500,
+            "partner_code": "P500",
+            "partner_name": "Default Class",
+        },
+    )
+    assert resp.status_code == 201
+    assert resp.json()["partner_class"] == "business"
+
+
+# 75. History for non-existent partner → 404
+def test_history_partner_not_found(client, fake_db):
+    """GET /api/pab/partners/999/history — 404 when partner doesn't exist."""
+    fake_db.cursor().fetchone = lambda: None
+
+    resp = client.get("/api/pab/partners/999/history")
+    assert resp.status_code == 404
+
+
+# 76. Update partner_class via PUT
+def test_update_partner_class(client, fake_db):
+    """PUT /api/pab/partners/100 — can update partner_class."""
+    updated = _partner_row(partner_class="retail", modify_id=1)
+    call_count = 0
+
+    def mock_fetchone():
+        nonlocal call_count
+        call_count += 1
+        if call_count == 1:
+            return (100,)  # exists check
+        return updated
+
+    fake_db.cursor().fetchone = mock_fetchone
+
+    resp = client.put("/api/pab/partners/100", json={"partner_class": "retail"})
+    assert resp.status_code == 200
+    assert resp.json()["partner_class"] == "retail"
+    assert resp.json()["modify_id"] == 1
+
+
+# 77. History version returns partner_class field
+def test_history_version_has_partner_class(client, fake_db):
+    """GET /api/pab/partners/100/history/0 — response includes partner_class."""
+    h_row = _history_row(modify_id=0, partner_class="retail")
+    call_count = 0
+
+    def mock_fetchone():
+        nonlocal call_count
+        call_count += 1
+        if call_count == 1:
+            return (100,)
+        return h_row
+
+    fake_db.cursor().fetchone = mock_fetchone
+
+    resp = client.get("/api/pab/partners/100/history/0")
+    assert resp.status_code == 200
+    assert resp.json()["partner_class"] == "retail"

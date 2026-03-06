@@ -12,6 +12,9 @@ from pydantic import BaseModel, field_validator
 # ---------------------------------------------------------------------------
 
 
+_PARTNER_CLASSES = Literal["business", "retail", "guest"]
+
+
 class PartnerCatalogCreate(BaseModel):
     """Request body for creating a new partner in partner_catalog."""
 
@@ -32,6 +35,8 @@ class PartnerCatalogCreate(BaseModel):
     city: Optional[str] = None
     zip_code: Optional[str] = None
     country_code: str = "SK"
+
+    partner_class: _PARTNER_CLASSES = "business"
 
     is_active: bool = True
 
@@ -96,6 +101,8 @@ class PartnerCatalogUpdate(BaseModel):
     zip_code: Optional[str] = None
     country_code: Optional[str] = None
 
+    partner_class: Optional[_PARTNER_CLASSES] = None
+
     is_active: Optional[bool] = None
 
     @field_validator("partner_name")
@@ -131,6 +138,9 @@ class PartnerCatalogResponse(BaseModel):
     city: str | None = None
     zip_code: str | None = None
     country_code: str | None = None
+
+    partner_class: str = "business"
+    modify_id: int = 0
 
     bank_account_count: int = 0
     facility_count: int = 0
@@ -503,3 +513,39 @@ class FacilityResponse(BaseModel):
     is_active: bool
     created_at: datetime
     updated_at: datetime
+
+
+# ---------------------------------------------------------------------------
+# Partner History (versioning)
+# ---------------------------------------------------------------------------
+
+
+class PartnerHistoryResponse(BaseModel):
+    """Single version record from partner_catalog_history."""
+
+    history_id: int
+    partner_id: int
+    modify_id: int
+
+    partner_code: str
+    partner_name: str
+    reg_name: str | None = None
+
+    company_id: str | None = None
+    tax_id: str | None = None
+    vat_id: str | None = None
+    is_vat_payer: bool
+
+    is_supplier: bool
+    is_customer: bool
+
+    street: str | None = None
+    city: str | None = None
+    zip_code: str | None = None
+    country_code: str | None = None
+
+    partner_class: str = "business"
+
+    valid_from: datetime
+    valid_to: datetime | None = None
+    changed_by: str | None = None
