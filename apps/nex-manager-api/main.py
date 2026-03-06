@@ -24,6 +24,11 @@ Endpoints:
 - GET  /api/partners/{id}       — partner detail
 - POST /api/partners            — create partner (RBAC: PAB.can_create)
 - PUT  /api/partners/{id}       — update partner (RBAC: PAB.can_edit)
+- GET  /api/pab/partners        — partner catalog list (RBAC: PAB.can_view)
+- GET  /api/pab/partners/{id}   — partner catalog detail + child data
+- POST /api/pab/partners        — create partner catalog (RBAC: PAB.can_create)
+- PUT  /api/pab/partners/{id}   — update partner catalog (RBAC: PAB.can_edit)
+- DELETE /api/pab/partners/{id} — soft delete partner catalog (RBAC: PAB.can_delete)
 - GET  /api/users               — list users (RBAC: USR.can_view)
 - GET  /api/users/{id}          — user detail
 - POST /api/users               — create user (RBAC: USR.can_create)
@@ -40,6 +45,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from auth.router import router as auth_router
 from migration.router import router as migration_router
 from modules.router import router as modules_router
+from pab.router import router as pab_router
 from partners.router import router as partners_router
 from users.router import router as users_router
 
@@ -66,6 +72,7 @@ app.add_middleware(
 app.include_router(auth_router)
 app.include_router(migration_router)
 app.include_router(modules_router)
+app.include_router(pab_router)
 app.include_router(partners_router)
 app.include_router(users_router)
 
@@ -94,6 +101,11 @@ def root():
             "partners_detail": "/api/partners/{id}",
             "partners_create": "/api/partners",
             "partners_update": "/api/partners/{id}",
+            "pab_catalog_list": "/api/pab/partners",
+            "pab_catalog_detail": "/api/pab/partners/{id}",
+            "pab_catalog_create": "/api/pab/partners",
+            "pab_catalog_update": "/api/pab/partners/{id}",
+            "pab_catalog_delete": "/api/pab/partners/{id}",
             "migration_categories": "/api/migration/categories",
             "migration_run": "/api/migration/run",
             "migration_stats": "/api/migration/stats",
