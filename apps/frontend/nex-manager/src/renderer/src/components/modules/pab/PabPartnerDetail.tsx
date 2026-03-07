@@ -108,7 +108,7 @@ export default function PabPartnerDetail(): ReactElement {
   }
 
   return (
-    <div className="flex flex-col h-full gap-3">
+    <div data-testid="partner-detail" className="flex flex-col h-full gap-3">
       {/* Header */}
       <div className="flex items-center gap-3 shrink-0">
         <button
@@ -133,6 +133,7 @@ export default function PabPartnerDetail(): ReactElement {
         {TABS.map((tab) => (
           <button
             key={tab.id}
+            data-testid={`tab-${tab.id}`}
             onClick={() => setActiveTab(tab.id)}
             className={cn(
               'px-4 py-2.5 text-sm font-medium border-b-2 transition-colors whitespace-nowrap',

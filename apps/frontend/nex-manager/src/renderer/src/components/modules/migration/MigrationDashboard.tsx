@@ -178,6 +178,7 @@ function CategoryCard({
 
   return (
     <button
+      data-testid={`category-card-${category.code}`}
       onClick={onClick}
       className={cn(
         'w-full text-left p-3 rounded-lg border-2 transition-all hover:shadow-md',
@@ -279,6 +280,7 @@ function CategoryCard({
             </div>
           ) : category.status === 'completed' ? (
             <button
+              data-testid={`run-button-${category.code}`}
               onClick={handleRunClick}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-amber-100 text-amber-700 hover:bg-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:hover:bg-amber-900/50 transition-colors"
             >
@@ -287,6 +289,7 @@ function CategoryCard({
             </button>
           ) : (
             <button
+              data-testid={`run-button-${category.code}`}
               onClick={handleRunClick}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-green-100 text-green-700 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-400 dark:hover:bg-green-900/50 transition-colors"
             >
@@ -466,7 +469,7 @@ export default function MigrationDashboard(): ReactElement {
   )
 
   return (
-    <div className="flex flex-col h-full gap-4">
+    <div data-testid="migration-dashboard" className="flex flex-col h-full gap-4">
       {/* Confirmation dialog */}
       <ConfirmDialog
         open={confirmCode !== null}

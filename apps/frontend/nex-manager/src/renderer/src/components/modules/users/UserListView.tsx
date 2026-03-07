@@ -236,7 +236,7 @@ export default function UserListView(): ReactElement {
           <p className="text-gray-500 dark:text-gray-400">Žiadni používatelia</p>
         </div>
       ) : (
-        <div className="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700">
+        <div data-testid="user-table" className="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700">
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">

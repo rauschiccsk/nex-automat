@@ -137,7 +137,7 @@ export default function PabCreateDialog({
     <>
       <div className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm" onClick={onClose} />
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-xl w-full max-w-3xl max-h-[85vh] flex flex-col">
+        <div data-testid="create-partner-dialog" className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-xl w-full max-w-3xl max-h-[85vh] flex flex-col">
           {/* Header */}
           <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700 shrink-0">
             <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Nový partner</h2>
@@ -155,12 +155,12 @@ export default function PabCreateDialog({
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <label className={labelCls}>ID partnera <span className="text-red-500">*</span></label>
-                <input ref={firstFieldRef} type="number" value={partnerId} onChange={(e) => { setPartnerId(e.target.value); clearFieldError('partner_id') }} disabled={saving} className={inputCls('partner_id')} min={1} />
+                <input ref={firstFieldRef} data-testid="create-partner-id" type="number" value={partnerId} onChange={(e) => { setPartnerId(e.target.value); clearFieldError('partner_id') }} disabled={saving} className={inputCls('partner_id')} min={1} />
                 <FieldError field="partner_id" />
               </div>
               <div className="md:col-span-2">
                 <label className={labelCls}>Názov firmy <span className="text-red-500">*</span></label>
-                <input type="text" value={partnerName} onChange={(e) => { setPartnerName(e.target.value); clearFieldError('partner_name') }} disabled={saving} className={inputCls('partner_name')} maxLength={100} />
+                <input data-testid="create-partner-name" type="text" value={partnerName} onChange={(e) => { setPartnerName(e.target.value); clearFieldError('partner_name') }} disabled={saving} className={inputCls('partner_name')} maxLength={100} />
                 <FieldError field="partner_name" />
               </div>
             </div>
@@ -245,10 +245,10 @@ export default function PabCreateDialog({
 
           {/* Footer */}
           <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-200 dark:border-gray-700 shrink-0">
-            <button type="button" onClick={onClose} disabled={saving} className={cn('px-4 py-2 rounded-lg text-sm font-medium transition-colors border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50')}>
+            <button type="button" data-testid="create-cancel" onClick={onClose} disabled={saving} className={cn('px-4 py-2 rounded-lg text-sm font-medium transition-colors border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50')}>
               Zrušiť
             </button>
-            <button type="button" onClick={(e) => void handleSubmit(e as unknown as FormEvent)} disabled={saving} className={cn('flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed')}>
+            <button type="button" data-testid="create-submit" onClick={(e) => void handleSubmit(e as unknown as FormEvent)} disabled={saving} className={cn('flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed')}>
               {saving && <Loader2 className="h-4 w-4 animate-spin" />}
               Vytvoriť
             </button>

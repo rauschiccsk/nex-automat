@@ -95,6 +95,7 @@ export default function LoginScreen(): ReactElement {
                 <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                 <input
                   id="login-username"
+                  data-testid="username"
                   type="text"
                   value={username}
                   onChange={(e) => { setUsername(e.target.value); setError(null) }}
@@ -133,6 +134,7 @@ export default function LoginScreen(): ReactElement {
                 <input
                   ref={passwordRef}
                   id="login-password"
+                  data-testid="password"
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => { setPassword(e.target.value); setError(null) }}
@@ -175,6 +177,7 @@ export default function LoginScreen(): ReactElement {
             {/* Submit */}
             <button
               type="submit"
+              data-testid="login-button"
               disabled={!isValid || loading}
               className={cn(
                 'w-full flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-medium transition-colors',

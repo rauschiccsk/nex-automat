@@ -424,3 +424,64 @@ jobs:
           } else {
             Write-Host "NEX Manager.exe not found at $exePath — skipping auto-start"
           }
+
+  # ===========================================
+  # E2E Tests (Playwright)
+  # ===========================================
+  e2e-tests:
+    name: E2E Tests
+    runs-on: [self-hosted, ANDROS]
+    needs: [deploy-staging-backend, deploy-staging-electron]
+    if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
+    defaults:
+      run:
+        working-directory: e2e
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install E2E dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install chromium --with-deps
+
+      - name: Wait for staging services
+        run: |
+          echo "Waiting for backend..."
+          for i in $(seq 1 30); do
+            curl -sf http://localhost:9110/api/system/modules > /dev/null && break
+            sleep 2
+          done
+          echo "Backend ready."
+
+      - name: Run E2E tests
+        run: npx playwright test
+        env:
+          E2E_BASE_URL: http://localhost:5173
+          E2E_API_URL: http://localhost:9110
+          E2E_USER_PASSWORD: ${{ secrets.E2E_USER_PASSWORD }}
+          E2E_NAZAR_PASSWORD: ${{ secrets.E2E_NAZAR_PASSWORD }}
+        continue-on-error: true
+
+      - name: Upload E2E report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-report
+          path: e2e/playwright-report/
+          retention-days: 7
+
+      - name: Upload E2E traces
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-traces
+          path: e2e/test-results/
+          retention-days: 3

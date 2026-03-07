@@ -147,7 +147,7 @@ export default function PabBasicTab({ partner, onUpdated, onDeleted }: PabBasicT
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label className={labelCls}>Názov firmy <span className="text-red-500">*</span></label>
-          <input type="text" value={partnerName} onChange={(e) => { setPartnerName(e.target.value); clearFieldError('partner_name') }} disabled={saving || !canEdit} className={inputCls('partner_name')} maxLength={100} />
+          <input data-testid="partner-name" type="text" value={partnerName} onChange={(e) => { setPartnerName(e.target.value); clearFieldError('partner_name') }} disabled={saving || !canEdit} className={inputCls('partner_name')} maxLength={100} />
           <FieldError field="partner_name" />
         </div>
         <div>
@@ -234,6 +234,7 @@ export default function PabBasicTab({ partner, onUpdated, onDeleted }: PabBasicT
             {canDelete && (
               <button
                 type="button"
+                data-testid="delete-button"
                 onClick={() => setShowDeleteConfirm(true)}
                 disabled={saving || deleting}
                 className={cn(
@@ -251,6 +252,7 @@ export default function PabBasicTab({ partner, onUpdated, onDeleted }: PabBasicT
             {canEdit && (
               <button
                 type="submit"
+                data-testid="save-button"
                 disabled={saving}
                 className={cn(
                   'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors',

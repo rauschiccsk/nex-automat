@@ -133,6 +133,7 @@ export default function Sidebar(): ReactElement {
   return (
     <div
       ref={sidebarRef}
+      data-testid="sidebar"
       className="bg-gray-50 dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 h-full flex flex-col relative select-none"
       style={{ width: currentWidth, minWidth: currentWidth }}
     >

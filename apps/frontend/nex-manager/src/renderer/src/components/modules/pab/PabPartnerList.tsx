@@ -107,6 +107,7 @@ export default function PabPartnerList(): ReactElement {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
             <input
               type="text"
+              data-testid="partner-search"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Hľadať partnera..."
@@ -120,6 +121,7 @@ export default function PabPartnerList(): ReactElement {
 
           {/* Partner class filter */}
           <select
+            data-testid="partner-class-filter"
             value={filterPartnerClass}
             onChange={(e) => setFilterPartnerClass(e.target.value as 'business' | 'retail' | 'guest')}
             className={cn(
@@ -154,6 +156,7 @@ export default function PabPartnerList(): ReactElement {
           {/* Create button */}
           {canCreate && (
             <button
+              data-testid="create-partner-button"
               onClick={() => setCreateDialogOpen(true)}
               className={cn(
                 'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors',
@@ -196,12 +199,14 @@ export default function PabPartnerList(): ReactElement {
           <span className="ml-3 text-gray-500 dark:text-gray-400">Načítavam...</span>
         </div>
       ) : (
-        <BaseGrid
-          data={gridData}
-          config={pabGridConfig}
-          onRowDoubleClick={handleRowDoubleClick}
-          className="flex-1 min-h-0"
-        />
+        <div data-testid="partner-grid">
+          <BaseGrid
+            data={gridData}
+            config={pabGridConfig}
+            onRowDoubleClick={handleRowDoubleClick}
+            className="flex-1 min-h-0"
+          />
+        </div>
       )}
 
       {/* Create Dialog */}
