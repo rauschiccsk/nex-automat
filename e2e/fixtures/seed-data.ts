@@ -29,29 +29,34 @@ async function getAuthToken(): Promise<string> {
 export const test = authTest.extend<SeedFixtures>({
   testPartner: async ({}, use) => {
     const token = await getAuthToken()
-    const partnerId = 99900 + Math.floor(Math.random() * 99)
     const partnerName = `E2E_TEST_${Date.now()}`
 
-    // Create test partner via API
-    const createRes = await fetch(`${API_BASE}/api/pab/partners`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({
-        partner_id: partnerId,
-        partner_name: partnerName,
-        partner_class: 'business',
-        is_active: true,
-        is_customer: true,
-        is_supplier: false,
-      }),
-    })
+    // Retry with different IDs on 409 conflict
+    let partnerId = 0
+    let createRes: Response | null = null
+    for (let attempt = 0; attempt < 10; attempt++) {
+      partnerId = 95000 + Math.floor(Math.random() * 999)
+      createRes = await fetch(`${API_BASE}/api/pab/partners`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          partner_id: partnerId,
+          partner_name: partnerName,
+          partner_class: 'business',
+          is_active: true,
+          is_customer: true,
+          is_supplier: false,
+        }),
+      })
+      if (createRes.ok || createRes.status !== 409) break
+    }
 
-    if (!createRes.ok) {
-      const err = await createRes.text()
-      throw new Error(`Failed to create test partner: ${createRes.status} ${err}`)
+    if (!createRes || !createRes.ok) {
+      const err = createRes ? await createRes.text() : 'No response'
+      throw new Error(`Failed to create test partner: ${createRes?.status} ${err}`)
     }
 
     const cleanup = async (): Promise<void> => {
