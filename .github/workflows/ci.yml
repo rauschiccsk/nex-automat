@@ -433,7 +433,7 @@ jobs:
     name: E2E Tests
     runs-on: [self-hosted, ANDROS]
     needs: [deploy-staging-backend, deploy-staging-electron]
-    if: |
+    if: >-
       github.event_name == 'workflow_dispatch' ||
       contains(github.event.head_commit.message, '[e2e]') ||
       github.ref == 'refs/heads/main'
