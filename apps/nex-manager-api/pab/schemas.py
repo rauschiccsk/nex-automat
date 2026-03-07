@@ -19,7 +19,6 @@ class PartnerCatalogCreate(BaseModel):
     """Request body for creating a new partner in partner_catalog."""
 
     partner_id: int
-    partner_code: str
     partner_name: str
     reg_name: Optional[str] = None
 
@@ -39,16 +38,6 @@ class PartnerCatalogCreate(BaseModel):
     partner_class: _PARTNER_CLASSES = "business"
 
     is_active: bool = True
-
-    @field_validator("partner_code")
-    @classmethod
-    def code_valid(cls, v: str) -> str:
-        v = v.strip()
-        if not v:
-            raise ValueError("Kód partnera je povinný")
-        if len(v) > 30:
-            raise ValueError("Kód partnera môže mať maximálne 30 znakov")
-        return v
 
     @field_validator("partner_name")
     @classmethod
@@ -83,7 +72,7 @@ class PartnerCatalogCreate(BaseModel):
 
 
 class PartnerCatalogUpdate(BaseModel):
-    """Request body for updating a partner. partner_id and partner_code are readonly."""
+    """Request body for updating a partner. partner_id is readonly."""
 
     partner_name: Optional[str] = None
     reg_name: Optional[str] = None
@@ -122,7 +111,6 @@ class PartnerCatalogResponse(BaseModel):
     """Partner catalog record returned from API."""
 
     partner_id: int
-    partner_code: str
     partner_name: str
     reg_name: str | None = None
 
@@ -527,7 +515,6 @@ class PartnerHistoryResponse(BaseModel):
     partner_id: int
     modify_id: int
 
-    partner_code: str
     partner_name: str
     reg_name: str | None = None
 

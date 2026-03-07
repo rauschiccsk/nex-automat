@@ -4,7 +4,7 @@ Covers:
   Partner CRUD lifecycle (create → read → update → soft delete → verify)
   Child table CRUD: extensions, addresses, contacts, bank accounts, facilities,
                     categories, texts
-  Validation: duplicate partner_id/code, missing required fields, invalid types
+  Validation: duplicate partner_id, missing required fields, invalid types
   Pagination, sorting, filtering, search
   Extensions upsert (create if not exists, update if exists)
   Soft delete: partner is inactive, child data remains
@@ -31,7 +31,6 @@ _NOW = datetime.now(timezone.utc)
 
 def _partner_row(
     partner_id=100,
-    partner_code="P100",
     partner_name="Test s.r.o.",
     reg_name=None,
     company_id="12345678",
@@ -53,7 +52,6 @@ def _partner_row(
     """Return a tuple matching _PARTNER_COLUMNS order."""
     return (
         partner_id,
-        partner_code,
         partner_name,
         reg_name,
         company_id,
@@ -80,7 +78,6 @@ def _history_row(
     history_id=1,
     partner_id=100,
     modify_id=0,
-    partner_code="P100",
     partner_name="Test s.r.o.",
     reg_name=None,
     company_id="12345678",
@@ -102,7 +99,6 @@ def _history_row(
         history_id,
         partner_id,
         modify_id,
-        partner_code,
         partner_name,
         reg_name,
         company_id,
@@ -263,8 +259,8 @@ def test_create_partner_success(client, fake_db):
     def mock_fetchone():
         nonlocal call_count
         call_count += 1
-        if call_count <= 2:
-            return None  # partner_id + partner_code uniqueness checks
+        if call_count == 1:
+            return None  # partner_id uniqueness check
         return row  # RETURNING
 
     fake_db.cursor().fetchone = mock_fetchone
@@ -273,7 +269,6 @@ def test_create_partner_success(client, fake_db):
         "/api/pab/partners",
         json={
             "partner_id": 100,
-            "partner_code": "P100",
             "partner_name": "Test s.r.o.",
             "company_id": "12345678",
             "is_customer": True,
@@ -282,7 +277,6 @@ def test_create_partner_success(client, fake_db):
     assert resp.status_code == 201
     data = resp.json()
     assert data["partner_id"] == 100
-    assert data["partner_code"] == "P100"
     assert data["is_active"] is True
 
 
@@ -295,7 +289,6 @@ def test_create_partner_duplicate_id(client, fake_db):
         "/api/pab/partners",
         json={
             "partner_id": 100,
-            "partner_code": "P100",
             "partner_name": "Dup Test",
         },
     )
@@ -303,33 +296,7 @@ def test_create_partner_duplicate_id(client, fake_db):
     assert "už existuje" in resp.json()["detail"]
 
 
-# 3. Create partner — duplicate code (409)
-def test_create_partner_duplicate_code(client, fake_db):
-    """POST /api/pab/partners — 409 when partner_code already exists."""
-    call_count = 0
-
-    def mock_fetchone():
-        nonlocal call_count
-        call_count += 1
-        if call_count == 1:
-            return None  # partner_id check
-        return (200,)  # partner_code already exists
-
-    fake_db.cursor().fetchone = mock_fetchone
-
-    resp = client.post(
-        "/api/pab/partners",
-        json={
-            "partner_id": 999,
-            "partner_code": "EXISTING",
-            "partner_name": "Code Dup",
-        },
-    )
-    assert resp.status_code == 409
-    assert "kódom" in resp.json()["detail"]
-
-
-# 4. Create partner — missing required fields (422)
+# 3. Create partner — missing required fields (422)
 def test_create_partner_missing_required(client):
     """POST /api/pab/partners — 422 when required fields missing."""
     resp = client.post("/api/pab/partners", json={"partner_id": 1})
@@ -343,7 +310,6 @@ def test_create_partner_invalid_id(client):
         "/api/pab/partners",
         json={
             "partner_id": 0,
-            "partner_code": "P000",
             "partner_name": "Zero ID",
         },
     )
@@ -353,8 +319,8 @@ def test_create_partner_invalid_id(client):
 # 6. Get partners list — pagination
 def test_list_partners_pagination(client, fake_db):
     """GET /api/pab/partners — returns pagination structure."""
-    r1 = _partner_row(partner_id=1, partner_code="A001")
-    r2 = _partner_row(partner_id=2, partner_code="A002")
+    r1 = _partner_row(partner_id=1)
+    r2 = _partner_row(partner_id=2)
 
     fake_db.cursor().fetchone = lambda: (2,)
     fake_db.cursor().fetchall = lambda: [r1, r2]
@@ -448,7 +414,6 @@ def test_get_partner_detail(client, fake_db):
     assert resp.status_code == 200
     data = resp.json()
     assert data["partner_id"] == 100
-    assert data["partner_code"] == "P100"
     assert "extensions" in data
     assert "addresses" in data
     assert "contacts" in data
@@ -1112,7 +1077,6 @@ def test_validation_company_id_digits(client):
         "/api/pab/partners",
         json={
             "partner_id": 300,
-            "partner_code": "V001",
             "partner_name": "ICO Test",
             "company_id": "ABC-not-digits",
         },
@@ -1127,7 +1091,6 @@ def test_validation_name_too_long(client):
         "/api/pab/partners",
         json={
             "partner_id": 301,
-            "partner_code": "V002",
             "partner_name": "A" * 101,
         },
     )
@@ -1212,8 +1175,8 @@ def test_create_partner_modify_id_zero(client, fake_db):
     def mock_fetchone():
         nonlocal call_count
         call_count += 1
-        if call_count <= 2:
-            return None  # uniqueness checks
+        if call_count == 1:
+            return None  # partner_id uniqueness check
         return row  # RETURNING
 
     fake_db.cursor().fetchone = mock_fetchone
@@ -1222,7 +1185,6 @@ def test_create_partner_modify_id_zero(client, fake_db):
         "/api/pab/partners",
         json={
             "partner_id": 100,
-            "partner_code": "P100",
             "partner_name": "Test s.r.o.",
         },
     )
@@ -1387,8 +1349,8 @@ def test_create_guest_partner(client, fake_db):
     def mock_fetchone():
         nonlocal call_count
         call_count += 1
-        if call_count <= 2:
-            return None  # uniqueness checks
+        if call_count == 1:
+            return None  # partner_id uniqueness check
         return row  # RETURNING
 
     fake_db.cursor().fetchone = mock_fetchone
@@ -1397,7 +1359,6 @@ def test_create_guest_partner(client, fake_db):
         "/api/pab/partners",
         json={
             "partner_id": 200,
-            "partner_code": "G001",
             "partner_name": "Guest s.r.o.",
             "partner_class": "guest",
         },
@@ -1452,7 +1413,7 @@ def test_history_get_version_zero(client, fake_db):
     assert resp.status_code == 200
     data = resp.json()
     assert data["modify_id"] == 0
-    assert data["partner_code"] == "P100"
+    assert data["partner_name"] == "Test s.r.o."
 
 
 # 70. GET /partners/{id}/history/999 → 404
@@ -1537,7 +1498,6 @@ def test_validation_invalid_partner_class(client, fake_db):
         "/api/pab/partners",
         json={
             "partner_id": 400,
-            "partner_code": "V004",
             "partner_name": "Bad Class",
             "partner_class": "invalid_class",
         },
@@ -1554,8 +1514,8 @@ def test_default_partner_class_is_business(client, fake_db):
     def mock_fetchone():
         nonlocal call_count
         call_count += 1
-        if call_count <= 2:
-            return None  # uniqueness
+        if call_count == 1:
+            return None  # partner_id uniqueness check
         return row
 
     fake_db.cursor().fetchone = mock_fetchone
@@ -1564,7 +1524,6 @@ def test_default_partner_class_is_business(client, fake_db):
         "/api/pab/partners",
         json={
             "partner_id": 500,
-            "partner_code": "P500",
             "partner_name": "Default Class",
         },
     )

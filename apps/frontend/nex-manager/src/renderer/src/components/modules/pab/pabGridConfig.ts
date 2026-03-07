@@ -7,7 +7,6 @@ export const pabGridConfig: GridConfig<PartnerCatalog> = {
   defaultRowHeight: 28,
   columns: [
     { id: 'partner_id', header: 'ID', accessorKey: 'partner_id', type: 'integer', size: 70, visible: true },
-    { id: 'partner_code', header: 'Kód', accessorKey: 'partner_code', type: 'text', size: 100, visible: true },
     { id: 'partner_name', header: 'Názov firmy', accessorKey: 'partner_name', type: 'text', size: 250, visible: true },
     { id: 'company_id', header: 'IČO', accessorKey: 'company_id', type: 'text', size: 120, visible: true },
     { id: 'tax_id', header: 'DIČ', accessorKey: 'tax_id', type: 'text', size: 120, visible: false },

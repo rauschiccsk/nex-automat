@@ -35,12 +35,6 @@ PAB_HEADER_MAPPINGS: list[FieldMapping] = [
         transform="to_int",
     ),
     FieldMapping(
-        source_field="code",
-        target_field="partner_code",
-        required=True,
-        transform="to_str_strip",
-    ),
-    FieldMapping(
         source_field="name",
         target_field="partner_name",
         required=True,

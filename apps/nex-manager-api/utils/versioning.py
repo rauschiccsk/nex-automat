@@ -6,7 +6,7 @@ Uses pg8000 cursor (synchronous) — consistent with the rest of the codebase.
 
 _HISTORY_COLUMNS = (
     "history_id, partner_id, modify_id, "
-    "partner_code, partner_name, reg_name, "
+    "partner_name, reg_name, "
     "company_id, tax_id, vat_id, is_vat_payer, "
     "is_supplier, is_customer, "
     "street, city, zip_code, country_code, "
@@ -21,7 +21,6 @@ def _row_to_dict(row: tuple) -> dict:
         "history_id",
         "partner_id",
         "modify_id",
-        "partner_code",
         "partner_name",
         "reg_name",
         "company_id",

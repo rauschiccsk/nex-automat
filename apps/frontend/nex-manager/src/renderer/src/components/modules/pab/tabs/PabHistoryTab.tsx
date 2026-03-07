@@ -87,7 +87,6 @@ export default function PabHistoryTab({ partnerId }: PabHistoryTabProps): ReactE
             </button>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div><span className={labelCls}>Kód</span><p className={valueCls}>{selectedVersion.partner_code}</p></div>
             <div><span className={labelCls}>Názov</span><p className={valueCls}>{selectedVersion.partner_name}</p></div>
             <div><span className={labelCls}>Reg. názov</span><p className={valueCls}>{selectedVersion.reg_name ?? '—'}</p></div>
             <div><span className={labelCls}>Trieda</span><p className={valueCls}>{selectedVersion.partner_class}</p></div>

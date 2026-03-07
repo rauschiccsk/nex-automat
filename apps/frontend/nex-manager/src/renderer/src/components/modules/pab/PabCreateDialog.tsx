@@ -1,4 +1,4 @@
-import { useState, useCallback, type ReactElement, type FormEvent } from 'react'
+import { useState, useCallback, useRef, useEffect, type ReactElement, type FormEvent } from 'react'
 import { X, Loader2 } from 'lucide-react'
 import { cn } from '@renderer/lib/utils'
 import { api, type ApiError } from '@renderer/lib/api'
@@ -19,7 +19,6 @@ export default function PabCreateDialog({
   const { addToast } = useToastStore()
 
   const [partnerId, setPartnerId] = useState('')
-  const [partnerCode, setPartnerCode] = useState('')
   const [partnerName, setPartnerName] = useState('')
   const [regName, setRegName] = useState('')
   const [companyId, setCompanyId] = useState('')
@@ -37,6 +36,16 @@ export default function PabCreateDialog({
 
   const [saving, setSaving] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
+  const firstFieldRef = useRef<HTMLInputElement>(null)
+
+  // Auto-focus first field when dialog opens
+  useEffect(() => {
+    if (open) {
+      // Small delay to ensure dialog is rendered
+      const timer = setTimeout(() => firstFieldRef.current?.focus(), 50)
+      return () => clearTimeout(timer)
+    }
+  }, [open])
 
   const validate = useCallback((): boolean => {
     const errs: Record<string, string> = {}
@@ -44,8 +53,6 @@ export default function PabCreateDialog({
     if (!partnerId.trim() || isNaN(id) || id <= 0) {
       errs.partner_id = 'ID partnera musí byť kladné číslo'
     }
-    if (!partnerCode.trim()) errs.partner_code = 'Kód partnera je povinný'
-    if (partnerCode.length > 30) errs.partner_code = 'Kód partnera max 30 znakov'
     if (!partnerName.trim()) errs.partner_name = 'Názov partnera je povinný'
     if (partnerName.length > 100) errs.partner_name = 'Názov partnera max 100 znakov'
     if (companyId.trim() && !/^\d+$/.test(companyId.trim())) {
@@ -53,7 +60,7 @@ export default function PabCreateDialog({
     }
     setErrors(errs)
     return Object.keys(errs).length === 0
-  }, [partnerId, partnerCode, partnerName, companyId])
+  }, [partnerId, partnerName, companyId])
 
   const handleSubmit = useCallback(
     async (e: FormEvent): Promise<void> => {
@@ -64,7 +71,6 @@ export default function PabCreateDialog({
       try {
         const payload: PartnerCatalogCreate = {
           partner_id: parseInt(partnerId, 10),
-          partner_code: partnerCode.trim(),
           partner_name: partnerName.trim(),
           reg_name: regName.trim() || undefined,
           company_id: companyId.trim() || undefined,
@@ -82,7 +88,7 @@ export default function PabCreateDialog({
         }
 
         await api.createPabPartner(payload)
-        addToast(`Partner ${partnerCode} bol úspešne vytvorený`, 'success')
+        addToast(`Partner ${partnerId} bol úspešne vytvorený`, 'success')
         onCreated()
       } catch (err) {
         const e = err as ApiError
@@ -97,7 +103,7 @@ export default function PabCreateDialog({
       }
     },
     [
-      validate, partnerId, partnerCode, partnerName, regName,
+      validate, partnerId, partnerName, regName,
       companyId, taxId, vatId, isVatPayer, isSupplier, isCustomer,
       street, city, zipCode, countryCode, partnerClass, isActive,
       onCreated, addToast
@@ -144,18 +150,13 @@ export default function PabCreateDialog({
           </div>
 
           {/* Content */}
-          <form onSubmit={(e) => void handleSubmit(e)} className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
+          <form onSubmit={(e) => void handleSubmit(e)} onKeyDown={(e) => e.stopPropagation()} className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
             {/* Row: ID | Kód | Názov */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <label className={labelCls}>ID partnera <span className="text-red-500">*</span></label>
-                <input type="number" value={partnerId} onChange={(e) => { setPartnerId(e.target.value); clearFieldError('partner_id') }} disabled={saving} className={inputCls('partner_id')} min={1} />
+                <input ref={firstFieldRef} type="number" value={partnerId} onChange={(e) => { setPartnerId(e.target.value); clearFieldError('partner_id') }} disabled={saving} className={inputCls('partner_id')} min={1} />
                 <FieldError field="partner_id" />
-              </div>
-              <div>
-                <label className={labelCls}>Kód partnera <span className="text-red-500">*</span></label>
-                <input type="text" value={partnerCode} onChange={(e) => { setPartnerCode(e.target.value); clearFieldError('partner_code') }} disabled={saving} className={inputCls('partner_code')} maxLength={30} />
-                <FieldError field="partner_code" />
               </div>
               <div className="md:col-span-2">
                 <label className={labelCls}>Názov firmy <span className="text-red-500">*</span></label>

@@ -15,7 +15,7 @@ export type AddressType = 'registered' | 'correspondence' | 'invoice'
 export type ContactType = 'address' | 'person'
 export type CategoryType = 'supplier' | 'customer'
 export type TextType = 'owner_name' | 'description' | 'notice'
-export type PabSortField = 'partner_id' | 'partner_code' | 'partner_name' | 'city' | 'created_at'
+export type PabSortField = 'partner_id' | 'partner_name' | 'city' | 'created_at'
 export type SortOrder = 'asc' | 'desc'
 
 // ---------------------------------------------------------------------------
@@ -24,7 +24,6 @@ export type SortOrder = 'asc' | 'desc'
 
 export interface PartnerCatalog {
   partner_id: number
-  partner_code: string
   partner_name: string
   reg_name: string | null
 
@@ -63,7 +62,6 @@ export interface PartnerCatalog {
 
 export interface PartnerCatalogCreate {
   partner_id: number
-  partner_code: string
   partner_name: string
   reg_name?: string
   company_id?: string
@@ -394,7 +392,6 @@ export interface PartnerHistory {
   partner_id: number
   modify_id: number
 
-  partner_code: string
   partner_name: string
   reg_name: string | null
 

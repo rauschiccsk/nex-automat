@@ -87,7 +87,7 @@ export default function PabPartnerDetail(): ReactElement {
   const renderTab = (): ReactElement => {
     switch (activeTab) {
       case 'basic':
-        return <PabBasicTab partner={partner} onUpdated={handlePartnerUpdated} />
+        return <PabBasicTab partner={partner} onUpdated={handlePartnerUpdated} onDeleted={closeDetail} />
       case 'extensions':
         return <PabExtensionsTab partnerId={partner.partner_id} />
       case 'addresses':
@@ -123,7 +123,7 @@ export default function PabPartnerDetail(): ReactElement {
             Partner: {partner.partner_name}
           </h1>
           <p className="text-sm text-gray-500 dark:text-gray-400">
-            ID: {partner.partner_id} | Kód: {partner.partner_code} | Verzia: {partner.modify_id}
+            ID: {partner.partner_id} | Verzia: {partner.modify_id}
           </p>
         </div>
       </div>

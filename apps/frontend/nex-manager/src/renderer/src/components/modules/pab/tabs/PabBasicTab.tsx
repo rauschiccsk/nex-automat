@@ -1,5 +1,5 @@
 import { useState, useCallback, type ReactElement, type FormEvent } from 'react'
-import { Loader2 } from 'lucide-react'
+import { Loader2, Trash2 } from 'lucide-react'
 import { cn } from '@renderer/lib/utils'
 import { api, type ApiError } from '@renderer/lib/api'
 import { useAuthStore } from '@renderer/stores/authStore'
@@ -9,12 +9,17 @@ import type { PartnerCatalog, PartnerCatalogUpdate, PartnerClass } from '@render
 interface PabBasicTabProps {
   partner: PartnerCatalog
   onUpdated: () => void
+  onDeleted?: () => void
 }
 
-export default function PabBasicTab({ partner, onUpdated }: PabBasicTabProps): ReactElement {
+export default function PabBasicTab({ partner, onUpdated, onDeleted }: PabBasicTabProps): ReactElement {
   const { checkPermission } = useAuthStore()
   const { addToast } = useToastStore()
   const canEdit = checkPermission('PAB', 'edit')
+  const canDelete = checkPermission('PAB', 'delete')
+
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [deleting, setDeleting] = useState(false)
 
   const [partnerName, setPartnerName] = useState(partner.partner_name)
   const [regName, setRegName] = useState(partner.reg_name ?? '')
@@ -69,7 +74,7 @@ export default function PabBasicTab({ partner, onUpdated }: PabBasicTabProps): R
         }
 
         await api.updatePabPartner(partner.partner_id, payload)
-        addToast(`Partner ${partner.partner_code} bol aktualizovaný`, 'success')
+        addToast(`Partner ${partner.partner_id} bol aktualizovaný`, 'success')
         onUpdated()
       } catch (err) {
         const e = err as ApiError
@@ -84,6 +89,21 @@ export default function PabBasicTab({ partner, onUpdated }: PabBasicTabProps): R
       countryCode, partnerClass, isActive, onUpdated, addToast
     ]
   )
+
+  const handleDelete = useCallback(async (): Promise<void> => {
+    setDeleting(true)
+    try {
+      await api.deletePabPartner(partner.partner_id)
+      addToast('Partner vymazaný', 'success')
+      setShowDeleteConfirm(false)
+      onDeleted?.()
+    } catch (err) {
+      const e = err as ApiError
+      addToast(e.message || 'Vymazanie zlyhalo', 'error')
+    } finally {
+      setDeleting(false)
+    }
+  }, [partner.partner_id, addToast, onDeleted])
 
   const inputCls = (field?: string): string =>
     cn(
@@ -112,14 +132,10 @@ export default function PabBasicTab({ partner, onUpdated }: PabBasicTabProps): R
   return (
     <form onSubmit={(e) => void handleSubmit(e)} className="space-y-4 max-w-4xl">
       {/* Read-only fields */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label className={labelCls}>ID partnera</label>
           <div className={readonlyCls}>{partner.partner_id}</div>
-        </div>
-        <div>
-          <label className={labelCls}>Kód partnera</label>
-          <div className={readonlyCls}>{partner.partner_code}</div>
         </div>
         <div>
           <label className={labelCls}>Verzia</label>
@@ -211,22 +227,83 @@ export default function PabBasicTab({ partner, onUpdated }: PabBasicTabProps): R
         </div>
       </div>
 
-      {/* Save button */}
-      {canEdit && (
-        <div className="flex justify-end gap-3 pt-4">
-          <button
-            type="submit"
-            disabled={saving}
-            className={cn(
-              'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors',
-              'bg-blue-600 text-white hover:bg-blue-700',
-              'disabled:opacity-50 disabled:cursor-not-allowed'
+      {/* Action buttons */}
+      {(canEdit || canDelete) && (
+        <div className="flex justify-between items-center pt-4">
+          <div>
+            {canDelete && (
+              <button
+                type="button"
+                onClick={() => setShowDeleteConfirm(true)}
+                disabled={saving || deleting}
+                className={cn(
+                  'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors',
+                  'bg-red-600 text-white hover:bg-red-700',
+                  'disabled:opacity-50 disabled:cursor-not-allowed'
+                )}
+              >
+                <Trash2 className="h-4 w-4" />
+                Vymazať
+              </button>
             )}
-          >
-            {saving && <Loader2 className="h-4 w-4 animate-spin" />}
-            Uložiť
-          </button>
+          </div>
+          <div>
+            {canEdit && (
+              <button
+                type="submit"
+                disabled={saving}
+                className={cn(
+                  'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors',
+                  'bg-blue-600 text-white hover:bg-blue-700',
+                  'disabled:opacity-50 disabled:cursor-not-allowed'
+                )}
+              >
+                {saving && <Loader2 className="h-4 w-4 animate-spin" />}
+                Uložiť
+              </button>
+            )}
+          </div>
         </div>
+      )}
+
+      {/* Delete confirmation dialog */}
+      {showDeleteConfirm && (
+        <>
+          <div className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm" onClick={() => setShowDeleteConfirm(false)} />
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-xl p-6 max-w-sm w-full">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
+                Potvrdenie vymazania
+              </h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
+                Naozaj chceš vymazať partnera <strong>{partner.partner_name}</strong>?
+              </p>
+              <div className="flex justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => setShowDeleteConfirm(false)}
+                  disabled={deleting}
+                  className="px-4 py-2 rounded-lg text-sm font-medium border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                >
+                  Nie
+                </button>
+                <button
+                  type="button"
+                  onClick={() => void handleDelete()}
+                  disabled={deleting}
+                  className={cn(
+                    'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors',
+                    'bg-red-600 text-white hover:bg-red-700',
+                    'disabled:opacity-50 disabled:cursor-not-allowed'
+                  )}
+                >
+                  {deleting && <Loader2 className="h-4 w-4 animate-spin" />}
+                  Áno, vymazať
+                </button>
+              </div>
+            </div>
+          </div>
+        </>
       )}
     </form>
   )

@@ -35,11 +35,11 @@ BATCH_SIZE = PAB_BATCH_SIZE
 
 _INSERT_HEADER = """
     INSERT INTO partner_catalog (
-        partner_id, partner_code, partner_name, company_id, tax_id, vat_id,
+        partner_id, partner_name, company_id, tax_id, vat_id,
         is_vat_payer, is_supplier, is_customer, street, city, zip_code,
         country_code, partner_class, is_active, created_by, updated_by
     ) VALUES (
-        %s, %s, %s, %s, %s, %s,
+        %s, %s, %s, %s, %s,
         %s, %s, %s, %s, %s, %s,
         %s, %s, %s, %s, %s
     )
@@ -146,7 +146,6 @@ class PABLoader(BaseLoader):
             _INSERT_HEADER,
             (
                 header["partner_id"],
-                header["partner_code"],
                 header["partner_name"],
                 header.get("company_id"),
                 header.get("tax_id"),

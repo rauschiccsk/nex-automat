@@ -90,7 +90,7 @@ router = APIRouter(prefix="/api/pab", tags=["PAB - Partner Catalog"])
 # ---------------------------------------------------------------------------
 
 _PARTNER_COLUMNS = (
-    "partner_id, partner_code, partner_name, reg_name, "
+    "partner_id, partner_name, reg_name, "
     "company_id, tax_id, vat_id, is_vat_payer, "
     "is_supplier, is_customer, "
     "street, city, zip_code, country_code, "
@@ -100,7 +100,7 @@ _PARTNER_COLUMNS = (
 )
 
 _SORT_COLUMNS = frozenset(
-    {"partner_id", "partner_code", "partner_name", "city", "created_at"}
+    {"partner_id", "partner_name", "city", "created_at"}
 )
 
 
@@ -118,26 +118,25 @@ def _row_to_partner(row: tuple) -> PartnerCatalogResponse:
     """Map a database row to PartnerCatalogResponse."""
     return PartnerCatalogResponse(
         partner_id=row[0],
-        partner_code=row[1],
-        partner_name=row[2],
-        reg_name=row[3],
-        company_id=row[4],
-        tax_id=row[5],
-        vat_id=row[6],
-        is_vat_payer=row[7],
-        is_supplier=row[8],
-        is_customer=row[9],
-        street=row[10],
-        city=row[11],
-        zip_code=row[12],
-        country_code=row[13],
-        partner_class=row[14],
-        modify_id=row[15],
-        bank_account_count=row[16],
-        facility_count=row[17],
-        is_active=row[18],
-        created_at=row[19],
-        updated_at=row[20],
+        partner_name=row[1],
+        reg_name=row[2],
+        company_id=row[3],
+        tax_id=row[4],
+        vat_id=row[5],
+        is_vat_payer=row[6],
+        is_supplier=row[7],
+        is_customer=row[8],
+        street=row[9],
+        city=row[10],
+        zip_code=row[11],
+        country_code=row[12],
+        partner_class=row[13],
+        modify_id=row[14],
+        bank_account_count=row[15],
+        facility_count=row[16],
+        is_active=row[17],
+        created_at=row[18],
+        updated_at=row[19],
     )
 
 
@@ -191,13 +190,13 @@ def list_partners(
     ),
     is_active: Optional[bool] = Query(None, description="Filter by active status"),
     search: Optional[str] = Query(
-        None, description="Search in partner_code, partner_name, company_id, city"
+        None, description="Search in partner_name, company_id, city"
     ),
     limit: int = Query(DEFAULT_PAGE_SIZE, ge=1, le=10000, description="Limit"),
     offset: int = Query(0, ge=0, description="Offset"),
     sort_by: str = Query(
         "partner_id",
-        description="Sort column: partner_id, partner_code, partner_name, city, created_at",
+        description="Sort column: partner_id, partner_name, city, created_at",
     ),
     sort_order: str = Query("asc", description="Sort direction: asc, desc"),
     _current_user=Depends(require_permission("PAB", "can_view")),
@@ -229,11 +228,11 @@ def list_partners(
         s = search.strip()
         if s:
             conditions.append(
-                "(partner_code ILIKE %s OR partner_name ILIKE %s "
+                "(partner_name ILIKE %s "
                 "OR company_id ILIKE %s OR city ILIKE %s)"
             )
             like = f"%{s}%"
-            params.extend([like, like, like, like])
+            params.extend([like, like, like])
 
     where = ""
     if conditions:
@@ -482,7 +481,7 @@ def get_partner(
 
 _HISTORY_COLUMNS = (
     "history_id, partner_id, modify_id, "
-    "partner_code, partner_name, reg_name, "
+    "partner_name, reg_name, "
     "company_id, tax_id, vat_id, is_vat_payer, "
     "is_supplier, is_customer, "
     "street, city, zip_code, country_code, "
@@ -497,23 +496,22 @@ def _row_to_history(row: tuple) -> PartnerHistoryResponse:
         history_id=row[0],
         partner_id=row[1],
         modify_id=row[2],
-        partner_code=row[3],
-        partner_name=row[4],
-        reg_name=row[5],
-        company_id=row[6],
-        tax_id=row[7],
-        vat_id=row[8],
-        is_vat_payer=row[9],
-        is_supplier=row[10],
-        is_customer=row[11],
-        street=row[12],
-        city=row[13],
-        zip_code=row[14],
-        country_code=row[15],
-        partner_class=row[16],
-        valid_from=row[17],
-        valid_to=row[18],
-        changed_by=row[19],
+        partner_name=row[3],
+        reg_name=row[4],
+        company_id=row[5],
+        tax_id=row[6],
+        vat_id=row[7],
+        is_vat_payer=row[8],
+        is_supplier=row[9],
+        is_customer=row[10],
+        street=row[11],
+        city=row[12],
+        zip_code=row[13],
+        country_code=row[14],
+        partner_class=row[15],
+        valid_from=row[16],
+        valid_to=row[17],
+        changed_by=row[18],
     )
 
 
@@ -616,27 +614,16 @@ def create_partner(
             detail=f"Partner s ID {body.partner_id} už existuje",
         )
 
-    # Check partner_code uniqueness
-    cur.execute(
-        "SELECT partner_id FROM partner_catalog WHERE partner_code = %s",
-        (body.partner_code,),
-    )
-    if cur.fetchone():
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail=f"Partner s kódom '{body.partner_code}' už existuje",
-        )
-
     cur.execute(
         f"INSERT INTO partner_catalog ("
-        "partner_id, partner_code, partner_name, reg_name, "
+        "partner_id, partner_name, reg_name, "
         "company_id, tax_id, vat_id, is_vat_payer, "
         "is_supplier, is_customer, "
         "street, city, zip_code, country_code, "
         "partner_class, "
         "is_active, created_by, updated_by"
         f") VALUES ("
-        "%s, %s, %s, %s, "
+        "%s, %s, %s, "
         "%s, %s, %s, %s, "
         "%s, %s, "
         "%s, %s, %s, %s, "
@@ -645,7 +632,6 @@ def create_partner(
         f") RETURNING {_PARTNER_COLUMNS}",
         (
             body.partner_id,
-            body.partner_code,
             body.partner_name,
             body.reg_name,
             body.company_id,
@@ -672,7 +658,7 @@ def create_partner(
         action="create",
         entity_type="PAB",
         entity_id=body.partner_id,
-        details={"message": f"Created partner_catalog {body.partner_code}"},
+        details={"message": f"Created partner_catalog {body.partner_id}"},
     )
 
     db.commit()
@@ -686,7 +672,7 @@ def update_partner(
     current_user=Depends(require_permission("PAB", "can_edit")),
     db=Depends(get_db),
 ):
-    """Update an existing partner. partner_id and partner_code are NOT editable."""
+    """Update an existing partner. partner_id is NOT editable."""
     cur = db.cursor()
     _ensure_partner_exists(cur, partner_id)
 

@@ -605,10 +605,10 @@ export function DataGrid<T extends { id: number | string }>({
         const currentIndex = rows.findIndex(r => r.original.id === selectedRowId);
         if (e.key === 'ArrowDown') {
           e.preventDefault();
-          const next = currentIndex < rows.length - 1 ? currentIndex + 1 : 0;
+          if (currentIndex >= rows.length - 1) return; // stop at last row
+          const next = currentIndex + 1;
           setSelectedRowId(rows[next]?.original.id ?? null);
           rowVirtualizer.scrollToIndex(next, { align: 'auto' });
-          // DOM fallback: ensure the row is visible after virtualizer scroll
           requestAnimationFrame(() => {
             const container = tableContainerRef.current;
             const row = container?.querySelector(`tr[data-index="${next}"]`);
@@ -619,7 +619,8 @@ export function DataGrid<T extends { id: number | string }>({
         }
         if (e.key === 'ArrowUp') {
           e.preventDefault();
-          const prev = currentIndex > 0 ? currentIndex - 1 : rows.length - 1;
+          if (currentIndex <= 0) return; // stop at first row
+          const prev = currentIndex - 1;
           setSelectedRowId(rows[prev]?.original.id ?? null);
           rowVirtualizer.scrollToIndex(prev, { align: 'auto' });
           requestAnimationFrame(() => {
@@ -629,6 +630,35 @@ export function DataGrid<T extends { id: number | string }>({
               (row as HTMLElement).scrollIntoView({ block: 'nearest' });
             }
           });
+        }
+        if (e.key === 'End') {
+          e.preventDefault();
+          const lastIndex = rows.length - 1;
+          if (lastIndex >= 0) {
+            setSelectedRowId(rows[lastIndex]?.original.id ?? null);
+            rowVirtualizer.scrollToIndex(lastIndex, { align: 'auto' });
+            requestAnimationFrame(() => {
+              const container = tableContainerRef.current;
+              const row = container?.querySelector(`tr[data-index="${lastIndex}"]`);
+              if (row && container) {
+                (row as HTMLElement).scrollIntoView({ block: 'nearest' });
+              }
+            });
+          }
+        }
+        if (e.key === 'Home') {
+          e.preventDefault();
+          if (rows.length > 0) {
+            setSelectedRowId(rows[0]?.original.id ?? null);
+            rowVirtualizer.scrollToIndex(0, { align: 'auto' });
+            requestAnimationFrame(() => {
+              const container = tableContainerRef.current;
+              const row = container?.querySelector(`tr[data-index="0"]`);
+              if (row && container) {
+                (row as HTMLElement).scrollIntoView({ block: 'nearest' });
+              }
+            });
+          }
         }
         if (e.key === 'Enter' && selectedRowId != null) { const row = rows.find(r => r.original.id === selectedRowId); if (row) onRowDoubleClick?.(row.original); }
         if (e.key.length === 1 && !e.ctrlKey && !e.altKey && !e.metaKey) { setFocusedFilterIndex(0); filterInputRefs.current[0]?.focus(); }

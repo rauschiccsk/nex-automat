@@ -109,7 +109,6 @@ class PABTransformer(BaseTransformer):
 
     # Max field lengths matching PostgreSQL partner_catalog schema
     _HEADER_MAX_LEN: dict[str, int] = {
-        "partner_code": 30,
         "partner_name": 100,
         "company_id": 20,
         "tax_id": 20,
@@ -143,7 +142,6 @@ class PABTransformer(BaseTransformer):
         # --- Header (partner_catalog) ---
         header = {
             "partner_id": int(str(raw["code"]).strip()),
-            "partner_code": transforms.to_str_strip(raw.get("code")),
             "partner_name": transforms.strip(raw.get("name")),
             "company_id": transforms.strip(raw.get("company_id")),
             "tax_id": transforms.strip(raw.get("tax_id")),
