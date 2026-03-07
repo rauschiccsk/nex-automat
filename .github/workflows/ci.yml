@@ -5,6 +5,7 @@ on:
     branches: [develop, main]
   pull_request:
     branches: [develop, main]
+  workflow_dispatch:
 
 env:
   PYTHON_VERSION: "3.11"
@@ -432,7 +433,10 @@ jobs:
     name: E2E Tests
     runs-on: [self-hosted, ANDROS]
     needs: [deploy-staging-backend, deploy-staging-electron]
-    if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      contains(github.event.head_commit.message, '[e2e]') ||
+      github.ref == 'refs/heads/main'
     defaults:
       run:
         working-directory: e2e

@@ -40,6 +40,16 @@ export async function apiPost(request: APIRequestContext, path: string, body: un
 
 /** Authenticated DELETE — returns { status } */
 export async function apiDelete(request: APIRequestContext, path: string) {
+  // GUARD: never delete a real (non-E2E) partner via API in tests
+  const partnerIdMatch = path.match(/\/partners\/(\d+)$/)
+  if (partnerIdMatch) {
+    const id = parseInt(partnerIdMatch[1], 10)
+    if (id < 95000) {
+      throw new Error(
+        `GUARD: refusing to delete partner ${id} — only E2E partners (id >= 95000) allowed`
+      )
+    }
+  }
   const token = await getAuthToken(request)
   const response = await request.delete(`${API_BASE}${path}`, {
     headers: { Authorization: `Bearer ${token}` },
