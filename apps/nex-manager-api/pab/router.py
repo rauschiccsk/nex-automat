@@ -99,9 +99,7 @@ _PARTNER_COLUMNS = (
     "is_active, created_at, updated_at"
 )
 
-_SORT_COLUMNS = frozenset(
-    {"partner_id", "partner_name", "city", "created_at"}
-)
+_SORT_COLUMNS = frozenset({"partner_id", "partner_name", "city", "created_at"})
 
 
 # ---------------------------------------------------------------------------
@@ -228,8 +226,7 @@ def list_partners(
         s = search.strip()
         if s:
             conditions.append(
-                "(partner_name ILIKE %s "
-                "OR company_id ILIKE %s OR city ILIKE %s)"
+                "(partner_name ILIKE %s OR company_id ILIKE %s OR city ILIKE %s)"
             )
             like = f"%{s}%"
             params.extend([like, like, like])
