@@ -148,7 +148,7 @@ class PABTransformer(BaseTransformer):
             "company_id": transforms.strip(raw.get("company_id")),
             "tax_id": transforms.strip(raw.get("tax_id")),
             "vat_id": transforms.strip(raw.get("vat_id")),
-            "is_vat_payer": transforms.to_bool(raw.get("is_vat_payer", False)),
+            "is_vat_payer": self._derive_vat_payer(raw),
             "is_supplier": partner_type in ("supplier", "both"),
             "is_customer": partner_type in ("customer", "both"),
             "street": transforms.strip(raw.get("street")),
@@ -312,6 +312,25 @@ class PABTransformer(BaseTransformer):
         return []
 
     @staticmethod
+    def _derive_vat_payer(raw: dict) -> bool:
+        """Derive is_vat_payer from vat_id presence.
+
+        The Btrieve extractor sets is_vat_payer=False for all records,
+        but partners with a non-empty vat_id are VAT payers.
+        A valid vat_id must have a country prefix + at least 8 digits
+        (e.g. 'SK2020399139').
+        """
+        # Explicit flag takes priority (if it was ever True)
+        if transforms.to_bool(raw.get("is_vat_payer", False)):
+            return True
+        # Derive from vat_id
+        vat_id = transforms.strip(raw.get("vat_id"))
+        if not vat_id or vat_id in ("", "SK"):
+            return False
+        # Must have at least a country prefix + some digits
+        return len(vat_id) >= 4
+
+    @staticmethod
     def _normalize_partner_type(value) -> str:
         """Ensure partner_type is a valid enum string."""
         if isinstance(value, str) and value in ("customer", "supplier", "both"):
@@ -320,12 +339,56 @@ class PABTransformer(BaseTransformer):
             return transforms.map_partner_type_int(value)
         return "customer"
 
-    @staticmethod
-    def _normalize_country_code(value) -> str:
-        """Ensure country_code is a 2-char ISO code."""
+    # Slovak district codes → ISO country codes.
+    # PAB.json country_code field contains okres/district codes from Btrieve,
+    # not ISO 3166-1 alpha-2 country codes.
+    _DISTRICT_TO_COUNTRY: dict[str, str] = {
+        "26": "SK",  # Old Komárno district number
+        "BA": "SK",  # Bratislava
+        "BB": "SK",  # Banská Bystrica
+        "BJ": "SK",  # Bardejov
+        "C1": "CN",  # China (Guangzhou)
+        "DK": "SK",  # Dolný Kubín
+        "GP": "SK",  # Gemerská Poloma area
+        "HA": "SK",  # Haniska
+        "HB": "CZ",  # Havlíčův Brod
+        "HC": "SK",  # Hlohovec
+        "HK": "CZ",  # Hradec Králové
+        "KE": "SK",  # Košice
+        "KK": "SK",  # Kežmarok
+        "KN": "SK",  # Komárno
+        "LC": "SK",  # Lučenec
+        "LJ": "SK",  # Liptovský Ján area
+        "MA": "SK",  # Malacky
+        "MI": "SK",  # Michalovce
+        "NI": "SK",  # Nitra
+        "NO": "SK",  # Námestovo
+        "NZ": "SK",  # Nové Zámky
+        "PD": "SK",  # Prievidza
+        "PR": "CZ",  # Praha
+        "PU": "SK",  # Púchov
+        "RD": "SK",  # Radoľa area (Kysuce)
+        "RK": "SK",  # Ružomberok
+        "SF": "US",  # San Francisco
+        "SK": "SK",  # Slovakia
+        "SV": "SK",  # Snina
+        "TA": "SK",  # Trnava
+    }
+
+    @classmethod
+    def _normalize_country_code(cls, value) -> str:
+        """Convert district/county code to ISO 3166-1 alpha-2 country code.
+
+        PAB.json stores Slovak district codes (KN, BA, KE, ...) in the
+        country_code field instead of ISO country codes (SK, CZ, ...).
+        """
         if value is None:
             return "SK"
-        s = str(value).strip()
-        if len(s) == 2:
-            return s.upper()
+        s = str(value).strip().upper()
+        # First check district-to-country map (covers all known PAB values)
+        if s in cls._DISTRICT_TO_COUNTRY:
+            return cls._DISTRICT_TO_COUNTRY[s]
+        # Fallback: if it looks like a valid ISO country code, use it
+        if len(s) == 2 and s.isalpha():
+            return s
         return transforms.country_code(value, default="SK")

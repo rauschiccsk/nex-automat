@@ -603,8 +603,33 @@ export function DataGrid<T extends { id: number | string }>({
       }
       if (!isInFilterInput) {
         const currentIndex = rows.findIndex(r => r.original.id === selectedRowId);
-        if (e.key === 'ArrowDown') { e.preventDefault(); const next = currentIndex < rows.length - 1 ? currentIndex + 1 : 0; setSelectedRowId(rows[next]?.original.id ?? null); rowVirtualizer.scrollToIndex(next, { align: 'auto' }); }
-        if (e.key === 'ArrowUp') { e.preventDefault(); const prev = currentIndex > 0 ? currentIndex - 1 : rows.length - 1; setSelectedRowId(rows[prev]?.original.id ?? null); rowVirtualizer.scrollToIndex(prev, { align: 'auto' }); }
+        if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          const next = currentIndex < rows.length - 1 ? currentIndex + 1 : 0;
+          setSelectedRowId(rows[next]?.original.id ?? null);
+          rowVirtualizer.scrollToIndex(next, { align: 'auto' });
+          // DOM fallback: ensure the row is visible after virtualizer scroll
+          requestAnimationFrame(() => {
+            const container = tableContainerRef.current;
+            const row = container?.querySelector(`tr[data-index="${next}"]`);
+            if (row && container) {
+              (row as HTMLElement).scrollIntoView({ block: 'nearest' });
+            }
+          });
+        }
+        if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          const prev = currentIndex > 0 ? currentIndex - 1 : rows.length - 1;
+          setSelectedRowId(rows[prev]?.original.id ?? null);
+          rowVirtualizer.scrollToIndex(prev, { align: 'auto' });
+          requestAnimationFrame(() => {
+            const container = tableContainerRef.current;
+            const row = container?.querySelector(`tr[data-index="${prev}"]`);
+            if (row && container) {
+              (row as HTMLElement).scrollIntoView({ block: 'nearest' });
+            }
+          });
+        }
         if (e.key === 'Enter' && selectedRowId != null) { const row = rows.find(r => r.original.id === selectedRowId); if (row) onRowDoubleClick?.(row.original); }
         if (e.key.length === 1 && !e.ctrlKey && !e.altKey && !e.metaKey) { setFocusedFilterIndex(0); filterInputRefs.current[0]?.focus(); }
       }
