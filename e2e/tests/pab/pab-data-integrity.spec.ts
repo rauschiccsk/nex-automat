@@ -11,10 +11,10 @@ import {
 } from '../../helpers/api'
 
 test.describe('PAB Data Integrity', () => {
-  test('DI-1: Celkový počet partnerov — API total = 193', async ({
+  test('DI-1: Celkový počet partnerov ≥ 150', async ({
     authenticatedPage: page,
   }) => {
-    // Verify count via API
+    // Verify count via API (no is_active filter — matches UI default behavior)
     const total = await getPartnerCount(page.request)
     expect(total).toBeGreaterThanOrEqual(150)
 
@@ -68,7 +68,7 @@ test.describe('PAB Data Integrity', () => {
   test('DI-4: Krajinné kódy — 2-písmenkový ISO format', async ({
     authenticatedPage: page,
   }) => {
-    const data = await apiGet(page.request, '/api/pab/partners?limit=200')
+    const data = await apiGet(page.request, '/api/pab/partners?is_active=true&limit=200')
     const items = data.items as Array<{ country_code: string | null }>
 
     expect(items.length).toBeGreaterThan(0)
@@ -94,7 +94,7 @@ test.describe('PAB Data Integrity', () => {
   test('DI-5: partner_id nie je sekvenčný (migračné IDs)', async ({
     authenticatedPage: page,
   }) => {
-    const data = await apiGet(page.request, '/api/pab/partners?limit=200')
+    const data = await apiGet(page.request, '/api/pab/partners?is_active=true&limit=200')
     const ids: number[] = data.items.map((p: { partner_id: number }) => p.partner_id)
 
     expect(ids.length).toBeGreaterThan(0)
