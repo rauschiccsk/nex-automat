@@ -165,6 +165,7 @@ docs/knowledge/
 
 # Coverage
 coverage.xml
+coverage/
 docs/knowledge/
 
 # Sensitive knowledge-import files (credentials, VPN configs, contacts with secrets)

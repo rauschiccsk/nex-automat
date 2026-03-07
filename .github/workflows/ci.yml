@@ -173,11 +173,48 @@ jobs:
           retention-days: 7
 
   # ===========================================
+  # Frontend Tests (Vitest + React Testing Library)
+  # ===========================================
+  frontend-tests:
+    name: Frontend Tests
+    runs-on: [self-hosted, ANDROS]
+    needs: [lint]
+    defaults:
+      run:
+        working-directory: apps/frontend/nex-manager
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run frontend tests
+        run: npm run test
+
+      - name: Run coverage check
+        run: npm run test:coverage
+        continue-on-error: true
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-coverage
+          path: apps/frontend/nex-manager/coverage/
+          retention-days: 7
+
+  # ===========================================
   # Staging Deploy Backend (DEPTEST) — Linux runner, Docker compose
   # ===========================================
   deploy-staging-backend:
     name: Deploy Backend to Staging (DEPTEST)
-    needs: [lint, test, security, build, build-electron]
+    needs: [lint, test, security, build, build-electron, frontend-tests]
     if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
     runs-on: [self-hosted, ANDROS]
     environment: staging-DEPTEST
@@ -233,7 +270,7 @@ jobs:
   # ===========================================
   deploy-staging-electron:
     name: Deploy Electron to Staging (DEPTEST)
-    needs: [build-electron]
+    needs: [build-electron, frontend-tests]
     runs-on: [self-hosted, ANDROS-WIN]
     if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
     steps:
