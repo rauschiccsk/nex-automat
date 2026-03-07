@@ -32,7 +32,9 @@ test.describe('PAB Performance', () => {
 
     // Search for known partner
     await page.locator(sel.partnerSearch).fill('HOFFER')
-    await page.waitForTimeout(500)
+    await page.waitForResponse((resp) =>
+      resp.url().includes('/api/pab/partners') && resp.status() === 200
+    )
     await page.locator(sel.partnerGrid).locator('text=HOFFER').first().waitFor({ timeout: 10_000 })
 
     // Measure detail load
@@ -100,15 +102,15 @@ test.describe('PAB Performance', () => {
     const firstRow = page.locator(sel.partnerGrid).locator('tbody tr').first()
     await firstRow.click()
 
-    // Scroll down using keyboard
+    // Scroll down using keyboard (small delay for render between key presses)
     for (let i = 0; i < 20; i++) {
       await page.keyboard.press('ArrowDown')
-      await page.waitForTimeout(50)
     }
 
     // Press End to jump to last row
     await page.keyboard.press('End')
-    await page.waitForTimeout(500)
+    // Wait for rows to be rendered after scroll
+    await expect(page.locator(sel.partnerGrid).locator('tbody tr').first()).toBeVisible()
 
     // Rows should still be rendered
     const visibleRows = page.locator(sel.partnerGrid).locator('tbody tr')
@@ -117,7 +119,7 @@ test.describe('PAB Performance', () => {
 
     // Press Home to go back
     await page.keyboard.press('Home')
-    await page.waitForTimeout(300)
+    await expect(page.locator(sel.partnerGrid).locator('tbody tr').first()).toBeVisible()
 
     // No JS errors during scrolling
     expect(jsErrors).toHaveLength(0)

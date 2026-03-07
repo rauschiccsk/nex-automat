@@ -8,6 +8,8 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
   workers: 1,
+  timeout: 20_000,
+  expect: { timeout: 3_000 },
   reporter: process.env.CI
     ? [['html', { open: 'never' }], ['github']]
     : [['html', { open: 'on-failure' }]],

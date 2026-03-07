@@ -65,7 +65,9 @@ test.describe('PAB Edge Cases', () => {
 
     // Verify in UI via search
     await page.locator(sel.partnerSearch).fill('E2E_LONG_')
-    await page.waitForTimeout(500)
+    await page.waitForResponse((resp) =>
+      resp.url().includes('/api/pab/partners') && resp.status() === 200
+    )
 
     await expect(
       page.locator(sel.partnerGrid).locator('text=E2E_LONG_').first()
@@ -109,7 +111,9 @@ test.describe('PAB Edge Cases', () => {
 
     // Verify in UI — search by unique timestamp part
     await page.locator(sel.partnerSearch).fill(`E2E_SC_${ts}`)
-    await page.waitForTimeout(500)
+    await page.waitForResponse((resp) =>
+      resp.url().includes('/api/pab/partners') && resp.status() === 200
+    )
 
     await expect(
       page.locator(sel.partnerGrid).locator(`text=E2E_SC_${ts}`).first()
@@ -147,7 +151,9 @@ test.describe('PAB Edge Cases', () => {
 
     // Search and open detail
     await page.locator(sel.partnerSearch).fill(testName)
-    await page.waitForTimeout(500)
+    await page.waitForResponse((resp) =>
+      resp.url().includes('/api/pab/partners') && resp.status() === 200
+    )
     await page
       .locator(sel.partnerGrid)
       .locator(`text=${testName}`)
@@ -160,7 +166,7 @@ test.describe('PAB Edge Cases', () => {
 
     for (const tabId of subEntityTabs) {
       await page.locator(sel.tab(tabId)).click()
-      await page.waitForTimeout(500)
+      await page.locator(sel.tab(tabId)).waitFor({ state: 'visible' })
 
       // No error alert should be visible
       const errorAlert = page.locator('.bg-red-50, .bg-red-900\\/20').first()
@@ -211,7 +217,9 @@ test.describe('PAB Edge Cases', () => {
 
     // Try to search — should trigger error
     await page.locator(sel.partnerSearch).fill('TESTFAIL')
-    await page.waitForTimeout(1500)
+
+    // Wait for the intercepted response to complete
+    await page.waitForResponse((resp) => resp.url().includes('/api/pab/partners'))
 
     // Should show error state (red alert, error message, or empty state with error)
     // The app should NOT freeze — check that UI is still interactive
@@ -224,7 +232,9 @@ test.describe('PAB Edge Cases', () => {
     // After removing intercept, app should recover
     await page.locator(sel.partnerSearch).clear()
     await page.locator(sel.partnerSearch).fill('HOFFER')
-    await page.waitForTimeout(1000)
+    await page.waitForResponse((resp) =>
+      resp.url().includes('/api/pab/partners') && resp.status() === 200
+    )
 
     // Grid should show results again
     await expect(

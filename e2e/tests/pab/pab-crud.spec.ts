@@ -28,7 +28,9 @@ test.describe('PAB Partner CRUD', () => {
 
     // Search for the created partner
     await page.locator(sel.partnerSearch).fill(testName)
-    await page.waitForTimeout(500)
+    await page.waitForResponse((resp) =>
+      resp.url().includes('/api/pab/partners') && resp.status() === 200
+    )
 
     // Should be visible in grid
     await expect(page.locator(sel.partnerGrid).locator(`text=${testName}`)).toBeVisible({
@@ -64,7 +66,9 @@ test.describe('PAB Partner CRUD', () => {
 
     // Search for test partner
     await page.locator(sel.partnerSearch).fill(testPartner.partnerName)
-    await page.waitForTimeout(500)
+    await page.waitForResponse((resp) =>
+      resp.url().includes('/api/pab/partners') && resp.status() === 200
+    )
 
     // Double-click to open detail
     await page
@@ -97,7 +101,9 @@ test.describe('PAB Partner CRUD', () => {
 
     // Search for test partner
     await page.locator(sel.partnerSearch).fill(testPartner.partnerName)
-    await page.waitForTimeout(500)
+    await page.waitForResponse((resp) =>
+      resp.url().includes('/api/pab/partners') && resp.status() === 200
+    )
 
     // Double-click to open detail
     await page
@@ -129,7 +135,9 @@ test.describe('PAB Partner CRUD', () => {
 
     // Search with diacritics
     await page.locator(sel.partnerSearch).fill('Košice')
-    await page.waitForTimeout(500)
+    await page.waitForResponse((resp) =>
+      resp.url().includes('/api/pab/partners') && resp.status() === 200
+    )
 
     // Check that grid filter is working (no errors)
     const errorAlert = page.locator('.bg-red-50, .bg-red-900\\/20')

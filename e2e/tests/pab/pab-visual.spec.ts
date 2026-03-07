@@ -24,8 +24,11 @@ test.describe('PAB Visual & UI', () => {
     await navigateToModule(page, 'Katalógy', 'Katalóg partnerov')
     await page.locator(sel.partnerGrid).waitFor({ timeout: 15_000 })
 
-    // Wait for full render
-    await page.waitForTimeout(2000)
+    // Wait for full render — wait for data to appear in grid
+    await page
+      .locator(sel.partnerGrid)
+      .locator('text=/\\d+ z \\d+ záznamov/')
+      .waitFor({ timeout: 15_000 })
 
     // No uncaught exceptions
     expect(pageErrors).toHaveLength(0)
@@ -97,22 +100,18 @@ test.describe('PAB Visual & UI', () => {
 
     // Click toggle
     await darkModeToggle.first().click()
-    await page.waitForTimeout(500)
 
     // Check that <html> or <body> has dark class
-    const hasDarkClass = await page
-      .locator('html.dark, body.dark, [data-theme="dark"]')
-      .first()
-      .isVisible()
-      .catch(() => false)
-    expect(hasDarkClass).toBe(true)
+    await expect(
+      page.locator('html.dark, body.dark, [data-theme="dark"]').first()
+    ).toBeVisible({ timeout: 3_000 })
 
     // Grid should still be visible after toggle
     await expect(page.locator(sel.partnerGrid)).toBeVisible()
 
     // Toggle back
     await darkModeToggle.first().click()
-    await page.waitForTimeout(500)
+    await expect(page.locator(sel.partnerGrid)).toBeVisible()
   })
 
   test('VIS-5: Diakritika v UI — správne zobrazenie slovenských znakov', async ({

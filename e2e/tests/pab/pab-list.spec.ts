@@ -27,8 +27,10 @@ test.describe('PAB Partner List', () => {
     // Type search query
     await page.locator(sel.partnerSearch).fill('HOFFER')
 
-    // Wait for debounce + reload
-    await page.waitForTimeout(500)
+    // Wait for debounce + API response
+    await page.waitForResponse((resp) =>
+      resp.url().includes('/api/pab/partners') && resp.status() === 200
+    )
 
     // Should find HOFFER
     await expect(page.locator(sel.partnerGrid).locator('text=HOFFER')).toBeVisible({
@@ -53,7 +55,9 @@ test.describe('PAB Partner List', () => {
     // Note: "Všetci" isn't an option in partner_class filter (it has business/retail/guest)
     // Switch to retail
     await classFilter.selectOption('retail')
-    await page.waitForTimeout(500)
+    await page.waitForResponse((resp) =>
+      resp.url().includes('/api/pab/partners') && resp.status() === 200
+    )
 
     // Count should change (or may be 0)
     const retailStatusText = await page
@@ -65,14 +69,16 @@ test.describe('PAB Partner List', () => {
 
     // Switch back to business
     await classFilter.selectOption('business')
-    await page.waitForTimeout(500)
+    await page.waitForResponse((resp) =>
+      resp.url().includes('/api/pab/partners') && resp.status() === 200
+    )
   })
 
   test('Scenár 4: Grid navigácia — ArrowDown 5x, End, Home', async ({
     authenticatedPage: page,
   }) => {
     // Wait for rows to load
-    await page.waitForTimeout(1000)
+    await page.locator(sel.partnerGrid).locator('tbody tr').first().waitFor({ timeout: 10_000 })
 
     // Click first row to focus grid
     const firstRow = page.locator(sel.partnerGrid).locator('tbody tr').first()
@@ -81,7 +87,6 @@ test.describe('PAB Partner List', () => {
     // Press ArrowDown 5 times
     for (let i = 0; i < 5; i++) {
       await page.keyboard.press('ArrowDown')
-      await page.waitForTimeout(100)
     }
 
     // Selected row should have blue background class
@@ -90,10 +95,10 @@ test.describe('PAB Partner List', () => {
 
     // Press End — should go to last row
     await page.keyboard.press('End')
-    await page.waitForTimeout(300)
+    await expect(page.locator(sel.partnerGrid).locator('tbody tr').first()).toBeVisible()
 
     // Press Home — should go to first row
     await page.keyboard.press('Home')
-    await page.waitForTimeout(300)
+    await expect(page.locator(sel.partnerGrid).locator('tbody tr').first()).toBeVisible()
   })
 })

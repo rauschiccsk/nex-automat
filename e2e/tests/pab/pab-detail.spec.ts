@@ -10,7 +10,9 @@ test.describe('PAB Partner Detail', () => {
 
     // Search for HOFFER
     await page.locator(sel.partnerSearch).fill('HOFFER')
-    await page.waitForTimeout(500)
+    await page.waitForResponse((resp) =>
+      resp.url().includes('/api/pab/partners') && resp.status() === 200
+    )
 
     // Double-click the row to open detail
     await page.locator(sel.partnerGrid).locator('text=HOFFER').first().dblclick()
@@ -54,7 +56,7 @@ test.describe('PAB Partner Detail', () => {
 
     for (const tabId of tabIds) {
       await page.locator(sel.tab(tabId)).click()
-      await page.waitForTimeout(500)
+      await page.locator(sel.tab(tabId)).waitFor({ state: 'visible' })
 
       // No error should be visible
       const errorAlert = page.locator('.bg-red-50, .bg-red-900\\/20').first()
@@ -68,7 +70,8 @@ test.describe('PAB Partner Detail', () => {
   }) => {
     // Click Addresses tab
     await page.locator(sel.tab('addresses')).click()
-    await page.waitForTimeout(1000)
+    // Wait for the tab content to load
+    await page.locator(sel.tab('addresses')).waitFor({ state: 'visible' })
 
     // Check for address data (may vary — accept partial match)
     const addressContent = await page.locator(sel.partnerDetail).textContent()
@@ -81,7 +84,8 @@ test.describe('PAB Partner Detail', () => {
   }) => {
     // Click Contacts tab
     await page.locator(sel.tab('contacts')).click()
-    await page.waitForTimeout(1000)
+    // Wait for the tab content to load
+    await page.locator(sel.tab('contacts')).waitFor({ state: 'visible' })
 
     // Page should not show error
     const errorAlert = page.locator('.bg-red-50, .bg-red-900\\/20').first()
