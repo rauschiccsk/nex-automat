@@ -9,7 +9,6 @@ import hmac
 import logging
 import urllib.parse
 import urllib.request
-from decimal import Decimal
 from typing import Optional
 
 logger = logging.getLogger(__name__)
