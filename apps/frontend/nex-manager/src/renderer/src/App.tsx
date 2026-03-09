@@ -9,6 +9,7 @@ import MockModule from '@renderer/components/MockModule'
 import UserListView from '@renderer/components/modules/users/UserListView'
 import { PabModuleView } from '@renderer/components/modules/pab'
 import { MigrationDashboard } from '@renderer/components/modules/migration'
+import { EshopModuleView } from '@renderer/components/modules/eshop'
 import CommandLine from '@renderer/components/CommandLine'
 import InfoPanel from '@renderer/components/InfoPanel'
 import LoginScreen from '@renderer/components/LoginScreen'
@@ -155,6 +156,8 @@ function App(): ReactElement {
                 <PabModuleView />
               ) : activeTab.id === 'MIG' ? (
                 <MigrationDashboard />
+              ) : activeTab.id === 'ESHOP' ? (
+                <EshopModuleView />
               ) : (
                 (() => {
                   const TabIcon = activeModule?.icon ? getIcon(activeModule.icon) : LayoutDashboard

@@ -657,6 +657,98 @@ class ApiClient {
       method: 'POST'
     })
   }
+
+  // ── ESHOP Admin endpoints ──
+
+  async getEshopOrders(params?: {
+    page?: number
+    page_size?: number
+    status?: string
+    tenant_id?: number
+  }): Promise<import('@renderer/types/eshop').EshopOrderListResponse> {
+    const query = new URLSearchParams()
+    if (params?.page != null) query.set('page', String(params.page))
+    if (params?.page_size != null) query.set('page_size', String(params.page_size))
+    if (params?.status) query.set('status', params.status)
+    if (params?.tenant_id != null) query.set('tenant_id', String(params.tenant_id))
+    const qs = query.toString()
+    return this.request(`/api/eshop/admin/orders${qs ? '?' + qs : ''}`)
+  }
+
+  async getEshopOrderDetail(
+    orderId: number
+  ): Promise<import('@renderer/types/eshop').EshopOrderDetail> {
+    return this.request(`/api/eshop/admin/orders/${orderId}`)
+  }
+
+  async updateEshopOrder(
+    orderId: number,
+    data: import('@renderer/types/eshop').EshopOrderUpdateRequest
+  ): Promise<MessageResponse> {
+    return this.request(`/api/eshop/admin/orders/${orderId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data)
+    })
+  }
+
+  async getEshopProducts(params?: {
+    page?: number
+    page_size?: number
+    tenant_id?: number
+    include_inactive?: boolean
+  }): Promise<import('@renderer/types/eshop').EshopProductListResponse> {
+    const query = new URLSearchParams()
+    if (params?.page != null) query.set('page', String(params.page))
+    if (params?.page_size != null) query.set('page_size', String(params.page_size))
+    if (params?.tenant_id != null) query.set('tenant_id', String(params.tenant_id))
+    if (params?.include_inactive != null) query.set('include_inactive', String(params.include_inactive))
+    const qs = query.toString()
+    return this.request(`/api/eshop/admin/products${qs ? '?' + qs : ''}`)
+  }
+
+  async getEshopProduct(
+    productId: number
+  ): Promise<import('@renderer/types/eshop').EshopProduct> {
+    // Single product fetched via products list endpoint with matching ID
+    const res = await this.request<import('@renderer/types/eshop').EshopProductListResponse>(
+      `/api/eshop/admin/products?page=1&page_size=1000&include_inactive=true`
+    )
+    const product = res.products.find((p) => p.product_id === productId)
+    if (!product) {
+      throw { status: 404, message: `Produkt ${productId} nebol nájdený` } as import('./api').ApiError
+    }
+    return product
+  }
+
+  async createEshopProduct(
+    data: import('@renderer/types/eshop').EshopProductCreateRequest,
+    tenantId = 1
+  ): Promise<import('@renderer/types/eshop').EshopProduct> {
+    return this.request(`/api/eshop/admin/products?tenant_id=${tenantId}`, {
+      method: 'POST',
+      body: JSON.stringify(data)
+    })
+  }
+
+  async updateEshopProduct(
+    productId: number,
+    data: import('@renderer/types/eshop').EshopProductUpdateRequest
+  ): Promise<import('@renderer/types/eshop').EshopProduct> {
+    return this.request(`/api/eshop/admin/products/${productId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data)
+    })
+  }
+
+  async deleteEshopProduct(productId: number): Promise<void> {
+    await this.request(`/api/eshop/admin/products/${productId}`, {
+      method: 'DELETE'
+    })
+  }
+
+  async getEshopTenants(): Promise<import('@renderer/types/eshop').EshopTenantListResponse> {
+    return this.request('/api/eshop/admin/tenants')
+  }
 }
 
 // Singleton export

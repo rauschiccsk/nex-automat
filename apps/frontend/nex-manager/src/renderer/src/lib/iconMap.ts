@@ -32,6 +32,7 @@ import {
   ScrollText,
   Database,
   Building2,
+  ShoppingBag,
   type LucideIcon
 } from 'lucide-react'
 
@@ -64,7 +65,8 @@ export const ICON_MAP: Record<string, LucideIcon> = {
   Settings,
   ScrollText,
   Database,
-  Building2
+  Building2,
+  ShoppingBag
 }
 
 /**
