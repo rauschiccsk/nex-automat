@@ -210,6 +210,16 @@ modules:
     frontend_module: "dod"
     roles: [ri, ha, shu]
 
+  - key: ESHOP
+    name: "E-shop"
+    category: sales
+    icon: ShoppingBag
+    order: 440
+    status: development
+    backend_router: "eshop"
+    frontend_module: "eshop"
+    roles: [ri, ha, shu]
+
   # ---------------------------------------------------------------------------
   # PURCHASE (order 500-599)
   # ---------------------------------------------------------------------------

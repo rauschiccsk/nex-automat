@@ -73,7 +73,7 @@ class ModuleRegistry:
         "frontend_module",
         "roles",
     )
-    VALID_STATUSES = ("active", "planned")
+    VALID_STATUSES = ("active", "planned", "development")
     VALID_ROLES = ("ri", "ha", "shu")
 
     def __init__(self, yaml_path: str | Path) -> None:
