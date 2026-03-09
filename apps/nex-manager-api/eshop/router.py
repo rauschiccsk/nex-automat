@@ -468,15 +468,12 @@ async def payment_callback(
 
     # 3. Verify callback authenticity
     if not hmac.compare_digest(secret, tenant_secret):
-        logger.error(
-            "Comgate callback: secret mismatch for order %s", refId
-        )
+        logger.error("Comgate callback: secret mismatch for order %s", refId)
         return ok_response
 
     if merchant != tenant_merchant_id:
         logger.error(
-            "Comgate callback: merchant mismatch for order %s "
-            "(got %s, expected %s)",
+            "Comgate callback: merchant mismatch for order %s (got %s, expected %s)",
             refId,
             merchant,
             tenant_merchant_id,
@@ -487,8 +484,7 @@ async def payment_callback(
     expected_price_cents = int(Decimal(str(order_total_vat)) * 100)
     if int(price) != expected_price_cents:
         logger.error(
-            "Comgate callback: price mismatch for order %s "
-            "(got %s, expected %s)",
+            "Comgate callback: price mismatch for order %s (got %s, expected %s)",
             refId,
             price,
             expected_price_cents,
@@ -497,8 +493,7 @@ async def payment_callback(
 
     if curr != order_currency:
         logger.error(
-            "Comgate callback: currency mismatch for order %s "
-            "(got %s, expected %s)",
+            "Comgate callback: currency mismatch for order %s (got %s, expected %s)",
             refId,
             curr,
             order_currency,
@@ -546,8 +541,7 @@ async def payment_callback(
 
     elif status_val == "CANCELLED":
         cur.execute(
-            "UPDATE eshop_orders SET payment_status = 'failed' "
-            "WHERE order_id = %s",
+            "UPDATE eshop_orders SET payment_status = 'failed' WHERE order_id = %s",
             (order_id,),
         )
         cur.execute(
@@ -565,8 +559,7 @@ async def payment_callback(
 
     elif status_val == "AUTHORIZED":
         cur.execute(
-            "UPDATE eshop_orders SET payment_status = 'authorized' "
-            "WHERE order_id = %s",
+            "UPDATE eshop_orders SET payment_status = 'authorized' WHERE order_id = %s",
             (order_id,),
         )
         cur.execute(

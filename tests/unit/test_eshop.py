@@ -1147,9 +1147,7 @@ class TestComgateClient:
 
     def test_create_payment_request_body(self):
         """create_payment constructs correct request body with all parameters."""
-        client = ComgateClient(
-            merchant_id="12345", secret="testsecret", test_mode=True
-        )
+        client = ComgateClient(merchant_id="12345", secret="testsecret", test_mode=True)
         captured_data = {}
 
         def mock_post_sync(endpoint, data):
@@ -1189,9 +1187,7 @@ class TestComgateClient:
 
     def test_create_payment_parses_success(self):
         """create_payment correctly parses successful response."""
-        client = ComgateClient(
-            merchant_id="12345", secret="testsecret", test_mode=True
-        )
+        client = ComgateClient(merchant_id="12345", secret="testsecret", test_mode=True)
 
         def mock_post_sync(endpoint, data):
             return {
@@ -1221,9 +1217,7 @@ class TestComgateClient:
 
     def test_create_payment_handles_error(self):
         """create_payment raises ComgateError on error response."""
-        client = ComgateClient(
-            merchant_id="12345", secret="testsecret", test_mode=True
-        )
+        client = ComgateClient(merchant_id="12345", secret="testsecret", test_mode=True)
 
         def mock_post_sync(endpoint, data):
             return {"code": "1101", "message": "invalid merchant"}
@@ -1418,9 +1412,7 @@ class TestPaymentCallback:
         history_calls = [c for c in calls if "eshop_order_status_history" in c]
         assert len(history_calls) >= 1
 
-    def test_cancelled_callback_updates_payment_status(
-        self, client_no_auth, mock_db
-    ):
+    def test_cancelled_callback_updates_payment_status(self, client_no_auth, mock_db):
         """CANCELLED callback updates payment_status to failed."""
         _, cursor = mock_db
         cursor.fetchone.side_effect = [
@@ -1515,33 +1507,25 @@ class TestPaymentReturn:
         """Valid transId returns order status."""
         _, cursor = mock_db
         cursor.fetchone.return_value = ("EM-2026-00001", "paid", "paid")
-        resp = client_no_auth.get(
-            "/api/eshop/payment/return?id=AB12-CD34-EF56"
-        )
+        resp = client_no_auth.get("/api/eshop/payment/return?id=AB12-CD34-EF56")
         assert resp.status_code == 200
         data = resp.json()
         assert data["order_number"] == "EM-2026-00001"
         assert data["status"] == "paid"
         assert data["payment_status"] == "paid"
 
-    def test_nonexistent_transaction_returns_404(
-        self, client_no_auth, mock_db
-    ):
+    def test_nonexistent_transaction_returns_404(self, client_no_auth, mock_db):
         """Non-existent transId returns 404."""
         _, cursor = mock_db
         cursor.fetchone.return_value = None
-        resp = client_no_auth.get(
-            "/api/eshop/payment/return?id=NONEXISTENT"
-        )
+        resp = client_no_auth.get("/api/eshop/payment/return?id=NONEXISTENT")
         assert resp.status_code == 404
 
     def test_response_format(self, client_no_auth, mock_db):
         """Response contains required fields."""
         _, cursor = mock_db
         cursor.fetchone.return_value = ("EM-2026-00001", "new", "pending")
-        resp = client_no_auth.get(
-            "/api/eshop/payment/return?id=AB12-CD34-EF56"
-        )
+        resp = client_no_auth.get("/api/eshop/payment/return?id=AB12-CD34-EF56")
         assert resp.status_code == 200
         data = resp.json()
         assert "order_number" in data
@@ -1563,9 +1547,7 @@ class TestOrderCreationWithPayment:
 
         # Override tenant to include Comgate credentials
         app.dependency_overrides[get_db] = lambda: conn
-        app.dependency_overrides[get_tenant_by_token] = (
-            lambda: FAKE_TENANT_COMGATE
-        )
+        app.dependency_overrides[get_tenant_by_token] = lambda: FAKE_TENANT_COMGATE
 
         cursor.fetchone.side_effect = [
             PRODUCT_LOOKUP_1,  # product lookup
@@ -1574,9 +1556,7 @@ class TestOrderCreationWithPayment:
             (42,),  # INSERT RETURNING order_id
         ]
 
-        with patch(
-            "eshop.comgate.ComgateClient.create_payment"
-        ) as mock_payment:
+        with patch("eshop.comgate.ComgateClient.create_payment") as mock_payment:
             mock_payment.return_value = {
                 "transId": "AB12-CD34-EF56",
                 "redirect_url": "https://payments.comgate.cz/client/pay/AB12",
@@ -1586,9 +1566,7 @@ class TestOrderCreationWithPayment:
 
         assert resp.status_code == 200
         data = resp.json()
-        assert data["payment_url"] == (
-            "https://payments.comgate.cz/client/pay/AB12"
-        )
+        assert data["payment_url"] == ("https://payments.comgate.cz/client/pay/AB12")
         assert data["order_number"] is not None
 
         app.dependency_overrides.clear()
@@ -1613,9 +1591,7 @@ class TestOrderCreationWithPayment:
         conn, cursor = mock_db
 
         app.dependency_overrides[get_db] = lambda: conn
-        app.dependency_overrides[get_tenant_by_token] = (
-            lambda: FAKE_TENANT_COMGATE
-        )
+        app.dependency_overrides[get_tenant_by_token] = lambda: FAKE_TENANT_COMGATE
 
         cursor.fetchone.side_effect = [
             PRODUCT_LOOKUP_1,
@@ -1624,9 +1600,7 @@ class TestOrderCreationWithPayment:
             (42,),  # INSERT RETURNING order_id
         ]
 
-        with patch(
-            "eshop.comgate.ComgateClient.create_payment"
-        ) as mock_payment:
+        with patch("eshop.comgate.ComgateClient.create_payment") as mock_payment:
             mock_payment.return_value = {
                 "transId": "AB12-CD34-EF56",
                 "redirect_url": "https://payments.comgate.cz/client/pay/AB12",
