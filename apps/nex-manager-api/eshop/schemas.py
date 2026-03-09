@@ -84,6 +84,7 @@ class OrderCreateResponse(BaseModel):
     status: str
     total_amount_vat: Decimal
     currency: str
+    payment_url: Optional[str] = None
 
 
 class OrderItemResponse(BaseModel):
@@ -272,3 +273,16 @@ class MufisSetResponse(BaseModel):
 
     ok: int
     error: Optional[str] = None
+
+
+# ============================================================================
+# PAYMENT — Comgate
+# ============================================================================
+
+
+class PaymentReturnResponse(BaseModel):
+    """Payment return page response — shown after customer returns from gateway."""
+
+    order_number: str
+    status: str
+    payment_status: str

@@ -1,10 +1,14 @@
-"""ESHOP API endpoints — Public, Admin, and MuFis integration.
+"""ESHOP API endpoints — Public, Admin, Payment, and MuFis integration.
 
 Public endpoints (X-Eshop-Token auth):
   GET    /api/eshop/products                    — list active products
   GET    /api/eshop/products/{sku}              — single product
   POST   /api/eshop/orders                      — create order
   GET    /api/eshop/orders/{order_number}        — order status
+
+Payment endpoints (NO auth — called by Comgate / customer browser):
+  POST   /api/eshop/payment/callback            — Comgate payment notification
+  GET    /api/eshop/payment/return              — customer return from gateway
 
 Admin endpoints (JWT auth):
   GET    /api/eshop/admin/orders                — paginated order list
@@ -24,17 +28,22 @@ MuFis endpoints (API-KEY auth, form-urlencoded):
   POST   /api/eshop/mufis/setProduct            — update stock
 """
 
+import hmac
 import json
+import logging
 import math
 from decimal import Decimal
 from typing import Optional
 
 from fastapi import APIRouter, Depends, Form, HTTPException, Query, Response, status
 
+logger = logging.getLogger(__name__)
+
 from auth.dependencies import require_permission
 from database import get_db
 
 from .dependencies import get_tenant_by_mufis_key, get_tenant_by_token
+from .comgate import ComgateError, get_comgate_client
 from .schemas import (
     AdminOrderDetailResponse,
     AdminOrderListItem,
@@ -50,6 +59,7 @@ from .schemas import (
     OrderCreateResponse,
     OrderItemResponse,
     OrderStatusResponse,
+    PaymentReturnResponse,
 )
 from .utils import generate_order_number
 
@@ -149,7 +159,7 @@ def get_product(
 
 
 @router.post("/orders", response_model=OrderCreateResponse)
-def create_order(
+async def create_order(
     body: OrderCreateRequest,
     tenant=Depends(get_tenant_by_token),
     db=Depends(get_db),
@@ -299,11 +309,48 @@ def create_order(
 
     db.commit()
 
+    # --- Comgate payment integration ---
+    payment_url = None
+    comgate_client = get_comgate_client(tenant)
+
+    if comgate_client is not None:
+        try:
+            price_cents = int(Decimal(str(total_amount_vat)) * 100)
+            result = await comgate_client.create_payment(
+                price_cents=price_cents,
+                currency=tenant["currency"],
+                order_number=order_number,
+                customer_email=body.customer_email,
+                label=tenant["brand_name"][:16],
+                country=body.billing_country or "SK",
+                lang=body.lang or "sk",
+            )
+            # Store Comgate transaction ID
+            cur.execute(
+                "UPDATE eshop_orders SET comgate_transaction_id = %s "
+                "WHERE order_id = %s",
+                (result["transId"], order_id),
+            )
+            db.commit()
+            payment_url = result["redirect_url"]
+        except ComgateError:
+            logger.exception(
+                "Comgate payment creation failed for order %s", order_number
+            )
+        except Exception:
+            logger.exception(
+                "Unexpected error creating Comgate payment for order %s",
+                order_number,
+            )
+    else:
+        logger.warning("Comgate not configured for tenant %s", tenant_id)
+
     return OrderCreateResponse(
         order_number=order_number,
         status="new",
         total_amount_vat=total_amount_vat,
         currency=tenant["currency"],
+        payment_url=payment_url,
     )
 
 
@@ -356,6 +403,215 @@ def get_order_status(
         tracking_link=order[4] or "",
         created_at=order[5],
         items=items,
+    )
+
+
+# ============================================================================
+# PAYMENT — Comgate Callback & Return
+# ============================================================================
+
+
+@router.post("/payment/callback")
+async def payment_callback(
+    merchant: str = Form(...),
+    test: str = Form(...),
+    price: str = Form(...),
+    curr: str = Form(...),
+    label: str = Form(...),
+    refId: str = Form(...),
+    transId: str = Form(...),
+    secret: str = Form(...),
+    email: str = Form(...),
+    status_val: str = Form(..., alias="status"),
+    db=Depends(get_db),
+):
+    """Comgate payment callback — NO authentication required.
+
+    Comgate sends POST with form-urlencoded data when payment status changes.
+    MUST always return HTTP 200 with body 'code=0&message=OK'.
+    """
+    ok_response = Response(content="code=0&message=OK", media_type="text/plain")
+    cur = db.cursor()
+
+    # 1. Find order by refId (order_number)
+    cur.execute(
+        "SELECT order_id, tenant_id, total_amount_vat, currency, "
+        "payment_status, status "
+        "FROM eshop_orders WHERE order_number = %s",
+        (refId,),
+    )
+    order = cur.fetchone()
+    if not order:
+        logger.error("Comgate callback: order '%s' not found", refId)
+        return ok_response
+
+    order_id = order[0]
+    tenant_id = order[1]
+    order_total_vat = order[2]
+    order_currency = order[3]
+    current_payment_status = order[4]
+    current_order_status = order[5]
+
+    # 2. Load tenant to verify secrets
+    cur.execute(
+        "SELECT tenant_id, comgate_merchant_id, comgate_secret "
+        "FROM eshop_tenants WHERE tenant_id = %s",
+        (tenant_id,),
+    )
+    tenant_row = cur.fetchone()
+    if not tenant_row:
+        logger.error("Comgate callback: tenant %s not found", tenant_id)
+        return ok_response
+
+    tenant_merchant_id = tenant_row[1] or ""
+    tenant_secret = tenant_row[2] or ""
+
+    # 3. Verify callback authenticity
+    if not hmac.compare_digest(secret, tenant_secret):
+        logger.error(
+            "Comgate callback: secret mismatch for order %s", refId
+        )
+        return ok_response
+
+    if merchant != tenant_merchant_id:
+        logger.error(
+            "Comgate callback: merchant mismatch for order %s "
+            "(got %s, expected %s)",
+            refId,
+            merchant,
+            tenant_merchant_id,
+        )
+        return ok_response
+
+    # 4. Verify price and currency
+    expected_price_cents = int(Decimal(str(order_total_vat)) * 100)
+    if int(price) != expected_price_cents:
+        logger.error(
+            "Comgate callback: price mismatch for order %s "
+            "(got %s, expected %s)",
+            refId,
+            price,
+            expected_price_cents,
+        )
+        return ok_response
+
+    if curr != order_currency:
+        logger.error(
+            "Comgate callback: currency mismatch for order %s "
+            "(got %s, expected %s)",
+            refId,
+            curr,
+            order_currency,
+        )
+        return ok_response
+
+    # 5. Process status
+    if status_val == "PAID":
+        # Idempotency: if already paid, don't change anything
+        if current_payment_status == "paid":
+            return ok_response
+
+        cur.execute(
+            "UPDATE eshop_orders SET payment_status = 'paid', "
+            "comgate_transaction_id = %s WHERE order_id = %s",
+            (transId, order_id),
+        )
+
+        # If order status is 'new', advance to 'paid'
+        if current_order_status == "new":
+            cur.execute(
+                "UPDATE eshop_orders SET status = 'paid' WHERE order_id = %s",
+                (order_id,),
+            )
+            cur.execute(
+                "INSERT INTO eshop_order_status_history ("
+                "order_id, old_status, new_status, changed_by, note"
+                ") VALUES (%s, %s, %s, %s, %s)",
+                (order_id, current_order_status, "paid", "comgate", ""),
+            )
+        else:
+            # Just record payment status change in history
+            cur.execute(
+                "INSERT INTO eshop_order_status_history ("
+                "order_id, old_status, new_status, changed_by, note"
+                ") VALUES (%s, %s, %s, %s, %s)",
+                (
+                    order_id,
+                    current_order_status,
+                    current_order_status,
+                    "comgate",
+                    "payment_status: paid",
+                ),
+            )
+
+    elif status_val == "CANCELLED":
+        cur.execute(
+            "UPDATE eshop_orders SET payment_status = 'failed' "
+            "WHERE order_id = %s",
+            (order_id,),
+        )
+        cur.execute(
+            "INSERT INTO eshop_order_status_history ("
+            "order_id, old_status, new_status, changed_by, note"
+            ") VALUES (%s, %s, %s, %s, %s)",
+            (
+                order_id,
+                current_order_status,
+                current_order_status,
+                "comgate",
+                "payment_status: failed (CANCELLED)",
+            ),
+        )
+
+    elif status_val == "AUTHORIZED":
+        cur.execute(
+            "UPDATE eshop_orders SET payment_status = 'authorized' "
+            "WHERE order_id = %s",
+            (order_id,),
+        )
+        cur.execute(
+            "INSERT INTO eshop_order_status_history ("
+            "order_id, old_status, new_status, changed_by, note"
+            ") VALUES (%s, %s, %s, %s, %s)",
+            (
+                order_id,
+                current_order_status,
+                current_order_status,
+                "comgate",
+                "payment_status: authorized",
+            ),
+        )
+
+    db.commit()
+    return ok_response
+
+
+@router.get("/payment/return", response_model=PaymentReturnResponse)
+def payment_return(
+    id: str = Query(..., description="Comgate transaction ID"),
+    db=Depends(get_db),
+):
+    """Payment return — customer browser redirected here after payment.
+
+    NO authentication — called by customer browser.
+    """
+    cur = db.cursor()
+    cur.execute(
+        "SELECT order_number, status, payment_status "
+        "FROM eshop_orders WHERE comgate_transaction_id = %s",
+        (id,),
+    )
+    order = cur.fetchone()
+    if not order:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Objednávka pre túto transakciu nebola nájdená",
+        )
+
+    return PaymentReturnResponse(
+        order_number=order[0],
+        status=order[1],
+        payment_status=order[2],
     )
 
 

@@ -7,8 +7,9 @@ Tests cover:
 - Public order endpoints (create, validation, pricing, status)
 - Admin endpoints (orders CRUD, products CRUD, tenants, auth)
 - MuFis endpoints (getOrder, setOrder, getProduct, setProduct)
+- Comgate payment gateway (client, callback, return, order creation)
 
-Total: ~41 tests
+Total: ~61 tests
 """
 
 import json
@@ -1120,3 +1121,523 @@ class TestMuFis:
         )
         assert resp.status_code == 200
         assert resp.json()["ok"] == 1
+
+
+# ============================================================================
+# COMGATE — Client Unit Tests (6 tests)
+# ============================================================================
+
+from eshop.comgate import ComgateClient, ComgateError, get_comgate_client
+
+
+FAKE_TENANT_COMGATE = {
+    **FAKE_TENANT,
+    "comgate_merchant_id": "12345",
+    "comgate_secret": "supersecretkey",
+    "comgate_test_mode": True,
+}
+
+FAKE_TENANT_NO_COMGATE = {
+    **FAKE_TENANT,
+}
+
+
+class TestComgateClient:
+    """ComgateClient unit tests — mock HTTP calls, no real requests."""
+
+    def test_create_payment_request_body(self):
+        """create_payment constructs correct request body with all parameters."""
+        client = ComgateClient(
+            merchant_id="12345", secret="testsecret", test_mode=True
+        )
+        captured_data = {}
+
+        def mock_post_sync(endpoint, data):
+            captured_data.update(data)
+            return {
+                "code": "0",
+                "message": "OK",
+                "transId": "AB12-CD34-EF56",
+                "redirect": "https://payments.comgate.cz/client/pay/AB12-CD34-EF56",
+            }
+
+        client._post_sync = mock_post_sync
+        import asyncio
+
+        asyncio.get_event_loop().run_until_complete(
+            client.create_payment(
+                price_cents=3990,
+                currency="EUR",
+                order_number="EM-2026-00001",
+                customer_email="test@test.sk",
+                label="EM Center",
+                country="SK",
+                lang="sk",
+            )
+        )
+        assert captured_data["merchant"] == "12345"
+        assert captured_data["test"] == "true"
+        assert captured_data["price"] == 3990
+        assert captured_data["curr"] == "EUR"
+        assert captured_data["refId"] == "EM-2026-00001"
+        assert captured_data["email"] == "test@test.sk"
+        assert captured_data["method"] == "ALL"
+        assert captured_data["prepareOnly"] == "true"
+        assert captured_data["secret"] == "testsecret"
+        assert captured_data["country"] == "SK"
+        assert captured_data["lang"] == "sk"
+
+    def test_create_payment_parses_success(self):
+        """create_payment correctly parses successful response."""
+        client = ComgateClient(
+            merchant_id="12345", secret="testsecret", test_mode=True
+        )
+
+        def mock_post_sync(endpoint, data):
+            return {
+                "code": "0",
+                "message": "OK",
+                "transId": "AB12-CD34-EF56",
+                "redirect": "https://payments.comgate.cz/client/pay/AB12-CD34-EF56",
+            }
+
+        client._post_sync = mock_post_sync
+        import asyncio
+
+        result = asyncio.get_event_loop().run_until_complete(
+            client.create_payment(
+                price_cents=3990,
+                currency="EUR",
+                order_number="EM-2026-00001",
+                customer_email="test@test.sk",
+                label="EM Center",
+                country="SK",
+                lang="sk",
+            )
+        )
+        assert result["transId"] == "AB12-CD34-EF56"
+        assert "redirect_url" in result
+        assert "comgate.cz" in result["redirect_url"]
+
+    def test_create_payment_handles_error(self):
+        """create_payment raises ComgateError on error response."""
+        client = ComgateClient(
+            merchant_id="12345", secret="testsecret", test_mode=True
+        )
+
+        def mock_post_sync(endpoint, data):
+            return {"code": "1101", "message": "invalid merchant"}
+
+        client._post_sync = mock_post_sync
+        import asyncio
+
+        with pytest.raises(ComgateError) as exc_info:
+            asyncio.get_event_loop().run_until_complete(
+                client.create_payment(
+                    price_cents=3990,
+                    currency="EUR",
+                    order_number="EM-2026-00001",
+                    customer_email="test@test.sk",
+                    label="EM Center",
+                    country="SK",
+                    lang="sk",
+                )
+            )
+        assert exc_info.value.code == 1101
+        assert "invalid merchant" in exc_info.value.message
+
+    def test_verify_callback_valid_secret(self):
+        """verify_callback returns True for matching secret."""
+        client = ComgateClient(
+            merchant_id="12345", secret="supersecretkey", test_mode=True
+        )
+        import asyncio
+
+        result = asyncio.get_event_loop().run_until_complete(
+            client.verify_callback(
+                merchant="12345",
+                test="true",
+                price="3990",
+                curr="EUR",
+                label="EM Center",
+                refId="EM-2026-00001",
+                transId="AB12-CD34-EF56",
+                secret="supersecretkey",
+                email="test@test.sk",
+                status="PAID",
+            )
+        )
+        assert result is True
+
+    def test_verify_callback_invalid_secret(self):
+        """verify_callback returns False for wrong secret."""
+        client = ComgateClient(
+            merchant_id="12345", secret="supersecretkey", test_mode=True
+        )
+        import asyncio
+
+        result = asyncio.get_event_loop().run_until_complete(
+            client.verify_callback(
+                merchant="12345",
+                test="true",
+                price="3990",
+                curr="EUR",
+                label="EM Center",
+                refId="EM-2026-00001",
+                transId="AB12-CD34-EF56",
+                secret="wrongsecret",
+                email="test@test.sk",
+                status="PAID",
+            )
+        )
+        assert result is False
+
+    def test_price_conversion_cents(self):
+        """EUR amounts convert to cents correctly using Decimal."""
+        # 39.90 EUR → 3990 cents
+        assert int(Decimal("39.90") * 100) == 3990
+        # 9.90 EUR → 990 cents
+        assert int(Decimal("9.90") * 100) == 990
+        # 0.01 EUR → 1 cent
+        assert int(Decimal("0.01") * 100) == 1
+        # 100.00 EUR → 10000 cents
+        assert int(Decimal("100.00") * 100) == 10000
+        # Verify float would be wrong (classic floating-point issue)
+        # Decimal handles this correctly
+        assert int(Decimal("19.80") * 100) == 1980
+
+
+# ============================================================================
+# COMGATE — Helper Function Tests (2 tests)
+# ============================================================================
+
+
+class TestComgateHelper:
+    """get_comgate_client helper tests."""
+
+    def test_get_client_configured(self):
+        """Returns ComgateClient when credentials configured."""
+        client = get_comgate_client(FAKE_TENANT_COMGATE)
+        assert client is not None
+        assert client.merchant_id == "12345"
+        assert client.secret == "supersecretkey"
+        assert client.test_mode is True
+
+    def test_get_client_not_configured(self):
+        """Returns None when Comgate not configured."""
+        client = get_comgate_client(FAKE_TENANT_NO_COMGATE)
+        assert client is None
+
+
+# ============================================================================
+# COMGATE — Payment Callback Integration Tests (8 tests)
+# ============================================================================
+
+
+@pytest.fixture()
+def client_no_auth(mock_db):
+    """TestClient with mocked DB but NO auth — for payment endpoints."""
+    conn, _ = mock_db
+    app.dependency_overrides[get_db] = lambda: conn
+    yield TestClient(app)
+    app.dependency_overrides.clear()
+
+
+def _callback_data(**overrides):
+    """Create valid Comgate callback POST data."""
+    base = {
+        "merchant": "12345",
+        "test": "true",
+        "price": "1980",
+        "curr": "EUR",
+        "label": "EM Center",
+        "refId": "EM-2026-00001",
+        "transId": "AB12-CD34-EF56",
+        "secret": "supersecretkey",
+        "email": "test@test.sk",
+        "status": "PAID",
+    }
+    base.update(overrides)
+    return base
+
+
+class TestPaymentCallback:
+    """POST /api/eshop/payment/callback tests."""
+
+    def test_paid_callback_updates_order(self, client_no_auth, mock_db):
+        """Valid PAID callback updates order payment_status to paid."""
+        _, cursor = mock_db
+        # 1. Find order by refId
+        # 2. Find tenant by tenant_id
+        cursor.fetchone.side_effect = [
+            # order: order_id, tenant_id, total_amount_vat, currency, payment_status, status
+            (1, 1, Decimal("19.80"), "EUR", "pending", "new"),
+            # tenant: tenant_id, comgate_merchant_id, comgate_secret
+            (1, "12345", "supersecretkey"),
+        ]
+        resp = client_no_auth.post(
+            "/api/eshop/payment/callback",
+            data=_callback_data(),
+        )
+        assert resp.status_code == 200
+        assert resp.text == "code=0&message=OK"
+        # Verify UPDATE was called with payment_status = 'paid'
+        calls = [str(c) for c in cursor.execute.call_args_list]
+        paid_calls = [c for c in calls if "payment_status = 'paid'" in c]
+        assert len(paid_calls) >= 1
+
+    def test_paid_callback_saves_transaction_id(self, client_no_auth, mock_db):
+        """Valid PAID callback stores comgate_transaction_id."""
+        _, cursor = mock_db
+        cursor.fetchone.side_effect = [
+            (1, 1, Decimal("19.80"), "EUR", "pending", "new"),
+            (1, "12345", "supersecretkey"),
+        ]
+        resp = client_no_auth.post(
+            "/api/eshop/payment/callback",
+            data=_callback_data(),
+        )
+        assert resp.status_code == 200
+        calls = [str(c) for c in cursor.execute.call_args_list]
+        trans_calls = [c for c in calls if "comgate_transaction_id" in c]
+        assert len(trans_calls) >= 1
+
+    def test_paid_callback_creates_status_history(self, client_no_auth, mock_db):
+        """PAID callback creates status history entry."""
+        _, cursor = mock_db
+        cursor.fetchone.side_effect = [
+            (1, 1, Decimal("19.80"), "EUR", "pending", "new"),
+            (1, "12345", "supersecretkey"),
+        ]
+        resp = client_no_auth.post(
+            "/api/eshop/payment/callback",
+            data=_callback_data(),
+        )
+        assert resp.status_code == 200
+        calls = [str(c) for c in cursor.execute.call_args_list]
+        history_calls = [c for c in calls if "eshop_order_status_history" in c]
+        assert len(history_calls) >= 1
+
+    def test_cancelled_callback_updates_payment_status(
+        self, client_no_auth, mock_db
+    ):
+        """CANCELLED callback updates payment_status to failed."""
+        _, cursor = mock_db
+        cursor.fetchone.side_effect = [
+            (1, 1, Decimal("19.80"), "EUR", "pending", "new"),
+            (1, "12345", "supersecretkey"),
+        ]
+        resp = client_no_auth.post(
+            "/api/eshop/payment/callback",
+            data=_callback_data(status="CANCELLED"),
+        )
+        assert resp.status_code == 200
+        assert resp.text == "code=0&message=OK"
+        calls = [str(c) for c in cursor.execute.call_args_list]
+        failed_calls = [c for c in calls if "payment_status = 'failed'" in c]
+        assert len(failed_calls) >= 1
+
+    def test_invalid_secret_rejected(self, client_no_auth, mock_db):
+        """Invalid secret is rejected (logged) but still returns 200."""
+        _, cursor = mock_db
+        cursor.fetchone.side_effect = [
+            (1, 1, Decimal("19.80"), "EUR", "pending", "new"),
+            (1, "12345", "supersecretkey"),
+        ]
+        resp = client_no_auth.post(
+            "/api/eshop/payment/callback",
+            data=_callback_data(secret="wrongsecret"),
+        )
+        assert resp.status_code == 200
+        assert resp.text == "code=0&message=OK"
+        # No UPDATE should have been called for payment_status
+        calls = [str(c) for c in cursor.execute.call_args_list]
+        paid_calls = [c for c in calls if "payment_status = 'paid'" in c]
+        assert len(paid_calls) == 0
+
+    def test_price_mismatch_rejected(self, client_no_auth, mock_db):
+        """Price mismatch is rejected but returns 200."""
+        _, cursor = mock_db
+        cursor.fetchone.side_effect = [
+            (1, 1, Decimal("19.80"), "EUR", "pending", "new"),
+            (1, "12345", "supersecretkey"),
+        ]
+        resp = client_no_auth.post(
+            "/api/eshop/payment/callback",
+            data=_callback_data(price="9999"),  # Wrong price
+        )
+        assert resp.status_code == 200
+        assert resp.text == "code=0&message=OK"
+        calls = [str(c) for c in cursor.execute.call_args_list]
+        paid_calls = [c for c in calls if "payment_status = 'paid'" in c]
+        assert len(paid_calls) == 0
+
+    def test_nonexistent_order_returns_200(self, client_no_auth, mock_db):
+        """Non-existent refId still returns 200 (Comgate requirement)."""
+        _, cursor = mock_db
+        cursor.fetchone.return_value = None  # order not found
+        resp = client_no_auth.post(
+            "/api/eshop/payment/callback",
+            data=_callback_data(refId="NONEXISTENT"),
+        )
+        assert resp.status_code == 200
+        assert resp.text == "code=0&message=OK"
+
+    def test_duplicate_paid_callback_idempotent(self, client_no_auth, mock_db):
+        """Already-paid order stays paid on duplicate callback."""
+        _, cursor = mock_db
+        cursor.fetchone.side_effect = [
+            # Order already has payment_status='paid'
+            (1, 1, Decimal("19.80"), "EUR", "paid", "paid"),
+            (1, "12345", "supersecretkey"),
+        ]
+        resp = client_no_auth.post(
+            "/api/eshop/payment/callback",
+            data=_callback_data(),
+        )
+        assert resp.status_code == 200
+        assert resp.text == "code=0&message=OK"
+        # No UPDATE should have been called — idempotent
+        calls = [str(c) for c in cursor.execute.call_args_list]
+        update_calls = [c for c in calls if "UPDATE" in c]
+        assert len(update_calls) == 0
+
+
+# ============================================================================
+# COMGATE — Payment Return Tests (3 tests)
+# ============================================================================
+
+
+class TestPaymentReturn:
+    """GET /api/eshop/payment/return tests."""
+
+    def test_valid_transaction_returns_status(self, client_no_auth, mock_db):
+        """Valid transId returns order status."""
+        _, cursor = mock_db
+        cursor.fetchone.return_value = ("EM-2026-00001", "paid", "paid")
+        resp = client_no_auth.get(
+            "/api/eshop/payment/return?id=AB12-CD34-EF56"
+        )
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data["order_number"] == "EM-2026-00001"
+        assert data["status"] == "paid"
+        assert data["payment_status"] == "paid"
+
+    def test_nonexistent_transaction_returns_404(
+        self, client_no_auth, mock_db
+    ):
+        """Non-existent transId returns 404."""
+        _, cursor = mock_db
+        cursor.fetchone.return_value = None
+        resp = client_no_auth.get(
+            "/api/eshop/payment/return?id=NONEXISTENT"
+        )
+        assert resp.status_code == 404
+
+    def test_response_format(self, client_no_auth, mock_db):
+        """Response contains required fields."""
+        _, cursor = mock_db
+        cursor.fetchone.return_value = ("EM-2026-00001", "new", "pending")
+        resp = client_no_auth.get(
+            "/api/eshop/payment/return?id=AB12-CD34-EF56"
+        )
+        assert resp.status_code == 200
+        data = resp.json()
+        assert "order_number" in data
+        assert "status" in data
+        assert "payment_status" in data
+
+
+# ============================================================================
+# COMGATE — Order Creation with Payment Tests (3 tests)
+# ============================================================================
+
+
+class TestOrderCreationWithPayment:
+    """POST /api/eshop/orders — Comgate integration tests."""
+
+    def test_order_with_payment_url(self, mock_db):
+        """Order creation returns payment_url when Comgate configured."""
+        conn, cursor = mock_db
+
+        # Override tenant to include Comgate credentials
+        app.dependency_overrides[get_db] = lambda: conn
+        app.dependency_overrides[get_tenant_by_token] = (
+            lambda: FAKE_TENANT_COMGATE
+        )
+
+        cursor.fetchone.side_effect = [
+            PRODUCT_LOOKUP_1,  # product lookup
+            None,  # advisory lock
+            (None,),  # MAX order_number
+            (42,),  # INSERT RETURNING order_id
+        ]
+
+        with patch(
+            "eshop.comgate.ComgateClient.create_payment"
+        ) as mock_payment:
+            mock_payment.return_value = {
+                "transId": "AB12-CD34-EF56",
+                "redirect_url": "https://payments.comgate.cz/client/pay/AB12",
+            }
+            client = TestClient(app)
+            resp = client.post("/api/eshop/orders", json=_order_body())
+
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data["payment_url"] == (
+            "https://payments.comgate.cz/client/pay/AB12"
+        )
+        assert data["order_number"] is not None
+
+        app.dependency_overrides.clear()
+
+    def test_order_without_comgate(self, client_public, mock_db):
+        """Order creation works without payment_url when Comgate not configured."""
+        _, cursor = mock_db
+        cursor.fetchone.side_effect = [
+            PRODUCT_LOOKUP_1,
+            None,  # advisory lock
+            (None,),  # MAX order_number
+            (42,),  # INSERT RETURNING order_id
+        ]
+        resp = client_public.post("/api/eshop/orders", json=_order_body())
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data["payment_url"] is None
+        assert data["status"] == "new"
+
+    def test_comgate_transaction_id_stored(self, mock_db):
+        """Comgate transaction ID is stored in order."""
+        conn, cursor = mock_db
+
+        app.dependency_overrides[get_db] = lambda: conn
+        app.dependency_overrides[get_tenant_by_token] = (
+            lambda: FAKE_TENANT_COMGATE
+        )
+
+        cursor.fetchone.side_effect = [
+            PRODUCT_LOOKUP_1,
+            None,  # advisory lock
+            (None,),  # MAX order_number
+            (42,),  # INSERT RETURNING order_id
+        ]
+
+        with patch(
+            "eshop.comgate.ComgateClient.create_payment"
+        ) as mock_payment:
+            mock_payment.return_value = {
+                "transId": "AB12-CD34-EF56",
+                "redirect_url": "https://payments.comgate.cz/client/pay/AB12",
+            }
+            client = TestClient(app)
+            resp = client.post("/api/eshop/orders", json=_order_body())
+
+        assert resp.status_code == 200
+        # Verify UPDATE with comgate_transaction_id was called
+        calls = [str(c) for c in cursor.execute.call_args_list]
+        trans_calls = [c for c in calls if "comgate_transaction_id" in c]
+        assert len(trans_calls) >= 1
+
+        app.dependency_overrides.clear()
