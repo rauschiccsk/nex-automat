@@ -26,7 +26,6 @@ MuFis endpoints (API-KEY auth, form-urlencoded):
 
 import json
 import math
-from datetime import datetime
 from decimal import Decimal
 from typing import Optional
 
