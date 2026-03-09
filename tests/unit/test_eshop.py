@@ -75,23 +75,77 @@ NOW = datetime(2026, 1, 15, 10, 0, 0, tzinfo=timezone.utc)
 # product row: product_id, sku, name, short_description, description,
 #              price, price_vat, vat_rate, stock_quantity, image_url, weight, is_active
 PRODUCT_ROW_1 = (
-    1, "EM-500", "OASIS EM-1 500ml", "Trial balenie", None,
-    Decimal("8.25"), Decimal("9.90"), Decimal("20.00"), 10, None, None, True,
+    1,
+    "EM-500",
+    "OASIS EM-1 500ml",
+    "Trial balenie",
+    None,
+    Decimal("8.25"),
+    Decimal("9.90"),
+    Decimal("20.00"),
+    10,
+    None,
+    None,
+    True,
 )
 PRODUCT_ROW_2 = (
-    2, "EM-5L", "OASIS EM-1 5L", "Odporúčané balenie", None,
-    Decimal("33.25"), Decimal("39.90"), Decimal("20.00"), 5, None, None, True,
+    2,
+    "EM-5L",
+    "OASIS EM-1 5L",
+    "Odporúčané balenie",
+    None,
+    Decimal("33.25"),
+    Decimal("39.90"),
+    Decimal("20.00"),
+    5,
+    None,
+    None,
+    True,
 )
 PRODUCT_ROW_INACTIVE = (
-    3, "EM-OLD", "Starý produkt", "Neaktívny", None,
-    Decimal("5.00"), Decimal("6.00"), Decimal("20.00"), 0, None, None, False,
+    3,
+    "EM-OLD",
+    "Starý produkt",
+    "Neaktívny",
+    None,
+    Decimal("5.00"),
+    Decimal("6.00"),
+    Decimal("20.00"),
+    0,
+    None,
+    None,
+    False,
 )
 
 # product lookup row for order creation:
 # product_id, sku, name, price, price_vat, vat_rate, is_active
-PRODUCT_LOOKUP_1 = (1, "EM-500", "OASIS EM-1 500ml", Decimal("8.25"), Decimal("9.90"), Decimal("20.00"), True)
-PRODUCT_LOOKUP_2 = (2, "EM-5L", "OASIS EM-1 5L", Decimal("33.25"), Decimal("39.90"), Decimal("20.00"), True)
-PRODUCT_LOOKUP_INACTIVE = (3, "EM-OLD", "Starý produkt", Decimal("5.00"), Decimal("6.00"), Decimal("20.00"), False)
+PRODUCT_LOOKUP_1 = (
+    1,
+    "EM-500",
+    "OASIS EM-1 500ml",
+    Decimal("8.25"),
+    Decimal("9.90"),
+    Decimal("20.00"),
+    True,
+)
+PRODUCT_LOOKUP_2 = (
+    2,
+    "EM-5L",
+    "OASIS EM-1 5L",
+    Decimal("33.25"),
+    Decimal("39.90"),
+    Decimal("20.00"),
+    True,
+)
+PRODUCT_LOOKUP_INACTIVE = (
+    3,
+    "EM-OLD",
+    "Starý produkt",
+    Decimal("5.00"),
+    Decimal("6.00"),
+    Decimal("20.00"),
+    False,
+)
 
 # Permission check result — True means granted
 PERM_GRANTED = (True,)
@@ -179,6 +233,7 @@ def client_mufis_no_auth(mock_db):
 # ---------------------------------------------------------------------------
 # Helper — build valid order request body
 # ---------------------------------------------------------------------------
+
 
 def _order_body(**overrides):
     """Create a valid order request body with optional overrides."""
@@ -321,9 +376,18 @@ class TestPublicProducts:
         assert resp.status_code == 200
         data = resp.json()
         expected_fields = [
-            "product_id", "sku", "name", "short_description", "description",
-            "price", "price_vat", "vat_rate", "stock_quantity", "image_url",
-            "weight", "is_active",
+            "product_id",
+            "sku",
+            "name",
+            "short_description",
+            "description",
+            "price",
+            "price_vat",
+            "vat_rate",
+            "stock_quantity",
+            "image_url",
+            "weight",
+            "is_active",
         ]
         for field in expected_fields:
             assert field in data, f"Missing field: {field}"
@@ -343,9 +407,9 @@ class TestPublicOrders:
         # Sequence: product lookup, advisory lock, max order_number, INSERT RETURNING
         cursor.fetchone.side_effect = [
             PRODUCT_LOOKUP_1,  # product lookup for EM-500
-            None,              # advisory lock (no return)
-            (None,),           # MAX order_number
-            (42,),             # INSERT RETURNING order_id
+            None,  # advisory lock (no return)
+            (None,),  # MAX order_number
+            (42,),  # INSERT RETURNING order_id
         ]
         resp = client_public.post("/api/eshop/orders", json=_order_body())
         assert resp.status_code == 200
@@ -359,9 +423,9 @@ class TestPublicOrders:
         _, cursor = mock_db
         cursor.fetchone.side_effect = [
             PRODUCT_LOOKUP_1,
-            None,              # advisory lock
-            (None,),           # no existing orders
-            (1,),              # order_id
+            None,  # advisory lock
+            (None,),  # no existing orders
+            (1,),  # order_id
         ]
         resp = client_public.post("/api/eshop/orders", json=_order_body())
         assert resp.status_code == 200
@@ -376,9 +440,9 @@ class TestPublicOrders:
         _, cursor = mock_db
         cursor.fetchone.side_effect = [
             PRODUCT_LOOKUP_1,  # DB price: 9.90 VAT
-            None,              # advisory lock
-            (None,),           # MAX
-            (1,),              # order_id
+            None,  # advisory lock
+            (None,),  # MAX
+            (1,),  # order_id
         ]
         resp = client_public.post(
             "/api/eshop/orders",
@@ -396,22 +460,26 @@ class TestPublicOrders:
         cursor.fetchone.side_effect = [
             PRODUCT_LOOKUP_1,  # EM-500: 9.90 VAT
             PRODUCT_LOOKUP_2,  # EM-5L: 39.90 VAT
-            None,              # advisory lock
-            (None,),           # MAX
-            (1,),              # order_id
+            None,  # advisory lock
+            (None,),  # MAX
+            (1,),  # order_id
         ]
         resp = client_public.post(
             "/api/eshop/orders",
-            json=_order_body(items=[
-                {"sku": "EM-500", "quantity": 1},
-                {"sku": "EM-5L", "quantity": 1},
-            ]),
+            json=_order_body(
+                items=[
+                    {"sku": "EM-500", "quantity": 1},
+                    {"sku": "EM-5L", "quantity": 1},
+                ]
+            ),
         )
         assert resp.status_code == 200
         data = resp.json()
         # 9.90 + 39.90 = 49.80
         expected_total = float(Decimal("9.90") + Decimal("39.90"))
-        assert float(data["total_amount_vat"]) == pytest.approx(expected_total, abs=0.01)
+        assert float(data["total_amount_vat"]) == pytest.approx(
+            expected_total, abs=0.01
+        )
 
     def test_nonexistent_sku_returns_400(self, client_public, mock_db):
         """Non-existent SKU returns 400."""
@@ -473,7 +541,12 @@ class TestPublicOrders:
         """GET order by order_number returns order with items."""
         _, cursor = mock_db
         cursor.fetchone.return_value = (
-            "EM-2026-00001", "new", "pending", "", "", NOW,
+            "EM-2026-00001",
+            "new",
+            "pending",
+            "",
+            "",
+            NOW,
         )
         cursor.fetchall.return_value = [
             ("EM-500", "OASIS EM-1 500ml", 2, Decimal("9.90"), Decimal("20.00")),
@@ -503,8 +576,18 @@ class TestAdmin:
             (1,),  # count
         ]
         cursor.fetchall.return_value = [
-            (1, "EM-2026-00001", "Test", "t@t.sk",
-             Decimal("19.80"), "EUR", "new", "pending", NOW, NOW),
+            (
+                1,
+                "EM-2026-00001",
+                "Test",
+                "t@t.sk",
+                Decimal("19.80"),
+                "EUR",
+                "new",
+                "pending",
+                NOW,
+                NOW,
+            ),
         ]
         resp = client_admin.get("/api/eshop/admin/orders")
         assert resp.status_code == 200
@@ -517,13 +600,45 @@ class TestAdmin:
         """GET admin/orders/{id} returns detail with items + history."""
         _, cursor = mock_db
         order_row = (
-            1, "EM-2026-00001", 1, "t@t.sk", "Test", "", "sk",
-            "Test", "", "Testova 1", "BA", "81101", "SK",
-            "", "", "", "", "", "",
-            "", "", "",
-            Decimal("16.50"), Decimal("19.80"), "EUR",
-            "bank_transfer", "pending", None, "", Decimal("0"),
-            "", "", "", "", False, "new", "", NOW, NOW,
+            1,
+            "EM-2026-00001",
+            1,
+            "t@t.sk",
+            "Test",
+            "",
+            "sk",
+            "Test",
+            "",
+            "Testova 1",
+            "BA",
+            "81101",
+            "SK",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            Decimal("16.50"),
+            Decimal("19.80"),
+            "EUR",
+            "bank_transfer",
+            "pending",
+            None,
+            "",
+            Decimal("0"),
+            "",
+            "",
+            "",
+            "",
+            False,
+            "new",
+            "",
+            NOW,
+            NOW,
         )
         cursor.fetchone.side_effect = [PERM_GRANTED, order_row]
         cursor.fetchall.side_effect = [
@@ -564,9 +679,23 @@ class TestAdmin:
         """POST admin/products creates product."""
         _, cursor = mock_db
         new_product_row = (
-            10, 1, "NEW-SKU", None, "New Product", None,
-            None, None, Decimal("10.00"), Decimal("12.00"), Decimal("20.00"),
-            50, None, True, 0, NOW, NOW,
+            10,
+            1,
+            "NEW-SKU",
+            None,
+            "New Product",
+            None,
+            None,
+            None,
+            Decimal("10.00"),
+            Decimal("12.00"),
+            Decimal("20.00"),
+            50,
+            None,
+            True,
+            0,
+            NOW,
+            NOW,
         )
         cursor.fetchone.side_effect = [PERM_GRANTED, new_product_row]
         resp = client_admin.post(
@@ -587,9 +716,23 @@ class TestAdmin:
         """PATCH admin/products/{id} partial update."""
         _, cursor = mock_db
         updated_row = (
-            1, 1, "EM-500", None, "Updated Name", None,
-            None, None, Decimal("8.25"), Decimal("9.90"), Decimal("20.00"),
-            10, None, True, 0, NOW, NOW,
+            1,
+            1,
+            "EM-500",
+            None,
+            "Updated Name",
+            None,
+            None,
+            None,
+            Decimal("8.25"),
+            Decimal("9.90"),
+            Decimal("20.00"),
+            10,
+            None,
+            True,
+            0,
+            NOW,
+            NOW,
         )
         cursor.fetchone.side_effect = [PERM_GRANTED, updated_row]
         resp = client_admin.patch(
@@ -626,18 +769,57 @@ class TestMuFis:
         cursor.fetchone.side_effect = [(1,)]  # count
         cursor.fetchall.side_effect = [
             [  # order row
-                (1, "EM-2026-00001", 1, "t@t.sk", "Test", "", "sk",
-                 "Test", "", "Testova", "BA", "81101", "SK",
-                 "", "", "", "", "", "",
-                 "", "", "",
-                 Decimal("16.50"), Decimal("19.80"), "EUR",
-                 "bank_transfer", "pending", "", Decimal("0"),
-                 "", "", "", "", False, "new", "",
-                 NOW, NOW),
+                (
+                    1,
+                    "EM-2026-00001",
+                    1,
+                    "t@t.sk",
+                    "Test",
+                    "",
+                    "sk",
+                    "Test",
+                    "",
+                    "Testova",
+                    "BA",
+                    "81101",
+                    "SK",
+                    "",
+                    "",
+                    "",
+                    "",
+                    "",
+                    "",
+                    "",
+                    "",
+                    "",
+                    Decimal("16.50"),
+                    Decimal("19.80"),
+                    "EUR",
+                    "bank_transfer",
+                    "pending",
+                    "",
+                    Decimal("0"),
+                    "",
+                    "",
+                    "",
+                    "",
+                    False,
+                    "new",
+                    "",
+                    NOW,
+                    NOW,
+                ),
             ],
             [  # items for order 1
-                ("EM-500", "OASIS EM-1 500ml", 2, Decimal("8.25"),
-                 Decimal("9.90"), Decimal("20.00"), "product"),
+                (
+                    "EM-500",
+                    "OASIS EM-1 500ml",
+                    2,
+                    Decimal("8.25"),
+                    Decimal("9.90"),
+                    Decimal("20.00"),
+                    "product",
+                ),
             ],
         ]
         resp = client_mufis.post("/api/eshop/mufis/getOrder", data={"page": "1"})
@@ -651,15 +833,59 @@ class TestMuFis:
         _, cursor = mock_db
         cursor.fetchone.side_effect = [(1,)]
         cursor.fetchall.side_effect = [
-            [(1, "EM-2026-00001", 1, "t@t.sk", "Test", "", "sk",
-              "Test", "", "Testova", "BA", "81101", "SK",
-              "", "", "", "", "", "",
-              "", "", "",
-              Decimal("16.50"), Decimal("19.80"), "EUR",
-              "bank_transfer", "pending", "", Decimal("0"),
-              "", "", "", "", False, "new", "",
-              NOW, NOW)],
-            [("EM-500", "OASIS", 2, Decimal("8.25"), Decimal("9.90"), Decimal("20.00"), "product")],
+            [
+                (
+                    1,
+                    "EM-2026-00001",
+                    1,
+                    "t@t.sk",
+                    "Test",
+                    "",
+                    "sk",
+                    "Test",
+                    "",
+                    "Testova",
+                    "BA",
+                    "81101",
+                    "SK",
+                    "",
+                    "",
+                    "",
+                    "",
+                    "",
+                    "",
+                    "",
+                    "",
+                    "",
+                    Decimal("16.50"),
+                    Decimal("19.80"),
+                    "EUR",
+                    "bank_transfer",
+                    "pending",
+                    "",
+                    Decimal("0"),
+                    "",
+                    "",
+                    "",
+                    "",
+                    False,
+                    "new",
+                    "",
+                    NOW,
+                    NOW,
+                )
+            ],
+            [
+                (
+                    "EM-500",
+                    "OASIS",
+                    2,
+                    Decimal("8.25"),
+                    Decimal("9.90"),
+                    Decimal("20.00"),
+                    "product",
+                )
+            ],
         ]
         resp = client_mufis.post(
             "/api/eshop/mufis/getOrder",
@@ -719,15 +945,59 @@ class TestMuFis:
         _, cursor = mock_db
         cursor.fetchone.side_effect = [(1,)]
         cursor.fetchall.side_effect = [
-            [(1, "EM-2026-00001", 1, "t@t.sk", "Test", "", "sk",
-              "Test", "", "Testova", "BA", "81101", "SK",
-              "", "", "", "", "", "",
-              "", "", "",
-              Decimal("16.50"), Decimal("19.80"), "EUR",
-              "bank_transfer", "pending", "", Decimal("0"),
-              "", "", "", "", False, "new", "",
-              NOW, NOW)],
-            [("EM-500", "OASIS", 2, Decimal("8.25"), Decimal("9.90"), Decimal("20.00"), "product")],
+            [
+                (
+                    1,
+                    "EM-2026-00001",
+                    1,
+                    "t@t.sk",
+                    "Test",
+                    "",
+                    "sk",
+                    "Test",
+                    "",
+                    "Testova",
+                    "BA",
+                    "81101",
+                    "SK",
+                    "",
+                    "",
+                    "",
+                    "",
+                    "",
+                    "",
+                    "",
+                    "",
+                    "",
+                    Decimal("16.50"),
+                    Decimal("19.80"),
+                    "EUR",
+                    "bank_transfer",
+                    "pending",
+                    "",
+                    Decimal("0"),
+                    "",
+                    "",
+                    "",
+                    "",
+                    False,
+                    "new",
+                    "",
+                    NOW,
+                    NOW,
+                )
+            ],
+            [
+                (
+                    "EM-500",
+                    "OASIS",
+                    2,
+                    Decimal("8.25"),
+                    Decimal("9.90"),
+                    Decimal("20.00"),
+                    "product",
+                )
+            ],
         ]
         resp = client_mufis.post("/api/eshop/mufis/getOrder", data={})
         assert resp.status_code == 200
@@ -760,13 +1030,19 @@ class TestMuFis:
         """setOrder batch update via 'data' param."""
         _, cursor = mock_db
         cursor.fetchone.side_effect = [
-            (1, "new"),    # order 1
-            (2, "new"),    # order 2
+            (1, "new"),  # order 1
+            (2, "new"),  # order 2
         ]
-        batch_data = json.dumps([
-            {"order_number": "EM-2026-00001", "status": "shipped", "package_number": "PKG1"},
-            {"order_number": "EM-2026-00002", "status": "processing"},
-        ])
+        batch_data = json.dumps(
+            [
+                {
+                    "order_number": "EM-2026-00001",
+                    "status": "shipped",
+                    "package_number": "PKG1",
+                },
+                {"order_number": "EM-2026-00002", "status": "processing"},
+            ]
+        )
         resp = client_mufis.post(
             "/api/eshop/mufis/setOrder",
             data={"data": batch_data},
@@ -779,12 +1055,38 @@ class TestMuFis:
         _, cursor = mock_db
         cursor.fetchone.side_effect = [(2,)]  # count
         cursor.fetchall.return_value = [
-            (1, "EM-500", None, "OASIS EM-1 500ml", "Trial", None,
-             None, Decimal("8.25"), Decimal("9.90"), Decimal("20.00"),
-             10, None, True, 1),
-            (2, "EM-5L", None, "OASIS EM-1 5L", "Odporúčané", None,
-             None, Decimal("33.25"), Decimal("39.90"), Decimal("20.00"),
-             5, None, True, 2),
+            (
+                1,
+                "EM-500",
+                None,
+                "OASIS EM-1 500ml",
+                "Trial",
+                None,
+                None,
+                Decimal("8.25"),
+                Decimal("9.90"),
+                Decimal("20.00"),
+                10,
+                None,
+                True,
+                1,
+            ),
+            (
+                2,
+                "EM-5L",
+                None,
+                "OASIS EM-1 5L",
+                "Odporúčané",
+                None,
+                None,
+                Decimal("33.25"),
+                Decimal("39.90"),
+                Decimal("20.00"),
+                5,
+                None,
+                True,
+                2,
+            ),
         ]
         resp = client_mufis.post("/api/eshop/mufis/getProduct", data={"page": "1"})
         assert resp.status_code == 200
@@ -806,10 +1108,12 @@ class TestMuFis:
     def test_set_product_batch(self, client_mufis, mock_db):
         """setProduct batch update via 'data' param."""
         _, cursor = mock_db
-        batch_data = json.dumps([
-            {"sku": "EM-500", "stock_quantity": 100},
-            {"sku": "EM-5L", "stock_quantity": 50},
-        ])
+        batch_data = json.dumps(
+            [
+                {"sku": "EM-500", "stock_quantity": 100},
+                {"sku": "EM-5L", "stock_quantity": 50},
+            ]
+        )
         resp = client_mufis.post(
             "/api/eshop/mufis/setProduct",
             data={"data": batch_data},

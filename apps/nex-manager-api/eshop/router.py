@@ -189,15 +189,17 @@ def create_order(
         total_amount += product_price * item.quantity
         total_amount_vat += product_price_vat * item.quantity
 
-        order_items.append({
-            "product_id": product[0],
-            "sku": product[1],
-            "name": product[2],
-            "quantity": item.quantity,
-            "unit_price": product_price,
-            "unit_price_vat": product_price_vat,
-            "vat_rate": product_vat_rate,
-        })
+        order_items.append(
+            {
+                "product_id": product[0],
+                "sku": product[1],
+                "name": product[2],
+                "quantity": item.quantity,
+                "unit_price": product_price,
+                "unit_price_vat": product_price_vat,
+                "vat_rate": product_vat_rate,
+            }
+        )
 
     # Add shipping price
     shipping_price = Decimal("0")
@@ -470,8 +472,11 @@ def admin_get_order(
     )
     items = [
         OrderItemResponse(
-            sku=ir[0], name=ir[1], quantity=ir[2],
-            unit_price_vat=ir[3], vat_rate=ir[4],
+            sku=ir[0],
+            name=ir[1],
+            quantity=ir[2],
+            unit_price_vat=ir[3],
+            vat_rate=ir[4],
         )
         for ir in cur.fetchall()
     ]
@@ -485,8 +490,11 @@ def admin_get_order(
     )
     history = [
         AdminStatusHistoryItem(
-            old_status=hr[0], new_status=hr[1],
-            changed_by=hr[2], note=hr[3] or "", created_at=hr[4],
+            old_status=hr[0],
+            new_status=hr[1],
+            changed_by=hr[2],
+            note=hr[3] or "",
+            created_at=hr[4],
         )
         for hr in cur.fetchall()
     ]
@@ -644,25 +652,27 @@ def admin_list_products(
     )
     products = []
     for r in cur.fetchall():
-        products.append({
-            "product_id": r[0],
-            "tenant_id": r[1],
-            "sku": r[2],
-            "barcode": r[3],
-            "name": r[4],
-            "short_description": r[5],
-            "description": r[6],
-            "image_url": r[7],
-            "price": _dec(r[8]),
-            "price_vat": _dec(r[9]),
-            "vat_rate": _dec(r[10]),
-            "stock_quantity": r[11],
-            "weight": _dec(r[12]),
-            "is_active": r[13],
-            "sort_order": r[14],
-            "created_at": r[15].isoformat() if r[15] else None,
-            "updated_at": r[16].isoformat() if r[16] else None,
-        })
+        products.append(
+            {
+                "product_id": r[0],
+                "tenant_id": r[1],
+                "sku": r[2],
+                "barcode": r[3],
+                "name": r[4],
+                "short_description": r[5],
+                "description": r[6],
+                "image_url": r[7],
+                "price": _dec(r[8]),
+                "price_vat": _dec(r[9]),
+                "vat_rate": _dec(r[10]),
+                "stock_quantity": r[11],
+                "weight": _dec(r[12]),
+                "is_active": r[13],
+                "sort_order": r[14],
+                "created_at": r[15].isoformat() if r[15] else None,
+                "updated_at": r[16].isoformat() if r[16] else None,
+            }
+        )
 
     return {
         "products": products,
@@ -993,46 +1003,48 @@ async def mufis_get_order(
         payment_method_raw = r[25] or ""
         payment_method_mapped = pm_map.get(payment_method_raw, "OTHER")
 
-        orders.append({
-            "order_id": r[0],
-            "order_number": r[1],
-            "customer_email": r[3],
-            "customer_name": r[4],
-            "customer_phone": r[5] or "",
-            "lang": r[6] or "sk",
-            "billing_name": r[7] or "",
-            "billing_name2": r[8] or "",
-            "billing_street": r[9] or "",
-            "billing_city": r[10] or "",
-            "billing_zip": r[11] or "",
-            "billing_country": r[12] or "",
-            "shipping_name": r[13] or "",
-            "shipping_name2": r[14] or "",
-            "shipping_street": r[15] or "",
-            "shipping_city": r[16] or "",
-            "shipping_zip": r[17] or "",
-            "shipping_country": r[18] or "",
-            "ico": r[19] or "",
-            "dic": r[20] or "",
-            "eu_vat_number": r[21] or "",
-            "total_amount": _dec(r[22]),
-            "total_amount_vat": _dec(r[23]),
-            "currency": r[24],
-            "payment_method": payment_method_mapped,
-            "payment_status": r[26] or "",
-            "shipping_type": r[27] or "",
-            "shipping_price": _dec(r[28]),
-            "delivery_point_group": r[29] or "",
-            "delivery_point_id": r[30] or "",
-            "tracking_number": r[31] or "",
-            "tracking_link": r[32] or "",
-            "multiple_packages": r[33],
-            "status": r[34],
-            "note": r[35] or "",
-            "created_at": r[36].isoformat() if r[36] else "",
-            "updated_at": r[37].isoformat() if r[37] else "",
-            "items": items,
-        })
+        orders.append(
+            {
+                "order_id": r[0],
+                "order_number": r[1],
+                "customer_email": r[3],
+                "customer_name": r[4],
+                "customer_phone": r[5] or "",
+                "lang": r[6] or "sk",
+                "billing_name": r[7] or "",
+                "billing_name2": r[8] or "",
+                "billing_street": r[9] or "",
+                "billing_city": r[10] or "",
+                "billing_zip": r[11] or "",
+                "billing_country": r[12] or "",
+                "shipping_name": r[13] or "",
+                "shipping_name2": r[14] or "",
+                "shipping_street": r[15] or "",
+                "shipping_city": r[16] or "",
+                "shipping_zip": r[17] or "",
+                "shipping_country": r[18] or "",
+                "ico": r[19] or "",
+                "dic": r[20] or "",
+                "eu_vat_number": r[21] or "",
+                "total_amount": _dec(r[22]),
+                "total_amount_vat": _dec(r[23]),
+                "currency": r[24],
+                "payment_method": payment_method_mapped,
+                "payment_status": r[26] or "",
+                "shipping_type": r[27] or "",
+                "shipping_price": _dec(r[28]),
+                "delivery_point_group": r[29] or "",
+                "delivery_point_id": r[30] or "",
+                "tracking_number": r[31] or "",
+                "tracking_link": r[32] or "",
+                "multiple_packages": r[33],
+                "status": r[34],
+                "note": r[35] or "",
+                "created_at": r[36].isoformat() if r[36] else "",
+                "updated_at": r[37].isoformat() if r[37] else "",
+                "items": items,
+            }
+        )
 
     return {
         "total_pages": total_pages,
@@ -1074,13 +1086,15 @@ async def mufis_set_order(
         except (json.JSONDecodeError, TypeError):
             return {"ok": 0, "error": "Neplatný JSON v 'data' parametri"}
     elif order_number:
-        items_to_process = [{
-            "order_number": order_number,
-            "status": status_val,
-            "package_number": package_number,
-            "tracking_link": tracking_link,
-            "multiple_packages": multiple_packages,
-        }]
+        items_to_process = [
+            {
+                "order_number": order_number,
+                "status": status_val,
+                "package_number": package_number,
+                "tracking_link": tracking_link,
+                "multiple_packages": multiple_packages,
+            }
+        ]
     else:
         return {"ok": 0, "error": "Chýba order_number alebo data parameter"}
 
@@ -1128,8 +1142,7 @@ async def mufis_set_order(
         if set_parts:
             params.append(order_id_val)
             cur.execute(
-                f"UPDATE eshop_orders SET {', '.join(set_parts)} "
-                f"WHERE order_id = %s",
+                f"UPDATE eshop_orders SET {', '.join(set_parts)} WHERE order_id = %s",
                 params,
             )
 
