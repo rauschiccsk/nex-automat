@@ -37,9 +37,7 @@ class EshopEmailService:
         payment_method = html.escape(str(order.get("payment_method", "")))
 
         items_html = self._build_items_table(items, currency)
-        billing_html = self._build_address_block(
-            "Fakturacna adresa", order, "billing"
-        )
+        billing_html = self._build_address_block("Fakturacna adresa", order, "billing")
         shipping_html = self._build_address_block(
             "Dorucovacia adresa", order, "shipping"
         )
@@ -75,9 +73,7 @@ class EshopEmailService:
         full_html = self._build_html_email(body)
         await self._send_email(customer_email, subject, full_html)
 
-    async def send_payment_confirmation(
-        self, order: dict, items: list[dict]
-    ) -> None:
+    async def send_payment_confirmation(self, order: dict, items: list[dict]) -> None:
         """Send payment confirmation email to customer."""
         order_number = html.escape(str(order.get("order_number", "")))
         customer_name = html.escape(str(order.get("customer_name", "")))
@@ -113,8 +109,7 @@ class EshopEmailService:
         """
 
         subject = (
-            f"Platba za objednavku {order_number} bola prijata "
-            f"\u2014 {self.brand_name}"
+            f"Platba za objednavku {order_number} bola prijata \u2014 {self.brand_name}"
         )
         full_html = self._build_html_email(body)
         await self._send_email(customer_email, subject, full_html)
@@ -153,15 +148,11 @@ class EshopEmailService:
         </p>
         """
 
-        subject = (
-            f"Objednavka {order_number} bola odoslana \u2014 {self.brand_name}"
-        )
+        subject = f"Objednavka {order_number} bola odoslana \u2014 {self.brand_name}"
         full_html = self._build_html_email(body)
         await self._send_email(customer_email, subject, full_html)
 
-    async def send_admin_new_order(
-        self, order: dict, items: list[dict]
-    ) -> None:
+    async def send_admin_new_order(self, order: dict, items: list[dict]) -> None:
         """Send new order notification to admin."""
         if not self.admin_email:
             logger.warning("Admin email not configured, skipping admin notification")
@@ -177,9 +168,7 @@ class EshopEmailService:
         note = html.escape(str(order.get("note", "")))
 
         items_html = self._build_items_table(items, currency)
-        billing_html = self._build_address_block(
-            "Fakturacna adresa", order, "billing"
-        )
+        billing_html = self._build_address_block("Fakturacna adresa", order, "billing")
         shipping_html = self._build_address_block(
             "Dorucovacia adresa", order, "shipping"
         )
@@ -236,9 +225,7 @@ class EshopEmailService:
         currency = html.escape(str(order.get("currency", "EUR")))
         total_vat = order.get("total_amount_vat", 0)
         payment_method = html.escape(str(order.get("payment_method", "")))
-        comgate_tid = html.escape(
-            str(order.get("comgate_transaction_id", "") or "")
-        )
+        comgate_tid = html.escape(str(order.get("comgate_transaction_id", "") or ""))
 
         body = f"""
         <h2 style="color:#c62828;">Neuspesna platba</h2>
@@ -268,9 +255,7 @@ class EshopEmailService:
         </table>
         """
 
-        subject = (
-            f"[NEUSPESNA PLATBA] {order_number} \u2014 {customer_name}"
-        )
+        subject = f"[NEUSPESNA PLATBA] {order_number} \u2014 {customer_name}"
         full_html = self._build_html_email(body)
         await self._send_email(self.admin_email, subject, full_html)
 
@@ -338,9 +323,7 @@ class EshopEmailService:
             "</table>"
         )
 
-    def _build_address_block(
-        self, title: str, order: dict, prefix: str
-    ) -> str:
+    def _build_address_block(self, title: str, order: dict, prefix: str) -> str:
         """Build HTML address block (billing or shipping)."""
         name = html.escape(str(order.get(f"{prefix}_name", "") or ""))
         if not name:

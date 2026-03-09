@@ -1018,7 +1018,13 @@ class TestMuFis:
         _, cursor = mock_db
         cursor.fetchone.side_effect = [
             (1, "new"),  # order exists with status 'new'
-            ("EM-2026-00001", "customer@test.sk", "Test", "Z1234567890", ""),  # order for email (shipped)
+            (
+                "EM-2026-00001",
+                "customer@test.sk",
+                "Test",
+                "Z1234567890",
+                "",
+            ),  # order for email (shipped)
         ]
         resp = client_mufis.post(
             "/api/eshop/mufis/setOrder",
@@ -1037,7 +1043,13 @@ class TestMuFis:
         _, cursor = mock_db
         cursor.fetchone.side_effect = [
             (1, "new"),  # order 1
-            ("EM-2026-00001", "customer@test.sk", "Test", "PKG1", ""),  # order for email (shipped)
+            (
+                "EM-2026-00001",
+                "customer@test.sk",
+                "Test",
+                "PKG1",
+                "",
+            ),  # order for email (shipped)
             (2, "new"),  # order 2
         ]
         batch_data = json.dumps(
@@ -1854,9 +1866,7 @@ class TestEmailIntegration:
             (42,),  # INSERT RETURNING order_id
         ]
 
-        with patch(
-            "eshop.router.EshopEmailService"
-        ) as MockEmailSvc:
+        with patch("eshop.router.EshopEmailService") as MockEmailSvc:
             instance = MockEmailSvc.return_value
             instance.send_order_confirmation = AsyncMock()
             instance.send_admin_new_order = AsyncMock()
@@ -1875,17 +1885,29 @@ class TestEmailIntegration:
             # tenant for secret verification
             (1, "12345", "supersecretkey"),
             # tenant for email
-            ("noreply@emcenter.sk", "odbyt@em-1.sk", "EM Center", "emcenter.sk", "#2E7D32", "EUR"),
+            (
+                "noreply@emcenter.sk",
+                "odbyt@em-1.sk",
+                "EM Center",
+                "emcenter.sk",
+                "#2E7D32",
+                "EUR",
+            ),
             # order for email
-            ("EM-2026-00001", "customer@test.sk", "Test", Decimal("19.80"), "EUR", "bank_transfer"),
+            (
+                "EM-2026-00001",
+                "customer@test.sk",
+                "Test",
+                Decimal("19.80"),
+                "EUR",
+                "bank_transfer",
+            ),
         ]
         cursor.fetchall.return_value = [
             ("OASIS EM-1 500ml", 2, Decimal("9.90")),
         ]
 
-        with patch(
-            "eshop.router.EshopEmailService"
-        ) as MockEmailSvc:
+        with patch("eshop.router.EshopEmailService") as MockEmailSvc:
             instance = MockEmailSvc.return_value
             instance.send_payment_confirmation = AsyncMock()
             resp = client_no_auth.post(
@@ -1905,17 +1927,27 @@ class TestEmailIntegration:
             (1, 1, Decimal("19.80"), "EUR", "pending", "new"),
             (1, "12345", "supersecretkey"),
             # tenant for email
-            ("noreply@emcenter.sk", "odbyt@em-1.sk", "EM Center", "emcenter.sk", "#2E7D32", "EUR"),
+            (
+                "noreply@emcenter.sk",
+                "odbyt@em-1.sk",
+                "EM Center",
+                "emcenter.sk",
+                "#2E7D32",
+                "EUR",
+            ),
             # order for email
             (
-                "EM-2026-00001", "customer@test.sk", "Test",
-                Decimal("19.80"), "EUR", "bank_transfer", "AB12-CD34-EF56",
+                "EM-2026-00001",
+                "customer@test.sk",
+                "Test",
+                Decimal("19.80"),
+                "EUR",
+                "bank_transfer",
+                "AB12-CD34-EF56",
             ),
         ]
 
-        with patch(
-            "eshop.router.EshopEmailService"
-        ) as MockEmailSvc:
+        with patch("eshop.router.EshopEmailService") as MockEmailSvc:
             instance = MockEmailSvc.return_value
             instance.send_admin_payment_failed = AsyncMock()
             resp = client_no_auth.post(
@@ -1932,12 +1964,16 @@ class TestEmailIntegration:
         cursor.fetchone.side_effect = [
             (1, "new"),  # order exists
             # order for email
-            ("EM-2026-00001", "customer@test.sk", "Test", "Z123", "https://track.example.com/Z123"),
+            (
+                "EM-2026-00001",
+                "customer@test.sk",
+                "Test",
+                "Z123",
+                "https://track.example.com/Z123",
+            ),
         ]
 
-        with patch(
-            "eshop.router.EshopEmailService"
-        ) as MockEmailSvc:
+        with patch("eshop.router.EshopEmailService") as MockEmailSvc:
             instance = MockEmailSvc.return_value
             instance.send_shipping_notification = AsyncMock()
             resp = client_mufis.post(
