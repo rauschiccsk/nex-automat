@@ -16,7 +16,8 @@ async def get_tenant_by_token(
     cur = db.cursor()
     cur.execute(
         "SELECT tenant_id, company_name, domain, brand_name, logo_url, "
-        "primary_color, currency, vat_rate_default, default_lang, is_active "
+        "primary_color, currency, vat_rate_default, default_lang, is_active, "
+        "smtp_from, admin_email "
         "FROM eshop_tenants WHERE api_token = %s AND is_active = TRUE",
         (x_eshop_token,),
     )
@@ -37,6 +38,8 @@ async def get_tenant_by_token(
         "vat_rate_default": row[7],
         "default_lang": row[8],
         "is_active": row[9],
+        "smtp_from": row[10],
+        "admin_email": row[11],
     }
 
 
@@ -51,7 +54,8 @@ async def get_tenant_by_mufis_key(
     cur = db.cursor()
     cur.execute(
         "SELECT tenant_id, company_name, domain, brand_name, logo_url, "
-        "primary_color, currency, vat_rate_default, default_lang, is_active "
+        "primary_color, currency, vat_rate_default, default_lang, is_active, "
+        "smtp_from, admin_email "
         "FROM eshop_tenants WHERE mufis_api_key = %s AND is_active = TRUE",
         (api_key,),
     )
@@ -72,4 +76,6 @@ async def get_tenant_by_mufis_key(
         "vat_rate_default": row[7],
         "default_lang": row[8],
         "is_active": row[9],
+        "smtp_from": row[10],
+        "admin_email": row[11],
     }

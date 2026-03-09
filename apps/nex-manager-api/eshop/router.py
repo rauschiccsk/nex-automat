@@ -44,6 +44,7 @@ from database import get_db
 
 from .dependencies import get_tenant_by_mufis_key, get_tenant_by_token
 from .comgate import ComgateError, get_comgate_client
+from .email_service import EshopEmailService
 from .schemas import (
     AdminOrderDetailResponse,
     AdminOrderListItem,
@@ -345,6 +346,45 @@ async def create_order(
     else:
         logger.warning("Comgate not configured for tenant %s", tenant_id)
 
+    # --- Email notifications (fire-and-forget) ---
+    try:
+        order_data = {
+            "order_number": order_number,
+            "customer_email": body.customer_email,
+            "customer_name": body.customer_name,
+            "customer_phone": body.customer_phone or "",
+            "billing_name": body.billing_name,
+            "billing_name2": body.billing_name2 or "",
+            "billing_street": body.billing_street,
+            "billing_city": body.billing_city,
+            "billing_zip": body.billing_zip,
+            "billing_country": body.billing_country,
+            "shipping_name": body.shipping_name or "",
+            "shipping_name2": body.shipping_name2 or "",
+            "shipping_street": body.shipping_street or "",
+            "shipping_city": body.shipping_city or "",
+            "shipping_zip": body.shipping_zip or "",
+            "shipping_country": body.shipping_country or "",
+            "total_amount_vat": float(total_amount_vat),
+            "currency": tenant["currency"],
+            "payment_method": body.payment_method,
+            "note": body.note or "",
+        }
+        items_data = [
+            {
+                "name": oi["name"],
+                "quantity": oi["quantity"],
+                "unit_price_vat": float(oi["unit_price_vat"]),
+                "currency": tenant["currency"],
+            }
+            for oi in order_items
+        ]
+        email_svc = EshopEmailService(tenant)
+        await email_svc.send_order_confirmation(order_data, items_data)
+        await email_svc.send_admin_new_order(order_data, items_data)
+    except Exception as e:
+        logger.error("Email notification failed for order %s: %s", order_number, e)
+
     return OrderCreateResponse(
         order_number=order_number,
         status="new",
@@ -539,6 +579,61 @@ async def payment_callback(
                 ),
             )
 
+        # --- Email: payment confirmation ---
+        try:
+            cur.execute(
+                "SELECT smtp_from, admin_email, brand_name, domain, primary_color, "
+                "currency FROM eshop_tenants WHERE tenant_id = %s",
+                (tenant_id,),
+            )
+            t_email = cur.fetchone()
+            if t_email:
+                tenant_for_email = {
+                    "smtp_from": t_email[0],
+                    "admin_email": t_email[1],
+                    "brand_name": t_email[2],
+                    "domain": t_email[3],
+                    "primary_color": t_email[4],
+                    "currency": t_email[5],
+                }
+                # Fetch order details for email
+                cur.execute(
+                    "SELECT order_number, customer_email, customer_name, "
+                    "total_amount_vat, currency, payment_method "
+                    "FROM eshop_orders WHERE order_id = %s",
+                    (order_id,),
+                )
+                o_row = cur.fetchone()
+                if o_row:
+                    order_for_email = {
+                        "order_number": o_row[0],
+                        "customer_email": o_row[1],
+                        "customer_name": o_row[2],
+                        "total_amount_vat": float(o_row[3]),
+                        "currency": o_row[4],
+                        "payment_method": o_row[5],
+                    }
+                    # Fetch items
+                    cur.execute(
+                        "SELECT name, quantity, unit_price_vat "
+                        "FROM eshop_order_items WHERE order_id = %s",
+                        (order_id,),
+                    )
+                    items_for_email = [
+                        {
+                            "name": ir[0],
+                            "quantity": ir[1],
+                            "unit_price_vat": float(ir[2]),
+                        }
+                        for ir in cur.fetchall()
+                    ]
+                    email_svc = EshopEmailService(tenant_for_email)
+                    await email_svc.send_payment_confirmation(
+                        order_for_email, items_for_email
+                    )
+        except Exception as e:
+            logger.error("Email notification failed for PAID callback %s: %s", refId, e)
+
     elif status_val == "CANCELLED":
         cur.execute(
             "UPDATE eshop_orders SET payment_status = 'failed' WHERE order_id = %s",
@@ -556,6 +651,48 @@ async def payment_callback(
                 "payment_status: failed (CANCELLED)",
             ),
         )
+
+        # --- Email: admin payment failed ---
+        try:
+            cur.execute(
+                "SELECT smtp_from, admin_email, brand_name, domain, primary_color, "
+                "currency FROM eshop_tenants WHERE tenant_id = %s",
+                (tenant_id,),
+            )
+            t_email = cur.fetchone()
+            if t_email:
+                tenant_for_email = {
+                    "smtp_from": t_email[0],
+                    "admin_email": t_email[1],
+                    "brand_name": t_email[2],
+                    "domain": t_email[3],
+                    "primary_color": t_email[4],
+                    "currency": t_email[5],
+                }
+                cur.execute(
+                    "SELECT order_number, customer_email, customer_name, "
+                    "total_amount_vat, currency, payment_method, "
+                    "comgate_transaction_id "
+                    "FROM eshop_orders WHERE order_id = %s",
+                    (order_id,),
+                )
+                o_row = cur.fetchone()
+                if o_row:
+                    order_for_email = {
+                        "order_number": o_row[0],
+                        "customer_email": o_row[1],
+                        "customer_name": o_row[2],
+                        "total_amount_vat": float(o_row[3]),
+                        "currency": o_row[4],
+                        "payment_method": o_row[5],
+                        "comgate_transaction_id": o_row[6],
+                    }
+                    email_svc = EshopEmailService(tenant_for_email)
+                    await email_svc.send_admin_payment_failed(order_for_email)
+        except Exception as e:
+            logger.error(
+                "Email notification failed for CANCELLED callback %s: %s", refId, e
+            )
 
     elif status_val == "AUTHORIZED":
         cur.execute(
@@ -1403,6 +1540,31 @@ async def mufis_set_order(
                 ") VALUES (%s, %s, %s, %s, %s)",
                 (order_id_val, old_status, new_status, "mufis", ""),
             )
+
+        # --- Email: shipping notification ---
+        if new_status == "shipped" and (pkg or tl):
+            try:
+                cur.execute(
+                    "SELECT o.order_number, o.customer_email, o.customer_name, "
+                    "o.tracking_number, o.tracking_link "
+                    "FROM eshop_orders o WHERE o.order_id = %s",
+                    (order_id_val,),
+                )
+                o_row = cur.fetchone()
+                if o_row:
+                    order_for_email = {
+                        "order_number": o_row[0],
+                        "customer_email": o_row[1],
+                        "customer_name": o_row[2],
+                        "tracking_number": o_row[3] or "",
+                        "tracking_link": o_row[4] or "",
+                    }
+                    email_svc = EshopEmailService(tenant)
+                    await email_svc.send_shipping_notification(order_for_email)
+            except Exception as e:
+                logger.error(
+                    "Email notification failed for shipped order %s: %s", on, e
+                )
 
     db.commit()
     return {"ok": 1}

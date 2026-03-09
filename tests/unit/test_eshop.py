@@ -17,7 +17,7 @@ import sys
 from datetime import datetime, timezone
 from decimal import Decimal
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
@@ -56,6 +56,8 @@ FAKE_TENANT = {
     "vat_rate_default": Decimal("20.00"),
     "default_lang": "sk",
     "is_active": True,
+    "smtp_from": "noreply@emcenter.sk",
+    "admin_email": "odbyt@em-1.sk",
 }
 
 FAKE_TENANT_2 = {
@@ -69,6 +71,8 @@ FAKE_TENANT_2 = {
     "vat_rate_default": Decimal("20.00"),
     "default_lang": "sk",
     "is_active": True,
+    "smtp_from": "noreply@other.sk",
+    "admin_email": "admin@other.sk",
 }
 
 NOW = datetime(2026, 1, 15, 10, 0, 0, tzinfo=timezone.utc)
@@ -1014,6 +1018,7 @@ class TestMuFis:
         _, cursor = mock_db
         cursor.fetchone.side_effect = [
             (1, "new"),  # order exists with status 'new'
+            ("EM-2026-00001", "customer@test.sk", "Test", "Z1234567890", ""),  # order for email (shipped)
         ]
         resp = client_mufis.post(
             "/api/eshop/mufis/setOrder",
@@ -1032,6 +1037,7 @@ class TestMuFis:
         _, cursor = mock_db
         cursor.fetchone.side_effect = [
             (1, "new"),  # order 1
+            ("EM-2026-00001", "customer@test.sk", "Test", "PKG1", ""),  # order for email (shipped)
             (2, "new"),  # order 2
         ]
         batch_data = json.dumps(
@@ -1615,3 +1621,334 @@ class TestOrderCreationWithPayment:
         assert len(trans_calls) >= 1
 
         app.dependency_overrides.clear()
+
+
+# ============================================================================
+# EMAIL SERVICE — Unit Tests (10 tests)
+# ============================================================================
+
+import asyncio
+
+from eshop.email_service import EshopEmailService
+
+FAKE_TENANT_EMAIL = {
+    "smtp_from": "noreply@emcenter.sk",
+    "admin_email": "odbyt@em-1.sk",
+    "brand_name": "EM Center",
+    "domain": "emcenter.sk",
+    "primary_color": "#2E7D32",
+}
+
+FAKE_TENANT_NO_SMTP = {
+    "smtp_from": "",
+    "admin_email": "admin@test.sk",
+    "brand_name": "Test",
+    "domain": "test.sk",
+    "primary_color": "#000000",
+}
+
+SAMPLE_ORDER = {
+    "order_number": "EM-2026-00001",
+    "customer_email": "customer@test.sk",
+    "customer_name": "Ján Tester",
+    "customer_phone": "+421900000000",
+    "billing_name": "Ján Tester",
+    "billing_street": "Testová 1",
+    "billing_city": "Bratislava",
+    "billing_zip": "81101",
+    "billing_country": "SK",
+    "shipping_name": "Ján Tester",
+    "shipping_street": "Testová 1",
+    "shipping_city": "Bratislava",
+    "shipping_zip": "81101",
+    "shipping_country": "SK",
+    "total_amount_vat": 19.80,
+    "currency": "EUR",
+    "payment_method": "bank_transfer",
+    "note": "",
+    "tracking_number": "Z1234567890",
+    "tracking_link": "https://track.example.com/Z1234567890",
+    "comgate_transaction_id": "AB12-CD34-EF56",
+}
+
+SAMPLE_ITEMS = [
+    {"name": "OASIS EM-1 500ml", "quantity": 2, "unit_price_vat": 9.90},
+    {"name": "OASIS EM-1 5L", "quantity": 1, "unit_price_vat": 39.90},
+]
+
+
+class TestEshopEmailService:
+    """EshopEmailService unit tests — SMTP is always mocked."""
+
+    def test_email_order_confirmation_html(self):
+        """Order confirmation HTML contains order_number, customer_name, items."""
+        svc = EshopEmailService(FAKE_TENANT_EMAIL)
+        captured = {}
+
+        async def mock_send(to, subject, html_body):
+            captured["to"] = to
+            captured["subject"] = subject
+            captured["html"] = html_body
+
+        svc._send_email = mock_send
+        asyncio.get_event_loop().run_until_complete(
+            svc.send_order_confirmation(SAMPLE_ORDER, SAMPLE_ITEMS)
+        )
+        assert "EM-2026-00001" in captured["html"]
+        assert "Tester" in captured["html"]
+        assert "OASIS EM-1 500ml" in captured["html"]
+        assert captured["to"] == "customer@test.sk"
+
+    def test_email_payment_confirmation_html(self):
+        """Payment confirmation HTML contains order_number and total."""
+        svc = EshopEmailService(FAKE_TENANT_EMAIL)
+        captured = {}
+
+        async def mock_send(to, subject, html_body):
+            captured["html"] = html_body
+
+        svc._send_email = mock_send
+        asyncio.get_event_loop().run_until_complete(
+            svc.send_payment_confirmation(SAMPLE_ORDER, SAMPLE_ITEMS)
+        )
+        assert "EM-2026-00001" in captured["html"]
+        assert "19.80" in captured["html"]
+
+    def test_email_shipping_notification_html(self):
+        """Shipping notification HTML contains tracking_link."""
+        svc = EshopEmailService(FAKE_TENANT_EMAIL)
+        captured = {}
+
+        async def mock_send(to, subject, html_body):
+            captured["html"] = html_body
+
+        svc._send_email = mock_send
+        asyncio.get_event_loop().run_until_complete(
+            svc.send_shipping_notification(SAMPLE_ORDER)
+        )
+        assert "https://track.example.com/Z1234567890" in captured["html"]
+        assert "Z1234567890" in captured["html"]
+
+    def test_email_admin_new_order_sent_to_admin(self):
+        """Admin new order email is sent to admin_email."""
+        svc = EshopEmailService(FAKE_TENANT_EMAIL)
+        captured = {}
+
+        async def mock_send(to, subject, html_body):
+            captured["to"] = to
+
+        svc._send_email = mock_send
+        asyncio.get_event_loop().run_until_complete(
+            svc.send_admin_new_order(SAMPLE_ORDER, SAMPLE_ITEMS)
+        )
+        assert captured["to"] == "odbyt@em-1.sk"
+
+    def test_email_admin_payment_failed_sent_to_admin(self):
+        """Admin payment failed email is sent to admin_email."""
+        svc = EshopEmailService(FAKE_TENANT_EMAIL)
+        captured = {}
+
+        async def mock_send(to, subject, html_body):
+            captured["to"] = to
+
+        svc._send_email = mock_send
+        asyncio.get_event_loop().run_until_complete(
+            svc.send_admin_payment_failed(SAMPLE_ORDER)
+        )
+        assert captured["to"] == "odbyt@em-1.sk"
+
+    def test_email_subject_contains_order_number(self):
+        """Email subjects contain order_number."""
+        svc = EshopEmailService(FAKE_TENANT_EMAIL)
+        captured = {}
+
+        async def mock_send(to, subject, html_body):
+            captured["subject"] = subject
+
+        svc._send_email = mock_send
+        asyncio.get_event_loop().run_until_complete(
+            svc.send_order_confirmation(SAMPLE_ORDER, SAMPLE_ITEMS)
+        )
+        assert "EM-2026-00001" in captured["subject"]
+
+    def test_email_from_contains_brand_and_sender(self):
+        """From header contains brand_name and smtp_from."""
+        svc = EshopEmailService(FAKE_TENANT_EMAIL)
+        captured = {}
+
+        async def capture_send(to, subject, html_body):
+            # Build msg to check From header
+            from email.mime.multipart import MIMEMultipart as MM
+
+            msg = MM("alternative")
+            msg["From"] = f"{svc.brand_name} <{svc.sender}>"
+            captured["from"] = msg["From"]
+
+        svc._send_email = capture_send
+        asyncio.get_event_loop().run_until_complete(
+            svc.send_order_confirmation(SAMPLE_ORDER, SAMPLE_ITEMS)
+        )
+        assert "EM Center" in captured["from"]
+        assert "noreply@emcenter.sk" in captured["from"]
+
+    def test_email_html_contains_all_items(self):
+        """All order items appear in HTML."""
+        svc = EshopEmailService(FAKE_TENANT_EMAIL)
+        captured = {}
+
+        async def mock_send(to, subject, html_body):
+            captured["html"] = html_body
+
+        svc._send_email = mock_send
+        asyncio.get_event_loop().run_until_complete(
+            svc.send_order_confirmation(SAMPLE_ORDER, SAMPLE_ITEMS)
+        )
+        assert "OASIS EM-1 500ml" in captured["html"]
+        assert "OASIS EM-1 5L" in captured["html"]
+
+    def test_email_smtp_failure_logged_not_raised(self):
+        """SMTP exception is logged, not raised."""
+        svc = EshopEmailService(FAKE_TENANT_EMAIL)
+
+        with patch("eshop.email_service.smtplib.SMTP") as mock_smtp:
+            mock_smtp.return_value.__enter__ = MagicMock()
+            mock_smtp.return_value.__exit__ = MagicMock(return_value=False)
+            mock_smtp.return_value.__enter__.return_value.send_message.side_effect = (
+                ConnectionRefusedError("Connection refused")
+            )
+            # Should NOT raise
+            asyncio.get_event_loop().run_until_complete(
+                svc.send_order_confirmation(SAMPLE_ORDER, SAMPLE_ITEMS)
+            )
+
+    def test_email_skip_when_no_sender(self):
+        """Email is skipped when smtp_from is empty."""
+        svc = EshopEmailService(FAKE_TENANT_NO_SMTP)
+        send_called = {"called": False}
+
+        def spy_send_sync(msg, to):
+            send_called["called"] = True
+
+        svc._send_sync = spy_send_sync
+        asyncio.get_event_loop().run_until_complete(
+            svc.send_order_confirmation(SAMPLE_ORDER, SAMPLE_ITEMS)
+        )
+        assert send_called["called"] is False
+
+
+# ============================================================================
+# EMAIL — Integration Tests (4 tests)
+# ============================================================================
+
+
+class TestEmailIntegration:
+    """Integration tests — verify email service is called from endpoints."""
+
+    def test_order_creation_triggers_two_emails(self, client_public, mock_db):
+        """Order creation calls send_order_confirmation + send_admin_new_order."""
+        _, cursor = mock_db
+        cursor.fetchone.side_effect = [
+            PRODUCT_LOOKUP_1,
+            None,  # advisory lock
+            (None,),  # MAX order_number
+            (42,),  # INSERT RETURNING order_id
+        ]
+
+        with patch(
+            "eshop.router.EshopEmailService"
+        ) as MockEmailSvc:
+            instance = MockEmailSvc.return_value
+            instance.send_order_confirmation = AsyncMock()
+            instance.send_admin_new_order = AsyncMock()
+            resp = client_public.post("/api/eshop/orders", json=_order_body())
+
+        assert resp.status_code == 200
+        instance.send_order_confirmation.assert_called_once()
+        instance.send_admin_new_order.assert_called_once()
+
+    def test_payment_callback_paid_triggers_email(self, client_no_auth, mock_db):
+        """PAID callback calls send_payment_confirmation."""
+        _, cursor = mock_db
+        cursor.fetchone.side_effect = [
+            # order lookup
+            (1, 1, Decimal("19.80"), "EUR", "pending", "new"),
+            # tenant for secret verification
+            (1, "12345", "supersecretkey"),
+            # tenant for email
+            ("noreply@emcenter.sk", "odbyt@em-1.sk", "EM Center", "emcenter.sk", "#2E7D32", "EUR"),
+            # order for email
+            ("EM-2026-00001", "customer@test.sk", "Test", Decimal("19.80"), "EUR", "bank_transfer"),
+        ]
+        cursor.fetchall.return_value = [
+            ("OASIS EM-1 500ml", 2, Decimal("9.90")),
+        ]
+
+        with patch(
+            "eshop.router.EshopEmailService"
+        ) as MockEmailSvc:
+            instance = MockEmailSvc.return_value
+            instance.send_payment_confirmation = AsyncMock()
+            resp = client_no_auth.post(
+                "/api/eshop/payment/callback",
+                data=_callback_data(),
+            )
+
+        assert resp.status_code == 200
+        instance.send_payment_confirmation.assert_called_once()
+
+    def test_payment_callback_cancelled_triggers_admin_email(
+        self, client_no_auth, mock_db
+    ):
+        """CANCELLED callback calls send_admin_payment_failed."""
+        _, cursor = mock_db
+        cursor.fetchone.side_effect = [
+            (1, 1, Decimal("19.80"), "EUR", "pending", "new"),
+            (1, "12345", "supersecretkey"),
+            # tenant for email
+            ("noreply@emcenter.sk", "odbyt@em-1.sk", "EM Center", "emcenter.sk", "#2E7D32", "EUR"),
+            # order for email
+            (
+                "EM-2026-00001", "customer@test.sk", "Test",
+                Decimal("19.80"), "EUR", "bank_transfer", "AB12-CD34-EF56",
+            ),
+        ]
+
+        with patch(
+            "eshop.router.EshopEmailService"
+        ) as MockEmailSvc:
+            instance = MockEmailSvc.return_value
+            instance.send_admin_payment_failed = AsyncMock()
+            resp = client_no_auth.post(
+                "/api/eshop/payment/callback",
+                data=_callback_data(status="CANCELLED"),
+            )
+
+        assert resp.status_code == 200
+        instance.send_admin_payment_failed.assert_called_once()
+
+    def test_mufis_setorder_shipped_triggers_email(self, client_mufis, mock_db):
+        """MuFis setOrder with status=shipped triggers send_shipping_notification."""
+        _, cursor = mock_db
+        cursor.fetchone.side_effect = [
+            (1, "new"),  # order exists
+            # order for email
+            ("EM-2026-00001", "customer@test.sk", "Test", "Z123", "https://track.example.com/Z123"),
+        ]
+
+        with patch(
+            "eshop.router.EshopEmailService"
+        ) as MockEmailSvc:
+            instance = MockEmailSvc.return_value
+            instance.send_shipping_notification = AsyncMock()
+            resp = client_mufis.post(
+                "/api/eshop/mufis/setOrder",
+                data={
+                    "order_number": "EM-2026-00001",
+                    "status": "shipped",
+                    "package_number": "Z123",
+                    "tracking_link": "https://track.example.com/Z123",
+                },
+            )
+
+        assert resp.status_code == 200
+        instance.send_shipping_notification.assert_called_once()
