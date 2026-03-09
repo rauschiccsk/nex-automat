@@ -79,9 +79,10 @@ class PABTransformer(BaseTransformer):
             self.add_error(index, source_key, "name", "Missing or empty partner name")
             return False
 
-        # partner_type must be valid
+        # partner_type must be valid — may be int (1/2/3) from extractor JSON
         partner_type = record.get("partner_type", "customer")
-        if partner_type not in ("customer", "supplier", "both"):
+        normalized_pt = self._normalize_partner_type(partner_type)
+        if normalized_pt not in ("customer", "supplier", "both"):
             self.add_warning(
                 index,
                 source_key,
@@ -89,6 +90,8 @@ class PABTransformer(BaseTransformer):
                 f"Invalid partner_type '{partner_type}', defaulting to 'customer'",
             )
             record["partner_type"] = "customer"
+        else:
+            record["partner_type"] = normalized_pt
 
         # country_code — must be 2 chars
         country_code = record.get("country_code", "SK")

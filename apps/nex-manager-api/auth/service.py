@@ -2,8 +2,8 @@
 
 from datetime import datetime, timezone
 
+import bcrypt
 from jose import jwt, JWTError  # noqa: F401
-from passlib.context import CryptContext
 
 from .config import (
     JWT_ALGORITHM,
@@ -12,17 +12,17 @@ from .config import (
     REFRESH_TOKEN_EXPIRE,
 )
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     """Verify a plain password against bcrypt hash."""
-    return pwd_context.verify(plain_password, hashed_password)
+    pw_bytes = plain_password.encode("utf-8")[:72]
+    return bcrypt.checkpw(pw_bytes, hashed_password.encode("utf-8"))
 
 
 def hash_password(password: str) -> str:
     """Create bcrypt hash from plain password."""
-    return pwd_context.hash(password)
+    pw_bytes = password.encode("utf-8")[:72]
+    return bcrypt.hashpw(pw_bytes, bcrypt.gensalt()).decode("utf-8")
 
 
 def create_access_token(user_id: int, login_name: str) -> str:

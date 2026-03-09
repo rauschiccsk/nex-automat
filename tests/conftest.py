@@ -4,6 +4,12 @@ NEX Automat - Shared Test Fixtures
 This module provides common fixtures for all tests in the test suite.
 """
 
+import os
+
+# Ensure JWT_SECRET_KEY is set before any auth module import (nex_config.security
+# raises RuntimeError at module-level if the env var is missing).
+os.environ.setdefault("JWT_SECRET_KEY", "test-secret-key-for-unit-tests")
+
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest

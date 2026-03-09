@@ -1,8 +1,19 @@
 """
-Unit tests for PABTransformer — M5 (JSON → PostgreSQL-ready dicts).
+Unit tests for PABTransformer — M5 (JSON → PostgreSQL-ready structured dicts).
 
 Tests run on Linux CI without database access.
 Uses unittest.mock and tmp directories to simulate extracted JSON data.
+
+Transformer output is structured:
+{
+    "_source_key": "...",
+    "header": { ... partner_catalog columns ... },
+    "extensions": { ... partner_catalog_extensions ... } | None,
+    "addresses": [ ... ],
+    "contacts": [ ... ],
+    "bank_accounts": [ ... ],
+    "texts": [ ... ],
+}
 """
 
 import json
@@ -91,8 +102,8 @@ class TestPABTransformerValidRecord:
         assert stats["errors"] == 0
         assert stats["total"] == 1
 
-    def test_valid_record_has_correct_types(self, tmp_path):
-        """Transformed record should have correct Python types matching partners schema."""
+    def test_valid_record_has_structured_output(self, tmp_path):
+        """Transformed record should have structured format with header, extensions, etc."""
         records = [_valid_raw_record()]
         _make_pab_json(records, tmp_path)
 
@@ -100,52 +111,64 @@ class TestPABTransformerValidRecord:
         result, _ = transformer.run()
         rec = result[0]
 
-        # String fields
-        assert isinstance(rec["code"], str)
-        assert isinstance(rec["name"], str)
-        assert isinstance(rec["partner_type"], str)
-        assert rec["partner_type"] in ("customer", "supplier", "both")
-
-        # Boolean fields
-        assert isinstance(rec["is_supplier"], bool)
-        assert isinstance(rec["is_customer"], bool)
-        assert isinstance(rec["is_vat_payer"], bool)
-        assert isinstance(rec["is_active"], bool)
-
-        # Numeric fields
-        assert isinstance(rec["payment_due_days"], int)
-        assert isinstance(rec["credit_limit"], float)
-        assert isinstance(rec["discount_percent"], float)
-
-        # _source_key preserved
+        # Structured output must have these keys
         assert "_source_key" in rec
         assert rec["_source_key"] == "10001"
+        assert "header" in rec
+        assert "extensions" in rec
+        assert "addresses" in rec
+        assert "contacts" in rec
+        assert "bank_accounts" in rec
+        assert "texts" in rec
+
+    def test_valid_record_header_has_correct_types(self, tmp_path):
+        """Header should have correct Python types matching partner_catalog schema."""
+        records = [_valid_raw_record()]
+        _make_pab_json(records, tmp_path)
+
+        transformer = PABTransformer(data_dir=str(tmp_path))
+        result, _ = transformer.run()
+        header = result[0]["header"]
+
+        # Integer fields
+        assert isinstance(header["partner_id"], int)
+        assert header["partner_id"] == 10001
+
+        # String fields
+        assert isinstance(header["partner_name"], str)
+        assert header["partner_name"] == "Test Partner s.r.o."
+
+        # Boolean fields — derived from partner_type=2 (customer)
+        assert isinstance(header["is_supplier"], bool)
+        assert isinstance(header["is_customer"], bool)
+        assert header["is_customer"] is True
+        assert header["is_supplier"] is False
+        assert isinstance(header["is_vat_payer"], bool)
+        assert isinstance(header["is_active"], bool)
 
     def test_partner_type_supplier(self, tmp_path):
-        """partner_type=1 should map to 'supplier'."""
+        """partner_type=1 should map to supplier flags in header."""
         records = [_valid_raw_record(partner_type=1)]
         _make_pab_json(records, tmp_path)
 
         transformer = PABTransformer(data_dir=str(tmp_path))
         result, _ = transformer.run()
-        rec = result[0]
+        header = result[0]["header"]
 
-        assert rec["partner_type"] == "supplier"
-        assert rec["is_supplier"] is True
-        assert rec["is_customer"] is False
+        assert header["is_supplier"] is True
+        assert header["is_customer"] is False
 
     def test_partner_type_both(self, tmp_path):
-        """partner_type=3 should map to 'both'."""
+        """partner_type=3 should map to both supplier and customer."""
         records = [_valid_raw_record(partner_type=3)]
         _make_pab_json(records, tmp_path)
 
         transformer = PABTransformer(data_dir=str(tmp_path))
         result, _ = transformer.run()
-        rec = result[0]
+        header = result[0]["header"]
 
-        assert rec["partner_type"] == "both"
-        assert rec["is_supplier"] is True
-        assert rec["is_customer"] is True
+        assert header["is_supplier"] is True
+        assert header["is_customer"] is True
 
     def test_multiple_records(self, tmp_path):
         """Multiple valid records should all be transformed."""
@@ -163,21 +186,18 @@ class TestPABTransformerValidRecord:
         assert stats["valid"] == 3
         assert stats["total"] == 3
 
-    def test_default_values_applied(self, tmp_path):
-        """Missing optional fields should get defaults from field mappings."""
-        minimal = _valid_raw_record()
-        # Remove optional fields — they should get defaults from transform
-        minimal.pop("payment_method", None)
-        minimal.pop("currency", None)
-        records = [minimal]
+    def test_extensions_created(self, tmp_path):
+        """Extensions should be created with business terms."""
+        records = [_valid_raw_record()]
         _make_pab_json(records, tmp_path)
 
         transformer = PABTransformer(data_dir=str(tmp_path))
         result, _ = transformer.run()
-        rec = result[0]
+        ext = result[0]["extensions"]
 
-        assert rec["payment_method"] == "transfer"
-        assert rec["currency"] == "EUR"
+        assert ext is not None
+        assert "sale_payment_due_days" in ext
+        assert "sale_currency_code" in ext
 
 
 class TestPABTransformerInvalidRecord:
