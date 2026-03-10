@@ -269,15 +269,17 @@ class EshopEmailService:
             else str(expires_at)
         )
         domain = tenant.get("domain", self.domain)
-        company = tenant.get("company_name") or tenant.get("tenant_name", self.brand_name)
+        company = tenant.get("company_name") or tenant.get(
+            "tenant_name", self.brand_name
+        )
 
-        body = f"""Dobrý deň{' ' + lead['first_name'] if lead.get('first_name') else ''},
+        body = f"""Dobrý deň{" " + lead["first_name"] if lead.get("first_name") else ""},
 
 Ďakujeme za Váš záujem o Oasis EM-1!
 
 Pripravili sme pre Vás špeciálnu zľavu 50% na prvý nákup.
 
-Váš zľavový kód: {lead['discount_code']}
+Váš zľavový kód: {lead["discount_code"]}
 
 Kód je platný do {expires_str}.
 Použite ho pri objednávke na {domain}.
@@ -291,7 +293,9 @@ Tím {company}
         await self._send_email(
             to=lead["email"],
             subject=subject,
-            html_body=self._build_html_email(f"<pre style='font-family:inherit;'>{body}</pre>"),
+            html_body=self._build_html_email(
+                f"<pre style='font-family:inherit;'>{body}</pre>"
+            ),
         )
 
     async def send_lead_reminder_email(
@@ -306,13 +310,15 @@ Tím {company}
             else str(expires_at)
         )
         domain = tenant.get("domain", self.domain)
-        company = tenant.get("company_name") or tenant.get("tenant_name", self.brand_name)
+        company = tenant.get("company_name") or tenant.get(
+            "tenant_name", self.brand_name
+        )
 
-        body = f"""Dobrý deň{' ' + lead['first_name'] if lead.get('first_name') else ''},
+        body = f"""Dobrý deň{" " + lead["first_name"] if lead.get("first_name") else ""},
 
 Strážime pre Vás 50% zľavu na Oasis EM-1.
 
-Váš zľavový kód: {lead['discount_code']}
+Váš zľavový kód: {lead["discount_code"]}
 Platnosť do: {expires_str}
 Zostáva: {days_remaining} dní
 
@@ -326,7 +332,9 @@ Tím {company}"""
         await self._send_email(
             to=lead["email"],
             subject=subject,
-            html_body=self._build_html_email(f"<pre style='font-family:inherit;'>{body}</pre>"),
+            html_body=self._build_html_email(
+                f"<pre style='font-family:inherit;'>{body}</pre>"
+            ),
         )
 
     # ------------------------------------------------------------------

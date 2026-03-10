@@ -389,8 +389,7 @@ async def create_order(
     # --- Update lead with first_order_id ---
     if discount_code_applied:
         cur.execute(
-            "UPDATE eshop_leads SET first_order_id = %s "
-            "WHERE discount_code = %s",
+            "UPDATE eshop_leads SET first_order_id = %s WHERE discount_code = %s",
             (order_id, discount_code_applied),
         )
         db.commit()
@@ -568,8 +567,7 @@ async def register_lead(
 
     # Check duplicate email for tenant
     cur.execute(
-        "SELECT lead_id FROM eshop_leads "
-        "WHERE tenant_id = %s AND email = %s",
+        "SELECT lead_id FROM eshop_leads WHERE tenant_id = %s AND email = %s",
         (tenant_id, body.email),
     )
     if cur.fetchone():
@@ -640,9 +638,9 @@ async def register_lead(
         email=body.email,
         discount_code=discount_code,
         discount_percentage=50.0,
-        expires_at=expires_at.isoformat() if hasattr(expires_at, "isoformat") else str(
-            expires_at
-        ),
+        expires_at=expires_at.isoformat()
+        if hasattr(expires_at, "isoformat")
+        else str(expires_at),
         message="Registrácia úspešná. Zľavový kód bol odoslaný na váš e-mail.",
     )
 
@@ -671,29 +669,23 @@ def validate_discount_code(
     first_order_id = lead[3]
 
     if not is_active:
-        return LeadValidateResponse(
-            valid=False, message="Zľavový kód nie je aktívny"
-        )
+        return LeadValidateResponse(valid=False, message="Zľavový kód nie je aktívny")
 
     if first_order_id is not None:
-        return LeadValidateResponse(
-            valid=False, message="Zľavový kód už bol použitý"
-        )
+        return LeadValidateResponse(valid=False, message="Zľavový kód už bol použitý")
 
     from datetime import datetime, timezone
 
     now_utc = datetime.now(timezone.utc)
     if expires_at <= now_utc:
-        return LeadValidateResponse(
-            valid=False, message="Zľavový kód expiroval"
-        )
+        return LeadValidateResponse(valid=False, message="Zľavový kód expiroval")
 
     return LeadValidateResponse(
         valid=True,
         discount_percentage=discount_percentage,
-        expires_at=expires_at.isoformat() if hasattr(expires_at, "isoformat") else str(
-            expires_at
-        ),
+        expires_at=expires_at.isoformat()
+        if hasattr(expires_at, "isoformat")
+        else str(expires_at),
         message="Kód je platný",
     )
 

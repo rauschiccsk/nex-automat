@@ -2096,8 +2096,12 @@ class TestLeadRegistration:
         """Two registrations generate different discount codes."""
         _, cursor = mock_db
         cursor.fetchone.side_effect = [
-            None, None, LEAD_INSERT_RETURN,  # first registration
-            None, None, (2, datetime(2026, 4, 15, 10, 0, 0, tzinfo=timezone.utc)),
+            None,
+            None,
+            LEAD_INSERT_RETURN,  # first registration
+            None,
+            None,
+            (2, datetime(2026, 4, 15, 10, 0, 0, tzinfo=timezone.utc)),
         ]
 
         codes = []
