@@ -35,3 +35,19 @@
 - `EshopProductForm.test.tsx` — 5 testov (form fields, validation, auto-calc, save, cancel)
 
 **Celkový počet testov:** 304 frontend + 77 backend = 381 testov
+
+---
+
+### F4.4c: ESHOP Product Fixes + Lead Capture System
+- **Dátum:** 2026-03-10
+- **Commit:** 065113f
+- **Typ:** Backend (NEX Automat)
+- **Zmeny:**
+  - Migration 009: DPH 20%→23%, produkty Bajkal→Oasis EM-1
+  - EM-5L deaktivovaný, nový EM-500-3PACK (akcia 2+1)
+  - Nová tabuľka eshop_leads (lead capture + discount)
+  - 2 nové verejné API endpointy (leads register, validate)
+  - Discount code integrácia do objednávkového flow
+  - 2 nové email šablóny (welcome, reminder)
+  - +19 testov (celkom ESHOP backend: 96)
+- **CI:** 9/10 jobov GREEN (E2E Tests skipped — no trigger)
