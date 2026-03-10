@@ -1988,3 +1988,391 @@ class TestEmailIntegration:
 
         assert resp.status_code == 200
         instance.send_shipping_notification.assert_called_once()
+
+
+# ============================================================================
+# LEAD CAPTURE — Registration Tests (8 tests)
+# ============================================================================
+
+
+LEAD_BODY = {
+    "email": "lead@test.sk",
+    "first_name": "Ján",
+    "last_name": "Testovič",
+    "phone": "+421900111222",
+    "gdpr_consent": True,
+}
+
+# lead insert returning: lead_id, expires_at
+LEAD_INSERT_RETURN = (
+    1,
+    datetime(2026, 4, 15, 10, 0, 0, tzinfo=timezone.utc),
+)
+
+
+class TestLeadRegistration:
+    """POST /api/eshop/leads tests."""
+
+    def test_register_lead_success(self, client_public, mock_db):
+        """Successful lead registration returns 201 with discount code."""
+        _, cursor = mock_db
+        cursor.fetchone.side_effect = [
+            None,  # duplicate check — no existing lead
+            None,  # discount code uniqueness check
+            LEAD_INSERT_RETURN,  # INSERT RETURNING
+        ]
+
+        with patch("eshop.router.EshopEmailService") as MockEmailSvc:
+            instance = MockEmailSvc.return_value
+            instance.send_lead_welcome_email = AsyncMock()
+            resp = client_public.post("/api/eshop/leads", json=LEAD_BODY)
+
+        assert resp.status_code == 201
+        data = resp.json()
+        assert data["email"] == "lead@test.sk"
+        assert data["discount_code"].startswith("OASIS-")
+        assert len(data["discount_code"]) == 14  # OASIS- + 8 hex chars
+        assert data["discount_percentage"] == 50.0
+        assert data["lead_id"] == 1
+
+    def test_register_lead_duplicate_email_409(self, client_public, mock_db):
+        """Duplicate email for same tenant returns 409."""
+        _, cursor = mock_db
+        cursor.fetchone.side_effect = [
+            (1,),  # duplicate check — existing lead found
+        ]
+        resp = client_public.post("/api/eshop/leads", json=LEAD_BODY)
+        assert resp.status_code == 409
+        assert "zaregistrovaný" in resp.json()["detail"]
+
+    def test_register_lead_same_email_different_tenant_ok(self, mock_db):
+        """Same email for different tenant returns 201."""
+        conn, cursor = mock_db
+
+        app.dependency_overrides[get_db] = lambda: conn
+        app.dependency_overrides[get_tenant_by_token] = lambda: FAKE_TENANT_2
+
+        cursor.fetchone.side_effect = [
+            None,  # duplicate check — no existing lead for tenant 2
+            None,  # discount code uniqueness check
+            LEAD_INSERT_RETURN,  # INSERT RETURNING
+        ]
+
+        with patch("eshop.router.EshopEmailService") as MockEmailSvc:
+            instance = MockEmailSvc.return_value
+            instance.send_lead_welcome_email = AsyncMock()
+            client = TestClient(app)
+            resp = client.post("/api/eshop/leads", json=LEAD_BODY)
+
+        assert resp.status_code == 201
+        app.dependency_overrides.clear()
+
+    def test_register_lead_without_gdpr_400(self, client_public, mock_db):
+        """GDPR consent false returns 400."""
+        resp = client_public.post(
+            "/api/eshop/leads",
+            json={**LEAD_BODY, "gdpr_consent": False},
+        )
+        assert resp.status_code == 400
+        assert "GDPR" in resp.json()["detail"]
+
+    def test_register_lead_invalid_email_422(self, client_public, mock_db):
+        """Invalid email format returns 422."""
+        resp = client_public.post(
+            "/api/eshop/leads",
+            json={**LEAD_BODY, "email": "not-an-email"},
+        )
+        assert resp.status_code == 422
+
+    def test_register_lead_empty_email_422(self, client_public, mock_db):
+        """Empty email returns 422."""
+        resp = client_public.post(
+            "/api/eshop/leads",
+            json={**LEAD_BODY, "email": ""},
+        )
+        assert resp.status_code == 422
+
+    def test_two_registrations_different_codes(self, client_public, mock_db):
+        """Two registrations generate different discount codes."""
+        _, cursor = mock_db
+        cursor.fetchone.side_effect = [
+            None, None, LEAD_INSERT_RETURN,  # first registration
+            None, None, (2, datetime(2026, 4, 15, 10, 0, 0, tzinfo=timezone.utc)),
+        ]
+
+        codes = []
+        with patch("eshop.router.EshopEmailService") as MockEmailSvc:
+            instance = MockEmailSvc.return_value
+            instance.send_lead_welcome_email = AsyncMock()
+            for email in ["lead1@test.sk", "lead2@test.sk"]:
+                resp = client_public.post(
+                    "/api/eshop/leads",
+                    json={**LEAD_BODY, "email": email},
+                )
+                assert resp.status_code == 201
+                codes.append(resp.json()["discount_code"])
+
+        assert codes[0] != codes[1]
+
+    def test_welcome_email_called(self, client_public, mock_db):
+        """Welcome email is sent on successful registration."""
+        _, cursor = mock_db
+        cursor.fetchone.side_effect = [
+            None,  # duplicate check
+            None,  # code uniqueness check
+            LEAD_INSERT_RETURN,  # INSERT RETURNING
+        ]
+
+        with patch("eshop.router.EshopEmailService") as MockEmailSvc:
+            instance = MockEmailSvc.return_value
+            instance.send_lead_welcome_email = AsyncMock()
+            resp = client_public.post("/api/eshop/leads", json=LEAD_BODY)
+
+        assert resp.status_code == 201
+        instance.send_lead_welcome_email.assert_called_once()
+
+
+# ============================================================================
+# LEAD CAPTURE — Discount Validation Tests (5 tests)
+# ============================================================================
+
+
+class TestDiscountValidation:
+    """GET /api/eshop/leads/validate/{code} tests."""
+
+    def test_valid_code(self, client_public, mock_db):
+        """Valid active code returns valid=true with 50% discount."""
+        _, cursor = mock_db
+        cursor.fetchone.return_value = (
+            Decimal("50.00"),  # discount_percentage
+            datetime(2026, 6, 15, 10, 0, 0, tzinfo=timezone.utc),  # expires_at (future)
+            True,  # is_active
+            None,  # first_order_id (not used yet)
+        )
+        resp = client_public.get("/api/eshop/leads/validate/OASIS-ABCD1234")
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data["valid"] is True
+        assert data["discount_percentage"] == 50.0
+        assert data["message"] == "Kód je platný"
+
+    def test_nonexistent_code(self, client_public, mock_db):
+        """Non-existent code returns valid=false."""
+        _, cursor = mock_db
+        cursor.fetchone.return_value = None
+        resp = client_public.get("/api/eshop/leads/validate/FAKE-CODE-1234")
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data["valid"] is False
+        assert "Neplatný" in data["message"]
+
+    def test_expired_code(self, client_public, mock_db):
+        """Expired code returns valid=false with expiration message."""
+        _, cursor = mock_db
+        cursor.fetchone.return_value = (
+            Decimal("50.00"),
+            datetime(2025, 1, 1, 0, 0, 0, tzinfo=timezone.utc),  # past date
+            True,
+            None,
+        )
+        resp = client_public.get("/api/eshop/leads/validate/OASIS-EXPIRED1")
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data["valid"] is False
+        assert "expiroval" in data["message"]
+
+    def test_already_used_code(self, client_public, mock_db):
+        """Already-used code (first_order_id set) returns valid=false."""
+        _, cursor = mock_db
+        cursor.fetchone.return_value = (
+            Decimal("50.00"),
+            datetime(2026, 6, 15, 10, 0, 0, tzinfo=timezone.utc),
+            True,
+            42,  # first_order_id — already used
+        )
+        resp = client_public.get("/api/eshop/leads/validate/OASIS-USED1234")
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data["valid"] is False
+        assert "použitý" in data["message"]
+
+    def test_deactivated_code(self, client_public, mock_db):
+        """Deactivated lead (is_active=false) returns valid=false."""
+        _, cursor = mock_db
+        cursor.fetchone.return_value = (
+            Decimal("50.00"),
+            datetime(2026, 6, 15, 10, 0, 0, tzinfo=timezone.utc),
+            False,  # is_active = false
+            None,
+        )
+        resp = client_public.get("/api/eshop/leads/validate/OASIS-DEAD1234")
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data["valid"] is False
+        assert "aktívny" in data["message"]
+
+
+# ============================================================================
+# LEAD CAPTURE — Discount in Order Tests (6 tests)
+# ============================================================================
+
+
+class TestDiscountInOrder:
+    """POST /api/eshop/orders with discount_code tests."""
+
+    def test_order_with_valid_discount_reduces_price(self, client_public, mock_db):
+        """Order with valid discount code reduces total by 50%."""
+        _, cursor = mock_db
+        cursor.fetchone.side_effect = [
+            PRODUCT_LOOKUP_1,  # product lookup EM-500
+            None,  # MAX order_number (row=None → seq=1)
+            (42,),  # INSERT RETURNING order_id
+            # discount code validation — lead row
+            (
+                1,  # lead_id
+                Decimal("50.00"),  # discount_percentage
+                datetime(2026, 6, 15, 10, 0, 0, tzinfo=timezone.utc),  # expires_at
+                True,  # is_active
+                None,  # first_order_id
+            ),
+        ]
+
+        with patch("eshop.router.EshopEmailService") as MockEmailSvc:
+            instance = MockEmailSvc.return_value
+            instance.send_order_confirmation = AsyncMock()
+            instance.send_admin_new_order = AsyncMock()
+            resp = client_public.post(
+                "/api/eshop/orders",
+                json=_order_body(discount_code="OASIS-ABCD1234"),
+            )
+
+        assert resp.status_code == 200
+        data = resp.json()
+        # Original: 2 * 9.90 = 19.80, discount 50% = 9.90, total = 9.90
+        assert float(data["total_amount_vat"]) == pytest.approx(9.90, abs=0.01)
+
+    def test_order_with_invalid_discount_400(self, client_public, mock_db):
+        """Order with non-existent discount code returns 400."""
+        _, cursor = mock_db
+        cursor.fetchone.side_effect = [
+            PRODUCT_LOOKUP_1,  # product lookup
+            None,  # MAX order_number
+            (42,),  # INSERT RETURNING order_id
+            None,  # discount code lookup — not found
+        ]
+        resp = client_public.post(
+            "/api/eshop/orders",
+            json=_order_body(discount_code="FAKE-CODE-1234"),
+        )
+        assert resp.status_code == 400
+        assert "Neplatný" in resp.json()["detail"]
+
+    def test_order_with_expired_discount_400(self, client_public, mock_db):
+        """Order with expired discount code returns 400."""
+        _, cursor = mock_db
+        cursor.fetchone.side_effect = [
+            PRODUCT_LOOKUP_1,
+            None,  # MAX order_number
+            (42,),  # INSERT RETURNING order_id
+            (
+                1,
+                Decimal("50.00"),
+                datetime(2025, 1, 1, 0, 0, 0, tzinfo=timezone.utc),  # expired
+                True,
+                None,
+            ),
+        ]
+        resp = client_public.post(
+            "/api/eshop/orders",
+            json=_order_body(discount_code="OASIS-EXPIRED1"),
+        )
+        assert resp.status_code == 400
+        assert "expiroval" in resp.json()["detail"]
+
+    def test_order_without_discount_full_price(self, client_public, mock_db):
+        """Order without discount code pays full price (backward compatible)."""
+        _, cursor = mock_db
+        cursor.fetchone.side_effect = [
+            PRODUCT_LOOKUP_1,
+            None,
+            (None,),
+            (42,),
+        ]
+
+        with patch("eshop.router.EshopEmailService") as MockEmailSvc:
+            instance = MockEmailSvc.return_value
+            instance.send_order_confirmation = AsyncMock()
+            instance.send_admin_new_order = AsyncMock()
+            resp = client_public.post("/api/eshop/orders", json=_order_body())
+
+        assert resp.status_code == 200
+        data = resp.json()
+        # 2 * 9.90 = 19.80, no discount
+        assert float(data["total_amount_vat"]) == pytest.approx(19.80, abs=0.01)
+
+    def test_discount_item_in_order_items(self, client_public, mock_db):
+        """Discount creates order item with negative price and item_type='discount'."""
+        _, cursor = mock_db
+        cursor.fetchone.side_effect = [
+            PRODUCT_LOOKUP_1,
+            None,  # MAX order_number
+            (42,),  # INSERT RETURNING order_id
+            (
+                1,
+                Decimal("50.00"),
+                datetime(2026, 6, 15, 10, 0, 0, tzinfo=timezone.utc),
+                True,
+                None,
+            ),
+        ]
+
+        with patch("eshop.router.EshopEmailService") as MockEmailSvc:
+            instance = MockEmailSvc.return_value
+            instance.send_order_confirmation = AsyncMock()
+            instance.send_admin_new_order = AsyncMock()
+            resp = client_public.post(
+                "/api/eshop/orders",
+                json=_order_body(discount_code="OASIS-ABCD1234"),
+            )
+
+        assert resp.status_code == 200
+        # Find the discount item insert call
+        calls = [str(c) for c in cursor.execute.call_args_list]
+        discount_calls = [c for c in calls if "'discount'" in c]
+        assert len(discount_calls) >= 1
+        # Verify negative price in call args
+        negative_price_calls = [c for c in calls if "-9.9" in c]
+        assert len(negative_price_calls) >= 1
+
+    def test_lead_first_order_id_set_after_order(self, client_public, mock_db):
+        """Lead.first_order_id is updated after successful order."""
+        _, cursor = mock_db
+        cursor.fetchone.side_effect = [
+            PRODUCT_LOOKUP_1,
+            None,  # MAX order_number
+            (42,),  # INSERT RETURNING order_id = 42
+            (
+                1,
+                Decimal("50.00"),
+                datetime(2026, 6, 15, 10, 0, 0, tzinfo=timezone.utc),
+                True,
+                None,
+            ),
+        ]
+
+        with patch("eshop.router.EshopEmailService") as MockEmailSvc:
+            instance = MockEmailSvc.return_value
+            instance.send_order_confirmation = AsyncMock()
+            instance.send_admin_new_order = AsyncMock()
+            resp = client_public.post(
+                "/api/eshop/orders",
+                json=_order_body(discount_code="OASIS-ABCD1234"),
+            )
+
+        assert resp.status_code == 200
+        # Verify UPDATE eshop_leads SET first_order_id was called
+        calls = [str(c) for c in cursor.execute.call_args_list]
+        lead_update_calls = [
+            c for c in calls if "eshop_leads" in c and "first_order_id" in c
+        ]
+        assert len(lead_update_calls) >= 1

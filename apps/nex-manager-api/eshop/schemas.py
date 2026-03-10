@@ -75,6 +75,7 @@ class OrderCreateRequest(BaseModel):
     lang: Optional[str] = "sk"
     delivery_point_group: Optional[str] = ""
     delivery_point_id: Optional[str] = ""
+    discount_code: Optional[str] = None
 
 
 class OrderCreateResponse(BaseModel):
@@ -286,3 +287,44 @@ class PaymentReturnResponse(BaseModel):
     order_number: str
     status: str
     payment_status: str
+
+
+# ============================================================================
+# LEAD CAPTURE
+# ============================================================================
+
+
+class LeadRegisterRequest(BaseModel):
+    """Lead registration request."""
+
+    email: str
+    first_name: str | None = None
+    last_name: str | None = None
+    phone: str | None = None
+    gdpr_consent: bool
+
+
+class LeadRegisterResponse(BaseModel):
+    """Lead registration response."""
+
+    lead_id: int
+    email: str
+    discount_code: str
+    discount_percentage: float
+    expires_at: str
+    message: str
+
+
+class LeadValidateResponse(BaseModel):
+    """Discount code validation response."""
+
+    valid: bool
+    discount_percentage: float | None = None
+    expires_at: str | None = None
+    message: str
+
+
+class DiscountApplyRequest(BaseModel):
+    """Discount code for order."""
+
+    discount_code: str | None = None

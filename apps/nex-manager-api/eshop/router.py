@@ -32,6 +32,8 @@ import hmac
 import json
 import logging
 import math
+import re
+import secrets
 from decimal import Decimal
 from typing import Optional
 
@@ -56,6 +58,9 @@ from .schemas import (
     AdminTenantResponse,
     EshopProductListResponse,
     EshopProductResponse,
+    LeadRegisterRequest,
+    LeadRegisterResponse,
+    LeadValidateResponse,
     OrderCreateRequest,
     OrderCreateResponse,
     OrderItemResponse,
@@ -300,6 +305,77 @@ async def create_order(
             ),
         )
 
+    # --- Discount code processing ---
+    discount_code_applied = None
+    if body.discount_code:
+        cur.execute(
+            "SELECT lead_id, discount_percentage, expires_at, is_active, "
+            "first_order_id "
+            "FROM eshop_leads "
+            "WHERE discount_code = %s AND tenant_id = %s",
+            (body.discount_code, tenant_id),
+        )
+        lead = cur.fetchone()
+        if not lead:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Neplatný zľavový kód",
+            )
+        if not lead[3]:  # is_active
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Zľavový kód nie je aktívny",
+            )
+        if lead[4] is not None:  # first_order_id
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Zľavový kód už bol použitý",
+            )
+
+        from datetime import datetime, timezone
+
+        now_utc = datetime.now(timezone.utc)
+        if lead[2] <= now_utc:  # expires_at
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Zľavový kód expiroval",
+            )
+
+        discount_percentage = float(lead[1])
+        total_products_price = float(total_amount_vat)
+        discount_amount = round(total_products_price * (discount_percentage / 100), 2)
+
+        cur.execute(
+            "INSERT INTO eshop_order_items ("
+            "order_id, product_id, sku, name, quantity, "
+            "unit_price, unit_price_vat, vat_rate, item_type"
+            ") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)",
+            (
+                order_id,
+                None,
+                "DISCOUNT",
+                f"Zľava {discount_percentage}% (kód: {body.discount_code})",
+                1,
+                float(-discount_amount),
+                float(-discount_amount),
+                0,
+                "discount",
+            ),
+        )
+
+        # Adjust totals
+        total_amount_vat -= Decimal(str(discount_amount))
+        total_amount -= Decimal(str(discount_amount))
+
+        # Update order totals
+        cur.execute(
+            "UPDATE eshop_orders SET total_amount = %s, total_amount_vat = %s "
+            "WHERE order_id = %s",
+            (float(total_amount), float(total_amount_vat), order_id),
+        )
+
+        discount_code_applied = body.discount_code
+
     # Insert initial status history
     cur.execute(
         "INSERT INTO eshop_order_status_history ("
@@ -309,6 +385,15 @@ async def create_order(
     )
 
     db.commit()
+
+    # --- Update lead with first_order_id ---
+    if discount_code_applied:
+        cur.execute(
+            "UPDATE eshop_leads SET first_order_id = %s "
+            "WHERE discount_code = %s",
+            (order_id, discount_code_applied),
+        )
+        db.commit()
 
     # --- Comgate payment integration ---
     payment_url = None
@@ -443,6 +528,173 @@ def get_order_status(
         tracking_link=order[4] or "",
         created_at=order[5],
         items=items,
+    )
+
+
+# ============================================================================
+# PUBLIC — Lead Capture
+# ============================================================================
+
+EMAIL_REGEX = re.compile(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$")
+
+
+@router.post(
+    "/leads",
+    response_model=LeadRegisterResponse,
+    status_code=status.HTTP_201_CREATED,
+)
+async def register_lead(
+    body: LeadRegisterRequest,
+    tenant=Depends(get_tenant_by_token),
+    db=Depends(get_db),
+):
+    """Register a new lead and generate a discount code."""
+    tenant_id = tenant["tenant_id"]
+    cur = db.cursor()
+
+    # Validate email format
+    if not body.email or not EMAIL_REGEX.match(body.email):
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Neplatný formát e-mailovej adresy",
+        )
+
+    # Validate GDPR consent
+    if not body.gdpr_consent:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="GDPR súhlas je povinný",
+        )
+
+    # Check duplicate email for tenant
+    cur.execute(
+        "SELECT lead_id FROM eshop_leads "
+        "WHERE tenant_id = %s AND email = %s",
+        (tenant_id, body.email),
+    )
+    if cur.fetchone():
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="E-mail je už zaregistrovaný",
+        )
+
+    # Generate unique discount code (max 3 attempts)
+    discount_code = None
+    for _ in range(3):
+        code = f"OASIS-{secrets.token_hex(4).upper()}"
+        cur.execute(
+            "SELECT lead_id FROM eshop_leads WHERE discount_code = %s",
+            (code,),
+        )
+        if not cur.fetchone():
+            discount_code = code
+            break
+
+    if not discount_code:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Nepodarilo sa vygenerovať unikátny kód",
+        )
+
+    # Insert lead
+    cur.execute(
+        "INSERT INTO eshop_leads ("
+        "tenant_id, email, first_name, last_name, phone, "
+        "discount_code, discount_percentage, "
+        "expires_at, gdpr_consent, gdpr_consent_at"
+        ") VALUES ("
+        "%s, %s, %s, %s, %s, %s, %s, "
+        "NOW() + INTERVAL '3 months', %s, NOW()"
+        ") RETURNING lead_id, expires_at",
+        (
+            tenant_id,
+            body.email,
+            body.first_name,
+            body.last_name,
+            body.phone,
+            discount_code,
+            50.00,
+            True,
+        ),
+    )
+    result = cur.fetchone()
+    lead_id = result[0]
+    expires_at = result[1]
+    db.commit()
+
+    # Send welcome email (fire-and-forget)
+    try:
+        lead_data = {
+            "email": body.email,
+            "first_name": body.first_name,
+            "discount_code": discount_code,
+            "expires_at": expires_at,
+        }
+        email_svc = EshopEmailService(tenant)
+        await email_svc.send_lead_welcome_email(tenant, lead_data)
+    except Exception as e:
+        logger.error("Lead welcome email failed for %s: %s", body.email, e)
+
+    return LeadRegisterResponse(
+        lead_id=lead_id,
+        email=body.email,
+        discount_code=discount_code,
+        discount_percentage=50.0,
+        expires_at=expires_at.isoformat() if hasattr(expires_at, "isoformat") else str(
+            expires_at
+        ),
+        message="Registrácia úspešná. Zľavový kód bol odoslaný na váš e-mail.",
+    )
+
+
+@router.get("/leads/validate/{discount_code}", response_model=LeadValidateResponse)
+def validate_discount_code(
+    discount_code: str,
+    tenant=Depends(get_tenant_by_token),
+    db=Depends(get_db),
+):
+    """Validate a discount code."""
+    cur = db.cursor()
+    cur.execute(
+        "SELECT discount_percentage, expires_at, is_active, first_order_id "
+        "FROM eshop_leads "
+        "WHERE discount_code = %s AND tenant_id = %s",
+        (discount_code, tenant["tenant_id"]),
+    )
+    lead = cur.fetchone()
+    if not lead:
+        return LeadValidateResponse(valid=False, message="Neplatný zľavový kód")
+
+    discount_percentage = float(lead[0])
+    expires_at = lead[1]
+    is_active = lead[2]
+    first_order_id = lead[3]
+
+    if not is_active:
+        return LeadValidateResponse(
+            valid=False, message="Zľavový kód nie je aktívny"
+        )
+
+    if first_order_id is not None:
+        return LeadValidateResponse(
+            valid=False, message="Zľavový kód už bol použitý"
+        )
+
+    from datetime import datetime, timezone
+
+    now_utc = datetime.now(timezone.utc)
+    if expires_at <= now_utc:
+        return LeadValidateResponse(
+            valid=False, message="Zľavový kód expiroval"
+        )
+
+    return LeadValidateResponse(
+        valid=True,
+        discount_percentage=discount_percentage,
+        expires_at=expires_at.isoformat() if hasattr(expires_at, "isoformat") else str(
+            expires_at
+        ),
+        message="Kód je platný",
     )
 
 

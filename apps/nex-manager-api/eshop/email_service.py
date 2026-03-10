@@ -259,6 +259,76 @@ class EshopEmailService:
         full_html = self._build_html_email(body)
         await self._send_email(self.admin_email, subject, full_html)
 
+    async def send_lead_welcome_email(self, tenant: dict, lead: dict) -> None:
+        """Pošle welcome email s discount kódom novému leadovi."""
+        subject = "Vaša 50% zľava na Oasis EM-1 je pripravená!"
+        expires_at = lead["expires_at"]
+        expires_str = (
+            expires_at.strftime("%d.%m.%Y")
+            if hasattr(expires_at, "strftime")
+            else str(expires_at)
+        )
+        domain = tenant.get("domain", self.domain)
+        company = tenant.get("company_name") or tenant.get("tenant_name", self.brand_name)
+
+        body = f"""Dobrý deň{' ' + lead['first_name'] if lead.get('first_name') else ''},
+
+Ďakujeme za Váš záujem o Oasis EM-1!
+
+Pripravili sme pre Vás špeciálnu zľavu 50% na prvý nákup.
+
+Váš zľavový kód: {lead['discount_code']}
+
+Kód je platný do {expires_str}.
+Použite ho pri objednávke na {domain}.
+
+Oasis EM-1 je certifikovaná pôdna pomocná látka,
+ktorá regeneruje pôdu a zvyšuje úrodnosť bez chémie.
+
+S pozdravom,
+Tím {company}
+{domain}"""
+        await self._send_email(
+            to=lead["email"],
+            subject=subject,
+            html_body=self._build_html_email(f"<pre style='font-family:inherit;'>{body}</pre>"),
+        )
+
+    async def send_lead_reminder_email(
+        self, tenant: dict, lead: dict, days_remaining: int
+    ) -> None:
+        """Mesačný reminder o zľave."""
+        subject = f"Vaša 50% zľava vyprší o {days_remaining} dní!"
+        expires_at = lead["expires_at"]
+        expires_str = (
+            expires_at.strftime("%d.%m.%Y")
+            if hasattr(expires_at, "strftime")
+            else str(expires_at)
+        )
+        domain = tenant.get("domain", self.domain)
+        company = tenant.get("company_name") or tenant.get("tenant_name", self.brand_name)
+
+        body = f"""Dobrý deň{' ' + lead['first_name'] if lead.get('first_name') else ''},
+
+Strážime pre Vás 50% zľavu na Oasis EM-1.
+
+Váš zľavový kód: {lead['discount_code']}
+Platnosť do: {expires_str}
+Zostáva: {days_remaining} dní
+
+Nepremeškajte príležitosť vyskúšať certifikovanú
+pôdnu pomocnú látku za polovičnú cenu.
+
+Objednajte na: https://{domain}
+
+S pozdravom,
+Tím {company}"""
+        await self._send_email(
+            to=lead["email"],
+            subject=subject,
+            html_body=self._build_html_email(f"<pre style='font-family:inherit;'>{body}</pre>"),
+        )
+
     # ------------------------------------------------------------------
     # Private helper methods
     # ------------------------------------------------------------------
