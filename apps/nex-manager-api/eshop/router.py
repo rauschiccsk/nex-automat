@@ -37,7 +37,7 @@ import secrets
 from decimal import Decimal
 from typing import Optional
 
-from fastapi import APIRouter, Depends, Form, HTTPException, Query, Response, status
+from fastapi import APIRouter, Depends, Form, Header, HTTPException, Query, Response, status
 
 logger = logging.getLogger(__name__)
 
@@ -56,6 +56,10 @@ from .schemas import (
     AdminProductUpdateRequest,
     AdminStatusHistoryItem,
     AdminTenantResponse,
+    CustomerLoginRequest,
+    CustomerLoginResponse,
+    CustomerProfileResponse,
+    CustomerRegisterRequest,
     EshopProductListResponse,
     EshopProductResponse,
     LeadRegisterRequest,
@@ -169,10 +173,55 @@ async def create_order(
     body: OrderCreateRequest,
     tenant=Depends(get_tenant_by_token),
     db=Depends(get_db),
+    auth_header: str = Header(None, alias="Authorization"),
 ):
     """Create a new order. Prices are always taken from DB, never from request."""
     tenant_id = tenant["tenant_id"]
     cur = db.cursor()
+
+    # --- Resolve customer_id from Bearer token or account creation ---
+    customer_id = None
+
+    # 1. If Bearer token provided, link order to that customer
+    if auth_header and auth_header.startswith("Bearer "):
+        try:
+            customer = _get_customer_from_token(auth_header, db)
+            customer_id = customer["id"]
+        except HTTPException:
+            pass  # Ignore invalid token — order can proceed without customer
+
+    # 2. If create_account requested, create customer first
+    if body.create_account and body.account_password and customer_id is None:
+        import bcrypt
+
+        # Check uniqueness
+        cur.execute(
+            "SELECT id FROM eshop_customers "
+            "WHERE tenant_id = %s AND email = %s AND is_active = TRUE",
+            (tenant_id, body.customer_email),
+        )
+        existing = cur.fetchone()
+        if existing:
+            customer_id = existing[0]
+        else:
+            pw_hash = bcrypt.hashpw(
+                body.account_password.encode(), bcrypt.gensalt()
+            ).decode()
+            cur.execute(
+                "INSERT INTO eshop_customers ("
+                "tenant_id, email, password_hash, first_name, last_name"
+                ") VALUES (%s, %s, %s, %s, %s) RETURNING id",
+                (
+                    tenant_id,
+                    body.customer_email,
+                    pw_hash,
+                    body.customer_name.split(" ", 1)[0] if body.customer_name else "",
+                    body.customer_name.split(" ", 1)[1]
+                    if body.customer_name and " " in body.customer_name
+                    else "",
+                ),
+            )
+            customer_id = cur.fetchone()[0]
 
     # Validate items and collect product data from DB
     order_items = []
@@ -228,7 +277,7 @@ async def create_order(
     # Generate order number
     order_number = generate_order_number(tenant_id, tenant["brand_name"], db)
 
-    # Insert order
+    # Insert order (including company fields and customer_id)
     cur.execute(
         "INSERT INTO eshop_orders ("
         "tenant_id, order_number, customer_email, customer_name, customer_phone, "
@@ -237,7 +286,9 @@ async def create_order(
         "shipping_street, shipping_city, shipping_zip, shipping_country, "
         "ico, dic, eu_vat_number, total_amount, total_amount_vat, "
         "currency, payment_method, shipping_type, shipping_price, note, "
-        "delivery_point_group, delivery_point_id, status, payment_status"
+        "delivery_point_group, delivery_point_id, status, payment_status, "
+        "is_company_order, company_name, company_ico, company_dic, "
+        "company_ic_dph, billing_postal_code, customer_id"
         ") VALUES ("
         "%s, %s, %s, %s, %s, "
         "%s, %s, %s, %s, %s, "
@@ -245,7 +296,9 @@ async def create_order(
         "%s, %s, %s, %s, "
         "%s, %s, %s, %s, %s, "
         "%s, %s, %s, %s, %s, "
-        "%s, %s, %s, %s"
+        "%s, %s, %s, %s, "
+        "%s, %s, %s, %s, "
+        "%s, %s, %s"
         ") RETURNING order_id",
         (
             tenant_id,
@@ -280,6 +333,13 @@ async def create_order(
             body.delivery_point_id or "",
             "new",
             "pending",
+            body.is_company_order,
+            body.company_name if body.is_company_order else None,
+            body.company_ico if body.is_company_order else None,
+            body.company_dic if body.is_company_order else None,
+            body.company_ic_dph if body.is_company_order else None,
+            body.billing_postal_code,
+            customer_id,
         ),
     )
     order_row = cur.fetchone()
@@ -528,6 +588,238 @@ def get_order_status(
         created_at=order[5],
         items=items,
     )
+
+
+# ============================================================================
+# PUBLIC — Customer Registration, Login, Profile, Orders
+# ============================================================================
+
+
+def _get_customer_from_token(authorization: str, db) -> dict:
+    """Parse Bearer token, decode JWT, return customer dict or raise 401."""
+    from jose import jwt, JWTError
+    from auth.config import JWT_SECRET_KEY, JWT_ALGORITHM
+
+    if not authorization or not authorization.startswith("Bearer "):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Chýba alebo neplatný Authorization header",
+        )
+    token = authorization.split(" ", 1)[1]
+    try:
+        payload = jwt.decode(token, JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM])
+    except JWTError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Neplatný alebo expirovaný token",
+        )
+    customer_id = payload.get("customer_id")
+    tenant_id = payload.get("tenant_id")
+    if not customer_id or not tenant_id:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Neplatný token — chýba customer_id alebo tenant_id",
+        )
+    cur = db.cursor()
+    cur.execute(
+        "SELECT id, tenant_id, email, first_name, last_name, phone, "
+        "street, city, postal_code, country, is_company, company_name, "
+        "company_ico, company_dic, company_ic_dph "
+        "FROM eshop_customers WHERE id = %s AND tenant_id = %s AND is_active = TRUE",
+        (customer_id, tenant_id),
+    )
+    row = cur.fetchone()
+    if not row:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Zákazník nebol nájdený alebo nie je aktívny",
+        )
+    return {
+        "id": row[0],
+        "tenant_id": row[1],
+        "email": row[2],
+        "first_name": row[3],
+        "last_name": row[4],
+        "phone": row[5],
+        "street": row[6],
+        "city": row[7],
+        "postal_code": row[8],
+        "country": row[9],
+        "is_company": row[10],
+        "company_name": row[11],
+        "company_ico": row[12],
+        "company_dic": row[13],
+        "company_ic_dph": row[14],
+    }
+
+
+@router.post(
+    "/customers/register",
+    status_code=status.HTTP_201_CREATED,
+)
+def register_customer(
+    body: CustomerRegisterRequest,
+    tenant=Depends(get_tenant_by_token),
+    db=Depends(get_db),
+):
+    """Register a new customer for the tenant."""
+    import bcrypt
+
+    tenant_id = tenant["tenant_id"]
+    cur = db.cursor()
+
+    # Check uniqueness (tenant_id, email)
+    cur.execute(
+        "SELECT id FROM eshop_customers "
+        "WHERE tenant_id = %s AND email = %s AND is_active = TRUE",
+        (tenant_id, body.email),
+    )
+    if cur.fetchone():
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="E-mail je už zaregistrovaný",
+        )
+
+    # Hash password
+    password_hash = bcrypt.hashpw(
+        body.password.encode(), bcrypt.gensalt()
+    ).decode()
+
+    # Insert customer
+    cur.execute(
+        "INSERT INTO eshop_customers ("
+        "tenant_id, email, password_hash, first_name, last_name, phone, "
+        "street, city, postal_code, country, is_company, "
+        "company_name, company_ico, company_dic, company_ic_dph"
+        ") VALUES ("
+        "%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s"
+        ") RETURNING id",
+        (
+            tenant_id,
+            body.email,
+            password_hash,
+            body.first_name,
+            body.last_name,
+            body.phone,
+            body.street,
+            body.city,
+            body.postal_code,
+            body.country,
+            body.is_company,
+            body.company_name,
+            body.company_ico,
+            body.company_dic,
+            body.company_ic_dph,
+        ),
+    )
+    customer_id = cur.fetchone()[0]
+    db.commit()
+
+    return {"customer_id": customer_id, "email": body.email}
+
+
+@router.post("/customers/login", response_model=CustomerLoginResponse)
+def login_customer(
+    body: CustomerLoginRequest,
+    tenant=Depends(get_tenant_by_token),
+    db=Depends(get_db),
+):
+    """Authenticate customer and return JWT token."""
+    import bcrypt
+    from datetime import datetime, timedelta, timezone
+    from jose import jwt
+    from auth.config import JWT_SECRET_KEY, JWT_ALGORITHM
+
+    tenant_id = tenant["tenant_id"]
+    cur = db.cursor()
+
+    cur.execute(
+        "SELECT id, email, password_hash, first_name, last_name "
+        "FROM eshop_customers "
+        "WHERE tenant_id = %s AND email = %s AND is_active = TRUE",
+        (tenant_id, body.email),
+    )
+    row = cur.fetchone()
+    if not row:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Nesprávny e-mail alebo heslo",
+        )
+
+    customer_id = row[0]
+    stored_hash = row[2]
+
+    if not bcrypt.checkpw(body.password.encode(), stored_hash.encode()):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Nesprávny e-mail alebo heslo",
+        )
+
+    # Update last_login_at
+    cur.execute(
+        "UPDATE eshop_customers SET last_login_at = NOW() WHERE id = %s",
+        (customer_id,),
+    )
+    db.commit()
+
+    # Generate JWT
+    token = jwt.encode(
+        {
+            "customer_id": customer_id,
+            "tenant_id": tenant_id,
+            "exp": datetime.now(timezone.utc) + timedelta(days=30),
+        },
+        JWT_SECRET_KEY,
+        algorithm=JWT_ALGORITHM,
+    )
+
+    return CustomerLoginResponse(
+        token=token,
+        customer_id=customer_id,
+        email=row[1],
+        first_name=row[3] or "",
+        last_name=row[4] or "",
+    )
+
+
+@router.get("/customers/profile", response_model=CustomerProfileResponse)
+def get_customer_profile(
+    auth_header: str = Header(..., alias="Authorization"),
+    db=Depends(get_db),
+):
+    """Get customer profile from Bearer token."""
+    customer = _get_customer_from_token(auth_header, db)
+    return CustomerProfileResponse(**customer)
+
+
+@router.get("/customers/orders")
+def get_customer_orders(
+    auth_header: str = Header(None, alias="Authorization"),
+    db=Depends(get_db),
+):
+    """Get customer's orders from Bearer token."""
+    customer = _get_customer_from_token(auth_header, db)
+    cur = db.cursor()
+    cur.execute(
+        "SELECT order_id, order_number, status, payment_status, "
+        "total_amount_vat, currency, created_at "
+        "FROM eshop_orders "
+        "WHERE customer_id = %s ORDER BY created_at DESC",
+        (customer["id"],),
+    )
+    orders = [
+        {
+            "order_id": r[0],
+            "order_number": r[1],
+            "status": r[2],
+            "payment_status": r[3],
+            "total_amount_vat": _dec(r[4]),
+            "currency": r[5],
+            "created_at": r[6].isoformat() if r[6] else None,
+        }
+        for r in cur.fetchall()
+    ]
+    return {"orders": orders}
 
 
 # ============================================================================

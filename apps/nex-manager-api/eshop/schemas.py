@@ -76,6 +76,14 @@ class OrderCreateRequest(BaseModel):
     delivery_point_group: Optional[str] = ""
     delivery_point_id: Optional[str] = ""
     discount_code: Optional[str] = None
+    is_company_order: bool = False
+    company_name: str | None = None
+    company_ico: str | None = None
+    company_dic: str | None = None
+    company_ic_dph: str | None = None
+    billing_postal_code: str | None = None
+    create_account: bool = False
+    account_password: str | None = None
 
 
 class OrderCreateResponse(BaseModel):
@@ -328,3 +336,55 @@ class DiscountApplyRequest(BaseModel):
     """Discount code for order."""
 
     discount_code: str | None = None
+
+
+# ============================================================================
+# CUSTOMER API — Registration, Login, Profile
+# ============================================================================
+
+
+class CustomerRegisterRequest(BaseModel):
+    email: str
+    password: str
+    first_name: str
+    last_name: str
+    phone: str | None = None
+    street: str | None = None
+    city: str | None = None
+    postal_code: str | None = None
+    country: str = "SK"
+    is_company: bool = False
+    company_name: str | None = None
+    company_ico: str | None = None
+    company_dic: str | None = None
+    company_ic_dph: str | None = None
+
+
+class CustomerLoginRequest(BaseModel):
+    email: str
+    password: str
+
+
+class CustomerLoginResponse(BaseModel):
+    token: str
+    customer_id: int
+    email: str
+    first_name: str
+    last_name: str
+
+
+class CustomerProfileResponse(BaseModel):
+    id: int
+    email: str
+    first_name: str | None
+    last_name: str | None
+    phone: str | None
+    street: str | None
+    city: str | None
+    postal_code: str | None
+    country: str
+    is_company: bool
+    company_name: str | None
+    company_ico: str | None
+    company_dic: str | None
+    company_ic_dph: str | None
