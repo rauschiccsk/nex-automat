@@ -37,7 +37,16 @@ import secrets
 from decimal import Decimal
 from typing import Optional
 
-from fastapi import APIRouter, Depends, Form, Header, HTTPException, Query, Response, status
+from fastapi import (
+    APIRouter,
+    Depends,
+    Form,
+    Header,
+    HTTPException,
+    Query,
+    Response,
+    status,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -681,9 +690,7 @@ def register_customer(
         )
 
     # Hash password
-    password_hash = bcrypt.hashpw(
-        body.password.encode(), bcrypt.gensalt()
-    ).decode()
+    password_hash = bcrypt.hashpw(body.password.encode(), bcrypt.gensalt()).decode()
 
     # Insert customer
     cur.execute(

@@ -27,18 +27,18 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 # ---------------------------------------------------------------------------
 
 _TENANT_ROW = (
-    1,            # tenant_id
-    "Test s.r.o.", # company_name
-    "test.sk",    # domain
-    "TEST",       # brand_name
-    None,         # logo_url
-    "#2E7D32",    # primary_color
-    "EUR",        # currency
-    20.00,        # vat_rate_default
-    "sk",         # default_lang
-    True,         # is_active
+    1,  # tenant_id
+    "Test s.r.o.",  # company_name
+    "test.sk",  # domain
+    "TEST",  # brand_name
+    None,  # logo_url
+    "#2E7D32",  # primary_color
+    "EUR",  # currency
+    20.00,  # vat_rate_default
+    "sk",  # default_lang
+    True,  # is_active
     "noreply@test.sk",  # smtp_from
-    "admin@test.sk",    # admin_email
+    "admin@test.sk",  # admin_email
 )
 
 
@@ -51,49 +51,50 @@ def _make_customer_row(
 ):
     """Build a fake eshop_customers DB row."""
     return (
-        customer_id,     # id
-        1,               # tenant_id
-        email,           # email
-        password_hash,   # password_hash
-        first_name,      # first_name
-        last_name,       # last_name
-        "+421901234567", # phone
-        "Hlavná 1",     # street
-        "Bratislava",   # city
-        "81101",        # postal_code
-        "SK",           # country
-        False,          # is_company
-        None,           # company_name
-        None,           # company_ico
-        None,           # company_dic
-        None,           # company_ic_dph
+        customer_id,  # id
+        1,  # tenant_id
+        email,  # email
+        password_hash,  # password_hash
+        first_name,  # first_name
+        last_name,  # last_name
+        "+421901234567",  # phone
+        "Hlavná 1",  # street
+        "Bratislava",  # city
+        "81101",  # postal_code
+        "SK",  # country
+        False,  # is_company
+        None,  # company_name
+        None,  # company_ico
+        None,  # company_dic
+        None,  # company_ic_dph
     )
 
 
 def _make_customer_profile_row(customer_id=1, email="customer@test.sk"):
     """Build a row matching _get_customer_from_token SELECT."""
     return (
-        customer_id,     # id
-        1,               # tenant_id
-        email,           # email
-        "Ján",          # first_name
-        "Testovač",     # last_name
-        "+421901234567", # phone
-        "Hlavná 1",     # street
-        "Bratislava",   # city
-        "81101",        # postal_code
-        "SK",           # country
-        False,          # is_company
-        None,           # company_name
-        None,           # company_ico
-        None,           # company_dic
-        None,           # company_ic_dph
+        customer_id,  # id
+        1,  # tenant_id
+        email,  # email
+        "Ján",  # first_name
+        "Testovač",  # last_name
+        "+421901234567",  # phone
+        "Hlavná 1",  # street
+        "Bratislava",  # city
+        "81101",  # postal_code
+        "SK",  # country
+        False,  # is_company
+        None,  # company_name
+        None,  # company_ico
+        None,  # company_dic
+        None,  # company_ic_dph
     )
 
 
 # ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------
+
 
 @pytest.fixture
 def eshop_client(fake_db):
@@ -236,7 +237,11 @@ def test_customer_login_wrong_password(eshop_client, fake_db):
     pw_hash = bcrypt.hashpw(b"CorrectPassword1!", bcrypt.gensalt()).decode()
 
     fake_db.cursor().fetchone = lambda: (
-        1, "customer@test.sk", pw_hash, "Ján", "Testovač"
+        1,
+        "customer@test.sk",
+        pw_hash,
+        "Ján",
+        "Testovač",
     )
 
     resp = eshop_client.post(
