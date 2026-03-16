@@ -284,6 +284,112 @@ class MufisSetResponse(BaseModel):
     error: Optional[str] = None
 
 
+class MufisDeliveryAddress(BaseModel):
+    """Delivery address for MuFis getOrder response."""
+
+    street: str
+    city: str
+    zip: str
+    country: str = "HU"
+
+
+class MufisOrderItem(BaseModel):
+    """Order item for MuFis getOrder response."""
+
+    sku: str
+    name: str
+    quantity: int
+    unit_price: Decimal
+    unit_price_vat: Decimal
+    vat_rate: Decimal
+    item_type: str = "product"
+
+
+class MufisGetOrderResponse(BaseModel):
+    """Response schema for MuFis getOrder endpoint."""
+
+    order_id: int
+    order_number: str
+    customer_name: str
+    customer_email: str
+    customer_phone: str = ""
+    billing_name: str = ""
+    billing_street: str = ""
+    billing_city: str = ""
+    billing_zip: str = ""
+    billing_country: str = ""
+    shipping_name: str = ""
+    shipping_street: str = ""
+    shipping_city: str = ""
+    shipping_zip: str = ""
+    shipping_country: str = ""
+    total_amount: Decimal
+    total_amount_vat: Decimal
+    currency: str
+    payment_method: str = ""
+    payment_status: str = ""
+    shipping_type: str = ""
+    delivery_point_group: str = ""
+    delivery_point_id: str = ""
+    tracking_number: str = ""
+    tracking_link: str = ""
+    multiple_packages: bool = False
+    status: str
+    note: str = ""
+    items: List[MufisOrderItem] = []
+    created_at: Optional[str] = None
+    updated_at: Optional[str] = None
+
+
+class MufisSetOrderRequest(BaseModel):
+    """Request schema for MuFis setOrder endpoint (single order)."""
+
+    order_number: str
+    status: Optional[str] = None  # Hungarian status from MuFis
+    package_number: Optional[str] = None
+    tracking_link: Optional[str] = None
+    multiple_packages: Optional[bool] = None
+
+
+class MufisGetProductResponse(BaseModel):
+    """Response schema for MuFis getProduct endpoint."""
+
+    product_id: int
+    sku: str
+    barcode: str = ""
+    name: str
+    short_description: str = ""
+    description: str = ""
+    image_url: str = ""
+    price: Decimal
+    price_vat: Decimal
+    vat_rate: Decimal
+    stock_quantity: int
+    weight: Decimal = Decimal("0")
+    active: int = 1
+    sort_order: int = 0
+
+
+class MufisSetProductRequest(BaseModel):
+    """Request schema for MuFis setProduct endpoint (single product)."""
+
+    sku: str
+    stock_quantity: int
+
+
+class MufisSetBatchRequest(BaseModel):
+    """Batch request wrapper — 'data' field contains JSON list."""
+
+    data: str  # JSON-encoded list of MufisSetOrderRequest or MufisSetProductRequest
+
+
+class MufisPaginatedResponse(BaseModel):
+    """Base pagination wrapper for MuFis list endpoints."""
+
+    total_pages: int
+    page: int
+
+
 # ============================================================================
 # PAYMENT — Comgate
 # ============================================================================
