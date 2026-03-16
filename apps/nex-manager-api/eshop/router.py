@@ -32,6 +32,7 @@ import hmac
 import json
 import logging
 import math
+import os
 import re
 import secrets
 from decimal import Decimal
@@ -54,6 +55,8 @@ from auth.dependencies import require_permission
 from database import get_db
 
 from .dependencies import get_tenant_by_mufis_key, get_tenant_by_token
+from .mufis_auth import verify_mufis_access
+from .mufis_status import map_mufis_status
 from .comgate import ComgateError, get_comgate_client
 from .email_service import EshopEmailService
 from .schemas import (
@@ -1840,6 +1843,7 @@ def admin_get_tenant(
 async def mufis_get_order(
     tenant=Depends(get_tenant_by_mufis_key),
     db=Depends(get_db),
+    mufis_access=Depends(verify_mufis_access),
     page: int = Form(1),
     order_number: Optional[str] = Form(None),
     order_id: Optional[int] = Form(None),
@@ -1848,13 +1852,25 @@ async def mufis_get_order(
     date_from: Optional[str] = Form(None),
     date_to: Optional[str] = Form(None),
 ):
-    """MuFis: get orders with filtering."""
+    """MuFis: get orders with filtering.
+
+    Default filter: status='paid' AND mufis_synced_at IS NULL (new orders for MuFis).
+    When MUFIS_DRY_RUN=true (default), orders are NOT marked as synced.
+    """
+    mufis_dry_run = os.environ.get("MUFIS_DRY_RUN", "true").lower() == "true"
     tenant_id = tenant["tenant_id"]
     cur = db.cursor()
     per_page = 50
 
     conditions: list[str] = ["tenant_id = %s"]
     params: list = [tenant_id]
+
+    # Default: only paid, unsynced orders (unless explicit filters provided)
+    has_explicit_filter = any([order_number, order_id, status_filter])
+    if not has_explicit_filter:
+        conditions.append("status = %s")
+        params.append("paid")
+        conditions.append("mufis_synced_at IS NULL")
 
     if order_number:
         conditions.append("order_number = %s")
@@ -1975,6 +1991,28 @@ async def mufis_get_order(
             }
         )
 
+    # Mark orders as synced (unless dry-run)
+    if orders and not mufis_dry_run and not has_explicit_filter:
+        synced_ids = [o["order_id"] for o in orders]
+        placeholders = ", ".join(["%s"] * len(synced_ids))
+        cur.execute(
+            f"UPDATE eshop_orders SET mufis_synced_at = NOW() "
+            f"WHERE order_id IN ({placeholders})",
+            synced_ids,
+        )
+        db.commit()
+        logger.info(
+            "MuFis getOrder: marked %d orders as synced (tenant=%s)",
+            len(synced_ids),
+            tenant_id,
+        )
+    elif orders and mufis_dry_run:
+        logger.info(
+            "MuFis getOrder DRY-RUN: returning %d orders WITHOUT marking synced (tenant=%s)",
+            len(orders),
+            tenant_id,
+        )
+
     return {
         "total_pages": total_pages,
         "page": page,
@@ -1991,10 +2029,12 @@ async def mufis_get_order(
 async def mufis_set_order(
     tenant=Depends(get_tenant_by_mufis_key),
     db=Depends(get_db),
+    mufis_access=Depends(verify_mufis_access),
     order_number: Optional[str] = Form(None),
     status_val: Optional[str] = Form(None, alias="status"),
     package_number: Optional[str] = Form(None),
     tracking_link: Optional[str] = Form(None),
+    carrier: Optional[str] = Form(None),
     multiple_packages: Optional[bool] = Form(None),
     data: Optional[str] = Form(None),
 ):
@@ -2021,6 +2061,7 @@ async def mufis_set_order(
                 "status": status_val,
                 "package_number": package_number,
                 "tracking_link": tracking_link,
+                "carrier": carrier,
                 "multiple_packages": multiple_packages,
             }
         ]
@@ -2048,25 +2089,43 @@ async def mufis_set_order(
         set_parts: list[str] = []
         params: list = []
 
-        new_status = item.get("status")
-        if new_status:
+        mufis_hungarian_status = item.get("status")
+        internal_status = None
+        if mufis_hungarian_status:
+            internal_status = map_mufis_status(mufis_hungarian_status)
             set_parts.append("status = %s")
-            params.append(new_status)
+            params.append(internal_status)
+            set_parts.append("mufis_status = %s")
+            params.append(mufis_hungarian_status)
 
         pkg = item.get("package_number")
         if pkg:
             set_parts.append("tracking_number = %s")
+            params.append(pkg)
+            set_parts.append("mufis_tracking_number = %s")
             params.append(pkg)
 
         tl = item.get("tracking_link")
         if tl:
             set_parts.append("tracking_link = %s")
             params.append(tl)
+            set_parts.append("mufis_tracking_url = %s")
+            params.append(tl)
+
+        carrier = item.get("carrier")
+        if carrier:
+            set_parts.append("mufis_carrier = %s")
+            params.append(carrier)
 
         mp = item.get("multiple_packages")
         if mp is not None:
             set_parts.append("multiple_packages = %s")
             params.append(mp)
+
+        mufis_oid = item.get("mufis_order_id")
+        if mufis_oid:
+            set_parts.append("mufis_order_id = %s")
+            params.append(mufis_oid)
 
         if set_parts:
             params.append(order_id_val)
@@ -2075,17 +2134,26 @@ async def mufis_set_order(
                 params,
             )
 
-        # Status history
-        if new_status and new_status != old_status:
+        # Status history with source tracking
+        if internal_status and internal_status != old_status:
             cur.execute(
                 "INSERT INTO eshop_order_status_history ("
-                "order_id, old_status, new_status, changed_by, note"
-                ") VALUES (%s, %s, %s, %s, %s)",
-                (order_id_val, old_status, new_status, "mufis", ""),
+                "order_id, old_status, new_status, changed_by, note, "
+                "source, mufis_original_status"
+                ") VALUES (%s, %s, %s, %s, %s, %s, %s)",
+                (
+                    order_id_val,
+                    old_status,
+                    internal_status,
+                    "mufis",
+                    "",
+                    "mufis",
+                    mufis_hungarian_status,
+                ),
             )
 
         # --- Email: shipping notification ---
-        if new_status == "shipped" and (pkg or tl):
+        if internal_status == "shipped" and (pkg or tl):
             try:
                 cur.execute(
                     "SELECT o.order_number, o.customer_email, o.customer_name, "
@@ -2122,6 +2190,7 @@ async def mufis_set_order(
 async def mufis_get_product(
     tenant=Depends(get_tenant_by_mufis_key),
     db=Depends(get_db),
+    mufis_access=Depends(verify_mufis_access),
     page: int = Form(1),
     product_id: Optional[int] = Form(None),
     sku: Optional[str] = Form(None),
@@ -2204,6 +2273,7 @@ async def mufis_get_product(
 async def mufis_set_product(
     tenant=Depends(get_tenant_by_mufis_key),
     db=Depends(get_db),
+    mufis_access=Depends(verify_mufis_access),
     sku: Optional[str] = Form(None),
     stock_quantity: Optional[int] = Form(None),
     data: Optional[str] = Form(None),
