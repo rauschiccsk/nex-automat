@@ -60,18 +60,14 @@ async def verify_mufis_ip(request: Request) -> str:
     endpoint = request.url.path
 
     if not _is_ip_check_enabled():
-        logger.debug(
-            "MuFis IP check DISABLED: ip=%s, endpoint=%s", client_ip, endpoint
-        )
+        logger.debug("MuFis IP check DISABLED: ip=%s, endpoint=%s", client_ip, endpoint)
         return client_ip
 
     allowed_ips = _get_allowed_ips()
 
     if not allowed_ips:
         # No whitelist configured — allow all with warning
-        logger.warning(
-            "MuFis IP check: MUFIS_ALLOWED_IPS is empty — allowing all IPs"
-        )
+        logger.warning("MuFis IP check: MUFIS_ALLOWED_IPS is empty — allowing all IPs")
         return client_ip
 
     if client_ip not in allowed_ips:

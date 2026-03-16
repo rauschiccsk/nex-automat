@@ -26,17 +26,17 @@ ORDER_STATUSES: dict[str, str] = {
 # MuFis Hungarian status → internal status mapping
 # Keys are LOWERCASED for case-insensitive matching
 MUFIS_STATUS_MAP: dict[str, str] = {
-    "összeszedve": "processing",              # Picked/collected
-    "csomagolás alatt": "processing",         # Packaging in progress
-    "becsomagolva": "processing",             # Packaged
+    "összeszedve": "processing",  # Picked/collected
+    "csomagolás alatt": "processing",  # Packaging in progress
+    "becsomagolva": "processing",  # Packaged
     "futárcímke nyomtatva": "label_printed",  # Courier label printed
-    "átadásra kész": "ready_for_pickup",      # Ready for handover
-    "futárnak átadva": "shipped",             # Handed to courier
-    "futárcégnél": "shipped",                 # At courier company
+    "átadásra kész": "ready_for_pickup",  # Ready for handover
+    "futárnak átadva": "shipped",  # Handed to courier
+    "futárcégnél": "shipped",  # At courier company
     "box - átvételre vár": "ready_for_collection",  # Box - waiting for pickup
-    "kézbesítve": "delivered",                # Delivered
-    "úton vissza": "returning",               # On the way back
-    "visszaküldve": "returned",               # Returned
+    "kézbesítve": "delivered",  # Delivered
+    "úton vissza": "returning",  # On the way back
+    "visszaküldve": "returned",  # Returned
 }
 
 
