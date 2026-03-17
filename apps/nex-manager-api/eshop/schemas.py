@@ -73,6 +73,9 @@ class OrderCreateRequest(BaseModel):
     shipping_type: Optional[str] = ""
     note: Optional[str] = ""
     lang: Optional[str] = "sk"
+    delivery_method: Optional[str] = "courier"  # "courier" | "packeta_point"
+    packeta_point_id: Optional[str] = None
+    packeta_point_name: Optional[str] = None
     delivery_point_group: Optional[str] = ""
     delivery_point_id: Optional[str] = ""
     discount_code: Optional[str] = None

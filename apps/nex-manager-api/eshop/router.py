@@ -294,7 +294,29 @@ async def create_order(
     # Generate order number
     order_number = generate_order_number(tenant_id, tenant["brand_name"], db)
 
-    # Insert order (including company fields and customer_id)
+    # --- GAP-01: Validate Packeta delivery method ---
+    if body.delivery_method == "packeta_point" and not body.packeta_point_id:
+        raise HTTPException(
+            status_code=400,
+            detail="Packeta point ID required when delivery_method is packeta_point",
+        )
+
+    # --- GAP-06: Auto-compute shipping_type, delivery_point_group, delivery_point_id ---
+    SHIPPING_TYPE_MAP = {
+        "courier": "Kuriér na adresu",
+        "packeta_point": "Výdajné miesto Packeta",
+    }
+    computed_shipping_type = SHIPPING_TYPE_MAP.get(
+        body.delivery_method, body.delivery_method or ""
+    )
+    computed_delivery_point_group = (
+        "packeta"
+        if body.delivery_method == "packeta_point" and body.packeta_point_id
+        else ""
+    )
+    computed_delivery_point_id = body.packeta_point_id or ""
+
+    # Insert order (including company fields, customer_id, and delivery fields)
     cur.execute(
         "INSERT INTO eshop_orders ("
         "tenant_id, order_number, customer_email, customer_name, customer_phone, "
@@ -305,7 +327,8 @@ async def create_order(
         "currency, payment_method, shipping_type, shipping_price, note, "
         "delivery_point_group, delivery_point_id, status, payment_status, "
         "is_company_order, company_name, company_ico, company_dic, "
-        "company_ic_dph, billing_postal_code, customer_id"
+        "company_ic_dph, billing_postal_code, customer_id, "
+        "delivery_method, packeta_point_id, packeta_point_name"
         ") VALUES ("
         "%s, %s, %s, %s, %s, "
         "%s, %s, %s, %s, %s, "
@@ -315,6 +338,7 @@ async def create_order(
         "%s, %s, %s, %s, %s, "
         "%s, %s, %s, %s, "
         "%s, %s, %s, %s, "
+        "%s, %s, %s, "
         "%s, %s, %s"
         ") RETURNING order_id",
         (
@@ -343,11 +367,11 @@ async def create_order(
             float(total_amount_vat),
             tenant["currency"],
             body.payment_method,
-            body.shipping_type or "",
+            computed_shipping_type,
             float(shipping_price),
             body.note or "",
-            body.delivery_point_group or "",
-            body.delivery_point_id or "",
+            computed_delivery_point_group,
+            computed_delivery_point_id,
             "new",
             "pending",
             body.is_company_order,
@@ -357,6 +381,9 @@ async def create_order(
             body.company_ic_dph if body.is_company_order else None,
             body.billing_postal_code,
             customer_id,
+            body.delivery_method or "courier",
+            body.packeta_point_id or "",
+            body.packeta_point_name or "",
         ),
     )
     order_row = cur.fetchone()

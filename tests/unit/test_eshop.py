@@ -813,6 +813,11 @@ class TestMuFis:
                     "",
                     NOW,
                     NOW,
+                    None,  # comgate_transaction_id
+                    "",  # company_ic_dph
+                    "courier",  # delivery_method
+                    "",  # packeta_point_id
+                    "",  # packeta_point_name
                 ),
             ],
             [  # items for order 1
@@ -878,6 +883,11 @@ class TestMuFis:
                     "",
                     NOW,
                     NOW,
+                    None,  # comgate_transaction_id
+                    "",  # company_ic_dph
+                    "courier",  # delivery_method
+                    "",  # packeta_point_id
+                    "",  # packeta_point_name
                 )
             ],
             [
@@ -990,6 +1000,11 @@ class TestMuFis:
                     "",
                     NOW,
                     NOW,
+                    None,  # comgate_transaction_id
+                    "",  # company_ic_dph
+                    "courier",  # delivery_method
+                    "",  # packeta_point_id
+                    "",  # packeta_point_name
                 )
             ],
             [
@@ -2380,3 +2395,106 @@ class TestDiscountInOrder:
             c for c in calls if "eshop_leads" in c and "first_order_id" in c
         ]
         assert len(lead_update_calls) >= 1
+
+
+# ============================================================================
+# ORDER DELIVERY METHOD — GAP-01 + GAP-06 Tests (4 tests)
+# ============================================================================
+
+
+class TestOrderDeliveryMethod:
+    """POST /api/eshop/orders — delivery_method, packeta fields, computed values."""
+
+    def test_create_order_with_courier(self, client_public, mock_db):
+        """Order with delivery_method='courier' → shipping_type auto-computed, no packeta."""
+        _, cursor = mock_db
+        cursor.fetchone.side_effect = [
+            PRODUCT_LOOKUP_1,
+            None,  # advisory lock
+            (None,),  # MAX order_number
+            (42,),  # INSERT RETURNING order_id
+        ]
+        resp = client_public.post(
+            "/api/eshop/orders",
+            json=_order_body(delivery_method="courier"),
+        )
+        assert resp.status_code == 200
+        # Verify INSERT contains delivery_method, shipping_type auto-computed
+        calls = [str(c) for c in cursor.execute.call_args_list]
+        insert_calls = [c for c in calls if "INSERT INTO eshop_orders" in c]
+        assert len(insert_calls) >= 1
+        insert_call = insert_calls[0]
+        assert "delivery_method" in insert_call
+        assert "packeta_point_id" in insert_call
+        assert "packeta_point_name" in insert_call
+        # Verify computed shipping_type = "Kuriér na adresu"
+        assert "Kuri" in insert_call  # "Kuriér na adresu"
+
+    def test_create_order_with_packeta(self, client_public, mock_db):
+        """Order with packeta_point → all packeta fields + computed values saved."""
+        _, cursor = mock_db
+        cursor.fetchone.side_effect = [
+            PRODUCT_LOOKUP_1,
+            None,  # advisory lock
+            (None,),  # MAX order_number
+            (42,),  # INSERT RETURNING order_id
+        ]
+        resp = client_public.post(
+            "/api/eshop/orders",
+            json=_order_body(
+                delivery_method="packeta_point",
+                packeta_point_id="12345",
+                packeta_point_name="Štúrovo, Hlavná 5",
+            ),
+        )
+        assert resp.status_code == 200
+        # Verify INSERT args contain packeta data
+        calls = [str(c) for c in cursor.execute.call_args_list]
+        insert_calls = [c for c in calls if "INSERT INTO eshop_orders" in c]
+        assert len(insert_calls) >= 1
+        insert_call = insert_calls[0]
+        # packeta_point_id value
+        assert "12345" in insert_call
+        # delivery_point_group = "packeta"
+        assert "'packeta'" in insert_call
+        # shipping_type = "Výdajné miesto Packeta"
+        assert "Packeta" in insert_call
+
+    def test_create_order_packeta_missing_point(self, client_public, mock_db):
+        """Packeta delivery without packeta_point_id → HTTP 400."""
+        _, cursor = mock_db
+        cursor.fetchone.side_effect = [
+            PRODUCT_LOOKUP_1,
+            None,  # advisory lock
+            (None,),  # MAX order_number
+        ]
+        resp = client_public.post(
+            "/api/eshop/orders",
+            json=_order_body(
+                delivery_method="packeta_point",
+                # packeta_point_id intentionally missing
+            ),
+        )
+        assert resp.status_code == 400
+        assert "Packeta point ID" in resp.json()["detail"]
+
+    def test_create_order_default_courier(self, client_public, mock_db):
+        """Order without delivery_method defaults to 'courier'."""
+        _, cursor = mock_db
+        cursor.fetchone.side_effect = [
+            PRODUCT_LOOKUP_1,
+            None,  # advisory lock
+            (None,),  # MAX order_number
+            (42,),  # INSERT RETURNING order_id
+        ]
+        # _order_body does NOT include delivery_method → schema default "courier"
+        resp = client_public.post("/api/eshop/orders", json=_order_body())
+        assert resp.status_code == 200
+        # Verify computed shipping_type contains "Kuriér"
+        calls = [str(c) for c in cursor.execute.call_args_list]
+        insert_calls = [c for c in calls if "INSERT INTO eshop_orders" in c]
+        assert len(insert_calls) >= 1
+        insert_call = insert_calls[0]
+        assert "Kuri" in insert_call  # "Kuriér na adresu"
+        # delivery_method should be "courier"
+        assert "'courier'" in insert_call
