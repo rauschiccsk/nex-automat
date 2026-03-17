@@ -1,5 +1,38 @@
 # NEX Automat — Development History
 
+## Session 18: MuFis Fix B-2 — setProduct Batch + Webhook Trigger (2026-03-17)
+
+**MuFis audit gap fixes:** SP1, SP3, W1
+
+### Zmeny
+
+**setProduct batch mode (SP1 + SP3):**
+- `_process_set_product()` helper funkcia pre zdieľanú logiku
+- Batch mode cez `data` parameter (JSON array)
+- Batch response: `{"products": [{"sku": "...", "ok": 1, "error": ""}, ...]}`
+- Single mode backward compatible: `{"ok": 1, "error": ""}`
+- `updated_at = CURRENT_TIMESTAMP` pri stock update
+- Per-item error handling (missing sku, missing stock_quantity, invalid value)
+
+**Webhook trigger (W1):**
+- Nový modul `eshop/mufis_webhook.py` — fire-and-forget HTTP GET na MuFis URL
+- Integrácia do `create_order` (POST /api/eshop/orders)
+- Integrácia do `admin_update_order` (PATCH /api/eshop/admin/orders/{id})
+- Dry-run podpora cez `MUFIS_DRY_RUN` env var
+- Non-blocking, timeout 10s, zlyhanie je len WARNING log
+- httpx dependency pridaná do requirements.txt
+
+### Testy
+
+**+6 nových testov (celkom MuFis: 39):**
+- SP1: Batch mode, invalid JSON, partial success
+- SP3: Single mode stock_quantity + updated_at
+- W1: Webhook dry-run (GET sa nevolá), webhook sends GET
+
+**Celkový počet backend testov:** 177
+
+---
+
 ## F3.1: ESHOP Admin Panel (2026-03-09)
 
 **ESHOP admin frontend** v NEX Manager (Electron/React) pre správu objednávok, produktov a tenantov.

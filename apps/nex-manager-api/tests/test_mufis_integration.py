@@ -1,4 +1,4 @@
-"""MuFis Integration Tests — 33 tests covering auth, getOrder, setOrder, product, status mapping.
+"""MuFis Integration Tests — 39 tests covering auth, getOrder, setOrder, product, status mapping.
 
 Tests:
   AUTH (3):
@@ -51,6 +51,14 @@ Tests:
     31. P1: Filter by active=1 → is_active
     32. P2: stock_quantity + barcode from DB (not hardcoded)
     33. P3: Pagination total_pages + page
+
+  SP1+SP3+W1 setProduct Batch Mode + Webhook (6):
+    34. SP1: setProduct batch mode s data=[{sku, stock_quantity}]
+    35. SP1: setProduct batch invalid JSON → error
+    36. SP1: setProduct batch partial success (mix existujúcich/neexistujúcich)
+    37. SP3: setProduct single mode stock_quantity update → DB
+    38. W1: Webhook dry-run mode → GET sa nevolá
+    39. W1: Webhook sends GET na MUFIS_WEBHOOK_URL
 """
 
 import os
@@ -1357,3 +1365,177 @@ def test_mufis_getproduct_pagination(mufis_client, fake_db):
     queries = fake_db.cursor().executed_queries
     select_query = queries[1][0]  # second query is the SELECT
     assert "LIMIT %s OFFSET %s" in select_query
+
+
+# ===========================================================================
+# NEW: MuFis Audit Gap Tests SP1+SP3+W1 — setProduct Batch + Webhook (6)
+# ===========================================================================
+
+
+def test_mufis_setproduct_batch_mode(mufis_client, fake_db):
+    """SP1: setProduct batch mode s data=[{sku, stock_quantity}] → {"products": [...]}."""
+    import json as _json
+
+    batch_data = [
+        {"sku": "SKU-B-001", "stock_quantity": 10},
+        {"sku": "SKU-B-002", "stock_quantity": 25},
+    ]
+
+    resp = mufis_client.post(
+        "/api/eshop/mufis/setProduct",
+        data={"data": _json.dumps(batch_data)},
+        headers={"API-KEY": "test-key"},
+    )
+
+    assert resp.status_code == 200
+    data = resp.json()
+
+    # Verify batch response format
+    assert "products" in data
+    assert len(data["products"]) == 2
+
+    # Verify each result
+    for i, result in enumerate(data["products"]):
+        assert "sku" in result
+        assert result["sku"] == batch_data[i]["sku"]
+        assert result["ok"] == 1
+        assert result["error"] == ""
+
+    # Verify DB updates — 2 UPDATE queries
+    queries = fake_db.cursor().executed_queries
+    update_queries = [q for q in queries if "UPDATE eshop_products" in q[0]]
+    assert len(update_queries) == 2
+    assert 10 in update_queries[0][1]
+    assert "SKU-B-001" in update_queries[0][1]
+    assert 25 in update_queries[1][1]
+    assert "SKU-B-002" in update_queries[1][1]
+
+
+def test_mufis_setproduct_batch_invalid_json(mufis_client):
+    """SP1: setProduct batch mode s neplatným JSON → error."""
+    resp = mufis_client.post(
+        "/api/eshop/mufis/setProduct",
+        data={"data": "not-valid-json{"},
+        headers={"API-KEY": "test-key"},
+    )
+
+    assert resp.status_code == 200
+    data = resp.json()
+
+    assert "products" in data
+    assert len(data["products"]) == 1
+    assert data["products"][0]["ok"] == 0
+    assert "Invalid JSON" in data["products"][0]["error"]
+
+
+def test_mufis_setproduct_batch_partial_success(mufis_client, fake_db):
+    """SP1: setProduct batch s mix platných a neplatných položiek."""
+    import json as _json
+
+    batch_data = [
+        {"sku": "SKU-OK", "stock_quantity": 15},
+        {"sku": "", "stock_quantity": 5},  # empty SKU → error
+        {"sku": "SKU-NOQTY"},  # missing stock_quantity → error
+    ]
+
+    resp = mufis_client.post(
+        "/api/eshop/mufis/setProduct",
+        data={"data": _json.dumps(batch_data)},
+        headers={"API-KEY": "test-key"},
+    )
+
+    assert resp.status_code == 200
+    data = resp.json()
+
+    assert "products" in data
+    assert len(data["products"]) == 3
+
+    # First: OK
+    assert data["products"][0]["ok"] == 1
+    assert data["products"][0]["sku"] == "SKU-OK"
+    assert data["products"][0]["error"] == ""
+
+    # Second: error (empty sku)
+    assert data["products"][1]["ok"] == 0
+    assert "sku" in data["products"][1]["error"].lower()
+
+    # Third: error (missing stock_quantity)
+    assert data["products"][2]["ok"] == 0
+    assert "stock_quantity" in data["products"][2]["error"].lower()
+
+
+def test_mufis_setproduct_stock_update(mufis_client, fake_db):
+    """SP3: setProduct single mode skutočne uloží stock_quantity do DB s updated_at."""
+    resp = mufis_client.post(
+        "/api/eshop/mufis/setProduct",
+        data={
+            "sku": "SKU-STOCK-001",
+            "stock_quantity": "42",
+        },
+        headers={"API-KEY": "test-key"},
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["ok"] == 1
+    assert data["error"] == ""
+
+    # Single mode response — flat dict, NOT nested in "products"
+    assert "products" not in data
+
+    queries = fake_db.cursor().executed_queries
+    update_queries = [q for q in queries if "UPDATE eshop_products" in q[0]]
+    assert len(update_queries) == 1
+
+    update_sql, update_params = update_queries[0]
+    # Verify stock_quantity and updated_at in SQL
+    assert "stock_quantity = %s" in update_sql
+    assert "updated_at = CURRENT_TIMESTAMP" in update_sql
+    assert 42 in update_params
+    assert "SKU-STOCK-001" in update_params
+
+
+def test_mufis_webhook_dry_run(monkeypatch):
+    """W1: V dry-run režime sa HTTP GET nevolá."""
+    import asyncio
+
+    from eshop import mufis_webhook
+
+    monkeypatch.setattr(
+        mufis_webhook, "MUFIS_WEBHOOK_URL", "https://mufis.example.com/webhook"
+    )
+    monkeypatch.setattr(mufis_webhook, "MUFIS_DRY_RUN", True)
+
+    with patch("eshop.mufis_webhook.httpx.AsyncClient") as mock_client_cls:
+        asyncio.get_event_loop().run_until_complete(
+            mufis_webhook.notify_mufis_order_change()
+        )
+        # In dry-run mode, AsyncClient should NOT be called
+        mock_client_cls.assert_not_called()
+
+
+def test_mufis_webhook_sends_get(monkeypatch):
+    """W1: Webhook posiela GET request na MUFIS_WEBHOOK_URL."""
+    import asyncio
+
+    from eshop import mufis_webhook
+
+    monkeypatch.setattr(
+        mufis_webhook, "MUFIS_WEBHOOK_URL", "https://mufis.example.com/webhook"
+    )
+    monkeypatch.setattr(mufis_webhook, "MUFIS_DRY_RUN", False)
+
+    mock_response = AsyncMock()
+    mock_response.status_code = 200
+
+    mock_client = AsyncMock()
+    mock_client.__aenter__ = AsyncMock(return_value=mock_client)
+    mock_client.__aexit__ = AsyncMock(return_value=False)
+    mock_client.get = AsyncMock(return_value=mock_response)
+
+    with patch("eshop.mufis_webhook.httpx.AsyncClient", return_value=mock_client):
+        asyncio.get_event_loop().run_until_complete(
+            mufis_webhook.notify_mufis_order_change()
+        )
+
+        # Verify GET was called with the webhook URL
+        mock_client.get.assert_called_once_with("https://mufis.example.com/webhook")

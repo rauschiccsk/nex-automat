@@ -28,6 +28,7 @@ MuFis endpoints (API-KEY auth, form-urlencoded):
   POST   /api/eshop/mufis/setProduct            — update stock
 """
 
+import asyncio
 import hmac
 import json
 import logging
@@ -57,6 +58,7 @@ from database import get_db
 from .dependencies import get_tenant_by_mufis_key, get_tenant_by_token
 from .mufis_auth import verify_mufis_access
 from .mufis_status import map_mufis_status
+from .mufis_webhook import notify_mufis_order_change
 from .comgate import ComgateError, get_comgate_client
 from .email_service import EshopEmailService
 from .schemas import (
@@ -543,6 +545,9 @@ async def create_order(
         await email_svc.send_admin_new_order(order_data, items_data)
     except Exception as e:
         logger.error("Email notification failed for order %s: %s", order_number, e)
+
+    # Notify MuFis about new order (fire-and-forget)
+    asyncio.create_task(notify_mufis_order_change())
 
     return OrderCreateResponse(
         order_number=order_number,
@@ -1480,7 +1485,7 @@ def admin_get_order(
 
 
 @router.patch("/admin/orders/{order_id}")
-def admin_update_order(
+async def admin_update_order(
     order_id: int,
     body: AdminOrderUpdateRequest,
     current_user=Depends(require_permission("ESHOP", "can_edit")),
@@ -1525,7 +1530,8 @@ def admin_update_order(
     )
 
     # Status history if status changed
-    if body.status is not None and body.status != old_status:
+    status_changed = body.status is not None and body.status != old_status
+    if status_changed:
         cur.execute(
             "INSERT INTO eshop_order_status_history ("
             "order_id, old_status, new_status, changed_by, note"
@@ -1540,6 +1546,10 @@ def admin_update_order(
         )
 
     db.commit()
+
+    # Notify MuFis about order status change (fire-and-forget)
+    if status_changed:
+        asyncio.create_task(notify_mufis_order_change())
 
     return {"message": f"Objednávka {order_id} aktualizovaná"}
 
@@ -2461,46 +2471,106 @@ async def mufis_get_product(
 # ============================================================================
 
 
+def _process_set_product(cur, tenant_id: int, sku: str, stock_quantity) -> dict:
+    """Process single setProduct update.
+
+    Returns:
+        {"ok": 1, "error": ""} on success
+        {"ok": 0, "error": "description"} on failure
+
+    Never raises — all errors are caught and returned in the dict.
+    """
+    if not sku:
+        return {"ok": 0, "error": "Missing sku"}
+    if stock_quantity is None:
+        return {"ok": 0, "error": "Missing stock_quantity"}
+
+    try:
+        qty = int(stock_quantity)
+    except (ValueError, TypeError):
+        return {"ok": 0, "error": f"Invalid stock_quantity: {stock_quantity}"}
+
+    try:
+        cur.execute(
+            "UPDATE eshop_products SET stock_quantity = %s, updated_at = CURRENT_TIMESTAMP "
+            "WHERE tenant_id = %s AND sku = %s",
+            (qty, tenant_id, sku),
+        )
+        return {"ok": 1, "error": ""}
+    except Exception as e:
+        logger.error("Failed to update product %s: %s", sku, e)
+        return {"ok": 0, "error": f"Update failed: {e}"}
+
+
 @router.post("/mufis/setProduct")
 async def mufis_set_product(
     tenant=Depends(get_tenant_by_mufis_key),
     db=Depends(get_db),
     mufis_access=Depends(verify_mufis_access),
     sku: Optional[str] = Form(None),
-    stock_quantity: Optional[int] = Form(None),
+    stock_quantity: Optional[str] = Form(None),
     data: Optional[str] = Form(None),
 ):
-    """MuFis: update product stock. Supports batch via 'data' param."""
+    """MuFis: update product stock.
+
+    Modes:
+    - Single: sku, stock_quantity
+    - Batch: data (JSON array with sku + stock_quantity per product)
+
+    Response:
+    - Single: {"ok": 1, "error": ""} or {"ok": 0, "error": "..."}
+    - Batch: {"products": [{"sku": "...", "ok": 1, "error": ""}, ...]}
+    """
     tenant_id = tenant["tenant_id"]
     cur = db.cursor()
 
-    items_to_process = []
-
     if data:
+        # BATCH mode — parse JSON list
         try:
-            batch = json.loads(data)
-            if isinstance(batch, list):
-                items_to_process = batch
-            else:
-                items_to_process = [batch]
-        except (json.JSONDecodeError, TypeError):
-            return {"ok": 0, "error": "Neplatný JSON v 'data' parametri"}
-    elif sku and stock_quantity is not None:
-        items_to_process = [{"sku": sku, "stock_quantity": stock_quantity}]
+            products_data = json.loads(data)
+            if not isinstance(products_data, list):
+                return {
+                    "products": [
+                        {
+                            "sku": "",
+                            "ok": 0,
+                            "error": "data must be JSON array",
+                        }
+                    ]
+                }
+        except (json.JSONDecodeError, TypeError) as e:
+            return {
+                "products": [
+                    {
+                        "sku": "",
+                        "ok": 0,
+                        "error": f"Invalid JSON in data parameter: {e}",
+                    }
+                ]
+            }
+
+        results = []
+        for item in products_data:
+            if not isinstance(item, dict):
+                results.append(
+                    {"sku": "", "ok": 0, "error": "Each item must be an object"}
+                )
+                continue
+
+            result = _process_set_product(
+                cur, tenant_id, item.get("sku"), item.get("stock_quantity")
+            )
+            result["sku"] = item.get("sku", "")
+            results.append(result)
+
+        db.commit()
+        return {"products": results}
+
     else:
-        return {"ok": 0, "error": "Chýba sku/stock_quantity alebo data parameter"}
+        # SINGLE mode
+        if not sku and stock_quantity is None:
+            return {"ok": 0, "error": "Chýba sku/stock_quantity alebo data parameter"}
 
-    for item in items_to_process:
-        item_sku = item.get("sku")
-        item_qty = item.get("stock_quantity")
-        if item_sku is None or item_qty is None:
-            continue
-
-        cur.execute(
-            "UPDATE eshop_products SET stock_quantity = %s "
-            "WHERE tenant_id = %s AND sku = %s",
-            (item_qty, tenant_id, item_sku),
-        )
-
-    db.commit()
-    return {"ok": 1}
+        result = _process_set_product(cur, tenant_id, sku, stock_quantity)
+        db.commit()
+        return result
