@@ -87,6 +87,9 @@ from .utils import generate_order_number
 
 router = APIRouter(prefix="/api/eshop", tags=["ESHOP"])
 
+# MuFis pagination constant
+MUFIS_PAGE_SIZE = 50
+
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -1860,13 +1863,15 @@ async def mufis_get_order(
     mufis_dry_run = os.environ.get("MUFIS_DRY_RUN", "true").lower() == "true"
     tenant_id = tenant["tenant_id"]
     cur = db.cursor()
-    per_page = 50
+    per_page = MUFIS_PAGE_SIZE
 
     conditions: list[str] = ["tenant_id = %s"]
     params: list = [tenant_id]
 
     # Default: only paid, unsynced orders (unless explicit filters provided)
-    has_explicit_filter = any([order_number, order_id, status_filter])
+    has_explicit_filter = any(
+        [order_number, order_id, status_filter, updated_at_min, date_from, date_to]
+    )
     if not has_explicit_filter:
         conditions.append("status = %s")
         params.append("paid")
@@ -1882,13 +1887,19 @@ async def mufis_get_order(
         conditions.append("updated_at >= %s")
         params.append(updated_at_min)
     if status_filter:
-        conditions.append("status = %s")
-        params.append(status_filter)
+        statuses = [s.strip() for s in status_filter.split(",")]
+        if len(statuses) == 1:
+            conditions.append("status = %s")
+            params.append(statuses[0])
+        else:
+            placeholders = ", ".join(["%s"] * len(statuses))
+            conditions.append(f"status IN ({placeholders})")
+            params.extend(statuses)
     if date_from:
-        conditions.append("created_at >= %s")
+        conditions.append("created_at::date >= %s")
         params.append(date_from)
     if date_to:
-        conditions.append("created_at <= %s")
+        conditions.append("created_at::date <= %s")
         params.append(date_to)
 
     where = "WHERE " + " AND ".join(conditions)

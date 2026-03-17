@@ -1,4 +1,4 @@
-"""MuFis Integration Tests — 17 tests covering auth, getOrder, setOrder, product, status mapping.
+"""MuFis Integration Tests — 23 tests covering auth, getOrder, setOrder, product, status mapping.
 
 Tests:
   AUTH (3):
@@ -29,6 +29,14 @@ Tests:
     15. G2: payment_type mapping (card → CARD)
     16. G2: Packeta delivery_point mapping
     17. G2: date_mod uses updated_at
+
+  G1+G4 Request Params + Pagination (6):
+    18. G1/G4: Default filter (paid + unsynced) + pagination fields
+    19. G1: Filter by order_number → bypasses default filter
+    20. G1: Filter by CSV status → IN clause
+    21. G1: Filter by updated_at_min → bypasses default filter
+    22. G1: Filter by date_from + date_to → created_at::date range
+    23. G4: Pagination fields + page parameter forwarding
 """
 
 import os
@@ -783,3 +791,194 @@ def test_mufis_getorder_date_mod_uses_updated_at(mufis_client, fake_db):
     assert order_data["date_mod"] == "2026-03-17 15:30:00"
     # order_date should reflect created_at (2026-03-16)
     assert order_data["order_date"] == "2026-03-16"
+
+
+# ===========================================================================
+# NEW: MuFis Audit Gap Tests G1+G4 — Request Params + Pagination (6)
+# ===========================================================================
+
+
+def test_mufis_getorder_default_filter(mufis_client, fake_db):
+    """G1/G4: getOrder bez parametrov → paid + unsynced + pagination fields."""
+    fake_db.set_fetchone_sequence([(0,)])
+    fake_db.set_fetchall_sequence([[]])
+
+    resp = mufis_client.post(
+        "/api/eshop/mufis/getOrder",
+        data={},
+        headers={"API-KEY": "test-key"},
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+
+    # Pagination fields
+    assert "total_pages" in data
+    assert "page" in data
+    assert "orders" in data
+    assert data["page"] == 1
+    assert isinstance(data["total_pages"], int)
+    assert data["total_pages"] >= 1
+
+    # Verify default filter SQL contains paid + mufis_synced_at IS NULL
+    queries = fake_db.cursor().executed_queries
+    count_query = queries[0][0]
+    assert "status = %s" in count_query
+    assert "mufis_synced_at IS NULL" in count_query
+    assert queries[0][1][1] == "paid"
+
+
+def test_mufis_getorder_by_order_number(mufis_client, fake_db):
+    """G1: getOrder s order_number filtrom → vracia konkrétnu objednávku."""
+    order_row = _make_order_row(order_id=60, order_number="ORD-FILT-001", status="new")
+    fake_db.set_fetchone_sequence([(1,)])
+    fake_db.set_fetchall_sequence(
+        [
+            [order_row],  # main order query
+            [],  # order items
+        ]
+    )
+
+    resp = mufis_client.post(
+        "/api/eshop/mufis/getOrder",
+        data={"order_number": "ORD-FILT-001"},
+        headers={"API-KEY": "test-key"},
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+
+    assert len(data["orders"]) == 1
+    assert data["orders"][0]["order_number"] == "ORD-FILT-001"
+
+    # Verify SQL: order_number filter present, default filter NOT present
+    queries = fake_db.cursor().executed_queries
+    count_query = queries[0][0]
+    assert "order_number = %s" in count_query
+    assert "mufis_synced_at IS NULL" not in count_query
+
+
+def test_mufis_getorder_by_status_csv(mufis_client, fake_db):
+    """G1: getOrder s comma-separated status filtrom → IN klauzula."""
+    order_row_1 = _make_order_row(order_id=61, order_number="ORD-CSV-001", status="new")
+    order_row_2 = _make_order_row(
+        order_id=62, order_number="ORD-CSV-002", status="processing"
+    )
+    fake_db.set_fetchone_sequence([(2,)])
+    fake_db.set_fetchall_sequence(
+        [
+            [order_row_1, order_row_2],  # main order query
+            [],  # items for order 61
+            [],  # items for order 62
+        ]
+    )
+
+    resp = mufis_client.post(
+        "/api/eshop/mufis/getOrder",
+        data={"status": "new,processing"},
+        headers={"API-KEY": "test-key"},
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+
+    assert len(data["orders"]) == 2
+
+    # Verify SQL: IN clause with 2 statuses
+    queries = fake_db.cursor().executed_queries
+    count_query_sql = queries[0][0]
+    count_query_params = queries[0][1]
+    assert "status IN (%s, %s)" in count_query_sql
+    assert "new" in count_query_params
+    assert "processing" in count_query_params
+    # Default filter should NOT be present
+    assert "mufis_synced_at IS NULL" not in count_query_sql
+
+
+def test_mufis_getorder_by_updated_at_min(mufis_client, fake_db):
+    """G1: getOrder s updated_at_min filtrom → WHERE updated_at >= %s."""
+    order_row = _make_order_row(
+        order_id=63,
+        order_number="ORD-UPD-001",
+        status="paid",
+        updated_at=datetime(2026, 3, 17, 10, 0, 0),
+    )
+    fake_db.set_fetchone_sequence([(1,)])
+    fake_db.set_fetchall_sequence(
+        [
+            [order_row],
+            [],  # items
+        ]
+    )
+
+    resp = mufis_client.post(
+        "/api/eshop/mufis/getOrder",
+        data={"updated_at_min": "2026-03-17 00:00:00"},
+        headers={"API-KEY": "test-key"},
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+    assert len(data["orders"]) == 1
+
+    # Verify SQL: updated_at filter present, default filter NOT present
+    queries = fake_db.cursor().executed_queries
+    count_query_sql = queries[0][0]
+    count_query_params = queries[0][1]
+    assert "updated_at >= %s" in count_query_sql
+    assert "2026-03-17 00:00:00" in count_query_params
+    assert "mufis_synced_at IS NULL" not in count_query_sql
+
+
+def test_mufis_getorder_by_date_range(mufis_client, fake_db):
+    """G1: getOrder s date_from + date_to → WHERE created_at::date >= / <=."""
+    order_row = _make_order_row(order_id=64, order_number="ORD-DATE-001", status="paid")
+    fake_db.set_fetchone_sequence([(1,)])
+    fake_db.set_fetchall_sequence(
+        [
+            [order_row],
+            [],  # items
+        ]
+    )
+
+    resp = mufis_client.post(
+        "/api/eshop/mufis/getOrder",
+        data={"date_from": "2026-03-01", "date_to": "2026-03-31"},
+        headers={"API-KEY": "test-key"},
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+    assert len(data["orders"]) == 1
+
+    # Verify SQL: date range filters present
+    queries = fake_db.cursor().executed_queries
+    count_query_sql = queries[0][0]
+    count_query_params = queries[0][1]
+    assert "created_at::date >= %s" in count_query_sql
+    assert "created_at::date <= %s" in count_query_sql
+    assert "2026-03-01" in count_query_params
+    assert "2026-03-31" in count_query_params
+    # Default filter should NOT be present
+    assert "mufis_synced_at IS NULL" not in count_query_sql
+
+
+def test_mufis_getorder_pagination_fields(mufis_client, fake_db):
+    """G4: getOrder response obsahuje pagination polia s page param."""
+    fake_db.set_fetchone_sequence([(0,)])
+    fake_db.set_fetchall_sequence([[]])
+
+    resp = mufis_client.post(
+        "/api/eshop/mufis/getOrder",
+        data={"page": "2"},
+        headers={"API-KEY": "test-key"},
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+
+    # Required pagination fields
+    assert "total_pages" in data
+    assert "page" in data
+    assert isinstance(data["total_pages"], int)
+    assert isinstance(data["page"], int)
+    assert data["page"] == 2
+
+    # Verify LIMIT/OFFSET in SELECT query
+    queries = fake_db.cursor().executed_queries
+    select_query = queries[1][0]  # second query is the SELECT
+    assert "LIMIT %s OFFSET %s" in select_query
