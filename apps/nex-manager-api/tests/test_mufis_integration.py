@@ -1240,7 +1240,9 @@ def test_mufis_getproduct_default_all(mufis_client, fake_db):
 def test_mufis_getproduct_by_sku_csv(mufis_client, fake_db):
     """P1: getProduct s sku=EM-500,EM-500-3PACK filtruje správne cez IN klauzulu."""
     product_row_1 = _make_product_row(product_id=1, sku="EM-500", stock_quantity=10)
-    product_row_2 = _make_product_row(product_id=2, sku="EM-500-3PACK", stock_quantity=5)
+    product_row_2 = _make_product_row(
+        product_id=2, sku="EM-500-3PACK", stock_quantity=5
+    )
 
     # COUNT(*) → 2, products fetchall → 2 products
     fake_db.set_fetchone_sequence([(2,)])
