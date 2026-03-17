@@ -2124,55 +2124,31 @@ async def mufis_get_order(
 # ============================================================================
 
 
-@router.post("/mufis/setOrder")
-async def mufis_set_order(
-    tenant=Depends(get_tenant_by_mufis_key),
-    db=Depends(get_db),
-    mufis_access=Depends(verify_mufis_access),
-    order_number: Optional[str] = Form(None),
-    status_val: Optional[str] = Form(None, alias="status"),
-    package_number: Optional[str] = Form(None),
-    tracking_link: Optional[str] = Form(None),
-    carrier: Optional[str] = Form(None),
-    multiple_packages: Optional[bool] = Form(None),
-    data: Optional[str] = Form(None),
-):
-    """MuFis: update order status/tracking. Supports batch via 'data' param."""
+async def _process_set_order(
+    cur,
+    tenant: dict,
+    item: dict,
+    email_svc_factory=None,
+) -> dict:
+    """Process single setOrder update.
+
+    Returns:
+        {"ok": 1, "error": ""} on success
+        {"ok": 0, "error": "description"} on failure
+
+    Never raises — all errors are caught and returned in the dict.
+    """
     tenant_id = tenant["tenant_id"]
-    cur = db.cursor()
+    on = item.get("order_number")
+    if not on:
+        return {"ok": 0, "error": "Missing order_number"}
 
-    items_to_process = []
+    mufis_hungarian_status = item.get("status")
+    if not mufis_hungarian_status:
+        return {"ok": 0, "error": "Missing status"}
 
-    if data:
-        # Batch mode — parse JSON list
-        try:
-            batch = json.loads(data)
-            if isinstance(batch, list):
-                items_to_process = batch
-            else:
-                items_to_process = [batch]
-        except (json.JSONDecodeError, TypeError):
-            return {"ok": 0, "error": "Neplatný JSON v 'data' parametri"}
-    elif order_number:
-        items_to_process = [
-            {
-                "order_number": order_number,
-                "status": status_val,
-                "package_number": package_number,
-                "tracking_link": tracking_link,
-                "carrier": carrier,
-                "multiple_packages": multiple_packages,
-            }
-        ]
-    else:
-        return {"ok": 0, "error": "Chýba order_number alebo data parameter"}
-
-    for item in items_to_process:
-        on = item.get("order_number")
-        if not on:
-            continue
-
-        # Get current order
+    # Get current order
+    try:
         cur.execute(
             "SELECT order_id, status FROM eshop_orders "
             "WHERE order_number = %s AND tenant_id = %s",
@@ -2180,52 +2156,75 @@ async def mufis_set_order(
         )
         order = cur.fetchone()
         if not order:
-            continue
+            return {"ok": 0, "error": f"Order {on} not found"}
+    except Exception as e:
+        return {"ok": 0, "error": f"Database error: {e}"}
 
-        order_id_val = order[0]
-        old_status = order[1]
+    order_id_val = order[0]
+    old_status = order[1]
 
-        set_parts: list[str] = []
-        params: list = []
+    set_parts: list[str] = []
+    params: list = []
 
-        mufis_hungarian_status = item.get("status")
-        internal_status = None
-        if mufis_hungarian_status:
-            internal_status = map_mufis_status(mufis_hungarian_status)
-            set_parts.append("status = %s")
-            params.append(internal_status)
-            set_parts.append("mufis_status = %s")
-            params.append(mufis_hungarian_status)
+    internal_status = map_mufis_status(mufis_hungarian_status)
+    set_parts.append("status = %s")
+    params.append(internal_status)
+    set_parts.append("mufis_status = %s")
+    params.append(mufis_hungarian_status)
 
-        pkg = item.get("package_number")
-        if pkg:
-            set_parts.append("tracking_number = %s")
-            params.append(pkg)
-            set_parts.append("mufis_tracking_number = %s")
-            params.append(pkg)
+    # --- multiple_packages support ---
+    mp = item.get("multiple_packages")
+    is_multiple = str(mp) == "1" or mp is True
 
-        tl = item.get("tracking_link")
-        if tl:
-            set_parts.append("tracking_link = %s")
-            params.append(tl)
-            set_parts.append("mufis_tracking_url = %s")
-            params.append(tl)
+    pkg = item.get("package_number")
+    tl = item.get("tracking_link")
 
-        carrier = item.get("carrier")
-        if carrier:
-            set_parts.append("mufis_carrier = %s")
-            params.append(carrier)
+    if is_multiple and pkg:
+        # Parse JSON arrays for multi-package orders
+        try:
+            pkg_list = json.loads(pkg) if isinstance(pkg, str) else [pkg]
+        except (json.JSONDecodeError, TypeError):
+            pkg_list = [pkg]
+        try:
+            trk_list = (
+                json.loads(tl) if isinstance(tl, str) and tl else ([tl] if tl else [])
+            )
+        except (json.JSONDecodeError, TypeError):
+            trk_list = [tl] if tl else []
 
-        mp = item.get("multiple_packages")
-        if mp is not None:
-            set_parts.append("multiple_packages = %s")
-            params.append(mp)
+        tracking_number_val = ",".join(str(p) for p in pkg_list if p)
+        tracking_url_val = ",".join(str(t) for t in trk_list if t)
+    else:
+        tracking_number_val = pkg
+        tracking_url_val = tl
 
-        mufis_oid = item.get("mufis_order_id")
-        if mufis_oid:
-            set_parts.append("mufis_order_id = %s")
-            params.append(mufis_oid)
+    if tracking_number_val:
+        set_parts.append("tracking_number = %s")
+        params.append(tracking_number_val)
+        set_parts.append("mufis_tracking_number = %s")
+        params.append(tracking_number_val)
 
+    if tracking_url_val:
+        set_parts.append("tracking_link = %s")
+        params.append(tracking_url_val)
+        set_parts.append("mufis_tracking_url = %s")
+        params.append(tracking_url_val)
+
+    item_carrier = item.get("carrier")
+    if item_carrier:
+        set_parts.append("mufis_carrier = %s")
+        params.append(item_carrier)
+
+    if mp is not None:
+        set_parts.append("multiple_packages = %s")
+        params.append(is_multiple)
+
+    mufis_oid = item.get("mufis_order_id")
+    if mufis_oid:
+        set_parts.append("mufis_order_id = %s")
+        params.append(mufis_oid)
+
+    try:
         if set_parts:
             params.append(order_id_val)
             cur.execute(
@@ -2252,7 +2251,7 @@ async def mufis_set_order(
             )
 
         # --- Email: shipping notification ---
-        if internal_status == "shipped" and (pkg or tl):
+        if internal_status == "shipped" and (tracking_number_val or tracking_url_val):
             try:
                 cur.execute(
                     "SELECT o.order_number, o.customer_email, o.customer_name, "
@@ -2261,7 +2260,7 @@ async def mufis_set_order(
                     (order_id_val,),
                 )
                 o_row = cur.fetchone()
-                if o_row:
+                if o_row and email_svc_factory:
                     order_for_email = {
                         "order_number": o_row[0],
                         "customer_email": o_row[1],
@@ -2269,15 +2268,109 @@ async def mufis_set_order(
                         "tracking_number": o_row[3] or "",
                         "tracking_link": o_row[4] or "",
                     }
-                    email_svc = EshopEmailService(tenant)
+                    email_svc = email_svc_factory(tenant)
                     await email_svc.send_shipping_notification(order_for_email)
             except Exception as e:
                 logger.error(
                     "Email notification failed for shipped order %s: %s", on, e
                 )
 
-    db.commit()
-    return {"ok": 1}
+        return {"ok": 1, "error": ""}
+
+    except Exception as e:
+        logger.error("Failed to update order %s: %s", on, e)
+        return {"ok": 0, "error": f"Update failed: {e}"}
+
+
+@router.post("/mufis/setOrder")
+async def mufis_set_order(
+    tenant=Depends(get_tenant_by_mufis_key),
+    db=Depends(get_db),
+    mufis_access=Depends(verify_mufis_access),
+    order_number: Optional[str] = Form(None),
+    status_val: Optional[str] = Form(None, alias="status"),
+    package_number: Optional[str] = Form(None),
+    tracking_link: Optional[str] = Form(None),
+    carrier: Optional[str] = Form(None),
+    multiple_packages: Optional[str] = Form(None),
+    data: Optional[str] = Form(None),
+):
+    """MuFis: update order status/tracking.
+
+    Modes:
+    - Single: order_number, status, package_number, tracking_link, multiple_packages
+    - Batch: data (JSON array with above fields per order)
+
+    Response:
+    - Single: {"ok": 1, "error": ""} or {"ok": 0, "error": "..."}
+    - Batch: {"orders": [{"order_number": "...", "ok": 1, "error": ""}, ...]}
+    """
+    cur = db.cursor()
+
+    if data:
+        # BATCH mode — parse JSON list
+        try:
+            batch = json.loads(data)
+            if not isinstance(batch, list):
+                return {
+                    "orders": [
+                        {
+                            "order_number": "",
+                            "ok": 0,
+                            "error": "data must be JSON array",
+                        }
+                    ]
+                }
+        except (json.JSONDecodeError, TypeError) as e:
+            return {
+                "orders": [
+                    {
+                        "order_number": "",
+                        "ok": 0,
+                        "error": f"Invalid JSON in data parameter: {e}",
+                    }
+                ]
+            }
+
+        results = []
+        for item in batch:
+            if not isinstance(item, dict):
+                results.append(
+                    {
+                        "order_number": "",
+                        "ok": 0,
+                        "error": "Each item must be an object",
+                    }
+                )
+                continue
+
+            result = await _process_set_order(
+                cur, tenant, item, email_svc_factory=EshopEmailService
+            )
+            result["order_number"] = item.get("order_number", "")
+            results.append(result)
+
+        db.commit()
+        return {"orders": results}
+
+    else:
+        # SINGLE mode
+        if not order_number:
+            return {"ok": 0, "error": "Chýba order_number alebo data parameter"}
+
+        item = {
+            "order_number": order_number,
+            "status": status_val,
+            "package_number": package_number,
+            "tracking_link": tracking_link,
+            "carrier": carrier,
+            "multiple_packages": multiple_packages,
+        }
+        result = await _process_set_order(
+            cur, tenant, item, email_svc_factory=EshopEmailService
+        )
+        db.commit()
+        return result
 
 
 # ============================================================================

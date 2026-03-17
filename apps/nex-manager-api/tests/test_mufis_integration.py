@@ -1,4 +1,4 @@
-"""MuFis Integration Tests — 23 tests covering auth, getOrder, setOrder, product, status mapping.
+"""MuFis Integration Tests — 28 tests covering auth, getOrder, setOrder, product, status mapping.
 
 Tests:
   AUTH (3):
@@ -37,6 +37,13 @@ Tests:
     21. G1: Filter by updated_at_min → bypasses default filter
     22. G1: Filter by date_from + date_to → created_at::date range
     23. G4: Pagination fields + page parameter forwarding
+
+  S1+S2 setOrder Batch Mode + multiple_packages (5):
+    24. S1: Batch mode s 2 objednávkami
+    25. S1: Batch mode s invalid JSON
+    26. S1: Batch partial success (1 ok, 1 not found)
+    27. S2: multiple_packages=1 JSON array → comma-separated
+    28. S1/S2: Single mode backward compatibility
 """
 
 import os
@@ -982,3 +989,201 @@ def test_mufis_getorder_pagination_fields(mufis_client, fake_db):
     queries = fake_db.cursor().executed_queries
     select_query = queries[1][0]  # second query is the SELECT
     assert "LIMIT %s OFFSET %s" in select_query
+
+
+# ===========================================================================
+# NEW: MuFis Audit Gap Tests S1+S2 — setOrder Batch Mode + multiple_packages (5)
+# ===========================================================================
+
+
+def test_mufis_setorder_batch_mode(mufis_client, fake_db):
+    """S1: setOrder batch mode s data=[...] JSON array — 2 objednávky."""
+    import json as _json
+
+    # fetchone sequence: order1 lookup, order2 lookup
+    fake_db.set_fetchone_sequence(
+        [
+            _make_order_status_row(order_id=20, status="paid"),
+            _make_order_status_row(order_id=21, status="paid"),
+        ]
+    )
+
+    batch_data = [
+        {
+            "order_number": "ORD-B-001",
+            "status": "összeszedve",
+            "package_number": "PKG001",
+            "tracking_link": "https://track1.com",
+        },
+        {
+            "order_number": "ORD-B-002",
+            "status": "futárnak átadva",
+            "package_number": "PKG002",
+        },
+    ]
+
+    resp = mufis_client.post(
+        "/api/eshop/mufis/setOrder",
+        data={"data": _json.dumps(batch_data)},
+        headers={"API-KEY": "test-key"},
+    )
+
+    assert resp.status_code == 200
+    data = resp.json()
+
+    # Verify batch response format
+    assert "orders" in data
+    assert len(data["orders"]) == 2
+
+    # Verify each result
+    for i, result in enumerate(data["orders"]):
+        assert "order_number" in result
+        assert result["order_number"] == batch_data[i]["order_number"]
+        assert result["ok"] == 1
+        assert result["error"] == ""
+
+    # Verify DB updates — 2 UPDATE queries
+    queries = fake_db.cursor().executed_queries
+    update_queries = [q for q in queries if q[0].startswith("UPDATE eshop_orders SET")]
+    assert len(update_queries) == 2
+
+    # First order: "összeszedve" → "processing"
+    assert "processing" in update_queries[0][1]
+    assert "PKG001" in update_queries[0][1]
+
+    # Second order: "futárnak átadva" → "shipped"
+    assert "shipped" in update_queries[1][1]
+    assert "PKG002" in update_queries[1][1]
+
+
+def test_mufis_setorder_batch_invalid_json(mufis_client):
+    """S1: setOrder batch mode s invalid JSON vracia error."""
+    resp = mufis_client.post(
+        "/api/eshop/mufis/setOrder",
+        data={"data": "not-valid-json{"},
+        headers={"API-KEY": "test-key"},
+    )
+
+    assert resp.status_code == 200
+    data = resp.json()
+
+    assert "orders" in data
+    assert len(data["orders"]) == 1
+    assert data["orders"][0]["ok"] == 0
+    assert "Invalid JSON" in data["orders"][0]["error"]
+
+
+def test_mufis_setorder_batch_partial_success(mufis_client, fake_db):
+    """S1: setOrder batch s mixed ok/error (1 existuje, 1 neexistuje)."""
+    import json as _json
+
+    # fetchone: first order found, second order NOT found (None)
+    fake_db.set_fetchone_sequence(
+        [
+            _make_order_status_row(order_id=30, status="paid"),
+            None,  # NONEXISTENT-ORDER
+        ]
+    )
+
+    batch_data = [
+        {"order_number": "ORD-PS-001", "status": "összeszedve"},
+        {"order_number": "NONEXISTENT-ORDER", "status": "futárnak átadva"},
+    ]
+
+    resp = mufis_client.post(
+        "/api/eshop/mufis/setOrder",
+        data={"data": _json.dumps(batch_data)},
+        headers={"API-KEY": "test-key"},
+    )
+
+    assert resp.status_code == 200
+    data = resp.json()
+
+    assert len(data["orders"]) == 2
+    assert data["orders"][0]["ok"] == 1
+    assert data["orders"][1]["ok"] == 0
+    assert "not found" in data["orders"][1]["error"].lower()
+
+
+def test_mufis_setorder_multiple_packages(mufis_client, fake_db):
+    """S2: setOrder s multiple_packages=1 a JSON array tracking info."""
+    import json as _json
+
+    fake_db.set_fetchone_sequence(
+        [
+            _make_order_status_row(order_id=40, status="paid"),
+        ]
+    )
+
+    package_numbers = ["PKG001", "PKG002", "PKG003"]
+    tracking_links = ["https://track1.com", "https://track2.com", "https://track3.com"]
+
+    resp = mufis_client.post(
+        "/api/eshop/mufis/setOrder",
+        data={
+            "order_number": "ORD-MP-001",
+            "status": "futárnak átadva",
+            "multiple_packages": "1",
+            "package_number": _json.dumps(package_numbers),
+            "tracking_link": _json.dumps(tracking_links),
+        },
+        headers={"API-KEY": "test-key"},
+    )
+
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["ok"] == 1
+    assert data["error"] == ""
+
+    # Verify DB has comma-separated tracking numbers
+    queries = fake_db.cursor().executed_queries
+    update_queries = [q for q in queries if q[0].startswith("UPDATE eshop_orders SET")]
+    assert len(update_queries) == 1
+
+    update_sql, update_params = update_queries[0]
+
+    # Check comma-separated values stored
+    assert "mufis_tracking_number = %s" in update_sql
+    assert "PKG001,PKG002,PKG003" in update_params
+
+    assert "mufis_tracking_url = %s" in update_sql
+    assert "https://track1.com,https://track2.com,https://track3.com" in update_params
+
+
+def test_mufis_setorder_single_mode_unchanged(mufis_client, fake_db):
+    """S1/S2: Existujúce single mód správanie neporušené (backward compat)."""
+    fake_db.set_fetchone_sequence(
+        [
+            _make_order_status_row(order_id=50, status="paid"),
+        ]
+    )
+
+    resp = mufis_client.post(
+        "/api/eshop/mufis/setOrder",
+        data={
+            "order_number": "ORD-SINGLE-001",
+            "status": "összeszedve",
+            "package_number": "PKG-SINGLE",
+            "tracking_link": "https://track-single.com",
+        },
+        headers={"API-KEY": "test-key"},
+    )
+
+    assert resp.status_code == 200
+    data = resp.json()
+
+    # Single mode response format — flat dict, NOT nested in "orders"
+    assert "ok" in data
+    assert data["ok"] == 1
+    assert data["error"] == ""
+    assert "orders" not in data
+
+    # Verify DB update
+    queries = fake_db.cursor().executed_queries
+    update_queries = [q for q in queries if q[0].startswith("UPDATE eshop_orders SET")]
+    assert len(update_queries) == 1
+    update_sql, update_params = update_queries[0]
+
+    assert "processing" in update_params  # "összeszedve" → "processing"
+    assert "PKG-SINGLE" in update_params
+    assert "https://track-single.com" in update_params
