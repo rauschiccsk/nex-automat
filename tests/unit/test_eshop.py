@@ -1082,7 +1082,10 @@ class TestMuFis:
             data={"data": batch_data},
         )
         assert resp.status_code == 200
-        assert resp.json()["ok"] == 1
+        body = resp.json()
+        assert "orders" in body
+        assert len(body["orders"]) == 2
+        assert all(o["ok"] == 1 for o in body["orders"])
 
     def test_get_product_basic(self, client_mufis, mock_db):
         """getProduct returns products for tenant."""
@@ -1153,7 +1156,10 @@ class TestMuFis:
             data={"data": batch_data},
         )
         assert resp.status_code == 200
-        assert resp.json()["ok"] == 1
+        body = resp.json()
+        assert "products" in body
+        assert len(body["products"]) == 2
+        assert all(p["ok"] == 1 for p in body["products"])
 
 
 # ============================================================================

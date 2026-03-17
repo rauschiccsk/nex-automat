@@ -37,6 +37,11 @@ MUFIS_STATUS_MAP: dict[str, str] = {
     "kézbesítve": "delivered",  # Delivered
     "úton vissza": "returning",  # On the way back
     "visszaküldve": "returned",  # Returned
+    # --- English aliases (for direct API calls / tests) ---
+    "shipped": "shipped",
+    "delivered": "delivered",
+    "processing": "processing",
+    "cancelled": "cancelled",
 }
 
 
