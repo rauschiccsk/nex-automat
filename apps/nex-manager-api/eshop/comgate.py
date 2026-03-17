@@ -30,12 +30,25 @@ class ComgateClient:
     Async methods use asyncio.to_thread for non-blocking I/O.
     """
 
-    BASE_URL = "https://payments.comgate.cz/v1.0"
-
     def __init__(self, merchant_id: str, secret: str, test_mode: bool = True):
         self.merchant_id = merchant_id
         self.secret = secret
         self.test_mode = test_mode
+        if test_mode:
+            self.base_url = "https://payments.comgate.cz/test/v1.0"
+        else:
+            self.base_url = "https://payments.comgate.cz/v1.0"
+
+    def _convert_to_cents(self, amount: float) -> int:
+        """Convert EUR/CZK amount to cents (haliere).
+
+        Args:
+            amount: Price as float (e.g. 9.90).
+
+        Returns:
+            Price in cents as int (e.g. 990).
+        """
+        return int(round(amount * 100))
 
     def _parse_response(self, body: str) -> dict:
         """Parse Comgate URL-encoded response into dict.
@@ -49,7 +62,7 @@ class ComgateClient:
 
     def _post_sync(self, endpoint: str, data: dict) -> dict:
         """Synchronous POST to Comgate API."""
-        url = f"{self.BASE_URL}/{endpoint}"
+        url = f"{self.base_url}/{endpoint}"
         encoded = urllib.parse.urlencode(data).encode("utf-8")
 
         req = urllib.request.Request(

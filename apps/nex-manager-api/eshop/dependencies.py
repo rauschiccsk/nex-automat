@@ -17,7 +17,8 @@ async def get_tenant_by_token(
     cur.execute(
         "SELECT tenant_id, company_name, domain, brand_name, logo_url, "
         "primary_color, currency, vat_rate_default, default_lang, is_active, "
-        "smtp_from, admin_email "
+        "smtp_from, admin_email, "
+        "comgate_merchant_id, comgate_secret, comgate_test_mode "
         "FROM eshop_tenants WHERE api_token = %s AND is_active = TRUE",
         (x_eshop_token,),
     )
@@ -40,6 +41,9 @@ async def get_tenant_by_token(
         "is_active": row[9],
         "smtp_from": row[10],
         "admin_email": row[11],
+        "comgate_merchant_id": row[12],
+        "comgate_secret": row[13],
+        "comgate_test_mode": row[14],
     }
 
 
