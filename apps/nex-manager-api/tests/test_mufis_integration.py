@@ -1,4 +1,4 @@
-"""MuFis Integration Tests — 28 tests covering auth, getOrder, setOrder, product, status mapping.
+"""MuFis Integration Tests — 33 tests covering auth, getOrder, setOrder, product, status mapping.
 
 Tests:
   AUTH (3):
@@ -44,6 +44,13 @@ Tests:
     26. S1: Batch partial success (1 ok, 1 not found)
     27. S2: multiple_packages=1 JSON array → comma-separated
     28. S1/S2: Single mode backward compatibility
+
+  P1+P2+P3 getProduct Params + Stock/Barcode + Pagination (5):
+    29. P1: Default all products + pagination fields
+    30. P1: Filter by CSV SKU → IN clause
+    31. P1: Filter by active=1 → is_active
+    32. P2: stock_quantity + barcode from DB (not hardcoded)
+    33. P3: Pagination total_pages + page
 """
 
 import os
@@ -1187,3 +1194,164 @@ def test_mufis_setorder_single_mode_unchanged(mufis_client, fake_db):
     assert "processing" in update_params  # "összeszedve" → "processing"
     assert "PKG-SINGLE" in update_params
     assert "https://track-single.com" in update_params
+
+
+# ===========================================================================
+# NEW: MuFis getProduct Gap Tests P1+P2+P3 (5)
+# ===========================================================================
+
+
+def test_mufis_getproduct_default_all(mufis_client, fake_db):
+    """P1: getProduct bez parametrov vracia všetky produkty s pagination poliami."""
+    product_row = _make_product_row(product_id=1, sku="SKU-001", stock_quantity=10)
+
+    # COUNT(*) → 1, products fetchall → 1 product
+    fake_db.set_fetchone_sequence([(1,)])
+    fake_db.set_fetchall_sequence([[product_row]])
+
+    resp = mufis_client.post(
+        "/api/eshop/mufis/getProduct",
+        data={},
+        headers={"API-KEY": "test-key"},
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+
+    # Response must contain pagination fields
+    assert "total_pages" in data
+    assert "page" in data
+    assert "products" in data
+    assert data["page"] == 1
+    assert isinstance(data["total_pages"], int)
+    assert data["total_pages"] >= 1
+
+    # Products list not empty
+    assert len(data["products"]) == 1
+
+    # Verify SQL: only tenant_id filter, no other conditions
+    queries = fake_db.cursor().executed_queries
+    count_query = queries[0][0]
+    assert "tenant_id = %s" in count_query
+    assert "product_id = %s" not in count_query
+    assert "sku" not in count_query
+    assert "is_active" not in count_query
+
+
+def test_mufis_getproduct_by_sku_csv(mufis_client, fake_db):
+    """P1: getProduct s sku=EM-500,EM-500-3PACK filtruje správne cez IN klauzulu."""
+    product_row_1 = _make_product_row(product_id=1, sku="EM-500", stock_quantity=10)
+    product_row_2 = _make_product_row(product_id=2, sku="EM-500-3PACK", stock_quantity=5)
+
+    # COUNT(*) → 2, products fetchall → 2 products
+    fake_db.set_fetchone_sequence([(2,)])
+    fake_db.set_fetchall_sequence([[product_row_1, product_row_2]])
+
+    resp = mufis_client.post(
+        "/api/eshop/mufis/getProduct",
+        data={"sku": "EM-500,EM-500-3PACK"},
+        headers={"API-KEY": "test-key"},
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+
+    assert len(data["products"]) == 2
+
+    # Verify SQL: IN clause with 2 SKUs
+    queries = fake_db.cursor().executed_queries
+    count_query_sql = queries[0][0]
+    count_query_params = queries[0][1]
+    assert "sku IN (%s, %s)" in count_query_sql
+    assert "EM-500" in count_query_params
+    assert "EM-500-3PACK" in count_query_params
+
+
+def test_mufis_getproduct_by_active(mufis_client, fake_db):
+    """P1: getProduct s active=1 vracia len aktívne produkty."""
+    product_row = _make_product_row(product_id=1, sku="SKU-ACTIVE", stock_quantity=10)
+
+    fake_db.set_fetchone_sequence([(1,)])
+    fake_db.set_fetchall_sequence([[product_row]])
+
+    resp = mufis_client.post(
+        "/api/eshop/mufis/getProduct",
+        data={"active": "1"},
+        headers={"API-KEY": "test-key"},
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+
+    assert len(data["products"]) == 1
+
+    # Verify SQL: is_active filter
+    queries = fake_db.cursor().executed_queries
+    count_query_sql = queries[0][0]
+    count_query_params = queries[0][1]
+    assert "is_active = %s" in count_query_sql
+    # active=1 → True
+    assert True in count_query_params
+
+
+def test_mufis_getproduct_stock_barcode(mufis_client, fake_db):
+    """P2: getProduct response obsahuje stock_quantity a barcode z DB."""
+    product_row = (
+        1,  # product_id
+        "SKU-BC",  # sku
+        "8592000001234",  # barcode
+        "Product with Barcode",  # name
+        "Short",  # short_description
+        "Full",  # description
+        "",  # image_url
+        Decimal("10.00"),  # price
+        Decimal("12.00"),  # price_vat
+        Decimal("20.00"),  # vat_rate
+        42,  # stock_quantity
+        Decimal("0.5"),  # weight
+        True,  # is_active
+        0,  # sort_order
+    )
+
+    fake_db.set_fetchone_sequence([(1,)])
+    fake_db.set_fetchall_sequence([[product_row]])
+
+    resp = mufis_client.post(
+        "/api/eshop/mufis/getProduct",
+        data={},
+        headers={"API-KEY": "test-key"},
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+
+    assert len(data["products"]) == 1
+    product = data["products"][0]
+
+    # stock_quantity from DB (not hardcoded 0)
+    assert product["stock_quantity"] == 42
+    # barcode from DB (not empty string)
+    assert product["barcode"] == "8592000001234"
+
+
+def test_mufis_getproduct_pagination(mufis_client, fake_db):
+    """P3: getProduct response obsahuje total_pages a page z pagination."""
+    # COUNT(*) → 0 (empty), products fetchall → []
+    fake_db.set_fetchone_sequence([(0,)])
+    fake_db.set_fetchall_sequence([[]])
+
+    resp = mufis_client.post(
+        "/api/eshop/mufis/getProduct",
+        data={"page": "2"},
+        headers={"API-KEY": "test-key"},
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+
+    # Required pagination fields
+    assert "total_pages" in data
+    assert "page" in data
+    assert isinstance(data["total_pages"], int)
+    assert isinstance(data["page"], int)
+    assert data["page"] == 2
+
+    # Verify LIMIT/OFFSET in SELECT query
+    queries = fake_db.cursor().executed_queries
+    select_query = queries[1][0]  # second query is the SELECT
+    assert "LIMIT %s OFFSET %s" in select_query

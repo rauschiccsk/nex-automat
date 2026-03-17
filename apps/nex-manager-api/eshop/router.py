@@ -2424,7 +2424,7 @@ async def mufis_get_product(
         f"SELECT product_id, sku, barcode, name, short_description, description, "
         f"image_url, price, price_vat, vat_rate, stock_quantity, weight, "
         f"is_active, sort_order "
-        f"FROM eshop_products {where} ORDER BY product_id "
+        f"FROM eshop_products {where} ORDER BY product_id DESC "
         f"LIMIT %s OFFSET %s",
         params + [per_page, offset],
     )
