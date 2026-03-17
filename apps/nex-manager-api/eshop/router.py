@@ -1909,18 +1909,34 @@ async def mufis_get_order(
         f"payment_method, payment_status, shipping_type, shipping_price, "
         f"delivery_point_group, delivery_point_id, "
         f"tracking_number, tracking_link, multiple_packages, status, note, "
-        f"created_at, updated_at "
+        f"created_at, updated_at, "
+        f"comgate_transaction_id, company_ic_dph, "
+        f"delivery_method, packeta_point_id, packeta_point_name "
         f"FROM eshop_orders {where} ORDER BY order_id DESC "
         f"LIMIT %s OFFSET %s",
         params + [per_page, offset],
     )
     order_rows = cur.fetchall()
 
-    # Payment method mapping
-    pm_map = {
+    # Payment type mapping (MuFis API v1.2 spec)
+    PAYMENT_TYPE_MAP = {
         "credit_card": "CARD",
+        "card": "CARD",
+        "CARD": "CARD",
         "bank_transfer": "BANK",
+        "bank": "BANK",
+        "BANK": "BANK",
         "cod": "COD",
+        "COD": "COD",
+        "paypal": "PAYPAL",
+        "PAYPAL": "PAYPAL",
+    }
+
+    # Shipping type mapping (MuFis API v1.2 spec)
+    SHIPPING_TYPE_MAP = {
+        "courier": "Kuriér na adresu",
+        "packeta_point": "Výdajné miesto Packeta",
+        "packeta_box": "Packeta Box",
     }
 
     orders = []
@@ -1932,62 +1948,134 @@ async def mufis_get_order(
             "FROM eshop_order_items WHERE order_id = %s",
             (oid,),
         )
-        items = [
-            {
-                "sku": ir[0],
-                "name": ir[1],
-                "quantity": ir[2],
-                "unit_price": _dec(ir[3]),
-                "unit_price_vat": _dec(ir[4]),
-                "vat_rate": _dec(ir[5]),
-                "item_type": ir[6],
-            }
-            for ir in cur.fetchall()
-        ]
+        order_items = []
+        for ir in cur.fetchall():
+            order_items.append(
+                {
+                    "sku": ir[0],
+                    "name": ir[1],
+                    "quantity": ir[2],
+                    "unit_price": _dec(ir[3]),
+                    "unit_price_vat": _dec(ir[4]),
+                    "vat_rate": _dec(ir[5]),
+                    "price_type": "with_vat",
+                    "item_type": ir[6],
+                }
+            )
 
         payment_method_raw = r[25] or ""
-        payment_method_mapped = pm_map.get(payment_method_raw, "OTHER")
+        payment_type = PAYMENT_TYPE_MAP.get(payment_method_raw, "OTHER")
+
+        # Shipping type mapping
+        shipping_type_raw = r[27] or ""
+        delivery_method = r[40] or ""  # from migration 011
+        # Use delivery_method for mapping if available, fallback to shipping_type
+        shipping_type_source = delivery_method or shipping_type_raw
+        shipping_type = SHIPPING_TYPE_MAP.get(
+            shipping_type_source, shipping_type_source
+        )
+
+        # Delivery point (Packeta specific)
+        delivery_point_group = r[29] or ""
+        delivery_point_id = r[30] or ""
+        packeta_point_id = r[41] or ""
+        packeta_point_name = r[42] or ""
+        # Enrich from packeta fields if delivery_method is packeta
+        if delivery_method == "packeta_point" and packeta_point_id:
+            if not delivery_point_group:
+                delivery_point_group = "packeta"
+            if not delivery_point_id:
+                delivery_point_id = packeta_point_id
+
+        # EU VAT number (company orders)
+        eu_vat_number = r[21] or ""
+        company_ic_dph = r[39] or ""
+        if not eu_vat_number and company_ic_dph:
+            vat = str(company_ic_dph)
+            if not vat.startswith("SK"):
+                vat = f"SK{vat}"
+            eu_vat_number = vat
+
+        # Comgate transaction ID
+        comgate_transaction_id = r[38] or ""
+
+        # Meta data (additional info)
+        meta_data = []
+        if comgate_transaction_id:
+            meta_data.append(
+                {"key": "comgate_transaction_id", "value": comgate_transaction_id}
+            )
+        if packeta_point_name:
+            meta_data.append({"key": "packeta_point_name", "value": packeta_point_name})
+
+        # date_mod: use updated_at (reflects last change), fallback to created_at
+        created_at = r[36]
+        updated_at = r[37]
+        date_mod = (
+            updated_at.strftime("%Y-%m-%d %H:%M:%S")
+            if updated_at
+            else (created_at.strftime("%Y-%m-%d %H:%M:%S") if created_at else "")
+        )
+        order_date = created_at.strftime("%Y-%m-%d") if created_at else ""
+
+        # Billing streetnum (concat street + zip for MuFis)
+        billing_streetnum = r[9] or ""
+
+        # Shipping: fallback to billing if empty
+        shipping_name = r[13] or r[4] or ""
+        shipping_streetnum = r[15] or billing_streetnum
+        shipping_city = r[16] or r[10] or ""
+        shipping_zip = r[17] or r[11] or ""
+        shipping_country = r[18] or r[12] or "SK"
 
         orders.append(
             {
                 "order_id": r[0],
                 "order_number": r[1],
+                "order_date": order_date,
+                "date_mod": date_mod,
                 "customer_email": r[3],
                 "customer_name": r[4],
                 "customer_phone": r[5] or "",
+                "email": r[3],
+                "phone": r[5] or "",
                 "lang": r[6] or "sk",
                 "billing_name": r[7] or "",
                 "billing_name2": r[8] or "",
-                "billing_street": r[9] or "",
+                "billing_streetnum": billing_streetnum,
                 "billing_city": r[10] or "",
                 "billing_zip": r[11] or "",
-                "billing_country": r[12] or "",
-                "shipping_name": r[13] or "",
+                "billing_country": r[12] or "SK",
+                "shipping_name": shipping_name,
                 "shipping_name2": r[14] or "",
-                "shipping_street": r[15] or "",
-                "shipping_city": r[16] or "",
-                "shipping_zip": r[17] or "",
-                "shipping_country": r[18] or "",
+                "shipping_streetnum": shipping_streetnum,
+                "shipping_city": shipping_city,
+                "shipping_zip": shipping_zip,
+                "shipping_country": shipping_country,
                 "ico": r[19] or "",
                 "dic": r[20] or "",
-                "eu_vat_number": r[21] or "",
+                "eu_vat_number": eu_vat_number,
                 "total_amount": _dec(r[22]),
                 "total_amount_vat": _dec(r[23]),
+                "total_price": _dec(r[23]),
                 "currency": r[24],
-                "payment_method": payment_method_mapped,
+                "payment_type": payment_type,
+                "payment_method": payment_type,
                 "payment_status": r[26] or "",
-                "shipping_type": r[27] or "",
+                "shipping_type": shipping_type,
                 "shipping_price": _dec(r[28]),
-                "delivery_point_group": r[29] or "",
-                "delivery_point_id": r[30] or "",
+                "delivery_point_group": delivery_point_group,
+                "delivery_point_id": delivery_point_id,
                 "tracking_number": r[31] or "",
                 "tracking_link": r[32] or "",
                 "multiple_packages": r[33],
                 "status": r[34],
                 "note": r[35] or "",
-                "created_at": r[36].isoformat() if r[36] else "",
-                "updated_at": r[37].isoformat() if r[37] else "",
-                "items": items,
+                "created_at": created_at.isoformat() if created_at else "",
+                "updated_at": updated_at.isoformat() if updated_at else "",
+                "order_items": order_items,
+                "items": order_items,
+                "meta_data": meta_data,
             }
         )
 

@@ -54,7 +54,7 @@ async def verify_mufis_ip(request: Request) -> str:
         Client IP on success
 
     Raises:
-        HTTPException 403 if IP not whitelisted and check is enabled
+        HTTPException 401 if IP not whitelisted and check is enabled
     """
     client_ip = get_client_ip(request)
     endpoint = request.url.path
@@ -77,8 +77,8 @@ async def verify_mufis_ip(request: Request) -> str:
             endpoint,
         )
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Access denied: IP not whitelisted",
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Unauthorized: IP not whitelisted",
         )
 
     logger.info("MuFis IP check OK: ip=%s, endpoint=%s", client_ip, endpoint)

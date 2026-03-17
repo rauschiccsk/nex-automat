@@ -1,10 +1,10 @@
-"""MuFis Integration Tests — 12 tests covering auth, getOrder, setOrder, product, status mapping.
+"""MuFis Integration Tests — 17 tests covering auth, getOrder, setOrder, product, status mapping.
 
 Tests:
   AUTH (3):
     1. Valid API key + allowed IP → 200
     2. Invalid API key → 401
-    3. Valid key, blocked IP → 403
+    3. Valid key, blocked IP → 401
 
   getOrder (2):
     4. No paid orders → empty orders[]
@@ -22,6 +22,13 @@ Tests:
   Unit (2):
     11. All MUFIS_STATUS_MAP values are valid ORDER_STATUSES
     12. Delivery method + packeta fields
+
+  Audit Gap Fixes (5):
+    13. A1: Invalid auth → 401 (nie 403)
+    14. G2: getOrder has all required MuFis v1.2 fields
+    15. G2: payment_type mapping (card → CARD)
+    16. G2: Packeta delivery_point mapping
+    17. G2: date_mod uses updated_at
 """
 
 import os
@@ -68,48 +75,109 @@ def _make_order_row(
     status="paid",
     tracking_number="",
     tracking_link="",
+    payment_method="bank_transfer",
+    delivery_method="courier",
+    delivery_point_group="",
+    delivery_point_id="",
+    packeta_point_id="",
+    packeta_point_name="",
+    comgate_transaction_id="",
+    company_ic_dph="",
+    eu_vat_number="",
+    updated_at=None,
 ):
-    """Build a fake eshop_orders DB row matching getOrder SELECT columns."""
+    """Build a fake eshop_orders DB row matching getOrder SELECT columns.
+
+    Columns (43 total):
+      0:  order_id
+      1:  order_number
+      2:  tenant_id
+      3:  customer_email
+      4:  customer_name
+      5:  customer_phone
+      6:  lang
+      7:  billing_name
+      8:  billing_name2
+      9:  billing_street
+      10: billing_city
+      11: billing_zip
+      12: billing_country
+      13: shipping_name
+      14: shipping_name2
+      15: shipping_street
+      16: shipping_city
+      17: shipping_zip
+      18: shipping_country
+      19: ico
+      20: dic
+      21: eu_vat_number
+      22: total_amount
+      23: total_amount_vat
+      24: currency
+      25: payment_method
+      26: payment_status
+      27: shipping_type
+      28: shipping_price
+      29: delivery_point_group
+      30: delivery_point_id
+      31: tracking_number
+      32: tracking_link
+      33: multiple_packages
+      34: status
+      35: note
+      36: created_at
+      37: updated_at
+      38: comgate_transaction_id
+      39: company_ic_dph
+      40: delivery_method
+      41: packeta_point_id
+      42: packeta_point_name
+    """
     now = datetime(2026, 3, 16, 12, 0, 0)
     return (
-        order_id,  # order_id
-        order_number,  # order_number
-        1,  # tenant_id
-        "test@test.sk",  # customer_email
-        "Test Customer",  # customer_name
-        "+421900000000",  # customer_phone
-        "sk",  # lang
-        "Billing Name",  # billing_name
-        "",  # billing_name2
-        "Hlavná 1",  # billing_street
-        "Bratislava",  # billing_city
-        "81101",  # billing_zip
-        "SK",  # billing_country
-        "Ship Name",  # shipping_name
-        "",  # shipping_name2
-        "Nová 5",  # shipping_street
-        "Košice",  # shipping_city
-        "04001",  # shipping_zip
-        "SK",  # shipping_country
-        "",  # ico
-        "",  # dic
-        "",  # eu_vat_number
-        Decimal("100.00"),  # total_amount
-        Decimal("120.00"),  # total_amount_vat
-        "EUR",  # currency
-        "bank_transfer",  # payment_method
-        "paid",  # payment_status
-        "courier",  # shipping_type
-        Decimal("5.00"),  # shipping_price
-        "",  # delivery_point_group
-        "",  # delivery_point_id
-        tracking_number,  # tracking_number
-        tracking_link,  # tracking_link
-        False,  # multiple_packages
-        status,  # status
-        "",  # note
-        now,  # created_at
-        now,  # updated_at
+        order_id,  # 0: order_id
+        order_number,  # 1: order_number
+        1,  # 2: tenant_id
+        "test@test.sk",  # 3: customer_email
+        "Test Customer",  # 4: customer_name
+        "+421900000000",  # 5: customer_phone
+        "sk",  # 6: lang
+        "Billing Name",  # 7: billing_name
+        "",  # 8: billing_name2
+        "Hlavná 1",  # 9: billing_street
+        "Bratislava",  # 10: billing_city
+        "81101",  # 11: billing_zip
+        "SK",  # 12: billing_country
+        "Ship Name",  # 13: shipping_name
+        "",  # 14: shipping_name2
+        "Nová 5",  # 15: shipping_street
+        "Košice",  # 16: shipping_city
+        "04001",  # 17: shipping_zip
+        "SK",  # 18: shipping_country
+        "",  # 19: ico
+        "",  # 20: dic
+        eu_vat_number,  # 21: eu_vat_number
+        Decimal("100.00"),  # 22: total_amount
+        Decimal("120.00"),  # 23: total_amount_vat
+        "EUR",  # 24: currency
+        payment_method,  # 25: payment_method
+        "paid",  # 26: payment_status
+        "courier",  # 27: shipping_type
+        Decimal("5.00"),  # 28: shipping_price
+        delivery_point_group,  # 29: delivery_point_group
+        delivery_point_id,  # 30: delivery_point_id
+        tracking_number,  # 31: tracking_number
+        tracking_link,  # 32: tracking_link
+        False,  # 33: multiple_packages
+        status,  # 34: status
+        "",  # 35: note
+        now,  # 36: created_at
+        updated_at or now,  # 37: updated_at
+        comgate_transaction_id,  # 38: comgate_transaction_id
+        company_ic_dph,  # 39: company_ic_dph
+        delivery_method,  # 40: delivery_method
+        packeta_point_id,  # 41: packeta_point_id
+        packeta_point_name,  # 42: packeta_point_name
     )
 
 
@@ -222,11 +290,11 @@ def test_mufis_auth_invalid_key(mufis_client_no_auth, fake_db):
         data={},
         headers={"API-KEY": "wrong-key"},
     )
-    assert resp.status_code in [401, 403]
+    assert resp.status_code == 401
 
 
 def test_mufis_auth_invalid_ip(fake_db, monkeypatch):
-    """#3: Správny key, nepovolená IP → 403."""
+    """#3: Správny key, nepovolená IP → 401."""
     from fastapi.testclient import TestClient
     from database import get_db
     from eshop.dependencies import get_tenant_by_mufis_key
@@ -252,7 +320,7 @@ def test_mufis_auth_invalid_ip(fake_db, monkeypatch):
             data={},
             headers={"API-KEY": "test-key"},
         )
-        assert resp.status_code == 403
+        assert resp.status_code == 401
     finally:
         app.dependency_overrides.clear()
 
@@ -512,3 +580,206 @@ def test_status_mapping_unknown_default():
 
     result3 = map_mufis_status("  Futárnak Átadva  ")
     assert result3 == "shipped"
+
+
+# ===========================================================================
+# NEW: MuFis Audit Gap Tests (5) — A1 + G2 fixes
+# ===========================================================================
+
+
+def test_mufis_auth_returns_401_for_invalid_key(mufis_client_no_auth, fake_db):
+    """A1: MuFis auth neplatný API key → HTTP 401 (nie 403)."""
+    fake_db.cursor().fetchone = lambda: None
+    resp = mufis_client_no_auth.post(
+        "/api/eshop/mufis/getOrder",
+        data={},
+        headers={"API-KEY": "invalid_key_12345"},
+    )
+    assert resp.status_code == 401, f"Expected 401, got {resp.status_code}"
+    detail = resp.json().get("detail", "")
+    assert "Neplatný" in detail or "Unauthorized" in detail
+
+
+def test_mufis_getorder_response_has_all_required_fields(mufis_client, fake_db):
+    """G2: getOrder response obsahuje VŠETKY povinné polia podľa MuFis API v1.2 spec."""
+    order_row = _make_order_row(
+        order_id=50,
+        order_number="ORD-FIELDS-001",
+        status="paid",
+        comgate_transaction_id="CG-12345",
+    )
+
+    fake_db.set_fetchone_sequence([(1,)])
+    fake_db.set_fetchall_sequence(
+        [
+            [order_row],  # main order query
+            [],  # order items for order 50
+        ]
+    )
+
+    resp = mufis_client.post(
+        "/api/eshop/mufis/getOrder",
+        data={},
+        headers={"API-KEY": "test-key"},
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+    assert len(data["orders"]) == 1
+
+    order_data = data["orders"][0]
+
+    # Required fields per MuFis API v1.2 spec
+    required_fields = [
+        "order_id",
+        "order_number",
+        "order_date",
+        "status",
+        "date_mod",
+        "billing_name",
+        "billing_name2",
+        "billing_city",
+        "billing_streetnum",
+        "billing_zip",
+        "billing_country",
+        "shipping_name",
+        "shipping_name2",
+        "shipping_city",
+        "shipping_streetnum",
+        "shipping_zip",
+        "shipping_country",
+        "email",
+        "phone",
+        "eu_vat_number",
+        "lang",
+        "currency",
+        "total_price",
+        "payment_type",
+        "shipping_type",
+        "delivery_point_group",
+        "delivery_point_id",
+        "order_items",
+        "meta_data",
+    ]
+
+    missing_fields = [f for f in required_fields if f not in order_data]
+    assert not missing_fields, f"Missing required fields: {missing_fields}"
+
+    # Verify date_mod format (Y-m-d H:M:S)
+    try:
+        datetime.strptime(order_data["date_mod"], "%Y-%m-%d %H:%M:%S")
+    except ValueError:
+        pytest.fail(f"date_mod has wrong format: {order_data['date_mod']}")
+
+    # Verify order_date format (Y-m-d)
+    try:
+        datetime.strptime(order_data["order_date"], "%Y-%m-%d")
+    except ValueError:
+        pytest.fail(f"order_date has wrong format: {order_data['order_date']}")
+
+    # Verify meta_data contains comgate_transaction_id
+    meta_keys = [m["key"] for m in order_data["meta_data"]]
+    assert "comgate_transaction_id" in meta_keys
+
+
+def test_mufis_getorder_payment_type_mapping(mufis_client, fake_db):
+    """G2: payment_method='card' → response payment_type='CARD'."""
+    order_row = _make_order_row(
+        order_id=51,
+        order_number="ORD-PAY-001",
+        status="paid",
+        payment_method="card",
+    )
+
+    fake_db.set_fetchone_sequence([(1,)])
+    fake_db.set_fetchall_sequence(
+        [
+            [order_row],
+            [],  # items
+        ]
+    )
+
+    resp = mufis_client.post(
+        "/api/eshop/mufis/getOrder",
+        data={},
+        headers={"API-KEY": "test-key"},
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+    order_data = data["orders"][0]
+    assert order_data["payment_type"] == "CARD", (
+        f"Expected CARD, got {order_data['payment_type']}"
+    )
+
+
+def test_mufis_getorder_delivery_packeta(mufis_client, fake_db):
+    """G2: packeta_point objednávka → delivery_point_group='packeta', delivery_point_id správne."""
+    order_row = _make_order_row(
+        order_id=52,
+        order_number="ORD-PKT-001",
+        status="paid",
+        delivery_method="packeta_point",
+        packeta_point_id="12345",
+        packeta_point_name="Packeta Point Bratislava",
+    )
+
+    fake_db.set_fetchone_sequence([(1,)])
+    fake_db.set_fetchall_sequence(
+        [
+            [order_row],
+            [],  # items
+        ]
+    )
+
+    resp = mufis_client.post(
+        "/api/eshop/mufis/getOrder",
+        data={},
+        headers={"API-KEY": "test-key"},
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+    order_data = data["orders"][0]
+
+    assert order_data["delivery_point_group"] == "packeta"
+    assert order_data["delivery_point_id"] == "12345"
+
+    # Check meta_data for packeta_point_name
+    meta_keys = [m["key"] for m in order_data["meta_data"]]
+    assert "packeta_point_name" in meta_keys
+    packeta_meta = next(
+        m for m in order_data["meta_data"] if m["key"] == "packeta_point_name"
+    )
+    assert packeta_meta["value"] == "Packeta Point Bratislava"
+
+
+def test_mufis_getorder_date_mod_uses_updated_at(mufis_client, fake_db):
+    """G2: date_mod reflektuje updated_at, nie created_at."""
+    # Create order with different created_at and updated_at
+    updated = datetime(2026, 3, 17, 15, 30, 0)
+    order_row = _make_order_row(
+        order_id=53,
+        order_number="ORD-DMOD-001",
+        status="paid",
+        updated_at=updated,
+    )
+
+    fake_db.set_fetchone_sequence([(1,)])
+    fake_db.set_fetchall_sequence(
+        [
+            [order_row],
+            [],  # items
+        ]
+    )
+
+    resp = mufis_client.post(
+        "/api/eshop/mufis/getOrder",
+        data={},
+        headers={"API-KEY": "test-key"},
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+    order_data = data["orders"][0]
+
+    # date_mod should reflect updated_at (2026-03-17 15:30:00)
+    assert order_data["date_mod"] == "2026-03-17 15:30:00"
+    # order_date should reflect created_at (2026-03-16)
+    assert order_data["order_date"] == "2026-03-16"
