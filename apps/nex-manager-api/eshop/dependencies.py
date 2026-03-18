@@ -18,7 +18,8 @@ async def get_tenant_by_token(
         "SELECT tenant_id, company_name, domain, brand_name, logo_url, "
         "primary_color, currency, vat_rate_default, default_lang, is_active, "
         "smtp_from, admin_email, "
-        "comgate_merchant_id, comgate_secret, comgate_test_mode "
+        "comgate_merchant_id, comgate_secret, comgate_test_mode, "
+        "admin_notification_email "
         "FROM eshop_tenants WHERE api_token = %s AND is_active = TRUE",
         (x_eshop_token,),
     )
@@ -44,6 +45,7 @@ async def get_tenant_by_token(
         "comgate_merchant_id": row[12],
         "comgate_secret": row[13],
         "comgate_test_mode": row[14],
+        "admin_notification_email": row[15],
     }
 
 
@@ -59,7 +61,7 @@ async def get_tenant_by_mufis_key(
     cur.execute(
         "SELECT tenant_id, company_name, domain, brand_name, logo_url, "
         "primary_color, currency, vat_rate_default, default_lang, is_active, "
-        "smtp_from, admin_email "
+        "smtp_from, admin_email, admin_notification_email "
         "FROM eshop_tenants WHERE mufis_api_key = %s AND is_active = TRUE",
         (api_key,),
     )
@@ -82,4 +84,5 @@ async def get_tenant_by_mufis_key(
         "is_active": row[9],
         "smtp_from": row[10],
         "admin_email": row[11],
+        "admin_notification_email": row[12],
     }

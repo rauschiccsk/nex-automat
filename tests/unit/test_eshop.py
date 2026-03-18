@@ -58,6 +58,7 @@ FAKE_TENANT = {
     "is_active": True,
     "smtp_from": "noreply@emcenter.sk",
     "admin_email": "odbyt@em-1.sk",
+    "admin_notification_email": "odbyt@em-1.sk",
 }
 
 FAKE_TENANT_2 = {
@@ -73,6 +74,7 @@ FAKE_TENANT_2 = {
     "is_active": True,
     "smtp_from": "noreply@other.sk",
     "admin_email": "admin@other.sk",
+    "admin_notification_email": "admin@other.sk",
 }
 
 NOW = datetime(2026, 1, 15, 10, 0, 0, tzinfo=timezone.utc)
@@ -818,6 +820,7 @@ class TestMuFis:
                     "courier",  # delivery_method
                     "",  # packeta_point_id
                     "",  # packeta_point_name
+                    "",  # order_notes
                 ),
             ],
             [  # items for order 1
@@ -888,6 +891,7 @@ class TestMuFis:
                     "courier",  # delivery_method
                     "",  # packeta_point_id
                     "",  # packeta_point_name
+                    "",  # order_notes
                 )
             ],
             [
@@ -1005,6 +1009,7 @@ class TestMuFis:
                     "courier",  # delivery_method
                     "",  # packeta_point_id
                     "",  # packeta_point_name
+                    "",  # order_notes
                 )
             ],
             [

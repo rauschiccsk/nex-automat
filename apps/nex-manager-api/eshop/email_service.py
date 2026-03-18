@@ -18,7 +18,7 @@ class EshopEmailService:
 
     def __init__(self, tenant: dict):
         self.sender = tenant.get("smtp_from", "")
-        self.admin_email = tenant.get("admin_email", "")
+        self.admin_email = tenant.get("admin_notification_email") or tenant.get("admin_email", "")
         self.brand_name = tenant.get("brand_name", "E-shop")
         self.domain = tenant.get("domain", "")
         self.primary_color = tenant.get("primary_color", "#2E7D32")
@@ -166,6 +166,7 @@ class EshopEmailService:
         total_vat = order.get("total_amount_vat", 0)
         payment_method = html.escape(str(order.get("payment_method", "")))
         note = html.escape(str(order.get("note", "")))
+        order_notes = html.escape(str(order.get("order_notes", "")))
 
         items_html = self._build_items_table(items, currency)
         billing_html = self._build_address_block("Fakturacna adresa", order, "billing")
@@ -207,6 +208,7 @@ class EshopEmailService:
         {shipping_html}
 
         {"<h3>Poznamka</h3><p>" + note + "</p>" if note else ""}
+        {"<h3>Order Notes</h3><p style='color:#c62828;font-weight:bold;'>" + order_notes + "</p>" if order_notes else ""}
         """
 
         subject = f"[NOVA OBJEDNAVKA] {order_number} \u2014 {customer_name}"

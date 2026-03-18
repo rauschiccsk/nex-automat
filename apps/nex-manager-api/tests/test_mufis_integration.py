@@ -94,6 +94,7 @@ _TENANT_DICT = {
     "is_active": True,
     "smtp_from": "noreply@test.sk",
     "admin_email": "admin@test.sk",
+    "admin_notification_email": "admin@test.sk",
 }
 
 _TENANT_DICT_WITH_IP = {**_TENANT_DICT, "client_ip": "127.0.0.1"}
@@ -115,10 +116,11 @@ def _make_order_row(
     company_ic_dph="",
     eu_vat_number="",
     updated_at=None,
+    order_notes="",
 ):
     """Build a fake eshop_orders DB row matching getOrder SELECT columns.
 
-    Columns (43 total):
+    Columns (44 total):
       0:  order_id
       1:  order_number
       2:  tenant_id
@@ -162,6 +164,7 @@ def _make_order_row(
       40: delivery_method
       41: packeta_point_id
       42: packeta_point_name
+      43: order_notes
     """
     now = datetime(2026, 3, 16, 12, 0, 0)
     return (
@@ -208,6 +211,7 @@ def _make_order_row(
         delivery_method,  # 40: delivery_method
         packeta_point_id,  # 41: packeta_point_id
         packeta_point_name,  # 42: packeta_point_name
+        order_notes,  # 43: order_notes
     )
 
 
@@ -1539,3 +1543,147 @@ def test_mufis_webhook_sends_get(monkeypatch):
 
         # Verify GET was called with the webhook URL
         mock_client.get.assert_called_once_with("https://mufis.example.com/webhook")
+
+
+# ===========================================================================
+# ORDER NOTES + EMAIL NOTIFICATION TESTS (5)
+# ===========================================================================
+
+
+def test_mufis_getorder_order_notes_in_meta_data(mufis_client, fake_db, monkeypatch):
+    """#40: order_notes sa objaví v meta_data[] v getOrder response."""
+    monkeypatch.setenv("MUFIS_DRY_RUN", "true")
+    order_row = _make_order_row(
+        order_notes="TESTOVACIA OBJEDNAVKA – staging",
+    )
+    fake_db.set_fetchone_sequence([(1,)])  # count
+    fake_db.set_fetchall_sequence(
+        [[order_row], [("EM-500", "Product", 2, Decimal("8.25"), Decimal("9.90"), Decimal("20.00"), "product")]]
+    )
+
+    resp = mufis_client.post(
+        "/api/eshop/mufis/getOrder",
+        data={},
+        headers={"API-KEY": "test-key"},
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+    assert len(data["orders"]) == 1
+    order = data["orders"][0]
+    meta_keys = [m["key"] for m in order["meta_data"]]
+    assert "order_notes" in meta_keys
+    notes_entry = next(m for m in order["meta_data"] if m["key"] == "order_notes")
+    assert "TESTOVACIA" in notes_entry["value"]
+
+
+def test_mufis_getorder_no_order_notes_when_empty(mufis_client, fake_db, monkeypatch):
+    """#41: Prázdne order_notes sa neobjavujú v meta_data[]."""
+    monkeypatch.setenv("MUFIS_DRY_RUN", "true")
+    order_row = _make_order_row(order_notes="")
+    fake_db.set_fetchone_sequence([(1,)])
+    fake_db.set_fetchall_sequence(
+        [[order_row], [("EM-500", "Product", 2, Decimal("8.25"), Decimal("9.90"), Decimal("20.00"), "product")]]
+    )
+
+    resp = mufis_client.post(
+        "/api/eshop/mufis/getOrder",
+        data={},
+        headers={"API-KEY": "test-key"},
+    )
+    assert resp.status_code == 200
+    order = resp.json()["orders"][0]
+    meta_keys = [m["key"] for m in order["meta_data"]]
+    assert "order_notes" not in meta_keys
+
+
+def test_email_service_admin_notification_email_fallback():
+    """#42: EshopEmailService uses admin_notification_email over admin_email."""
+    from eshop.email_service import EshopEmailService
+
+    # admin_notification_email has priority
+    svc = EshopEmailService({
+        "admin_notification_email": "notif@test.sk",
+        "admin_email": "admin@test.sk",
+        "smtp_from": "noreply@test.sk",
+        "brand_name": "Test",
+        "domain": "test.sk",
+        "primary_color": "#2E7D32",
+    })
+    assert svc.admin_email == "notif@test.sk"
+
+    # Falls back to admin_email when admin_notification_email is None
+    svc2 = EshopEmailService({
+        "admin_notification_email": None,
+        "admin_email": "admin@test.sk",
+        "smtp_from": "noreply@test.sk",
+        "brand_name": "Test",
+        "domain": "test.sk",
+        "primary_color": "#2E7D32",
+    })
+    assert svc2.admin_email == "admin@test.sk"
+
+
+def test_email_service_order_notes_in_admin_email():
+    """#43: Admin email obsahuje order_notes ak sú prítomné."""
+    from eshop.email_service import EshopEmailService
+
+    svc = EshopEmailService({
+        "admin_email": "admin@test.sk",
+        "smtp_from": "noreply@test.sk",
+        "brand_name": "Test",
+        "domain": "test.sk",
+        "primary_color": "#2E7D32",
+    })
+
+    import asyncio
+    from unittest.mock import AsyncMock, patch
+
+    order = {
+        "order_number": "ORD-TEST-001",
+        "customer_name": "Test Zákazník",
+        "customer_email": "test@test.sk",
+        "customer_phone": "+421900000000",
+        "total_amount_vat": 120.00,
+        "currency": "EUR",
+        "payment_method": "bank_transfer",
+        "note": "",
+        "order_notes": "TESTOVACIA OBJEDNAVKA – staging",
+    }
+    items = [{"name": "EM-1", "quantity": 1, "unit_price_vat": 9.90}]
+
+    with patch.object(svc, "_send_email", new_callable=AsyncMock) as mock_send:
+        asyncio.get_event_loop().run_until_complete(
+            svc.send_admin_new_order(order, items)
+        )
+        assert mock_send.called
+        html_body = mock_send.call_args[0][2]
+        assert "TESTOVACIA" in html_body
+
+
+def test_email_service_send_does_not_block():
+    """#44: Email send failure nesmie blokovať — error je len zalogovaný."""
+    from eshop.email_service import EshopEmailService
+
+    svc = EshopEmailService({
+        "admin_email": "admin@test.sk",
+        "smtp_from": "noreply@test.sk",
+        "brand_name": "Test",
+        "domain": "test.sk",
+        "primary_color": "#2E7D32",
+    })
+
+    import asyncio
+    from unittest.mock import patch
+
+    with patch("smtplib.SMTP") as mock_smtp:
+        mock_smtp.side_effect = ConnectionRefusedError("SMTP down")
+        # Should NOT raise — errors are caught internally
+        asyncio.get_event_loop().run_until_complete(
+            svc.send_admin_new_order(
+                {"order_number": "ORD-001", "customer_name": "Test",
+                 "customer_email": "t@t.sk", "customer_phone": "",
+                 "total_amount_vat": 10, "currency": "EUR",
+                 "payment_method": "bank", "note": "", "order_notes": ""},
+                [{"name": "P", "quantity": 1, "unit_price_vat": 10}],
+            )
+        )

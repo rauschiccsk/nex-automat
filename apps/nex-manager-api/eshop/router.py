@@ -360,7 +360,7 @@ async def create_order(
         "delivery_point_group, delivery_point_id, status, payment_status, "
         "is_company_order, company_name, company_ico, company_dic, "
         "company_ic_dph, billing_postal_code, customer_id, "
-        "delivery_method, packeta_point_id, packeta_point_name"
+        "delivery_method, packeta_point_id, packeta_point_name, order_notes"
         ") VALUES ("
         "%s, %s, %s, %s, %s, "
         "%s, %s, %s, %s, %s, "
@@ -371,7 +371,7 @@ async def create_order(
         "%s, %s, %s, %s, "
         "%s, %s, %s, %s, "
         "%s, %s, %s, "
-        "%s, %s, %s"
+        "%s, %s, %s, %s"
         ") RETURNING order_id",
         (
             tenant_id,
@@ -416,6 +416,7 @@ async def create_order(
             body.delivery_method or "courier",
             body.packeta_point_id or "",
             body.packeta_point_name or "",
+            body.order_notes or "",
         ),
     )
     order_row = cur.fetchone()
@@ -625,6 +626,7 @@ async def create_order(
             "currency": tenant["currency"],
             "payment_method": body.payment_method,
             "note": body.note or "",
+            "order_notes": body.order_notes or "",
         }
         items_data = [
             {
@@ -2039,7 +2041,7 @@ async def mufis_get_order(
         f"tracking_number, tracking_link, multiple_packages, status, note, "
         f"created_at, updated_at, "
         f"comgate_transaction_id, company_ic_dph, "
-        f"delivery_method, packeta_point_id, packeta_point_name "
+        f"delivery_method, packeta_point_id, packeta_point_name, order_notes "
         f"FROM eshop_orders {where} ORDER BY order_id DESC "
         f"LIMIT %s OFFSET %s",
         params + [per_page, offset],
@@ -2108,6 +2110,7 @@ async def mufis_get_order(
         delivery_point_id = r[30] or ""
         packeta_point_id = r[41] or ""
         packeta_point_name = r[42] or ""
+        order_notes = r[43] or ""
         # Enrich from packeta fields if delivery_method is packeta
         if delivery_method == "packeta_point" and packeta_point_id:
             if not delivery_point_group:
@@ -2135,6 +2138,8 @@ async def mufis_get_order(
             )
         if packeta_point_name:
             meta_data.append({"key": "packeta_point_name", "value": packeta_point_name})
+        if order_notes:
+            meta_data.append({"key": "order_notes", "value": order_notes})
 
         # date_mod: use updated_at (reflects last change), fallback to created_at
         created_at = r[36]

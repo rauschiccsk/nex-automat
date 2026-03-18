@@ -85,6 +85,7 @@ class OrderCreateRequest(BaseModel):
     company_dic: str | None = None
     company_ic_dph: str | None = None
     billing_postal_code: str | None = None
+    order_notes: Optional[str] = None  # Test marker / poznámka k objednávke
     shipping_price: Optional[Decimal] = Decimal("0")  # Cena dopravy s DPH
     company_billing_street: Optional[str] = None
     company_billing_city: Optional[str] = None
