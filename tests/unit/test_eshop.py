@@ -2504,3 +2504,155 @@ class TestOrderDeliveryMethod:
         assert "Kuri" in insert_call  # "Kuriér na adresu"
         # delivery_method should be "courier"
         assert "'courier'" in insert_call
+
+
+# ============================================================================
+# ORDER AUDIT GAP FIXES — GAP-02, GAP-03, GAP-04, GAP-05 (5 tests)
+# ============================================================================
+
+
+class TestOrderAuditGapFixes:
+    """Tests for Order System audit gap fixes (GAP-02 through GAP-05)."""
+
+    def test_create_order_with_shipping_price(self, client_public, mock_db):
+        """GAP-02: shipping_price > 0 → shipping order item with item_type='shipping'."""
+        _, cursor = mock_db
+        cursor.fetchone.side_effect = [
+            PRODUCT_LOOKUP_1,  # product lookup for EM-500
+            None,  # advisory lock
+            (None,),  # MAX order_number
+            (42,),  # INSERT RETURNING order_id
+        ]
+        resp = client_public.post(
+            "/api/eshop/orders",
+            json=_order_body(shipping_price="4.50"),
+        )
+        assert resp.status_code == 200
+
+        # Verify shipping order item was inserted
+        calls = [str(c) for c in cursor.execute.call_args_list]
+        item_inserts = [c for c in calls if "INSERT INTO eshop_order_items" in c]
+        # Should have 2 item inserts: 1 product + 1 shipping
+        assert len(item_inserts) == 2
+        shipping_insert = item_inserts[1]
+        assert "'SHIPPING'" in shipping_insert
+        assert "'shipping'" in shipping_insert
+        assert "4.5" in shipping_insert  # unit_price_vat = 4.50
+
+        # Verify totals were updated (shipping adds to total)
+        update_calls = [c for c in calls if "UPDATE eshop_orders SET total_amount" in c]
+        assert len(update_calls) >= 1  # At least one UPDATE for shipping totals
+
+    def test_create_order_zero_shipping(self, client_public, mock_db):
+        """GAP-02: shipping_price=0 → no shipping item (existing behaviour)."""
+        _, cursor = mock_db
+        cursor.fetchone.side_effect = [
+            PRODUCT_LOOKUP_1,
+            None,  # advisory lock
+            (None,),  # MAX order_number
+            (42,),  # INSERT RETURNING order_id
+        ]
+        resp = client_public.post(
+            "/api/eshop/orders",
+            json=_order_body(shipping_price="0"),
+        )
+        assert resp.status_code == 200
+
+        # Verify only 1 item insert (product only, no shipping)
+        calls = [str(c) for c in cursor.execute.call_args_list]
+        item_inserts = [c for c in calls if "INSERT INTO eshop_order_items" in c]
+        assert len(item_inserts) == 1
+        assert "'SHIPPING'" not in item_inserts[0]
+
+    def test_create_order_billing_postal_code_sync(self, client_public, mock_db):
+        """GAP-03: billing_zip synced to billing_postal_code in INSERT."""
+        _, cursor = mock_db
+        cursor.fetchone.side_effect = [
+            PRODUCT_LOOKUP_1,
+            None,  # advisory lock
+            (None,),  # MAX order_number
+            (42,),  # INSERT RETURNING order_id
+        ]
+        resp = client_public.post(
+            "/api/eshop/orders",
+            json=_order_body(billing_zip="94501"),
+        )
+        assert resp.status_code == 200
+
+        # Find the INSERT INTO eshop_orders call and verify billing_postal_code
+        calls = cursor.execute.call_args_list
+        order_insert = [c for c in calls if "INSERT INTO eshop_orders" in str(c)][0]
+        # The params tuple — billing_postal_code is the 38th param (index 37)
+        params = order_insert[0][1]  # positional args: (query, params)
+        # billing_zip is at index 10 (0-based), billing_postal_code at index 37
+        billing_zip_val = params[10]
+        billing_postal_code_val = params[37]
+        assert billing_zip_val == "94501"
+        assert billing_postal_code_val == "94501"
+
+    def test_create_order_company_billing_address(self, client_public, mock_db):
+        """GAP-04: is_company_order + company billing fields → billing overridden."""
+        _, cursor = mock_db
+        cursor.fetchone.side_effect = [
+            PRODUCT_LOOKUP_1,
+            None,  # advisory lock
+            (None,),  # MAX order_number
+            (42,),  # INSERT RETURNING order_id
+        ]
+        resp = client_public.post(
+            "/api/eshop/orders",
+            json=_order_body(
+                is_company_order=True,
+                company_name="ICC s.r.o.",
+                company_billing_street="Firemná 42",
+                company_billing_city="Košice",
+                company_billing_postal_code="04001",
+                company_billing_country="SK",
+            ),
+        )
+        assert resp.status_code == 200
+
+        # Verify billing fields in INSERT use company values
+        calls = cursor.execute.call_args_list
+        order_insert = [c for c in calls if "INSERT INTO eshop_orders" in str(c)][0]
+        params = order_insert[0][1]
+        # billing_name (index 6) should be company_name
+        assert params[6] == "ICC s.r.o."
+        # billing_street (index 8) should be company_billing_street
+        assert params[8] == "Firemná 42"
+        # billing_city (index 9) should be company_billing_city
+        assert params[9] == "Košice"
+        # billing_zip (index 10) should be company_billing_postal_code
+        assert params[10] == "04001"
+        # billing_country (index 11) should be company_billing_country
+        assert params[11] == "SK"
+
+    def test_create_order_company_vat_sync(self, client_public, mock_db):
+        """GAP-05: company_ic_dph synced to eu_vat_number in INSERT."""
+        _, cursor = mock_db
+        cursor.fetchone.side_effect = [
+            PRODUCT_LOOKUP_1,
+            None,  # advisory lock
+            (None,),  # MAX order_number
+            (42,),  # INSERT RETURNING order_id
+        ]
+        resp = client_public.post(
+            "/api/eshop/orders",
+            json=_order_body(
+                is_company_order=True,
+                company_name="ICC s.r.o.",
+                company_ico="36421928",
+                company_dic="2020419334",
+                company_ic_dph="SK2120419334",
+            ),
+        )
+        assert resp.status_code == 200
+
+        # Verify ico/dic/eu_vat_number in INSERT come from company_* fields
+        calls = cursor.execute.call_args_list
+        order_insert = [c for c in calls if "INSERT INTO eshop_orders" in str(c)][0]
+        params = order_insert[0][1]
+        # ico (index 18), dic (index 19), eu_vat_number (index 20)
+        assert params[18] == "36421928"  # ico from company_ico
+        assert params[19] == "2020419334"  # dic from company_dic
+        assert params[20] == "SK2120419334"  # eu_vat_number from company_ic_dph

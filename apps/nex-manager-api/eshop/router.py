@@ -283,14 +283,6 @@ async def create_order(
             }
         )
 
-    # Add shipping price
-    shipping_price = Decimal("0")
-    if body.shipping_type:
-        # Shipping price could come from a config table in the future
-        pass
-    total_amount_vat += shipping_price
-    total_amount += shipping_price
-
     # Generate order number
     order_number = generate_order_number(tenant_id, tenant["brand_name"], db)
 
@@ -315,6 +307,32 @@ async def create_order(
         else ""
     )
     computed_delivery_point_id = body.packeta_point_id or ""
+
+    # --- GAP-02: Shipping price from request ---
+    shipping_price = body.shipping_price if body.shipping_price else Decimal("0")
+    shipping_type_label = computed_shipping_type or body.shipping_type or "Doprava"
+
+    # --- GAP-03: Sync billing_postal_code from billing_zip ---
+    billing_postal_code = body.billing_zip
+
+    # --- GAP-04: Company billing address override ---
+    if body.is_company_order and body.company_billing_street:
+        billing_name = body.company_name or body.customer_name
+        billing_street = body.company_billing_street
+        billing_city = body.company_billing_city or body.billing_city
+        billing_zip = body.company_billing_postal_code or body.billing_zip
+        billing_country = body.company_billing_country or body.billing_country
+    else:
+        billing_name = body.billing_name
+        billing_street = body.billing_street
+        billing_city = body.billing_city
+        billing_zip = body.billing_zip
+        billing_country = body.billing_country
+
+    # --- GAP-05: Sync ico/dic/eu_vat_number from company_* fields ---
+    ico = body.company_ico or body.ico or ""
+    dic = body.company_dic or body.dic or ""
+    eu_vat_number = body.company_ic_dph or body.eu_vat_number or ""
 
     # Insert order (including company fields, customer_id, and delivery fields)
     cur.execute(
@@ -348,21 +366,21 @@ async def create_order(
             body.customer_name,
             body.customer_phone or "",
             body.lang or "sk",
-            body.billing_name,
+            billing_name,
             body.billing_name2 or "",
-            body.billing_street,
-            body.billing_city,
-            body.billing_zip,
-            body.billing_country,
+            billing_street,
+            billing_city,
+            billing_zip,
+            billing_country,
             body.shipping_name or "",
             body.shipping_name2 or "",
             body.shipping_street or "",
             body.shipping_city or "",
             body.shipping_zip or "",
             body.shipping_country or "",
-            body.ico or "",
-            body.dic or "",
-            body.eu_vat_number or "",
+            ico,
+            dic,
+            eu_vat_number,
             float(total_amount),
             float(total_amount_vat),
             tenant["currency"],
@@ -379,7 +397,7 @@ async def create_order(
             body.company_ico if body.is_company_order else None,
             body.company_dic if body.is_company_order else None,
             body.company_ic_dph if body.is_company_order else None,
-            body.billing_postal_code,
+            billing_postal_code,
             customer_id,
             body.delivery_method or "courier",
             body.packeta_point_id or "",
@@ -407,6 +425,40 @@ async def create_order(
                 float(oi["vat_rate"]),
                 "product",
             ),
+        )
+
+    # --- GAP-02: Shipping order item (ak shipping_price > 0) ---
+    if shipping_price > Decimal("0"):
+        shipping_vat_rate = Decimal(str(tenant.get("vat_rate_default", 20)))
+        shipping_price_no_vat = (shipping_price / (1 + shipping_vat_rate / 100)).quantize(Decimal("0.01"))
+
+        cur.execute(
+            "INSERT INTO eshop_order_items ("
+            "order_id, product_id, sku, name, quantity, "
+            "unit_price, unit_price_vat, vat_rate, item_type"
+            ") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)",
+            (
+                order_id,
+                None,
+                "SHIPPING",
+                shipping_type_label,
+                1,
+                float(shipping_price_no_vat),
+                float(shipping_price),
+                float(shipping_vat_rate),
+                "shipping",
+            ),
+        )
+
+        # Pripočítaj k totalom
+        total_amount += shipping_price_no_vat
+        total_amount_vat += shipping_price
+
+        # Update order totals
+        cur.execute(
+            "UPDATE eshop_orders SET total_amount = %s, total_amount_vat = %s "
+            "WHERE order_id = %s",
+            (float(total_amount), float(total_amount_vat), order_id),
         )
 
     # --- Discount code processing ---

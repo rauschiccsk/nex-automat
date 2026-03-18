@@ -85,6 +85,11 @@ class OrderCreateRequest(BaseModel):
     company_dic: str | None = None
     company_ic_dph: str | None = None
     billing_postal_code: str | None = None
+    shipping_price: Optional[Decimal] = Decimal("0")  # Cena dopravy s DPH
+    company_billing_street: Optional[str] = None
+    company_billing_city: Optional[str] = None
+    company_billing_postal_code: Optional[str] = None
+    company_billing_country: Optional[str] = None
     create_account: bool = False
     account_password: str | None = None
 
