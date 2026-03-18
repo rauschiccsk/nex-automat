@@ -1,4 +1,4 @@
-"""Integration testy pre payment endpointy — 10 testov.
+"""Integration testy pre payment endpointy — 14 testov.
 
 Tests:
   CALLBACK (6):
@@ -13,9 +13,15 @@ Tests:
     7. test_payment_return_paid — GET s platným trans → 200
     8. test_payment_return_not_found — GET s neexistujúcim trans → 404
 
-  ORDER CREATION (2):
+  ORDER CREATION (4):
     9. test_create_order_with_comgate — s Comgate creds → payment_url v response
     10. test_create_order_without_comgate — bez Comgate creds → payment_url=null
+    11. test_create_order_company_billing_name — company order → billing_name=company_name
+    12. test_create_order_personal_billing_name — personal order → billing_name=customer_name
+
+  PAYMENT HISTORY (2):
+    13. test_comgate_callback_creates_payment_history — PAID → payment:pending → payment:paid
+    14. test_comgate_callback_creates_order_status_history — PAID + new → order status new → paid
 """
 
 import os
@@ -577,3 +583,249 @@ def test_create_order_without_comgate(
 
     data = resp.json()
     assert data["payment_url"] is None
+
+
+# ===========================================================================
+# GAP-07/08 — BILLING NAME TESTS (2)
+# ===========================================================================
+
+
+@patch(
+    "eshop.email_service.EshopEmailService.send_order_confirmation",
+    new_callable=AsyncMock,
+)
+@patch(
+    "eshop.email_service.EshopEmailService.send_admin_new_order", new_callable=AsyncMock
+)
+def test_create_order_company_billing_name(
+    mock_admin_email,
+    mock_order_email,
+    eshop_client_no_comgate,
+    fake_db,
+):
+    """#11: Company order → billing_name=company_name, billing_name2=customer_name."""
+    mock_order_email.return_value = None
+    mock_admin_email.return_value = None
+
+    fake_db.set_fetchone_sequence(
+        [
+            # 1. Product lookup
+            (1, "SKU-001", "Test Product", Decimal("10.00"), Decimal("12.00"), Decimal("20.00"), True),
+            # 2. generate_order_number: advisory lock
+            None,
+            # 3. generate_order_number: SELECT MAX
+            (None,),
+            # 4. INSERT order RETURNING order_id
+            (1,),
+        ]
+    )
+
+    resp = eshop_client_no_comgate.post(
+        "/api/eshop/orders",
+        json={
+            "customer_email": "jan@firma.sk",
+            "customer_name": "Ján Novák",
+            "billing_name": "Ján Novák",
+            "billing_street": "Hlavná 1",
+            "billing_city": "Bratislava",
+            "billing_zip": "81101",
+            "billing_country": "SK",
+            "items": [{"sku": "SKU-001", "quantity": 1}],
+            "payment_method": "bank_transfer",
+            "is_company_order": True,
+            "company_name": "EM-1 s.r.o.",
+            "company_ico": "50671146",
+            "company_dic": "2120405006",
+        },
+        headers={"X-Eshop-Token": "test-token"},
+    )
+    assert resp.status_code == 200
+
+    # Verify INSERT params: billing_name should be company_name, billing_name2 should be customer_name
+    queries = fake_db._cursor.executed_queries
+    insert_query = next((q for q in queries if "INSERT INTO eshop_orders" in q[0]), None)
+    assert insert_query is not None
+    params = insert_query[1]
+    # billing_name is param index 6 (after tenant_id, order_number, customer_email, customer_name, customer_phone, lang)
+    assert params[6] == "EM-1 s.r.o.", f"billing_name should be company_name, got {params[6]}"
+    # billing_name2 is param index 7
+    assert params[7] == "Ján Novák", f"billing_name2 should be customer_name, got {params[7]}"
+
+
+@patch(
+    "eshop.email_service.EshopEmailService.send_order_confirmation",
+    new_callable=AsyncMock,
+)
+@patch(
+    "eshop.email_service.EshopEmailService.send_admin_new_order", new_callable=AsyncMock
+)
+def test_create_order_personal_billing_name(
+    mock_admin_email,
+    mock_order_email,
+    eshop_client_no_comgate,
+    fake_db,
+):
+    """#12: Personal order → billing_name=customer_name, billing_name2=empty."""
+    mock_order_email.return_value = None
+    mock_admin_email.return_value = None
+
+    fake_db.set_fetchone_sequence(
+        [
+            # 1. Product lookup
+            (1, "SKU-001", "Test Product", Decimal("10.00"), Decimal("12.00"), Decimal("20.00"), True),
+            # 2. generate_order_number: advisory lock
+            None,
+            # 3. generate_order_number: SELECT MAX
+            (None,),
+            # 4. INSERT order RETURNING order_id
+            (1,),
+        ]
+    )
+
+    resp = eshop_client_no_comgate.post(
+        "/api/eshop/orders",
+        json={
+            "customer_email": "jana@email.sk",
+            "customer_name": "Jana Nováková",
+            "billing_name": "Jana Nováková",
+            "billing_street": "Hlavná 2",
+            "billing_city": "Košice",
+            "billing_zip": "04001",
+            "billing_country": "SK",
+            "items": [{"sku": "SKU-001", "quantity": 1}],
+            "payment_method": "bank_transfer",
+        },
+        headers={"X-Eshop-Token": "test-token"},
+    )
+    assert resp.status_code == 200
+
+    # Verify INSERT params: billing_name should be customer_name, billing_name2 should be empty
+    queries = fake_db._cursor.executed_queries
+    insert_query = next((q for q in queries if "INSERT INTO eshop_orders" in q[0]), None)
+    assert insert_query is not None
+    params = insert_query[1]
+    assert params[6] == "Jana Nováková", f"billing_name should be customer_name, got {params[6]}"
+    assert params[7] == "", f"billing_name2 should be empty for personal order, got {params[7]}"
+
+
+# ===========================================================================
+# GAP-10 — PAYMENT STATUS HISTORY TESTS (2)
+# ===========================================================================
+
+
+def test_comgate_callback_creates_payment_history(payment_client, fake_db):
+    """#13: PAID callback → payment:pending → payment:paid history with source='system'."""
+    fake_db.set_fetchone_sequence(
+        [
+            # 1. Find order by refId
+            (1, 1, Decimal("12.00"), "EUR", "pending", "new"),
+            # 2. Load tenant
+            (1, "12345", "test_secret"),
+            # 3. Fetch tenant for email
+            ("noreply@test.sk", "admin@test.sk", "TEST", "test.sk", "#2E7D32", "EUR"),
+            # 4. Fetch order for email
+            ("ORD-013", "test@test.sk", "Test Customer", Decimal("12.00"), "EUR", "credit_card"),
+        ]
+    )
+    fake_db.set_fetchall_sequence(
+        [
+            [("Test Product", 1, Decimal("12.00"))],
+        ]
+    )
+
+    resp = payment_client.post(
+        "/api/eshop/payment/callback",
+        data={
+            "merchant": "12345",
+            "test": "true",
+            "price": "1200",
+            "curr": "EUR",
+            "label": "ORD-013",
+            "refId": "ORD-013",
+            "transId": "TRANS-013",
+            "secret": "test_secret",
+            "status": "PAID",
+            "email": "test@test.sk",
+        },
+    )
+    assert resp.status_code == 200
+
+    # Verify payment status history with payment: prefix and source='system'
+    queries = fake_db._cursor.executed_queries
+    history_inserts = [
+        q for q in queries
+        if "INSERT INTO eshop_order_status_history" in q[0]
+    ]
+    assert len(history_inserts) >= 1, "Should have at least 1 status history insert"
+
+    # Find the payment status history record (with payment: prefix)
+    payment_history = next(
+        (q for q in history_inserts if q[1] and "payment:pending" in str(q[1])),
+        None,
+    )
+    assert payment_history is not None, "Should have payment:pending → payment:paid history"
+    params = payment_history[1]
+    assert "payment:pending" in str(params), "old_status should be payment:pending"
+    assert "payment:paid" in str(params), "new_status should be payment:paid"
+    assert "system" in str(params), "source should be 'system'"
+    assert "TRANS-013" in str(params), "note should contain transaction ID"
+
+
+def test_comgate_callback_creates_order_status_history(payment_client, fake_db):
+    """#14: PAID + order status 'new' → order status history new → paid."""
+    fake_db.set_fetchone_sequence(
+        [
+            # 1. Find order by refId (status='new')
+            (1, 1, Decimal("15.00"), "EUR", "pending", "new"),
+            # 2. Load tenant
+            (1, "12345", "test_secret"),
+            # 3. Fetch tenant for email
+            ("noreply@test.sk", "admin@test.sk", "TEST", "test.sk", "#2E7D32", "EUR"),
+            # 4. Fetch order for email
+            ("ORD-014", "test@test.sk", "Test Customer", Decimal("15.00"), "EUR", "credit_card"),
+        ]
+    )
+    fake_db.set_fetchall_sequence(
+        [
+            [("Test Product", 1, Decimal("15.00"))],
+        ]
+    )
+
+    resp = payment_client.post(
+        "/api/eshop/payment/callback",
+        data={
+            "merchant": "12345",
+            "test": "true",
+            "price": "1500",
+            "curr": "EUR",
+            "label": "ORD-014",
+            "refId": "ORD-014",
+            "transId": "TRANS-014",
+            "secret": "test_secret",
+            "status": "PAID",
+            "email": "test@test.sk",
+        },
+    )
+    assert resp.status_code == 200
+
+    # Verify order status history (new → paid) — separate from payment history
+    queries = fake_db._cursor.executed_queries
+    history_inserts = [
+        q for q in queries
+        if "INSERT INTO eshop_order_status_history" in q[0]
+    ]
+    # Should have 2 inserts: 1 for payment status, 1 for order status
+    assert len(history_inserts) == 2, f"Expected 2 status history inserts, got {len(history_inserts)}"
+
+    # Order status history record (new → paid, without payment: prefix)
+    order_history = next(
+        (q for q in history_inserts if q[1] and q[1][1] == "new" and q[1][2] == "paid"),
+        None,
+    )
+    assert order_history is not None, "Should have order status new → paid history"
+    params = order_history[1]
+    assert params[1] == "new", "old_status should be 'new'"
+    assert params[2] == "paid", "new_status should be 'paid'"
+    assert params[3] == "comgate", "changed_by should be 'comgate'"
+    assert "Payment confirmed" in params[4], "note should contain 'Payment confirmed'"
+    assert params[5] == "system", "source should be 'system'"

@@ -322,12 +322,26 @@ async def create_order(
         billing_city = body.company_billing_city or body.billing_city
         billing_zip = body.company_billing_postal_code or body.billing_zip
         billing_country = body.company_billing_country or body.billing_country
-    else:
-        billing_name = body.billing_name
+    elif body.is_company_order and body.company_name:
+        # GAP-07: Company order without separate billing address —
+        # billing_name should be company_name (legal entity on invoice)
+        billing_name = body.company_name
         billing_street = body.billing_street
         billing_city = body.billing_city
         billing_zip = body.billing_zip
         billing_country = body.billing_country
+    else:
+        billing_name = body.billing_name or body.customer_name
+        billing_street = body.billing_street
+        billing_city = body.billing_city
+        billing_zip = body.billing_zip
+        billing_country = body.billing_country
+
+    # --- GAP-08: billing_name2 — contact person for company orders ---
+    if body.is_company_order:
+        billing_name2 = body.customer_name
+    else:
+        billing_name2 = body.billing_name2 or ""
 
     # --- GAP-05: Sync ico/dic/eu_vat_number from company_* fields ---
     ico = body.company_ico or body.ico or ""
@@ -367,7 +381,7 @@ async def create_order(
             body.customer_phone or "",
             body.lang or "sk",
             billing_name,
-            body.billing_name2 or "",
+            billing_name2,
             billing_street,
             billing_city,
             billing_zip,
@@ -595,8 +609,8 @@ async def create_order(
             "customer_email": body.customer_email,
             "customer_name": body.customer_name,
             "customer_phone": body.customer_phone or "",
-            "billing_name": body.billing_name,
-            "billing_name2": body.billing_name2 or "",
+            "billing_name": billing_name,
+            "billing_name2": billing_name2,
             "billing_street": body.billing_street,
             "billing_city": body.billing_city,
             "billing_zip": body.billing_zip,
@@ -1187,6 +1201,21 @@ async def payment_callback(
             (transId, order_id),
         )
 
+        # GAP-10: Payment status history with payment: prefix
+        cur.execute(
+            "INSERT INTO eshop_order_status_history ("
+            "order_id, old_status, new_status, changed_by, note, source"
+            ") VALUES (%s, %s, %s, %s, %s, %s)",
+            (
+                order_id,
+                f"payment:{current_payment_status}",
+                "payment:paid",
+                "comgate",
+                f"Comgate transaction {transId}",
+                "system",
+            ),
+        )
+
         # If order status is 'new', advance to 'paid'
         if current_order_status == "new":
             cur.execute(
@@ -1195,22 +1224,15 @@ async def payment_callback(
             )
             cur.execute(
                 "INSERT INTO eshop_order_status_history ("
-                "order_id, old_status, new_status, changed_by, note"
-                ") VALUES (%s, %s, %s, %s, %s)",
-                (order_id, current_order_status, "paid", "comgate", ""),
-            )
-        else:
-            # Just record payment status change in history
-            cur.execute(
-                "INSERT INTO eshop_order_status_history ("
-                "order_id, old_status, new_status, changed_by, note"
-                ") VALUES (%s, %s, %s, %s, %s)",
+                "order_id, old_status, new_status, changed_by, note, source"
+                ") VALUES (%s, %s, %s, %s, %s, %s)",
                 (
                     order_id,
                     current_order_status,
-                    current_order_status,
+                    "paid",
                     "comgate",
-                    "payment_status: paid",
+                    f"Payment confirmed: {transId}",
+                    "system",
                 ),
             )
 
@@ -1274,16 +1296,18 @@ async def payment_callback(
             "UPDATE eshop_orders SET payment_status = 'failed' WHERE order_id = %s",
             (order_id,),
         )
+        # GAP-10: Payment status history with payment: prefix
         cur.execute(
             "INSERT INTO eshop_order_status_history ("
-            "order_id, old_status, new_status, changed_by, note"
-            ") VALUES (%s, %s, %s, %s, %s)",
+            "order_id, old_status, new_status, changed_by, note, source"
+            ") VALUES (%s, %s, %s, %s, %s, %s)",
             (
                 order_id,
-                current_order_status,
-                current_order_status,
+                f"payment:{current_payment_status}",
+                "payment:failed",
                 "comgate",
-                "payment_status: failed (CANCELLED)",
+                f"Comgate transaction {transId} CANCELLED",
+                "system",
             ),
         )
 
@@ -1334,16 +1358,18 @@ async def payment_callback(
             "UPDATE eshop_orders SET payment_status = 'authorized' WHERE order_id = %s",
             (order_id,),
         )
+        # GAP-10: Payment status history with payment: prefix
         cur.execute(
             "INSERT INTO eshop_order_status_history ("
-            "order_id, old_status, new_status, changed_by, note"
-            ") VALUES (%s, %s, %s, %s, %s)",
+            "order_id, old_status, new_status, changed_by, note, source"
+            ") VALUES (%s, %s, %s, %s, %s, %s)",
             (
                 order_id,
-                current_order_status,
-                current_order_status,
+                f"payment:{current_payment_status}",
+                "payment:authorized",
                 "comgate",
-                "payment_status: authorized",
+                f"Comgate transaction {transId}",
+                "system",
             ),
         )
 
