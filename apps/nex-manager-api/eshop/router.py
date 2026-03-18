@@ -430,7 +430,9 @@ async def create_order(
     # --- GAP-02: Shipping order item (ak shipping_price > 0) ---
     if shipping_price > Decimal("0"):
         shipping_vat_rate = Decimal(str(tenant.get("vat_rate_default", 20)))
-        shipping_price_no_vat = (shipping_price / (1 + shipping_vat_rate / 100)).quantize(Decimal("0.01"))
+        shipping_price_no_vat = (
+            shipping_price / (1 + shipping_vat_rate / 100)
+        ).quantize(Decimal("0.01"))
 
         cur.execute(
             "INSERT INTO eshop_order_items ("

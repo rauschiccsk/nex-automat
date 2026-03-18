@@ -1,5 +1,43 @@
 # NEX Automat — Development History
 
+## Session 18: Order Fix O-2 — Audit GAP-02+03+04+05 (2026-03-18)
+
+**Order system audit gap fixes:** GAP-02, GAP-03, GAP-04, GAP-05
+
+### Zmeny
+
+**GAP-02: Shipping order item (KRITICKY):**
+- `shipping_price` field v `OrderCreateRequest` schema
+- Ak `shipping_price > 0`, vytvorí sa order item s `item_type='shipping'`
+- Automatický výpočet ceny bez DPH z ceny s DPH
+- Totaly objednávky sa aktualizujú o poštovné
+
+**GAP-03: billing_postal_code sync (STREDNY):**
+- `billing_postal_code` sa automaticky nastaví na hodnotu `billing_zip`
+- Eliminuje NULL v duplicitnom stĺpci
+
+**GAP-04: Company billing address (STREDNY):**
+- 4 nové polia v schema: `company_billing_street/city/postal_code/country`
+- Ak `is_company_order=True` + company billing polia vyplnené → billing override
+- Firemná fakturačná adresa sa správne uloží do billing stĺpcov
+
+**GAP-05: ico/dic/eu_vat_number sync (STREDNY):**
+- `ico` = `company_ico`, `dic` = `company_dic`, `eu_vat_number` = `company_ic_dph`
+- MuFis getOrder vracia správny `eu_vat_number` bez ďalšej logiky
+
+### Testy
+
+**+5 nových testov (celkom ESHOP: 105):**
+- `test_create_order_with_shipping_price` — shipping item existuje
+- `test_create_order_zero_shipping` — žiadny shipping item
+- `test_create_order_billing_postal_code_sync` — postal code sync
+- `test_create_order_company_billing_address` — company billing override
+- `test_create_order_company_vat_sync` — VAT number sync
+
+**Celkový počet backend testov:** 182
+
+---
+
 ## Session 18: MuFis Fix B-2 — setProduct Batch + Webhook Trigger (2026-03-17)
 
 **MuFis audit gap fixes:** SP1, SP3, W1

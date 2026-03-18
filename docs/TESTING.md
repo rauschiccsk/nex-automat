@@ -4,6 +4,7 @@
 
 | Test suite | Počet | Súbor |
 |---|---|---|
+| Eshop Unit | 105 | `tests/unit/test_eshop.py` |
 | MuFis Integration | 39 | `tests/test_mufis_integration.py` |
 | Payment Endpoints | varies | `tests/test_payment_endpoints.py` |
 | Eshop Customers | varies | `tests/test_eshop_customers.py` |
@@ -11,7 +12,7 @@
 | PAB | varies | `tests/test_pab.py` |
 | Migration | varies | `tests/test_migration.py` |
 
-**Celkový počet backend testov:** 177
+**Celkový počet backend testov:** 182
 
 ## Spustenie
 

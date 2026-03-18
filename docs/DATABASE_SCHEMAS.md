@@ -116,7 +116,11 @@ Trigger: eshop_update_timestamp
 | item_type | VARCHAR(20) | DEFAULT 'product' |
 
 Indexes: order_id
-Note: item_type can be 'product' or 'discount' (negative price for discounts)
+Note: item_type can be 'product', 'shipping', or 'discount' (negative price for discounts)
+
+**Duplicitné stĺpce (post-launch cleanup):**
+- `eshop_orders.billing_zip` ↔ `billing_postal_code` — oba sa syncujú v create_order
+- `eshop_orders.ico/dic/eu_vat_number` ↔ `company_ico/company_dic/company_ic_dph` — staré polia sa syncujú z company_* polí
 
 ### eshop_order_status_history
 | Column | Type | Constraints |
