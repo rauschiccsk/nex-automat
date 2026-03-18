@@ -610,7 +610,15 @@ def test_create_order_company_billing_name(
     fake_db.set_fetchone_sequence(
         [
             # 1. Product lookup
-            (1, "SKU-001", "Test Product", Decimal("10.00"), Decimal("12.00"), Decimal("20.00"), True),
+            (
+                1,
+                "SKU-001",
+                "Test Product",
+                Decimal("10.00"),
+                Decimal("12.00"),
+                Decimal("20.00"),
+                True,
+            ),
             # 2. generate_order_number: advisory lock
             None,
             # 3. generate_order_number: SELECT MAX
@@ -643,13 +651,19 @@ def test_create_order_company_billing_name(
 
     # Verify INSERT params: billing_name should be company_name, billing_name2 should be customer_name
     queries = fake_db._cursor.executed_queries
-    insert_query = next((q for q in queries if "INSERT INTO eshop_orders" in q[0]), None)
+    insert_query = next(
+        (q for q in queries if "INSERT INTO eshop_orders" in q[0]), None
+    )
     assert insert_query is not None
     params = insert_query[1]
     # billing_name is param index 6 (after tenant_id, order_number, customer_email, customer_name, customer_phone, lang)
-    assert params[6] == "EM-1 s.r.o.", f"billing_name should be company_name, got {params[6]}"
+    assert params[6] == "EM-1 s.r.o.", (
+        f"billing_name should be company_name, got {params[6]}"
+    )
     # billing_name2 is param index 7
-    assert params[7] == "Ján Novák", f"billing_name2 should be customer_name, got {params[7]}"
+    assert params[7] == "Ján Novák", (
+        f"billing_name2 should be customer_name, got {params[7]}"
+    )
 
 
 @patch(
@@ -672,7 +686,15 @@ def test_create_order_personal_billing_name(
     fake_db.set_fetchone_sequence(
         [
             # 1. Product lookup
-            (1, "SKU-001", "Test Product", Decimal("10.00"), Decimal("12.00"), Decimal("20.00"), True),
+            (
+                1,
+                "SKU-001",
+                "Test Product",
+                Decimal("10.00"),
+                Decimal("12.00"),
+                Decimal("20.00"),
+                True,
+            ),
             # 2. generate_order_number: advisory lock
             None,
             # 3. generate_order_number: SELECT MAX
@@ -701,11 +723,17 @@ def test_create_order_personal_billing_name(
 
     # Verify INSERT params: billing_name should be customer_name, billing_name2 should be empty
     queries = fake_db._cursor.executed_queries
-    insert_query = next((q for q in queries if "INSERT INTO eshop_orders" in q[0]), None)
+    insert_query = next(
+        (q for q in queries if "INSERT INTO eshop_orders" in q[0]), None
+    )
     assert insert_query is not None
     params = insert_query[1]
-    assert params[6] == "Jana Nováková", f"billing_name should be customer_name, got {params[6]}"
-    assert params[7] == "", f"billing_name2 should be empty for personal order, got {params[7]}"
+    assert params[6] == "Jana Nováková", (
+        f"billing_name should be customer_name, got {params[6]}"
+    )
+    assert params[7] == "", (
+        f"billing_name2 should be empty for personal order, got {params[7]}"
+    )
 
 
 # ===========================================================================
@@ -724,7 +752,14 @@ def test_comgate_callback_creates_payment_history(payment_client, fake_db):
             # 3. Fetch tenant for email
             ("noreply@test.sk", "admin@test.sk", "TEST", "test.sk", "#2E7D32", "EUR"),
             # 4. Fetch order for email
-            ("ORD-013", "test@test.sk", "Test Customer", Decimal("12.00"), "EUR", "credit_card"),
+            (
+                "ORD-013",
+                "test@test.sk",
+                "Test Customer",
+                Decimal("12.00"),
+                "EUR",
+                "credit_card",
+            ),
         ]
     )
     fake_db.set_fetchall_sequence(
@@ -753,8 +788,7 @@ def test_comgate_callback_creates_payment_history(payment_client, fake_db):
     # Verify payment status history with payment: prefix and source='system'
     queries = fake_db._cursor.executed_queries
     history_inserts = [
-        q for q in queries
-        if "INSERT INTO eshop_order_status_history" in q[0]
+        q for q in queries if "INSERT INTO eshop_order_status_history" in q[0]
     ]
     assert len(history_inserts) >= 1, "Should have at least 1 status history insert"
 
@@ -763,7 +797,9 @@ def test_comgate_callback_creates_payment_history(payment_client, fake_db):
         (q for q in history_inserts if q[1] and "payment:pending" in str(q[1])),
         None,
     )
-    assert payment_history is not None, "Should have payment:pending → payment:paid history"
+    assert payment_history is not None, (
+        "Should have payment:pending → payment:paid history"
+    )
     params = payment_history[1]
     assert "payment:pending" in str(params), "old_status should be payment:pending"
     assert "payment:paid" in str(params), "new_status should be payment:paid"
@@ -782,7 +818,14 @@ def test_comgate_callback_creates_order_status_history(payment_client, fake_db):
             # 3. Fetch tenant for email
             ("noreply@test.sk", "admin@test.sk", "TEST", "test.sk", "#2E7D32", "EUR"),
             # 4. Fetch order for email
-            ("ORD-014", "test@test.sk", "Test Customer", Decimal("15.00"), "EUR", "credit_card"),
+            (
+                "ORD-014",
+                "test@test.sk",
+                "Test Customer",
+                Decimal("15.00"),
+                "EUR",
+                "credit_card",
+            ),
         ]
     )
     fake_db.set_fetchall_sequence(
@@ -811,11 +854,12 @@ def test_comgate_callback_creates_order_status_history(payment_client, fake_db):
     # Verify order status history (new → paid) — separate from payment history
     queries = fake_db._cursor.executed_queries
     history_inserts = [
-        q for q in queries
-        if "INSERT INTO eshop_order_status_history" in q[0]
+        q for q in queries if "INSERT INTO eshop_order_status_history" in q[0]
     ]
     # Should have 2 inserts: 1 for payment status, 1 for order status
-    assert len(history_inserts) == 2, f"Expected 2 status history inserts, got {len(history_inserts)}"
+    assert len(history_inserts) == 2, (
+        f"Expected 2 status history inserts, got {len(history_inserts)}"
+    )
 
     # Order status history record (new → paid, without payment: prefix)
     order_history = next(
