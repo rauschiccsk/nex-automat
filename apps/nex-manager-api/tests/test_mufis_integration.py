@@ -1558,7 +1558,20 @@ def test_mufis_getorder_order_notes_in_meta_data(mufis_client, fake_db, monkeypa
     )
     fake_db.set_fetchone_sequence([(1,)])  # count
     fake_db.set_fetchall_sequence(
-        [[order_row], [("EM-500", "Product", 2, Decimal("8.25"), Decimal("9.90"), Decimal("20.00"), "product")]]
+        [
+            [order_row],
+            [
+                (
+                    "EM-500",
+                    "Product",
+                    2,
+                    Decimal("8.25"),
+                    Decimal("9.90"),
+                    Decimal("20.00"),
+                    "product",
+                )
+            ],
+        ]
     )
 
     resp = mufis_client.post(
@@ -1582,7 +1595,20 @@ def test_mufis_getorder_no_order_notes_when_empty(mufis_client, fake_db, monkeyp
     order_row = _make_order_row(order_notes="")
     fake_db.set_fetchone_sequence([(1,)])
     fake_db.set_fetchall_sequence(
-        [[order_row], [("EM-500", "Product", 2, Decimal("8.25"), Decimal("9.90"), Decimal("20.00"), "product")]]
+        [
+            [order_row],
+            [
+                (
+                    "EM-500",
+                    "Product",
+                    2,
+                    Decimal("8.25"),
+                    Decimal("9.90"),
+                    Decimal("20.00"),
+                    "product",
+                )
+            ],
+        ]
     )
 
     resp = mufis_client.post(
@@ -1601,25 +1627,29 @@ def test_email_service_admin_notification_email_fallback():
     from eshop.email_service import EshopEmailService
 
     # admin_notification_email has priority
-    svc = EshopEmailService({
-        "admin_notification_email": "notif@test.sk",
-        "admin_email": "admin@test.sk",
-        "smtp_from": "noreply@test.sk",
-        "brand_name": "Test",
-        "domain": "test.sk",
-        "primary_color": "#2E7D32",
-    })
+    svc = EshopEmailService(
+        {
+            "admin_notification_email": "notif@test.sk",
+            "admin_email": "admin@test.sk",
+            "smtp_from": "noreply@test.sk",
+            "brand_name": "Test",
+            "domain": "test.sk",
+            "primary_color": "#2E7D32",
+        }
+    )
     assert svc.admin_email == "notif@test.sk"
 
     # Falls back to admin_email when admin_notification_email is None
-    svc2 = EshopEmailService({
-        "admin_notification_email": None,
-        "admin_email": "admin@test.sk",
-        "smtp_from": "noreply@test.sk",
-        "brand_name": "Test",
-        "domain": "test.sk",
-        "primary_color": "#2E7D32",
-    })
+    svc2 = EshopEmailService(
+        {
+            "admin_notification_email": None,
+            "admin_email": "admin@test.sk",
+            "smtp_from": "noreply@test.sk",
+            "brand_name": "Test",
+            "domain": "test.sk",
+            "primary_color": "#2E7D32",
+        }
+    )
     assert svc2.admin_email == "admin@test.sk"
 
 
@@ -1627,13 +1657,15 @@ def test_email_service_order_notes_in_admin_email():
     """#43: Admin email obsahuje order_notes ak sú prítomné."""
     from eshop.email_service import EshopEmailService
 
-    svc = EshopEmailService({
-        "admin_email": "admin@test.sk",
-        "smtp_from": "noreply@test.sk",
-        "brand_name": "Test",
-        "domain": "test.sk",
-        "primary_color": "#2E7D32",
-    })
+    svc = EshopEmailService(
+        {
+            "admin_email": "admin@test.sk",
+            "smtp_from": "noreply@test.sk",
+            "brand_name": "Test",
+            "domain": "test.sk",
+            "primary_color": "#2E7D32",
+        }
+    )
 
     import asyncio
     from unittest.mock import AsyncMock, patch
@@ -1664,13 +1696,15 @@ def test_email_service_send_does_not_block():
     """#44: Email send failure nesmie blokovať — error je len zalogovaný."""
     from eshop.email_service import EshopEmailService
 
-    svc = EshopEmailService({
-        "admin_email": "admin@test.sk",
-        "smtp_from": "noreply@test.sk",
-        "brand_name": "Test",
-        "domain": "test.sk",
-        "primary_color": "#2E7D32",
-    })
+    svc = EshopEmailService(
+        {
+            "admin_email": "admin@test.sk",
+            "smtp_from": "noreply@test.sk",
+            "brand_name": "Test",
+            "domain": "test.sk",
+            "primary_color": "#2E7D32",
+        }
+    )
 
     import asyncio
     from unittest.mock import patch
@@ -1680,10 +1714,17 @@ def test_email_service_send_does_not_block():
         # Should NOT raise — errors are caught internally
         asyncio.get_event_loop().run_until_complete(
             svc.send_admin_new_order(
-                {"order_number": "ORD-001", "customer_name": "Test",
-                 "customer_email": "t@t.sk", "customer_phone": "",
-                 "total_amount_vat": 10, "currency": "EUR",
-                 "payment_method": "bank", "note": "", "order_notes": ""},
+                {
+                    "order_number": "ORD-001",
+                    "customer_name": "Test",
+                    "customer_email": "t@t.sk",
+                    "customer_phone": "",
+                    "total_amount_vat": 10,
+                    "currency": "EUR",
+                    "payment_method": "bank",
+                    "note": "",
+                    "order_notes": "",
+                },
                 [{"name": "P", "quantity": 1, "unit_price_vat": 10}],
             )
         )

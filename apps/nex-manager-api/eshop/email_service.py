@@ -18,7 +18,9 @@ class EshopEmailService:
 
     def __init__(self, tenant: dict):
         self.sender = tenant.get("smtp_from", "")
-        self.admin_email = tenant.get("admin_notification_email") or tenant.get("admin_email", "")
+        self.admin_email = tenant.get("admin_notification_email") or tenant.get(
+            "admin_email", ""
+        )
         self.brand_name = tenant.get("brand_name", "E-shop")
         self.domain = tenant.get("domain", "")
         self.primary_color = tenant.get("primary_color", "#2E7D32")
