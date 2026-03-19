@@ -183,18 +183,6 @@ async def test_comgate_create_payment_includes_return_urls():
     client = ComgateClient("12345", "secret")
     captured_data = {}
 
-    async def fake_post(endpoint, data):
-        captured_data.update(data)
-        return {"code": "0", "transId": "TX-1", "redirect": "https://pay.example.com"}
-
-    # Monkey-patch to capture data without hitting real API
-    import types
-    original = client._post_sync
-
-    async def mock_create(self_inner, *a, **kw):
-        pass
-
-    # Patch at the async layer to avoid real HTTP
     import unittest.mock as mock
 
     with mock.patch.object(
