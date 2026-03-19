@@ -204,9 +204,13 @@ async def test_comgate_create_payment_includes_return_urls():
             return_url="https://shop.example.com/payment/return",
         )
 
-    assert captured_data["url_paid"] == "https://shop.example.com/payment/return"
-    assert captured_data["url_cancelled"] == "https://shop.example.com/payment/return"
-    assert captured_data["url_pending"] == "https://shop.example.com/payment/return"
+    expected_url = "https://shop.example.com/payment/return?id=${id}&refId=${refId}"
+    assert captured_data["url_paid"] == expected_url
+    assert captured_data["url_cancelled"] == expected_url
+    assert captured_data["url_pending"] == expected_url
+    # Verify Comgate placeholders are present as literal strings
+    assert "${id}" in captured_data["url_paid"]
+    assert "${refId}" in captured_data["url_paid"]
     assert result["transId"] == "TX-1"
 
 

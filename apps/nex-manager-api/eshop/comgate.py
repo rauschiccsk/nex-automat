@@ -98,7 +98,8 @@ class ComgateClient:
             country: Customer country code (SK, CZ, HU).
             lang: UI language (sk, cs, hu, en).
             return_url: Base URL for customer redirect after payment.
-                Comgate appends ``?id={transId}&refId={refId}`` automatically.
+                Comgate placeholders ``${id}`` and ``${refId}`` are appended
+                as query params so the redirect includes transaction details.
                 Example: ``https://shop.example.com/payment/return``
 
         Returns:
@@ -124,10 +125,12 @@ class ComgateClient:
 
         # Explicit return URLs override portal settings and ensure
         # Comgate always redirects back with ``?id=<transId>&refId=<refId>``.
+        # Comgate replaces ${id} with transaction ID, ${refId} with order number.
         if return_url:
-            data["url_paid"] = return_url
-            data["url_cancelled"] = return_url
-            data["url_pending"] = return_url
+            url_with_params = f"{return_url}?id=${{id}}&refId=${{refId}}"
+            data["url_paid"] = url_with_params
+            data["url_cancelled"] = url_with_params
+            data["url_pending"] = url_with_params
 
         result = await asyncio.to_thread(self._post_sync, "create", data)
 
