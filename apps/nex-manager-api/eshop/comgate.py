@@ -34,10 +34,9 @@ class ComgateClient:
         self.merchant_id = merchant_id
         self.secret = secret
         self.test_mode = test_mode
-        if test_mode:
-            self.base_url = "https://payments.comgate.cz/test/v1.0"
-        else:
-            self.base_url = "https://payments.comgate.cz/v1.0"
+        # Comgate uses a single base URL; test mode is controlled via
+        # the ``test`` parameter in request data, NOT via URL path.
+        self.base_url = "https://payments.comgate.cz/v1.0"
 
     def _convert_to_cents(self, amount: float) -> int:
         """Convert EUR/CZK amount to cents (haliere).

@@ -1,8 +1,9 @@
-"""E-shop email notification service using Stalwart SMTP (localhost:25)."""
+"""E-shop email notification service using Stalwart SMTP."""
 
 import asyncio
 import html
 import logging
+import os
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -13,8 +14,10 @@ logger = logging.getLogger(__name__)
 class EshopEmailService:
     """E-shop email notification service using Stalwart SMTP."""
 
-    SMTP_HOST = "localhost"
-    SMTP_PORT = 25
+    # Default to Docker bridge IP so the container can reach Stalwart on
+    # the host.  Override via SMTP_HOST / SMTP_PORT env vars if needed.
+    SMTP_HOST = os.environ.get("SMTP_HOST", "172.17.0.1")
+    SMTP_PORT = int(os.environ.get("SMTP_PORT", "25"))
 
     def __init__(self, tenant: dict):
         self.sender = tenant.get("smtp_from", "")

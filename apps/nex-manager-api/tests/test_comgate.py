@@ -48,13 +48,14 @@ def test_comgate_client_init_production():
 
 
 def test_comgate_client_init_test():
-    """Test: test mode → base_url s /test/."""
+    """Test: test mode uses same base_url; test flag is sent as data param."""
     client = ComgateClient(
         merchant_id="12345",
         secret="test_secret",
         test_mode=True,
     )
-    assert client.base_url == "https://payments.comgate.cz/test/v1.0"
+    # Comgate does NOT use /test/ URL prefix; test mode is a request parameter
+    assert client.base_url == "https://payments.comgate.cz/v1.0"
     assert client.test_mode is True
 
 
