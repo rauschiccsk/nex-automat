@@ -1,4 +1,4 @@
-"""Unit testy pre ComgateClient — 7 testov.
+"""Unit testy pre ComgateClient — 9 testov.
 
 Tests:
   1. test_comgate_client_init_production — production mode → base_url bez /test/
@@ -8,6 +8,8 @@ Tests:
   5. test_comgate_verify_callback_valid — verify_callback s correct secret
   6. test_comgate_verify_callback_invalid — verify_callback s wrong secret
   7. test_comgate_create_payment_price_conversion — _convert_to_cents
+  8. test_comgate_create_payment_includes_return_urls — return_url → url_paid/cancelled/pending
+  9. test_comgate_create_payment_omits_return_urls_when_empty — no return_url → no url_* keys
 """
 
 import os
@@ -168,3 +170,91 @@ def test_comgate_create_payment_price_conversion():
 
     # 39.90 EUR → 3990 halierov
     assert client._convert_to_cents(39.90) == 3990
+
+
+# ---------------------------------------------------------------------------
+# 8. create_payment includes return URLs when return_url is provided
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.asyncio
+async def test_comgate_create_payment_includes_return_urls():
+    """Test: return_url parameter adds url_paid/url_cancelled/url_pending."""
+    client = ComgateClient("12345", "secret")
+    captured_data = {}
+
+    async def fake_post(endpoint, data):
+        captured_data.update(data)
+        return {"code": "0", "transId": "TX-1", "redirect": "https://pay.example.com"}
+
+    # Monkey-patch to capture data without hitting real API
+    import types
+    original = client._post_sync
+
+    async def mock_create(self_inner, *a, **kw):
+        pass
+
+    # Patch at the async layer to avoid real HTTP
+    import unittest.mock as mock
+
+    with mock.patch.object(
+        client,
+        "_post_sync",
+        side_effect=lambda ep, data: (
+            captured_data.update(data)
+            or {"code": "0", "transId": "TX-1", "redirect": "https://pay.example.com"}
+        ),
+    ):
+        result = await client.create_payment(
+            price_cents=3990,
+            currency="EUR",
+            order_number="ORD-001",
+            customer_email="test@test.sk",
+            label="TestShop",
+            country="SK",
+            lang="sk",
+            return_url="https://shop.example.com/payment/return",
+        )
+
+    assert captured_data["url_paid"] == "https://shop.example.com/payment/return"
+    assert captured_data["url_cancelled"] == "https://shop.example.com/payment/return"
+    assert captured_data["url_pending"] == "https://shop.example.com/payment/return"
+    assert result["transId"] == "TX-1"
+
+
+# ---------------------------------------------------------------------------
+# 9. create_payment omits return URLs when return_url is empty
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.asyncio
+async def test_comgate_create_payment_omits_return_urls_when_empty():
+    """Test: empty return_url → no url_paid/url_cancelled/url_pending in data."""
+    client = ComgateClient("12345", "secret")
+    captured_data = {}
+
+    import unittest.mock as mock
+
+    with mock.patch.object(
+        client,
+        "_post_sync",
+        side_effect=lambda ep, data: (
+            captured_data.update(data)
+            or {"code": "0", "transId": "TX-2", "redirect": "https://pay.example.com"}
+        ),
+    ):
+        result = await client.create_payment(
+            price_cents=1000,
+            currency="CZK",
+            order_number="ORD-002",
+            customer_email="test@test.sk",
+            label="TestShop",
+            country="CZ",
+            lang="cs",
+            # return_url not provided (defaults to "")
+        )
+
+    assert "url_paid" not in captured_data
+    assert "url_cancelled" not in captured_data
+    assert "url_pending" not in captured_data
+    assert result["transId"] == "TX-2"

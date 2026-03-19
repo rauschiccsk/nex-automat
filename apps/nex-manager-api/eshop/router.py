@@ -574,6 +574,14 @@ async def create_order(
     if comgate_client is not None:
         try:
             price_cents = int(Decimal(str(total_amount_vat)) * 100)
+            # Build return URL from tenant domain so Comgate redirects
+            # back with ?id=<transId>&refId=<refId> after payment.
+            tenant_domain = tenant.get("domain", "")
+            payment_return_url = (
+                f"https://{tenant_domain}/payment/return"
+                if tenant_domain
+                else ""
+            )
             result = await comgate_client.create_payment(
                 price_cents=price_cents,
                 currency=tenant["currency"],
@@ -582,6 +590,7 @@ async def create_order(
                 label=tenant["brand_name"][:16],
                 country=body.billing_country or "SK",
                 lang=body.lang or "sk",
+                return_url=payment_return_url,
             )
             # Store Comgate transaction ID
             cur.execute(

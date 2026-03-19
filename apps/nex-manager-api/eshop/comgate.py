@@ -85,6 +85,7 @@ class ComgateClient:
         label: str,
         country: str,
         lang: str,
+        return_url: str = "",
     ) -> dict:
         """Create payment via Comgate API.
 
@@ -96,6 +97,9 @@ class ComgateClient:
             label: Payment label (max 16 characters).
             country: Customer country code (SK, CZ, HU).
             lang: UI language (sk, cs, hu, en).
+            return_url: Base URL for customer redirect after payment.
+                Comgate appends ``?id={transId}&refId={refId}`` automatically.
+                Example: ``https://shop.example.com/payment/return``
 
         Returns:
             dict with keys: transId, redirect_url
@@ -117,6 +121,13 @@ class ComgateClient:
             "prepareOnly": "true",
             "secret": self.secret,
         }
+
+        # Explicit return URLs override portal settings and ensure
+        # Comgate always redirects back with ``?id=<transId>&refId=<refId>``.
+        if return_url:
+            data["url_paid"] = return_url
+            data["url_cancelled"] = return_url
+            data["url_pending"] = return_url
 
         result = await asyncio.to_thread(self._post_sync, "create", data)
 
