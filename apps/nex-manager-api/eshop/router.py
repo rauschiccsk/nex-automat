@@ -578,9 +578,7 @@ async def create_order(
             # back with ?id=<transId>&refId=<refId> after payment.
             tenant_domain = tenant.get("domain", "")
             payment_return_url = (
-                f"https://{tenant_domain}/payment/return"
-                if tenant_domain
-                else ""
+                f"https://{tenant_domain}/payment/return" if tenant_domain else ""
             )
             result = await comgate_client.create_payment(
                 price_cents=price_cents,
