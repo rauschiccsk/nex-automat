@@ -29,8 +29,7 @@ def generate_order_number(tenant_id: int, brand_name: str, conn) -> str:
     # Find max sequence globally for this prefix + year (not per-tenant)
     pattern = f"{prefix}-{year}-%"
     cur.execute(
-        "SELECT MAX(order_number) FROM eshop_orders "
-        "WHERE order_number LIKE %s",
+        "SELECT MAX(order_number) FROM eshop_orders WHERE order_number LIKE %s",
         (pattern,),
     )
     row = cur.fetchone()
