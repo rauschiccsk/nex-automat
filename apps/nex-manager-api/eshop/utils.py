@@ -21,16 +21,17 @@ def generate_order_number(tenant_id: int, brand_name: str, conn) -> str:
 
     cur = conn.cursor()
 
-    # Advisory lock using tenant_id + year as key to prevent race conditions
-    lock_key = tenant_id * 10000 + year
+    # Advisory lock using prefix hash + year as key to prevent race conditions
+    # Global lock per prefix+year — matches UNIQUE constraint scope
+    lock_key = hash(prefix) % 2_000_000_000 + year
     cur.execute("SELECT pg_advisory_xact_lock(%s)", (lock_key,))
 
-    # Find max sequence for this tenant + year
+    # Find max sequence globally for this prefix + year (not per-tenant)
     pattern = f"{prefix}-{year}-%"
     cur.execute(
         "SELECT MAX(order_number) FROM eshop_orders "
-        "WHERE tenant_id = %s AND order_number LIKE %s",
-        (tenant_id, pattern),
+        "WHERE order_number LIKE %s",
+        (pattern,),
     )
     row = cur.fetchone()
     max_number = row[0] if row else None
