@@ -521,7 +521,7 @@ Tím {company}"""
 </html>"""
 
     def _build_items_table(self, items: list[dict], currency: str) -> str:
-        """Build HTML table of order items."""
+        """Build HTML table of order items (products + shipping)."""
         rows = ""
         for item in items:
             name = html.escape(str(item.get("name", "")))
@@ -529,15 +529,32 @@ Tím {company}"""
             unit_price_vat = float(item.get("unit_price_vat", 0))
             line_total = unit_price_vat * qty
             curr = html.escape(currency)
-            rows += (
-                f"<tr>"
-                f'<td style="border-bottom:1px solid #eee;">{name}</td>'
-                f'<td style="text-align:center; border-bottom:1px solid #eee;">'
-                f"{qty}</td>"
-                f'<td style="text-align:right; border-bottom:1px solid #eee;">'
-                f"{line_total:.2f} {curr}</td>"
-                f"</tr>"
-            )
+            is_shipping = item.get("item_type") == "shipping"
+            if is_shipping:
+                rows += (
+                    '<tr style="border-top:2px solid #ddd; '
+                    'background-color:#f9f9f9;">'
+                    f'<td style="border-bottom:1px solid #eee;">'
+                    f"\U0001F69A {name}</td>"
+                    f'<td style="text-align:center; '
+                    f'border-bottom:1px solid #eee;">{qty}</td>'
+                    f'<td style="text-align:right; '
+                    f'border-bottom:1px solid #eee;">'
+                    f"{line_total:.2f} {curr}</td>"
+                    "</tr>"
+                )
+            else:
+                rows += (
+                    f"<tr>"
+                    f'<td style="border-bottom:1px solid #eee;">{name}</td>'
+                    f'<td style="text-align:center; '
+                    f'border-bottom:1px solid #eee;">'
+                    f"{qty}</td>"
+                    f'<td style="text-align:right; '
+                    f'border-bottom:1px solid #eee;">'
+                    f"{line_total:.2f} {curr}</td>"
+                    f"</tr>"
+                )
 
         return (
             '<table width="100%" cellpadding="8" cellspacing="0" '

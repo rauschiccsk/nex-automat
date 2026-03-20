@@ -1710,8 +1710,9 @@ SAMPLE_ORDER = {
 }
 
 SAMPLE_ITEMS = [
-    {"name": "OASIS EM-1 500ml", "quantity": 2, "unit_price_vat": 9.90},
-    {"name": "OASIS EM-1 5L", "quantity": 1, "unit_price_vat": 39.90},
+    {"name": "OASIS EM-1 500ml", "quantity": 2, "unit_price_vat": 9.90, "item_type": "product"},
+    {"name": "OASIS EM-1 5L", "quantity": 1, "unit_price_vat": 39.90, "item_type": "product"},
+    {"name": "Dopravné - kuriér na adresu", "quantity": 1, "unit_price_vat": 3.50, "item_type": "shipping"},
 ]
 
 
@@ -1772,7 +1773,7 @@ class TestEshopEmailService:
         svc = EshopEmailService(FAKE_TENANT_EMAIL)
         captured = {}
 
-        async def mock_send(to, subject, html_body):
+        async def mock_send(to, subject, html_body, attachments=None):
             captured["to"] = to
 
         svc._send_email = mock_send
@@ -1830,7 +1831,7 @@ class TestEshopEmailService:
         assert "noreply@emcenter.sk" in captured["from"]
 
     def test_email_html_contains_all_items(self):
-        """All order items appear in HTML."""
+        """All order items (products + shipping) appear in HTML."""
         svc = EshopEmailService(FAKE_TENANT_EMAIL)
         captured = {}
 
@@ -1843,6 +1844,25 @@ class TestEshopEmailService:
         )
         assert "OASIS EM-1 500ml" in captured["html"]
         assert "OASIS EM-1 5L" in captured["html"]
+        # Shipping item must appear in the items table
+        assert "Dopravné" in captured["html"]
+        assert "3.50" in captured["html"]
+
+    def test_email_shipping_row_has_visual_distinction(self):
+        """Shipping row has distinct background styling."""
+        svc = EshopEmailService(FAKE_TENANT_EMAIL)
+        captured = {}
+
+        async def mock_send(to, subject, html_body):
+            captured["html"] = html_body
+
+        svc._send_email = mock_send
+        asyncio.get_event_loop().run_until_complete(
+            svc.send_order_confirmation(SAMPLE_ORDER, SAMPLE_ITEMS)
+        )
+        # Shipping row has visual distinction
+        assert "background-color:#f9f9f9" in captured["html"]
+        assert "\U0001F69A" in captured["html"]
 
     def test_email_smtp_failure_logged_not_raised(self):
         """SMTP exception is logged, not raised."""
@@ -1910,7 +1930,7 @@ class TestEmailIntegration:
             (1, 1, Decimal("19.80"), "EUR", "pending", "new"),
             # tenant for secret verification
             (1, "12345", "supersecretkey"),
-            # tenant for email
+            # tenant for email (7 cols incl. admin_notification_email)
             (
                 "noreply@emcenter.sk",
                 "odbyt@em-1.sk",
@@ -1918,19 +1938,43 @@ class TestEmailIntegration:
                 "emcenter.sk",
                 "#2E7D32",
                 "EUR",
+                "odbyt@em-1.sk",
             ),
-            # order for email
+            # order for email (28 cols matching full SELECT)
             (
-                "EM-2026-00001",
-                "customer@test.sk",
-                "Test",
-                Decimal("19.80"),
-                "EUR",
-                "bank_transfer",
+                "EM-2026-00001",  # order_number
+                "customer@test.sk",  # customer_email
+                "Test",  # customer_name
+                Decimal("19.80"),  # total_amount_vat
+                "EUR",  # currency
+                "bank_transfer",  # payment_method
+                "2026-03-20 10:00:00",  # created_at
+                "+421900000000",  # customer_phone
+                None,  # company_name
+                "Test",  # billing_name
+                None,  # billing_name2
+                "Testova 1",  # billing_street
+                "Bratislava",  # billing_city
+                "81101",  # billing_zip
+                "SK",  # billing_country
+                "Test",  # shipping_name
+                None,  # shipping_name2
+                "Testova 1",  # shipping_street
+                "Bratislava",  # shipping_city
+                "81101",  # shipping_zip
+                "SK",  # shipping_country
+                "courier",  # delivery_method
+                Decimal("3.50"),  # shipping_price
+                None,  # shipping_type
+                None,  # packeta_point_id
+                None,  # packeta_point_name
+                "",  # note
+                "",  # order_notes
             ),
         ]
         cursor.fetchall.return_value = [
-            ("OASIS EM-1 500ml", 2, Decimal("9.90")),
+            ("OASIS EM-1 500ml", 2, Decimal("9.90"), "EM-500", 20, "product"),
+            ("Dopravné - kuriér na adresu", 1, Decimal("3.50"), "SHIPPING", 20, "shipping"),
         ]
 
         with patch("eshop.router.EshopEmailService") as MockEmailSvc:
@@ -1952,7 +1996,7 @@ class TestEmailIntegration:
         cursor.fetchone.side_effect = [
             (1, 1, Decimal("19.80"), "EUR", "pending", "new"),
             (1, "12345", "supersecretkey"),
-            # tenant for email
+            # tenant for email (7 cols incl. admin_notification_email)
             (
                 "noreply@emcenter.sk",
                 "odbyt@em-1.sk",
@@ -1960,6 +2004,7 @@ class TestEmailIntegration:
                 "emcenter.sk",
                 "#2E7D32",
                 "EUR",
+                "odbyt@em-1.sk",
             ),
             # order for email
             (
