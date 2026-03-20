@@ -1,5 +1,25 @@
 # NEX Automat — Development History
 
+## 2026-03-20 — Email notification: shipping item in Polozky table
+
+**fix(eshop):** Add shipping item row to email notification tables (admin + customer)
+
+### Root Cause
+- SQL query in `router.py` (payment callback) had `AND oi.item_type != 'shipping'` filter
+- This excluded shipping items from email data even though total was correct
+- Discovered via E2E test EM-2026-00020 (XML correct, email table incomplete)
+
+### Changes
+- **router.py:** Removed `item_type != 'shipping'` SQL filter; added `item_type` to SELECT; ORDER BY products first, shipping last
+- **email_service.py:** `_build_items_table()` renders shipping rows with visual distinction (border-top, #f9f9f9 background, truck emoji)
+- **test_eshop.py:** Added shipping item to SAMPLE_ITEMS, new `test_email_shipping_row_has_visual_distinction` test, fixed 3 pre-existing test mock bugs (missing `attachments` kwarg, missing `admin_notification_email` column, incomplete order tuple)
+
+### Result
+- Admin + customer emails now show shipping row (e.g., "Dopravne - kurier na adresu — 3.50 EUR")
+- Net test improvement: 8 failures -> 5 failures (3 pre-existing bugs fixed in mocks)
+
+---
+
 ## Session 18: Order Fix O-2 — Audit GAP-02+03+04+05 (2026-03-18)
 
 **Order system audit gap fixes:** GAP-02, GAP-03, GAP-04, GAP-05
