@@ -238,7 +238,9 @@ jobs:
         run: |
           cd /opt/nex-automat
           docker rm -f nex-manager-api 2>/dev/null || true
-          docker compose build --no-cache nex-manager-api
+          export APP_VERSION=$(cd /opt/nex-automat-src && git describe --tags --abbrev=0 2>/dev/null || echo "0.2.0")
+          export APP_COMMIT=$(cd /opt/nex-automat-src && git rev-parse --short HEAD)
+          docker compose build --no-cache --build-arg APP_VERSION=$APP_VERSION --build-arg APP_COMMIT=$APP_COMMIT nex-manager-api
           docker compose up -d nex-manager-api
 
       - name: Health check — DEPTEST containers

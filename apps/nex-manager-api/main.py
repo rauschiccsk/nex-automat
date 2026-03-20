@@ -157,25 +157,37 @@ def health():
 
 
 def _get_git_version() -> str:
-    """Get latest git tag (version)."""
+    """Get application version from ENV or git describe."""
+    # Primary: read from ENV (set by Docker build args)
+    env_version = os.environ.get("APP_VERSION")
+    if env_version and env_version != "dev":
+        return env_version
+
+    # Fallback: git describe (local dev only)
     try:
-        return subprocess.check_output(
+        result = subprocess.run(
             ["git", "describe", "--tags", "--abbrev=0"],
-            text=True,
-            stderr=subprocess.DEVNULL,
-        ).strip()
+            capture_output=True, text=True, check=True,
+        )
+        return result.stdout.strip()
     except (subprocess.CalledProcessError, FileNotFoundError):
-        return "0.1.0"
+        return "0.2.0"
 
 
 def _get_git_commit() -> str:
-    """Get short git commit hash."""
+    """Get git commit hash from ENV or git rev-parse."""
+    # Primary: read from ENV
+    env_commit = os.environ.get("APP_COMMIT")
+    if env_commit and env_commit != "unknown":
+        return env_commit
+
+    # Fallback: git rev-parse (local dev only)
     try:
-        return subprocess.check_output(
+        result = subprocess.run(
             ["git", "rev-parse", "--short", "HEAD"],
-            text=True,
-            stderr=subprocess.DEVNULL,
-        ).strip()
+            capture_output=True, text=True, check=True,
+        )
+        return result.stdout.strip()
     except (subprocess.CalledProcessError, FileNotFoundError):
         return "unknown"
 
