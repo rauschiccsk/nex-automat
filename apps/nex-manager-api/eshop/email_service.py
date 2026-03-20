@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """E-shop email notification service using Stalwart SMTP."""
 
 import asyncio
@@ -9,6 +10,13 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
 logger = logging.getLogger(__name__)
+
+PAYMENT_METHOD_LABELS = {
+    "CARD": "Platba kartou",
+    "BANK_TRANSFER": "Bankový prevod",
+    "COD": "Dobierka",
+    "CASH": "Hotovosť",
+}
 
 
 class EshopEmailService:
@@ -39,20 +47,25 @@ class EshopEmailService:
         customer_email = order.get("customer_email", "")
         currency = html.escape(str(order.get("currency", "EUR")))
         total_vat = order.get("total_amount_vat", 0)
-        payment_method = html.escape(str(order.get("payment_method", "")))
+        raw_payment = str(order.get("payment_method", ""))
+        payment_label = html.escape(
+            PAYMENT_METHOD_LABELS.get(raw_payment, raw_payment)
+        )
 
         items_html = self._build_items_table(items, currency)
-        billing_html = self._build_address_block("Fakturacna adresa", order, "billing")
+        billing_html = self._build_address_block(
+            "Fakturačná adresa", order, "billing"
+        )
         shipping_html = self._build_address_block(
-            "Dorucovacia adresa", order, "shipping"
+            "Doručovacia adresa", order, "shipping"
         )
 
         body = f"""
-        <h2 style="color:{self.primary_color};">Dakujeme za Vasu objednavku!</h2>
-        <p>Vazeny/a {customer_name},</p>
-        <p>Vasa objednavka <strong>{order_number}</strong> bola uspesne prijata.</p>
+        <h2 style="color:{self.primary_color};">Ďakujeme za Vašu objednávku!</h2>
+        <p>Vážený/á {customer_name},</p>
+        <p>Vaša objednávka <strong>{order_number}</strong> bola úspešne prijatá.</p>
 
-        <h3>Polozky objednavky</h3>
+        <h3>Položky objednávky</h3>
         {items_html}
 
         <table width="100%" cellpadding="4" cellspacing="0">
@@ -67,14 +80,14 @@ class EshopEmailService:
         {shipping_html}
 
         <h3>Platba</h3>
-        <p>Sposob platby: <strong>{payment_method}</strong></p>
+        <p>Spôsob platby: <strong>{payment_label}</strong></p>
 
         <p style="margin-top:20px; color:#666;">
-          O zmene stavu Vasej objednavky Vas budeme informovat e-mailom.
+          O zmene stavu Vašej objednávky Vás budeme informovať e-mailom.
         </p>
         """
 
-        subject = f"Objednavka {order_number} bola prijata \u2014 {self.brand_name}"
+        subject = f"Objednávka {order_number} bola prijatá — {self.brand_name}"
         full_html = self._build_html_email(body)
         await self._send_email(customer_email, subject, full_html)
 
@@ -89,32 +102,32 @@ class EshopEmailService:
         items_html = self._build_items_table(items, currency)
 
         body = f"""
-        <h2 style="color:{self.primary_color};">Platba bola prijata</h2>
-        <p>Vazeny/a {customer_name},</p>
-        <p>Platba za objednavku <strong>{order_number}</strong> bola uspesne spracovana.</p>
+        <h2 style="color:{self.primary_color};">Platba bola prijatá</h2>
+        <p>Vážený/á {customer_name},</p>
+        <p>Platba za objednávku <strong>{order_number}</strong> bola úspešne spracovaná.</p>
 
         <table width="100%" cellpadding="8" cellspacing="0"
                style="background:#f0f7f0; border-radius:4px; margin:15px 0;">
           <tr>
-            <td><strong>Cislo objednavky:</strong></td>
+            <td><strong>Číslo objednávky:</strong></td>
             <td style="text-align:right;">{order_number}</td>
           </tr>
           <tr>
-            <td><strong>Zaplatena suma:</strong></td>
+            <td><strong>Zaplatená suma:</strong></td>
             <td style="text-align:right; font-weight:bold;">
               {float(total_vat):.2f} {currency}
             </td>
           </tr>
         </table>
 
-        <h3>Polozky objednavky</h3>
+        <h3>Položky objednávky</h3>
         {items_html}
 
-        <p>Objednavka bude coskoro odoslana.</p>
+        <p>Objednávka bude čoskoro odoslaná.</p>
         """
 
         subject = (
-            f"Platba za objednavku {order_number} bola prijata \u2014 {self.brand_name}"
+            f"Platba za objednávku {order_number} bola prijatá — {self.brand_name}"
         )
         full_html = self._build_html_email(body)
         await self._send_email(customer_email, subject, full_html)
@@ -131,29 +144,29 @@ class EshopEmailService:
         tracking_html = ""
         if tracking_number:
             tracking_html += (
-                f"<p><strong>Cislo zasielky:</strong> {tracking_number}</p>"
+                f"<p><strong>Číslo zásielky:</strong> {tracking_number}</p>"
             )
         if tracking_link:
             tracking_html += (
                 f'<p><a href="{tracking_link_escaped}" '
                 f'style="background:{self.primary_color}; color:#fff; '
                 f"padding:10px 20px; text-decoration:none; border-radius:4px; "
-                f'display:inline-block;">Sledovat zasielku</a></p>'
+                f'display:inline-block;">Sledovať zásielku</a></p>'
             )
 
         body = f"""
-        <h2 style="color:{self.primary_color};">Objednavka bola odoslana</h2>
-        <p>Vazeny/a {customer_name},</p>
-        <p>Vasa objednavka <strong>{order_number}</strong> bola odoslana.</p>
+        <h2 style="color:{self.primary_color};">Objednávka bola odoslaná</h2>
+        <p>Vážený/á {customer_name},</p>
+        <p>Vaša objednávka <strong>{order_number}</strong> bola odoslaná.</p>
 
         {tracking_html}
 
         <p style="margin-top:20px; color:#666;">
-          Dorucenie ocakavajte v priebehu 1-3 pracovnych dni.
+          Doručenie očakávajte v priebehu 1\u20133 pracovných dní.
         </p>
         """
 
-        subject = f"Objednavka {order_number} bola odoslana \u2014 {self.brand_name}"
+        subject = f"Objednávka {order_number} bola odoslaná — {self.brand_name}"
         full_html = self._build_html_email(body)
         await self._send_email(customer_email, subject, full_html)
 
@@ -166,26 +179,32 @@ class EshopEmailService:
         order_number = html.escape(str(order.get("order_number", "")))
         customer_name = html.escape(str(order.get("customer_name", "")))
         customer_email = html.escape(str(order.get("customer_email", "")))
-        customer_phone = html.escape(str(order.get("customer_phone", "")))
+        raw_phone = str(order.get("customer_phone", "") or "")
+        customer_phone = html.escape(raw_phone) if raw_phone else "neuvedený"
         currency = html.escape(str(order.get("currency", "EUR")))
         total_vat = order.get("total_amount_vat", 0)
-        payment_method = html.escape(str(order.get("payment_method", "")))
+        raw_payment = str(order.get("payment_method", ""))
+        payment_label = html.escape(
+            PAYMENT_METHOD_LABELS.get(raw_payment, raw_payment)
+        )
         note = html.escape(str(order.get("note", "")))
         order_notes = html.escape(str(order.get("order_notes", "")))
 
         items_html = self._build_items_table(items, currency)
-        billing_html = self._build_address_block("Fakturacna adresa", order, "billing")
+        billing_html = self._build_address_block(
+            "Fakturačná adresa", order, "billing"
+        )
         shipping_html = self._build_address_block(
-            "Dorucovacia adresa", order, "shipping"
+            "Doručovacia adresa", order, "shipping"
         )
 
         body = f"""
-        <h2 style="color:{self.primary_color};">Nova objednavka {order_number}</h2>
+        <h2 style="color:{self.primary_color};">Nová objednávka {order_number}</h2>
 
         <table width="100%" cellpadding="8" cellspacing="0"
                style="background:#fff3e0; border-radius:4px; margin:15px 0;">
           <tr>
-            <td><strong>Zakaznik:</strong></td>
+            <td><strong>Zákazník:</strong></td>
             <td>{customer_name}</td>
           </tr>
           <tr>
@@ -193,12 +212,12 @@ class EshopEmailService:
             <td>{customer_email}</td>
           </tr>
           <tr>
-            <td><strong>Telefon:</strong></td>
+            <td><strong>Telefón:</strong></td>
             <td>{customer_phone}</td>
           </tr>
           <tr>
-            <td><strong>Sposob platby:</strong></td>
-            <td>{payment_method}</td>
+            <td><strong>Spôsob platby:</strong></td>
+            <td>{payment_label}</td>
           </tr>
           <tr>
             <td><strong>Celkom s DPH:</strong></td>
@@ -206,17 +225,17 @@ class EshopEmailService:
           </tr>
         </table>
 
-        <h3>Polozky</h3>
+        <h3>Položky</h3>
         {items_html}
 
         {billing_html}
         {shipping_html}
 
-        {"<h3>Poznamka</h3><p>" + note + "</p>" if note else ""}
+        {"<h3>Poznámka</h3><p>" + note + "</p>" if note else ""}
         {"<h3>Order Notes</h3><p style='color:#c62828;font-weight:bold;'>" + order_notes + "</p>" if order_notes else ""}
         """
 
-        subject = f"[NOVA OBJEDNAVKA] {order_number} \u2014 {customer_name}"
+        subject = f"[NOVÁ OBJEDNÁVKA] {order_number} — {customer_name}"
         full_html = self._build_html_email(body)
         await self._send_email(self.admin_email, subject, full_html)
 
@@ -231,20 +250,23 @@ class EshopEmailService:
         customer_email = html.escape(str(order.get("customer_email", "")))
         currency = html.escape(str(order.get("currency", "EUR")))
         total_vat = order.get("total_amount_vat", 0)
-        payment_method = html.escape(str(order.get("payment_method", "")))
+        raw_payment = str(order.get("payment_method", ""))
+        payment_label = html.escape(
+            PAYMENT_METHOD_LABELS.get(raw_payment, raw_payment)
+        )
         comgate_tid = html.escape(str(order.get("comgate_transaction_id", "") or ""))
 
         body = f"""
-        <h2 style="color:#c62828;">Neuspesna platba</h2>
+        <h2 style="color:#c62828;">Neúspešná platba</h2>
 
         <table width="100%" cellpadding="8" cellspacing="0"
                style="background:#ffebee; border-radius:4px; margin:15px 0;">
           <tr>
-            <td><strong>Objednavka:</strong></td>
+            <td><strong>Objednávka:</strong></td>
             <td>{order_number}</td>
           </tr>
           <tr>
-            <td><strong>Zakaznik:</strong></td>
+            <td><strong>Zákazník:</strong></td>
             <td>{customer_name} ({customer_email})</td>
           </tr>
           <tr>
@@ -252,8 +274,8 @@ class EshopEmailService:
             <td>{float(total_vat):.2f} {currency}</td>
           </tr>
           <tr>
-            <td><strong>Sposob platby:</strong></td>
-            <td>{payment_method}</td>
+            <td><strong>Spôsob platby:</strong></td>
+            <td>{payment_label}</td>
           </tr>
           <tr>
             <td><strong>Comgate Transaction ID:</strong></td>
@@ -262,7 +284,7 @@ class EshopEmailService:
         </table>
         """
 
-        subject = f"[NEUSPESNA PLATBA] {order_number} \u2014 {customer_name}"
+        subject = f"[NEÚSPEŠNÁ PLATBA] {order_number} — {customer_name}"
         full_html = self._build_html_email(body)
         await self._send_email(self.admin_email, subject, full_html)
 
@@ -369,7 +391,7 @@ Tím {company}"""
         </td></tr>
         <tr><td style="padding:15px; text-align:center; color:#999; font-size:12px; border-top:1px solid #eee;">
           {brand} | {domain}<br>
-          Tento e-mail bol odoslany automaticky, neodpovedajte nan.
+          Tento e-mail bol odoslaný automaticky, neodpovedajte naň.
         </td></tr>
       </table>
     </td></tr>
@@ -400,8 +422,8 @@ Tím {company}"""
             '<table width="100%" cellpadding="8" cellspacing="0" '
             'style="border-collapse:collapse;">'
             '<tr style="background:#f5f5f5;">'
-            '<th style="text-align:left; border-bottom:2px solid #ddd;">Polozka</th>'
-            '<th style="text-align:center; border-bottom:2px solid #ddd;">Mnozstvo</th>'
+            '<th style="text-align:left; border-bottom:2px solid #ddd;">Položka</th>'
+            '<th style="text-align:center; border-bottom:2px solid #ddd;">Množstvo</th>'
             '<th style="text-align:right; border-bottom:2px solid #ddd;">Cena s DPH</th>'
             "</tr>"
             f"{rows}"
