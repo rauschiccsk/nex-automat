@@ -1212,7 +1212,8 @@ async def payment_callback(
         try:
             cur.execute(
                 "SELECT smtp_from, admin_email, brand_name, domain, primary_color, "
-                "currency FROM eshop_tenants WHERE tenant_id = %s",
+                "currency, admin_notification_email "
+                "FROM eshop_tenants WHERE tenant_id = %s",
                 (tenant_id,),
             )
             t_email = cur.fetchone()
@@ -1224,6 +1225,7 @@ async def payment_callback(
                     "domain": t_email[3],
                     "primary_color": t_email[4],
                     "currency": t_email[5],
+                    "admin_notification_email": t_email[6],
                 }
                 # Fetch order details for email
                 cur.execute(
@@ -1319,7 +1321,8 @@ async def payment_callback(
         try:
             cur.execute(
                 "SELECT smtp_from, admin_email, brand_name, domain, primary_color, "
-                "currency FROM eshop_tenants WHERE tenant_id = %s",
+                "currency, admin_notification_email "
+                "FROM eshop_tenants WHERE tenant_id = %s",
                 (tenant_id,),
             )
             t_email = cur.fetchone()
@@ -1331,6 +1334,7 @@ async def payment_callback(
                     "domain": t_email[3],
                     "primary_color": t_email[4],
                     "currency": t_email[5],
+                    "admin_notification_email": t_email[6],
                 }
                 cur.execute(
                     "SELECT order_number, customer_email, customer_name, "
