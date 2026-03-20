@@ -1,5 +1,24 @@
 # NEX Automat — Development History
 
+## 2026-03-20 — VOP Update + XML Date Format
+
+**VOP aktualizácia (emcenter-web):**
+- Dátum účinnosti: 20. mája 2026
+- Platobné metódy: len karta cez Comgate (odstránený bankový prevod, QR, dobierka)
+- Ceny dopravy: Packeta 2,50€, kuriér 3,50€
+- Prevádzkovateľ údaje verifikované
+
+**XML format change (nex-automat):**
+- `order_date` element: ISO format (YYYY-MM-DD) → SK format (DD.MM.YYYY)
+- Nový `order_time` element (HH:MM:SS)
+- Fallback na empty string ak `created_at` je None
+
+**Commits:**
+- emcenter-web: `docs(vop): update VOP — card-only payments, shipping prices, effective date 20.5.2026` (3199c03)
+- nex-automat: `feat(eshop): XML date SK format (DD.MM.YYYY) + separate time element` (6812c0a)
+
+---
+
 ## 2026-03-20 — CRITICAL FIX: Comgate callback handler — column oi.id does not exist
 
 **fix(eshop):** Payment callback SQL used `oi.id` but column is `oi.item_id`
