@@ -71,36 +71,36 @@ def _setup_paid_db(fake_db):
         [
             # 1. Find order by refId (order_number)
             (
-                1,               # order_id
-                1,               # tenant_id
+                1,  # order_id
+                1,  # tenant_id
                 Decimal("12.00"),  # total_amount_vat
-                "EUR",           # currency
-                "pending",       # payment_status
-                "new",           # status
+                "EUR",  # currency
+                "pending",  # payment_status
+                "new",  # status
             ),
             # 2. Load tenant to verify secrets
             (
-                1,               # tenant_id
-                "12345",         # comgate_merchant_id
-                "test_secret",   # comgate_secret
+                1,  # tenant_id
+                "12345",  # comgate_merchant_id
+                "test_secret",  # comgate_secret
             ),
             # 3. Fetch tenant for email
             (
                 "noreply@test.sk",  # smtp_from
-                "admin@test.sk",    # admin_email
-                "TEST",             # brand_name
-                "test.sk",          # domain
-                "#2E7D32",          # primary_color
-                "EUR",              # currency
+                "admin@test.sk",  # admin_email
+                "TEST",  # brand_name
+                "test.sk",  # domain
+                "#2E7D32",  # primary_color
+                "EUR",  # currency
             ),
             # 4. Fetch order for email
             (
-                "ORD-PPH-001",       # order_number
+                "ORD-PPH-001",  # order_number
                 "customer@test.sk",  # customer_email
-                "Test Customer",     # customer_name
-                Decimal("12.00"),    # total_amount_vat
-                "EUR",               # currency
-                "credit_card",       # payment_method
+                "Test Customer",  # customer_name
+                Decimal("12.00"),  # total_amount_vat
+                "EUR",  # currency
+                "credit_card",  # payment_method
             ),
         ]
     )
