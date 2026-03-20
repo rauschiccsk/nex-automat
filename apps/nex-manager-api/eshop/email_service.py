@@ -48,14 +48,10 @@ class EshopEmailService:
         currency = html.escape(str(order.get("currency", "EUR")))
         total_vat = order.get("total_amount_vat", 0)
         raw_payment = str(order.get("payment_method", ""))
-        payment_label = html.escape(
-            PAYMENT_METHOD_LABELS.get(raw_payment, raw_payment)
-        )
+        payment_label = html.escape(PAYMENT_METHOD_LABELS.get(raw_payment, raw_payment))
 
         items_html = self._build_items_table(items, currency)
-        billing_html = self._build_address_block(
-            "Fakturačná adresa", order, "billing"
-        )
+        billing_html = self._build_address_block("Fakturačná adresa", order, "billing")
         shipping_html = self._build_address_block(
             "Doručovacia adresa", order, "shipping"
         )
@@ -184,16 +180,12 @@ class EshopEmailService:
         currency = html.escape(str(order.get("currency", "EUR")))
         total_vat = order.get("total_amount_vat", 0)
         raw_payment = str(order.get("payment_method", ""))
-        payment_label = html.escape(
-            PAYMENT_METHOD_LABELS.get(raw_payment, raw_payment)
-        )
+        payment_label = html.escape(PAYMENT_METHOD_LABELS.get(raw_payment, raw_payment))
         note = html.escape(str(order.get("note", "")))
         order_notes = html.escape(str(order.get("order_notes", "")))
 
         items_html = self._build_items_table(items, currency)
-        billing_html = self._build_address_block(
-            "Fakturačná adresa", order, "billing"
-        )
+        billing_html = self._build_address_block("Fakturačná adresa", order, "billing")
         shipping_html = self._build_address_block(
             "Doručovacia adresa", order, "shipping"
         )
@@ -251,9 +243,7 @@ class EshopEmailService:
         currency = html.escape(str(order.get("currency", "EUR")))
         total_vat = order.get("total_amount_vat", 0)
         raw_payment = str(order.get("payment_method", ""))
-        payment_label = html.escape(
-            PAYMENT_METHOD_LABELS.get(raw_payment, raw_payment)
-        )
+        payment_label = html.escape(PAYMENT_METHOD_LABELS.get(raw_payment, raw_payment))
         comgate_tid = html.escape(str(order.get("comgate_transaction_id", "") or ""))
 
         body = f"""
