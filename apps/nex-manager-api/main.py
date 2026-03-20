@@ -20,6 +20,7 @@ Business-module routers (loaded dynamically from module_registry.yaml):
 
 import logging
 import os
+import subprocess
 import sys
 from datetime import datetime
 
@@ -153,6 +154,36 @@ def health():
         "status": "healthy",
         "timestamp": datetime.now().isoformat(),
     }
+
+
+def _get_git_version() -> str:
+    """Get latest git tag (version)."""
+    try:
+        return subprocess.check_output(
+            ["git", "describe", "--tags", "--abbrev=0"],
+            text=True,
+            stderr=subprocess.DEVNULL,
+        ).strip()
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        return "0.1.0"
+
+
+def _get_git_commit() -> str:
+    """Get short git commit hash."""
+    try:
+        return subprocess.check_output(
+            ["git", "rev-parse", "--short", "HEAD"],
+            text=True,
+            stderr=subprocess.DEVNULL,
+        ).strip()
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        return "unknown"
+
+
+@app.get("/api/version")
+def get_version():
+    """Return current version from git tag + commit hash."""
+    return {"version": _get_git_version(), "commit": _get_git_commit()}
 
 
 # ---------------------------------------------------------------------------

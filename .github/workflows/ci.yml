@@ -7,6 +7,9 @@ on:
     branches: [develop, main]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 env:
   PYTHON_VERSION: "3.11"
 
@@ -265,6 +268,22 @@ jobs:
             echo "❌ nex-manager-api health check failed"
             exit 1
           fi
+
+      - name: Auto-increment version tag
+        run: |
+          cd /opt/nex-automat-src
+          git fetch --tags origin
+          LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+          VERSION=${LAST_TAG#v}
+          MAJOR=$(echo $VERSION | cut -d. -f1)
+          MINOR=$(echo $VERSION | cut -d. -f2)
+          PATCH=$(echo $VERSION | cut -d. -f3)
+          NEW_PATCH=$((PATCH + 1))
+          NEW_TAG="v${MAJOR}.${MINOR}.${NEW_PATCH}"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag "$NEW_TAG"
+          git push origin "$NEW_TAG"
 
   # ===========================================
   # Staging Deploy Electron (DEPTEST) — Windows runner
