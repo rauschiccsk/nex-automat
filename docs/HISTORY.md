@@ -1,5 +1,29 @@
 # NEX Automat — Development History
 
+## 2026-03-20 — CRITICAL FIX: Comgate callback handler — column oi.id does not exist
+
+**fix(eshop):** Payment callback SQL used `oi.id` but column is `oi.item_id`
+
+### Root Cause
+- Commit `283a7ca` added `ORDER BY (oi.item_type = 'shipping'), oi.id` to payment callback SQL
+- Table `eshop_order_items` has primary key `item_id`, not `id`
+- PostgreSQL error 42703: `column oi.id does not exist`
+- All Comgate PAID callbacks returned HTTP 500 → payments succeeded but order status stayed `new/pending`
+
+### Affected Orders
+- **EM-2026-00021** — 23.30 EUR, Comgate PAID, callback failed (3 retries)
+- **EM-2026-00022** — 23.30 EUR, Comgate PAID, callback failed
+
+### Fix
+- `router.py` line 1286: `oi.id` → `oi.item_id`
+- Commit: `d306b4d`
+
+### Manual Recovery
+- Both orders updated: `status=confirmed`, `payment_status=paid`
+- Status history entries added for audit trail
+
+---
+
 ## 2026-03-20 — Email notification: shipping item in Polozky table
 
 **fix(eshop):** Add shipping item row to email notification tables (admin + customer)
