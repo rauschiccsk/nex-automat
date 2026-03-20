@@ -1997,6 +1997,13 @@ def admin_get_tenant(
     ).model_dump()
 
 
+# MuFis product mapping — 3PACK = 3× individual bottles
+MUFIS_PRODUCT_MAPPING = {
+    "EM-500": {"mufis_quantity_multiplier": 1, "mufis_barcode_sku": "EM-500"},
+    "EM-500-3PACK": {"mufis_quantity_multiplier": 3, "mufis_barcode_sku": "EM-500"},
+    "EM-5L": {"mufis_quantity_multiplier": 1, "mufis_barcode_sku": "EM-5L"},
+}
+
 # ============================================================================
 # MUFIS — getOrder
 # ============================================================================
@@ -2121,16 +2128,36 @@ async def mufis_get_order(
         )
         order_items = []
         for ir in cur.fetchall():
+            sku = ir[0]
+            mapping = MUFIS_PRODUCT_MAPPING.get(
+                sku, {"mufis_quantity_multiplier": 1, "mufis_barcode_sku": sku}
+            )
+            # Fetch barcode from base product (not from 3PACK SKU)
+            barcode = None
+            base_sku = mapping["mufis_barcode_sku"]
+            cur_bc = db.cursor()
+            cur_bc.execute(
+                "SELECT barcode FROM eshop_products "
+                "WHERE sku = %s AND barcode IS NOT NULL AND barcode != '' "
+                "ORDER BY product_id DESC LIMIT 1",
+                (base_sku,),
+            )
+            bc_row = cur_bc.fetchone()
+            if bc_row:
+                barcode = bc_row[0]
+            cur_bc.close()
+
             order_items.append(
                 {
-                    "sku": ir[0],
+                    "sku": sku,
                     "name": ir[1],
-                    "quantity": ir[2],
+                    "quantity": ir[2] * mapping["mufis_quantity_multiplier"],
                     "unit_price": _dec(ir[3]),
                     "unit_price_vat": _dec(ir[4]),
                     "vat_rate": _dec(ir[5]),
                     "price_type": "with_vat",
                     "item_type": ir[6],
+                    "barcode": barcode,
                 }
             )
 
