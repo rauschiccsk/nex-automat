@@ -19,10 +19,25 @@ Business-module routers (loaded dynamically from module_registry.yaml):
 """
 
 import logging
+import os
+import sys
 from datetime import datetime
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+
+# ---------------------------------------------------------------------------
+# Logging — ensure all application loggers emit to stdout at INFO level.
+# Without this, only uvicorn's own access-log appears; our logger.info()
+# calls in eshop.router / eshop.mufis_webhook stay silent (root=WARNING).
+# ---------------------------------------------------------------------------
+_log_level = os.getenv("LOG_LEVEL", "INFO").upper()
+logging.basicConfig(
+    level=getattr(logging, _log_level, logging.INFO),
+    format="%(asctime)s %(levelname)-8s [%(name)s] %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+    stream=sys.stdout,
+)
 
 # Infrastructure routers — always loaded, not managed by YAML registry
 from auth.router import router as auth_router

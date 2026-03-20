@@ -1289,10 +1289,11 @@ async def payment_callback(
             logger.error("Failed to send customer email for %s: %s", refId, e)
 
         try:
+            logger.info("POST-PAYMENT: Calling MuFis sync for order %s", refId)
             await notify_mufis_order_change()
-            logger.info("MuFis sync triggered for order %s", refId)
+            logger.info("POST-PAYMENT: MuFis sync completed for order %s", refId)
         except Exception as e:
-            logger.error("Failed to sync to MuFis for %s: %s", refId, e)
+            logger.error("POST-PAYMENT: MuFis sync failed for order %s: %s", refId, e)
 
     elif status_val == "CANCELLED":
         cur.execute(

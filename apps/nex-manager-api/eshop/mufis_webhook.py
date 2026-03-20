@@ -26,8 +26,14 @@ async def notify_mufis_order_change():
     This is fire-and-forget — failures are logged as warnings but never
     block the caller or raise exceptions.
     """
+    logger.info(
+        "notify_mufis_order_change called (URL=%s, DRY_RUN=%s)",
+        MUFIS_WEBHOOK_URL or "(not set)",
+        MUFIS_DRY_RUN,
+    )
+
     if not MUFIS_WEBHOOK_URL:
-        logger.debug("MUFIS_WEBHOOK_URL not configured, skipping webhook")
+        logger.warning("MUFIS_WEBHOOK_URL not configured, skipping webhook")
         return
 
     if MUFIS_DRY_RUN:
@@ -37,6 +43,10 @@ async def notify_mufis_order_change():
     try:
         async with httpx.AsyncClient(timeout=10.0) as client:
             response = await client.get(MUFIS_WEBHOOK_URL)
-            logger.info("MuFis webhook notified: %s", response.status_code)
+            logger.info(
+                "MuFis webhook notified: HTTP %s (URL=%s)",
+                response.status_code,
+                MUFIS_WEBHOOK_URL,
+            )
     except Exception as e:
         logger.warning("MuFis webhook failed (non-blocking): %s", e)
