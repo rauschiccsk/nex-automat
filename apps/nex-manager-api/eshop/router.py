@@ -1278,7 +1278,9 @@ async def payment_callback(
         try:
             if tenant_for_email and order_for_email:
                 email_svc3 = EshopEmailService(tenant_for_email)
-                await email_svc3.send_order_confirmation(order_for_email, items_for_email)
+                await email_svc3.send_order_confirmation(
+                    order_for_email, items_for_email
+                )
                 logger.info(
                     "Customer confirmation sent for order %s",
                     order_for_email["order_number"],
