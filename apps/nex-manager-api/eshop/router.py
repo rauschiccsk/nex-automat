@@ -1276,11 +1276,14 @@ async def payment_callback(
                         "order_notes": o_row[27],
                     }
                     # Fetch items (include sku + vat_rate for XML export)
+                    # Exclude shipping items — shipping is added
+                    # separately in _generate_order_xml from order data
                     cur.execute(
                         "SELECT oi.name, oi.quantity, oi.unit_price_vat, "
                         "oi.sku, oi.vat_rate "
                         "FROM eshop_order_items oi "
-                        "WHERE oi.order_id = %s",
+                        "WHERE oi.order_id = %s "
+                        "AND oi.item_type != 'shipping'",
                         (order_id,),
                     )
                     items_for_email = [

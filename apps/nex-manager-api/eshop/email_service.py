@@ -442,11 +442,13 @@ Tím {company}"""
         # Payment method
         SubElement(root, "payment_method").text = order.get("payment_method", "")
 
-        # Items
+        # Items (skip shipping — added separately below with correct PLU)
         items_node = SubElement(root, "items")
         for item in items:
-            item_node = SubElement(items_node, "item")
             sku = item.get("sku", "")
+            if sku == "SHIPPING":
+                continue
+            item_node = SubElement(items_node, "item")
             plu = PLU_MAPPING.get(sku, 0)
 
             SubElement(item_node, "plu").text = str(plu)
