@@ -1227,10 +1227,19 @@ async def payment_callback(
                     "currency": t_email[5],
                     "admin_notification_email": t_email[6],
                 }
-                # Fetch order details for email
+                # Fetch order details for email (includes all fields
+                # needed by XML export: addresses, dates, shipping, etc.)
                 cur.execute(
                     "SELECT order_number, customer_email, customer_name, "
-                    "total_amount_vat, currency, payment_method "
+                    "total_amount_vat, currency, payment_method, "
+                    "created_at, customer_phone, company_name, "
+                    "billing_name, billing_name2, "
+                    "billing_street, billing_city, billing_zip, billing_country, "
+                    "shipping_name, shipping_name2, "
+                    "shipping_street, shipping_city, shipping_zip, shipping_country, "
+                    "delivery_method, shipping_price, shipping_type, "
+                    "packeta_point_id, packeta_point_name, "
+                    "note, order_notes "
                     "FROM eshop_orders WHERE order_id = %s",
                     (order_id,),
                 )
@@ -1243,11 +1252,35 @@ async def payment_callback(
                         "total_amount_vat": float(o_row[3]),
                         "currency": o_row[4],
                         "payment_method": o_row[5],
+                        "created_at": o_row[6],
+                        "customer_phone": o_row[7],
+                        "company_name": o_row[8],
+                        "billing_name": o_row[9],
+                        "billing_name2": o_row[10],
+                        "billing_street": o_row[11],
+                        "billing_city": o_row[12],
+                        "billing_zip": o_row[13],
+                        "billing_country": o_row[14],
+                        "shipping_name": o_row[15],
+                        "shipping_name2": o_row[16],
+                        "shipping_street": o_row[17],
+                        "shipping_city": o_row[18],
+                        "shipping_zip": o_row[19],
+                        "shipping_country": o_row[20],
+                        "delivery_method": o_row[21],
+                        "shipping_price": float(o_row[22] or 0),
+                        "shipping_type": o_row[23],
+                        "packeta_point_id": o_row[24],
+                        "packeta_point_name": o_row[25],
+                        "note": o_row[26],
+                        "order_notes": o_row[27],
                     }
-                    # Fetch items
+                    # Fetch items (include sku + vat_rate for XML export)
                     cur.execute(
-                        "SELECT name, quantity, unit_price_vat "
-                        "FROM eshop_order_items WHERE order_id = %s",
+                        "SELECT oi.name, oi.quantity, oi.unit_price_vat, "
+                        "oi.sku, oi.vat_rate "
+                        "FROM eshop_order_items oi "
+                        "WHERE oi.order_id = %s",
                         (order_id,),
                     )
                     items_for_email = [
@@ -1255,6 +1288,8 @@ async def payment_callback(
                             "name": ir[0],
                             "quantity": ir[1],
                             "unit_price_vat": float(ir[2]),
+                            "sku": ir[3] or "",
+                            "vat_rate": float(ir[4] or 20),
                         }
                         for ir in cur.fetchall()
                     ]
