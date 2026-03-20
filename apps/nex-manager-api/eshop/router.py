@@ -1283,7 +1283,7 @@ async def payment_callback(
                         "oi.sku, oi.vat_rate, oi.item_type "
                         "FROM eshop_order_items oi "
                         "WHERE oi.order_id = %s "
-                        "ORDER BY (oi.item_type = 'shipping'), oi.id",
+                        "ORDER BY (oi.item_type = 'shipping'), oi.item_id",
                         (order_id,),
                     )
                     items_for_email = [
