@@ -118,7 +118,7 @@ class ComgateClient:
             "refId": order_number,
             "email": customer_email,
             "lang": lang,
-            "method": "ALL",
+            "method": "CARD_CZ_COMGATE",
             "prepareOnly": "true",
             "secret": self.secret,
         }
