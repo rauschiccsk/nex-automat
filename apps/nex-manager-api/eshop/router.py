@@ -610,48 +610,8 @@ async def create_order(
     else:
         logger.warning("Comgate not configured for tenant %s", tenant_id)
 
-    # --- Email notifications (fire-and-forget) ---
-    try:
-        order_data = {
-            "order_number": order_number,
-            "customer_email": body.customer_email,
-            "customer_name": body.customer_name,
-            "customer_phone": body.customer_phone or "",
-            "billing_name": billing_name,
-            "billing_name2": billing_name2,
-            "billing_street": body.billing_street,
-            "billing_city": body.billing_city,
-            "billing_zip": body.billing_zip,
-            "billing_country": body.billing_country,
-            "shipping_name": body.shipping_name or "",
-            "shipping_name2": body.shipping_name2 or "",
-            "shipping_street": body.shipping_street or "",
-            "shipping_city": body.shipping_city or "",
-            "shipping_zip": body.shipping_zip or "",
-            "shipping_country": body.shipping_country or "",
-            "total_amount_vat": float(total_amount_vat),
-            "currency": tenant["currency"],
-            "payment_method": body.payment_method,
-            "note": body.note or "",
-            "order_notes": body.order_notes or "",
-        }
-        items_data = [
-            {
-                "name": oi["name"],
-                "quantity": oi["quantity"],
-                "unit_price_vat": float(oi["unit_price_vat"]),
-                "currency": tenant["currency"],
-            }
-            for oi in order_items
-        ]
-        email_svc = EshopEmailService(tenant)
-        await email_svc.send_order_confirmation(order_data, items_data)
-        await email_svc.send_admin_new_order(order_data, items_data)
-    except Exception as e:
-        logger.error("Email notification failed for order %s: %s", order_number, e)
-
-    # Notify MuFis about new order (fire-and-forget)
-    asyncio.create_task(notify_mufis_order_change())
+    # NOTE: Email notifications and MuFis sync moved to payment_callback()
+    # Customers receive emails only AFTER successful payment, not at order creation.
 
     return OrderCreateResponse(
         order_number=order_number,
@@ -1246,6 +1206,9 @@ async def payment_callback(
             )
 
         # --- Email: payment confirmation ---
+        tenant_for_email = None
+        order_for_email = None
+        items_for_email = []
         try:
             cur.execute(
                 "SELECT smtp_from, admin_email, brand_name, domain, primary_color, "
@@ -1299,6 +1262,35 @@ async def payment_callback(
                     )
         except Exception as e:
             logger.error("Email notification failed for PAID callback %s: %s", refId, e)
+
+        # --- Post-payment hooks (admin email, customer confirmation, MuFis) ---
+        # Reuse tenant_for_email / order_for_email / items_for_email from above
+        try:
+            if tenant_for_email and order_for_email:
+                email_svc2 = EshopEmailService(tenant_for_email)
+                await email_svc2.send_admin_new_order(order_for_email, items_for_email)
+                logger.info(
+                    "Admin email sent for order %s", order_for_email["order_number"]
+                )
+        except Exception as e:
+            logger.error("Failed to send admin email for %s: %s", refId, e)
+
+        try:
+            if tenant_for_email and order_for_email:
+                email_svc3 = EshopEmailService(tenant_for_email)
+                await email_svc3.send_order_confirmation(order_for_email, items_for_email)
+                logger.info(
+                    "Customer confirmation sent for order %s",
+                    order_for_email["order_number"],
+                )
+        except Exception as e:
+            logger.error("Failed to send customer email for %s: %s", refId, e)
+
+        try:
+            await notify_mufis_order_change()
+            logger.info("MuFis sync triggered for order %s", refId)
+        except Exception as e:
+            logger.error("Failed to sync to MuFis for %s: %s", refId, e)
 
     elif status_val == "CANCELLED":
         cur.execute(
