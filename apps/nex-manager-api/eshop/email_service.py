@@ -535,7 +535,7 @@ Tím {company}"""
                     '<tr style="border-top:2px solid #ddd; '
                     'background-color:#f9f9f9;">'
                     f'<td style="border-bottom:1px solid #eee;">'
-                    f"\U0001F69A {name}</td>"
+                    f"\U0001f69a {name}</td>"
                     f'<td style="text-align:center; '
                     f'border-bottom:1px solid #eee;">{qty}</td>'
                     f'<td style="text-align:right; '

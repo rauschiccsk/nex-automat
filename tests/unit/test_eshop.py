@@ -1710,9 +1710,24 @@ SAMPLE_ORDER = {
 }
 
 SAMPLE_ITEMS = [
-    {"name": "OASIS EM-1 500ml", "quantity": 2, "unit_price_vat": 9.90, "item_type": "product"},
-    {"name": "OASIS EM-1 5L", "quantity": 1, "unit_price_vat": 39.90, "item_type": "product"},
-    {"name": "Dopravné - kuriér na adresu", "quantity": 1, "unit_price_vat": 3.50, "item_type": "shipping"},
+    {
+        "name": "OASIS EM-1 500ml",
+        "quantity": 2,
+        "unit_price_vat": 9.90,
+        "item_type": "product",
+    },
+    {
+        "name": "OASIS EM-1 5L",
+        "quantity": 1,
+        "unit_price_vat": 39.90,
+        "item_type": "product",
+    },
+    {
+        "name": "Dopravné - kuriér na adresu",
+        "quantity": 1,
+        "unit_price_vat": 3.50,
+        "item_type": "shipping",
+    },
 ]
 
 
@@ -1862,7 +1877,7 @@ class TestEshopEmailService:
         )
         # Shipping row has visual distinction
         assert "background-color:#f9f9f9" in captured["html"]
-        assert "\U0001F69A" in captured["html"]
+        assert "\U0001f69a" in captured["html"]
 
     def test_email_smtp_failure_logged_not_raised(self):
         """SMTP exception is logged, not raised."""
@@ -1974,7 +1989,14 @@ class TestEmailIntegration:
         ]
         cursor.fetchall.return_value = [
             ("OASIS EM-1 500ml", 2, Decimal("9.90"), "EM-500", 20, "product"),
-            ("Dopravné - kuriér na adresu", 1, Decimal("3.50"), "SHIPPING", 20, "shipping"),
+            (
+                "Dopravné - kuriér na adresu",
+                1,
+                Decimal("3.50"),
+                "SHIPPING",
+                20,
+                "shipping",
+            ),
         ]
 
         with patch("eshop.router.EshopEmailService") as MockEmailSvc:
