@@ -6,8 +6,11 @@ import html
 import logging
 import os
 import smtplib
+from email.mime.application import MIMEApplication
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+from xml.dom import minidom
+from xml.etree.ElementTree import Element, SubElement, tostring
 
 logger = logging.getLogger(__name__)
 
@@ -17,6 +20,18 @@ PAYMENT_METHOD_LABELS = {
     "COD": "Dobierka",
     "CASH": "Hotovosť",
 }
+
+# PLU mapping for NEX Genesis order import
+# Products — mapped by SKU from eshop_products / eshop_order_items
+PLU_MAPPING: dict[str, int] = {
+    "EM-500": 200,  # Oasis EM-1 500ml (1ks)
+    "EM-5L": 202,  # Oasis EM-1 5L
+    "EM-500-3PACK": 201,  # Oasis EM-1 Akcia 2+1 zadarmo
+    # Shipping methods — resolved by delivery_method / shipping_type
+    "SHIPPING_COURIER": 304,  # Dopravné - kuriér na adresu
+    "SHIPPING_PACKETA": 303,  # Dopravné - Packeta automat / Z-Point
+}
+# TODO: MuFis quantity mapping (2+1 → quantity 3) is NOT handled here
 
 
 class EshopEmailService:
@@ -167,7 +182,7 @@ class EshopEmailService:
         await self._send_email(customer_email, subject, full_html)
 
     async def send_admin_new_order(self, order: dict, items: list[dict]) -> None:
-        """Send new order notification to admin."""
+        """Send new order notification to admin with XML attachment."""
         if not self.admin_email:
             logger.warning("Admin email not configured, skipping admin notification")
             return
@@ -229,7 +244,20 @@ class EshopEmailService:
 
         subject = f"[NOVÁ OBJEDNÁVKA] {order_number} — {customer_name}"
         full_html = self._build_html_email(body)
-        await self._send_email(self.admin_email, subject, full_html)
+
+        # Generate XML attachment for NEX Genesis import
+        xml_content = self._generate_order_xml(order, items)
+        raw_order_number = str(order.get("order_number", "unknown"))
+        xml_attachment = MIMEApplication(xml_content.encode("utf-8"), _subtype="xml")
+        xml_attachment.add_header(
+            "Content-Disposition",
+            "attachment",
+            filename=f"objednavka_{raw_order_number}.xml",
+        )
+
+        await self._send_email(
+            self.admin_email, subject, full_html, attachments=[xml_attachment]
+        )
 
     async def send_admin_payment_failed(self, order: dict) -> None:
         """Send payment failed notification to admin."""
@@ -360,6 +388,107 @@ Tím {company}"""
     # Private helper methods
     # ------------------------------------------------------------------
 
+    def _generate_order_xml(self, order: dict, items: list[dict]) -> str:
+        """Generate NEX Genesis-compatible XML order export."""
+        root = Element("order")
+
+        # Order header
+        SubElement(root, "order_number").text = str(order.get("order_number", ""))
+        created = str(order.get("created_at", ""))
+        SubElement(root, "date").text = created[:10] if created else ""
+
+        # Customer
+        customer = SubElement(root, "customer")
+        company = order.get("company_name") or ""
+        full_name = f"{order.get('customer_name', '')}".strip() or "neznámy"
+        SubElement(customer, "name").text = company or full_name
+        SubElement(customer, "email").text = order.get("customer_email", "")
+        SubElement(customer, "phone").text = order.get("customer_phone") or "neuvedený"
+
+        # Billing address
+        billing = SubElement(customer, "billing_address")
+        SubElement(billing, "street").text = order.get("billing_street", "")
+        SubElement(billing, "city").text = order.get("billing_city", "")
+        SubElement(billing, "zip").text = order.get("billing_postal_code") or order.get(
+            "billing_zip", ""
+        )
+        SubElement(billing, "country").text = order.get("billing_country", "SK")
+
+        # Shipping address (fallback to billing)
+        shipping_addr = SubElement(customer, "shipping_address")
+        SubElement(shipping_addr, "street").text = order.get(
+            "shipping_street"
+        ) or order.get("billing_street", "")
+        SubElement(shipping_addr, "city").text = order.get(
+            "shipping_city"
+        ) or order.get("billing_city", "")
+        SubElement(shipping_addr, "zip").text = (
+            order.get("shipping_zip")
+            or order.get("billing_postal_code")
+            or order.get("billing_zip", "")
+        )
+        SubElement(shipping_addr, "country").text = order.get(
+            "shipping_country"
+        ) or order.get("billing_country", "SK")
+
+        # Packeta delivery point (if applicable)
+        packeta_id = order.get("packeta_point_id") or ""
+        packeta_name = order.get("packeta_point_name") or ""
+        if packeta_id:
+            dp = SubElement(root, "delivery_point")
+            SubElement(dp, "packeta_id").text = packeta_id
+            SubElement(dp, "name").text = packeta_name
+
+        # Payment method
+        SubElement(root, "payment_method").text = order.get("payment_method", "")
+
+        # Items
+        items_node = SubElement(root, "items")
+        for item in items:
+            item_node = SubElement(items_node, "item")
+            sku = item.get("sku", "")
+            plu = PLU_MAPPING.get(sku, 0)
+
+            SubElement(item_node, "plu").text = str(plu)
+            SubElement(item_node, "sku").text = sku
+            SubElement(item_node, "name").text = item.get("name", "")
+            SubElement(item_node, "quantity").text = str(item.get("quantity", 1))
+            SubElement(
+                item_node, "unit_price_vat"
+            ).text = f"{float(item.get('unit_price_vat', 0)):.2f}"
+            SubElement(item_node, "vat_rate").text = str(item.get("vat_rate", 20))
+
+        # Shipping as separate line item
+        shipping_price = float(order.get("shipping_price", 0) or 0)
+        if shipping_price > 0:
+            ship_item = SubElement(items_node, "item")
+            delivery_method = str(order.get("delivery_method", "")).lower()
+            packeta_point = order.get("packeta_point_id") or ""
+
+            if packeta_point or "packeta" in delivery_method:
+                ship_plu = PLU_MAPPING["SHIPPING_PACKETA"]
+                ship_name = "Dopravné - Packeta"
+            else:
+                ship_plu = PLU_MAPPING["SHIPPING_COURIER"]
+                ship_name = "Dopravné - kuriér na adresu"
+
+            SubElement(ship_item, "plu").text = str(ship_plu)
+            SubElement(ship_item, "sku").text = "SHIPPING"
+            SubElement(ship_item, "name").text = ship_name
+            SubElement(ship_item, "quantity").text = "1"
+            SubElement(ship_item, "unit_price_vat").text = f"{shipping_price:.2f}"
+            SubElement(ship_item, "vat_rate").text = "20"
+
+        # Total
+        SubElement(
+            root, "total_vat"
+        ).text = f"{float(order.get('total_amount_vat', 0)):.2f}"
+
+        # Pretty-print with XML declaration
+        raw_xml = tostring(root, encoding="unicode")
+        parsed = minidom.parseString(raw_xml)  # noqa: S318
+        return parsed.toprettyxml(indent="  ", encoding="UTF-8").decode("utf-8")
+
     def _build_html_email(self, body_html: str) -> str:
         """Wrap body content in branded HTML email layout."""
         brand = html.escape(self.brand_name)
@@ -446,22 +575,48 @@ Tím {company}"""
             f'<p style="line-height:1.6;">{"<br>".join(lines)}</p>'
         )
 
-    async def _send_email(self, to: str, subject: str, html_body: str) -> None:
-        """Send email via SMTP. Never raises — errors are logged."""
+    async def _send_email(
+        self,
+        to: str,
+        subject: str,
+        html_body: str,
+        attachments: list | None = None,
+    ) -> None:
+        """Send email via SMTP. Supports comma-separated recipients and
+        optional file attachments. Never raises — errors are logged."""
         if not self.sender:
             logger.warning("SMTP sender not configured, skipping email to %s", to)
             return
 
-        msg = MIMEMultipart("alternative")
+        # Support comma-separated recipients (e.g. "a@x.com,b@x.com")
+        recipients = [addr.strip() for addr in to.split(",") if addr.strip()]
+        if not recipients:
+            logger.warning("No valid recipients in '%s'", to)
+            return
+
+        # Use mixed multipart when attachments are present, otherwise
+        # alternative (HTML-only).
+        if attachments:
+            msg = MIMEMultipart("mixed")
+            # Wrap the HTML in an alternative sub-part so mail clients
+            # render it correctly alongside attachments.
+            alt_part = MIMEMultipart("alternative")
+            alt_part.attach(MIMEText(html_body, "html", "utf-8"))
+            msg.attach(alt_part)
+            for att in attachments:
+                msg.attach(att)
+        else:
+            msg = MIMEMultipart("alternative")
+            msg.attach(MIMEText(html_body, "html", "utf-8"))
+
         msg["From"] = f"{self.brand_name} <{self.sender}>"
-        msg["To"] = to
+        msg["To"] = ", ".join(recipients)
         msg["Subject"] = subject
-        msg.attach(MIMEText(html_body, "html", "utf-8"))
 
         loop = asyncio.get_event_loop()
-        await loop.run_in_executor(None, self._send_sync, msg, to)
+        await loop.run_in_executor(None, self._send_sync, msg, recipients)
 
-    def _send_sync(self, msg: MIMEMultipart, to: str) -> None:
+    def _send_sync(self, msg: MIMEMultipart, to: str | list[str]) -> None:
         """Synchronous SMTP send — runs in executor."""
         try:
             with smtplib.SMTP(self.SMTP_HOST, self.SMTP_PORT) as server:
