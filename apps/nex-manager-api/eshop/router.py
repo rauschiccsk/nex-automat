@@ -2221,7 +2221,13 @@ async def mufis_get_order(
             if updated_at
             else (created_at.strftime("%Y-%m-%d %H:%M:%S") if created_at else "")
         )
-        order_date = created_at.strftime("%Y-%m-%d") if created_at else ""
+        # order_date in SK format (DD.MM.YYYY) + separate order_time (HH:MM:SS)
+        if created_at:
+            order_date = created_at.strftime("%d.%m.%Y")
+            order_time = created_at.strftime("%H:%M:%S")
+        else:
+            order_date = ""
+            order_time = ""
 
         # Billing streetnum (concat street + zip for MuFis)
         billing_streetnum = r[9] or ""
@@ -2238,6 +2244,7 @@ async def mufis_get_order(
                 "order_id": r[0],
                 "order_number": r[1],
                 "order_date": order_date,
+                "order_time": order_time,
                 "date_mod": date_mod,
                 "customer_email": r[3],
                 "customer_name": r[4],

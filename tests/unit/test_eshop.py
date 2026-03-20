@@ -840,6 +840,10 @@ class TestMuFis:
         data = resp.json()
         assert "orders" in data
         assert data["page"] == 1
+        # Verify SK date format (DD.MM.YYYY) and separate time element
+        order = data["orders"][0]
+        assert order["order_date"] == "15.01.2026"
+        assert order["order_time"] == "10:00:00"
 
     def test_get_order_with_order_number_filter(self, client_mufis, mock_db):
         """getOrder filters by order_number."""
@@ -1032,6 +1036,9 @@ class TestMuFis:
         assert "items" in order
         assert len(order["items"]) == 1
         assert order["items"][0]["sku"] == "EM-500"
+        # Verify SK date format (DD.MM.YYYY) and separate time element
+        assert order["order_date"] == "15.01.2026"
+        assert order["order_time"] == "10:00:00"
 
     def test_set_order_update(self, client_mufis, mock_db):
         """setOrder updates status and tracking."""
