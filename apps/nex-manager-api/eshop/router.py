@@ -92,10 +92,29 @@ router = APIRouter(prefix="/api/eshop", tags=["ESHOP"])
 # MuFis pagination constant
 MUFIS_PAGE_SIZE = 50
 
+# XML export directory (mapped from Docker volume to /srv/ftp/emcenter/xml)
+XML_EXPORT_DIR = os.environ.get("XML_EXPORT_DIR", "/app/exports/xml")
+
 
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
+
+def save_xml_export(order_number: str, xml_content: str) -> None:
+    """Save XML order export to SFTP-accessible directory.
+
+    Non-blocking — failure must not interrupt the payment callback flow.
+    """
+    try:
+        os.makedirs(XML_EXPORT_DIR, exist_ok=True)
+        filename = f"objednavka_{order_number}.xml"
+        filepath = os.path.join(XML_EXPORT_DIR, filename)
+        with open(filepath, "w", encoding="utf-8") as f:
+            f.write(xml_content)
+        logger.info("XML export saved: %s", filepath)
+    except Exception as e:
+        logger.error("Failed to save XML export for %s: %s", order_number, e)
 
 
 def _dec(v):
@@ -1335,6 +1354,17 @@ async def payment_callback(
             logger.info("POST-PAYMENT: MuFis sync completed for order %s", refId)
         except Exception as e:
             logger.error("POST-PAYMENT: MuFis sync failed for order %s: %s", refId, e)
+
+        # --- XML export to SFTP directory ---
+        try:
+            if tenant_for_email and order_for_email and items_for_email is not None:
+                xml_svc = EshopEmailService(tenant_for_email)
+                xml_content = xml_svc._generate_order_xml(
+                    order_for_email, items_for_email
+                )
+                save_xml_export(refId, xml_content)
+        except Exception as e:
+            logger.error("XML export failed for order %s: %s", refId, e)
 
     elif status_val == "CANCELLED":
         cur.execute(
