@@ -6,6 +6,11 @@ Public endpoints (X-Eshop-Token auth):
   POST   /api/eshop/orders                      — create order
   GET    /api/eshop/orders/{order_number}        — order status
 
+Customer endpoints (Bearer JWT auth):
+  GET    /api/eshop/customers/orders                     — customer order list
+  GET    /api/eshop/customers/orders/{order_number}      — customer order detail
+  POST   /api/eshop/customers/orders/{order_number}/pay  — retry Comgate payment
+
 Payment endpoints (NO auth — called by Comgate / customer browser):
   POST   /api/eshop/payment/callback            — Comgate payment notification
   GET    /api/eshop/payment/return              — customer return from gateway
@@ -1062,6 +1067,243 @@ def get_customer_orders(
         for r in cur.fetchall()
     ]
     return {"orders": orders}
+
+
+@router.get("/customers/orders/{order_number}")
+def get_customer_order_detail(
+    order_number: str,
+    auth_header: str = Header(None, alias="Authorization"),
+    db=Depends(get_db),
+):
+    """Get detailed information about a specific customer order.
+
+    Returns order details including items, addresses, and payment info.
+    Ownership verified via customer_id from JWT token.
+    """
+    customer = _get_customer_from_token(auth_header, db)
+    cur = db.cursor()
+
+    # Get order details with ownership verification
+    cur.execute(
+        "SELECT o.order_number, o.status, o.payment_status, o.created_at, "
+        "o.total_amount_vat, o.total_amount, o.currency, "
+        "o.payment_method, o.shipping_type, o.shipping_price, "
+        "o.customer_email, o.customer_name, o.customer_phone, "
+        "o.billing_name, o.billing_name2, o.billing_street, "
+        "o.billing_city, o.billing_zip, o.billing_country, "
+        "o.shipping_name, o.shipping_name2, o.shipping_street, "
+        "o.shipping_city, o.shipping_zip, o.shipping_country, "
+        "o.ico, o.dic, o.eu_vat_number, "
+        "o.company_name, o.company_ico, o.company_dic, o.company_ic_dph, "
+        "o.note, o.tracking_number, o.tracking_link, "
+        "o.comgate_transaction_id "
+        "FROM eshop_orders o "
+        "WHERE o.order_number = %s "
+        "AND o.customer_id = %s "
+        "AND o.tenant_id = %s",
+        (order_number, customer["id"], customer["tenant_id"]),
+    )
+
+    r = cur.fetchone()
+    if not r:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Objednávka nenájdená",
+        )
+
+    order_data = {
+        "order_number": r[0],
+        "status": r[1],
+        "payment_status": r[2],
+        "created_at": r[3].isoformat() if r[3] else None,
+        "total_amount_vat": _dec(r[4]),
+        "total_amount": _dec(r[5]),
+        "currency": r[6],
+        "payment_method": r[7],
+        "shipping_type": r[8],
+        "shipping_price": _dec(r[9]),
+        "customer_email": r[10],
+        "customer_name": r[11],
+        "customer_phone": r[12],
+        "billing_name": r[13],
+        "billing_name2": r[14] or "",
+        "billing_street": r[15],
+        "billing_city": r[16],
+        "billing_zip": r[17],
+        "billing_country": r[18],
+        "shipping_name": r[19] or "",
+        "shipping_name2": r[20] or "",
+        "shipping_street": r[21] or "",
+        "shipping_city": r[22] or "",
+        "shipping_zip": r[23] or "",
+        "shipping_country": r[24] or "",
+        "ico": r[25] or "",
+        "dic": r[26] or "",
+        "eu_vat_number": r[27] or "",
+        "company_name": r[28] or "",
+        "company_ico": r[29] or "",
+        "company_dic": r[30] or "",
+        "company_ic_dph": r[31] or "",
+        "note": r[32] or "",
+        "tracking_number": r[33] or "",
+        "tracking_link": r[34] or "",
+    }
+
+    # Get order items
+    cur.execute(
+        "SELECT sku, name, quantity, unit_price, unit_price_vat, vat_rate, item_type "
+        "FROM eshop_order_items "
+        "WHERE order_id = (SELECT order_id FROM eshop_orders WHERE order_number = %s) "
+        "ORDER BY item_id",
+        (order_number,),
+    )
+    items = []
+    for ir in cur.fetchall():
+        items.append({
+            "sku": ir[0],
+            "name": ir[1],
+            "quantity": ir[2],
+            "unit_price": _dec(ir[3]),
+            "unit_price_vat": _dec(ir[4]),
+            "vat_rate": _dec(ir[5]),
+            "item_type": ir[6],
+        })
+
+    order_data["items"] = items
+    return order_data
+
+
+@router.post("/customers/orders/{order_number}/pay")
+async def retry_customer_order_payment(
+    order_number: str,
+    auth_header: str = Header(None, alias="Authorization"),
+    db=Depends(get_db),
+):
+    """Retry payment for a pending order. Returns Comgate redirect URL.
+
+    Only allowed for orders with payment_status in ('pending', 'new')
+    and status in ('new', 'pending').
+    """
+    customer = _get_customer_from_token(auth_header, db)
+    cur = db.cursor()
+
+    # Get order with ownership verification
+    cur.execute(
+        "SELECT o.order_id, o.status, o.payment_status, "
+        "o.total_amount_vat, o.currency, o.customer_email, "
+        "o.customer_name, o.billing_country, o.lang, o.tenant_id "
+        "FROM eshop_orders o "
+        "WHERE o.order_number = %s "
+        "AND o.customer_id = %s "
+        "AND o.tenant_id = %s",
+        (order_number, customer["id"], customer["tenant_id"]),
+    )
+
+    row = cur.fetchone()
+    if not row:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Objednávka nenájdená",
+        )
+
+    order_id = row[0]
+    order_status = row[1]
+    payment_status = row[2]
+    total_amount_vat = row[3]
+    currency = row[4]
+    customer_email = row[5]
+    customer_name = row[6]
+    billing_country = row[7] or "SK"
+    lang = row[8] or "sk"
+    tenant_id = row[9]
+
+    # Check if payment retry is allowed
+    if order_status not in ("new", "pending") or payment_status not in (
+        "pending",
+        "new",
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Objednávka nie je v stave čakania na platbu",
+        )
+
+    # Get tenant config for Comgate
+    cur.execute(
+        "SELECT tenant_id, company_name, domain, brand_name, api_token, "
+        "comgate_merchant_id, comgate_secret, comgate_test_mode, currency "
+        "FROM eshop_tenants WHERE tenant_id = %s AND is_active = TRUE",
+        (tenant_id,),
+    )
+    tenant_row = cur.fetchone()
+    if not tenant_row:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Tenant nenájdený",
+        )
+
+    tenant = {
+        "tenant_id": tenant_row[0],
+        "company_name": tenant_row[1],
+        "domain": tenant_row[2],
+        "brand_name": tenant_row[3],
+        "api_token": tenant_row[4],
+        "comgate_merchant_id": tenant_row[5],
+        "comgate_secret": tenant_row[6],
+        "comgate_test_mode": tenant_row[7],
+        "currency": tenant_row[8],
+    }
+
+    comgate_client = get_comgate_client(tenant)
+    if comgate_client is None:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Comgate nie je nakonfigurovaný pre tento e-shop",
+        )
+
+    try:
+        price_cents = int(Decimal(str(total_amount_vat)) * 100)
+        tenant_domain = tenant.get("domain", "")
+        payment_return_url = (
+            f"https://{tenant_domain}/payment/return" if tenant_domain else ""
+        )
+
+        result = await comgate_client.create_payment(
+            price_cents=price_cents,
+            currency=currency,
+            order_number=order_number,
+            customer_email=customer_email,
+            label=tenant["brand_name"][:16],
+            country=billing_country,
+            lang=lang,
+            return_url=payment_return_url,
+        )
+
+        # Update order with new transaction ID
+        cur.execute(
+            "UPDATE eshop_orders "
+            "SET comgate_transaction_id = %s, "
+            "payment_status = 'pending', "
+            "updated_at = CURRENT_TIMESTAMP "
+            "WHERE order_id = %s",
+            (result["transId"], order_id),
+        )
+        db.commit()
+
+        return {"redirect_url": result["redirect_url"]}
+
+    except ComgateError as e:
+        logger.error("Comgate retry payment error for %s: %s", order_number, e)
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail=f"Chyba platobnej brány: {e.message}",
+        )
+    except Exception as e:
+        db.rollback()
+        logger.error("Retry payment error for %s: %s", order_number, e)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Chyba pri vytváraní platby: {str(e)}",
+        )
 
 
 # ============================================================================
