@@ -1159,15 +1159,17 @@ def get_customer_order_detail(
     )
     items = []
     for ir in cur.fetchall():
-        items.append({
-            "sku": ir[0],
-            "name": ir[1],
-            "quantity": ir[2],
-            "unit_price": _dec(ir[3]),
-            "unit_price_vat": _dec(ir[4]),
-            "vat_rate": _dec(ir[5]),
-            "item_type": ir[6],
-        })
+        items.append(
+            {
+                "sku": ir[0],
+                "name": ir[1],
+                "quantity": ir[2],
+                "unit_price": _dec(ir[3]),
+                "unit_price_vat": _dec(ir[4]),
+                "vat_rate": _dec(ir[5]),
+                "item_type": ir[6],
+            }
+        )
 
     order_data["items"] = items
     return order_data
@@ -1212,7 +1214,7 @@ async def retry_customer_order_payment(
     total_amount_vat = row[3]
     currency = row[4]
     customer_email = row[5]
-    customer_name = row[6]
+    _customer_name = row[6]  # noqa: F841
     billing_country = row[7] or "SK"
     lang = row[8] or "sk"
     tenant_id = row[9]
