@@ -183,6 +183,9 @@ def test_callback_triggers_xml_export(
                 "",  # packeta_point_name
                 "",  # note
                 "",  # order_notes
+                "",  # company_ico
+                "",  # company_dic
+                "",  # company_ic_dph
             ),
         ]
     )

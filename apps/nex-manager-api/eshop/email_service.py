@@ -70,6 +70,7 @@ class EshopEmailService:
         shipping_html = self._build_address_block(
             "Doručovacia adresa", order, "shipping"
         )
+        company_html = self._build_company_section(order)
 
         body = f"""
         <h2 style="color:{self.primary_color};">Ďakujeme za Vašu objednávku!</h2>
@@ -88,6 +89,7 @@ class EshopEmailService:
         </table>
 
         {billing_html}
+        {company_html}
         {shipping_html}
 
         <h3>Platba</h3>
@@ -113,6 +115,7 @@ class EshopEmailService:
         total_vat = order.get("total_amount_vat", 0)
 
         items_html = self._build_items_table(items, currency)
+        company_html = self._build_company_section(order)
 
         body = f"""
         <h2 style="color:{self.primary_color};">Platba bola prijatá</h2>
@@ -135,6 +138,8 @@ class EshopEmailService:
 
         <h3>Položky objednávky</h3>
         {items_html}
+
+        {company_html}
 
         {"<h3>Poznámka k objednávke</h3><p>" + html.escape(str(order.get("order_notes", ""))) + "</p>" if order.get("order_notes") else ""}
 
@@ -208,6 +213,7 @@ class EshopEmailService:
         shipping_html = self._build_address_block(
             "Doručovacia adresa", order, "shipping"
         )
+        company_html = self._build_company_section(order)
 
         body = f"""
         <h2 style="color:{self.primary_color};">Nová objednávka {order_number}</h2>
@@ -240,6 +246,7 @@ class EshopEmailService:
         {items_html}
 
         {billing_html}
+        {company_html}
         {shipping_html}
 
         {"<h3>Poznámka</h3><p>" + note + "</p>" if note else ""}
@@ -409,6 +416,16 @@ Tím {company}"""
         SubElement(customer, "email").text = order.get("customer_email", "")
         SubElement(customer, "phone").text = order.get("customer_phone") or "neuvedený"
 
+        # Company details (only if present)
+        if order.get("company_name"):
+            SubElement(customer, "company_name").text = order["company_name"]
+        if order.get("company_ico"):
+            SubElement(customer, "company_ico").text = order["company_ico"]
+        if order.get("company_dic"):
+            SubElement(customer, "company_dic").text = order["company_dic"]
+        if order.get("company_ic_dph"):
+            SubElement(customer, "company_ic_dph").text = order["company_ic_dph"]
+
         # Billing address
         billing = SubElement(customer, "billing_address")
         SubElement(billing, "street").text = order.get("billing_street", "")
@@ -570,6 +587,28 @@ Tím {company}"""
             "</tr>"
             f"{rows}"
             "</table>"
+        )
+
+    def _build_company_section(self, order: dict) -> str:
+        """Build HTML company details section (only for company orders)."""
+        company_name = order.get("company_name")
+        if not company_name:
+            return ""
+        name_esc = html.escape(str(company_name))
+        lines = [f"<strong>{name_esc}</strong>"]
+        ico = order.get("company_ico")
+        if ico:
+            lines.append(f"IČO: {html.escape(str(ico))}")
+        dic = order.get("company_dic")
+        if dic:
+            lines.append(f"DIČ: {html.escape(str(dic))}")
+        ic_dph = order.get("company_ic_dph")
+        if ic_dph:
+            lines.append(f"IČ DPH: {html.escape(str(ic_dph))}")
+        return (
+            f'<h3 style="color:{self.primary_color}; margin-top:20px;">'
+            f"Firemné údaje</h3>"
+            f'<p style="margin:10px 0; line-height:1.6;">{"<br>".join(lines)}</p>'
         )
 
     def _build_address_block(self, title: str, order: dict, prefix: str) -> str:
