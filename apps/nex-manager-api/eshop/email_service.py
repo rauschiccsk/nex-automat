@@ -93,6 +93,8 @@ class EshopEmailService:
         <h3>Platba</h3>
         <p>Spôsob platby: <strong>{payment_label}</strong></p>
 
+        {"<h3>Poznámka k objednávke</h3><p>" + html.escape(str(order.get("order_notes", ""))) + "</p>" if order.get("order_notes") else ""}
+
         <p style="margin-top:20px; color:#666;">
           O zmene stavu Vašej objednávky Vás budeme informovať e-mailom.
         </p>
@@ -133,6 +135,8 @@ class EshopEmailService:
 
         <h3>Položky objednávky</h3>
         {items_html}
+
+        {"<h3>Poznámka k objednávke</h3><p>" + html.escape(str(order.get("order_notes", ""))) + "</p>" if order.get("order_notes") else ""}
 
         <p>Objednávka bude čoskoro odoslaná.</p>
         """
@@ -239,7 +243,7 @@ class EshopEmailService:
         {shipping_html}
 
         {"<h3>Poznámka</h3><p>" + note + "</p>" if note else ""}
-        {"<h3>Order Notes</h3><p style='color:#c62828;font-weight:bold;'>" + order_notes + "</p>" if order_notes else ""}
+        {"<h3>Poznámka od zákazníka</h3><p style='color:#c62828;font-weight:bold;'>" + order_notes + "</p>" if order_notes else ""}
         """
 
         subject = f"[NOVÁ OBJEDNÁVKA] {order_number} — {customer_name}"
