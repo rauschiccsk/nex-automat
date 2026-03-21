@@ -155,34 +155,34 @@ def test_callback_triggers_xml_export(
             ),
             # 4. Fetch order for email
             (
-                "ORD-XML-001",   # order_number
-                "c@test.sk",     # customer_email
-                "Test Customer", # customer_name
+                "ORD-XML-001",  # order_number
+                "c@test.sk",  # customer_email
+                "Test Customer",  # customer_name
                 Decimal("12.00"),  # total_amount_vat
-                "EUR",           # currency
-                "credit_card",   # payment_method
-                "2026-03-21",    # created_at
-                "0900111222",    # customer_phone
-                "",              # company_name
-                "Test Customer", # billing_name
-                "",              # billing_name2
-                "Hlavná 1",      # billing_street
-                "Bratislava",    # billing_city
-                "81101",         # billing_zip
-                "SK",            # billing_country
-                "Test Customer", # shipping_name
-                "",              # shipping_name2
-                "Hlavná 1",      # shipping_street
-                "Bratislava",    # shipping_city
-                "81101",         # shipping_zip
-                "SK",            # shipping_country
-                "courier",       # delivery_method
-                Decimal("3.50"), # shipping_price
-                "standard",      # shipping_type
-                "",              # packeta_point_id
-                "",              # packeta_point_name
-                "",              # note
-                "",              # order_notes
+                "EUR",  # currency
+                "credit_card",  # payment_method
+                "2026-03-21",  # created_at
+                "0900111222",  # customer_phone
+                "",  # company_name
+                "Test Customer",  # billing_name
+                "",  # billing_name2
+                "Hlavná 1",  # billing_street
+                "Bratislava",  # billing_city
+                "81101",  # billing_zip
+                "SK",  # billing_country
+                "Test Customer",  # shipping_name
+                "",  # shipping_name2
+                "Hlavná 1",  # shipping_street
+                "Bratislava",  # shipping_city
+                "81101",  # shipping_zip
+                "SK",  # shipping_country
+                "courier",  # delivery_method
+                Decimal("3.50"),  # shipping_price
+                "standard",  # shipping_type
+                "",  # packeta_point_id
+                "",  # packeta_point_name
+                "",  # note
+                "",  # order_notes
             ),
         ]
     )
