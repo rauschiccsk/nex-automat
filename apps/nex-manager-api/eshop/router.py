@@ -816,7 +816,28 @@ def register_customer(
     customer_id = cur.fetchone()[0]
     db.commit()
 
-    return {"customer_id": customer_id, "email": body.email}
+    # Auto-login: generate JWT token so frontend can log in immediately
+    from datetime import datetime, timedelta, timezone
+    from jose import jwt as jose_jwt
+    from auth.config import JWT_SECRET_KEY, JWT_ALGORITHM
+
+    token = jose_jwt.encode(
+        {
+            "customer_id": customer_id,
+            "tenant_id": tenant_id,
+            "exp": datetime.now(timezone.utc) + timedelta(days=30),
+        },
+        JWT_SECRET_KEY,
+        algorithm=JWT_ALGORITHM,
+    )
+
+    return {
+        "token": token,
+        "customer_id": customer_id,
+        "email": body.email,
+        "first_name": body.first_name,
+        "last_name": body.last_name,
+    }
 
 
 @router.post("/customers/login", response_model=CustomerLoginResponse)
