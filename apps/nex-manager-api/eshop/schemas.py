@@ -503,3 +503,27 @@ class CustomerProfileResponse(BaseModel):
     company_ico: str | None
     company_dic: str | None
     company_ic_dph: str | None
+
+
+class CustomerUpdateRequest(BaseModel):
+    """Update customer profile — personal + company details."""
+
+    first_name: str = Field(..., min_length=1, max_length=100)
+    last_name: str = Field(..., min_length=1, max_length=100)
+    phone: str | None = Field(None, max_length=20)
+    street: str | None = Field(None, max_length=255)
+    city: str | None = Field(None, max_length=100)
+    postal_code: str | None = Field(None, max_length=10)
+    country: str = Field(default="SK", max_length=2)
+    is_company: bool = False
+    company_name: str | None = Field(None, max_length=255)
+    company_ico: str | None = Field(None, max_length=20)
+    company_dic: str | None = Field(None, max_length=20)
+    company_ic_dph: str | None = Field(None, max_length=20)
+
+
+class PasswordChangeRequest(BaseModel):
+    """Change customer password."""
+
+    current_password: str = Field(..., min_length=1)
+    new_password: str = Field(..., min_length=8)

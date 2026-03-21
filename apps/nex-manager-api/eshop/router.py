@@ -74,6 +74,8 @@ from .schemas import (
     CustomerLoginResponse,
     CustomerProfileResponse,
     CustomerRegisterRequest,
+    CustomerUpdateRequest,
+    PasswordChangeRequest,
     EshopProductListResponse,
     EshopProductResponse,
     LeadRegisterRequest,
@@ -912,6 +914,124 @@ def get_customer_profile(
     """Get customer profile from Bearer token."""
     customer = _get_customer_from_token(auth_header, db)
     return CustomerProfileResponse(**customer)
+
+
+@router.put("/customers/profile")
+def update_customer_profile(
+    data: CustomerUpdateRequest,
+    auth_header: str = Header(..., alias="Authorization"),
+    db=Depends(get_db),
+):
+    """Update customer profile including company details."""
+    customer = _get_customer_from_token(auth_header, db)
+    customer_id = customer["id"]
+    tenant_id = customer["tenant_id"]
+
+    # Company data cleanup — if company_name empty, nullify all company fields
+    company_name = data.company_name.strip() if data.company_name else None
+    is_company = data.is_company if company_name else False
+    company_ico = data.company_ico if company_name else None
+    company_dic = data.company_dic if company_name else None
+    company_ic_dph = data.company_ic_dph if company_name else None
+
+    try:
+        cur = db.cursor()
+        cur.execute(
+            "UPDATE eshop_customers "
+            "SET first_name = %s, last_name = %s, phone = %s, "
+            "street = %s, city = %s, postal_code = %s, country = %s, "
+            "is_company = %s, company_name = %s, company_ico = %s, "
+            "company_dic = %s, company_ic_dph = %s, "
+            "updated_at = CURRENT_TIMESTAMP "
+            "WHERE id = %s AND tenant_id = %s",
+            (
+                data.first_name,
+                data.last_name,
+                data.phone,
+                data.street,
+                data.city,
+                data.postal_code,
+                data.country,
+                is_company,
+                company_name,
+                company_ico,
+                company_dic,
+                company_ic_dph,
+                customer_id,
+                tenant_id,
+            ),
+        )
+        db.commit()
+        return {"message": "Profil bol aktualizovaný"}
+    except Exception as e:
+        logger.error("Profile update error: %s", e)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Chyba pri aktualizácii profilu",
+        )
+
+
+@router.put("/customers/password")
+def change_customer_password(
+    data: PasswordChangeRequest,
+    auth_header: str = Header(..., alias="Authorization"),
+    db=Depends(get_db),
+):
+    """Change customer password with current password verification."""
+    import bcrypt
+
+    customer = _get_customer_from_token(auth_header, db)
+    customer_id = customer["id"]
+    tenant_id = customer["tenant_id"]
+
+    try:
+        cur = db.cursor()
+
+        # Get current password hash
+        cur.execute(
+            "SELECT password_hash FROM eshop_customers "
+            "WHERE id = %s AND tenant_id = %s",
+            (customer_id, tenant_id),
+        )
+        row = cur.fetchone()
+
+        if not row or not row[0]:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Nesprávne aktuálne heslo",
+            )
+
+        # Verify current password
+        if not bcrypt.checkpw(
+            data.current_password.encode("utf-8"), row[0].encode("utf-8")
+        ):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Nesprávne aktuálne heslo",
+            )
+
+        # Hash new password and update
+        new_hash = bcrypt.hashpw(
+            data.new_password.encode("utf-8"), bcrypt.gensalt()
+        ).decode("utf-8")
+
+        cur.execute(
+            "UPDATE eshop_customers "
+            "SET password_hash = %s, updated_at = CURRENT_TIMESTAMP "
+            "WHERE id = %s AND tenant_id = %s",
+            (new_hash, customer_id, tenant_id),
+        )
+        db.commit()
+        return {"message": "Heslo bolo zmenené"}
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error("Password change error: %s", e)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Chyba pri zmene hesla",
+        )
 
 
 @router.get("/customers/orders")
