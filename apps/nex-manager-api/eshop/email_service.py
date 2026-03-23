@@ -78,13 +78,14 @@ class EshopEmailService:
             notes_html = self._build_section(
                 "Pozn\u00e1mka k objedn\u00e1vke",
                 '<p style="margin:0;">'
-                + html.escape(str(order["order_notes"])) + "</p>",
+                + html.escape(str(order["order_notes"]))
+                + "</p>",
             )
 
         total_html = (
             f'<table width="100%" cellpadding="0" cellspacing="0" '
             f'style="margin:0 0 16px 0;">'
-            f"<tr><td style=\"text-align:right; padding:10px 8px; "
+            f'<tr><td style="text-align:right; padding:10px 8px; '
             f"font-weight:700; font-size:16px; "
             f'background:#f0f7f0; border-radius:4px;">'
             f"Celkom s DPH: {float(total_vat):.2f} {currency}"
@@ -134,14 +135,20 @@ class EshopEmailService:
             notes_html = self._build_section(
                 "Pozn\u00e1mka k objedn\u00e1vke",
                 '<p style="margin:0;">'
-                + html.escape(str(order["order_notes"])) + "</p>",
+                + html.escape(str(order["order_notes"]))
+                + "</p>",
             )
 
-        info_table = self._build_info_table([
-            ("\u010c\u00edslo objedn\u00e1vky", order_number),
-            ("Zaplaten\u00e1 suma",
-             f"<strong>{float(total_vat):.2f} {currency}</strong>"),
-        ], bg="#f0f7f0")
+        info_table = self._build_info_table(
+            [
+                ("\u010c\u00edslo objedn\u00e1vky", order_number),
+                (
+                    "Zaplaten\u00e1 suma",
+                    f"<strong>{float(total_vat):.2f} {currency}</strong>",
+                ),
+            ],
+            bg="#f0f7f0",
+        )
 
         body = (
             f'<h2 style="color:{color}; margin-top:0;">'
@@ -163,9 +170,11 @@ class EshopEmailService:
         full_html = self._build_html_email(body)
         await self._send_email(customer_email, subject, full_html)
 
-    async def send_shipping_notification(self, order: dict,
-                                         items: list[dict] | None = None,
-                                         ) -> None:
+    async def send_shipping_notification(
+        self,
+        order: dict,
+        items: list[dict] | None = None,
+    ) -> None:
         """Send shipping notification email to customer."""
         order_number = html.escape(str(order.get("order_number", "")))
         customer_name = html.escape(str(order.get("customer_name", "")))
@@ -195,7 +204,8 @@ class EshopEmailService:
                     f'font-weight:600;">Sledova\u0165 z\u00e1sielku</a></p>'
                 )
             tracking_html = self._build_section(
-                "Inform\u00e1cie o z\u00e1sielke", inner,
+                "Inform\u00e1cie o z\u00e1sielke",
+                inner,
             )
 
         items_html = ""
@@ -245,19 +255,22 @@ class EshopEmailService:
         company_html = self._build_company_section(order)
 
         color = self.primary_color
-        info_table = self._build_info_table([
-            ("Z\u00e1kazn\u00edk", customer_name),
-            ("Email", customer_email),
-            ("Telef\u00f3n", customer_phone),
-            ("Sp\u00f4sob platby", payment_label),
-            ("Celkom s DPH",
-             f"<strong>{float(total_vat):.2f} {currency}</strong>"),
-        ], bg="#fff3e0")
+        info_table = self._build_info_table(
+            [
+                ("Z\u00e1kazn\u00edk", customer_name),
+                ("Email", customer_email),
+                ("Telef\u00f3n", customer_phone),
+                ("Sp\u00f4sob platby", payment_label),
+                ("Celkom s DPH", f"<strong>{float(total_vat):.2f} {currency}</strong>"),
+            ],
+            bg="#fff3e0",
+        )
 
         notes_section = ""
         if note:
-            notes_section += self._build_section("Pozn\u00e1mka",
-                                                 f'<p style="margin:0;">{note}</p>')
+            notes_section += self._build_section(
+                "Pozn\u00e1mka", f'<p style="margin:0;">{note}</p>'
+            )
         if order_notes:
             notes_section += self._build_section(
                 "Pozn\u00e1mka od z\u00e1kazn\u00edka",
@@ -308,14 +321,16 @@ class EshopEmailService:
         payment_label = html.escape(PAYMENT_METHOD_LABELS.get(raw_payment, raw_payment))
         comgate_tid = html.escape(str(order.get("comgate_transaction_id", "") or ""))
 
-        info_table = self._build_info_table([
-            ("Objedn\u00e1vka", order_number),
-            ("Z\u00e1kazn\u00edk",
-             f"{customer_name} ({customer_email})"),
-            ("Suma", f"{float(total_vat):.2f} {currency}"),
-            ("Sp\u00f4sob platby", payment_label),
-            ("Comgate Transaction ID", comgate_tid),
-        ], bg="#ffebee")
+        info_table = self._build_info_table(
+            [
+                ("Objedn\u00e1vka", order_number),
+                ("Z\u00e1kazn\u00edk", f"{customer_name} ({customer_email})"),
+                ("Suma", f"{float(total_vat):.2f} {currency}"),
+                ("Sp\u00f4sob platby", payment_label),
+                ("Comgate Transaction ID", comgate_tid),
+            ],
+            bg="#ffebee",
+        )
 
         body = (
             f'<h2 style="color:#c62828; margin-top:0;">'
@@ -379,7 +394,9 @@ class EshopEmailService:
         self, tenant: dict, lead: dict, days_remaining: int
     ) -> None:
         """Mesa\u010dn\u00fd reminder o z\u013eave."""
-        subject = f"Va\u0161a 50% z\u013eava vypr\u0161\u00ed o {days_remaining} dn\u00ed!"
+        subject = (
+            f"Va\u0161a 50% z\u013eava vypr\u0161\u00ed o {days_remaining} dn\u00ed!"
+        )
         expires_at = lead["expires_at"]
         expires_str = (
             expires_at.strftime("%d.%m.%Y")
@@ -657,7 +674,7 @@ class EshopEmailService:
             f'style="margin:20px 0 12px 0;">'
             f"<tr><td>"
             f'<h3 style="color:{color}; margin:0 0 10px 0; font-size:15px; '
-            f'font-weight:700; border-bottom:2px solid {color}; '
+            f"font-weight:700; border-bottom:2px solid {color}; "
             f'padding-bottom:6px;">{title}</h3>'
             f'<div style="padding:0 0 0 12px; border-left:3px solid {color};">'
             f"{content_html}"
@@ -665,8 +682,9 @@ class EshopEmailService:
             f"</td></tr></table>"
         )
 
-    def _build_info_table(self, rows: list[tuple[str, str]],
-                          bg: str = "#f8f9fa") -> str:
+    def _build_info_table(
+        self, rows: list[tuple[str, str]], bg: str = "#f8f9fa"
+    ) -> str:
         """Build a bordered key-value info table."""
         bdr = "border:1px solid #dee2e6;"
         html_rows = ""
