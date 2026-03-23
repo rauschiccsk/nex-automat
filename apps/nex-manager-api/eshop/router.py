@@ -7,9 +7,11 @@ Public endpoints (X-Eshop-Token auth):
   GET    /api/eshop/orders/{order_number}        — order status
 
 Customer endpoints (Bearer JWT auth):
-  GET    /api/eshop/customers/orders                     — customer order list
-  GET    /api/eshop/customers/orders/{order_number}      — customer order detail
-  POST   /api/eshop/customers/orders/{order_number}/pay  — retry Comgate payment
+  GET    /api/eshop/customers/orders                          — customer order list
+  GET    /api/eshop/customers/orders/{order_number}           — customer order detail
+  GET    /api/eshop/customers/orders/{order_number}/invoice/check — invoice available?
+  GET    /api/eshop/customers/orders/{order_number}/invoice    — download invoice PDF
+  POST   /api/eshop/customers/orders/{order_number}/pay       — retry Comgate payment
 
 Payment endpoints (NO auth — called by Comgate / customer browser):
   POST   /api/eshop/payment/callback            — Comgate payment notification
@@ -54,6 +56,7 @@ from fastapi import (
     Response,
     status,
 )
+from fastapi.responses import FileResponse
 
 logger = logging.getLogger(__name__)
 
@@ -1196,6 +1199,71 @@ def get_customer_order_detail(
 
     order_data["items"] = items
     return order_data
+
+
+# ---------------------------------------------------------------------------
+# Invoice check + download
+# ---------------------------------------------------------------------------
+
+_INVOICE_DIR = os.environ.get("INVOICE_DIR", "/app/exports/invoices")
+_ORDER_NUMBER_RE = re.compile(r"^EM-\d{4}-\d{5}$")
+
+
+def _verify_order_ownership(order_number: str, customer: dict, db) -> None:
+    """Verify order_number format and customer ownership. Raises HTTPException."""
+    if not _ORDER_NUMBER_RE.match(order_number):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Neplatné číslo objednávky",
+        )
+    cur = db.cursor()
+    cur.execute(
+        "SELECT 1 FROM eshop_orders "
+        "WHERE order_number = %s AND tenant_id = %s "
+        "AND (customer_id = %s OR "
+        "(customer_id IS NULL AND customer_email = %s))",
+        (order_number, customer["tenant_id"], customer["id"], customer["email"]),
+    )
+    if not cur.fetchone():
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Objednávka nenájdená",
+        )
+
+
+@router.get("/customers/orders/{order_number}/invoice/check")
+def check_customer_invoice(
+    order_number: str,
+    auth_header: str = Header(None, alias="Authorization"),
+    db=Depends(get_db),
+):
+    """Check if invoice PDF is available for download."""
+    customer = _get_customer_from_token(auth_header, db)
+    _verify_order_ownership(order_number, customer, db)
+    pdf_path = os.path.join(_INVOICE_DIR, f"{order_number}.pdf")
+    return {"available": os.path.isfile(pdf_path)}
+
+
+@router.get("/customers/orders/{order_number}/invoice")
+def download_customer_invoice(
+    order_number: str,
+    auth_header: str = Header(None, alias="Authorization"),
+    db=Depends(get_db),
+):
+    """Download invoice PDF for a customer order."""
+    customer = _get_customer_from_token(auth_header, db)
+    _verify_order_ownership(order_number, customer, db)
+    pdf_path = os.path.join(_INVOICE_DIR, f"{order_number}.pdf")
+    if not os.path.isfile(pdf_path):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Faktúra nie je dostupná",
+        )
+    return FileResponse(
+        path=pdf_path,
+        media_type="application/pdf",
+        filename=f"faktura-{order_number}.pdf",
+    )
 
 
 @router.post("/customers/orders/{order_number}/pay")
