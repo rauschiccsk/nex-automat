@@ -1644,7 +1644,8 @@ async def payment_callback(
                     "delivery_method, shipping_price, shipping_type, "
                     "packeta_point_id, packeta_point_name, "
                     "note, order_notes, "
-                    "company_ico, company_dic, company_ic_dph "
+                    "company_ico, company_dic, company_ic_dph, "
+                    "customer_id "
                     "FROM eshop_orders WHERE order_id = %s",
                     (order_id,),
                 )
@@ -1682,6 +1683,7 @@ async def payment_callback(
                         "company_ico": o_row[28],
                         "company_dic": o_row[29],
                         "company_ic_dph": o_row[30],
+                        "customer_id": o_row[31],
                     }
                     # Fetch items (include sku + vat_rate for XML export)
                     # Include all item types (product + shipping) so

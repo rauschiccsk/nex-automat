@@ -186,6 +186,7 @@ def test_callback_triggers_xml_export(
                 "",  # company_ico
                 "",  # company_dic
                 "",  # company_ic_dph
+                None,  # customer_id (guest order)
             ),
         ]
     )

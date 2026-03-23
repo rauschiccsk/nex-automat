@@ -410,6 +410,8 @@ Tím {company}"""
 
         # Customer
         customer = SubElement(root, "customer")
+        cid = order.get("customer_id")
+        SubElement(customer, "customer_id").text = str(cid if cid else 0)
         company = order.get("company_name") or ""
         full_name = f"{order.get('customer_name', '')}".strip() or "neznámy"
         SubElement(customer, "name").text = company or full_name
