@@ -395,6 +395,29 @@ Tím {company}"""
             ),
         )
 
+    async def send_password_reset_email(self, email: str, token: str) -> None:
+        """Send password reset email with secure link."""
+        reset_url = f"https://{self.domain}/reset-password?token={token}"
+        body_html = (
+            "<p>Dobrý deň,</p>"
+            "<p>Dostali sme žiadosť o zmenu hesla pre váš účet.</p>"
+            '<p style="text-align:center; margin:30px 0;">'
+            f'<a href="{html.escape(reset_url)}" '
+            f'style="display:inline-block; padding:14px 32px; '
+            f"background:{self.primary_color}; color:#fff; "
+            f"text-decoration:none; border-radius:6px; font-weight:600; "
+            f'font-size:1rem;">'
+            "Zmeniť heslo</a></p>"
+            "<p>Ak ste o zmenu hesla nežiadali, tento email môžete ignorovať. "
+            "Vaše heslo zostane nezmenené.</p>"
+            '<p style="color:#999; font-size:0.9rem;">Link je platný 24 hodín.</p>'
+        )
+        await self._send_email(
+            to=email,
+            subject=f"Obnovenie hesla — {self.brand_name}",
+            html_body=self._build_html_email(body_html),
+        )
+
     # ------------------------------------------------------------------
     # Private helper methods
     # ------------------------------------------------------------------

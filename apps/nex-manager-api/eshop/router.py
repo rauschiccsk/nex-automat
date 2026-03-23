@@ -9,6 +9,8 @@ Public endpoints (X-Eshop-Token auth):
 Customer endpoints (Bearer JWT auth):
   GET    /api/eshop/customers/orders                          — customer order list
   GET    /api/eshop/customers/orders/{order_number}           — customer order detail
+  POST   /api/eshop/customers/password/reset-request            — request password reset email
+  POST   /api/eshop/customers/password/reset                  — reset password with token
   GET    /api/eshop/customers/orders/{order_number}/invoice/check — invoice available?
   GET    /api/eshop/customers/orders/{order_number}/invoice    — download invoice PDF
   POST   /api/eshop/customers/orders/{order_number}/pay       — retry Comgate payment
@@ -84,6 +86,8 @@ from .schemas import (
     CustomerRegisterRequest,
     CustomerUpdateRequest,
     PasswordChangeRequest,
+    PasswordResetBody,
+    PasswordResetRequestBody,
     EshopProductListResponse,
     EshopProductResponse,
     LeadRegisterRequest,
@@ -1060,6 +1064,105 @@ def change_customer_password(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Chyba pri zmene hesla",
         )
+
+
+# ---------------------------------------------------------------------------
+# Password reset (no JWT required — uses X-Eshop-Token for tenant resolution)
+# ---------------------------------------------------------------------------
+
+_RESET_GENERIC_MSG = (
+    "Ak účet s touto emailovou adresou existuje, "
+    "poslali sme vám email s pokynmi na zmenu hesla."
+)
+
+
+@router.post("/customers/password/reset-request")
+async def request_password_reset(
+    body: PasswordResetRequestBody,
+    tenant=Depends(get_tenant_by_token),
+    db=Depends(get_db),
+):
+    """Request password reset email. Always returns 200 (security)."""
+    from eshop.email_service import EshopEmailService
+
+    tenant_id = tenant["tenant_id"]
+    cur = db.cursor()
+
+    cur.execute(
+        "SELECT id, email FROM eshop_customers "
+        "WHERE tenant_id = %s AND email = %s AND is_active = TRUE",
+        (tenant_id, body.email),
+    )
+    row = cur.fetchone()
+
+    if not row:
+        # Email doesn't exist — return 200 silently (security)
+        return {"message": _RESET_GENERIC_MSG}
+
+    # Generate secure token
+    token = secrets.token_urlsafe(32)
+
+    cur.execute(
+        "UPDATE eshop_customers "
+        "SET reset_token = %s, "
+        "    reset_token_expires = CURRENT_TIMESTAMP + INTERVAL '24 hours', "
+        "    updated_at = CURRENT_TIMESTAMP "
+        "WHERE id = %s AND tenant_id = %s",
+        (token, row[0], tenant_id),
+    )
+    db.commit()
+
+    # Send reset email (non-blocking, errors logged but not raised)
+    email_svc = EshopEmailService(tenant)
+    await email_svc.send_password_reset_email(row[1], token)
+
+    return {"message": _RESET_GENERIC_MSG}
+
+
+@router.post("/customers/password/reset")
+def reset_password(
+    body: PasswordResetBody,
+    tenant=Depends(get_tenant_by_token),
+    db=Depends(get_db),
+):
+    """Reset password using a valid, non-expired token."""
+    import bcrypt
+
+    tenant_id = tenant["tenant_id"]
+    cur = db.cursor()
+
+    cur.execute(
+        "SELECT id FROM eshop_customers "
+        "WHERE tenant_id = %s AND reset_token = %s "
+        "AND reset_token_expires > CURRENT_TIMESTAMP "
+        "AND is_active = TRUE",
+        (tenant_id, body.token),
+    )
+    row = cur.fetchone()
+
+    if not row:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Neplatný alebo expirovaný odkaz. Požiadajte o nový.",
+        )
+
+    # Hash new password and update
+    new_hash = bcrypt.hashpw(
+        body.new_password.encode("utf-8"), bcrypt.gensalt()
+    ).decode("utf-8")
+
+    cur.execute(
+        "UPDATE eshop_customers "
+        "SET password_hash = %s, "
+        "    reset_token = NULL, "
+        "    reset_token_expires = NULL, "
+        "    updated_at = CURRENT_TIMESTAMP "
+        "WHERE id = %s AND tenant_id = %s",
+        (new_hash, row[0], tenant_id),
+    )
+    db.commit()
+
+    return {"message": "Heslo bolo úspešne zmenené."}
 
 
 @router.get("/customers/orders")
