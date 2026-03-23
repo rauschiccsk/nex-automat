@@ -1051,8 +1051,10 @@ def get_customer_orders(
         "SELECT order_id, order_number, status, payment_status, "
         "total_amount_vat, currency, created_at "
         "FROM eshop_orders "
-        "WHERE customer_id = %s ORDER BY created_at DESC",
-        (customer["id"],),
+        "WHERE tenant_id = %s AND (customer_id = %s OR "
+        "(customer_id IS NULL AND customer_email = %s)) "
+        "ORDER BY created_at DESC",
+        (customer["tenant_id"], customer["id"], customer["email"]),
     )
     orders = [
         {
@@ -1083,7 +1085,7 @@ def get_customer_order_detail(
     customer = _get_customer_from_token(auth_header, db)
     cur = db.cursor()
 
-    # Get order details with ownership verification
+    # Get order details with ownership verification (customer_id OR email fallback)
     cur.execute(
         "SELECT o.order_number, o.status, o.payment_status, o.created_at, "
         "o.total_amount_vat, o.total_amount, o.currency, "
@@ -1099,9 +1101,10 @@ def get_customer_order_detail(
         "o.comgate_transaction_id "
         "FROM eshop_orders o "
         "WHERE o.order_number = %s "
-        "AND o.customer_id = %s "
-        "AND o.tenant_id = %s",
-        (order_number, customer["id"], customer["tenant_id"]),
+        "AND o.tenant_id = %s "
+        "AND (o.customer_id = %s OR "
+        "(o.customer_id IS NULL AND o.customer_email = %s))",
+        (order_number, customer["tenant_id"], customer["id"], customer["email"]),
     )
 
     r = cur.fetchone()
@@ -1189,16 +1192,17 @@ async def retry_customer_order_payment(
     customer = _get_customer_from_token(auth_header, db)
     cur = db.cursor()
 
-    # Get order with ownership verification
+    # Get order with ownership verification (customer_id OR email fallback)
     cur.execute(
         "SELECT o.order_id, o.status, o.payment_status, "
         "o.total_amount_vat, o.currency, o.customer_email, "
         "o.customer_name, o.billing_country, o.lang, o.tenant_id "
         "FROM eshop_orders o "
         "WHERE o.order_number = %s "
-        "AND o.customer_id = %s "
-        "AND o.tenant_id = %s",
-        (order_number, customer["id"], customer["tenant_id"]),
+        "AND o.tenant_id = %s "
+        "AND (o.customer_id = %s OR "
+        "(o.customer_id IS NULL AND o.customer_email = %s))",
+        (order_number, customer["tenant_id"], customer["id"], customer["email"]),
     )
 
     row = cur.fetchone()
