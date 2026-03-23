@@ -503,10 +503,15 @@ class CustomerProfileResponse(BaseModel):
     company_ico: str | None
     company_dic: str | None
     company_ic_dph: str | None
+    shipping_street: str | None = None
+    shipping_city: str | None = None
+    shipping_postal_code: str | None = None
+    shipping_country: str | None = None
+    shipping_same_as_billing: bool = True
 
 
 class CustomerUpdateRequest(BaseModel):
-    """Update customer profile — personal + company details."""
+    """Update customer profile — personal, company, and shipping details."""
 
     first_name: str = Field(..., min_length=1, max_length=100)
     last_name: str = Field(..., min_length=1, max_length=100)
@@ -520,6 +525,11 @@ class CustomerUpdateRequest(BaseModel):
     company_ico: str | None = Field(None, max_length=20)
     company_dic: str | None = Field(None, max_length=20)
     company_ic_dph: str | None = Field(None, max_length=20)
+    shipping_same_as_billing: bool = True
+    shipping_street: str | None = Field(None, max_length=255)
+    shipping_city: str | None = Field(None, max_length=100)
+    shipping_postal_code: str | None = Field(None, max_length=10)
+    shipping_country: str | None = Field(None, max_length=2)
 
 
 class PasswordChangeRequest(BaseModel):

@@ -761,7 +761,9 @@ def _get_customer_from_token(authorization: str, db) -> dict:
     cur.execute(
         "SELECT id, tenant_id, email, first_name, last_name, phone, "
         "street, city, postal_code, country, is_company, company_name, "
-        "company_ico, company_dic, company_ic_dph "
+        "company_ico, company_dic, company_ic_dph, "
+        "shipping_street, shipping_city, shipping_postal_code, "
+        "shipping_country, shipping_same_as_billing "
         "FROM eshop_customers WHERE id = %s AND tenant_id = %s AND is_active = TRUE",
         (customer_id, tenant_id),
     )
@@ -787,6 +789,11 @@ def _get_customer_from_token(authorization: str, db) -> dict:
         "company_ico": row[12],
         "company_dic": row[13],
         "company_ic_dph": row[14],
+        "shipping_street": row[15],
+        "shipping_city": row[16],
+        "shipping_postal_code": row[17],
+        "shipping_country": row[18],
+        "shipping_same_as_billing": row[19] if row[19] is not None else True,
     }
 
 
@@ -966,6 +973,13 @@ def update_customer_profile(
     company_dic = data.company_dic if company_name else None
     company_ic_dph = data.company_ic_dph if company_name else None
 
+    # Shipping data cleanup — if same_as_billing, nullify shipping fields
+    shipping_same = data.shipping_same_as_billing
+    shipping_street = data.shipping_street if not shipping_same else None
+    shipping_city = data.shipping_city if not shipping_same else None
+    shipping_postal_code = data.shipping_postal_code if not shipping_same else None
+    shipping_country = data.shipping_country if not shipping_same else None
+
     try:
         cur = db.cursor()
         cur.execute(
@@ -974,6 +988,9 @@ def update_customer_profile(
             "street = %s, city = %s, postal_code = %s, country = %s, "
             "is_company = %s, company_name = %s, company_ico = %s, "
             "company_dic = %s, company_ic_dph = %s, "
+            "shipping_same_as_billing = %s, shipping_street = %s, "
+            "shipping_city = %s, shipping_postal_code = %s, "
+            "shipping_country = %s, "
             "updated_at = CURRENT_TIMESTAMP "
             "WHERE id = %s AND tenant_id = %s",
             (
@@ -989,6 +1006,11 @@ def update_customer_profile(
                 company_ico,
                 company_dic,
                 company_ic_dph,
+                shipping_same,
+                shipping_street,
+                shipping_city,
+                shipping_postal_code,
+                shipping_country,
                 customer_id,
                 tenant_id,
             ),
@@ -1000,6 +1022,55 @@ def update_customer_profile(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Chyba pri aktualizácii profilu",
+        )
+
+
+@router.delete("/customers/account")
+def delete_customer_account(
+    auth_header: str = Header(..., alias="Authorization"),
+    db=Depends(get_db),
+):
+    """Soft-delete customer account (set is_active=False).
+
+    Blocked if customer has orders with active status
+    (new, paid, processing, shipped).
+    """
+    customer = _get_customer_from_token(auth_header, db)
+    customer_id = customer["id"]
+    tenant_id = customer["tenant_id"]
+
+    try:
+        cur = db.cursor()
+        # Check for active orders that block deletion
+        cur.execute(
+            "SELECT COUNT(*) FROM eshop_orders "
+            "WHERE customer_id = %s AND tenant_id = %s "
+            "AND status IN ('new', 'paid', 'processing', 'shipped')",
+            (customer_id, tenant_id),
+        )
+        active_count = cur.fetchone()[0]
+        if active_count > 0:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail=f"Účet nie je možné zmazať — máte {active_count} aktívnu/e objednávku/y.",
+            )
+
+        # Soft-delete: set is_active = False
+        cur.execute(
+            "UPDATE eshop_customers "
+            "SET is_active = FALSE, updated_at = CURRENT_TIMESTAMP "
+            "WHERE id = %s AND tenant_id = %s",
+            (customer_id, tenant_id),
+        )
+        db.commit()
+        return {"message": "Účet bol zmazaný"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error("Account deletion error: %s", e)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Chyba pri mazaní účtu",
         )
 
 
