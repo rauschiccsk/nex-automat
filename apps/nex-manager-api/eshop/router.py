@@ -2571,14 +2571,22 @@ async def mufis_get_order(
         aggregated: dict[str, dict] = {}
         for ir in cur.fetchall():
             sku = ir[0]
+            db_qty = ir[2]
+            db_unit_price = float(ir[3] or 0)
+            db_unit_price_vat = float(ir[4] or 0)
             mapping = MUFIS_PRODUCT_MAPPING.get(
                 sku, {"mufis_quantity_multiplier": 1, "mufis_barcode_sku": sku}
             )
             base_sku = mapping["mufis_barcode_sku"]
-            effective_qty = ir[2] * mapping["mufis_quantity_multiplier"]
+            effective_qty = db_qty * mapping["mufis_quantity_multiplier"]
+            # Line total from DB row (original qty × original unit price)
+            line_total = db_unit_price * db_qty
+            line_total_vat = db_unit_price_vat * db_qty
 
             if base_sku in aggregated:
                 aggregated[base_sku]["quantity"] += effective_qty
+                aggregated[base_sku]["_total_price"] += line_total
+                aggregated[base_sku]["_total_price_vat"] += line_total_vat
             else:
                 # Fetch barcode from base product
                 barcode = None
@@ -2601,15 +2609,25 @@ async def mufis_get_order(
                     "sku": base_sku,
                     "name": base_name,
                     "quantity": effective_qty,
-                    "unit_price": _dec(ir[3]),
-                    "unit_price_vat": _dec(ir[4]),
+                    "_total_price": line_total,
+                    "_total_price_vat": line_total_vat,
                     "vat_rate": _dec(ir[5]),
                     "price_type": "with_vat",
                     "item_type": ir[6],
                     "barcode": barcode,
                 }
 
-        order_items = list(aggregated.values())
+        # Compute weighted-average unit prices from totals
+        order_items = []
+        for item in aggregated.values():
+            qty = item["quantity"]
+            total_price = item.pop("_total_price")
+            total_price_vat = item.pop("_total_price_vat")
+            item["unit_price"] = round(total_price / qty, 4) if qty else 0
+            item["unit_price_vat"] = round(total_price_vat / qty, 4) if qty else 0
+            item["total_price"] = round(total_price, 2)
+            item["total_price_vat"] = round(total_price_vat, 2)
+            order_items.append(item)
 
         payment_method_raw = r[25] or ""
         payment_type = PAYMENT_TYPE_MAP.get(payment_method_raw, "OTHER")
@@ -2667,9 +2685,9 @@ async def mufis_get_order(
             if updated_at
             else (created_at.strftime("%Y-%m-%d %H:%M:%S") if created_at else "")
         )
-        # order_date in SK format (DD.MM.YYYY) + separate order_time (HH:MM:SS)
+        # order_date in ISO format (Y-m-d) + separate order_time (HH:MM:SS)
         if created_at:
-            order_date = created_at.strftime("%d.%m.%Y")
+            order_date = created_at.strftime("%Y-%m-%d")
             order_time = created_at.strftime("%H:%M:%S")
         else:
             order_date = ""
