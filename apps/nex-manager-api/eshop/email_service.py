@@ -72,35 +72,46 @@ class EshopEmailService:
         )
         company_html = self._build_company_section(order)
 
-        body = f"""
-        <h2 style="color:{self.primary_color};">Ďakujeme za Vašu objednávku!</h2>
-        <p>Vážený/á {customer_name},</p>
-        <p>Vaša objednávka <strong>{order_number}</strong> bola úspešne prijatá.</p>
+        color = self.primary_color
+        notes_html = ""
+        if order.get("order_notes"):
+            notes_html = self._build_section(
+                "Pozn\u00e1mka k objedn\u00e1vke",
+                '<p style="margin:0;">'
+                + html.escape(str(order["order_notes"])) + "</p>",
+            )
 
-        <h3>Položky objednávky</h3>
-        {items_html}
+        total_html = (
+            f'<table width="100%" cellpadding="0" cellspacing="0" '
+            f'style="margin:0 0 16px 0;">'
+            f"<tr><td style=\"text-align:right; padding:10px 8px; "
+            f"font-weight:700; font-size:16px; "
+            f'background:#f0f7f0; border-radius:4px;">'
+            f"Celkom s DPH: {float(total_vat):.2f} {currency}"
+            f"</td></tr></table>"
+        )
 
-        <table width="100%" cellpadding="4" cellspacing="0">
-          <tr>
-            <td style="text-align:right; font-weight:bold; font-size:16px;">
-              Celkom s DPH: {float(total_vat):.2f} {currency}
-            </td>
-          </tr>
-        </table>
-
-        {billing_html}
-        {company_html}
-        {shipping_html}
-
-        <h3>Platba</h3>
-        <p>Spôsob platby: <strong>{payment_label}</strong></p>
-
-        {"<h3>Poznámka k objednávke</h3><p>" + html.escape(str(order.get("order_notes", ""))) + "</p>" if order.get("order_notes") else ""}
-
-        <p style="margin-top:20px; color:#666;">
-          O zmene stavu Vašej objednávky Vás budeme informovať e-mailom.
-        </p>
-        """
+        body = (
+            f'<h2 style="color:{color}; margin-top:0;">'
+            f"\u010eakujeme za Va\u0161u objedn\u00e1vku!</h2>"
+            f"<p>V\u00e1\u017een\u00fd/\u00e1 {customer_name},</p>"
+            f"<p>Va\u0161a objedn\u00e1vka <strong>{order_number}</strong> "
+            f"bola \u00faspe\u0161ne prijat\u00e1.</p>"
+            f"{items_html}"
+            f"{total_html}"
+            f"{billing_html}"
+            f"{company_html}"
+            f"{shipping_html}"
+            + self._build_section(
+                "Platba",
+                f'<p style="margin:0;">Sp\u00f4sob platby: '
+                f"<strong>{payment_label}</strong></p>",
+            )
+            + notes_html
+            + '<p style="margin-top:24px; color:#666666; font-size:14px;">'
+            "O zmene stavu Va\u0161ej objedn\u00e1vky V\u00e1s budeme "
+            "informova\u0165 e-mailom.</p>"
+        )
 
         subject = f"Objednávka {order_number} bola prijatá — {self.brand_name}"
         full_html = self._build_html_email(body)
@@ -117,34 +128,34 @@ class EshopEmailService:
         items_html = self._build_items_table(items, currency)
         company_html = self._build_company_section(order)
 
-        body = f"""
-        <h2 style="color:{self.primary_color};">Platba bola prijatá</h2>
-        <p>Vážený/á {customer_name},</p>
-        <p>Platba za objednávku <strong>{order_number}</strong> bola úspešne spracovaná.</p>
+        color = self.primary_color
+        notes_html = ""
+        if order.get("order_notes"):
+            notes_html = self._build_section(
+                "Pozn\u00e1mka k objedn\u00e1vke",
+                '<p style="margin:0;">'
+                + html.escape(str(order["order_notes"])) + "</p>",
+            )
 
-        <table width="100%" cellpadding="8" cellspacing="0"
-               style="background:#f0f7f0; border-radius:4px; margin:15px 0;">
-          <tr>
-            <td><strong>Číslo objednávky:</strong></td>
-            <td style="text-align:right;">{order_number}</td>
-          </tr>
-          <tr>
-            <td><strong>Zaplatená suma:</strong></td>
-            <td style="text-align:right; font-weight:bold;">
-              {float(total_vat):.2f} {currency}
-            </td>
-          </tr>
-        </table>
+        info_table = self._build_info_table([
+            ("\u010c\u00edslo objedn\u00e1vky", order_number),
+            ("Zaplaten\u00e1 suma",
+             f"<strong>{float(total_vat):.2f} {currency}</strong>"),
+        ], bg="#f0f7f0")
 
-        <h3>Položky objednávky</h3>
-        {items_html}
-
-        {company_html}
-
-        {"<h3>Poznámka k objednávke</h3><p>" + html.escape(str(order.get("order_notes", ""))) + "</p>" if order.get("order_notes") else ""}
-
-        <p>Objednávka bude čoskoro odoslaná.</p>
-        """
+        body = (
+            f'<h2 style="color:{color}; margin-top:0;">'
+            f"Platba bola prijat\u00e1</h2>"
+            f"<p>V\u00e1\u017een\u00fd/\u00e1 {customer_name},</p>"
+            f"<p>Platba za objedn\u00e1vku <strong>{order_number}</strong> "
+            f"bola \u00faspe\u0161ne spracovan\u00e1.</p>"
+            f"{info_table}"
+            f"{items_html}"
+            f"{company_html}"
+            f"{notes_html}"
+            f'<p style="margin-top:20px;">Objedn\u00e1vka bude \u010doskoro '
+            f"odoslan\u00e1.</p>"
+        )
 
         subject = (
             f"Platba za objednávku {order_number} bola prijatá — {self.brand_name}"
@@ -152,39 +163,57 @@ class EshopEmailService:
         full_html = self._build_html_email(body)
         await self._send_email(customer_email, subject, full_html)
 
-    async def send_shipping_notification(self, order: dict) -> None:
+    async def send_shipping_notification(self, order: dict,
+                                         items: list[dict] | None = None,
+                                         ) -> None:
         """Send shipping notification email to customer."""
         order_number = html.escape(str(order.get("order_number", "")))
         customer_name = html.escape(str(order.get("customer_name", "")))
         customer_email = order.get("customer_email", "")
+        currency = html.escape(str(order.get("currency", "EUR")))
         tracking_number = html.escape(str(order.get("tracking_number", "")))
         tracking_link = order.get("tracking_link", "")
         tracking_link_escaped = html.escape(tracking_link)
+        color = self.primary_color
 
         tracking_html = ""
-        if tracking_number:
-            tracking_html += (
-                f"<p><strong>Číslo zásielky:</strong> {tracking_number}</p>"
+        if tracking_number or tracking_link:
+            inner = ""
+            if tracking_number:
+                inner += (
+                    f'<p style="margin:0 0 8px 0;">'
+                    f"<strong>\u010c\u00edslo z\u00e1sielky:</strong> "
+                    f"{tracking_number}</p>"
+                )
+            if tracking_link:
+                inner += (
+                    f'<p style="margin:8px 0 0 0; text-align:center;">'
+                    f'<a href="{tracking_link_escaped}" '
+                    f'style="display:inline-block; padding:12px 28px; '
+                    f"background:{color}; color:#ffffff; "
+                    f"text-decoration:none; border-radius:6px; "
+                    f'font-weight:600;">Sledova\u0165 z\u00e1sielku</a></p>'
+                )
+            tracking_html = self._build_section(
+                "Inform\u00e1cie o z\u00e1sielke", inner,
             )
-        if tracking_link:
-            tracking_html += (
-                f'<p><a href="{tracking_link_escaped}" '
-                f'style="background:{self.primary_color}; color:#fff; '
-                f"padding:10px 20px; text-decoration:none; border-radius:4px; "
-                f'display:inline-block;">Sledovať zásielku</a></p>'
-            )
 
-        body = f"""
-        <h2 style="color:{self.primary_color};">Objednávka bola odoslaná</h2>
-        <p>Vážený/á {customer_name},</p>
-        <p>Vaša objednávka <strong>{order_number}</strong> bola odoslaná.</p>
+        items_html = ""
+        if items:
+            items_html = self._build_items_table(items, currency)
 
-        {tracking_html}
-
-        <p style="margin-top:20px; color:#666;">
-          Doručenie očakávajte v priebehu 1\u20133 pracovných dní.
-        </p>
-        """
+        body = (
+            f'<h2 style="color:{color}; margin-top:0;">'
+            f"Va\u0161a objedn\u00e1vka bola odoslan\u00e1</h2>"
+            f"<p>V\u00e1\u017een\u00fd/\u00e1 {customer_name},</p>"
+            f"<p>Va\u0161a objedn\u00e1vka <strong>{order_number}</strong> "
+            f"bola odoslan\u00e1.</p>"
+            f"{tracking_html}"
+            f"{items_html}"
+            f'<p style="margin-top:24px; color:#666666; font-size:14px;">'
+            f"Doru\u010denie o\u010dak\u00e1vajte v priebehu "
+            f"1\u20133 pracovn\u00fdch dn\u00ed.</p>"
+        )
 
         subject = f"Objednávka {order_number} bola odoslaná — {self.brand_name}"
         full_html = self._build_html_email(body)
@@ -215,43 +244,37 @@ class EshopEmailService:
         )
         company_html = self._build_company_section(order)
 
-        body = f"""
-        <h2 style="color:{self.primary_color};">Nová objednávka {order_number}</h2>
+        color = self.primary_color
+        info_table = self._build_info_table([
+            ("Z\u00e1kazn\u00edk", customer_name),
+            ("Email", customer_email),
+            ("Telef\u00f3n", customer_phone),
+            ("Sp\u00f4sob platby", payment_label),
+            ("Celkom s DPH",
+             f"<strong>{float(total_vat):.2f} {currency}</strong>"),
+        ], bg="#fff3e0")
 
-        <table width="100%" cellpadding="8" cellspacing="0"
-               style="background:#fff3e0; border-radius:4px; margin:15px 0;">
-          <tr>
-            <td><strong>Zákazník:</strong></td>
-            <td>{customer_name}</td>
-          </tr>
-          <tr>
-            <td><strong>Email:</strong></td>
-            <td>{customer_email}</td>
-          </tr>
-          <tr>
-            <td><strong>Telefón:</strong></td>
-            <td>{customer_phone}</td>
-          </tr>
-          <tr>
-            <td><strong>Spôsob platby:</strong></td>
-            <td>{payment_label}</td>
-          </tr>
-          <tr>
-            <td><strong>Celkom s DPH:</strong></td>
-            <td style="font-weight:bold;">{float(total_vat):.2f} {currency}</td>
-          </tr>
-        </table>
+        notes_section = ""
+        if note:
+            notes_section += self._build_section("Pozn\u00e1mka",
+                                                 f'<p style="margin:0;">{note}</p>')
+        if order_notes:
+            notes_section += self._build_section(
+                "Pozn\u00e1mka od z\u00e1kazn\u00edka",
+                f'<p style="margin:0; color:#c62828; font-weight:700;">'
+                f"{order_notes}</p>",
+            )
 
-        <h3>Položky</h3>
-        {items_html}
-
-        {billing_html}
-        {company_html}
-        {shipping_html}
-
-        {"<h3>Poznámka</h3><p>" + note + "</p>" if note else ""}
-        {"<h3>Poznámka od zákazníka</h3><p style='color:#c62828;font-weight:bold;'>" + order_notes + "</p>" if order_notes else ""}
-        """
+        body = (
+            f'<h2 style="color:{color}; margin-top:0;">'
+            f"Nov\u00e1 objedn\u00e1vka {order_number}</h2>"
+            f"{info_table}"
+            f"{items_html}"
+            f"{billing_html}"
+            f"{company_html}"
+            f"{shipping_html}"
+            f"{notes_section}"
+        )
 
         subject = f"[NOVÁ OBJEDNÁVKA] {order_number} — {customer_name}"
         full_html = self._build_html_email(body)
@@ -285,41 +308,28 @@ class EshopEmailService:
         payment_label = html.escape(PAYMENT_METHOD_LABELS.get(raw_payment, raw_payment))
         comgate_tid = html.escape(str(order.get("comgate_transaction_id", "") or ""))
 
-        body = f"""
-        <h2 style="color:#c62828;">Neúspešná platba</h2>
+        info_table = self._build_info_table([
+            ("Objedn\u00e1vka", order_number),
+            ("Z\u00e1kazn\u00edk",
+             f"{customer_name} ({customer_email})"),
+            ("Suma", f"{float(total_vat):.2f} {currency}"),
+            ("Sp\u00f4sob platby", payment_label),
+            ("Comgate Transaction ID", comgate_tid),
+        ], bg="#ffebee")
 
-        <table width="100%" cellpadding="8" cellspacing="0"
-               style="background:#ffebee; border-radius:4px; margin:15px 0;">
-          <tr>
-            <td><strong>Objednávka:</strong></td>
-            <td>{order_number}</td>
-          </tr>
-          <tr>
-            <td><strong>Zákazník:</strong></td>
-            <td>{customer_name} ({customer_email})</td>
-          </tr>
-          <tr>
-            <td><strong>Suma:</strong></td>
-            <td>{float(total_vat):.2f} {currency}</td>
-          </tr>
-          <tr>
-            <td><strong>Spôsob platby:</strong></td>
-            <td>{payment_label}</td>
-          </tr>
-          <tr>
-            <td><strong>Comgate Transaction ID:</strong></td>
-            <td>{comgate_tid}</td>
-          </tr>
-        </table>
-        """
+        body = (
+            f'<h2 style="color:#c62828; margin-top:0;">'
+            f"Ne\u00faspe\u0161n\u00e1 platba</h2>"
+            f"{info_table}"
+        )
 
         subject = f"[NEÚSPEŠNÁ PLATBA] {order_number} — {customer_name}"
         full_html = self._build_html_email(body)
         await self._send_email(self.admin_email, subject, full_html)
 
     async def send_lead_welcome_email(self, tenant: dict, lead: dict) -> None:
-        """Pošle welcome email s discount kódom novému leadovi."""
-        subject = "Vaša 50% zľava na Oasis EM-1 je pripravená!"
+        """Po\u0161le welcome email s discount k\u00f3dom nov\u00e9mu leadovi."""
+        subject = "Va\u0161a 50% z\u013eava na Oasis EM-1 je pripraven\u00e1!"
         expires_at = lead["expires_at"]
         expires_str = (
             expires_at.strftime("%d.%m.%Y")
@@ -330,37 +340,46 @@ class EshopEmailService:
         company = tenant.get("company_name") or tenant.get(
             "tenant_name", self.brand_name
         )
+        color = self.primary_color
+        greeting = lead.get("first_name", "")
+        name_part = f" {html.escape(greeting)}" if greeting else ""
+        code = html.escape(str(lead["discount_code"]))
+        d_esc = html.escape(domain)
 
-        body = f"""Dobrý deň{" " + lead["first_name"] if lead.get("first_name") else ""},
-
-Ďakujeme za Váš záujem o Oasis EM-1!
-
-Pripravili sme pre Vás špeciálnu zľavu 50% na prvý nákup.
-
-Váš zľavový kód: {lead["discount_code"]}
-
-Kód je platný do {expires_str}.
-Použite ho pri objednávke na {domain}.
-
-Oasis EM-1 je certifikovaná pôdna pomocná látka,
-ktorá regeneruje pôdu a zvyšuje úrodnosť bez chémie.
-
-S pozdravom,
-Tím {company}
-{domain}"""
+        body_html = (
+            f'<h2 style="color:{color}; margin-top:0;">'
+            f"Va\u0161a z\u013eava je pripraven\u00e1!</h2>"
+            f"<p>Dobr\u00fd de\u0148{name_part},</p>"
+            f"<p>\u010eakujeme za V\u00e1\u0161 z\u00e1ujem o Oasis EM-1!</p>"
+            f"<p>Pripravili sme pre V\u00e1s \u0161peci\u00e1lnu "
+            f"z\u013eavu <strong>50%</strong> na prv\u00fd n\u00e1kup.</p>"
+            f'<table width="100%" cellpadding="0" cellspacing="0" '
+            f'style="margin:20px 0; text-align:center;">'
+            f'<tr><td style="background:#f0f7f0; padding:20px; '
+            f'border-radius:8px; border:2px dashed {color};">'
+            f'<span style="font-size:24px; font-weight:700; '
+            f'color:{color}; letter-spacing:2px;">{code}</span>'
+            f"</td></tr></table>"
+            f"<p>K\u00f3d je platn\u00fd do <strong>{expires_str}</strong>."
+            f"<br>Pou\u017eite ho pri objedn\u00e1vke na "
+            f'<a href="https://{d_esc}" style="color:{color};">{d_esc}</a>.</p>'
+            f"<p>Oasis EM-1 je certifikovan\u00e1 p\u00f4dna pomocn\u00e1 "
+            f"l\u00e1tka, ktor\u00e1 regeneruje p\u00f4du a zvy\u0161uje "
+            f"\u00farodnosc bez ch\u00e9mie.</p>"
+            f'<p style="margin-top:24px;">S pozdravom,<br>'
+            f"T\u00edm {html.escape(company)}</p>"
+        )
         await self._send_email(
             to=lead["email"],
             subject=subject,
-            html_body=self._build_html_email(
-                f"<pre style='font-family:inherit;'>{body}</pre>"
-            ),
+            html_body=self._build_html_email(body_html),
         )
 
     async def send_lead_reminder_email(
         self, tenant: dict, lead: dict, days_remaining: int
     ) -> None:
-        """Mesačný reminder o zľave."""
-        subject = f"Vaša 50% zľava vyprší o {days_remaining} dní!"
+        """Mesa\u010dn\u00fd reminder o z\u013eave."""
+        subject = f"Va\u0161a 50% z\u013eava vypr\u0161\u00ed o {days_remaining} dn\u00ed!"
         expires_at = lead["expires_at"]
         expires_str = (
             expires_at.strftime("%d.%m.%Y")
@@ -371,50 +390,71 @@ Tím {company}
         company = tenant.get("company_name") or tenant.get(
             "tenant_name", self.brand_name
         )
+        color = self.primary_color
+        greeting = lead.get("first_name", "")
+        name_part = f" {html.escape(greeting)}" if greeting else ""
+        code = html.escape(str(lead["discount_code"]))
+        d_esc = html.escape(domain)
 
-        body = f"""Dobrý deň{" " + lead["first_name"] if lead.get("first_name") else ""},
-
-Strážime pre Vás 50% zľavu na Oasis EM-1.
-
-Váš zľavový kód: {lead["discount_code"]}
-Platnosť do: {expires_str}
-Zostáva: {days_remaining} dní
-
-Nepremeškajte príležitosť vyskúšať certifikovanú
-pôdnu pomocnú látku za polovičnú cenu.
-
-Objednajte na: https://{domain}
-
-S pozdravom,
-Tím {company}"""
+        body_html = (
+            f'<h2 style="color:{color}; margin-top:0;">'
+            f"Z\u013eava \u010doskoro vypr\u0161\u00ed!</h2>"
+            f"<p>Dobr\u00fd de\u0148{name_part},</p>"
+            f"<p>Str\u00e1\u017eime pre V\u00e1s <strong>50% z\u013eavu"
+            f"</strong> na Oasis EM-1.</p>"
+            f'<table width="100%" cellpadding="0" cellspacing="0" '
+            f'style="margin:20px 0; text-align:center;">'
+            f'<tr><td style="background:#fff3e0; padding:20px; '
+            f'border-radius:8px; border:2px dashed #e65100;">'
+            f'<span style="font-size:24px; font-weight:700; '
+            f'color:#e65100; letter-spacing:2px;">{code}</span><br>'
+            f'<span style="font-size:13px; color:#666;">Platnos\u0165 do: '
+            f"{expires_str} &middot; Zost\u00e1va: "
+            f"{days_remaining} dn\u00ed</span>"
+            f"</td></tr></table>"
+            f"<p>Nepreme\u0161kajte pr\u00edle\u017eitos\u0165 vysk\u00fa\u0161a\u0165 "
+            f"certifikovan\u00fa p\u00f4dnu pomocn\u00fa l\u00e1tku "
+            f"za polovi\u010dn\u00fa cenu.</p>"
+            f'<p style="text-align:center; margin:24px 0;">'
+            f'<a href="https://{d_esc}" '
+            f'style="display:inline-block; padding:14px 36px; '
+            f"background:{color}; color:#ffffff; text-decoration:none; "
+            f'border-radius:6px; font-weight:700; font-size:15px;">'
+            f"Objedna\u0165 teraz</a></p>"
+            f'<p style="margin-top:20px;">S pozdravom,<br>'
+            f"T\u00edm {html.escape(company)}</p>"
+        )
         await self._send_email(
             to=lead["email"],
             subject=subject,
-            html_body=self._build_html_email(
-                f"<pre style='font-family:inherit;'>{body}</pre>"
-            ),
+            html_body=self._build_html_email(body_html),
         )
 
     async def send_password_reset_email(self, email: str, token: str) -> None:
         """Send password reset email with secure link."""
         reset_url = f"https://{self.domain}/reset-password?token={token}"
+        color = self.primary_color
         body_html = (
-            "<p>Dobrý deň,</p>"
-            "<p>Dostali sme žiadosť o zmenu hesla pre váš účet.</p>"
-            '<p style="text-align:center; margin:30px 0;">'
+            f'<h2 style="color:{color}; margin-top:0;">'
+            f"Obnovenie hesla</h2>"
+            f"<p>Dobr\u00fd de\u0148,</p>"
+            f"<p>Dostali sme \u017eiados\u0165 o zmenu hesla pre v\u00e1\u0161 "
+            f"\u00fa\u010det.</p>"
+            f'<p style="text-align:center; margin:28px 0;">'
             f'<a href="{html.escape(reset_url)}" '
-            f'style="display:inline-block; padding:14px 32px; '
-            f"background:{self.primary_color}; color:#fff; "
-            f"text-decoration:none; border-radius:6px; font-weight:600; "
-            f'font-size:1rem;">'
-            "Zmeniť heslo</a></p>"
-            "<p>Ak ste o zmenu hesla nežiadali, tento email môžete ignorovať. "
-            "Vaše heslo zostane nezmenené.</p>"
-            '<p style="color:#999; font-size:0.9rem;">Link je platný 24 hodín.</p>'
+            f'style="display:inline-block; padding:14px 36px; '
+            f"background:{color}; color:#ffffff; "
+            f"text-decoration:none; border-radius:6px; font-weight:700; "
+            f'font-size:15px;">Zmeni\u0165 heslo</a></p>'
+            f"<p>Ak ste o zmenu hesla ne\u017eiadali, tento email "
+            f"m\u00f4\u017eete ignorova\u0165. "
+            f"Va\u0161e heslo zostane nezmenen\u00e9.</p>"
+            f'<p style="color:#999999; font-size:13px;">'
+            f"Link je platn\u00fd 24 hod\u00edn.</p>"
         )
         await self._send_email(
             to=email,
-            subject=f"Obnovenie hesla — {self.brand_name}",
+            subject=f"Obnovenie hesla \u2014 {self.brand_name}",
             html_body=self._build_html_email(body_html),
         )
 
@@ -545,22 +585,27 @@ Tím {company}"""
 
         return f"""<!DOCTYPE html>
 <html>
-<head><meta charset="utf-8"></head>
-<body style="margin:0; padding:0; background:#f5f5f5; font-family:Arial,sans-serif;">
-  <table width="100%" cellpadding="0" cellspacing="0">
-    <tr><td align="center" style="padding:20px;">
-      <table width="600" cellpadding="0" cellspacing="0" style="background:#fff; border-radius:8px;">
-        <tr><td style="background:{color}; padding:20px; text-align:center; border-radius:8px 8px 0 0;">
-          <h1 style="color:#fff; margin:0;">{brand}</h1>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+<body style="margin:0; padding:0; background:#f5f5f5; font-family:Arial,Helvetica,sans-serif; -webkit-text-size-adjust:100%;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f5f5f5;">
+    <tr><td align="center" style="padding:24px 16px;">
+      <!--[if mso]><table width="600" cellpadding="0" cellspacing="0"><tr><td><![endif]-->
+      <table cellpadding="0" cellspacing="0" style="background:#ffffff; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.08); max-width:600px; width:100%;">
+        <!-- Header -->
+        <tr><td style="background:{color}; padding:28px 32px; text-align:center; border-radius:8px 8px 0 0;">
+          <h1 style="color:#ffffff; margin:0; font-size:26px; font-weight:700; letter-spacing:0.5px;">{brand}</h1>
         </td></tr>
-        <tr><td style="padding:30px;">
+        <!-- Body -->
+        <tr><td style="padding:32px 32px 24px 32px; color:#333333; font-size:15px; line-height:1.6;">
           {body_html}
         </td></tr>
-        <tr><td style="padding:15px; text-align:center; color:#999; font-size:12px; border-top:1px solid #eee;">
-          {brand} | {domain}<br>
-          Tento e-mail bol odoslaný automaticky, neodpovedajte naň.
+        <!-- Footer -->
+        <tr><td style="padding:20px 32px; text-align:center; color:#999999; font-size:12px; line-height:1.5; border-top:1px solid #eeeeee; border-radius:0 0 8px 8px;">
+          {brand} &middot; {domain}<br>
+          Tento e-mail bol odoslan\u00fd automaticky, neodpovedajte na\u0148.
         </td></tr>
       </table>
+      <!--[if mso]></td></tr></table><![endif]-->
     </td></tr>
   </table>
 </body>
@@ -568,6 +613,7 @@ Tím {company}"""
 
     def _build_items_table(self, items: list[dict], currency: str) -> str:
         """Build HTML table of order items (products + shipping)."""
+        bdr = "border:1px solid #dee2e6;"
         rows = ""
         for item in items:
             name = html.escape(str(item.get("name", "")))
@@ -576,42 +622,66 @@ Tím {company}"""
             line_total = unit_price_vat * qty
             curr = html.escape(currency)
             is_shipping = item.get("item_type") == "shipping"
-            if is_shipping:
-                rows += (
-                    '<tr style="border-top:2px solid #ddd; '
-                    'background-color:#f9f9f9;">'
-                    f'<td style="border-bottom:1px solid #eee;">'
-                    f"\U0001f69a {name}</td>"
-                    f'<td style="text-align:center; '
-                    f'border-bottom:1px solid #eee;">{qty}</td>'
-                    f'<td style="text-align:right; '
-                    f'border-bottom:1px solid #eee;">'
-                    f"{line_total:.2f} {curr}</td>"
-                    "</tr>"
-                )
-            else:
-                rows += (
-                    f"<tr>"
-                    f'<td style="border-bottom:1px solid #eee;">{name}</td>'
-                    f'<td style="text-align:center; '
-                    f'border-bottom:1px solid #eee;">'
-                    f"{qty}</td>"
-                    f'<td style="text-align:right; '
-                    f'border-bottom:1px solid #eee;">'
-                    f"{line_total:.2f} {curr}</td>"
-                    f"</tr>"
-                )
+            bg = "background:#f8f9fa;" if is_shipping else ""
+            prefix = "\U0001f69a " if is_shipping else ""
+            rows += (
+                f'<tr style="{bg}">'
+                f'<td style="{bdr} padding:8px;">{prefix}{name}</td>'
+                f'<td style="{bdr} padding:8px; text-align:center;">{qty}</td>'
+                f'<td style="{bdr} padding:8px; text-align:right;">'
+                f"{line_total:.2f} {curr}</td>"
+                "</tr>"
+            )
 
+        color = html.escape(self.primary_color)
         return (
-            '<table width="100%" cellpadding="8" cellspacing="0" '
-            'style="border-collapse:collapse;">'
-            '<tr style="background:#f5f5f5;">'
-            '<th style="text-align:left; border-bottom:2px solid #ddd;">Položka</th>'
-            '<th style="text-align:center; border-bottom:2px solid #ddd;">Množstvo</th>'
-            '<th style="text-align:right; border-bottom:2px solid #ddd;">Cena s DPH</th>'
+            '<table width="100%" cellpadding="0" cellspacing="0" '
+            f'style="border-collapse:collapse; {bdr} margin:16px 0;">'
+            f'<tr style="background:{color};">'
+            f'<th style="{bdr} padding:10px 8px; text-align:left; '
+            f'color:#ffffff; font-weight:600;">Polo\u017eka</th>'
+            f'<th style="{bdr} padding:10px 8px; text-align:center; '
+            f'color:#ffffff; font-weight:600;">Mno\u017estvo</th>'
+            f'<th style="{bdr} padding:10px 8px; text-align:right; '
+            f'color:#ffffff; font-weight:600;">Cena s DPH</th>'
             "</tr>"
             f"{rows}"
             "</table>"
+        )
+
+    def _build_section(self, title: str, content_html: str) -> str:
+        """Build a styled section block with left border accent."""
+        color = html.escape(self.primary_color)
+        return (
+            f'<table width="100%" cellpadding="0" cellspacing="0" '
+            f'style="margin:20px 0 12px 0;">'
+            f"<tr><td>"
+            f'<h3 style="color:{color}; margin:0 0 10px 0; font-size:15px; '
+            f'font-weight:700; border-bottom:2px solid {color}; '
+            f'padding-bottom:6px;">{title}</h3>'
+            f'<div style="padding:0 0 0 12px; border-left:3px solid {color};">'
+            f"{content_html}"
+            f"</div>"
+            f"</td></tr></table>"
+        )
+
+    def _build_info_table(self, rows: list[tuple[str, str]],
+                          bg: str = "#f8f9fa") -> str:
+        """Build a bordered key-value info table."""
+        bdr = "border:1px solid #dee2e6;"
+        html_rows = ""
+        for label, value in rows:
+            html_rows += (
+                f"<tr>"
+                f'<td style="{bdr} padding:8px 12px; background:{bg}; '
+                f'font-weight:600; width:45%;">{label}</td>'
+                f'<td style="{bdr} padding:8px 12px;">{value}</td>'
+                f"</tr>"
+            )
+        return (
+            f'<table width="100%" cellpadding="0" cellspacing="0" '
+            f'style="border-collapse:collapse; {bdr} margin:16px 0;">'
+            f"{html_rows}</table>"
         )
 
     def _build_company_section(self, order: dict) -> str:
@@ -623,17 +693,16 @@ Tím {company}"""
         lines = [f"<strong>{name_esc}</strong>"]
         ico = order.get("company_ico")
         if ico:
-            lines.append(f"IČO: {html.escape(str(ico))}")
+            lines.append(f"I\u010cO: {html.escape(str(ico))}")
         dic = order.get("company_dic")
         if dic:
-            lines.append(f"DIČ: {html.escape(str(dic))}")
+            lines.append(f"DI\u010c: {html.escape(str(dic))}")
         ic_dph = order.get("company_ic_dph")
         if ic_dph:
-            lines.append(f"IČ DPH: {html.escape(str(ic_dph))}")
-        return (
-            f'<h3 style="color:{self.primary_color}; margin-top:20px;">'
-            f"Firemné údaje</h3>"
-            f'<p style="margin:10px 0; line-height:1.6;">{"<br>".join(lines)}</p>'
+            lines.append(f"I\u010c DPH: {html.escape(str(ic_dph))}")
+        return self._build_section(
+            "Firemn\u00e9 \u00fadaje",
+            f'<p style="margin:0; line-height:1.6;">{"<br>".join(lines)}</p>',
         )
 
     def _build_address_block(self, title: str, order: dict, prefix: str) -> str:
@@ -647,7 +716,7 @@ Tím {company}"""
         zip_code = html.escape(str(order.get(f"{prefix}_zip", "") or ""))
         country = html.escape(str(order.get(f"{prefix}_country", "") or ""))
 
-        lines = [name]
+        lines = [f"<strong>{name}</strong>"]
         if name2:
             lines.append(name2)
         if street:
@@ -657,9 +726,9 @@ Tím {company}"""
         if country:
             lines.append(country)
 
-        return (
-            f"<h3>{html.escape(title)}</h3>"
-            f'<p style="line-height:1.6;">{"<br>".join(lines)}</p>'
+        return self._build_section(
+            html.escape(title),
+            f'<p style="margin:0; line-height:1.6;">{"<br>".join(lines)}</p>',
         )
 
     async def _send_email(
