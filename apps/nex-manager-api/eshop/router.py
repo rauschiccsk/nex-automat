@@ -2428,9 +2428,21 @@ def admin_get_tenant(
 
 # MuFis product mapping — 3PACK = 3× individual bottles
 MUFIS_PRODUCT_MAPPING = {
-    "EM-500": {"mufis_quantity_multiplier": 1, "mufis_barcode_sku": "EM-500"},
-    "EM-500-3PACK": {"mufis_quantity_multiplier": 3, "mufis_barcode_sku": "EM-500"},
-    "EM-5L": {"mufis_quantity_multiplier": 1, "mufis_barcode_sku": "EM-5L"},
+    "EM-500": {
+        "mufis_quantity_multiplier": 1,
+        "mufis_barcode_sku": "EM-500",
+        "base_name": "Oasis EM-1 - 500ml",
+    },
+    "EM-500-3PACK": {
+        "mufis_quantity_multiplier": 3,
+        "mufis_barcode_sku": "EM-500",
+        "base_name": "Oasis EM-1 - 500ml",
+    },
+    "EM-5L": {
+        "mufis_quantity_multiplier": 1,
+        "mufis_barcode_sku": "EM-5L",
+        "base_name": "Oasis EM-1 - 5L",
+    },
 }
 
 # ============================================================================
@@ -2555,32 +2567,40 @@ async def mufis_get_order(
             "FROM eshop_order_items WHERE order_id = %s",
             (oid,),
         )
-        order_items = []
+        # Aggregate items by base SKU (e.g. EM-500-3PACK → EM-500)
+        aggregated: dict[str, dict] = {}
         for ir in cur.fetchall():
             sku = ir[0]
             mapping = MUFIS_PRODUCT_MAPPING.get(
                 sku, {"mufis_quantity_multiplier": 1, "mufis_barcode_sku": sku}
             )
-            # Fetch barcode from base product (not from 3PACK SKU)
-            barcode = None
             base_sku = mapping["mufis_barcode_sku"]
-            cur_bc = db.cursor()
-            cur_bc.execute(
-                "SELECT barcode FROM eshop_products "
-                "WHERE sku = %s AND barcode IS NOT NULL AND barcode != '' "
-                "ORDER BY product_id DESC LIMIT 1",
-                (base_sku,),
-            )
-            bc_row = cur_bc.fetchone()
-            if bc_row:
-                barcode = bc_row[0]
-            cur_bc.close()
+            effective_qty = ir[2] * mapping["mufis_quantity_multiplier"]
 
-            order_items.append(
-                {
-                    "sku": sku,
-                    "name": ir[1],
-                    "quantity": ir[2] * mapping["mufis_quantity_multiplier"],
+            if base_sku in aggregated:
+                aggregated[base_sku]["quantity"] += effective_qty
+            else:
+                # Fetch barcode from base product
+                barcode = None
+                cur_bc = db.cursor()
+                cur_bc.execute(
+                    "SELECT barcode FROM eshop_products "
+                    "WHERE sku = %s AND barcode IS NOT NULL AND barcode != '' "
+                    "ORDER BY product_id DESC LIMIT 1",
+                    (base_sku,),
+                )
+                bc_row = cur_bc.fetchone()
+                if bc_row:
+                    barcode = bc_row[0]
+                cur_bc.close()
+
+                # Use base product name from mapping, fallback to DB name
+                base_name = mapping.get("base_name", ir[1])
+
+                aggregated[base_sku] = {
+                    "sku": base_sku,
+                    "name": base_name,
+                    "quantity": effective_qty,
                     "unit_price": _dec(ir[3]),
                     "unit_price_vat": _dec(ir[4]),
                     "vat_rate": _dec(ir[5]),
@@ -2588,7 +2608,8 @@ async def mufis_get_order(
                     "item_type": ir[6],
                     "barcode": barcode,
                 }
-            )
+
+        order_items = list(aggregated.values())
 
         payment_method_raw = r[25] or ""
         payment_type = PAYMENT_TYPE_MAP.get(payment_method_raw, "OTHER")
