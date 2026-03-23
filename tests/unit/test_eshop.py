@@ -49,7 +49,7 @@ FAKE_TENANT = {
     "tenant_id": 1,
     "company_name": "ICC s.r.o.",
     "domain": "emcenter.sk",
-    "brand_name": "EM Center",
+    "brand_name": "EM Technológia",
     "logo_url": None,
     "primary_color": "#2E7D32",
     "currency": "EUR",
@@ -439,7 +439,7 @@ class TestPublicOrders:
         order_number = resp.json()["order_number"]
         parts = order_number.split("-")
         assert len(parts) == 3
-        assert parts[0] == "EM"  # first 2 chars of "EM Center"
+        assert parts[0] == "EM"  # first 2 chars of "EM Technológia"
         assert len(parts[2]) == 5  # 5-digit sequence
 
     def test_prices_from_db_not_request(self, client_public, mock_db):
@@ -1219,7 +1219,7 @@ class TestComgateClient:
                 currency="EUR",
                 order_number="EM-2026-00001",
                 customer_email="test@test.sk",
-                label="EM Center",
+                label="EM Technológia",
                 country="SK",
                 lang="sk",
             )
@@ -1257,7 +1257,7 @@ class TestComgateClient:
                 currency="EUR",
                 order_number="EM-2026-00001",
                 customer_email="test@test.sk",
-                label="EM Center",
+                label="EM Technológia",
                 country="SK",
                 lang="sk",
             )
@@ -1283,7 +1283,7 @@ class TestComgateClient:
                     currency="EUR",
                     order_number="EM-2026-00001",
                     customer_email="test@test.sk",
-                    label="EM Center",
+                    label="EM Technológia",
                     country="SK",
                     lang="sk",
                 )
@@ -1304,7 +1304,7 @@ class TestComgateClient:
                 test="true",
                 price="3990",
                 curr="EUR",
-                label="EM Center",
+                label="EM Technológia",
                 refId="EM-2026-00001",
                 transId="AB12-CD34-EF56",
                 secret="supersecretkey",
@@ -1327,7 +1327,7 @@ class TestComgateClient:
                 test="true",
                 price="3990",
                 curr="EUR",
-                label="EM Center",
+                label="EM Technológia",
                 refId="EM-2026-00001",
                 transId="AB12-CD34-EF56",
                 secret="wrongsecret",
@@ -1395,7 +1395,7 @@ def _callback_data(**overrides):
         "test": "true",
         "price": "1980",
         "curr": "EUR",
-        "label": "EM Center",
+        "label": "EM Technológia",
         "refId": "EM-2026-00001",
         "transId": "AB12-CD34-EF56",
         "secret": "supersecretkey",
@@ -1679,7 +1679,7 @@ from eshop.email_service import EshopEmailService
 FAKE_TENANT_EMAIL = {
     "smtp_from": "noreply@emcenter.sk",
     "admin_email": "odbyt@em-1.sk",
-    "brand_name": "EM Center",
+    "brand_name": "EM Technológia",
     "domain": "emcenter.sk",
     "primary_color": "#2E7D32",
 }
@@ -1849,7 +1849,7 @@ class TestEshopEmailService:
         asyncio.get_event_loop().run_until_complete(
             svc.send_order_confirmation(SAMPLE_ORDER, SAMPLE_ITEMS)
         )
-        assert "EM Center" in captured["from"]
+        assert "EM Technológia" in captured["from"]
         assert "noreply@emcenter.sk" in captured["from"]
 
     def test_email_html_contains_all_items(self):
@@ -1956,7 +1956,7 @@ class TestEmailIntegration:
             (
                 "noreply@emcenter.sk",
                 "odbyt@em-1.sk",
-                "EM Center",
+                "EM Technológia",
                 "emcenter.sk",
                 "#2E7D32",
                 "EUR",
@@ -2029,7 +2029,7 @@ class TestEmailIntegration:
             (
                 "noreply@emcenter.sk",
                 "odbyt@em-1.sk",
-                "EM Center",
+                "EM Technológia",
                 "emcenter.sk",
                 "#2E7D32",
                 "EUR",
