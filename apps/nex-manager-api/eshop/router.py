@@ -250,18 +250,38 @@ async def create_order(
             pw_hash = bcrypt.hashpw(
                 body.account_password.encode(), bcrypt.gensalt()
             ).decode()
+            first_name = (
+                body.customer_name.split(" ", 1)[0] if body.customer_name else ""
+            )
+            last_name = (
+                body.customer_name.split(" ", 1)[1]
+                if body.customer_name and " " in body.customer_name
+                else ""
+            )
             cur.execute(
                 "INSERT INTO eshop_customers ("
-                "tenant_id, email, password_hash, first_name, last_name"
-                ") VALUES (%s, %s, %s, %s, %s) RETURNING id",
+                "tenant_id, email, password_hash, first_name, last_name, "
+                "phone, street, city, postal_code, country, "
+                "is_company, company_name, company_ico, company_dic, company_ic_dph"
+                ") VALUES ("
+                "%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s"
+                ") RETURNING id",
                 (
                     tenant_id,
                     body.customer_email,
                     pw_hash,
-                    body.customer_name.split(" ", 1)[0] if body.customer_name else "",
-                    body.customer_name.split(" ", 1)[1]
-                    if body.customer_name and " " in body.customer_name
-                    else "",
+                    first_name,
+                    last_name,
+                    body.customer_phone,
+                    body.billing_street,
+                    body.billing_city,
+                    body.billing_zip,
+                    body.billing_country or "SK",
+                    body.is_company_order,
+                    body.company_name,
+                    body.company_ico,
+                    body.company_dic,
+                    body.company_ic_dph,
                 ),
             )
             customer_id = cur.fetchone()[0]
