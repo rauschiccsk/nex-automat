@@ -2632,7 +2632,7 @@ async def mufis_get_order(
                     "_total_price": line_total,
                     "_total_price_vat": line_total_vat,
                     "vat_rate": _dec(ir[5]),
-                    "price_type": "with_vat",
+                    "price_type": "without_vat",
                     "item_type": ir[6],
                     "barcode": barcode,
                 }
