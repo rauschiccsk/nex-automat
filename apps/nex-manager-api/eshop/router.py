@@ -1764,7 +1764,7 @@ async def payment_callback(
     # 1. Find order by refId (order_number)
     cur.execute(
         "SELECT order_id, tenant_id, total_amount_vat, currency, "
-        "payment_status, status "
+        "payment_status, status, comgate_transaction_id "
         "FROM eshop_orders WHERE order_number = %s",
         (refId,),
     )
@@ -1779,6 +1779,7 @@ async def payment_callback(
     order_currency = order[3]
     current_payment_status = order[4]
     current_order_status = order[5]
+    stored_transaction_id = order[6]
 
     # 2. Load tenant to verify secrets
     cur.execute(
@@ -1828,7 +1829,37 @@ async def payment_callback(
         )
         return ok_response
 
-    # 5. Process status
+    # 5a. P-01: Ignore CANCELLED/FAILED for already paid/shipped/delivered orders
+    if status_val in ("CANCELLED", "FAILED") and current_payment_status in (
+        "paid",
+        "shipped",
+        "delivered",
+    ):
+        logger.warning(
+            "Comgate callback: ignoring %s for order %s — already %s",
+            status_val,
+            refId,
+            current_payment_status,
+        )
+        return ok_response
+
+    # 5b. P-02: Ignore stale transaction — callback transId differs from stored
+    if (
+        stored_transaction_id
+        and transId != stored_transaction_id
+        and status_val != "PAID"
+    ):
+        logger.warning(
+            "Comgate callback: ignoring stale transId %s for order %s "
+            "(stored: %s, status: %s)",
+            transId,
+            refId,
+            stored_transaction_id,
+            status_val,
+        )
+        return ok_response
+
+    # 6. Process status
     if status_val == "PAID":
         # Idempotency: if already paid, don't change anything
         if current_payment_status == "paid":
