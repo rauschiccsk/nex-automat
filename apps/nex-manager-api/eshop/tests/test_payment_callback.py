@@ -89,7 +89,15 @@ def _make_conn(
         [
             # 1. Order lookup (SELECT order_id, tenant_id, total_amount_vat,
             #    currency, payment_status, status, comgate_transaction_id)
-            (1, 1, ORDER_TOTAL, CURRENCY, payment_status, order_status, stored_transaction_id),
+            (
+                1,
+                1,
+                ORDER_TOTAL,
+                CURRENCY,
+                payment_status,
+                order_status,
+                stored_transaction_id,
+            ),
             # 2. Tenant lookup (SELECT tenant_id, comgate_merchant_id, comgate_secret)
             (1, MERCHANT_ID, SECRET),
         ]
