@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, type ReactElement, type FormEvent } f
 import { X, Loader2, Eye, EyeOff } from 'lucide-react'
 import { cn } from '@renderer/lib/utils'
 import { api, type ApiError } from '@renderer/lib/api'
+import { useAuthStore } from '@renderer/stores/authStore'
 import { useToastStore } from '@renderer/stores/toastStore'
 import type { User, UserGroup } from '@renderer/types/users'
 
@@ -12,7 +13,9 @@ interface UserFormDialogProps {
 
 export default function UserFormDialog({ user, onClose }: UserFormDialogProps): ReactElement {
   const { addToast } = useToastStore()
+  const { user: currentUser } = useAuthStore()
   const isEdit = user != null
+  const isSelf = isEdit && user?.user_id === currentUser?.id
 
   // ── Form state ──
   const [username, setUsername] = useState(user?.login_name ?? '')
@@ -279,13 +282,19 @@ export default function UserFormDialog({ user, onClose }: UserFormDialogProps): 
               </div>
             )}
 
-            {/* Active checkbox */}
-            <label className="flex items-center gap-2 cursor-pointer">
+            {/* Active checkbox — disabled when editing self (cannot deactivate own account) */}
+            <label
+              className={cn(
+                'flex items-center gap-2',
+                isSelf ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'
+              )}
+              title={isSelf ? 'Nemôžete deaktivovať vlastný účet' : undefined}
+            >
               <input
                 type="checkbox"
                 checked={isActive}
                 onChange={(e) => setIsActive(e.target.checked)}
-                disabled={saving}
+                disabled={saving || isSelf}
                 className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
               />
               <span className="text-sm text-gray-700 dark:text-gray-300">Aktívny</span>

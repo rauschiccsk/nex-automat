@@ -239,6 +239,14 @@ def update_user(
     db=Depends(get_db),
 ):
     """Update an existing user. Username is NOT editable."""
+    # Self-deactivation guard — user cannot deactivate own account
+    # (would lock out via dependencies.get_current_user is_active check).
+    if user_id == current_user["user_id"] and body.is_active is False:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Nemôžete deaktivovať vlastný účet",
+        )
+
     cur = db.cursor()
 
     # Check user exists

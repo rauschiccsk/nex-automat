@@ -20,7 +20,7 @@ import ChangePasswordDialog from './ChangePasswordDialog'
 type ActiveFilter = 'all' | 'active' | 'inactive'
 
 export default function UserListView(): ReactElement {
-  const { checkPermission } = useAuthStore()
+  const { checkPermission, user: currentUser } = useAuthStore()
   const { addToast } = useToastStore()
 
   const canCreate = checkPermission('USR', 'create')
@@ -317,13 +317,22 @@ export default function UserListView(): ReactElement {
                         </button>
                         <button
                           onClick={() => void handleToggleActive(user)}
+                          disabled={user.user_id === currentUser?.id}
                           className={cn(
                             'p-1.5 rounded-lg transition-colors',
-                            user.is_active
-                              ? 'text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20'
-                              : 'text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20'
+                            user.user_id === currentUser?.id
+                              ? 'text-gray-300 cursor-not-allowed dark:text-gray-600'
+                              : user.is_active
+                                ? 'text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20'
+                                : 'text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20'
                           )}
-                          title={user.is_active ? 'Deaktivovať' : 'Aktivovať'}
+                          title={
+                            user.user_id === currentUser?.id
+                              ? 'Nemôžete deaktivovať vlastný účet'
+                              : user.is_active
+                                ? 'Deaktivovať'
+                                : 'Aktivovať'
+                          }
                         >
                           {user.is_active ? (
                             <ToggleRight className="h-4 w-4" />
