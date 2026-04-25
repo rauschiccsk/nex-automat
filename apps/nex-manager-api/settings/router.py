@@ -53,6 +53,23 @@ def list_settings(
     return SettingListResponse(settings=settings, total=len(settings))
 
 
+@router.get("/public")
+def list_public_settings(db=Depends(get_db)):
+    """Return UI-category settings as a flat key->value dict.
+
+    No authentication required — these are inherently public values
+    (debounce delays, toast durations) shipped in the FE bundle anyway.
+    Frontend boot-time config loader uses this endpoint to read live
+    runtime values; falls back to compile-time defaults if unreachable.
+
+    Scope: WHERE category = 'ui' (extend as more public categories arise).
+    """
+    cur = db.cursor()
+    cur.execute("SELECT setting_key, value FROM system_settings WHERE category = 'ui'")
+    rows = cur.fetchall()
+    return {key: value for key, value in rows}
+
+
 @router.get("/{setting_key}", response_model=SettingResponse)
 def get_setting_endpoint(
     setting_key: str,

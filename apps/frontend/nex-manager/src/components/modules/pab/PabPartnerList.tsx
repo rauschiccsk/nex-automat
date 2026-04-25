@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef, type ReactElement } from 'react'
 import { Plus, Building2, Loader2, AlertCircle, RotateCcw, Search } from 'lucide-react'
 import { cn } from '@renderer/lib/utils'
-import { SEARCH_DEBOUNCE_MS } from '@renderer/lib/constants'
+import { getConfigNumber } from '@renderer/lib/config'
 import { api, type ApiError } from '@renderer/lib/api'
 import { useAuthStore } from '@renderer/stores/authStore'
 import { useToastStore } from '@renderer/stores/toastStore'
@@ -43,7 +43,7 @@ export default function PabPartnerList(): ReactElement {
     if (searchTimer.current) clearTimeout(searchTimer.current)
     searchTimer.current = setTimeout(() => {
       setDebouncedSearch(searchQuery)
-    }, SEARCH_DEBOUNCE_MS)
+    }, getConfigNumber('ui.search_debounce_ms'))
     return () => {
       if (searchTimer.current) clearTimeout(searchTimer.current)
     }

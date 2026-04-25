@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { getConfigNumber } from '@renderer/lib/config'
 
 export type ToastType = 'success' | 'error' | 'info' | 'warning'
 
@@ -21,17 +22,19 @@ let nextId = 0
 export const useToastStore = create<ToastState>((set) => ({
   toasts: [],
 
-  addToast: (message, type = 'info', duration = 4000): void => {
+  addToast: (message, type = 'info', duration?: number): void => {
+    const effectiveDuration =
+      duration === undefined ? getConfigNumber('ui.toast_default_duration_ms') : duration
     const id = String(++nextId)
     set((state) => ({
-      toasts: [...state.toasts, { id, message, type, duration }]
+      toasts: [...state.toasts, { id, message, type, duration: effectiveDuration }]
     }))
-    if (duration > 0) {
+    if (effectiveDuration > 0) {
       setTimeout(() => {
         set((state) => ({
           toasts: state.toasts.filter((t) => t.id !== id)
         }))
-      }, duration)
+      }, effectiveDuration)
     }
   },
 

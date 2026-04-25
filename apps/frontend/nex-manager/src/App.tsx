@@ -12,6 +12,7 @@ import { MigrationDashboard } from '@renderer/components/modules/migration'
 import { EshopModuleView } from '@renderer/components/modules/eshop'
 import { SessionsView } from '@renderer/components/modules/sessions'
 import { SettingsView } from '@renderer/components/modules/settings'
+import { loadConfig } from '@renderer/lib/config'
 import CommandLine from '@renderer/components/CommandLine'
 import InfoPanel from '@renderer/components/InfoPanel'
 import LoginScreen from '@renderer/components/LoginScreen'
@@ -36,6 +37,13 @@ function App(): ReactElement {
   useEffect(() => {
     void restoreSession()
   }, [restoreSession])
+
+  // Load runtime UI config (debounce, toast duration) from public settings
+  // endpoint. Fire-and-forget; components have compile-time fallbacks until
+  // this resolves. No re-render trigger — cache is read at event-time.
+  useEffect(() => {
+    void loadConfig()
+  }, [])
 
   // Dark mode: sync document.documentElement class
   useEffect(() => {
