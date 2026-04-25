@@ -133,50 +133,6 @@ jobs:
           echo "| Latest Tag | ${{ steps.tags.outputs.latest_tag }} |" >> $GITHUB_STEP_SUMMARY
 
   # ===========================================
-  # Electron Build
-  # ===========================================
-  build-electron:
-    needs: [lint, test]
-    runs-on: [self-hosted, ANDROS-WIN]
-    if: github.event_name == 'push'
-    env:
-      CSC_IDENTITY_AUTO_DISCOVERY: "false"
-      CSC_LINK: ""
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Install dependencies
-        working-directory: apps/frontend/nex-manager
-        shell: pwsh
-        run: npm ci
-
-      - name: Build with electron-vite
-        working-directory: apps/frontend/nex-manager
-        shell: pwsh
-        run: npm run build
-
-      - name: Package Electron app (portable)
-        working-directory: apps/frontend/nex-manager
-        shell: pwsh
-        run: npx electron-builder --win --x64 --dir
-
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: nex-manager-electron
-          path: apps/frontend/nex-manager/dist/win-unpacked/
-          if-no-files-found: error
-          retention-days: 7
-
-  # ===========================================
   # Frontend Tests (Vitest + React Testing Library)
   # ===========================================
   frontend-tests:
@@ -218,7 +174,7 @@ jobs:
   # ===========================================
   deploy-staging-backend:
     name: Deploy Backend to Staging (DEPTEST)
-    needs: [lint, test, security, build, build-electron, frontend-tests]
+    needs: [lint, test, security, build, frontend-tests]
     if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
     runs-on: [self-hosted, ANDROS]
     environment: staging-DEPTEST
@@ -288,172 +244,12 @@ jobs:
           git push origin "$NEW_TAG"
 
   # ===========================================
-  # Staging Deploy Electron (DEPTEST) — Windows runner
-  # ===========================================
-  deploy-staging-electron:
-    name: Deploy Electron to Staging (DEPTEST)
-    needs: [build-electron, frontend-tests]
-    runs-on: [self-hosted, ANDROS-WIN]
-    if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
-    steps:
-      - name: Download Electron artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: nex-manager-electron
-          path: electron-app
-
-      - name: Kill ALL Electron/NEX Manager processes
-        shell: pwsh
-        run: |
-          $ErrorActionPreference = 'Continue'
-
-          # Attempt kill up to 3 rounds
-          for ($round = 1; $round -le 3; $round++) {
-            Write-Host "=== Kill round $round ==="
-
-            # Phase A: taskkill by image name (cross-session with /F)
-            & cmd /c 'taskkill /F /IM "NEX Manager.exe" 2>nul & exit /b 0'
-            & cmd /c 'taskkill /F /IM "nex-manager.exe" 2>nul & exit /b 0'
-            & cmd /c 'taskkill /F /IM "electron.exe" 2>nul & exit /b 0'
-            & cmd /c 'taskkill /F /IM "Electron.exe" 2>nul & exit /b 0'
-
-            # Phase B: Get PIDs via CIM and kill each by PID (most reliable cross-session)
-            $procs = Get-CimInstance Win32_Process | Where-Object {
-              $_.Name -match 'electron|NEX Manager|nex-manager'
-            }
-            foreach ($p in $procs) {
-              $procPid = $p.ProcessId
-              Write-Host "Killing PID=$procPid ($($p.Name)) SessionId=$($p.SessionId) via taskkill /F /PID"
-              & cmd /c "taskkill /F /PID $procPid 2>nul & exit /b 0"
-              # Also try CIM terminate
-              Invoke-CimMethod -InputObject $p -MethodName Terminate -ErrorAction SilentlyContinue | Out-Null
-            }
-
-            # Phase C: Stop-Process (current session fallback)
-            Get-Process | Where-Object { $_.ProcessName -match 'electron|NEX Manager|nex-manager' } | ForEach-Object {
-              Write-Host "Stop-Process: $($_.ProcessName) PID=$($_.Id)"
-              Stop-Process -Id $_.Id -Force -ErrorAction SilentlyContinue
-            }
-
-            Start-Sleep -Seconds 5
-
-            # Check if any remain
-            $remaining = Get-CimInstance Win32_Process | Where-Object {
-              $_.Name -match 'electron|NEX Manager|nex-manager'
-            }
-            if (-not $remaining) {
-              Write-Host "All processes killed after round $round"
-              break
-            }
-            Write-Host "Still running after round ${round}: $($remaining.Count) processes"
-            if ($round -eq 3) {
-              foreach ($p in $remaining) {
-                Write-Host "SURVIVOR: $($p.Name) PID=$($p.ProcessId) Session=$($p.SessionId) User=$($p.GetOwner().User)"
-              }
-              Write-Host "WARNING: Could not kill all processes after 3 rounds — will attempt deploy anyway"
-            }
-          }
-
-          Write-Host "=== Waiting 5 seconds for OS to release file handles ==="
-          Start-Sleep -Seconds 5
-
-      - name: Deploy to DEPTEST
-        shell: pwsh
-        run: |
-          $target = "C:\DEPTEST\nex-manager"
-
-          # Strategy 1: Try clean removal
-          $cleanDeploy = $false
-          if (Test-Path $target) {
-            try {
-              Remove-Item -Path $target -Recurse -Force -ErrorAction Stop
-              $cleanDeploy = $true
-              Write-Host "Old deployment removed successfully"
-            } catch {
-              Write-Host "Remove-Item failed: $($_.Exception.Message)"
-              cmd /c "rmdir /s /q `"$target`"" 2>&1 | Out-Null
-              if (-not (Test-Path $target)) {
-                $cleanDeploy = $true
-                Write-Host "cmd rmdir succeeded"
-              } else {
-                Write-Host "Directory still exists — using robocopy /MIR fallback"
-              }
-            }
-          } else {
-            $cleanDeploy = $true
-          }
-
-          if ($cleanDeploy) {
-            New-Item -ItemType Directory -Path $target -Force | Out-Null
-            Copy-Item -Path "electron-app\*" -Destination $target -Recurse -Force
-            Write-Host "Clean deploy completed"
-          } else {
-            # Robocopy /MIR with higher retries and wait
-            $src = (Resolve-Path "electron-app").Path
-            & robocopy $src $target /MIR /R:10 /W:5 /NFL /NDL /NJH /NJS
-            $rc = $LASTEXITCODE
-            Write-Host "Robocopy exit code: $rc"
-            if ($rc -ge 8) {
-              Write-Host "WARNING: Robocopy reported errors (exit $rc) — verifying critical files"
-              # Check at minimum app.asar was updated
-              $asar = Join-Path $target "resources\app.asar"
-              $srcAsar = Join-Path $src "resources\app.asar"
-              if ((Test-Path $asar) -and (Test-Path $srcAsar)) {
-                $srcHash = (Get-FileHash $srcAsar -Algorithm MD5).Hash
-                $dstHash = (Get-FileHash $asar -Algorithm MD5).Hash
-                if ($srcHash -eq $dstHash) {
-                  Write-Host "app.asar deployed correctly (hashes match)"
-                } else {
-                  Write-Error "FATAL: app.asar hash mismatch after robocopy"
-                  exit 1
-                }
-              }
-            }
-          }
-
-          # Verify
-          $exe = Get-ChildItem -Path $target -Filter "*.exe" -Recurse | Select-Object -First 1
-          if ($exe) {
-            Write-Host "Deployed: $($exe.FullName) ($([math]::Round($exe.Length/1MB, 1)) MB)"
-          } else {
-            Write-Error "No .exe found in $target"
-            exit 1
-          }
-
-      - name: Create DEPTEST config
-        shell: pwsh
-        run: |
-          $configDir = "C:\DEPTEST\nex-manager\resources"
-          New-Item -ItemType Directory -Path $configDir -Force | Out-Null
-          @{apiUrl = "http://100.107.134.104:9110"} | ConvertTo-Json | Set-Content "$configDir\config.json"
-          Write-Host "DEPTEST config written to $configDir\config.json"
-          Get-Content "$configDir\config.json"
-
-      - name: Start NEX Manager after deploy
-        shell: pwsh
-        run: |
-          $exePath = "C:\DEPTEST\nex-manager\NEX Manager.exe"
-          if (Test-Path $exePath) {
-            Write-Host "Starting NEX Manager..."
-            Start-Process -FilePath $exePath -WindowStyle Hidden
-            Start-Sleep -Seconds 2
-            $running = Get-Process -Name "NEX Manager" -ErrorAction SilentlyContinue
-            if ($running) {
-              Write-Host "NEX Manager started successfully (PID: $($running.Id))"
-            } else {
-              Write-Host "WARNING: NEX Manager did not start"
-            }
-          } else {
-            Write-Host "NEX Manager.exe not found at $exePath — skipping auto-start"
-          }
-
-  # ===========================================
   # E2E Tests (Playwright)
   # ===========================================
   e2e-tests:
     name: E2E Tests
     runs-on: [self-hosted, ANDROS]
-    needs: [deploy-staging-backend, deploy-staging-electron]
+    needs: [deploy-staging-backend]
     if: >-
       github.event_name == 'workflow_dispatch' ||
       contains(github.event.head_commit.message, '[e2e]') ||
