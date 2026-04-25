@@ -798,3 +798,42 @@ npm run lint     # ESLint
 `CLAUDE.md.legacy-2026-04-25` je full snapshot pôvodnej CLAUDE.md pred bootstrapom
 template-u (2026-04-25). Obsah tejto sekcie je extrakt project-specific častí.
 Súbor je tracked pre archive purposes — žiadne nové informácie tam nepatria.
+
+# ═══════════════════════════════════════════════════════════════
+# PROJECT OVERRIDES TO ICC STANDING RULES
+# ═══════════════════════════════════════════════════════════════
+
+Táto sekcia dokumentuje **project-level výnimky** zo *ICC Standing Rules* (vyššie v tomto
+súbore). Ak je medzi ICC Standing Rule a project override konflikt, **override má prednosť
+pre tento projekt** (NEX Automat). Neoverridované pravidlá zostávajú v platnosti tak,
+ako sú v ICC Standing Rules.
+
+**Sekcia je append-only** — ďalšie project-level výnimky pridávaj ako `OVERRIDE-002`,
+`OVERRIDE-003` atď. Existujúce override-y neprepisuj; ak treba override zrušiť, označ
+ho ako `Status: REVOKED` s dátumom a dôvodom, ale samotný bullet ponechaj pre audit trail.
+
+## OVERRIDE-001: Git-flow branch model (2026-04-25)
+
+- **ICC Standing Rule (overriden):** „Branch rule: push exclusively to `main`. CI triggers
+  only on `main`. No develop branch."
+- **Project rule (active):**
+  - Default working branch je **`develop`** — feature work, integrácia, bežné CI behy.
+  - **`main`** je release branch — merge sem iba pri release / deploy do produkcie
+    (cez merge z `develop`).
+  - **`hotfix_*`** branche sú dovolené (existuje `hotfix_v2.0`) — vetvia sa z `main`,
+    mergujú sa späť do `main` aj do `develop`.
+  - **Push policy:** feature commity → `origin/develop`; release commity → `origin/main`
+    cez merge z `develop`; hotfix → `origin/hotfix_*` → merge do oboch.
+  - **CI trigger:** `branches: [develop, main]` — match s aktuálnym
+    `.github/workflows/ci.yml` a `deploy.yml`.
+  - **Post-commit hook:** `.githooks/post-commit` (bump `APP_VERSION` v `.env`)
+    funguje **na akejkoľvek branch** — hook nemá branch-specific logiku, počíta
+    `git rev-list --count HEAD` bez ohľadu na to, kde sa commit udial. Bumping
+    na `develop` je teda korektný a očakávaný.
+- **Rationale:** Projekt používa git-flow konvenciu od pre-bootstrap fázy; CI/CD pipeline
+  a deploy skripty sú už nastavené na tento model; migrácia na main-only by si vyžiadala
+  rewrite hotfix branche aj CI workflows. Continuita projektu má prednosť pred
+  jednotnosťou template-u.
+- **Reference:** `.github/workflows/ci.yml` (`branches: [develop, main]`),
+  `.github/workflows/deploy.yml`, existing `origin/hotfix_v2.0`.
+- **Status:** ACTIVE
