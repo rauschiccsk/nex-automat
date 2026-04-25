@@ -27,6 +27,19 @@ const repoRoot = path.resolve(__dirname, '..', '..', '..', '..');
 // Output path — always relative to this script, not CWD
 const outFile = path.resolve(__dirname, '..', 'src', 'version.ts');
 
+// Skip if .git not present (e.g. inside Docker build context).
+// Host should generate src/version.ts BEFORE docker build; container preserves it.
+if (!fs.existsSync(path.join(repoRoot, '.git'))) {
+  if (fs.existsSync(outFile)) {
+    console.log('[version] .git not available (Docker build?), keeping existing src/version.ts');
+  } else {
+    // No .git AND no pre-existing version.ts → emit fallback so build doesn't crash.
+    fs.writeFileSync(outFile, "// Auto-generated fallback (no .git in context)\nexport const APP_VERSION = '0.0.0-dev';\nexport const GIT_HASH = 'unknown';\n");
+    console.log('[version] .git not available; wrote fallback version.ts');
+  }
+  process.exit(0);
+}
+
 // Run git with explicit repo path and safe.directory to work on Windows CI
 function git(cmd) {
   return execSync(

@@ -6,7 +6,9 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm ci
 COPY . .
-RUN node scripts/version.cjs && npm run build
+# Host MUST generate src/version.ts before docker build (no .git in context);
+# version.cjs gracefully preserves existing src/version.ts when run inside container.
+RUN npm run build
 
 # Serve stage
 FROM nginx:alpine
