@@ -53,10 +53,16 @@ def search(query: str, tenant: str, limit: int) -> list[dict]:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Semantic search over ICC Knowledge Base.")
+    parser = argparse.ArgumentParser(
+        description="Semantic search over ICC Knowledge Base."
+    )
     parser.add_argument("query", help="Query text")
-    parser.add_argument("--tenant", default="icc", help="Qdrant collection (default: icc)")
-    parser.add_argument("--limit", type=int, default=5, help="Top-K results (default: 5)")
+    parser.add_argument(
+        "--tenant", default="icc", help="Qdrant collection (default: icc)"
+    )
+    parser.add_argument(
+        "--limit", type=int, default=5, help="Top-K results (default: 5)"
+    )
     parser.add_argument("--json", action="store_true", help="Output raw JSON")
     args = parser.parse_args()
 

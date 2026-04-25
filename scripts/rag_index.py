@@ -51,7 +51,9 @@ def embed(text: str) -> list[float]:
     return response.json()["embedding"]
 
 
-def chunk_markdown(content: str, max_chars: int = CHUNK_MAX_CHARS, overlap: int = CHUNK_OVERLAP) -> list[str]:
+def chunk_markdown(
+    content: str, max_chars: int = CHUNK_MAX_CHARS, overlap: int = CHUNK_OVERLAP
+) -> list[str]:
     """Split markdown into chunks, preferring heading boundaries. Port from NEX Command."""
     if not content or not content.strip():
         return []
@@ -122,11 +124,17 @@ def extract_category(source_file: str) -> str:
 
 
 def delete_document(client: QdrantClient, source_file: str, tenant: str) -> int:
-    doc_filter = Filter(must=[FieldCondition(key="source_file", match=MatchValue(value=source_file))])
-    count = client.count(collection_name=tenant, count_filter=doc_filter, exact=True).count
+    doc_filter = Filter(
+        must=[FieldCondition(key="source_file", match=MatchValue(value=source_file))]
+    )
+    count = client.count(
+        collection_name=tenant, count_filter=doc_filter, exact=True
+    ).count
     if count == 0:
         return 0
-    client.delete(collection_name=tenant, points_selector=FilterSelector(filter=doc_filter))
+    client.delete(
+        collection_name=tenant, points_selector=FilterSelector(filter=doc_filter)
+    )
     return count
 
 
@@ -140,7 +148,12 @@ def index_document(client: QdrantClient, file_path: Path, tenant: str) -> dict:
 
     chunks = chunk_markdown(content)
     if not chunks:
-        return {"source_file": source_file, "chunks": 0, "deleted": deleted, "tenant": tenant}
+        return {
+            "source_file": source_file,
+            "chunks": 0,
+            "deleted": deleted,
+            "tenant": tenant,
+        }
 
     now_iso = datetime.now(timezone.utc).isoformat()
     points: list[PointStruct] = []
@@ -160,14 +173,27 @@ def index_document(client: QdrantClient, file_path: Path, tenant: str) -> dict:
         points.append(PointStruct(id=str(uuid.uuid4()), vector=vector, payload=payload))
 
     client.upsert(collection_name=tenant, points=points)
-    return {"source_file": source_file, "chunks": len(chunks), "deleted": deleted, "tenant": tenant}
+    return {
+        "source_file": source_file,
+        "chunks": len(chunks),
+        "deleted": deleted,
+        "tenant": tenant,
+    }
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Index markdown files into ICC RAG (Qdrant).")
-    parser.add_argument("paths", nargs="+", help="File paths to index (or delete with --delete)")
-    parser.add_argument("--tenant", default="icc", help="Qdrant collection (default: icc)")
-    parser.add_argument("--delete", action="store_true", help="Delete documents instead of indexing")
+    parser = argparse.ArgumentParser(
+        description="Index markdown files into ICC RAG (Qdrant)."
+    )
+    parser.add_argument(
+        "paths", nargs="+", help="File paths to index (or delete with --delete)"
+    )
+    parser.add_argument(
+        "--tenant", default="icc", help="Qdrant collection (default: icc)"
+    )
+    parser.add_argument(
+        "--delete", action="store_true", help="Delete documents instead of indexing"
+    )
     parser.add_argument("--verbose", "-v", action="store_true")
     args = parser.parse_args()
 
@@ -187,14 +213,18 @@ def main() -> int:
             print(f"SKIP (not found): {file_path}", file=sys.stderr)
             continue
         if file_path.is_dir():
-            print(f"SKIP (directory, expand globs in shell): {file_path}", file=sys.stderr)
+            print(
+                f"SKIP (directory, expand globs in shell): {file_path}", file=sys.stderr
+            )
             continue
 
         try:
             if args.delete:
                 source_file = source_file_from_path(file_path)
                 count = delete_document(client, source_file, args.tenant)
-                print(f"DELETED {count} chunks  source={source_file}  tenant={args.tenant}")
+                print(
+                    f"DELETED {count} chunks  source={source_file}  tenant={args.tenant}"
+                )
                 total_deleted += count
             else:
                 result = index_document(client, file_path, args.tenant)
