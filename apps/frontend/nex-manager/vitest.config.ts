@@ -14,15 +14,15 @@ export default defineConfig({
       reporter: ['text', 'text-summary', 'lcov'],
       reportsDirectory: './coverage',
       include: [
-        'src/renderer/src/components/**/*.{ts,tsx}',
-        'src/renderer/src/modules/**/*.{ts,tsx}',
-        'src/renderer/src/stores/**/*.{ts,tsx}'
+        'src/components/**/*.{ts,tsx}',
+        'src/modules/**/*.{ts,tsx}',
+        'src/stores/**/*.{ts,tsx}'
       ],
       exclude: [
         'src/**/*.test.{ts,tsx}',
         'src/**/*.d.ts',
         'src/**/index.ts',
-        'src/renderer/src/types/**'
+        'src/types/**'
       ],
       thresholds: {
         statements: 80,
@@ -33,12 +33,14 @@ export default defineConfig({
     },
     css: false,
     alias: {
-      '@renderer': path.resolve(__dirname, './src/renderer/src')
+      '@renderer': path.resolve(__dirname, './src'),
+      '@': path.resolve(__dirname, './src')
     }
   },
   resolve: {
     alias: {
-      '@renderer': path.resolve(__dirname, './src/renderer/src')
+      '@renderer': path.resolve(__dirname, './src'),
+      '@': path.resolve(__dirname, './src')
     }
   }
 })

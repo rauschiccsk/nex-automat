@@ -33,9 +33,8 @@ describe('Test infrastructure smoke test', () => {
     expect(fetchMock).toHaveBeenCalledTimes(1)
   })
 
-  it('electron mock is available', () => {
-    expect(window.electron).toBeDefined()
-    expect(window.electron.ipcRenderer.send).toBeDefined()
+  it('vite env is available (VITE_API_URL)', () => {
+    expect(import.meta.env).toBeDefined()
   })
 
   it('ResizeObserver mock works (for TanStack virtualizer)', () => {

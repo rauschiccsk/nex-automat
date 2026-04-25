@@ -25,7 +25,7 @@ const path = require('path');
 const repoRoot = path.resolve(__dirname, '..', '..', '..', '..');
 
 // Output path — always relative to this script, not CWD
-const outFile = path.resolve(__dirname, '..', 'src', 'renderer', 'src', 'version.ts');
+const outFile = path.resolve(__dirname, '..', 'src', 'version.ts');
 
 // Run git with explicit repo path and safe.directory to work on Windows CI
 function git(cmd) {

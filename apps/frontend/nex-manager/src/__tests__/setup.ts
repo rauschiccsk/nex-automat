@@ -6,22 +6,6 @@ afterEach(() => {
   cleanup()
 })
 
-// Mock Electron API — window.electron (electronAPI from @electron-toolkit/preload)
-vi.stubGlobal('electron', {
-  ipcRenderer: {
-    send: vi.fn(),
-    on: vi.fn(),
-    invoke: vi.fn()
-  }
-})
-
-// Mock window.api (custom preload API)
-vi.stubGlobal('api', {
-  config: {
-    getConfig: vi.fn().mockResolvedValue({ apiUrl: 'http://localhost:9110' })
-  }
-})
-
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
   value: vi.fn().mockImplementation((query: string) => ({
