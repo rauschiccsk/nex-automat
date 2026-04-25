@@ -11,6 +11,7 @@ import { PabModuleView } from '@renderer/components/modules/pab'
 import { MigrationDashboard } from '@renderer/components/modules/migration'
 import { EshopModuleView } from '@renderer/components/modules/eshop'
 import { SessionsView } from '@renderer/components/modules/sessions'
+import { SettingsView } from '@renderer/components/modules/settings'
 import CommandLine from '@renderer/components/CommandLine'
 import InfoPanel from '@renderer/components/InfoPanel'
 import LoginScreen from '@renderer/components/LoginScreen'
@@ -179,6 +180,8 @@ function App(): ReactElement {
                 <EshopModuleView />
               ) : activeTab.id === 'SES' ? (
                 <SessionsView />
+              ) : activeTab.id === 'SET' ? (
+                <SettingsView />
               ) : (
                 (() => {
                   const TabIcon = activeModule?.icon ? getIcon(activeModule.icon) : LayoutDashboard

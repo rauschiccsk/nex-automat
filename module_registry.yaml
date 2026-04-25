@@ -76,7 +76,7 @@ modules:
     category: system
     icon: Settings
     order: 130
-    status: planned
+    status: active
     backend_router: "settings"
     frontend_module: "settings"
     roles: [ri, ha, shu]

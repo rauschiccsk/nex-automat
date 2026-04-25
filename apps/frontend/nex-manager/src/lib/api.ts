@@ -112,6 +112,22 @@ export interface SessionListResponse {
   total: number
 }
 
+export interface Setting {
+  setting_key: string
+  value: unknown // JSONB — int / string / bool / array
+  scope: string
+  category: string
+  description: string | null
+  updated_by: string | null
+  updated_at: string
+  created_at: string
+}
+
+export interface SettingListResponse {
+  settings: Setting[]
+  total: number
+}
+
 // ─── Client ───────────────────────────────────────────────────────
 
 const STORAGE_KEY_ACCESS = 'nex-access-token'
@@ -312,6 +328,19 @@ class ApiClient {
   async terminateUserSessions(userId: number): Promise<MessageResponse> {
     return this.request<MessageResponse>(`/api/sessions/user/${userId}/all`, {
       method: 'DELETE'
+    })
+  }
+
+  // ── Settings endpoints ──
+
+  async listSettings(): Promise<SettingListResponse> {
+    return this.request<SettingListResponse>('/api/system/settings')
+  }
+
+  async updateSetting(key: string, value: unknown): Promise<Setting> {
+    return this.request<Setting>(`/api/system/settings/${encodeURIComponent(key)}`, {
+      method: 'PUT',
+      body: JSON.stringify({ value })
     })
   }
 

@@ -1,6 +1,6 @@
 {
   "name": "nex-manager",
-  "version": "0.5.2",
+  "version": "0.6.0",
   "description": "NEX Manager — Web/PWA app",
   "author": "ICC s.r.o. <info@icc.sk>",
   "type": "module",
