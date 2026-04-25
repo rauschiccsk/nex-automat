@@ -12,6 +12,8 @@ from email.mime.text import MIMEText
 from xml.dom import minidom
 from xml.etree.ElementTree import Element, SubElement, tostring
 
+from nex_config.business import DEFAULT_VAT_RATE_PERCENT
+
 logger = logging.getLogger(__name__)
 
 PAYMENT_METHOD_LABELS = {
@@ -561,7 +563,9 @@ class EshopEmailService:
             SubElement(
                 item_node, "unit_price_vat"
             ).text = f"{float(item.get('unit_price_vat', 0)):.2f}"
-            SubElement(item_node, "vat_rate").text = str(item.get("vat_rate", 20))
+            SubElement(item_node, "vat_rate").text = str(
+                item.get("vat_rate", DEFAULT_VAT_RATE_PERCENT)
+            )
 
         # Shipping as separate line item
         shipping_price = float(order.get("shipping_price", 0) or 0)
@@ -582,7 +586,7 @@ class EshopEmailService:
             SubElement(ship_item, "name").text = ship_name
             SubElement(ship_item, "quantity").text = "1"
             SubElement(ship_item, "unit_price_vat").text = f"{shipping_price:.2f}"
-            SubElement(ship_item, "vat_rate").text = "20"
+            SubElement(ship_item, "vat_rate").text = str(DEFAULT_VAT_RATE_PERCENT)
 
         # Total
         SubElement(

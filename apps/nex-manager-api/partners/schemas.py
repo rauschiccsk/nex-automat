@@ -5,6 +5,7 @@ from datetime import datetime
 from typing import Literal, Optional
 from uuid import UUID
 
+from nex_config.business import DEFAULT_PAYMENT_DUE_DAYS
 from pydantic import BaseModel, field_validator
 
 
@@ -48,7 +49,7 @@ class PartnerCreate(BaseModel):
     contact_person: Optional[str] = None
 
     # Obchodné podmienky
-    payment_due_days: int = 14
+    payment_due_days: int = DEFAULT_PAYMENT_DUE_DAYS
     credit_limit: float = 0
     discount_percent: float = 0
     price_category: Optional[str] = None

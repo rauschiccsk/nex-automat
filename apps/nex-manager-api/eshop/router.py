@@ -101,10 +101,9 @@ from .schemas import (
 )
 from .utils import generate_order_number
 
-router = APIRouter(prefix="/api/eshop", tags=["ESHOP"])
+from nex_config.limits import MUFIS_PAGE_SIZE
 
-# MuFis pagination constant
-MUFIS_PAGE_SIZE = 50
+router = APIRouter(prefix="/api/eshop", tags=["ESHOP"])
 
 # XML export directory (mapped from Docker volume to /srv/ftp/emcenter/xml)
 XML_EXPORT_DIR = os.environ.get("XML_EXPORT_DIR", "/app/exports/xml")
@@ -3349,7 +3348,7 @@ async def mufis_get_product(
     """MuFis: get products with filtering."""
     tenant_id = tenant["tenant_id"]
     cur = db.cursor()
-    per_page = 50
+    per_page = MUFIS_PAGE_SIZE
 
     conditions: list[str] = ["tenant_id = %s"]
     params: list = [tenant_id]

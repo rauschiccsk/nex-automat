@@ -10,6 +10,7 @@ import {
   ToggleRight
 } from 'lucide-react'
 import { cn } from '@renderer/lib/utils'
+import { SEARCH_DEBOUNCE_MS } from '@renderer/lib/constants'
 import { api, type ApiError } from '@renderer/lib/api'
 import { useAuthStore } from '@renderer/stores/authStore'
 import { useToastStore } from '@renderer/stores/toastStore'
@@ -42,7 +43,7 @@ export default function UserListView(): ReactElement {
 
   // ── Debounced search ──
   useEffect(() => {
-    const timer = setTimeout(() => setDebouncedSearch(searchTerm), 300)
+    const timer = setTimeout(() => setDebouncedSearch(searchTerm), SEARCH_DEBOUNCE_MS)
     return (): void => clearTimeout(timer)
   }, [searchTerm])
 

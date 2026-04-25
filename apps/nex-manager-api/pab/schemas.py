@@ -4,6 +4,7 @@ import re
 from datetime import datetime
 from typing import Literal, Optional
 
+from nex_config.business import DEFAULT_PAYMENT_DUE_DAYS
 from pydantic import BaseModel, field_validator
 
 
@@ -166,7 +167,7 @@ class ExtensionsUpsert(BaseModel):
 
     sale_payment_method_id: Optional[int] = None
     sale_transport_method_id: Optional[int] = None
-    sale_payment_due_days: int = 14
+    sale_payment_due_days: int = DEFAULT_PAYMENT_DUE_DAYS
     sale_currency_code: str = "EUR"
     sale_price_category: Optional[str] = None
     sale_discount_percent: float = 0
@@ -174,7 +175,7 @@ class ExtensionsUpsert(BaseModel):
 
     purchase_payment_method_id: Optional[int] = None
     purchase_transport_method_id: Optional[int] = None
-    purchase_payment_due_days: int = 14
+    purchase_payment_due_days: int = DEFAULT_PAYMENT_DUE_DAYS
     purchase_currency_code: str = "EUR"
     purchase_price_category: Optional[str] = None
     purchase_discount_percent: float = 0

@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef, type ReactElement } from 'react'
 import { ShoppingCart, Loader2, AlertCircle, RotateCcw, Search } from 'lucide-react'
 import { cn } from '@renderer/lib/utils'
+import { SEARCH_DEBOUNCE_MS } from '@renderer/lib/constants'
 import { api, type ApiError } from '@renderer/lib/api'
 import { useToastStore } from '@renderer/stores/toastStore'
 import { useEshopStore } from '@renderer/stores/eshopStore'
@@ -73,7 +74,7 @@ export default function EshopOrderList(): ReactElement {
     if (searchTimer.current) clearTimeout(searchTimer.current)
     searchTimer.current = setTimeout(() => {
       setDebouncedSearch(orderSearch)
-    }, 300)
+    }, SEARCH_DEBOUNCE_MS)
     return () => {
       if (searchTimer.current) clearTimeout(searchTimer.current)
     }
