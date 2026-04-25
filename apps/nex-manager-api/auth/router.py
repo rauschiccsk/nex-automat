@@ -1,9 +1,9 @@
-"""Authentication API endpoints — login, refresh, me, change-password."""
+"""Authentication API endpoints — login, refresh, logout, me, change-password."""
 
 import json
 from datetime import datetime, timezone
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from jose import JWTError
 
 from database import get_db
@@ -30,18 +30,30 @@ from .service import (
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
 
+def _client_ip(http_req: Request) -> str | None:
+    """Extract client IP, honouring X-Forwarded-For (reverse proxy)."""
+    forwarded = http_req.headers.get("x-forwarded-for")
+    if forwarded:
+        return forwarded.split(",")[0].strip()
+    return http_req.client.host if http_req.client else None
+
+
 @router.post("/login", response_model=TokenResponse)
-def login(request: LoginRequest, db=Depends(get_db)):
-    """Authenticate user and return JWT access + refresh tokens."""
+def login(body: LoginRequest, http_req: Request, db=Depends(get_db)):
+    """Authenticate user, create new session row, return JWT access + refresh tokens.
+
+    Each login creates a fresh user_sessions row (multi-device support).
+    JWT carries sid+tv claims that bind tokens to that session.
+    """
     cur = db.cursor()
     cur.execute(
         "SELECT user_id, login_name, password_hash, is_active "
         "FROM users WHERE login_name = %s",
-        (request.username,),
+        (body.username,),
     )
     user = cur.fetchone()
 
-    if not user or not verify_password(request.password, user[2]):
+    if not user or not verify_password(body.password, user[2]):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Nesprávne prihlasovacie údaje",
@@ -59,8 +71,25 @@ def login(request: LoginRequest, db=Depends(get_db)):
         (datetime.now(timezone.utc), user[0]),
     )
 
-    access_token = create_access_token(user[0], user[1])
-    refresh_token = create_refresh_token(user[0])
+    # Create a new session row (multi-device — one per login).
+    user_agent = http_req.headers.get("user-agent")
+    if user_agent and len(user_agent) > 500:
+        user_agent = user_agent[:500]
+    ip_address = _client_ip(http_req)
+
+    cur.execute(
+        "INSERT INTO user_sessions (user_id, user_agent, ip_address) "
+        "VALUES (%s, %s, %s) "
+        "RETURNING session_id, token_version",
+        (user[0], user_agent, ip_address),
+    )
+    session_row = cur.fetchone()
+    session_id = session_row[0]
+    token_version = session_row[1]
+    db.commit()
+
+    access_token = create_access_token(user[0], user[1], session_id, token_version)
+    refresh_token = create_refresh_token(user[0], session_id, token_version)
 
     return TokenResponse(
         access_token=access_token,
@@ -71,36 +100,74 @@ def login(request: LoginRequest, db=Depends(get_db)):
 
 @router.post("/refresh", response_model=TokenResponse)
 def refresh(request: RefreshRequest, db=Depends(get_db)):
-    """Refresh access token using a valid refresh token."""
+    """Refresh access token using a valid refresh token.
+
+    Validates session anchor (sid+tv must still match user_sessions row) —
+    rejects tokens issued before the session was logged out (tv bumped) or
+    deleted. Per Q-A 2026-04-25: refresh preserves tv (no rotation).
+    """
     try:
         payload = decode_token(request.refresh_token)
         if payload.get("type") != "refresh":
             raise HTTPException(status_code=401, detail="Neplatný typ tokenu")
         user_id = int(payload["sub"])
+        session_id = int(payload["sid"])
+        token_version = int(payload["tv"])
     except (JWTError, KeyError, ValueError):
         raise HTTPException(status_code=401, detail="Neplatný refresh token")
 
     cur = db.cursor()
     cur.execute(
-        "SELECT user_id, login_name, is_active FROM users WHERE user_id = %s",
-        (user_id,),
+        "SELECT u.user_id, u.login_name, u.is_active, s.token_version "
+        "FROM users u "
+        "JOIN user_sessions s ON s.user_id = u.user_id "
+        "WHERE u.user_id = %s AND s.session_id = %s",
+        (user_id, session_id),
     )
-    user = cur.fetchone()
+    row = cur.fetchone()
 
-    if not user or not user[2]:  # is_active
+    if not row or not row[2]:  # is_active
         raise HTTPException(
             status_code=401,
-            detail="Používateľ nebol nájdený alebo je neaktívny",
+            detail="Session nenájdená alebo používateľ je neaktívny",
         )
 
-    access_token = create_access_token(user[0], user[1])
-    refresh_token = create_refresh_token(user[0])
+    if row[3] != token_version:
+        raise HTTPException(
+            status_code=401,
+            detail="Session bola ukončená — prihláste sa znova",
+        )
+
+    access_token = create_access_token(row[0], row[1], session_id, token_version)
+    refresh_token = create_refresh_token(row[0], session_id, token_version)
 
     return TokenResponse(
         access_token=access_token,
         refresh_token=refresh_token,
         expires_in=int(ACCESS_TOKEN_EXPIRE.total_seconds()),
     )
+
+
+@router.post("/logout")
+def logout(current_user=Depends(get_current_user), db=Depends(get_db)):
+    """Bump token_version on caller's current session — invalidates this JWT.
+
+    Subsequent requests with the same access/refresh token return 401.
+    Other devices of the same user are unaffected (separate session rows).
+    """
+    session_id = current_user.get("session_id")
+    if session_id is None:
+        # Token without sid (legacy or malformed) — no-op success.
+        return {"message": "Odhlásený"}
+
+    cur = db.cursor()
+    cur.execute(
+        "UPDATE user_sessions SET token_version = token_version + 1, "
+        "updated_at = NOW() WHERE session_id = %s",
+        (session_id,),
+    )
+    db.commit()
+    return {"message": "Odhlásený"}
 
 
 @router.get("/me", response_model=MeResponse)

@@ -31,7 +31,12 @@ async def get_current_user(
 ):
     """Extract and validate user from JWT Bearer token.
 
-    Returns dict with user_id, login_name, full_name, email, is_active.
+    Validates session anchor (sid+tv must match user_sessions row).
+    Refreshes last_seen_at, throttled to 1 update per minute per session
+    (per Q-B 2026-04-25 decision).
+
+    Returns dict with user_id, login_name, full_name, email, is_active,
+    session_id.
     """
     token = credentials.credentials
     try:
@@ -39,6 +44,8 @@ async def get_current_user(
         if payload.get("type") != "access":
             raise HTTPException(status_code=401, detail="Neplatný typ tokenu")
         user_id = int(payload["sub"])
+        session_id = int(payload["sid"])
+        token_version = int(payload["tv"])
     except (JWTError, KeyError, ValueError):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -48,23 +55,43 @@ async def get_current_user(
 
     cur = db.cursor()
     cur.execute(
-        "SELECT user_id, login_name, full_name, email, is_active "
-        "FROM users WHERE user_id = %s",
-        (user_id,),
+        "SELECT u.user_id, u.login_name, u.full_name, u.email, u.is_active, "
+        "s.token_version "
+        "FROM users u "
+        "JOIN user_sessions s ON s.user_id = u.user_id "
+        "WHERE u.user_id = %s AND s.session_id = %s",
+        (user_id, session_id),
     )
-    user = cur.fetchone()
+    row = cur.fetchone()
 
-    if not user or not user[4]:  # is_active
+    if not row:
         raise HTTPException(
-            status_code=401, detail="Používateľ nebol nájdený alebo je neaktívny"
+            status_code=401, detail="Session nenájdená alebo používateľ neexistuje"
         )
 
+    if not row[4]:  # is_active
+        raise HTTPException(status_code=401, detail="Používateľ je neaktívny")
+
+    if row[5] != token_version:
+        raise HTTPException(
+            status_code=401, detail="Session bola ukončená — prihláste sa znova"
+        )
+
+    # Throttled last_seen_at update — only if older than 1 minute.
+    cur.execute(
+        "UPDATE user_sessions SET last_seen_at = NOW(), updated_at = NOW() "
+        "WHERE session_id = %s AND last_seen_at < NOW() - INTERVAL '1 minute'",
+        (session_id,),
+    )
+    db.commit()
+
     return {
-        "user_id": user[0],
-        "login_name": user[1],
-        "full_name": user[2],
-        "email": user[3],
-        "is_active": user[4],
+        "user_id": row[0],
+        "login_name": row[1],
+        "full_name": row[2],
+        "email": row[3],
+        "is_active": row[4],
+        "session_id": session_id,
     }
 
 

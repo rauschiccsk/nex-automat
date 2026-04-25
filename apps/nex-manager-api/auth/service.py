@@ -25,12 +25,22 @@ def hash_password(password: str) -> str:
     return bcrypt.hashpw(pw_bytes, bcrypt.gensalt()).decode("utf-8")
 
 
-def create_access_token(user_id: int, login_name: str) -> str:
-    """Create a short-lived JWT access token."""
+def create_access_token(
+    user_id: int, login_name: str, session_id: int, token_version: int
+) -> str:
+    """Create a short-lived JWT access token with session anchor (sid+tv).
+
+    The ``sid`` claim binds the token to a specific user_sessions row;
+    ``tv`` is verified against ``user_sessions.token_version`` on every
+    authenticated request — bumping tv (e.g. on logout) invalidates this
+    token immediately.
+    """
     now = datetime.now(timezone.utc)
     payload = {
         "sub": str(user_id),
         "username": login_name,
+        "sid": session_id,
+        "tv": token_version,
         "type": "access",
         "iat": now,
         "exp": now + ACCESS_TOKEN_EXPIRE,
@@ -38,11 +48,17 @@ def create_access_token(user_id: int, login_name: str) -> str:
     return jwt.encode(payload, JWT_SECRET_KEY, algorithm=JWT_ALGORITHM)
 
 
-def create_refresh_token(user_id: int) -> str:
-    """Create a long-lived JWT refresh token."""
+def create_refresh_token(user_id: int, session_id: int, token_version: int) -> str:
+    """Create a long-lived JWT refresh token bound to the same session.
+
+    Refresh issues a new access token without changing tv (per Q-A 2026-04-25
+    decision: refresh = session extension, not rotation).
+    """
     now = datetime.now(timezone.utc)
     payload = {
         "sub": str(user_id),
+        "sid": session_id,
+        "tv": token_version,
         "type": "refresh",
         "iat": now,
         "exp": now + REFRESH_TOKEN_EXPIRE,
