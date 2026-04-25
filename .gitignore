@@ -1,44 +1,182 @@
 # Python
 __pycache__/
 *.py[cod]
-*.egg-info/
-dist/
+*$py.class
+*.so
+.Python
 build/
+develop-eggs/
+dist/
+downloads/
+eggs/
 .eggs/
+lib/
+!**/src/lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+.mypy_cache/
+.ruff_cache/
+.tox/
 
-# Virtual environments
+# UV
 .venv/
-venv/
-env/
-
-# IDE
-.idea/
-.vscode/
-*.swp
-*.swo
-
-# Environment (NEVER commit — credentials live here, plus auto-bumped APP_VERSION)
-.env
+venv32/
+uv.lock
 
 # Testing
 .pytest_cache/
 .coverage
 htmlcov/
+*.cover
+.hypothesis/
 
-# Linting
-.ruff_cache/
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Environment
+.env
+.env.local
+.env.*.local
+# Deployment env files (real secrets, not .example templates)
+deployment/docker/.env.*
+!deployment/docker/.env.*.example
 
 # OS
 .DS_Store
 Thumbs.db
 
-# Node (frontend)
+# Logs
+*.log
+logs/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# NEX specific
+/NEX/
+C:/NEX/
+
+# Storage directories
+storage/
+pdf_files/
+xml_files/
+temp/
+tmp/
+
+# Backup files
+*.backup
+*.backup[0-9]
+*.bak
+
+*.pdf
+
+# Migration outputs
+migration_*.log
+migration_report_*.txt
+
+# Production Configuration (NEVER commit these files!)
+config/config.yaml
+config/.env
+config/*.key
+config/*.secret
+
+# Backup files
+backups/
+*.backup
+*.bak
+
+# Log files
+logs/
+*.log
+
+# Temporary files
+temp/
+*.tmp
+
+# Storage directories (contain sensitive data)
+storage/
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+
+# Virtual environments
+venv/
+venv32/
+env/
+ENV/
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Certificates and keys
+*.pem
+*.key
+*.crt
+*.cer
+*.p12
+*.pfx
+
+# RAG generated code documentation (generated locally for indexing)
+docs/code/
+scripts/new_chat.py
+
+scripts/new_chat.py
+
+# Sensitive knowledge - credentials, tokens, internal configs
+docs/knowledge/
+
+# GitHub Actions
+.github/workflows/*.local.yml
+
+# Coverage
+coverage.xml
+coverage/
+docs/knowledge/
+
+# Sensitive knowledge-import files (credentials, VPN configs, contacts with secrets)
+# Note: these files have literal backslashes in filenames (from Windows export)
+docs/knowledge-import/credentials\\*
+docs/knowledge-import/deployment\\*VPN*
+docs/knowledge-import/deployment\\*CREDENTIALS*
+
+# Node
 node_modules/
-frontend/dist/
 
-# Alembic
-migrations/versions/__pycache__/
-
-# Claude Code
+# Claude Code (added by icc-claude-template)
 .nex-automat-session-state.md
 .claude/scheduled_tasks.lock

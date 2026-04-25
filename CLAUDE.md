@@ -663,3 +663,138 @@ Aj generic projekt môže potrebovať regulované patterns ak:
 V takom prípade upozorni Zoltána pred prvou implementáciou regulovanej časti.
 
 <!-- END domain variant -->
+
+# ═══════════════════════════════════════════════════════════════
+# PROJECT-SPECIFIC CONTEXT
+# (preserved from pre-template CLAUDE.md, 2026-03-05 → 2026-04-25)
+# ═══════════════════════════════════════════════════════════════
+
+## Project Overview
+
+NEX Automat je monorepo pre **NEX Genesis Automation Platform**. Pokrýva:
+- Spracovanie dodávateľských faktúr (supplier invoice processing)
+- Multi-tenant RAG-based knowledge management
+- AI assistant services
+
+Nie je to single-app IS s modulmi (preto variant `general`, nie `iss-multimodul`)
+— je to **monorepo separátnych aplikácií** zdieľajúcich packages.
+
+## Monorepo Structure
+
+`uv` workspace, Python 3.11+ (niektoré apps Python 3.13+):
+
+```
+apps/
+├── nex-brain/                       # Multi-tenant RAG + LLM API (FastAPI + Ollama)
+├── btrieve-loader/                  # Email-to-database invoice processing (FastAPI)
+├── supplier-invoice-editor/         # Desktop approval app (PyQt5)
+├── supplier-invoice-staging/        # PySide6 staging desktop app
+└── supplier-invoice-staging-web/    # React + Vite web frontend
+
+packages/
+├── nexdata/                # NEX Genesis Btrieve models & utilities
+├── nex-staging/            # PostgreSQL models for invoice staging
+├── nex-invoice-worker/     # Multi-tenant Temporal.io invoice worker (supplier + andros)
+├── shared-pyside6/         # Reusable PySide6 components (BaseWindow, BaseGrid)
+└── nex-shared/             # FLAT structure: packages/nex-shared/models/ (no nested nex_shared/)
+
+tools/
+└── rag/                    # RAG indexing & search tools
+```
+
+## Common Commands
+
+### Python apps (in app directory with venv)
+```bash
+pip install -e .            # install
+pytest                      # tests
+ruff check .                # lint
+black --check .             # format check
+```
+
+### RAG system (project-internal, separate from KB-RAG in §5.3 above)
+```bash
+python tools/rag/rag_update.py --new      # daily update
+python tools/rag/rag_update.py --all      # full reindex
+python tools/rag/rag_update.py --stats    # check stats
+```
+
+### NEX Brain API
+```bash
+cd apps/nex-brain
+uvicorn api.main:app --host 0.0.0.0 --port 8100 --reload
+```
+
+### Web frontend
+```bash
+cd apps/supplier-invoice-staging-web
+npm install
+npm run dev      # development
+npm run build    # production build
+npm run lint     # ESLint
+```
+
+## Architecture
+
+### Multi-Tenant RAG System
+- Database: PostgreSQL (`nex_automat_rag`) with **pgvector**
+- Embedding: `sentence-transformers/all-MiniLM-L6-v2` (384 dims)
+  — odlišné od ICC KB embedding (`nomic-embed-text` — viď §6 nad)
+- Tenants: ICC, ANDROS, UAE — každý má izolovaný document space
+- Documents pre RAG indexing patria LEN do `docs/knowledge/`
+
+### Invoice Processing Pipeline
+1. `btrieve-loader` — receives emails, extracts PDFs, OCR
+2. `nex-invoice-worker` — multi-tenant Temporal workflows (`packages/nex-invoice-worker`)
+3. `supplier-invoice-staging` / `supplier-invoice-staging-web` — review UI
+4. `supplier-invoice-editor` — final approval (PyQt5)
+
+### Shared Packages
+- `nexdata`: Btrieve client, models (TSH, TSI, PAB, MGLST, Barcode, GScat)
+- `nex-staging`: PostgreSQL connection, InvoiceHead/InvoiceItem models
+- `shared-pyside6`: BaseWindow (persistence), BaseGrid (columns, export), QuickSearch
+
+## Code Style (project-specific overrides)
+
+- Line length: **100** (project override; ICC default je 88)
+- Python target: 3.11+ (3.13+ pre `supplier-invoice-editor`)
+- Formatters: Black + Ruff
+- Type hints required
+
+## Key Configuration Files
+
+- `config/rag_config.yaml` — RAG database and embedding settings
+- `config/database.yaml` — General database configuration
+- `.env` files in app directories — environment-specific secrets
+  (per §13 — NEVER read these via Read/grep/cat)
+
+## Critical Rules (project-specific, supplement to §1–§19 above)
+
+1. **GitHub URLs** — MUST use org `rauschiccsk`, NEVER `icc-zoltan` (already in §6)
+   ```
+   https://raw.githubusercontent.com/rauschiccsk/nex-automat/develop/...
+   ```
+2. **Project-internal RAG API URL** — parameter is `query` not `q`
+   ```
+   https://rag-api.icc.sk/search?query=KEYWORDS&limit=5
+   ```
+3. **PostgreSQL password** — via `POSTGRES_PASSWORD` env variable, never in config.yaml
+4. **Subprocess calls** — ALWAYS use `sys.executable` instead of `"python"` (correct venv)
+5. **Sensitive data** — passwords/tokens/API keys go ONLY to markdown artifacts,
+   NEVER in `.py` scripts (orthogonal to §13 — both apply)
+
+## Collaboration Rules (from `docs/COLLABORATION_RULES.md`)
+
+- Step-by-step execution — one action at a time
+- Single solution approach — no alternatives unless requested
+  (matches Default Workflow above)
+- All fixes via Python scripts only (no `.ps1`)
+- Development → Git → Deployment workflow (never fix in deployment)
+- Session scripts numbered sequentially (`01_xxx.py`, `02_xxx.py`)
+- `nex-shared` uses **FLAT structure** (kritické — žiadne nested `nex_shared/`)
+
+## Vzťah k legacy `CLAUDE.md.legacy-2026-04-25`
+
+`CLAUDE.md.legacy-2026-04-25` je full snapshot pôvodnej CLAUDE.md pred bootstrapom
+template-u (2026-04-25). Obsah tejto sekcie je extrakt project-specific častí.
+Súbor je tracked pre archive purposes — žiadne nové informácie tam nepatria.
