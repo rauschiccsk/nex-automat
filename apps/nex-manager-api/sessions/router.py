@@ -27,6 +27,11 @@ router = APIRouter(prefix="/api/sessions", tags=["sessions"])
 # Helpers
 # ─────────────────────────────────────────────────────────────────────
 
+# By convention: token_version=0 means "active" (JWT carrying tv=0 still valid).
+# Any tv>0 means the session was terminated (logout, force-logout). Terminated
+# rows stay in DB for audit but are hidden from UI listings.
+_ACTIVE_FILTER = "s.token_version = 0"
+
 _SESSION_SELECT = (
     "SELECT s.session_id, s.user_id, u.login_name, u.full_name, "
     "s.user_agent, s.ip_address, s.last_seen_at, s.created_at "
@@ -64,9 +69,15 @@ def list_all_sessions(
     current_user=Depends(require_permission("USR", "can_admin")),
     db=Depends(get_db),
 ):
-    """List all active sessions across all users (admin only)."""
+    """List all active sessions across all users (admin only).
+
+    Filters out terminated sessions (token_version > 0) — those rows stay
+    in DB for audit but never appear in UI.
+    """
     cur = db.cursor()
-    cur.execute(_SESSION_SELECT + " ORDER BY s.last_seen_at DESC")
+    cur.execute(
+        _SESSION_SELECT + f" WHERE {_ACTIVE_FILTER} ORDER BY s.last_seen_at DESC"
+    )
     rows = cur.fetchall()
     cur_sid = _current_session_id(current_user)
     sessions = [_row_to_response(r, cur_sid) for r in rows]
@@ -78,10 +89,11 @@ def list_my_sessions(
     current_user=Depends(get_current_user),
     db=Depends(get_db),
 ):
-    """List caller's own sessions (one per logged-in device)."""
+    """List caller's own active sessions (filters terminated rows)."""
     cur = db.cursor()
     cur.execute(
-        _SESSION_SELECT + " WHERE s.user_id = %s ORDER BY s.last_seen_at DESC",
+        _SESSION_SELECT
+        + f" WHERE s.user_id = %s AND {_ACTIVE_FILTER} ORDER BY s.last_seen_at DESC",
         (current_user["user_id"],),
     )
     rows = cur.fetchall()
