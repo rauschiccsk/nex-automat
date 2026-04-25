@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+#
+# Post-commit hook — keep ``APP_VERSION`` in ``.env`` in sync with
+# the current HEAD so the visible app version reflects each commit.
+#
+# Format: ``0.1.<commit_count>`` (e.g. ``0.1.42``).
+# Monotonic with each commit. To correlate a deployed version to a specific
+# commit, use ``git log --oneline`` — the N-th entry from root is
+# ``0.1.N``.
+#
+# Only the single APP_VERSION line is touched — any other values in
+# ``.env`` (backend secrets, local overrides) are preserved.
+#
+# Enable once per clone:
+#   git config core.hooksPath .githooks
+#
+# The hook only writes (never reads) credential lines, so it is
+# compatible with CLAUDE.md §13.
+
+set -euo pipefail
+
+REPO_ROOT=$(git rev-parse --show-toplevel)
+ENV_FILE="${REPO_ROOT}/.env"
+
+COMMIT_COUNT=$(git rev-list --count HEAD)
+VERSION="0.1.${COMMIT_COUNT}"
+NEW_LINE="APP_VERSION=${VERSION}"
+
+if [[ -f "${ENV_FILE}" ]] && grep -q '^APP_VERSION=' "${ENV_FILE}"; then
+    sed -i "s|^APP_VERSION=.*|${NEW_LINE}|" "${ENV_FILE}"
+else
+    touch "${ENV_FILE}"
+    printf '%s\n' "${NEW_LINE}" >> "${ENV_FILE}"
+fi
+
+echo "post-commit: APP_VERSION=${VERSION}"
