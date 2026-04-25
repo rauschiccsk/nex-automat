@@ -1,9 +1,11 @@
 """Authentication business logic — JWT creation, password verification."""
 
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 import bcrypt
 from jose import jwt, JWTError  # noqa: F401
+
+from settings.service import get_setting
 
 from .config import (
     JWT_ALGORITHM,
@@ -11,6 +13,24 @@ from .config import (
     ACCESS_TOKEN_EXPIRE,
     REFRESH_TOKEN_EXPIRE,
 )
+
+
+def _access_token_expire() -> timedelta:
+    """Read access token expiry from runtime settings, fallback to compile-time default."""
+    seconds = get_setting(
+        "auth.access_token_expiry_seconds",
+        default=int(ACCESS_TOKEN_EXPIRE.total_seconds()),
+    )
+    return timedelta(seconds=int(seconds))
+
+
+def _refresh_token_expire() -> timedelta:
+    """Read refresh token expiry from runtime settings, fallback to compile-time default."""
+    days = get_setting(
+        "auth.refresh_token_expiry_days",
+        default=REFRESH_TOKEN_EXPIRE.days,
+    )
+    return timedelta(days=int(days))
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
@@ -43,7 +63,7 @@ def create_access_token(
         "tv": token_version,
         "type": "access",
         "iat": now,
-        "exp": now + ACCESS_TOKEN_EXPIRE,
+        "exp": now + _access_token_expire(),
     }
     return jwt.encode(payload, JWT_SECRET_KEY, algorithm=JWT_ALGORITHM)
 
@@ -61,7 +81,7 @@ def create_refresh_token(user_id: int, session_id: int, token_version: int) -> s
         "tv": token_version,
         "type": "refresh",
         "iat": now,
-        "exp": now + REFRESH_TOKEN_EXPIRE,
+        "exp": now + _refresh_token_expire(),
     }
     return jwt.encode(payload, JWT_SECRET_KEY, algorithm=JWT_ALGORITHM)
 

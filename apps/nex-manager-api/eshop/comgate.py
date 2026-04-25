@@ -11,7 +11,11 @@ import urllib.parse
 import urllib.request
 from typing import Optional
 
+from settings.service import get_setting
+
 logger = logging.getLogger(__name__)
+
+_DEFAULT_COMGATE_BASE_URL = "https://payments.comgate.cz/v1.0"
 
 
 class ComgateError(Exception):
@@ -36,7 +40,11 @@ class ComgateClient:
         self.test_mode = test_mode
         # Comgate uses a single base URL; test mode is controlled via
         # the ``test`` parameter in request data, NOT via URL path.
-        self.base_url = "https://payments.comgate.cz/v1.0"
+        # Read base URL from runtime settings (admin can switch test/prod
+        # endpoint), fallback to compile-time default.
+        self.base_url = get_setting(
+            "payment.comgate_base_url", _DEFAULT_COMGATE_BASE_URL
+        )
 
     def _convert_to_cents(self, amount: float) -> int:
         """Convert EUR/CZK amount to cents (haliere).

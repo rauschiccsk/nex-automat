@@ -5,7 +5,15 @@ from datetime import datetime
 from typing import Literal, Optional
 
 from nex_config.business import DEFAULT_PAYMENT_DUE_DAYS
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, Field, field_validator
+from settings.service import get_setting
+
+
+def _default_payment_due_days() -> int:
+    """Read default payment due days from runtime settings, fallback to compile-time."""
+    return int(
+        get_setting("business.default_payment_due_days", DEFAULT_PAYMENT_DUE_DAYS)
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -167,7 +175,7 @@ class ExtensionsUpsert(BaseModel):
 
     sale_payment_method_id: Optional[int] = None
     sale_transport_method_id: Optional[int] = None
-    sale_payment_due_days: int = DEFAULT_PAYMENT_DUE_DAYS
+    sale_payment_due_days: int = Field(default_factory=_default_payment_due_days)
     sale_currency_code: str = "EUR"
     sale_price_category: Optional[str] = None
     sale_discount_percent: float = 0
@@ -175,7 +183,7 @@ class ExtensionsUpsert(BaseModel):
 
     purchase_payment_method_id: Optional[int] = None
     purchase_transport_method_id: Optional[int] = None
-    purchase_payment_due_days: int = DEFAULT_PAYMENT_DUE_DAYS
+    purchase_payment_due_days: int = Field(default_factory=_default_payment_due_days)
     purchase_currency_code: str = "EUR"
     purchase_price_category: Optional[str] = None
     purchase_discount_percent: float = 0

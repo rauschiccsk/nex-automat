@@ -102,6 +102,13 @@ from .schemas import (
 from .utils import generate_order_number
 
 from nex_config.limits import MUFIS_PAGE_SIZE
+from settings.service import get_setting
+
+
+def _mufis_page_size() -> int:
+    """Read MuFis page size from runtime settings, fallback to compile-time default."""
+    return int(get_setting("integration.mufis_page_size", MUFIS_PAGE_SIZE))
+
 
 router = APIRouter(prefix="/api/eshop", tags=["ESHOP"])
 
@@ -2763,7 +2770,7 @@ async def mufis_get_order(
     mufis_dry_run = os.environ.get("MUFIS_DRY_RUN", "true").lower() == "true"
     tenant_id = tenant["tenant_id"]
     cur = db.cursor()
-    per_page = MUFIS_PAGE_SIZE
+    per_page = _mufis_page_size()
 
     conditions: list[str] = ["tenant_id = %s"]
     params: list = [tenant_id]
@@ -3348,7 +3355,7 @@ async def mufis_get_product(
     """MuFis: get products with filtering."""
     tenant_id = tenant["tenant_id"]
     cur = db.cursor()
-    per_page = MUFIS_PAGE_SIZE
+    per_page = _mufis_page_size()
 
     conditions: list[str] = ["tenant_id = %s"]
     params: list = [tenant_id]

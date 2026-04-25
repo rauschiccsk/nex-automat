@@ -13,6 +13,15 @@ from xml.dom import minidom
 from xml.etree.ElementTree import Element, SubElement, tostring
 
 from nex_config.business import DEFAULT_VAT_RATE_PERCENT
+from settings.service import get_setting
+
+
+def _vat_rate() -> int:
+    """Read VAT rate from runtime settings, fallback to compile-time default."""
+    return int(
+        get_setting("business.default_vat_rate_percent", DEFAULT_VAT_RATE_PERCENT)
+    )
+
 
 logger = logging.getLogger(__name__)
 
@@ -564,7 +573,7 @@ class EshopEmailService:
                 item_node, "unit_price_vat"
             ).text = f"{float(item.get('unit_price_vat', 0)):.2f}"
             SubElement(item_node, "vat_rate").text = str(
-                item.get("vat_rate", DEFAULT_VAT_RATE_PERCENT)
+                item.get("vat_rate", _vat_rate())
             )
 
         # Shipping as separate line item
@@ -586,7 +595,7 @@ class EshopEmailService:
             SubElement(ship_item, "name").text = ship_name
             SubElement(ship_item, "quantity").text = "1"
             SubElement(ship_item, "unit_price_vat").text = f"{shipping_price:.2f}"
-            SubElement(ship_item, "vat_rate").text = str(DEFAULT_VAT_RATE_PERCENT)
+            SubElement(ship_item, "vat_rate").text = str(_vat_rate())
 
         # Total
         SubElement(

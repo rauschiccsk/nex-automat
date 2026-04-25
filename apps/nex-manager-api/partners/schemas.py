@@ -6,7 +6,15 @@ from typing import Literal, Optional
 from uuid import UUID
 
 from nex_config.business import DEFAULT_PAYMENT_DUE_DAYS
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, Field, field_validator
+from settings.service import get_setting
+
+
+def _default_payment_due_days() -> int:
+    """Read default payment due days from runtime settings, fallback to compile-time."""
+    return int(
+        get_setting("business.default_payment_due_days", DEFAULT_PAYMENT_DUE_DAYS)
+    )
 
 
 class PartnerCreate(BaseModel):
@@ -49,7 +57,7 @@ class PartnerCreate(BaseModel):
     contact_person: Optional[str] = None
 
     # Obchodné podmienky
-    payment_due_days: int = DEFAULT_PAYMENT_DUE_DAYS
+    payment_due_days: int = Field(default_factory=_default_payment_due_days)
     credit_limit: float = 0
     discount_percent: float = 0
     price_category: Optional[str] = None

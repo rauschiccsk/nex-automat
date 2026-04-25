@@ -8,6 +8,8 @@ from jose import JWTError
 
 from database import get_db
 
+from settings.service import get_setting
+
 from .config import ACCESS_TOKEN_EXPIRE
 from .dependencies import get_current_user
 from .schemas import (
@@ -94,7 +96,12 @@ def login(body: LoginRequest, http_req: Request, db=Depends(get_db)):
     return TokenResponse(
         access_token=access_token,
         refresh_token=refresh_token,
-        expires_in=int(ACCESS_TOKEN_EXPIRE.total_seconds()),
+        expires_in=int(
+            get_setting(
+                "auth.access_token_expiry_seconds",
+                default=int(ACCESS_TOKEN_EXPIRE.total_seconds()),
+            )
+        ),
     )
 
 
@@ -144,7 +151,12 @@ def refresh(request: RefreshRequest, db=Depends(get_db)):
     return TokenResponse(
         access_token=access_token,
         refresh_token=refresh_token,
-        expires_in=int(ACCESS_TOKEN_EXPIRE.total_seconds()),
+        expires_in=int(
+            get_setting(
+                "auth.access_token_expiry_seconds",
+                default=int(ACCESS_TOKEN_EXPIRE.total_seconds()),
+            )
+        ),
     )
 
 
