@@ -114,22 +114,49 @@ export interface SessionListResponse {
 
 // ─── Client ───────────────────────────────────────────────────────
 
+const STORAGE_KEY_ACCESS = 'nex-access-token'
+const STORAGE_KEY_REFRESH = 'nex-refresh-token'
+
 class ApiClient {
   private accessToken: string | null = null
   private refreshToken: string | null = null
   private refreshPromise: Promise<void> | null = null
+
+  constructor() {
+    // Hydrate tokens from localStorage on app boot — survives Ctrl+R reload.
+    // Without this, every reload would force a fresh login and create a new
+    // user_sessions row.
+    try {
+      this.accessToken = localStorage.getItem(STORAGE_KEY_ACCESS)
+      this.refreshToken = localStorage.getItem(STORAGE_KEY_REFRESH)
+    } catch {
+      // localStorage unavailable (e.g. SSR or private mode) — start with null.
+    }
+  }
 
   // ── Token management ──
 
   setTokens(access: string, refresh: string): void {
     this.accessToken = access
     this.refreshToken = refresh
+    try {
+      localStorage.setItem(STORAGE_KEY_ACCESS, access)
+      localStorage.setItem(STORAGE_KEY_REFRESH, refresh)
+    } catch {
+      // localStorage unavailable — in-memory only (will not survive reload).
+    }
   }
 
   clearTokens(): void {
     this.accessToken = null
     this.refreshToken = null
     this.refreshPromise = null
+    try {
+      localStorage.removeItem(STORAGE_KEY_ACCESS)
+      localStorage.removeItem(STORAGE_KEY_REFRESH)
+    } catch {
+      // localStorage unavailable — already cleared in-memory.
+    }
   }
 
   getAccessToken(): string | null {

@@ -24,10 +24,17 @@ import { useTabStore } from '@renderer/stores/tabStore'
 import { useModuleStore } from '@renderer/stores/moduleStore'
 
 function App(): ReactElement {
-  const { authenticated, logout } = useAuthStore()
+  const { authenticated, hydrating, logout, restoreSession } = useAuthStore()
   const { theme } = useUiStore()
   const { activeTabId, tabs } = useTabStore()
   const { modules, loadModules, loading } = useModuleStore()
+
+  // Restore session from localStorage on mount — survives Ctrl+R reload.
+  // Without this, every reload forces a new /api/auth/login call (duplicate
+  // user_sessions rows).
+  useEffect(() => {
+    void restoreSession()
+  }, [restoreSession])
 
   // Dark mode: sync document.documentElement class
   useEffect(() => {
@@ -117,6 +124,16 @@ function App(): ReactElement {
     }
     return items
   }, [activeModule])
+
+  // Hydrating: restoring session from localStorage. Show blank until decision
+  // (avoids LoginScreen flash for already-logged-in users on Ctrl+R).
+  if (hydrating) {
+    return (
+      <div className="fixed inset-0 flex items-center justify-center bg-white dark:bg-gray-900">
+        <div className="h-8 w-8 border-4 border-gray-200 dark:border-gray-700 border-t-blue-600 rounded-full animate-spin" />
+      </div>
+    )
+  }
 
   // Unauthenticated: login screen
   if (!authenticated) {

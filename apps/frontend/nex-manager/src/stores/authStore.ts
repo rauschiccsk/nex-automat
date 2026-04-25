@@ -17,10 +17,12 @@ interface AuthState {
   user: AuthUser | null
   token: string | null
   authenticated: boolean
+  hydrating: boolean
   permissions: Record<string, string[]>
 
   login: (username: string, password: string) => Promise<void>
   logout: () => Promise<void>
+  restoreSession: () => Promise<void>
   setUser: (user: AuthUser) => void
   checkPermission: (moduleCode: string, permission: string) => boolean
 }
@@ -29,6 +31,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   user: null,
   token: null,
   authenticated: false,
+  hydrating: true,
   permissions: {},
 
   login: async (username: string, password: string): Promise<void> => {
@@ -87,6 +90,64 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       authenticated: false,
       permissions: {}
     })
+  },
+
+  /**
+   * Restore session on app boot — if access_token exists in localStorage,
+   * call /api/auth/me to validate it and rehydrate user + permissions.
+   * Without this, Ctrl+R always shows LoginScreen and forces a new
+   * /api/auth/login call (creating a duplicate user_sessions row).
+   */
+  restoreSession: async (): Promise<void> => {
+    const token = api.getAccessToken()
+    if (!token) {
+      set({ hydrating: false, authenticated: false })
+      return
+    }
+    try {
+      const me = await api.getMe()
+      const u = me.user
+
+      const user: AuthUser = {
+        id: u.user_id,
+        name: u.full_name || u.login_name || 'Používateľ',
+        username: u.login_name,
+        email: u.email,
+        fullName: u.full_name,
+        groups: u.groups ?? []
+      }
+
+      const permissions: Record<string, string[]> = {}
+      for (const p of me.permissions ?? []) {
+        const perms: string[] = []
+        if (p.can_view) perms.push('view')
+        if (p.can_create) perms.push('create')
+        if (p.can_edit) perms.push('edit')
+        if (p.can_delete) perms.push('delete')
+        if (p.can_print) perms.push('print')
+        if (p.can_export) perms.push('export')
+        if (p.can_admin) perms.push('admin')
+        permissions[p.module_code] = perms
+      }
+
+      set({
+        user,
+        token,
+        authenticated: true,
+        hydrating: false,
+        permissions
+      })
+    } catch {
+      // Token invalid/expired — clear and show login.
+      api.clearTokens()
+      set({
+        user: null,
+        token: null,
+        authenticated: false,
+        hydrating: false,
+        permissions: {}
+      })
+    }
   },
 
   setUser: (user): void => {
