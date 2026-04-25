@@ -33,6 +33,7 @@ import {
   Database,
   Building2,
   ShoppingBag,
+  Activity,
   type LucideIcon
 } from 'lucide-react'
 
@@ -66,7 +67,8 @@ export const ICON_MAP: Record<string, LucideIcon> = {
   ScrollText,
   Database,
   Building2,
-  ShoppingBag
+  ShoppingBag,
+  Activity
 }
 
 /**

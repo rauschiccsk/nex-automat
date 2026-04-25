@@ -10,6 +10,7 @@ import UserListView from '@renderer/components/modules/users/UserListView'
 import { PabModuleView } from '@renderer/components/modules/pab'
 import { MigrationDashboard } from '@renderer/components/modules/migration'
 import { EshopModuleView } from '@renderer/components/modules/eshop'
+import { SessionsView } from '@renderer/components/modules/sessions'
 import CommandLine from '@renderer/components/CommandLine'
 import InfoPanel from '@renderer/components/InfoPanel'
 import LoginScreen from '@renderer/components/LoginScreen'
@@ -71,7 +72,7 @@ function App(): ReactElement {
       console.warn('[MODULES] App.tsx loadModules failed:', err)
       if (err?.status === 401) {
         console.warn('[MODULES] App.tsx: 401 → logging out')
-        logout()
+        void logout()
       }
     })
   }, [authenticated, modules.length, loading]) // eslint-disable-line react-hooks/exhaustive-deps
@@ -159,6 +160,8 @@ function App(): ReactElement {
                 <MigrationDashboard />
               ) : activeTab.id === 'ESHOP' ? (
                 <EshopModuleView />
+              ) : activeTab.id === 'SES' ? (
+                <SessionsView />
               ) : (
                 (() => {
                   const TabIcon = activeModule?.icon ? getIcon(activeModule.icon) : LayoutDashboard

@@ -27,7 +27,7 @@ export default function Header(): ReactElement {
   }, [isDark, setTheme])
 
   const handleLogout = useCallback((): void => {
-    logout()
+    void logout()
     setIsUserMenuOpen(false)
   }, [logout])
 

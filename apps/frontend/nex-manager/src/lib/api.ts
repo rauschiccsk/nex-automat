@@ -95,6 +95,23 @@ export interface MessageResponse {
   message: string
 }
 
+export interface Session {
+  session_id: number
+  user_id: number
+  login_name: string
+  full_name: string | null
+  user_agent: string | null
+  ip_address: string | null
+  last_seen_at: string
+  created_at: string
+  is_self: boolean
+}
+
+export interface SessionListResponse {
+  sessions: Session[]
+  total: number
+}
+
 // ─── Client ───────────────────────────────────────────────────────
 
 class ApiClient {
@@ -226,6 +243,48 @@ class ApiClient {
     return this.request<MessageResponse>('/api/auth/change-password', {
       method: 'PUT',
       body: JSON.stringify({ current_password: currentPassword, new_password: newPassword })
+    })
+  }
+
+  /**
+   * Logout via backend — bumps token_version on current session, invalidating
+   * this JWT immediately. Always clears local tokens, even if backend call fails
+   * (e.g. token already expired).
+   */
+  async logout(): Promise<void> {
+    try {
+      await this.request<MessageResponse>('/api/auth/logout', { method: 'POST' })
+    } catch {
+      // Backend bump may fail (token already invalid) — clear locally anyway.
+    }
+    this.clearTokens()
+  }
+
+  // ── Sessions endpoints ──
+
+  async listSessions(): Promise<SessionListResponse> {
+    return this.request<SessionListResponse>('/api/sessions')
+  }
+
+  async listMySessions(): Promise<SessionListResponse> {
+    return this.request<SessionListResponse>('/api/sessions/me')
+  }
+
+  async terminateSession(sessionId: number): Promise<MessageResponse> {
+    return this.request<MessageResponse>(`/api/sessions/${sessionId}`, {
+      method: 'DELETE'
+    })
+  }
+
+  async terminateMyOtherSessions(): Promise<MessageResponse> {
+    return this.request<MessageResponse>('/api/sessions/me/all', {
+      method: 'DELETE'
+    })
+  }
+
+  async terminateUserSessions(userId: number): Promise<MessageResponse> {
+    return this.request<MessageResponse>(`/api/sessions/user/${userId}/all`, {
+      method: 'DELETE'
     })
   }
 

@@ -20,7 +20,7 @@ interface AuthState {
   permissions: Record<string, string[]>
 
   login: (username: string, password: string) => Promise<void>
-  logout: () => void
+  logout: () => Promise<void>
   setUser: (user: AuthUser) => void
   checkPermission: (moduleCode: string, permission: string) => boolean
 }
@@ -73,9 +73,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     })
   },
 
-  logout: (): void => {
+  logout: async (): Promise<void> => {
     console.debug('[AUTH] authStore.logout() called — stack:', new Error().stack?.split('\n').slice(1, 4).join(' ← '))
-    api.clearTokens()
+    // Call backend to bump token_version (invalidates JWT immediately).
+    // api.logout() always clears local tokens, even if backend call fails.
+    await api.logout()
     // Clear persisted session state so next user starts fresh
     localStorage.removeItem('nex-tab-store')
     localStorage.removeItem('nex-ui-store')

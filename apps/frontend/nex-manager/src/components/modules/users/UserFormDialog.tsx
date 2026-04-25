@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, type ReactElement, type FormEvent } from 'react'
-import { X, Loader2, Eye, EyeOff } from 'lucide-react'
+import { X, Loader2, Eye, EyeOff, LogOut } from 'lucide-react'
 import { cn } from '@renderer/lib/utils'
 import { api, type ApiError } from '@renderer/lib/api'
 import { useAuthStore } from '@renderer/stores/authStore'
@@ -13,9 +13,11 @@ interface UserFormDialogProps {
 
 export default function UserFormDialog({ user, onClose }: UserFormDialogProps): ReactElement {
   const { addToast } = useToastStore()
-  const { user: currentUser } = useAuthStore()
+  const { user: currentUser, checkPermission } = useAuthStore()
   const isEdit = user != null
   const isSelf = isEdit && user?.user_id === currentUser?.id
+  const isAdmin = checkPermission('USR', 'admin')
+  const canForceLogout = isEdit && !isSelf && isAdmin
 
   // ── Form state ──
   const [username, setUsername] = useState(user?.login_name ?? '')
@@ -330,7 +332,38 @@ export default function UserFormDialog({ user, onClose }: UserFormDialogProps): 
           </form>
 
           {/* Footer */}
-          <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-200 dark:border-gray-700">
+          <div className="flex items-center justify-between gap-3 px-6 py-4 border-t border-gray-200 dark:border-gray-700">
+            {/* Left: Force logout (admin, edit mode, not self) */}
+            <div>
+              {canForceLogout && user && (
+                <button
+                  type="button"
+                  onClick={async () => {
+                    if (!window.confirm(`Ukončiť všetky sessions používateľa ${user.login_name}?`)) return
+                    try {
+                      await api.terminateUserSessions(user.user_id)
+                      addToast(`Sessions používateľa ${user.login_name} boli ukončené`, 'success')
+                    } catch (err) {
+                      const e = err as ApiError
+                      addToast(e.message || 'Force logout zlyhal', 'error')
+                    }
+                  }}
+                  disabled={saving}
+                  className={cn(
+                    'flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors',
+                    'border border-red-300 dark:border-red-700 text-red-600 dark:text-red-400',
+                    'hover:bg-red-50 dark:hover:bg-red-900/20',
+                    'disabled:opacity-50'
+                  )}
+                  title="Ukončí všetky aktívne sessions tohto používateľa"
+                >
+                  <LogOut className="h-4 w-4" />
+                  Force logout
+                </button>
+              )}
+            </div>
+            {/* Right: Cancel + Save */}
+            <div className="flex items-center gap-3">
             <button
               type="button"
               onClick={() => onClose(false)}
@@ -361,6 +394,7 @@ export default function UserFormDialog({ user, onClose }: UserFormDialogProps): 
               {saving && <Loader2 className="h-4 w-4 animate-spin" />}
               {isEdit ? 'Uložiť' : 'Vytvoriť'}
             </button>
+            </div>
           </div>
         </div>
       </div>
