@@ -14,6 +14,7 @@ import CommandLine from '@renderer/components/CommandLine'
 import InfoPanel from '@renderer/components/InfoPanel'
 import LoginScreen from '@renderer/components/LoginScreen'
 import Toast from '@renderer/components/Toast'
+import InstallPrompt from '@renderer/components/InstallPrompt'
 import { getIcon } from '@renderer/lib/iconMap'
 
 import { useAuthStore } from '@renderer/stores/authStore'
@@ -197,6 +198,9 @@ function App(): ReactElement {
 
       {/* Toast: always rendered, fixed position, z-50 */}
       <Toast />
+
+      {/* PWA install prompt: shows when browser fires beforeinstallprompt (HTTPS only) */}
+      <InstallPrompt />
     </div>
   )
 }

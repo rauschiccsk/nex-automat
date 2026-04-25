@@ -1,6 +1,6 @@
 {
   "name": "nex-manager",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "NEX Manager — Web/PWA app",
   "author": "ICC s.r.o. <info@icc.sk>",
   "type": "module",
@@ -40,6 +40,7 @@
     "tailwindcss": "^4.1.4",
     "typescript": "^5.9.3",
     "vite": "^6.0.0",
+    "vite-plugin-pwa": "^0.21.0",
     "vitest": "^4.0.18"
   }
 }
