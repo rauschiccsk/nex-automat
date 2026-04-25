@@ -91,6 +91,16 @@ modules:
     frontend_module: "audit"
     roles: [ri, shu]
 
+  - key: SES
+    name: "Aktívne sessions"
+    category: system
+    icon: Activity
+    order: 150
+    status: active
+    backend_router: "sessions"
+    frontend_module: "sessions"
+    roles: [ri, shu]
+
   # ---------------------------------------------------------------------------
   # CATALOGS (order 200-299)
   # ---------------------------------------------------------------------------
