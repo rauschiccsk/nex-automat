@@ -1,26 +1,24 @@
 # nginx server block for customer "${SLUG}"
-# Routes <slug>.nex-automat.isnex.eu (HTTPS) → frontend container on internal network.
-# Wildcard cert *.nex-automat.isnex.eu must be installed at standard certbot location.
+# Routes <slug>.isnex.eu (HTTPS) → frontend container on internal Docker network
+# nex-proxy-net. Per-customer LE cert at /etc/letsencrypt/live/<slug>.isnex.eu/.
 # This snippet drops into /etc/nginx/conf.d/<slug>.conf
 
 server {
     listen 80;
-    server_name ${SLUG}.nex-automat.isnex.eu;
-    # Redirect all HTTP to HTTPS
+    server_name ${SLUG}.isnex.eu;
     return 301 https://$host$request_uri;
 }
 
 server {
     listen 443 ssl http2;
-    server_name ${SLUG}.nex-automat.isnex.eu;
+    server_name ${SLUG}.isnex.eu;
 
-    ssl_certificate /etc/letsencrypt/live/nex-automat.isnex.eu/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/nex-automat.isnex.eu/privkey.pem;
+    ssl_certificate /etc/letsencrypt/live/${SLUG}.isnex.eu/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/${SLUG}.isnex.eu/privkey.pem;
     ssl_protocols TLSv1.2 TLSv1.3;
     ssl_prefer_server_ciphers on;
 
-    # Proxy to per-customer frontend container (internal Docker network nex-proxy-net).
-    # Container name follows convention <slug>-frontend, port 80.
+    # Proxy to per-customer frontend container (internal Docker network).
     location / {
         proxy_pass http://${SLUG}-frontend:80;
         proxy_set_header Host $host;
@@ -30,7 +28,6 @@ server {
         proxy_http_version 1.1;
     }
 
-    # Logging — separate file per customer for easier debugging
     access_log /var/log/nginx/${SLUG}-access.log;
     error_log /var/log/nginx/${SLUG}-error.log;
 }

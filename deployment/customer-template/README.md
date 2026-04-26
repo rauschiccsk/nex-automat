@@ -4,13 +4,17 @@ This directory holds template files used by `scripts/onboard-customer.sh` to
 provision a fully isolated NEX Manager stack per customer (per Phase D
 architecture; see KB DECISIONS.md D-024).
 
+URL pattern: **`<slug>.isnex.eu`** (single-level subdomain, covered by
+Cloudflare Universal SSL for `*.isnex.eu`). Per-customer LE cert is also
+issued via DNS-01 for ANDROS-side TLS (CF→origin Full Strict mode).
+
 ## Files
 
 | File | Purpose |
 |---|---|
 | `docker-compose.yml.template` | Per-customer compose stack — postgres + backend + frontend, dedicated Docker network, no host port exposure |
 | `.env.example` | Sample env file with required variables; onboard script generates random secrets |
-| `nginx-snippet.conf.template` | Host nginx server block routing `<slug>.nex-automat.isnex.eu` → frontend container |
+| `nginx-snippet.conf.template` | Host nginx server block routing `<slug>.isnex.eu` → frontend container |
 
 ## How a customer gets onboarded
 
@@ -30,7 +34,7 @@ Script does:
 8. `docker compose up -d` (postgres + backend + frontend)
 9. Apply DB migrations 001-016
 10. Seed admin user with random password (per Q5.c-2), print to console
-11. Healthcheck `https://<slug>.nex-automat.isnex.eu/health`
+11. Healthcheck `https://<slug>.isnex.eu/health`
 
 ## After onboarding
 
@@ -53,7 +57,7 @@ tar xzf <slug>-<date>.tgz -C /opt/customers/<slug>/
 cd /opt/customers/<slug>
 docker compose up -d
 docker exec <slug>-postgres psql -U postgres < db.sql
-# Update DNS to point <slug>.nex-automat.isnex.eu → customer's IP
+# Update DNS to point <slug>.isnex.eu → customer's IP
 ```
 
 No code changes required — customer server runs the same images.
