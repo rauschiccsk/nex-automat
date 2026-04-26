@@ -31,7 +31,7 @@ services:
       retries: 5
 
   backend:
-    image: nex-manager-backend:${IMAGE_TAG:-latest}
+    image: nex-manager-api:${IMAGE_TAG:-latest}
     container_name: ${SLUG}-backend
     restart: unless-stopped
     depends_on:

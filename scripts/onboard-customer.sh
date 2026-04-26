@@ -7,7 +7,16 @@
 # Cloudflare Universal SSL for *.isnex.eu, no sub-zone delegation).
 # Each customer gets own per-customer LE cert via DNS-01 challenge.
 #
-# Usage:  sudo ./scripts/onboard-customer.sh <slug>
+# Usage:  sudo ./scripts/onboard-customer.sh <slug> [--skip-dns-prompt]
+#
+# Flags:
+#   --skip-dns-prompt   Skip interactive ENTER pause after DNS instruction
+#                       (use when DNS record was already added before running).
+#
+# Output:
+#   Admin password is NOT printed to stdout (security). It is written to
+#   /opt/customers/<slug>/.initial-admin-password (chmod 600, root owner).
+#   Read it via: sudo cat /opt/customers/<slug>/.initial-admin-password
 #
 # Prerequisites on ANDROS:
 #   - Docker + docker compose v2
@@ -21,6 +30,10 @@
 set -euo pipefail
 
 SLUG="${1:-}"
+SKIP_DNS_PROMPT=0
+for arg in "$@"; do
+    [[ "$arg" == "--skip-dns-prompt" ]] && SKIP_DNS_PROMPT=1
+done
 REPO_ROOT=$(cd "$(dirname "$0")/.." && pwd)
 TEMPLATE_DIR="${REPO_ROOT}/deployment/customer-template"
 MIGRATIONS_DIR="${REPO_ROOT}/database/migrations"
@@ -103,7 +116,11 @@ cat <<EOF
 ╚══════════════════════════════════════════════════════════════════╝
 
 EOF
-read -rp "[onboard] Press ENTER after the DNS record is created (or Ctrl+C to abort)..."
+if [[ "$SKIP_DNS_PROMPT" -eq 0 ]]; then
+    read -rp "[onboard] Press ENTER after the DNS record is created (or Ctrl+C to abort)..."
+else
+    echo "[onboard] --skip-dns-prompt set; assuming DNS record exists"
+fi
 
 # ──────────────────────────────────────────────────────────────────────
 # 5. Issue per-customer LE cert via DNS-01 challenge
@@ -162,6 +179,13 @@ ADMIN_HASH=$(docker run --rm python:3.12-alpine sh -c \
 docker exec -i "${SLUG}-postgres" psql -U postgres -d nex_automat -q \
     -c "UPDATE users SET password_hash='${ADMIN_HASH}' WHERE login_name='admin'"
 
+# Save admin password to chmod-600 file (NOT stdout — avoids credential
+# exposure when script runs via remote terminal / CI / Claude session).
+PWD_FILE="${CUSTOMER_DIR}/.initial-admin-password"
+echo "${ADMIN_PASSWORD}" > "${PWD_FILE}"
+chmod 600 "${PWD_FILE}"
+chown root:root "${PWD_FILE}"
+
 # ──────────────────────────────────────────────────────────────────────
 # 10. Healthcheck via public URL
 # ──────────────────────────────────────────────────────────────────────
@@ -189,7 +213,10 @@ cat <<EOF
 ║ URL:            https://${DOMAIN}                                 ║
 ║ Health:         HTTP ${STATUS}                                    ║
 ║ Admin login:    admin                                             ║
-║ Admin password: ${ADMIN_PASSWORD}                                 ║
+║ Admin password: <saved to file — NOT printed for security>        ║
+║                                                                  ║
+║ To retrieve admin password:                                       ║
+║   sudo cat ${PWD_FILE}║
 ║                                                                  ║
 ║ NEXT STEPS (manual):                                              ║
 ║  1. Configure Cloudflare Access policy for ${DOMAIN}             ║
