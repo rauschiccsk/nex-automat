@@ -1,6 +1,9 @@
 # Build stage
 FROM node:20-alpine AS build
-ARG VITE_API_URL=http://localhost:9110
+# Default empty — production builds use relative /api/* URLs (frontend nginx
+# proxies them to per-customer backend via Docker network). DEPTEST and
+# standalone deploys override with --build-arg VITE_API_URL=http://...
+ARG VITE_API_URL=
 ENV VITE_API_URL=${VITE_API_URL}
 WORKDIR /app
 COPY package*.json ./

@@ -2,7 +2,11 @@
  * Centralized API client with JWT auth, auto-refresh, and error handling.
  */
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:9110'
+// Use ?? (not ||) so empty string is preserved — production builds pass
+// VITE_API_URL='' which signals "use relative /api/* URLs" (frontend nginx
+// proxies /api to per-customer backend via Docker network). Only undefined
+// falls back to localhost for `npm run dev` workflow.
+const API_BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:9110'
 
 // ─── Response types ───────────────────────────────────────────────
 
