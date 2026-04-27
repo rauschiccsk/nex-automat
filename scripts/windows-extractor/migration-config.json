@@ -1,0 +1,27 @@
+{
+  "andros": {
+    "host": "100.107.134.104",
+    "user": "andros"
+  },
+  "customers": {
+    "icc": {
+      "name": "ICC s.r.o.",
+      "data_root": "C:\\ICC\\NEX",
+      "url": "https://icc.isnex.eu",
+      "remote_drop_dir": "/opt/customers/icc/migration"
+    },
+    "andros": {
+      "name": "ANDROS s.r.o.",
+      "data_root": "C:\\ANDROS\\NEX",
+      "url": "https://andros.isnex.eu",
+      "remote_drop_dir": "/opt/customers/andros/migration"
+    },
+    "mager": {
+      "name": "MAGERSTAV",
+      "data_root": "C:\\MAGER\\NEX",
+      "url": "https://mager.isnex.eu",
+      "remote_drop_dir": "/opt/customers/mager/migration"
+    }
+  },
+  "categories": ["PAB"]
+}
