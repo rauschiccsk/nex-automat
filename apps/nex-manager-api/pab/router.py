@@ -303,9 +303,12 @@ def list_partners(
     body = (
         b'{"items":'
         + items_json.encode("utf-8")
-        + b',"total":' + str(total).encode("ascii")
-        + b',"limit":' + str(limit).encode("ascii")
-        + b',"offset":' + str(offset).encode("ascii")
+        + b',"total":'
+        + str(total).encode("ascii")
+        + b',"limit":'
+        + str(limit).encode("ascii")
+        + b',"offset":'
+        + str(offset).encode("ascii")
         + b"}"
     )
     return Response(content=body, media_type="application/json")
