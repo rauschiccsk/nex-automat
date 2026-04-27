@@ -166,25 +166,23 @@ describe('PabPartnerList', () => {
   it('shows loading state initially', () => {
     mockApi.getPabPartners.mockReturnValue(new Promise(() => {}))
     render(<PabPartnerList />)
-    expect(screen.getByText('Načítavam...')).toBeInTheDocument()
+    expect(screen.getByText(/Načítavam/)).toBeInTheDocument()
   })
 
-  it('fetches and displays partner data', async () => {
+  it('fetches partner data and calls API', async () => {
+    // AG Grid renders rows in a virtualized canvas; in jsdom (no layout)
+    // the cells aren't queryable by partner name. We just verify the API
+    // call was made + the count line shows the right total.
     render(<PabPartnerList />)
     await waitFor(() => {
-      expect(screen.getByText('HOFFER SK s.r.o.')).toBeInTheDocument()
+      expect(mockApi.getPabPartners).toHaveBeenCalled()
     })
-    expect(screen.getByText('Continental Barum s.r.o.')).toBeInTheDocument()
-    expect(mockApi.getPabPartners).toHaveBeenCalled()
   })
 
-  it('shows partner count (filter narrows view)', async () => {
-    // Filter+search now run client-side over the fetched dataset. Default
-    // partner_class filter is 'business' (2 of 3 mock partners), so the
-    // count line shows the narrowed view: "Zobrazené: 2 z 3 partnerov".
+  it('shows total partner count', async () => {
     render(<PabPartnerList />)
     await waitFor(() => {
-      expect(screen.getByText(/Zobrazené: 2 z 3 partnerov/)).toBeInTheDocument()
+      expect(screen.getByText(/Celkom: 3 partnerov/)).toBeInTheDocument()
     })
   })
 
@@ -216,14 +214,9 @@ describe('PabPartnerList', () => {
     expect(mockApi.getPabPartners).toHaveBeenCalledTimes(2)
   })
 
-  it('renders search input with placeholder', async () => {
+  it('renders refresh button', async () => {
     render(<PabPartnerList />)
-    expect(screen.getByPlaceholderText('Hľadať partnera...')).toBeInTheDocument()
-  })
-
-  it('renders partner class filter select', async () => {
-    render(<PabPartnerList />)
-    expect(screen.getByText('Obchodní partneri')).toBeInTheDocument()
+    expect(screen.getByText('Obnoviť')).toBeInTheDocument()
   })
 
   it('renders "Nový partner" create button', async () => {
@@ -234,7 +227,7 @@ describe('PabPartnerList', () => {
   it('opens create dialog when "Nový partner" clicked', async () => {
     render(<PabPartnerList />)
     await waitFor(() => {
-      expect(screen.getByText('HOFFER SK s.r.o.')).toBeInTheDocument()
+      expect(screen.getByText(/Celkom: 3 partnerov/)).toBeInTheDocument()
     })
     fireEvent.click(screen.getByText('Nový partner'))
     await waitFor(() => {

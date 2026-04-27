@@ -1,38 +1,27 @@
-import { useState, useEffect, useCallback, useRef, useMemo, type ReactElement } from 'react'
-import { Plus, Building2, Loader2, AlertCircle, RotateCcw, Search } from 'lucide-react'
+import { useState, useEffect, useCallback, type ReactElement } from 'react'
+import { Plus, Building2, Loader2, AlertCircle, RotateCcw } from 'lucide-react'
 import { cn } from '@renderer/lib/utils'
-import { getConfigNumber } from '@renderer/lib/config'
 import { api, type ApiError } from '@renderer/lib/api'
 import { useAuthStore } from '@renderer/stores/authStore'
 import { useToastStore } from '@renderer/stores/toastStore'
 import { usePartnerCatalogStore } from '@renderer/stores/partnerCatalogStore'
-import { BaseGrid } from '@renderer/components/grids'
+import { BaseAgGrid } from '@renderer/components/grids'
 import { pabGridConfig } from './pabGridConfig'
 import type { PartnerCatalog, PartnerCatalogListResponse } from '@renderer/types/pab'
 import PabCreateDialog from './PabCreateDialog'
 
-// Hard limit on initial fetch (sanity guard against runaway DBs).
-// Backend already enforces le=1_000_000 — this matches.
+// Sanity guard against runaway DB sizes; matches backend cap.
 const MAX_FETCH = 1_000_000
 
 export default function PabPartnerList(): ReactElement {
   const { checkPermission } = useAuthStore()
   const { addToast } = useToastStore()
-  const {
-    searchQuery,
-    setSearchQuery,
-    filterPartnerClass,
-    setFilterPartnerClass,
-    filterIsActive,
-    setFilterIsActive,
-    openDetail
-  } = usePartnerCatalogStore()
+  const { openDetail } = usePartnerCatalogStore()
 
   const canCreate = checkPermission('PAB', 'create')
 
-  // Data state — load full catalog ONCE, filter+search client-side via memoized
-  // selector. BaseGrid uses @tanstack/react-virtual for virtualized rendering,
-  // so 250k+ rows scroll smoothly (only visible rows in DOM).
+  // Data state — load full catalog ONCE, AG Grid handles filter/sort
+  // client-side via row-model virtualization. Tested up to 250k rows.
   const [allPartners, setAllPartners] = useState<PartnerCatalog[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -40,23 +29,8 @@ export default function PabPartnerList(): ReactElement {
   // Create dialog
   const [createDialogOpen, setCreateDialogOpen] = useState(false)
 
-  // Debounce search — applied client-side, but still debounced to avoid
-  // recomputing the filter on every keystroke for huge datasets.
-  const searchTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const [debouncedSearch, setDebouncedSearch] = useState(searchQuery)
-
-  useEffect(() => {
-    if (searchTimer.current) clearTimeout(searchTimer.current)
-    searchTimer.current = setTimeout(() => {
-      setDebouncedSearch(searchQuery)
-    }, getConfigNumber('ui.search_debounce_ms'))
-    return () => {
-      if (searchTimer.current) clearTimeout(searchTimer.current)
-    }
-  }, [searchQuery])
-
   // Fetch ALL partners (single network call, no filters/search server-side).
-  // Re-fetch only on explicit refresh or after a CRUD op (handleCreated).
+  // Re-fetch only on explicit refresh or after a CRUD op.
   const fetchPartners = useCallback(async (): Promise<void> => {
     setLoading(true)
     setError(null)
@@ -82,26 +56,8 @@ export default function PabPartnerList(): ReactElement {
     void fetchPartners()
   }, [fetchPartners])
 
-  // Client-side filter + search (memoized — runs only when inputs change).
-  // For 250k records this is ~50-100ms — fine for interactive use.
-  const filteredPartners = useMemo<PartnerCatalog[]>(() => {
-    const q = debouncedSearch.trim().toLowerCase()
-    return allPartners.filter((p) => {
-      // partner_class filter
-      if (p.partner_class !== filterPartnerClass) return false
-      // is_active filter (null = no filter)
-      if (filterIsActive !== null && p.is_active !== filterIsActive) return false
-      // search across partner_name, company_id, city
-      if (q) {
-        const haystack = `${p.partner_name ?? ''} ${p.company_id ?? ''} ${p.city ?? ''}`.toLowerCase()
-        if (!haystack.includes(q)) return false
-      }
-      return true
-    })
-  }, [allPartners, debouncedSearch, filterPartnerClass, filterIsActive])
-
   const handleRowDoubleClick = useCallback(
-    (partner: PartnerCatalog): void => {
+    (partner: PartnerCatalog & { id: number }): void => {
       openDetail(partner.partner_id)
     },
     [openDetail]
@@ -112,8 +68,8 @@ export default function PabPartnerList(): ReactElement {
     void fetchPartners()
   }, [fetchPartners])
 
-  // Map data for BaseGrid (requires `id` field)
-  const gridData = filteredPartners.map((p) => ({ ...p, id: p.partner_id }))
+  // Map data for AG Grid (requires `id` field)
+  const gridData = allPartners.map((p) => ({ ...p, id: p.partner_id }))
 
   return (
     <div className="flex flex-col h-full gap-3">
@@ -124,56 +80,20 @@ export default function PabPartnerList(): ReactElement {
           Katalóg partnerov
         </h1>
         <div className="flex items-center gap-3">
-          {/* Search */}
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-            <input
-              type="text"
-              data-testid="partner-search"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Hľadať partnera..."
-              className={cn(
-                'pl-9 pr-3 py-2 rounded-lg border text-sm w-64 outline-none transition-colors',
-                'bg-white dark:bg-gray-700 text-gray-900 dark:text-white',
-                'border-gray-300 dark:border-gray-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20'
-              )}
-            />
-          </div>
-
-          {/* Partner class filter */}
-          <select
-            data-testid="partner-class-filter"
-            value={filterPartnerClass}
-            onChange={(e) => setFilterPartnerClass(e.target.value as 'business' | 'retail' | 'guest')}
+          {/* Refresh button */}
+          <button
+            onClick={() => void fetchPartners()}
+            disabled={loading}
+            title="Obnoviť dáta"
             className={cn(
-              'px-3 py-2 rounded-lg border text-sm outline-none transition-colors',
-              'bg-white dark:bg-gray-700 text-gray-900 dark:text-white',
-              'border-gray-300 dark:border-gray-600 focus:border-blue-500'
+              'flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors',
+              'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600',
+              'disabled:opacity-50 disabled:cursor-not-allowed'
             )}
           >
-            <option value="business">Obchodní partneri</option>
-            <option value="retail">Retail zákazníci</option>
-            <option value="guest">Guest zákazníci</option>
-          </select>
-
-          {/* Active filter */}
-          <select
-            value={filterIsActive === null ? '' : String(filterIsActive)}
-            onChange={(e) => {
-              const v = e.target.value
-              setFilterIsActive(v === '' ? null : v === 'true')
-            }}
-            className={cn(
-              'px-3 py-2 rounded-lg border text-sm outline-none transition-colors',
-              'bg-white dark:bg-gray-700 text-gray-900 dark:text-white',
-              'border-gray-300 dark:border-gray-600 focus:border-blue-500'
-            )}
-          >
-            <option value="">Všetci</option>
-            <option value="true">Aktívni</option>
-            <option value="false">Neaktívni</option>
-          </select>
+            <RotateCcw className={cn('h-4 w-4', loading && 'animate-spin')} />
+            Obnoviť
+          </button>
 
           {/* Create button */}
           {canCreate && (
@@ -192,12 +112,13 @@ export default function PabPartnerList(): ReactElement {
         </div>
       </div>
 
-      {/* Total count + filter status */}
+      {/* Total count — full count, no narrowing, AG Grid handles per-column filter */}
       {!loading && !error && (
         <div className="text-xs text-gray-500 dark:text-gray-400 shrink-0">
-          {filteredPartners.length === allPartners.length
-            ? `Celkom: ${allPartners.length} partnerov`
-            : `Zobrazené: ${filteredPartners.length} z ${allPartners.length} partnerov`}
+          Celkom: {allPartners.length} partnerov
+          <span className="ml-2 italic">
+            (filter v hlavičke každého stĺpca — okamžité vyhľadávanie)
+          </span>
         </div>
       )}
 
@@ -220,15 +141,16 @@ export default function PabPartnerList(): ReactElement {
       {loading ? (
         <div className="flex items-center justify-center py-16">
           <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
-          <span className="ml-3 text-gray-500 dark:text-gray-400">Načítavam...</span>
+          <span className="ml-3 text-gray-500 dark:text-gray-400">
+            Načítavam partnerov...
+          </span>
         </div>
       ) : (
-        <div data-testid="partner-grid">
-          <BaseGrid
+        <div data-testid="partner-grid" className="flex-1 min-h-0">
+          <BaseAgGrid
             data={gridData}
             config={pabGridConfig}
             onRowDoubleClick={handleRowDoubleClick}
-            className="flex-1 min-h-0"
           />
         </div>
       )}
