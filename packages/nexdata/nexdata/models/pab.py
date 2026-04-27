@@ -16,6 +16,8 @@ import struct
 from dataclasses import dataclass
 from datetime import date, datetime, time as time_type, timedelta
 
+from ..utils.encoding import decode_keybcs2
+
 
 # ---------------------------------------------------------------------------
 # PAB_FIELDS: exact BDF field definitions (91 fields)
@@ -143,16 +145,17 @@ def _parse_pascal_string(buf: bytes, offset: int, max_len: int) -> str:
         max_len: Maximum string length (N), so the field occupies max_len+1 bytes
 
     Returns:
-        Decoded string (cp1250, stripped)
+        Decoded string (Kamenický/KEYBCS2, stripped)
     """
     length = buf[offset]
     if length > max_len:
         length = max_len
     raw = buf[offset + 1 : offset + 1 + length]
-    try:
-        return raw.decode("cp852").strip()
-    except Exception:
-        return raw.decode("latin-1", errors="replace").strip()
+    # NEX Genesis Btrieve files use Kamenický (KEYBCS2/CP895) encoding for
+    # Czech/Slovak text — the DOS-era typewriter codepage from 1985-1995.
+    # Previous attempt used cp852 (PC Latin 2) which produces visually-similar
+    # but actually-wrong characters for š, ž, č, etc.
+    return decode_keybcs2(raw).strip()
 
 
 def _parse_pascal_date(buf: bytes, offset: int) -> date | None:
