@@ -26,6 +26,7 @@ from datetime import datetime
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
 
 # ---------------------------------------------------------------------------
 # Logging — ensure all application loggers emit to stdout at INFO level.
@@ -65,6 +66,12 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# GZip — large list responses (e.g. /api/pab/partners with 255k rows = ~80MB
+# uncompressed JSON) compress to ~8-10MB before leaving the backend, cutting
+# customer perceived load time from ~25s to ~5s on remote browsers.
+# minimum_size=1024 skips compression for tiny payloads (no benefit).
+app.add_middleware(GZipMiddleware, minimum_size=1024)
 
 # ---------------------------------------------------------------------------
 # INFRASTRUCTURE ROUTERS (hardcoded — not business modules)

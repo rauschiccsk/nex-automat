@@ -139,10 +139,13 @@ export default function PabPartnerList(): ReactElement {
 
       {/* Loading state */}
       {loading ? (
-        <div className="flex items-center justify-center py-16">
+        <div className="flex flex-col items-center justify-center py-16 gap-2">
           <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
-          <span className="ml-3 text-gray-500 dark:text-gray-400">
+          <span className="text-gray-500 dark:text-gray-400">
             Načítavam partnerov...
+          </span>
+          <span className="text-xs text-gray-400 dark:text-gray-500">
+            Pri veľkých katalógoch (250k+ záznamov) trvá načítanie ~5-15 sekúnd
           </span>
         </div>
       ) : (
