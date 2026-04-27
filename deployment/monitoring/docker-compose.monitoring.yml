@@ -41,6 +41,9 @@ services:
     restart: unless-stopped
     command:
       - '--path.rootfs=/host'
+      # Textfile collector — backup-customer.sh writes nex_backup.<slug>.prom
+      # files here; node-exporter scrapes them and exposes as Prometheus metrics.
+      - '--collector.textfile.directory=/host/var/lib/node-exporter/textfile'
     volumes:
       - '/:/host:ro,rslave'
     ports:

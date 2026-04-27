@@ -1,0 +1,17 @@
+# NEX Manager — per-customer backup schedule (Phase D.6)
+# Staggered start times (10 min apart) to avoid IO/network contention.
+# Retention runs nightly after all backups complete.
+#
+# Logs: /var/log/nex-backup.log (append, rotated by logrotate if configured)
+
+SHELL=/bin/bash
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+#  m   h  dom mon dow user  command
+   00  02  *   *   *   root  /opt/nex-automat-src/scripts/backup-customer.sh icc    >> /var/log/nex-backup.log 2>&1
+   10  02  *   *   *   root  /opt/nex-automat-src/scripts/backup-customer.sh emt    >> /var/log/nex-backup.log 2>&1
+   20  02  *   *   *   root  /opt/nex-automat-src/scripts/backup-customer.sh em1    >> /var/log/nex-backup.log 2>&1
+   30  02  *   *   *   root  /opt/nex-automat-src/scripts/backup-customer.sh andros >> /var/log/nex-backup.log 2>&1
+   40  02  *   *   *   root  /opt/nex-automat-src/scripts/backup-customer.sh mager  >> /var/log/nex-backup.log 2>&1
+#  Retention pass — daily at 03:30 (after all backups complete by ~02:50)
+   30  03  *   *   *   root  /opt/nex-automat-src/scripts/backup-retention.sh        >> /var/log/nex-backup.log 2>&1

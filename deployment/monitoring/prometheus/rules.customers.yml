@@ -52,6 +52,31 @@ groups:
           summary: "Customer {{ $labels.customer }} postgres connections >80%"
           description: "Connection pool usage at {{ $value | printf \"%.0f\" }}% — consider increasing max_connections or check for connection leaks"
 
+  - name: customer_backup_alerts
+    rules:
+      - alert: CustomerBackupStale
+        # Daily backup runs at 02:00-02:40 UTC. >36h means yesterday's run was
+        # skipped or failed (gives 12h grace after expected 24h cycle).
+        expr: time() - nex_backup_last_success_timestamp_seconds > 36 * 3600
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Customer {{ $labels.customer }} backup stale"
+          description: "No successful backup for >36h ({{ $value | humanizeDuration }} since last success). Check /var/log/nex-backup.log on ANDROS."
+
+      - alert: CustomerBackupMetricMissing
+        # If textfile metric is absent for >48h after onboarding, the cron
+        # never ran (typo in cron, missing customer dir, etc.) — never had
+        # a successful backup at all.
+        expr: absent(nex_backup_last_success_timestamp_seconds)
+        for: 48h
+        labels:
+          severity: critical
+        annotations:
+          summary: "Backup metric missing for all customers"
+          description: "node-exporter textfile collector reports no nex_backup_last_success_timestamp_seconds for >48h — backup pipeline likely broken at infrastructure level"
+
   - name: customer_container_alerts
     rules:
       # Backend container unhealthy: cAdvisor exposes container_tasks_state but not
