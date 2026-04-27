@@ -73,8 +73,45 @@ const mockPartners = [
   },
 ]
 
+// --- Mock catalogCache (IndexedDB wrapper — Phase J.3) ---
+// jsdom has no IndexedDB; the cache mock holds state on a hoisted object so
+// each test runs with a fresh cache after vi.clearAllMocks() + state reset
+// in beforeEach (testCacheState.reset()).
+const testCacheState = vi.hoisted(() => ({
+  items: null as any[] | null,
+  etag: null as string | null,
+  reset(): void {
+    this.items = null
+    this.etag = null
+  },
+}))
+
+vi.mock('@renderer/lib/catalogCache', () => ({
+  getCachedItems: vi.fn(async () => testCacheState.items),
+  setCachedItems: vi.fn(async (_cat: string, items: any[], etag: string) => {
+    testCacheState.items = items
+    testCacheState.etag = etag
+  }),
+  getCachedEtag: vi.fn(async () => testCacheState.etag),
+  getCachedMeta: vi.fn(async () =>
+    testCacheState.etag
+      ? {
+          catalog: 'pab',
+          etag: testCacheState.etag,
+          count: testCacheState.items?.length ?? 0,
+          fetchedAt: Date.now(),
+        }
+      : null
+  ),
+  upsertCachedItem: vi.fn(),
+  removeCachedItem: vi.fn(),
+  clearCache: vi.fn(async () => testCacheState.reset()),
+  clearAllCaches: vi.fn(),
+}))
+
 // --- Mock API ---
 const mockApi = vi.hoisted(() => ({
+  getPabEtag: vi.fn(),
   getPabPartners: vi.fn(),
   getPabPartner: vi.fn(),
   createPabPartner: vi.fn(),
@@ -151,6 +188,8 @@ import PabPartnerList from '@renderer/components/modules/pab/PabPartnerList'
 beforeEach(() => {
   vi.clearAllMocks()
   localStorage.clear()
+  testCacheState.reset()
+  mockApi.getPabEtag.mockResolvedValue({ etag: 'test-etag-1', count: mockPartners.length })
   mockApi.getPabPartners.mockResolvedValue({
     items: mockPartners,
     total: mockPartners.length,
@@ -211,7 +250,10 @@ describe('PabPartnerList', () => {
     // Second call should succeed
     mockApi.getPabPartners.mockResolvedValueOnce({ items: mockPartners, total: 3 })
     fireEvent.click(screen.getByText('Skúsiť znova'))
-    expect(mockApi.getPabPartners).toHaveBeenCalledTimes(2)
+    // forceRefresh is async (getPabEtag → getPabPartners), wait for both to resolve
+    await waitFor(() => {
+      expect(mockApi.getPabPartners).toHaveBeenCalledTimes(2)
+    })
   })
 
   it('renders refresh button', async () => {

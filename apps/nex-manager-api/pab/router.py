@@ -177,6 +177,36 @@ def _write_audit_log(
 # ===================================================================
 
 
+@router.get("/etag")
+def get_partners_etag(
+    _current_user=Depends(require_permission("PAB", "can_view")),
+    db=Depends(get_db),
+):
+    """Return a lightweight fingerprint of the partner_catalog table.
+
+    Used by clients with a local IndexedDB cache (Phase J Genesis pattern)
+    to decide whether to re-sync. Cheap (~5-50ms) — single aggregate query
+    over already-indexed columns; runs on every catalog open + every 30s
+    background poll while a grid is mounted.
+
+    Strategy: max(updated_at) + count(*) → small enough to be opaque,
+    deterministic (same DB state → same etag), changes whenever any row
+    is inserted/updated/deleted. Avoids full-table CRC which would be
+    O(N) and defeat the point.
+    """
+    cur = db.cursor()
+    cur.execute(
+        "SELECT COALESCE(EXTRACT(EPOCH FROM MAX(updated_at))::bigint, 0), "
+        "       COUNT(*) "
+        "FROM partner_catalog"
+    )
+    row = cur.fetchone()
+    max_updated_epoch = row[0] or 0
+    count = row[1] or 0
+    etag = f"{max_updated_epoch}-{count}"
+    return {"etag": etag, "count": count}
+
+
 @router.get("/partners")
 def list_partners(
     partner_type: Optional[str] = Query(

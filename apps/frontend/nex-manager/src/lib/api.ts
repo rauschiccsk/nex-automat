@@ -472,6 +472,14 @@ class ApiClient {
     return this.request(`/api/pab/partners${qs ? '?' + qs : ''}`)
   }
 
+  /**
+   * Lightweight fingerprint of partner_catalog. Used by IndexedDB cache
+   * (Genesis Pattern, Phase J) to decide whether to re-sync.
+   */
+  async getPabEtag(): Promise<{ etag: string; count: number }> {
+    return this.request('/api/pab/etag')
+  }
+
   async getPabPartner(
     partnerId: number
   ): Promise<import('@renderer/types/pab').PartnerCatalog> {
