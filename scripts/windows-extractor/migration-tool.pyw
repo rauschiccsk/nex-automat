@@ -374,12 +374,16 @@ class MigrationApp:
         return jwt
 
     def _trigger_migration(self, url: str, jwt: str) -> dict:
+        # Long timeout — large customers (e.g. ANDROS s.r.o. with 255k+ partner
+        # records) can take 15+ min for full UPSERT pass. Backend commits per
+        # batch so partial progress is preserved even if connection drops, but
+        # generous timeout avoids spurious failures on the GUI side.
         try:
             resp = requests.post(
                 f"{url}/api/migration/run",
                 json={"category": "PAB", "dry_run": False},
                 headers={"Authorization": f"Bearer {jwt}"},
-                timeout=300,
+                timeout=1800,
             )
         except requests.RequestException as e:
             raise RuntimeError(f"Network error: {e}")
