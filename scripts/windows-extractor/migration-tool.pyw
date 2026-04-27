@@ -147,6 +147,52 @@ class MigrationApp:
     # ------------------------------------------------------------------
 
     def _on_migrate(self, slug: str) -> None:
+        # Collect all credentials in main thread BEFORE dispatching worker
+        # (tkinter dialogs MUST run on main thread — calling simpledialog from
+        # a worker thread fails with "window was deleted before its visibility
+        # changed").
+        info = self.config["customers"][slug]
+        andros = self.config["andros"]
+
+        if self.ssh_password is None:
+            pw = simpledialog.askstring(
+                "ANDROS SSH password",
+                f"Password for {andros['user']}@{andros['host']}",
+                show="*",
+                parent=self.root,
+            )
+            if not pw:
+                self._log("Cancelled — SSH password required", "err")
+                return
+            self.ssh_password = pw
+
+        if slug not in self.admin_creds or not self.admin_creds[slug].get("jwt"):
+            username = simpledialog.askstring(
+                f"Admin login — {info['name']}",
+                f"Username for {info['url']}:",
+                initialvalue="admin",
+                parent=self.root,
+            )
+            if not username:
+                self._log("Cancelled — admin username required", "err")
+                return
+            password = simpledialog.askstring(
+                f"Admin login — {info['name']}",
+                f"Password for {username}@{info['url']}:",
+                show="*",
+                parent=self.root,
+            )
+            if not password:
+                self._log("Cancelled — admin password required", "err")
+                return
+            # Store password (used by worker to obtain JWT). JWT is set after
+            # successful login API call inside the worker.
+            self.admin_creds[slug] = {
+                "user": username,
+                "password": password,
+                "jwt": None,
+            }
+
         # Disable all buttons during run
         for b in self.buttons:
             b.config(state="disabled")
@@ -260,17 +306,7 @@ class MigrationApp:
 
     def _scp_transfer(self, local_path: Path, slug: str, info: dict) -> None:
         andros = self.config["andros"]
-        if self.ssh_password is None:
-            pw = simpledialog.askstring(
-                "ANDROS SSH password",
-                f"Password for {andros['user']}@{andros['host']}",
-                show="*",
-                parent=self.root,
-            )
-            if not pw:
-                raise RuntimeError("SSH password required")
-            self.ssh_password = pw
-
+        # Password was prompted + cached in main thread (_on_migrate)
         ssh = paramiko.SSHClient()
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         try:
@@ -283,8 +319,8 @@ class MigrationApp:
                 look_for_keys=False,
             )
         except paramiko.AuthenticationException:
-            self.ssh_password = None
-            raise RuntimeError("SSH password rejected — try again")
+            self.ssh_password = None  # invalidate cache → fresh prompt next click
+            raise RuntimeError("SSH password rejected — click again to re-enter")
 
         remote_dir = f"{info['remote_drop_dir']}/PAB"
         ssh.exec_command(f"mkdir -p {remote_dir}")[1].channel.recv_exit_status()
@@ -302,22 +338,15 @@ class MigrationApp:
         if cached and cached.get("jwt"):
             return cached["jwt"]
 
-        username = simpledialog.askstring(
-            f"Admin login — {info['name']}",
-            f"Username for {info['url']}:",
-            initialvalue="admin",
-            parent=self.root,
-        )
-        if not username:
-            raise RuntimeError("Username required")
-        password = simpledialog.askstring(
-            f"Admin login — {info['name']}",
-            f"Password for {username}@{info['url']}:",
-            show="*",
-            parent=self.root,
-        )
+        # User + password were prompted + cached in main thread (_on_migrate);
+        # we just exchange them for a JWT via the auth API.
+        if not cached:
+            raise RuntimeError("Admin credentials missing — should be set by main thread")
+
+        username = cached["user"]
+        password = cached.get("password")
         if not password:
-            raise RuntimeError("Password required")
+            raise RuntimeError("Admin password missing from cache")
 
         try:
             resp = requests.post(
@@ -329,6 +358,8 @@ class MigrationApp:
             raise RuntimeError(f"Network error: {e}")
 
         if resp.status_code != 200:
+            # Invalidate cached creds so user gets fresh prompt next click
+            self.admin_creds.pop(slug, None)
             raise RuntimeError(
                 f"Login HTTP {resp.status_code}: {resp.text[:200]}"
             )
@@ -338,6 +369,7 @@ class MigrationApp:
         if not jwt:
             raise RuntimeError(f"No access_token in login response: {data}")
 
+        # Replace plaintext password with JWT (smaller surface area in memory)
         self.admin_creds[slug] = {"user": username, "jwt": jwt}
         return jwt
 
