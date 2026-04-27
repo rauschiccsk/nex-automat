@@ -26,6 +26,10 @@ python-dotenv>=1.0.1
 # YAML (module registry)
 pyyaml>=6.0
 
+# Fast JSON encoder — used by ORJSONResponse for large list responses
+# (e.g. PAB partner catalog with 250k+ rows). 5-10x faster than stdlib json.
+orjson>=3.10.0
+
 # NEX CONFIG (centralized configuration)
 # Local dev: pip install -e ../../packages/nex-config
 # Docker: installed via Dockerfile COPY + pip install

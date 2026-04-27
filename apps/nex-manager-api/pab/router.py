@@ -178,7 +178,7 @@ def _write_audit_log(
 # ===================================================================
 
 
-@router.get("/partners", response_model=PartnerCatalogListResponse)
+@router.get("/partners")
 def list_partners(
     partner_type: Optional[str] = Query(
         None, description="Filter: supplier or customer"
@@ -204,7 +204,19 @@ def list_partners(
     _current_user=Depends(require_permission("PAB", "can_view")),
     db=Depends(get_db),
 ):
-    """List partners from partner_catalog with filtering, search, pagination, sorting."""
+    """List partners from partner_catalog with filtering, search, pagination, sorting.
+
+    Performance — fast path:
+      - Skips pydantic response_model validation (saves ~5-10s on 250k rows)
+      - Builds tuples → list[dict] manually (no _row_to_partner per record)
+      - orjson serialization (5-10x faster than stdlib json)
+      - Returns Response directly — FastAPI doesn't re-serialize/re-validate
+    Phase J.1 (target: 25s → 8s for 250k rows).
+    """
+    import orjson
+    from fastapi import Response
+    from datetime import date as _date_t, datetime as _datetime_t
+
     if sort_by not in _SORT_COLUMNS:
         sort_by = "partner_id"
     if sort_order not in ("asc", "desc"):
@@ -253,12 +265,45 @@ def list_partners(
     )
     rows = cur.fetchall()
 
-    return PartnerCatalogListResponse(
-        items=[_row_to_partner(r) for r in rows],
-        total=total,
-        limit=limit,
-        offset=offset,
-    )
+    # Build dicts directly from tuples in column order (matches _PARTNER_COLUMNS).
+    # Hot path — runs once per row × 250k rows; tight loop without pydantic.
+    items = [
+        {
+            "partner_id": r[0],
+            "partner_name": r[1],
+            "reg_name": r[2],
+            "company_id": r[3],
+            "tax_id": r[4],
+            "vat_id": r[5],
+            "is_vat_payer": r[6],
+            "is_supplier": r[7],
+            "is_customer": r[8],
+            "street": r[9],
+            "city": r[10],
+            "zip_code": r[11],
+            "country_code": r[12],
+            "partner_class": r[13],
+            "modify_id": r[14],
+            "bank_account_count": r[15],
+            "facility_count": r[16],
+            "is_active": r[17],
+            "created_at": r[18],
+            "updated_at": r[19],
+        }
+        for r in rows
+    ]
+
+    payload = {
+        "items": items,
+        "total": total,
+        "limit": limit,
+        "offset": offset,
+    }
+    # orjson handles datetime/date natively; emits ISO 8601 strings (compatible
+    # with frontend Date parsing). OPT_NAIVE_UTC adds 'Z' suffix to naive
+    # timestamps so they're unambiguously UTC.
+    body = orjson.dumps(payload, option=orjson.OPT_NAIVE_UTC)
+    return Response(content=body, media_type="application/json")
 
 
 @router.get("/partners/{partner_id}", response_model=PartnerCatalogResponse)
