@@ -1,0 +1,155 @@
+name: Deploy to Customer
+
+# Manual deploy per customer with required-reviewer approval gate.
+# See KB DECISIONS.md D-024 (Track 2 Phase D architecture) and OVERRIDE-001
+# (git-flow branch model) for context.
+
+on:
+  workflow_dispatch:
+    inputs:
+      customer:
+        description: 'Customer slug (must already be onboarded via scripts/onboard-customer.sh)'
+        required: true
+        type: choice
+        options:
+          - icc
+          - emt
+          - em1
+          - andros
+          - mager
+      ref:
+        description: 'Git ref to deploy (branch/tag/SHA — default develop for pilot)'
+        required: false
+        default: 'develop'
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: Deploy ${{ inputs.customer }}
+    runs-on: [self-hosted, ANDROS]
+    # Per-customer environment with Required Reviewers gate (configured in
+    # GitHub repo Settings → Environments → production-<slug>).
+    environment:
+      name: production-${{ inputs.customer }}
+      url: https://${{ inputs.customer }}.isnex.eu
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+          fetch-depth: 0
+
+      - name: Verify customer is onboarded
+        run: |
+          if [[ ! -d "/opt/customers/${{ inputs.customer }}" ]]; then
+            echo "::error::Customer '${{ inputs.customer }}' is not onboarded."
+            echo "::error::Run on ANDROS: sudo /opt/nex-automat-src/scripts/onboard-customer.sh ${{ inputs.customer }}"
+            exit 1
+          fi
+          echo "Customer dir exists: /opt/customers/${{ inputs.customer }}"
+
+      - name: Resolve commit SHA
+        id: sha
+        run: |
+          SHORT_SHA=$(git rev-parse --short HEAD)
+          FULL_SHA=$(git rev-parse HEAD)
+          echo "short=${SHORT_SHA}" >> $GITHUB_OUTPUT
+          echo "full=${FULL_SHA}" >> $GITHUB_OUTPUT
+          echo "Deploying ref=${{ inputs.ref }} → SHA=${SHORT_SHA}"
+
+      - name: Build backend image
+        run: |
+          docker build \
+            -t nex-manager-api:${{ steps.sha.outputs.short }} \
+            -t nex-manager-api:latest \
+            -f apps/nex-manager-api/Dockerfile \
+            .
+
+      - name: Build frontend image (production = empty VITE_API_URL)
+        run: |
+          cd apps/frontend/nex-manager
+          node scripts/version.cjs
+          docker build \
+            --build-arg VITE_API_URL= \
+            -t nex-manager-frontend:${{ steps.sha.outputs.short }} \
+            -t nex-manager-frontend:latest \
+            .
+
+      - name: Apply DB migrations on customer DB
+        run: |
+          # Migrations are idempotent (CREATE IF NOT EXISTS, ON CONFLICT DO
+          # NOTHING) — safe to re-apply all on every deploy.
+          for migration in database/migrations/*.sql; do
+            fname=$(basename "$migration")
+            echo "Applying ${fname}"
+            docker exec -i "${{ inputs.customer }}-postgres" \
+              psql -U postgres -d nex_automat -q < "$migration" || {
+                echo "::error::Migration ${fname} failed"
+                exit 1
+              }
+          done
+
+      - name: Pin image SHA via env override + recreate containers
+        run: |
+          cd /opt/customers/${{ inputs.customer }}
+          # Shell IMAGE_TAG override takes precedence over .env (which has
+          # IMAGE_TAG=latest from onboarding). No sudo / file mutation needed.
+          IMAGE_TAG=${{ steps.sha.outputs.short }} \
+            docker compose up -d --force-recreate backend frontend
+
+      - name: Wait for containers healthy
+        run: |
+          for i in $(seq 1 30); do
+            BACKEND=$(docker inspect --format '{{.State.Health.Status}}' \
+              "${{ inputs.customer }}-backend" 2>/dev/null || echo "starting")
+            FRONTEND=$(docker inspect --format '{{.State.Health.Status}}' \
+              "${{ inputs.customer }}-frontend" 2>/dev/null || echo "starting")
+            echo "  attempt $i: backend=$BACKEND frontend=$FRONTEND"
+            [[ "$BACKEND" == "healthy" && "$FRONTEND" == "healthy" ]] && break
+            sleep 2
+          done
+          if [[ "$BACKEND" != "healthy" || "$FRONTEND" != "healthy" ]]; then
+            echo "::error::Containers did not become healthy"
+            docker logs --tail 50 "${{ inputs.customer }}-backend"
+            docker logs --tail 50 "${{ inputs.customer }}-frontend"
+            exit 1
+          fi
+
+      - name: Healthcheck via public URL
+        run: |
+          for i in $(seq 1 30); do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+              "https://${{ inputs.customer }}.isnex.eu/" || echo "000")
+            [[ "$STATUS" == "200" ]] && break
+            sleep 2
+          done
+          if [[ "$STATUS" != "200" ]]; then
+            echo "::error::Public URL https://${{ inputs.customer }}.isnex.eu/ → HTTP ${STATUS}"
+            exit 1
+          fi
+          echo "Public URL HTTP 200 ✓"
+
+      - name: Record deployed SHA
+        run: |
+          # Track which SHA is currently deployed per customer (for diff /
+          # rollback reference). Read by ops via 'cat /opt/customers/<slug>/.deployed-sha'.
+          echo "${{ steps.sha.outputs.full }} ${{ inputs.ref }} $(date -Iseconds)" \
+            | sudo tee /opt/customers/${{ inputs.customer }}/.deployed-sha > /dev/null
+
+      - name: Deployment summary
+        run: |
+          {
+            echo "### ✅ Deployed ${{ inputs.customer }}"
+            echo ""
+            echo "| Field | Value |"
+            echo "|-------|-------|"
+            echo "| URL | https://${{ inputs.customer }}.isnex.eu |"
+            echo "| Ref | \`${{ inputs.ref }}\` |"
+            echo "| SHA | \`${{ steps.sha.outputs.short }}\` |"
+            echo "| Backend image | \`nex-manager-api:${{ steps.sha.outputs.short }}\` |"
+            echo "| Frontend image | \`nex-manager-frontend:${{ steps.sha.outputs.short }}\` |"
+            echo "| Approver | @${{ github.actor }} |"
+          } >> $GITHUB_STEP_SUMMARY
