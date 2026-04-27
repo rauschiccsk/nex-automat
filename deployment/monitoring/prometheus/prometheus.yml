@@ -56,3 +56,99 @@ scrape_configs:
         target_label: instance
       - target_label: __address__
         replacement: blackbox-exporter:9115
+
+  # Auto-added by onboard-customer.sh for customer 'emt'
+  - job_name: 'customer-emt-postgres'
+    static_configs:
+      - targets: ['emt-postgres-exporter:9187']
+        labels:
+          customer: 'emt'
+
+  # Blackbox HTTP probe for customer 'emt'
+  - job_name: 'blackbox-customer-emt'
+    metrics_path: /probe
+    params:
+      module: [http_2xx]
+    static_configs:
+      - targets: ['https://emt.isnex.eu/']
+        labels:
+          customer: 'emt'
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox-exporter:9115
+
+  # Auto-added by onboard-customer.sh for customer 'em1'
+  - job_name: 'customer-em1-postgres'
+    static_configs:
+      - targets: ['em1-postgres-exporter:9187']
+        labels:
+          customer: 'em1'
+
+  # Blackbox HTTP probe for customer 'em1'
+  - job_name: 'blackbox-customer-em1'
+    metrics_path: /probe
+    params:
+      module: [http_2xx]
+    static_configs:
+      - targets: ['https://em1.isnex.eu/']
+        labels:
+          customer: 'em1'
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox-exporter:9115
+
+  # Auto-added by onboard-customer.sh for customer 'andros'
+  - job_name: 'customer-andros-postgres'
+    static_configs:
+      - targets: ['andros-postgres-exporter:9187']
+        labels:
+          customer: 'andros'
+
+  # Blackbox HTTP probe for customer 'andros'
+  - job_name: 'blackbox-customer-andros'
+    metrics_path: /probe
+    params:
+      module: [http_2xx]
+    static_configs:
+      - targets: ['https://andros.isnex.eu/']
+        labels:
+          customer: 'andros'
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox-exporter:9115
+
+  # Auto-added by onboard-customer.sh for customer 'mager'
+  - job_name: 'customer-mager-postgres'
+    static_configs:
+      - targets: ['mager-postgres-exporter:9187']
+        labels:
+          customer: 'mager'
+
+  # Blackbox HTTP probe for customer 'mager'
+  - job_name: 'blackbox-customer-mager'
+    metrics_path: /probe
+    params:
+      module: [http_2xx]
+    static_configs:
+      - targets: ['https://mager.isnex.eu/']
+        labels:
+          customer: 'mager'
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox-exporter:9115

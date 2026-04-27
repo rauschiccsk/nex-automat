@@ -76,9 +76,14 @@ JWT_SECRET_KEY=$(openssl rand -base64 64 | tr -d '\n')
 # Director changes via UI immediately after first login.
 
 # Allocate frontend port from internal range 19000-19499 (host-nginx routing
-# only, bound to 127.0.0.1, not internet-exposed). Find first free port.
+# only, bound to 127.0.0.1, not internet-exposed). Cross-reference TWO sources:
+#   1. Already-allocated ports in existing /opt/customers/*/.env (catches
+#      configured-but-temporarily-stopped customers — a previous bug)
+#   2. Currently-listening ports via ss (catches non-customer host services)
+USED_PORTS=$(grep -h "^FRONTEND_PORT=" "${CUSTOMERS_ROOT}"/*/.env 2>/dev/null | cut -d= -f2 | sort -un)
 FRONTEND_PORT=19000
-while ss -tlnp 2>/dev/null | grep -q ":${FRONTEND_PORT}\b"; do
+while { echo "$USED_PORTS" | grep -qx "$FRONTEND_PORT"; } \
+   || ss -tlnp 2>/dev/null | grep -q ":${FRONTEND_PORT}\b"; do
     FRONTEND_PORT=$((FRONTEND_PORT + 1))
     if [[ $FRONTEND_PORT -ge 19500 ]]; then
         echo "ERROR: no free port in 19000-19499 range" >&2
