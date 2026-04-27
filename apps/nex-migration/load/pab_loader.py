@@ -1,17 +1,25 @@
 """
-PABLoader — INSERT structured PAB records into the normalized partner_catalog* schema.
+PABLoader — UPSERT structured PAB records into the normalized partner_catalog* schema.
 
 Target tables (6):
   - partner_catalog          (header — INTEGER PK partner_id from PAB code)
   - partner_catalog_extensions (business terms — 1:1 with header)
-  - partner_catalog_addresses  (registered address — 1:N)
-  - partner_catalog_contacts   (phone/email/person — 1:N)
-  - partner_catalog_bank_accounts (IBAN/SWIFT — 1:N)
-  - partner_catalog_texts      (notes — 1:N)
+  - partner_catalog_addresses  (1:N — UNIQUE on partner_id+address_type)
+  - partner_catalog_contacts   (1:N — no natural unique → DELETE+INSERT)
+  - partner_catalog_bank_accounts (1:N — no natural unique → DELETE+INSERT)
+  - partner_catalog_texts      (1:N — UNIQUE on partner_id+text_type+line_number+language)
 
 Uses pg8000 driver (NEVER psycopg2/asyncpg).
-After INSERT, writes mapping to migration_id_map.
-INSERT trigger partner_catalog_init_version auto-creates history — NO manual insert.
+After INSERT/UPDATE, writes mapping to migration_id_map (UPSERT — see base_loader).
+
+Re-runnable: ON CONFLICT DO UPDATE on tables with natural unique keys; DELETE + INSERT
+for child tables without (contacts, bank_accounts). xmax==0 detects insert-vs-update.
+
+Triggers:
+  - trg_partner_catalog_init_version (AFTER INSERT) — initial history row
+  - trg_partner_catalog_versioning (BEFORE UPDATE WHEN key fields change) — history row on update
+  Both fire correctly under UPSERT pattern.
+
 Processes records in batches.
 """
 
@@ -30,10 +38,10 @@ from load.base_loader import BaseLoader
 BATCH_SIZE = PAB_BATCH_SIZE
 
 # ---------------------------------------------------------------------------
-# SQL statements
+# SQL statements — UPSERT pattern for re-runnable migration
 # ---------------------------------------------------------------------------
 
-_INSERT_HEADER = """
+_UPSERT_HEADER = """
     INSERT INTO partner_catalog (
         partner_id, partner_name, company_id, tax_id, vat_id,
         is_vat_payer, is_supplier, is_customer, street, city, zip_code,
@@ -43,21 +51,48 @@ _INSERT_HEADER = """
         %s, %s, %s, %s, %s, %s,
         %s, %s, %s, %s, %s
     )
-    RETURNING partner_id
+    ON CONFLICT (partner_id) DO UPDATE SET
+        partner_name = EXCLUDED.partner_name,
+        company_id = EXCLUDED.company_id,
+        tax_id = EXCLUDED.tax_id,
+        vat_id = EXCLUDED.vat_id,
+        is_vat_payer = EXCLUDED.is_vat_payer,
+        is_supplier = EXCLUDED.is_supplier,
+        is_customer = EXCLUDED.is_customer,
+        street = EXCLUDED.street,
+        city = EXCLUDED.city,
+        zip_code = EXCLUDED.zip_code,
+        country_code = EXCLUDED.country_code,
+        partner_class = EXCLUDED.partner_class,
+        is_active = EXCLUDED.is_active,
+        updated_by = EXCLUDED.updated_by
+    RETURNING partner_id, (xmax = 0) AS was_inserted
 """
 
-_INSERT_EXTENSIONS = """
+_UPSERT_EXTENSIONS = """
     INSERT INTO partner_catalog_extensions (
         partner_id, sale_payment_due_days, sale_credit_limit,
         sale_discount_percent, sale_currency_code, created_by, updated_by
     ) VALUES (%s, %s, %s, %s, %s, %s, %s)
+    ON CONFLICT (partner_id) DO UPDATE SET
+        sale_payment_due_days = EXCLUDED.sale_payment_due_days,
+        sale_credit_limit = EXCLUDED.sale_credit_limit,
+        sale_discount_percent = EXCLUDED.sale_discount_percent,
+        sale_currency_code = EXCLUDED.sale_currency_code,
+        updated_by = EXCLUDED.updated_by
 """
 
-_INSERT_ADDRESS = """
+_UPSERT_ADDRESS = """
     INSERT INTO partner_catalog_addresses (
         partner_id, address_type, street, city, zip_code,
         country_code, created_by, updated_by
     ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+    ON CONFLICT (partner_id, address_type) DO UPDATE SET
+        street = EXCLUDED.street,
+        city = EXCLUDED.city,
+        zip_code = EXCLUDED.zip_code,
+        country_code = EXCLUDED.country_code,
+        updated_by = EXCLUDED.updated_by
 """
 
 _INSERT_CONTACT = """
@@ -74,12 +109,22 @@ _INSERT_BANK_ACCOUNT = """
     ) VALUES (%s, %s, %s, %s, %s, %s, %s)
 """
 
-_INSERT_TEXT = """
+_UPSERT_TEXT = """
     INSERT INTO partner_catalog_texts (
         partner_id, text_type, line_number, language,
         text_content, created_by, updated_by
     ) VALUES (%s, %s, %s, %s, %s, %s, %s)
+    ON CONFLICT (partner_id, text_type, line_number, language) DO UPDATE SET
+        text_content = EXCLUDED.text_content,
+        updated_by = EXCLUDED.updated_by
 """
+
+_DELETE_CONTACTS_FOR_PARTNER = (
+    "DELETE FROM partner_catalog_contacts WHERE partner_id = %s"
+)
+_DELETE_BANK_ACCOUNTS_FOR_PARTNER = (
+    "DELETE FROM partner_catalog_bank_accounts WHERE partner_id = %s"
+)
 
 
 class PABLoader(BaseLoader):
@@ -94,7 +139,7 @@ class PABLoader(BaseLoader):
     # ------------------------------------------------------------------
 
     def load(self, records: list[dict]) -> None:
-        """INSERT records into partner_catalog* in batches."""
+        """UPSERT records into partner_catalog* in batches."""
         total = len(records)
         cursor = self.conn.cursor()
 
@@ -115,11 +160,14 @@ class PABLoader(BaseLoader):
         for idx, record in enumerate(batch):
             source_key = record.get("_source_key", "")
             try:
-                partner_id = self._insert_record(cursor, record)
+                partner_id, was_inserted = self._upsert_record(cursor, record)
 
-                self.stats["inserted"] += 1
+                if was_inserted:
+                    self.stats["inserted"] += 1
+                else:
+                    self.stats["updated"] += 1
 
-                # Write ID mapping
+                # Write ID mapping (already UPSERT in base_loader.add_id_mapping)
                 self.add_id_mapping(
                     source_table="PAB",
                     source_key=source_key,
@@ -133,17 +181,18 @@ class PABLoader(BaseLoader):
                 # Rollback the current transaction and start fresh
                 self.conn.rollback()
 
-    def _insert_record(self, cursor, record: dict) -> int:
-        """Insert a single structured record into all partner_catalog* tables.
+    def _upsert_record(self, cursor, record: dict) -> tuple[int, bool]:
+        """UPSERT a single structured record into all partner_catalog* tables.
 
-        Returns the partner_id.
+        Returns (partner_id, was_inserted) where was_inserted=True for fresh rows.
         """
         header = record["header"]
 
-        # 1. Insert header → partner_catalog
-        #    Trigger partner_catalog_init_version auto-creates history entry
+        # 1. UPSERT header → partner_catalog
+        #    INSERT trigger creates history, BEFORE-UPDATE trigger creates new
+        #    history entry when key fields change.
         cursor.execute(
-            _INSERT_HEADER,
+            _UPSERT_HEADER,
             (
                 header["partner_id"],
                 header["partner_name"],
@@ -165,12 +214,13 @@ class PABLoader(BaseLoader):
         )
         row = cursor.fetchone()
         partner_id = row[0]
+        was_inserted = bool(row[1])
 
-        # 2. Insert extensions → partner_catalog_extensions
+        # 2. UPSERT extensions → partner_catalog_extensions (PK = partner_id)
         extensions = record.get("extensions")
         if extensions:
             cursor.execute(
-                _INSERT_EXTENSIONS,
+                _UPSERT_EXTENSIONS,
                 (
                     partner_id,
                     extensions.get("sale_payment_due_days", 14),
@@ -182,10 +232,15 @@ class PABLoader(BaseLoader):
                 ),
             )
 
-        # 3. Insert addresses → partner_catalog_addresses
+        # 3. Reset 1:N children that have no natural unique key.
+        #    Re-runs would otherwise duplicate or orphan rows.
+        cursor.execute(_DELETE_CONTACTS_FOR_PARTNER, (partner_id,))
+        cursor.execute(_DELETE_BANK_ACCOUNTS_FOR_PARTNER, (partner_id,))
+
+        # 4. UPSERT addresses (UNIQUE on partner_id, address_type)
         for addr in record.get("addresses", []):
             cursor.execute(
-                _INSERT_ADDRESS,
+                _UPSERT_ADDRESS,
                 (
                     partner_id,
                     addr.get("address_type", "registered"),
@@ -198,7 +253,7 @@ class PABLoader(BaseLoader):
                 ),
             )
 
-        # 4. Insert contacts → partner_catalog_contacts
+        # 5. INSERT contacts (children deleted in step 3, fresh insert)
         for contact in record.get("contacts", []):
             cursor.execute(
                 _INSERT_CONTACT,
@@ -215,8 +270,9 @@ class PABLoader(BaseLoader):
                 ),
             )
 
-        # 5. Insert bank accounts → partner_catalog_bank_accounts
-        for bank in record.get("bank_accounts", []):
+        # 6. INSERT bank accounts + set bank_account_count to actual count
+        bank_accounts = record.get("bank_accounts", [])
+        for bank in bank_accounts:
             cursor.execute(
                 _INSERT_BANK_ACCOUNT,
                 (
@@ -229,18 +285,17 @@ class PABLoader(BaseLoader):
                     bank.get("updated_by", "migration"),
                 ),
             )
+        # Set bank_account_count atomically (instead of incrementing — re-runs
+        # with the increment pattern would double-count).
+        cursor.execute(
+            "UPDATE partner_catalog SET bank_account_count = %s WHERE partner_id = %s",
+            (len(bank_accounts), partner_id),
+        )
 
-            # Update bank_account_count on partner_catalog
-            cursor.execute(
-                "UPDATE partner_catalog SET bank_account_count = "
-                "bank_account_count + 1 WHERE partner_id = %s",
-                (partner_id,),
-            )
-
-        # 6. Insert texts → partner_catalog_texts
+        # 7. UPSERT texts (UNIQUE on partner_id, text_type, line_number, language)
         for text in record.get("texts", []):
             cursor.execute(
-                _INSERT_TEXT,
+                _UPSERT_TEXT,
                 (
                     partner_id,
                     text.get("text_type", "notes"),
@@ -252,4 +307,4 @@ class PABLoader(BaseLoader):
                 ),
             )
 
-        return partner_id
+        return partner_id, was_inserted
