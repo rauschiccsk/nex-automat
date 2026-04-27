@@ -13,7 +13,7 @@
  *   - localStorage persistence: column widths, order, visibility, sort, filters
  */
 
-import { useCallback, useMemo, useRef, type ReactElement } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactElement } from 'react'
 import { AgGridReact } from 'ag-grid-react'
 import type {
   ColDef,
@@ -25,7 +25,12 @@ import type {
   ColumnResizedEvent,
   ColumnVisibleEvent,
 } from 'ag-grid-community'
-import { ModuleRegistry, AllCommunityModule } from 'ag-grid-community'
+import {
+  ModuleRegistry,
+  AllCommunityModule,
+  themeBalham,
+  colorSchemeDark,
+} from 'ag-grid-community'
 import type { GridConfig, GridColumnConfig, GridColumnType } from './gridTypes'
 
 // AG Grid Community v33+ requires explicit module registration
@@ -174,10 +179,27 @@ export function BaseAgGrid<T extends { id: number | string }>({
 
   const columnDefs = useMemo(() => buildAgColumns(config.columns), [config.columns])
 
-  // Single theme class — dark mode is handled by CSS overrides scoped to
-  // `:root.dark .ag-theme-balham` in agGridDarkMode.css. No JS observer
-  // needed; CSS cascade tracks the app-level dark class on <html>.
-  const themeClass = 'ag-theme-balham'
+  // Track app-level dark mode (Tailwind sets `dark` class on documentElement
+  // via App.tsx). We pass the resolved AG Grid theme object as a prop so
+  // the v35 JS Theming API rebuilds the grid styles correctly on toggle.
+  const [isDark, setIsDark] = useState<boolean>(() =>
+    typeof document !== 'undefined' &&
+    document.documentElement.classList.contains('dark')
+  )
+  useEffect(() => {
+    const root = document.documentElement
+    setIsDark(root.classList.contains('dark'))
+    const observer = new MutationObserver(() => {
+      setIsDark(root.classList.contains('dark'))
+    })
+    observer.observe(root, { attributes: true, attributeFilter: ['class'] })
+    return () => observer.disconnect()
+  }, [])
+
+  const theme = useMemo(
+    () => (isDark ? themeBalham.withPart(colorSchemeDark) : themeBalham),
+    [isDark]
+  )
 
   const defaultColDef = useMemo<ColDef>(
     () => ({
@@ -243,9 +265,10 @@ export function BaseAgGrid<T extends { id: number | string }>({
   )
 
   return (
-    <div className={`${themeClass} ${className ?? ''}`} style={{ height: '100%', width: '100%' }}>
+    <div className={className ?? ''} style={{ height: '100%', width: '100%' }}>
       <AgGridReact<T>
         ref={gridRef}
+        theme={theme}
         rowData={data}
         columnDefs={columnDefs}
         defaultColDef={defaultColDef}
