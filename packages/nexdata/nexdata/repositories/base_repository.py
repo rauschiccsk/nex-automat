@@ -101,8 +101,14 @@ class BaseRepository(Generic[T], ABC):
         else:
             return None
 
-    def get_all(self, max_records: int = 10000) -> list[T]:
-        """Get all records from table"""
+    def get_all(self, max_records: int | None = None) -> list[T]:
+        """Get all records from table.
+
+        Args:
+            max_records: Cap on number of records to return. None (default) means
+                unlimited — use only when callers actually want every row (e.g. full
+                migration extract). Pass a small int for ad-hoc sampling.
+        """
         records = []
 
         if not self._is_open:
@@ -115,7 +121,7 @@ class BaseRepository(Generic[T], ABC):
         else:
             return records
 
-        while len(records) < max_records:
+        while max_records is None or len(records) < max_records:
             record = self.get_next()
             if record is None:
                 break
