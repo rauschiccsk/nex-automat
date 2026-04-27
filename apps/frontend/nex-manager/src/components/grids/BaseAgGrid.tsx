@@ -197,12 +197,12 @@ export function BaseAgGrid<T extends { id: number | string }>({
       filter: true,
       floatingFilter: true,
       suppressHeaderMenuButton: true, // hide hamburger — keep header tight
-      // Default filter operator = 'contains' for text columns. Without this,
-      // AG Grid floating filter defaults to 'startsWith' on text and 'equals'
-      // on numbers — users expected NEX Genesis-style 'contains' everywhere.
+      // Floating filter default = 'startsWith' (NEX Genesis convention —
+      // user types and grid shows rows whose value starts with the input).
+      // 'contains' remains available via the dropdown next to the input
+      // for cases where user needs substring search.
       filterParams: {
-        defaultOption: 'contains',
-        // Keep filter applied as user types (no need to press Enter)
+        defaultOption: 'startsWith',
         buttons: ['reset'],
       },
     }),
