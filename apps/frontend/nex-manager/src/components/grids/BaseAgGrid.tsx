@@ -13,7 +13,7 @@
  *   - localStorage persistence: column widths, order, visibility, sort, filters
  */
 
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactElement } from 'react'
+import { useCallback, useMemo, useRef, type ReactElement } from 'react'
 import { AgGridReact } from 'ag-grid-react'
 import type {
   ColDef,
@@ -174,21 +174,10 @@ export function BaseAgGrid<T extends { id: number | string }>({
 
   const columnDefs = useMemo(() => buildAgColumns(config.columns), [config.columns])
 
-  // Sync AG Grid theme with app's dark-mode toggle. App.tsx adds/removes
-  // `dark` class on document.documentElement when user toggles theme.
-  const [isDark, setIsDark] = useState<boolean>(() =>
-    typeof document !== 'undefined' &&
-    document.documentElement.classList.contains('dark')
-  )
-  useEffect(() => {
-    const root = document.documentElement
-    const observer = new MutationObserver(() => {
-      setIsDark(root.classList.contains('dark'))
-    })
-    observer.observe(root, { attributes: true, attributeFilter: ['class'] })
-    return () => observer.disconnect()
-  }, [])
-  const themeClass = isDark ? 'ag-theme-balham-dark' : 'ag-theme-balham'
+  // Single theme class — dark mode is handled by CSS overrides scoped to
+  // `:root.dark .ag-theme-balham` in agGridDarkMode.css. No JS observer
+  // needed; CSS cascade tracks the app-level dark class on <html>.
+  const themeClass = 'ag-theme-balham'
 
   const defaultColDef = useMemo<ColDef>(
     () => ({
