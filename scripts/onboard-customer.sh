@@ -110,6 +110,13 @@ SLUG="${SLUG}" FRONTEND_PORT="${FRONTEND_PORT}" envsubst '${SLUG} ${FRONTEND_POR
 
 echo "[onboard] Generated ${CUSTOMER_DIR}/.env, docker-compose.yml, ${SLUG}.nginx.conf"
 
+# Hand off ownership to the deploy user (who invoked sudo) so the GitHub
+# Actions runner can read .env without sudo. Mode 600 on .env preserves
+# secret confidentiality — only the deploy user (and root) can read it.
+DEPLOY_USER="${SUDO_USER:-$(whoami)}"
+chown -R "${DEPLOY_USER}:${DEPLOY_USER}" "$CUSTOMER_DIR"
+echo "[onboard] Set ownership of ${CUSTOMER_DIR} to ${DEPLOY_USER}"
+
 # ──────────────────────────────────────────────────────────────────────
 # 4. DNS step (manual, per Q5.a-2)
 # ──────────────────────────────────────────────────────────────────────
