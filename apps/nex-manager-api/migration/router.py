@@ -345,15 +345,22 @@ def _run_pab_migration(body: MigrationRunRequest, db) -> MigrationRunResponse:
     from transform.pab_transformer import PABTransformer
     from load.pab_loader import PABLoader
 
-    # Determine data directory (relative to nex-migration)
-    data_dir = str(_migration_path / "data")
+    # Per-customer migration data dir — mounted from host
+    # /opt/customers/<slug>/migration/ → container /migration/
+    # (See deployment/customer-template/docker-compose.yml.template).
+    # Falls back to in-repo dev path when running outside a customer container.
+    data_dir = os.getenv("MIGRATION_DATA_DIR", str(_migration_path / "data"))
 
     # Check that PAB extract data exists
     pab_json = Path(data_dir) / "PAB" / "PAB.json"
     if not pab_json.exists():
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail="PAB extract data not found. Run extract on Windows CC first.",
+            detail=(
+                f"PAB extract data not found at {pab_json}. "
+                "Run nex-extract.exe on customer Windows machine, then transfer "
+                f"PAB.json to /opt/customers/<slug>/migration/PAB/ on ANDROS host."
+            ),
         )
 
     start_time = time.time()

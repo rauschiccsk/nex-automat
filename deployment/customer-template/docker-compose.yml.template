@@ -48,8 +48,14 @@ services:
       POSTGRES_DB: nex_automat
       JWT_SECRET_KEY: ${JWT_SECRET_KEY}
       LOG_LEVEL: INFO
+      # Per-customer migration data drop point — operator places extracted
+      # JSON files (e.g. PAB.json) into /opt/customers/<slug>/migration/<CAT>/
+      # on the host. Backend reads them via this mount when running migrations.
+      MIGRATION_DATA_DIR: /migration
     networks:
       - app-net
+    volumes:
+      - ./migration:/migration:rw
     healthcheck:
       # Backend image is Python-based and does not ship wget/curl — use python
       # urllib (always present) to hit the FastAPI /health endpoint.

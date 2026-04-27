@@ -92,6 +92,17 @@ jobs:
               }
           done
 
+      - name: Sync compose file from template
+        run: |
+          # Sync per-customer docker-compose.yml from the canonical template so
+          # any compose-level changes (new services, mounts, env vars) propagate
+          # on next deploy. Customer-specific values (SLUG, secrets, ports) come
+          # from /opt/customers/<slug>/.env which we never touch.
+          cp /opt/nex-automat-src/deployment/customer-template/docker-compose.yml.template \
+             /opt/customers/${{ inputs.customer }}/docker-compose.yml
+          # Ensure migration data dir exists (required by /migration mount)
+          mkdir -p /opt/customers/${{ inputs.customer }}/migration
+
       - name: Pin image SHA via env override + recreate containers
         run: |
           cd /opt/customers/${{ inputs.customer }}

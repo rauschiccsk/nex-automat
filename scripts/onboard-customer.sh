@@ -115,6 +115,12 @@ SLUG="${SLUG}" FRONTEND_PORT="${FRONTEND_PORT}" envsubst '${SLUG} ${FRONTEND_POR
 
 echo "[onboard] Generated ${CUSTOMER_DIR}/.env, docker-compose.yml, ${SLUG}.nginx.conf"
 
+# Migration data drop point — backend container mounts this dir as /migration.
+# Operator drops extracted Btrieve JSON files here (per category subdir) before
+# triggering /api/migration/run from the UI.
+mkdir -p "${CUSTOMER_DIR}/migration"
+echo "[onboard] Created migration data dir: ${CUSTOMER_DIR}/migration/"
+
 # Hand off ownership to the deploy user (who invoked sudo) so the GitHub
 # Actions runner can read .env without sudo. Mode 600 on .env preserves
 # secret confidentiality — only the deploy user (and root) can read it.
