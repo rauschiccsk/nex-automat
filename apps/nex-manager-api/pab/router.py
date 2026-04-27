@@ -74,7 +74,6 @@ from .schemas import (
     FacilityResponse,
     FacilityUpdate,
     PartnerCatalogCreate,
-    PartnerCatalogListResponse,
     PartnerCatalogResponse,
     PartnerCatalogUpdate,
     PartnerHistoryResponse,
@@ -215,7 +214,6 @@ def list_partners(
     """
     import orjson
     from fastapi import Response
-    from datetime import date as _date_t, datetime as _datetime_t
 
     if sort_by not in _SORT_COLUMNS:
         sort_by = "partner_id"
