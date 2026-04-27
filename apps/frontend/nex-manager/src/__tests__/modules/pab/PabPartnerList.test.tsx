@@ -178,10 +178,13 @@ describe('PabPartnerList', () => {
     expect(mockApi.getPabPartners).toHaveBeenCalled()
   })
 
-  it('shows total partner count', async () => {
+  it('shows partner count (filter narrows view)', async () => {
+    // Filter+search now run client-side over the fetched dataset. Default
+    // partner_class filter is 'business' (2 of 3 mock partners), so the
+    // count line shows the narrowed view: "Zobrazené: 2 z 3 partnerov".
     render(<PabPartnerList />)
     await waitFor(() => {
-      expect(screen.getByText(/Celkom: 3 partnerov/)).toBeInTheDocument()
+      expect(screen.getByText(/Zobrazené: 2 z 3 partnerov/)).toBeInTheDocument()
     })
   })
 
