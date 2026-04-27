@@ -1,0 +1,31 @@
+global:
+  resolve_timeout: 5m
+
+route:
+  group_by: ['alertname', 'severity']
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 4h
+  receiver: 'telegram-admin'
+
+receivers:
+  - name: 'telegram-admin'
+    telegram_configs:
+      # Production secrets live ONLY at /opt/nex-automat/alertmanager/alertmanager.yml
+      # on ANDROS — never commit real bot_token / chat_id (per CLAUDE.md §13).
+      - bot_token: 'REPLACE_WITH_TELEGRAM_BOT_TOKEN'
+        chat_id: 0  # REPLACE_WITH_DIRECTOR_TELEGRAM_USER_ID
+        parse_mode: 'HTML'
+        # send_resolved defaults to true for telegram_configs (verified via E2E test)
+        message: |
+          🚨 <b>{{ .Status | toUpper }}</b>
+          <b>Alert:</b> {{ .CommonAnnotations.summary }}
+          <b>Severity:</b> {{ .CommonLabels.severity }}
+          <b>Description:</b> {{ .CommonAnnotations.description }}
+
+inhibit_rules:
+  - source_match:
+      severity: 'critical'
+    target_match:
+      severity: 'warning'
+    equal: ['alertname']

@@ -1,0 +1,68 @@
+groups:
+  - name: customer_http_alerts
+    rules:
+      - alert: CustomerSiteDown
+        expr: probe_success{job=~"blackbox-customer-.*"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Customer {{ $labels.customer }} site DOWN"
+          description: "{{ $labels.instance }} probe_success=0 for >2m (HTTPS unreachable or non-200)"
+
+      - alert: CustomerSiteSlowResponse
+        expr: probe_duration_seconds{job=~"blackbox-customer-.*"} > 3
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Customer {{ $labels.customer }} site slow"
+          description: "{{ $labels.instance }} response time {{ $value | printf \"%.2f\" }}s >3s for 5m"
+
+      - alert: CustomerSiteCertExpiringSoon
+        expr: probe_ssl_earliest_cert_expiry{job=~"blackbox-customer-.*"} - time() < 7 * 24 * 3600
+        for: 1h
+        labels:
+          severity: warning
+        annotations:
+          summary: "Customer {{ $labels.customer }} cert expires in <7 days"
+          description: "{{ $labels.instance }} cert expiry in {{ $value | humanizeDuration }} — certbot renewal may be broken"
+
+  - name: customer_db_alerts
+    rules:
+      - alert: CustomerPostgresDown
+        expr: up{job=~"customer-.*-postgres"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Customer {{ $labels.customer }} postgres DOWN"
+          description: "postgres-exporter for customer {{ $labels.customer }} unreachable for >2m"
+
+      - alert: CustomerPostgresHighConnections
+        expr: |
+          sum by (customer) (pg_stat_activity_count{job=~"customer-.*-postgres"})
+          / on(customer) group_left
+          max by (customer) (pg_settings_max_connections{job=~"customer-.*-postgres"})
+          > 0.8
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Customer {{ $labels.customer }} postgres connections >80%"
+          description: "Connection pool usage at {{ $value | printf \"%.0f\" }}% — consider increasing max_connections or check for connection leaks"
+
+  - name: customer_container_alerts
+    rules:
+      # Backend container unhealthy: cAdvisor exposes container_tasks_state but not
+      # docker health status directly. We use absence of container metrics + restart
+      # increase as proxy for "container down". For full health-status alerting, would
+      # need a custom exporter — out of scope for D.4 pilot.
+      - alert: CustomerBackendContainerDown
+        expr: absent(container_last_seen{name=~".*-backend"}) or (time() - container_last_seen{name=~".*-backend"}) > 60
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Customer backend container DOWN"
+          description: "Container {{ $labels.name }} not reporting metrics for >5m — likely stopped or crashed"
