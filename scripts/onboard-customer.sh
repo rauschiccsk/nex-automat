@@ -14,9 +14,9 @@
 #                       (use when DNS record was already added before running).
 #
 # Output:
-#   Admin password is NOT printed to stdout (security). It is written to
-#   /opt/customers/<slug>/.initial-admin-password (chmod 600, root owner).
-#   Read it via: sudo cat /opt/customers/<slug>/.initial-admin-password
+#   Initial admin credentials are admin/admin (from migration 002 seed).
+#   Director logs in immediately after onboarding, changes password via UI
+#   (System → Užívatelia → admin → Edit password) and creates customer users.
 #
 # Prerequisites on ANDROS:
 #   - Docker + docker compose v2
@@ -72,7 +72,8 @@ echo "[onboard] Provisioning customer '${SLUG}' at ${DOMAIN}"
 # ──────────────────────────────────────────────────────────────────────
 POSTGRES_PASSWORD=$(openssl rand -base64 32 | tr -d '=+/' | cut -c1-32)
 JWT_SECRET_KEY=$(openssl rand -base64 64 | tr -d '\n')
-ADMIN_PASSWORD=$(openssl rand -base64 16 | tr -d '=+/' | cut -c1-16)
+# Admin password = "admin" from migration 002 seed (admin/admin pattern).
+# Director changes via UI immediately after first login.
 
 # Allocate frontend port from internal range 19000-19499 (host-nginx routing
 # only, bound to 127.0.0.1, not internet-exposed). Find first free port.
@@ -185,19 +186,9 @@ for migration in "${MIGRATIONS_DIR}"/*.sql; do
 done
 
 # ──────────────────────────────────────────────────────────────────────
-# 9. Set initial admin password (overwrite seed default)
+# 9. Admin credentials — admin/admin from migration 002 seed
+#    Director logs in immediately, changes password via UI, creates users.
 # ──────────────────────────────────────────────────────────────────────
-ADMIN_HASH=$(docker run --rm python:3.12-alpine sh -c \
-    "pip install -q bcrypt && python -c \"import bcrypt; print(bcrypt.hashpw('${ADMIN_PASSWORD}'.encode()[:72], bcrypt.gensalt()).decode())\"")
-docker exec -i "${SLUG}-postgres" psql -U postgres -d nex_automat -q \
-    -c "UPDATE users SET password_hash='${ADMIN_HASH}' WHERE login_name='admin'"
-
-# Save admin password to chmod-600 file (NOT stdout — avoids credential
-# exposure when script runs via remote terminal / CI / Claude session).
-PWD_FILE="${CUSTOMER_DIR}/.initial-admin-password"
-echo "${ADMIN_PASSWORD}" > "${PWD_FILE}"
-chmod 600 "${PWD_FILE}"
-chown root:root "${PWD_FILE}"
 
 # ──────────────────────────────────────────────────────────────────────
 # 10. Healthcheck via public URL
@@ -225,19 +216,16 @@ cat <<EOF
 ╠══════════════════════════════════════════════════════════════════╣
 ║ URL:            https://${DOMAIN}                                 ║
 ║ Health:         HTTP ${STATUS}                                    ║
-║ Admin login:    admin                                             ║
-║ Admin password: <saved to file — NOT printed for security>        ║
+║ Initial login:  admin / admin                                     ║
 ║                                                                  ║
-║ To retrieve admin password:                                       ║
-║   sudo cat ${PWD_FILE}║
-║                                                                  ║
-║ NEXT STEPS (manual):                                              ║
-║  1. Configure Cloudflare Access policy for ${DOMAIN}             ║
+║ NEXT STEPS:                                                       ║
+║  1. Open URL in browser, login admin/admin                        ║
+║  2. Immediately change admin password via UI                      ║
+║     (System → Užívatelia → admin → Change password)              ║
+║  3. Create customer users via UI (System → Užívatelia → Add)     ║
+║  4. (Optional) Configure Cloudflare Access policy for ${DOMAIN}  ║
 ║     (Zero Trust → Access → Applications → Add)                   ║
-║  2. Deliver admin password to customer via SECURE channel        ║
-║     (Vaultwarden share / encrypted email — NOT plain text)       ║
-║  3. Customer logs in, immediately changes password               ║
-║  4. (Optional) Run MIG module for historical data import         ║
+║  5. (Optional) Run MIG module for NEX Genesis data import        ║
 ║                                                                  ║
 ║ Backups: configure cron via scripts/backup-customer.sh           ║
 ║ Cert renewal: certbot timer auto-renews 30 days before expiry    ║
