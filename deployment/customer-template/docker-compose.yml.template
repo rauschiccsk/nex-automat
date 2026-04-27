@@ -6,10 +6,13 @@
 #   SLUG                — customer short identifier (lowercase, used in container names)
 #   POSTGRES_PASSWORD   — unique random password
 #   JWT_SECRET_KEY      — unique random secret (64+ bytes recommended)
-#   IMAGE_TAG           — backend/frontend image tag (default 'latest', can pin to git SHA)
+#   IMAGE_TAG           — backend/frontend image tag (default 'latest', pin to git SHA for stable deploys)
+#   FRONTEND_PORT       — host port (127.0.0.1-only) used by host nginx to reach frontend container
+#                         allocated by onboard-customer.sh from range 19000-19499
 #
-# Containers expose NO host ports — all traffic via host nginx reverse proxy
-# routing <slug>.nex-automat.isnex.eu → frontend container (port 80) on internal network.
+# Routing path: browser → CF → ANDROS:443 → host nginx (cert termination)
+#                → 127.0.0.1:${FRONTEND_PORT} → frontend container :80
+#                → /api proxy → backend container :9110 (Docker DNS via ${SLUG}-net)
 
 services:
   postgres:
@@ -59,9 +62,11 @@ services:
     restart: unless-stopped
     depends_on:
       - backend
+    # Bind to 127.0.0.1 only — host nginx is the only consumer; no external exposure
+    ports:
+      - "127.0.0.1:${FRONTEND_PORT}:80"
     networks:
       - ${SLUG}-net
-      - nex-proxy-net  # shared network with host nginx for routing
     healthcheck:
       test: ["CMD", "wget", "-q", "-O", "-", "http://127.0.0.1/"]
       interval: 30s
@@ -72,8 +77,6 @@ networks:
   ${SLUG}-net:
     name: ${SLUG}-net
     driver: bridge
-  nex-proxy-net:
-    external: true  # created once at ANDROS setup; all customer frontends join
 
 volumes:
   ${SLUG}_postgres_data:

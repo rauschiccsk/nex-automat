@@ -74,6 +74,18 @@ POSTGRES_PASSWORD=$(openssl rand -base64 32 | tr -d '=+/' | cut -c1-32)
 JWT_SECRET_KEY=$(openssl rand -base64 64 | tr -d '\n')
 ADMIN_PASSWORD=$(openssl rand -base64 16 | tr -d '=+/' | cut -c1-16)
 
+# Allocate frontend port from internal range 19000-19499 (host-nginx routing
+# only, bound to 127.0.0.1, not internet-exposed). Find first free port.
+FRONTEND_PORT=19000
+while ss -tlnp 2>/dev/null | grep -q ":${FRONTEND_PORT}\b"; do
+    FRONTEND_PORT=$((FRONTEND_PORT + 1))
+    if [[ $FRONTEND_PORT -ge 19500 ]]; then
+        echo "ERROR: no free port in 19000-19499 range" >&2
+        exit 1
+    fi
+done
+echo "[onboard] Allocated FRONTEND_PORT=${FRONTEND_PORT} (127.0.0.1 only)"
+
 # ──────────────────────────────────────────────────────────────────────
 # 3. Create customer directory + render templates
 # ──────────────────────────────────────────────────────────────────────
@@ -85,12 +97,13 @@ SLUG=${SLUG}
 IMAGE_TAG=latest
 POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
 JWT_SECRET_KEY=${JWT_SECRET_KEY}
+FRONTEND_PORT=${FRONTEND_PORT}
 EOF
 chmod 600 .env
 
 cp "${TEMPLATE_DIR}/docker-compose.yml.template" docker-compose.yml
 
-SLUG="${SLUG}" envsubst '${SLUG}' \
+SLUG="${SLUG}" FRONTEND_PORT="${FRONTEND_PORT}" envsubst '${SLUG} ${FRONTEND_PORT}' \
     < "${TEMPLATE_DIR}/nginx-snippet.conf.template" \
     > "${SLUG}.nginx.conf"
 

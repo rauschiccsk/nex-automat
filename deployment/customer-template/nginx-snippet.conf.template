@@ -18,9 +18,11 @@ server {
     ssl_protocols TLSv1.2 TLSv1.3;
     ssl_prefer_server_ciphers on;
 
-    # Proxy to per-customer frontend container (internal Docker network).
+    # Proxy to per-customer frontend container via 127.0.0.1:${FRONTEND_PORT}
+    # (Docker port mapping bound to localhost only — never exposed externally;
+    # host nginx is the sole consumer of this port).
     location / {
-        proxy_pass http://${SLUG}-frontend:80;
+        proxy_pass http://127.0.0.1:${FRONTEND_PORT};
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
