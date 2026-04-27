@@ -32,6 +32,11 @@ export default function PabPartnerList(): ReactElement {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
+  // Server-side pagination — required for large customers (e.g. ANDROS has
+  // 255k partner records; loading them all crashes the grid).
+  const [pageSize, setPageSize] = useState(50)
+  const [currentPage, setCurrentPage] = useState(1)
+
   // Create dialog
   const [createDialogOpen, setCreateDialogOpen] = useState(false)
 
@@ -49,6 +54,12 @@ export default function PabPartnerList(): ReactElement {
     }
   }, [searchQuery])
 
+  // Reset to page 1 when filters/search change (otherwise page 5 of old
+  // results becomes page 5 of new — confusing).
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [debouncedSearch, filterPartnerClass, filterIsActive])
+
   // Fetch partners
   const fetchPartners = useCallback(async (): Promise<void> => {
     setLoading(true)
@@ -58,8 +69,8 @@ export default function PabPartnerList(): ReactElement {
         search: debouncedSearch || undefined,
         partner_class: filterPartnerClass,
         is_active: filterIsActive ?? undefined,
-        limit: 10000,
-        offset: 0,
+        limit: pageSize,
+        offset: (currentPage - 1) * pageSize,
         sort_by: 'partner_name',
         sort_order: 'asc'
       })
@@ -73,7 +84,7 @@ export default function PabPartnerList(): ReactElement {
     } finally {
       setLoading(false)
     }
-  }, [debouncedSearch, filterPartnerClass, filterIsActive, addToast])
+  }, [debouncedSearch, filterPartnerClass, filterIsActive, pageSize, currentPage, addToast])
 
   useEffect(() => {
     void fetchPartners()
@@ -206,6 +217,15 @@ export default function PabPartnerList(): ReactElement {
             config={pabGridConfig}
             onRowDoubleClick={handleRowDoubleClick}
             className="flex-1 min-h-0"
+            serverSide
+            totalRows={total}
+            currentPage={currentPage}
+            pageSize={pageSize}
+            onPageChange={setCurrentPage}
+            onPageSizeChange={(size) => {
+              setPageSize(size)
+              setCurrentPage(1)
+            }}
           />
         </div>
       )}
