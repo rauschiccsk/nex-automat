@@ -5,7 +5,42 @@ MUSÍ bežať v venv32 na Windows!
 """
 
 import argparse
+import os
 import sys
+
+
+def setup_btrieve_dll_dir():
+    """
+    Make Btrieve runtime DLL findable by ctypes on Windows.
+
+    Python 3.8+ tightened DLL search rules — bare WinDLL("w3btrv7.dll") fails
+    even when the DLL exists in PATH unless we explicitly register the
+    directory via os.add_dll_directory() (or pass an absolute path).
+
+    Search order:
+      1. BTRIEVE_DLL_DIR env var (operator override)
+      2. C:\PVSW\bin (Pervasive PSQL 9 default)
+      3. C:\Program Files (x86)\Actian\Zen\bin (Actian Zen 32-bit on 64-bit OS)
+      4. C:\Program Files\Pervasive Software\PSQL\bin (older Pervasive layout)
+    """
+    if os.name != "nt":
+        return  # not Windows — no-op
+
+    candidates = [
+        os.environ.get("BTRIEVE_DLL_DIR"),
+        r"C:\PVSW\bin",
+        r"C:\Program Files (x86)\Actian\Zen\bin",
+        r"C:\Program Files\Pervasive Software\PSQL\bin",
+    ]
+    for path in candidates:
+        if path and os.path.isdir(path):
+            os.add_dll_directory(path)
+            print(f"[run_extract] Btrieve DLL search dir registered: {path}")
+            return
+    print(
+        "[run_extract] WARNING: No Btrieve DLL dir found. Set BTRIEVE_DLL_DIR "
+        "env var if your install is in a non-standard location."
+    )
 
 
 def main():
@@ -22,6 +57,8 @@ def main():
         help=r"Base path to NEX Genesis data (e.g. C:\DEPTEST\NEX, C:\MAGER\NEX)",
     )
     args = parser.parse_args()
+
+    setup_btrieve_dll_dir()
 
     category = args.category.upper()
 
