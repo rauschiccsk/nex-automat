@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef, type ReactElement } from 'react'
+import { useState, useEffect, useCallback, useRef, useMemo, type ReactElement } from 'react'
 import { Plus, Building2, Loader2, AlertCircle, RotateCcw, Search } from 'lucide-react'
 import { cn } from '@renderer/lib/utils'
 import { getConfigNumber } from '@renderer/lib/config'
@@ -10,6 +10,10 @@ import { BaseGrid } from '@renderer/components/grids'
 import { pabGridConfig } from './pabGridConfig'
 import type { PartnerCatalog, PartnerCatalogListResponse } from '@renderer/types/pab'
 import PabCreateDialog from './PabCreateDialog'
+
+// Hard limit on initial fetch (sanity guard against runaway DBs).
+// Backend already enforces le=1_000_000 — this matches.
+const MAX_FETCH = 1_000_000
 
 export default function PabPartnerList(): ReactElement {
   const { checkPermission } = useAuthStore()
@@ -26,21 +30,18 @@ export default function PabPartnerList(): ReactElement {
 
   const canCreate = checkPermission('PAB', 'create')
 
-  // Data state
-  const [partners, setPartners] = useState<PartnerCatalog[]>([])
-  const [total, setTotal] = useState(0)
+  // Data state — load full catalog ONCE, filter+search client-side via memoized
+  // selector. BaseGrid uses @tanstack/react-virtual for virtualized rendering,
+  // so 250k+ rows scroll smoothly (only visible rows in DOM).
+  const [allPartners, setAllPartners] = useState<PartnerCatalog[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-
-  // Server-side pagination — required for large customers (e.g. ANDROS has
-  // 255k partner records; loading them all crashes the grid).
-  const [pageSize, setPageSize] = useState(50)
-  const [currentPage, setCurrentPage] = useState(1)
 
   // Create dialog
   const [createDialogOpen, setCreateDialogOpen] = useState(false)
 
-  // Debounce search
+  // Debounce search — applied client-side, but still debounced to avoid
+  // recomputing the filter on every keystroke for huge datasets.
   const searchTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [debouncedSearch, setDebouncedSearch] = useState(searchQuery)
 
@@ -54,28 +55,19 @@ export default function PabPartnerList(): ReactElement {
     }
   }, [searchQuery])
 
-  // Reset to page 1 when filters/search change (otherwise page 5 of old
-  // results becomes page 5 of new — confusing).
-  useEffect(() => {
-    setCurrentPage(1)
-  }, [debouncedSearch, filterPartnerClass, filterIsActive])
-
-  // Fetch partners
+  // Fetch ALL partners (single network call, no filters/search server-side).
+  // Re-fetch only on explicit refresh or after a CRUD op (handleCreated).
   const fetchPartners = useCallback(async (): Promise<void> => {
     setLoading(true)
     setError(null)
     try {
       const res: PartnerCatalogListResponse = await api.getPabPartners({
-        search: debouncedSearch || undefined,
-        partner_class: filterPartnerClass,
-        is_active: filterIsActive ?? undefined,
-        limit: pageSize,
-        offset: (currentPage - 1) * pageSize,
+        limit: MAX_FETCH,
+        offset: 0,
         sort_by: 'partner_name',
         sort_order: 'asc'
       })
-      setPartners(res.items)
-      setTotal(res.total)
+      setAllPartners(res.items)
     } catch (err) {
       const e = err as ApiError
       const msg = e.message || 'Nepodarilo sa načítať partnerov'
@@ -84,11 +76,29 @@ export default function PabPartnerList(): ReactElement {
     } finally {
       setLoading(false)
     }
-  }, [debouncedSearch, filterPartnerClass, filterIsActive, pageSize, currentPage, addToast])
+  }, [addToast])
 
   useEffect(() => {
     void fetchPartners()
   }, [fetchPartners])
+
+  // Client-side filter + search (memoized — runs only when inputs change).
+  // For 250k records this is ~50-100ms — fine for interactive use.
+  const filteredPartners = useMemo<PartnerCatalog[]>(() => {
+    const q = debouncedSearch.trim().toLowerCase()
+    return allPartners.filter((p) => {
+      // partner_class filter
+      if (p.partner_class !== filterPartnerClass) return false
+      // is_active filter (null = no filter)
+      if (filterIsActive !== null && p.is_active !== filterIsActive) return false
+      // search across partner_name, company_id, city
+      if (q) {
+        const haystack = `${p.partner_name ?? ''} ${p.company_id ?? ''} ${p.city ?? ''}`.toLowerCase()
+        if (!haystack.includes(q)) return false
+      }
+      return true
+    })
+  }, [allPartners, debouncedSearch, filterPartnerClass, filterIsActive])
 
   const handleRowDoubleClick = useCallback(
     (partner: PartnerCatalog): void => {
@@ -103,7 +113,7 @@ export default function PabPartnerList(): ReactElement {
   }, [fetchPartners])
 
   // Map data for BaseGrid (requires `id` field)
-  const gridData = partners.map((p) => ({ ...p, id: p.partner_id }))
+  const gridData = filteredPartners.map((p) => ({ ...p, id: p.partner_id }))
 
   return (
     <div className="flex flex-col h-full gap-3">
@@ -182,10 +192,12 @@ export default function PabPartnerList(): ReactElement {
         </div>
       </div>
 
-      {/* Total count */}
+      {/* Total count + filter status */}
       {!loading && !error && (
         <div className="text-xs text-gray-500 dark:text-gray-400 shrink-0">
-          Celkom: {total} partnerov
+          {filteredPartners.length === allPartners.length
+            ? `Celkom: ${allPartners.length} partnerov`
+            : `Zobrazené: ${filteredPartners.length} z ${allPartners.length} partnerov`}
         </div>
       )}
 
@@ -217,15 +229,6 @@ export default function PabPartnerList(): ReactElement {
             config={pabGridConfig}
             onRowDoubleClick={handleRowDoubleClick}
             className="flex-1 min-h-0"
-            serverSide
-            totalRows={total}
-            currentPage={currentPage}
-            pageSize={pageSize}
-            onPageChange={setCurrentPage}
-            onPageSizeChange={(size) => {
-              setPageSize(size)
-              setCurrentPage(1)
-            }}
           />
         </div>
       )}

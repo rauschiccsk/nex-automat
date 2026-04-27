@@ -190,7 +190,11 @@ def list_partners(
     search: Optional[str] = Query(
         None, description="Search in partner_name, company_id, city"
     ),
-    limit: int = Query(DEFAULT_PAGE_SIZE, ge=1, le=10000, description="Limit"),
+    # Cap raised from 10000 to 1_000_000 to support clients that load the
+    # full catalog into memory for client-side virtualized grids
+    # (NEX Manager partner list uses @tanstack/react-virtual — renders only
+    # visible rows, so 250k+ records work fine in browser).
+    limit: int = Query(DEFAULT_PAGE_SIZE, ge=1, le=1_000_000, description="Limit"),
     offset: int = Query(0, ge=0, description="Offset"),
     sort_by: str = Query(
         "partner_id",
