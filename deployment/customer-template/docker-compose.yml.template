@@ -75,6 +75,23 @@ services:
       timeout: 5s
       retries: 3
 
+  # postgres-exporter sidecar — exposes per-customer DB metrics on :9187 within
+  # ${SLUG}-net only. nex-prometheus is connected to ${SLUG}-net by the onboard
+  # script and scrapes via container DNS (${SLUG}-postgres-exporter:9187).
+  # Self-contained: when customer migrates to a self-hosted server, the exporter
+  # ships with the stack — no external monitoring dependency.
+  postgres-exporter:
+    image: prometheuscommunity/postgres-exporter:v0.18.1
+    container_name: ${SLUG}-postgres-exporter
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATA_SOURCE_NAME: postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/nex_automat?sslmode=disable
+    networks:
+      - app-net
+
 networks:
   app-net:
     name: ${SLUG}-net

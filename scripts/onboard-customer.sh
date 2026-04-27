@@ -183,6 +183,72 @@ done
 [[ "$HEALTH" != "healthy" ]] && { echo "ERROR: postgres did not become healthy"; exit 1; }
 
 # ──────────────────────────────────────────────────────────────────────
+# 7b. Wire customer into shared monitoring stack (idempotent)
+# ──────────────────────────────────────────────────────────────────────
+PROM_CONTAINER="${PROM_CONTAINER:-nex-prometheus}"
+PROM_CONFIG="${PROM_CONFIG:-/opt/nex-automat/prometheus/prometheus.yml}"
+
+if docker ps --format '{{.Names}}' | grep -q "^${PROM_CONTAINER}$"; then
+    # 7b.1 Connect prometheus to customer's docker network so it can DNS-resolve
+    # ${SLUG}-postgres-exporter (idempotent — 'already exists' is fine).
+    docker network connect "${SLUG}-net" "${PROM_CONTAINER}" 2>/dev/null \
+        && echo "[onboard] Connected ${PROM_CONTAINER} to ${SLUG}-net" \
+        || echo "[onboard] ${PROM_CONTAINER} already on ${SLUG}-net (OK)"
+
+    # 7b.2 Append scrape jobs (postgres-exporter + blackbox HTTP probe)
+    # for this customer. Skip if already present (idempotent).
+    PROM_DIRTY=0
+    if [[ -w "${PROM_CONFIG}" ]]; then
+        if ! grep -q "job_name: 'customer-${SLUG}-postgres'" "${PROM_CONFIG}"; then
+            cat >> "${PROM_CONFIG}" <<EOF
+
+  # Auto-added by onboard-customer.sh for customer '${SLUG}'
+  - job_name: 'customer-${SLUG}-postgres'
+    static_configs:
+      - targets: ['${SLUG}-postgres-exporter:9187']
+        labels:
+          customer: '${SLUG}'
+EOF
+            echo "[onboard] Added scrape job customer-${SLUG}-postgres"
+            PROM_DIRTY=1
+        fi
+        if ! grep -q "job_name: 'blackbox-customer-${SLUG}'" "${PROM_CONFIG}"; then
+            cat >> "${PROM_CONFIG}" <<EOF
+
+  # Blackbox HTTP probe for customer '${SLUG}'
+  - job_name: 'blackbox-customer-${SLUG}'
+    metrics_path: /probe
+    params:
+      module: [http_2xx]
+    static_configs:
+      - targets: ['https://${DOMAIN}/']
+        labels:
+          customer: '${SLUG}'
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox-exporter:9115
+EOF
+            echo "[onboard] Added scrape job blackbox-customer-${SLUG}"
+            PROM_DIRTY=1
+        fi
+        if [[ "$PROM_DIRTY" -eq 1 ]]; then
+            # Hot-reload via SIGHUP (no --web.enable-lifecycle requirement).
+            docker kill -s HUP "${PROM_CONTAINER}" >/dev/null && echo "[onboard] Reloaded ${PROM_CONTAINER}"
+        else
+            echo "[onboard] Prometheus scrape jobs for ${SLUG} already present (OK)"
+        fi
+    else
+        echo "[onboard] WARNING: ${PROM_CONFIG} not writable — add scrape jobs manually"
+    fi
+else
+    echo "[onboard] NOTE: ${PROM_CONTAINER} not running — skipping monitoring wire-up"
+fi
+
+# ──────────────────────────────────────────────────────────────────────
 # 8. Apply migrations 001-016 (initial schema + seed)
 # ──────────────────────────────────────────────────────────────────────
 echo "[onboard] Applying migrations..."
