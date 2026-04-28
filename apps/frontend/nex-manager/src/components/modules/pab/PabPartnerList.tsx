@@ -28,6 +28,10 @@ export default function PabPartnerList(): ReactElement {
   // Create dialog
   const [createDialogOpen, setCreateDialogOpen] = useState(false)
 
+  // Filtered count — updated by AG Grid via onDisplayedCountChange
+  // (read of internal row-model count, ~1ms).
+  const [displayedCount, setDisplayedCount] = useState<number | null>(null)
+
   useEffect(() => {
     void ensureLoaded()
   }, [ensureLoaded])
@@ -111,7 +115,14 @@ export default function PabPartnerList(): ReactElement {
       {/* Count + sync status */}
       {!isInitialLoad && !error && partners.length > 0 && (
         <div className="text-xs text-gray-500 dark:text-gray-400 shrink-0 flex items-center gap-3">
-          <span>Celkom: {partners.length} partnerov</span>
+          <span>
+            Celkom: {partners.length} partnerov
+            {displayedCount !== null && displayedCount !== partners.length && (
+              <span className="text-blue-600 dark:text-blue-400">
+                {' '}· zobrazené: {displayedCount}
+              </span>
+            )}
+          </span>
           {statusLabel && (
             <span className={cn('flex items-center gap-1.5', statusColor)}>
               <StatusIcon
@@ -160,6 +171,7 @@ export default function PabPartnerList(): ReactElement {
             data={partners}
             config={pabGridConfig}
             onRowDoubleClick={handleRowDoubleClick}
+            onDisplayedCountChange={setDisplayedCount}
           />
         </div>
       ) : null}

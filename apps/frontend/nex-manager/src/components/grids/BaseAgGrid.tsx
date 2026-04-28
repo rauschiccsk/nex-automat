@@ -134,6 +134,13 @@ interface BaseAgGridProps<T extends { id: number | string }> {
   config: GridConfig<T>
   onRowClick?: (row: T) => void
   onRowDoubleClick?: (row: T) => void
+  /**
+   * Fired with the count of currently displayed rows whenever the row model
+   * changes (filter applied, sort, data update). Lightweight — AG Grid
+   * already maintains the filtered row count internally; this just exposes
+   * it to consumers for "Zobrazené: X z N" toolbar indicators.
+   */
+  onDisplayedCountChange?: (count: number) => void
   className?: string
   rowHeight?: number
   // Localized text (defaults to Slovak)
@@ -170,6 +177,7 @@ export function BaseAgGrid<T extends { id: number | string }>({
   config,
   onRowClick,
   onRowDoubleClick,
+  onDisplayedCountChange,
   className,
   rowHeight,
   localeText,
@@ -282,6 +290,18 @@ export function BaseAgGrid<T extends { id: number | string }>({
     [persistNow]
   )
 
+  // Emit displayed-row count after every model change (filter, sort,
+  // data update). AG Grid already tracks the count internally — this
+  // just forwards it. Cost: <1ms (reads internal array length).
+  const onModelUpdated = useCallback(
+    (event: { api: { getDisplayedRowCount: () => number } }) => {
+      if (onDisplayedCountChange) {
+        onDisplayedCountChange(event.api.getDisplayedRowCount())
+      }
+    },
+    [onDisplayedCountChange]
+  )
+
   return (
     <div className={className ?? ''} style={{ height: '100%', width: '100%' }}>
       <AgGridReact<T>
@@ -308,6 +328,7 @@ export function BaseAgGrid<T extends { id: number | string }>({
         onColumnMoved={onColumnMoved}
         onColumnResized={onColumnResized}
         onColumnVisible={onColumnVisible}
+        onModelUpdated={onModelUpdated}
         localeText={localeText ?? SK_LOCALE}
         getRowId={(params) => String((params.data as { id: number | string }).id)}
       />
