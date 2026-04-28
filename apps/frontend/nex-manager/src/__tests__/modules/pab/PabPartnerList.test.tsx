@@ -1,7 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 
-// Mock useVirtualizer for jsdom (no layout engine)
+// Mock useVirtualizer for jsdom (legacy BaseGrid path — kept for compat with
+// any unrelated grid usage in this test file)
 vi.mock('@tanstack/react-virtual', () => ({
   useVirtualizer: ({ count }: { count: number }) => ({
     getVirtualItems: () =>
@@ -18,9 +19,10 @@ vi.mock('@tanstack/react-virtual', () => ({
   }),
 }))
 
-// --- Inline mock data ---
+// --- Inline mock partner data ---
 const mockPartners = [
   {
+    id: 1,
     partner_id: 1,
     partner_name: 'HOFFER SK s.r.o.',
     company_id: '36529214',
@@ -38,6 +40,7 @@ const mockPartners = [
     modify_id: 0,
   },
   {
+    id: 2,
     partner_id: 2,
     partner_name: 'Continental Barum s.r.o.',
     company_id: '45357846',
@@ -55,6 +58,7 @@ const mockPartners = [
     modify_id: 0,
   },
   {
+    id: 3,
     partner_id: 3,
     partner_name: 'Ján Kováč',
     company_id: null,
@@ -73,99 +77,43 @@ const mockPartners = [
   },
 ]
 
-// --- Mock catalogCache (IndexedDB wrapper — Phase J.3) ---
-// jsdom has no IndexedDB; the cache mock holds state on a hoisted object so
-// each test runs with a fresh cache after vi.clearAllMocks() + state reset
-// in beforeEach (testCacheState.reset()).
-const testCacheState = vi.hoisted(() => ({
-  items: null as any[] | null,
-  etag: null as string | null,
+// --- Mock pabCatalogStore (Phase J.5.b) ---
+// Component now reads from this Zustand store, not the API directly.
+// Tests control store state via setStoreState() between scenarios.
+const storeState = vi.hoisted(() => ({
+  partners: [] as any[],
+  syncStatus: 'idle' as string,
+  error: null as string | null,
+  lastSyncedAt: null as number | null,
+  ensureLoaded: vi.fn(async () => {}),
+  syncFromServer: vi.fn(async () => {}),
+  upsertPartner: vi.fn(),
+  removePartner: vi.fn(),
+  clear: vi.fn(),
   reset(): void {
-    this.items = null
-    this.etag = null
+    this.partners = []
+    this.syncStatus = 'idle'
+    this.error = null
+    this.lastSyncedAt = null
   },
 }))
 
-vi.mock('@renderer/lib/catalogCache', () => ({
-  getCachedItems: vi.fn(async () => testCacheState.items),
-  setCachedItems: vi.fn(async (_cat: string, items: any[], etag: string) => {
-    testCacheState.items = items
-    testCacheState.etag = etag
-  }),
-  getCachedEtag: vi.fn(async () => testCacheState.etag),
-  getCachedMeta: vi.fn(async () =>
-    testCacheState.etag
-      ? {
-          catalog: 'pab',
-          etag: testCacheState.etag,
-          count: testCacheState.items?.length ?? 0,
-          fetchedAt: Date.now(),
-        }
-      : null
-  ),
-  upsertCachedItem: vi.fn(),
-  removeCachedItem: vi.fn(),
-  clearCache: vi.fn(async () => testCacheState.reset()),
-  clearAllCaches: vi.fn(),
-}))
-
-// --- Mock API ---
-const mockApi = vi.hoisted(() => ({
-  getPabEtag: vi.fn(),
-  getPabPartners: vi.fn(),
-  getPabPartner: vi.fn(),
-  createPabPartner: vi.fn(),
-  updatePabPartner: vi.fn(),
-  deletePabPartner: vi.fn(),
-  getPabExtensions: vi.fn(),
-  upsertPabExtensions: vi.fn(),
-  getPabAddresses: vi.fn(),
-  createPabAddress: vi.fn(),
-  updatePabAddress: vi.fn(),
-  deletePabAddress: vi.fn(),
-  getPabContacts: vi.fn(),
-  createPabContact: vi.fn(),
-  updatePabContact: vi.fn(),
-  deletePabContact: vi.fn(),
-  getPabBankAccounts: vi.fn(),
-  createPabBankAccount: vi.fn(),
-  updatePabBankAccount: vi.fn(),
-  deletePabBankAccount: vi.fn(),
-  getPabCategories: vi.fn(),
-  addPabCategory: vi.fn(),
-  removePabCategory: vi.fn(),
-  getPabTexts: vi.fn(),
-  upsertPabTexts: vi.fn(),
-  getPabFacilities: vi.fn(),
-  createPabFacility: vi.fn(),
-  updatePabFacility: vi.fn(),
-  deletePabFacility: vi.fn(),
-  getPabHistory: vi.fn(),
-  getPabHistoryVersion: vi.fn(),
-}))
-
-vi.mock('@renderer/lib/api', () => ({
-  api: mockApi,
-  ApiError: class ApiError extends Error {
-    status: number
-    constructor(msg: string, status = 500) { super(msg); this.status = status }
+vi.mock('@renderer/stores/pabCatalogStore', () => ({
+  usePabCatalogStore: <T,>(selector?: (s: typeof storeState) => T): T | typeof storeState => {
+    return selector ? selector(storeState) : storeState
   },
 }))
 
 // --- Mock stores ---
 const mockOpenDetail = vi.fn()
-const mockSetSearchQuery = vi.fn()
-const mockSetFilterPartnerClass = vi.fn()
-const mockSetFilterIsActive = vi.fn()
-
 vi.mock('@renderer/stores/partnerCatalogStore', () => ({
   usePartnerCatalogStore: () => ({
     searchQuery: '',
-    setSearchQuery: mockSetSearchQuery,
+    setSearchQuery: vi.fn(),
     filterPartnerClass: 'business',
-    setFilterPartnerClass: mockSetFilterPartnerClass,
+    setFilterPartnerClass: vi.fn(),
     filterIsActive: null,
-    setFilterIsActive: mockSetFilterIsActive,
+    setFilterIsActive: vi.fn(),
     openDetail: mockOpenDetail,
   }),
 }))
@@ -178,104 +126,94 @@ vi.mock('@renderer/stores/authStore', () => ({
 
 const mockAddToast = vi.fn()
 vi.mock('@renderer/stores/toastStore', () => ({
-  useToastStore: () => ({
-    addToast: mockAddToast,
-  }),
+  useToastStore: () => ({ addToast: mockAddToast }),
 }))
 
 import PabPartnerList from '@renderer/components/modules/pab/PabPartnerList'
 
 beforeEach(() => {
   vi.clearAllMocks()
-  localStorage.clear()
-  testCacheState.reset()
-  mockApi.getPabEtag.mockResolvedValue({ etag: 'test-etag-1', count: mockPartners.length })
-  mockApi.getPabPartners.mockResolvedValue({
-    items: mockPartners,
-    total: mockPartners.length,
-  })
+  storeState.reset()
 })
 
 describe('PabPartnerList', () => {
-  it('renders heading "Katalóg partnerov"', async () => {
+  it('renders heading "Katalóg partnerov"', () => {
+    storeState.partners = mockPartners
+    storeState.syncStatus = 'fresh'
     render(<PabPartnerList />)
     expect(screen.getByText('Katalóg partnerov')).toBeInTheDocument()
   })
 
-  it('shows loading state initially', () => {
-    mockApi.getPabPartners.mockReturnValue(new Promise(() => {}))
+  it('shows loading state when store is empty + fetching', () => {
+    storeState.syncStatus = 'fetching'
     render(<PabPartnerList />)
     expect(screen.getByText(/Načítavam/)).toBeInTheDocument()
   })
 
-  it('fetches partner data and calls API', async () => {
-    // AG Grid renders rows in a virtualized canvas; in jsdom (no layout)
-    // the cells aren't queryable by partner name. We just verify the API
-    // call was made + the count line shows the right total.
+  it('renders partner count when store has data', () => {
+    storeState.partners = mockPartners
+    storeState.syncStatus = 'fresh'
     render(<PabPartnerList />)
-    await waitFor(() => {
-      expect(mockApi.getPabPartners).toHaveBeenCalled()
-    })
+    expect(screen.getByText(/Celkom: 3 partnerov/)).toBeInTheDocument()
   })
 
-  it('shows total partner count', async () => {
+  it('calls ensureLoaded on mount', () => {
+    storeState.partners = mockPartners
+    storeState.syncStatus = 'fresh'
     render(<PabPartnerList />)
-    await waitFor(() => {
-      expect(screen.getByText(/Celkom: 3 partnerov/)).toBeInTheDocument()
-    })
+    expect(storeState.ensureLoaded).toHaveBeenCalled()
   })
 
-  it('shows error state on API failure', async () => {
-    mockApi.getPabPartners.mockRejectedValue(new Error('Network error'))
+  it('shows error state when store has error and no partners', () => {
+    storeState.error = 'Network error'
+    storeState.syncStatus = 'error'
     render(<PabPartnerList />)
-    await waitFor(() => {
-      expect(screen.getByText('Network error')).toBeInTheDocument()
-    })
+    expect(screen.getByText('Network error')).toBeInTheDocument()
+    expect(screen.getByText('Skúsiť znova')).toBeInTheDocument()
   })
 
-  it('shows retry button on error', async () => {
-    mockApi.getPabPartners.mockRejectedValue(new Error('Chyba'))
+  it('calls syncFromServer when retry button clicked', async () => {
+    storeState.error = 'Err'
+    storeState.syncStatus = 'error'
     render(<PabPartnerList />)
-    await waitFor(() => {
-      expect(screen.getByText('Skúsiť znova')).toBeInTheDocument()
-    })
-  })
-
-  it('calls fetchPartners again when retry button clicked', async () => {
-    mockApi.getPabPartners.mockRejectedValueOnce(new Error('Err'))
-    render(<PabPartnerList />)
-    await waitFor(() => {
-      expect(screen.getByText('Skúsiť znova')).toBeInTheDocument()
-    })
-    // Second call should succeed
-    mockApi.getPabPartners.mockResolvedValueOnce({ items: mockPartners, total: 3 })
     fireEvent.click(screen.getByText('Skúsiť znova'))
-    // forceRefresh is async (getPabEtag → getPabPartners), wait for both to resolve
     await waitFor(() => {
-      expect(mockApi.getPabPartners).toHaveBeenCalledTimes(2)
+      expect(storeState.syncFromServer).toHaveBeenCalled()
     })
   })
 
-  it('renders refresh button', async () => {
+  it('renders refresh button', () => {
+    storeState.partners = mockPartners
+    storeState.syncStatus = 'fresh'
     render(<PabPartnerList />)
     expect(screen.getByText('Obnoviť')).toBeInTheDocument()
   })
 
-  it('renders "Nový partner" create button', async () => {
+  it('renders "Nový partner" create button', () => {
+    storeState.partners = mockPartners
+    storeState.syncStatus = 'fresh'
     render(<PabPartnerList />)
     expect(screen.getByText('Nový partner')).toBeInTheDocument()
   })
 
   it('opens create dialog when "Nový partner" clicked', async () => {
+    storeState.partners = mockPartners
+    storeState.syncStatus = 'fresh'
     render(<PabPartnerList />)
-    await waitFor(() => {
-      expect(screen.getByText(/Celkom: 3 partnerov/)).toBeInTheDocument()
-    })
     fireEvent.click(screen.getByText('Nový partner'))
     await waitFor(() => {
-      // Dialog renders heading "Nový partner" as h2 + the button "Nový partner" — verify dialog form fields
       expect(screen.getByText('ID partnera')).toBeInTheDocument()
       expect(screen.getByText('Vytvoriť')).toBeInTheDocument()
+    })
+  })
+
+  it('refresh button triggers syncFromServer', async () => {
+    storeState.partners = mockPartners
+    storeState.syncStatus = 'fresh'
+    render(<PabPartnerList />)
+    fireEvent.click(screen.getByText('Obnoviť'))
+    await waitFor(() => {
+      expect(storeState.syncFromServer).toHaveBeenCalled()
     })
   })
 })
