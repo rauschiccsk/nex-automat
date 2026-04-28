@@ -59,13 +59,16 @@ This is intentional, not a drift.
 
 | Token | Value | Tailwind utility | Used for |
 |---|---|---|---|
-| `--color-accent-selected` | `#1e3a8a` (blue-900) | `bg-accent-selected` | Selected row in grids |
+| `--color-accent-selected` | `#1e3a8a` (blue-900) | `bg-accent-selected` | Active selection in grids (grid has focus) |
+
+Inactive selection (grid lost focus) reuses `--color-border-subtle` — see the
+"Grid cursor & selection" section below.
 
 ### Radii
 
-| Token | Value | Tailwind utility | Used for |
-|---|---|---|---|
-| `--radius-input` | `4px` | `rounded-input` | Filter inputs, small text inputs (matches shell input rounding) |
+Tokens for radii live in AG Grid's theming API (`borderRadius`,
+`wrapperBorderRadius` in `BaseAgGrid.tsx`), not in `@theme`. Add a CSS-level
+radius token here only when a non-grid component needs it.
 
 ---
 
@@ -136,13 +139,40 @@ Avoid this — prefer Tailwind utility classes whenever possible.
 
 ---
 
+## Grid cursor & selection (BaseAgGrid)
+
+Selected row doubles as the keyboard navigation cursor — one visual indicator
+for both mouse click and arrow-key navigation. Implementation lives in
+`BaseAgGrid.tsx`.
+
+| State | Visual | When |
+|---|---|---|
+| Active selection | `--color-accent-selected` (blue-900) | Grid has focus AND a row is selected |
+| Inactive selection | `--color-border-subtle` (gray-700) | Grid lost focus (user clicked elsewhere) but selection persists |
+| Hover | nothing | Mouse hover does NOT highlight rows by design — only the cursor matters |
+| Initial | First visible row selected | `onFirstDataRendered` sets selection so the cursor is visible immediately |
+
+Mechanics:
+
+- `onCellFocused` handler syncs row selection to the AG Grid focused cell.
+  Arrow keys move the focused cell → handler deselects all + selects the
+  newly focused row → user sees the cursor move.
+- AG Grid's cell-focus border is hidden by CSS so only the row-level highlight
+  is visible (otherwise the user would see two overlapping indicators).
+- Inactive state is a CSS rule in `src/index.css`, not a theme param —
+  AG Grid v35 theming API has no native param for "inactive selection color".
+- Mouse hover highlight is disabled via `rowHoverColor: 'transparent'` in the
+  theme params.
+
 ## Phase K decisions log
 
 | Decision | Choice | Rationale |
 |---|---|---|
 | Token mechanism | Tailwind v4 `@theme` block | Single source generates Tailwind utilities + JS-readable CSS vars; aligned with D-008 (Tailwind v4) |
 | Zebra stripes in AG Grid | Yes — `rgba(31,41,55,0.5)` on odd rows | Legacy NEX Genesis convention; helps eye tracking on 250k-row catalogs |
-| Filter input border-radius | Yes — 4px override | Consistency with rest of shell inputs (otherwise filter inputs are sharp-cornered while everything else is rounded) |
+| Filter input border-radius | Yes — 4px via theme params (`borderRadius`, `wrapperBorderRadius`) | Consistency with rest of shell inputs |
 | Body text color in grids | `gray-100` (not shell's `gray-300`) | Readability at 24px row height beats shell uniformity |
+| Row cursor | Selection follows keyboard navigation; no hover highlight; inactive state when grid loses focus | NEX Genesis desktop pattern — single visual indicator for "where you are", clear feedback when grid is/isn't active |
+| Initial cursor position | First visible row | User sees the cursor immediately, doesn't have to click first |
 
 Approved by Director on 2026-04-28.

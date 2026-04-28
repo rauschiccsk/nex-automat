@@ -24,6 +24,8 @@ import type {
   ColumnMovedEvent,
   ColumnResizedEvent,
   ColumnVisibleEvent,
+  CellFocusedEvent,
+  FirstDataRenderedEvent,
 } from 'ag-grid-community'
 import {
   ModuleRegistry,
@@ -209,6 +211,13 @@ export function BaseAgGrid<T extends { id: number | string }>({
   // from CSS custom properties — no hex literals — so a future palette swap
   // touches only one file.
   //
+  // rowHoverColor='transparent' is intentional: hover does NOT highlight rows;
+  // the only visual indicator of "where you are" is the selected row, which
+  // doubles as the keyboard navigation cursor (see onCellFocused below).
+  //
+  // Inactive selection state (when grid loses focus) is handled by a CSS rule
+  // in src/index.css — the AG Grid theming API has no native param for it.
+  //
   // Light mode uses balham defaults which already match the white shell.
   const theme = useMemo(() => {
     if (!isDark) return themeBalham
@@ -220,10 +229,12 @@ export function BaseAgGrid<T extends { id: number | string }>({
       headerBackgroundColor: token('--color-surface-elevated'),
       headerTextColor: token('--color-content-primary'),
       borderColor: token('--color-border-subtle'),
-      rowHoverColor: token('--color-surface-elevated'),
+      rowHoverColor: 'transparent',
       oddRowBackgroundColor: token('--color-surface-translucent'),
       selectedRowBackgroundColor: token('--color-accent-selected'),
       chromeBackgroundColor: token('--color-surface-elevated'),
+      borderRadius: 4,
+      wrapperBorderRadius: 4,
     })
   }, [isDark])
 
@@ -302,6 +313,29 @@ export function BaseAgGrid<T extends { id: number | string }>({
     [onDisplayedCountChange]
   )
 
+  // Selection follows keyboard navigation: arrow keys move the AG Grid
+  // focused cell, this handler syncs row selection to match. Result: the
+  // selected row IS the keyboard cursor — same visual indicator for both
+  // mouse click and keyboard navigation. Mouse hover does NOT trigger
+  // anything (rowHoverColor='transparent').
+  const onCellFocused = useCallback((event: CellFocusedEvent<T>) => {
+    if (event.rowIndex == null) return
+    const node = event.api.getDisplayedRowAtIndex(event.rowIndex)
+    if (node && !node.isSelected()) {
+      event.api.deselectAll()
+      node.setSelected(true)
+    }
+  }, [])
+
+  // Place the cursor on the first visible row at initial render, so the
+  // user always sees where they are without having to click first.
+  const onFirstDataRendered = useCallback((event: FirstDataRenderedEvent<T>) => {
+    const firstNode = event.api.getDisplayedRowAtIndex(0)
+    if (firstNode && !firstNode.isSelected()) {
+      firstNode.setSelected(true)
+    }
+  }, [])
+
   return (
     <div className={className ?? ''} style={{ height: '100%', width: '100%' }}>
       <AgGridReact<T>
@@ -314,7 +348,6 @@ export function BaseAgGrid<T extends { id: number | string }>({
         headerHeight={28}
         floatingFiltersHeight={28}
         animateRows={false}
-        suppressCellFocus
         rowSelection={{ mode: 'singleRow' }}
         onRowClicked={(e) => {
           if (e.data && onRowClick) onRowClick(e.data)
@@ -329,6 +362,8 @@ export function BaseAgGrid<T extends { id: number | string }>({
         onColumnResized={onColumnResized}
         onColumnVisible={onColumnVisible}
         onModelUpdated={onModelUpdated}
+        onCellFocused={onCellFocused}
+        onFirstDataRendered={onFirstDataRendered}
         localeText={localeText ?? SK_LOCALE}
         getRowId={(params) => String((params.data as { id: number | string }).id)}
       />
