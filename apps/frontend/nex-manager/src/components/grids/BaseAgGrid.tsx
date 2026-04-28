@@ -196,10 +196,28 @@ export function BaseAgGrid<T extends { id: number | string }>({
     return () => observer.disconnect()
   }, [])
 
-  const theme = useMemo(
-    () => (isDark ? themeBalham.withPart(colorSchemeDark) : themeBalham),
-    [isDark]
-  )
+  // Tailwind palette overrides for dark mode — match the app shell so the
+  // grid blends in. Picked to align with:
+  //   shell + sidebar:  dark:bg-gray-900   #111827
+  //   header + tabbar:  dark:bg-gray-800   #1f2937
+  //   row hover/active: dark:bg-gray-700   #374151
+  //   borders:          dark:border-gray-700 / 600
+  //   foreground text:  dark:text-white    #ffffff (gray-100 #f3f4f6 for body)
+  // Light mode uses balham defaults which already match the white shell.
+  const theme = useMemo(() => {
+    if (!isDark) return themeBalham
+    return themeBalham.withPart(colorSchemeDark).withParams({
+      backgroundColor: '#111827', // gray-900 — main grid bg matches shell
+      foregroundColor: '#f3f4f6', // gray-100 — body text
+      headerBackgroundColor: '#1f2937', // gray-800 — match TabBar/Header
+      headerTextColor: '#f3f4f6',
+      borderColor: '#374151', // gray-700
+      rowHoverColor: '#1f2937', // gray-800 — same as header (subtle hover)
+      oddRowBackgroundColor: '#111827', // gray-900 — flat (no zebra to keep clean)
+      selectedRowBackgroundColor: '#1e3a8a', // blue-900 — visible but on-theme
+      chromeBackgroundColor: '#1f2937', // gray-800 — toolbar/filter chrome
+    })
+  }, [isDark])
 
   const defaultColDef = useMemo<ColDef>(
     () => ({
