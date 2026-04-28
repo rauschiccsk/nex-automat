@@ -1,3 +1,47 @@
 @import "tailwindcss";
 
 @custom-variant dark (&:where(.dark, .dark *));
+
+/* ---------------------------------------------------------------------------
+ * Design tokens — single source of truth for colors, radii, and surface
+ * elevation across the app shell, BaseGrid, and BaseAgGrid.
+ *
+ * Tailwind v4 @theme exposes these both as utility classes
+ * (e.g. `bg-surface-base`, `text-content-primary`) AND as CSS custom
+ * properties (e.g. `var(--color-surface-base)`) usable from JS / inline
+ * styles (BaseAgGrid passes them into themeBalham.withParams()).
+ *
+ * Naming follows semantic intent (surface / content / border / accent),
+ * not raw palette names — so future palette swaps need only edit this block.
+ *
+ * Reference: docs/development/DESIGN_UI.md
+ * ------------------------------------------------------------------------- */
+@theme {
+  /* Surfaces — backgrounds at increasing elevation */
+  --color-surface-base: #111827;            /* gray-900 — shell, sidebar, grid body */
+  --color-surface-elevated: #1f2937;        /* gray-800 — header, tabbar, grid header, hover, selected tab */
+  --color-surface-translucent: rgba(31, 41, 55, 0.5); /* gray-800 @ 50% — grid zebra (odd rows) */
+
+  /* Borders */
+  --color-border-subtle: #374151;           /* gray-700 — dividers, grid cell borders */
+
+  /* Content (text) */
+  --color-content-primary: #f3f4f6;         /* gray-100 — primary body text in grids and headers */
+
+  /* Accents */
+  --color-accent-selected: #1e3a8a;         /* blue-900 — selected row in grids */
+
+  /* Radii */
+  --radius-input: 4px;                      /* small inputs (filter inputs, search boxes) */
+}
+
+/* ---------------------------------------------------------------------------
+ * AG Grid global overrides
+ *
+ * Scoped to .ag-* classes (AG Grid's own namespace) — no risk of conflict
+ * with shell components. Use sparingly: only for tweaks that the JS Theming
+ * API (themeBalham.withParams(...)) can NOT express.
+ * ------------------------------------------------------------------------- */
+.ag-floating-filter-input {
+  border-radius: var(--radius-input);
+}
