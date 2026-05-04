@@ -485,8 +485,12 @@ Na štarte každej novej session (pred akoukoľvek úlohou) MUSÍM prečítať t
 | Decisions | /home/icc/knowledge/icc/DECISIONS.md | Strategic decisions — do not propose alternatives |
 | Lessons Learned | /home/icc/knowledge/icc/LESSONS_LEARNED.md | Past mistakes — do not repeat |
 | Project Patterns | /home/icc/knowledge/icc/PROJECT_PATTERNS.md | Reusable solutions — use instead of inventing |
+| Clean Code | /home/icc/knowledge/icc/CLEAN_CODE.md | Code quality rules — no magic numbers/strings, DRY, central config |
+| Schema Governance | /home/icc/knowledge/icc/SCHEMA_GOVERNANCE.md | DB schema change rules and approval flow |
+| Structure | /home/icc/knowledge/icc/STRUCTURE.md | Filesystem layout convention (`/opt/projects/<name>/`) |
+| CC CODEX | /home/icc/knowledge/icc/ICC_CC_CODEX.md | Master CC CODEX (cross-project authority) |
 
-Loading order: Standards first, then Decisions, then Lessons, then Patterns.
+Loading order: Standards → Decisions → Lessons → Patterns → Clean Code → Schema Governance → Structure → CC CODEX.
 
 ### §19.2 When to Load
 
@@ -503,7 +507,7 @@ Dokumenty čítaj cez Read tool. **Neduplikuj obsah do výstupu Zoltánovi**. Na
 Po načítaní potvrď pripravenosť jednou riadkou:
 
 ```
-Context loaded: ICC Standards v<ver>, Decisions (<count>), Lessons (<count>), Patterns (<count>). Ready.
+Context loaded: Standards v<ver>, Decisions (<count>), Lessons (<count>), Patterns (<count>), Clean Code, Schema Governance, Structure, CC CODEX. Ready.
 ```
 
 ### §19.5 Applying Context
@@ -512,8 +516,11 @@ Context loaded: ICC Standards v<ver>, Decisions (<count>), Lessons (<count>), Pa
 - Before proposing any alternative: check DECISIONS.md for existing decision
 - Before starting any integration: check LESSONS_LEARNED.md for relevant tags
 - Before configuring any infrastructure: check ICC_STANDARDS.md for standard
+- **Before proposing or writing any code:** check CLEAN_CODE.md — žiadne magic numbers/strings, DRY (single source of truth), central config (`config/settings.py` / `config/settings.ts`). Ak narazím na hardcoded hodnotu pri review existujúceho kódu → boy scout rule: opraviť v rámci úlohy.
+- **Before any DB schema change** (migration, ALTER TABLE, new model, enum extension): check SCHEMA_GOVERNANCE.md for required approval flow.
+- **Before working with filesystem paths** (new project location, container mount, deployment path): check STRUCTURE.md — `/opt/projects/<name>/` for source, `/opt/customers/<slug>/` for tenants, `/opt/infra/<service>/` for shared infra.
 
-Ak navrhujem riešenie, ktoré protirečí existujúcemu decision alebo patternu, MUSÍM explicitne uviesť prečo a získať od Zoltána approval pre výnimku.
+Ak navrhujem riešenie, ktoré protirečí existujúcemu decision, patternu alebo Clean Code pravidlu, MUSÍM explicitne uviesť prečo a získať od Zoltána approval pre výnimku.
 
 ---
 
@@ -532,6 +539,25 @@ Ak navrhujem riešenie, ktoré protirečí existujúcemu decision alebo patternu
 Slová „kontrola", „návrh", „pozri", „prečo", „check" = diagnóza + návrh, NIE implementácia.
 Ak Zoltán neschváli → pokračujeme v diskusii, NIE v implementácii.
 Toto pravidlo platí vždy — aj keď je fix jednoriadkový, aj keď je problém urgentný.
+
+## KROK-ZA-KROKOM PROTOCOL — INVIOLABLE
+
+Ak má Zoltán v jednej správe **viac otázok / požiadaviek**, riešim ich **PO JEDNEJ**. Nikdy nie paralelne v jednej odpovedi.
+
+Postup:
+
+1. Identifikuj všetky otázky/úlohy v správe (ak sú viac ako 1, explicitne to oznám: „Vidím N otázok").
+2. Vyber prvú v poradí — alebo logicky najpodstatnejšiu (a explicitne uveď, prečo si vybral práve tú).
+3. Diagnóza + návrh + STOP. Čakaj odpoveď.
+4. Po vyriešení prvej otázky → prechádzaš na druhú. Až vtedy.
+
+❌ **ZAKÁZANÉ:** dump návrhov pre N otázok v jednej odpovedi
+❌ **ZAKÁZANÉ:** „Tu sú odpovede na všetky 3 otázky: ..." — aj keď máš všetky odpovede pripravené
+✅ **SPRÁVNE:** „Vidím 3 otázky. Začínam s #1: [diagnóza+návrh]. Po vyriešení #1 prechádzame na #2."
+
+**Výnimka:** triviálne yes/no informačné otázky, kde sa očakáva len fakt (napr. „aký je port DB?" + „aký je názov branchu?") — odpovedať možno zoznamom v jednej odpovedi.
+
+**Prečo:** opakované paralelné odpovede zaplňujú kontext, miešajú diskusné vlákna a Zoltán musí ručne triediť, čo schvaľuje. Krok-za-krokom = jasná konverzácia, jeden schvaľovaný blok naraz, žiadne stratené decisions.
 
 ## REVIEW/CHECK PROTOCOL — INVIOLABLE
 
