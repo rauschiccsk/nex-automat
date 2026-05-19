@@ -29,8 +29,9 @@ jobs:
   deploy:
     name: Deploy ${{ inputs.customer }}
     runs-on: [self-hosted, ANDROS]
-    # Per-customer environment with Required Reviewers gate (configured in
-    # GitHub repo Settings → Environments → production-<slug>).
+    # Per-customer environment — used purely for deployment tracking in GitHub UI
+    # (Settings → Environments → production-<slug>). No approval gate; reviewers
+    # were removed 2026-05-19.
     environment:
       name: production-${{ inputs.customer }}
       url: https://${{ inputs.customer }}.isnex.eu
