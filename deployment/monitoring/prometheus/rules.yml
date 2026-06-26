@@ -49,7 +49,7 @@ groups:
           description: "Container {{ $labels.name }} has restarted multiple times"
 
       - alert: ContainerHighCpu
-        expr: rate(container_cpu_usage_seconds_total{name=~"nex-.*", name!="nex-ollama"}[5m]) * 100 > 80
+        expr: rate(container_cpu_usage_seconds_total{name=~"nex-.*", name!~"nex-ollama|nex-cadvisor"}[5m]) * 100 > 80
         for: 5m
         labels:
           severity: warning
