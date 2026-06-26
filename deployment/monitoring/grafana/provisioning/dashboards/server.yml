@@ -1,12 +1,12 @@
 apiVersion: 1
 
 providers:
-  - name: 'NEX Manager — Customers'
+  - name: 'ANDROS Server Infrastructure'
     orgId: 1
-    folder: 'Customers'
+    folder: 'Infrastructure'
     type: file
     disableDeletion: false
     editable: true
     updateIntervalSeconds: 30
     options:
-      path: /var/lib/grafana/dashboards/customers
+      path: /var/lib/grafana/dashboards/server
